@@ -1,0 +1,5 @@
+composer.phar
+phpunit.xml
+vendor/
+data/schema.graphql
+composer.lock

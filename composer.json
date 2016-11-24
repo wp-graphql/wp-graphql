@@ -1,0 +1,10 @@
+{
+    "require": {
+        "youshido/graphql": "v1.4.2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DFM\\WPGraphQL\\": "includes"
+        }
+    }
+}
