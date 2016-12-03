@@ -3,37 +3,37 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class AuthorIdField
+ * Class MetaKeywords
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class MetaKeywords extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return 'meta_keywords';
 	}
 
 	/**
-	 * @return IntType
-	 * @since 0.0.1
+	 * @return StringType
+	 * @since 0.0.2
 	 */
 	public function getType() {
-		return new IntType();
+		return new StringType();
 	}
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'The meta keywords of the object, used for SEO', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +42,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return esc_html( get_post_meta( $value->ID, '_meta_keywords', true ) );
 	}
 
 }

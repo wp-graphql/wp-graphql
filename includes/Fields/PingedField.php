@@ -3,37 +3,37 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\BooleanType;
 
 /**
- * Class AuthorIdField
+ * Class PingedField
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class PingedField extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return 'pinged';
 	}
 
 	/**
-	 * @return IntType
-	 * @since 0.0.1
+	 * @return BooleanType
+	 * @since 0.0.2
 	 */
 	public function getType() {
-		return new IntType();
+		return new BooleanType();
 	}
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'Whether or not the object has been pinged', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +42,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return absint( $value->pinged );
 	}
 
 }

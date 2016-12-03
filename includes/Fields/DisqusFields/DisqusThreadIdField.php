@@ -3,26 +3,27 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
+use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class AuthorIdField
+ * Class DisqusThreadId
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class DisqusThreadId extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return 'disqus_thread_id';
 	}
 
 	/**
 	 * @return IntType
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getType() {
 		return new IntType();
@@ -30,10 +31,10 @@ class AuthorIdField extends AbstractField {
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'The ID of the Disqus thread the object is related to', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +43,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return absint( get_post_meta( $value->ID, 'dsq_thread_id', true ) );
 	}
 
 }

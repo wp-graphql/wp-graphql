@@ -41,6 +41,7 @@ class PostType extends AbstractObjectType  {
 	 * This configures the fields for the PostType
 	 *
 	 * @param |Youshido|GraphQL|Config|Object|ObjectTypeConfig $config
+	 * @since 0.0.1
 	 */
 	public function build( $config ) {
 
@@ -50,6 +51,15 @@ class PostType extends AbstractObjectType  {
 		 * @since 0.0.1
 		 */
 		$config->applyInterface( new PostObjectInterface() );
+
+		/**
+		 * Adds additional Fields to the Post type
+		 *
+		 * @since 0.0.2
+		 */
+		$config->addFields([
+
+		]);
 
 		/**
 		 * attached_images

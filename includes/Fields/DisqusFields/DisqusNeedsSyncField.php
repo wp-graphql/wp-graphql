@@ -3,37 +3,38 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\BooleanType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class AuthorIdField
+ * Class DisqusNeedsSync
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class DisqusNeedsSync extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return 'disqus_needs_sync';
 	}
 
 	/**
-	 * @return IntType
-	 * @since 0.0.1
+	 * @return BooleanType
+	 * @since 0.0.2
 	 */
 	public function getType() {
-		return new IntType();
+		return new BooleanType();
 	}
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'Whether Disqus still needs to sync the object or not', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +43,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return get_post_meta( $value->ID, 'dsq_needs_sync', true );
 	}
 
 }

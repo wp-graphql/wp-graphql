@@ -3,26 +3,26 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class AuthorIdField
+ * Class CommentCount
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class CommentCount extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return 'comment_count';
 	}
 
 	/**
 	 * @return IntType
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getType() {
 		return new IntType();
@@ -30,10 +30,10 @@ class AuthorIdField extends AbstractField {
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'The number of comments on the object.', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +42,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return absint( $value->comment_count );
 	}
 
 }

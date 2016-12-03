@@ -3,37 +3,37 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class AuthorIdField
+ * Class _MetaTitle
  * @package DFM\WPGraphQL\Fields
- * @since 0.0.1
+ * @since 0.0.2
  */
-class AuthorIdField extends AbstractField {
+class _OldSlug extends AbstractField {
 
 	/**
 	 * @return string
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'author_id';
+		return '_wp_old_slug';
 	}
 
 	/**
-	 * @return IntType
-	 * @since 0.0.1
+	 * @return StringType
+	 * @since 0.0.2
 	 */
 	public function getType() {
-		return new IntType();
+		return new StringType();
 	}
 
 	/**
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'The old slug of the object. Can be used to find object where the slug changed or can be used to redirect old slugs to new slugs', 'wp-graphql' );
 	}
 
 	/**
@@ -42,10 +42,10 @@ class AuthorIdField extends AbstractField {
 	 * @param ResolveInfo $info
 	 *
 	 * @return mixed
-	 * @since 0.0.1
+	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_author );
+		return absint( get_post_meta( $value->ID, '_wp_old_slug', true ) );
 	}
 
 }
