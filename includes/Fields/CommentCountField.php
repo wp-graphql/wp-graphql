@@ -3,14 +3,14 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\StringType;
+use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class CommentCount
+ * Class CommentCountField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class CommentCount extends AbstractField {
+class CommentCountField extends AbstractField {
 
 	/**
 	 * @return string

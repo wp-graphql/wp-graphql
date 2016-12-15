@@ -6,22 +6,22 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class ContentFiltered
+ * Class TrashStatusField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class ContentFiltered extends AbstractField {
+class TrashStatusField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'content_filtered';
+		return 'trashed_status';
 	}
 
 	/**
-	 * @return StringType
+	 * @return IntType
 	 * @since 0.0.2
 	 */
 	public function getType() {
@@ -33,7 +33,7 @@ class ContentFiltered extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'A utility DB field for post content', 'wp-graphql' );
+		return __( 'The status of the post when it was marked for trash', 'wp-graphql' );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class ContentFiltered extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->post_Content_filtered );
+		return esc_html( get_post_meta( $value->ID, '_wp_trash_meta_status', true ) );
 	}
 
 }

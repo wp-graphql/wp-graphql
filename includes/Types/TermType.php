@@ -1,7 +1,7 @@
 <?php
 namespace DFM\WPGraphQL\Types;
 
-use DFM\WPGraphQL\Queries\PostQuery;
+use DFM\WPGraphQL\Queries\PostsQuery;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
@@ -16,7 +16,7 @@ class TermType extends AbstractObjectType {
 
 	public function build( $config ) {
 
-		$config->addField( new PostQuery() );
+		$config->addField( new PostsQuery() );
 
 		$config->addField(
 			'id',

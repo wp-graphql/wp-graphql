@@ -1,11 +1,28 @@
 <?php
 namespace DFM\WPGraphQL\Types;
 
+use DFM\WPGraphQL\Fields\AppleNewsFields\AppleNewsFields;
+use DFM\WPGraphQL\Fields\BitlyFields\BitlyFields;
+use DFM\WPGraphQL\Fields\CommentCountField;
+use DFM\WPGraphQL\Fields\DesiredSlugField;
+use DFM\WPGraphQL\Fields\DisqusFields\DisqusFields;
+use DFM\WPGraphQL\Fields\EditFlowFields\EditFlowFields;
+use DFM\WPGraphQL\Fields\EditLastField;
+use DFM\WPGraphQL\Fields\EditLockField;
+use DFM\WPGraphQL\Fields\EditViewFields\EditViewFields;
+use DFM\WPGraphQL\Fields\EncloseMeField;
+use DFM\WPGraphQL\Fields\HubFields\HubFields;
+use DFM\WPGraphQL\Fields\SEOFields\MetaDescriptionField;
+use DFM\WPGraphQL\Fields\SEOFields\MetaKeywordsField;
+use DFM\WPGraphQL\Fields\SEOFields\MetaTitleField;
+use DFM\WPGraphQL\Fields\OldSlugField;
+use DFM\WPGraphQL\Fields\ThumbnailIdField;
 use DFM\WPGraphQL\Types\Interfaces\PostObjectInterface;
 use DFM\WPGraphQL\Types\AttachmentType;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
+use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
@@ -53,11 +70,161 @@ class PostType extends AbstractObjectType  {
 		$config->applyInterface( new PostObjectInterface() );
 
 		/**
+		 * AppleNewsFields
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'apple_news',
+			[
+				'description' => __( 'Details about the object in relation to Apple News', 'wp-graphql' ),
+				'type' => new AppleNewsFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
+		 * BitlyFields
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'bitly',
+			[
+				'description' => __( 'Details about the object in relation to Bitly', 'wp-graphql' ),
+				'type' => new BitlyFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
+		 * DisqusFields
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'disqus',
+			[
+				'description' => __( 'Details about the object in relation to Disqus', 'wp-graphql' ),
+				'type' => new DisqusFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
+		 * EditFlowFields
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'edit_flow',
+			[
+				'description' => __( 'Details about the object in relation to Edit Flow', 'wp-graphql' ),
+				'type' => new EditFlowFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
+		 * EditViewFields
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'edit_view',
+			[
+				'description' => __( 'Details about the object in relation to Edit View', 'wp-graphql' ),
+				'type' => new EditViewFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
+		 * HubData
+		 * @since 0.0.2
+		 */
+		$config->addField(
+			'hub_data',
+			[
+				'description' => __( 'Details about the object in relation to the Hubs', 'wp-graphql' ),
+				'type' => new HubFields(),
+				'resolve' => function( $value, array $args, ResolveInfo $info  ) {
+					return $value;
+				}
+			]
+		);
+
+		/**
 		 * Adds additional Fields to the Post type
 		 *
 		 * @since 0.0.2
 		 */
 		$config->addFields([
+
+			/**
+			 * ThumbnailIdField
+			 * @since 0.0.2
+			 */
+			new ThumbnailIdField(),
+
+			/**
+			 * DesiredSlugField
+			 * @since 0.0.2
+			 */
+			new DesiredSlugField(),
+
+			/**
+			 * EditLastField
+			 * @since 0.0.2
+			 */
+			new EditLastField(),
+
+			/**
+			 * EditLockField
+			 * @since 0.0.2
+			 */
+			new EditLockField(),
+
+			/**
+			 * EncloseMeField
+			 * @since 0.0.2
+			 */
+			new EncloseMeField(),
+
+			/**
+			 * MetaDescriptionField
+			 * @since 0.0.2
+			 */
+			new MetaDescriptionField(),
+
+			/**
+			 * MetaKeywordsField
+			 * @since 0.0.2
+			 */
+			new MetaKeywordsField(),
+
+			/**
+			 * MetaTitleField
+			 * @since 0.0.2
+			 */
+			new MetaTitleField(),
+
+			/**
+			 * OldSlugField
+			 * @since 0.0.2
+			 */
+			new OldSlugField(),
+
+			/**
+			 * CommentCountField
+			 * @since 0.0.2
+			 */
+			new CommentCountField(),
 
 		]);
 

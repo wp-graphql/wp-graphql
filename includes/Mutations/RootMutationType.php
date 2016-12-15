@@ -41,18 +41,30 @@ class RootMutationType extends AbstractObjectType {
 							return $value;
 						}
 					],
-					'title' => new StringType(),
-					'author_id' => new IntType(),
+					'title' => [
+						'type' => new StringType(),
+						'description' => __( '', 'wp-graphql' ),
+					],
+					'author_id' => [
+						'type' => new IntType(),
+						'description' => __( '', 'wp-graphql' ),
+					],
 					'date' => new StringType(),
-					'date_gmt' => new StringType()
+					'date_gmt' => new StringType(),
 				],
 				'resolve' => function( $value, array $args, ResolveInfo $info ) {
 
 					$args['ID'] = $args['id'];
 					$args['post_title'] = $args['title'];
+					$args['post_author'] = $args['author_id'];
+					$args['post_date'] = $args['date'];
+					$args['post_date_gmt'] = $args['date_gmt'];
 
-					unset( $args['title'] );
 					unset( $args['id'] );
+					unset( $args['title'] );
+					unset( $args['author_id'] );
+					unset( $args['date'] );
+					unset( $args['date_gmt'] );
 
 					$post_id = wp_update_post( $args );
 

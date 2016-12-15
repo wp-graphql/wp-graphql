@@ -1,23 +1,23 @@
 <?php
-namespace DFM\WPGraphQL\Fields;
+namespace DFM\WPGraphQL\Fields\SEOFields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class MetaTitle
+ * Class MetaTitleField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class MetaTitle extends AbstractField {
+class MetaTitleField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return '_meta_title';
+		return 'meta_title';
 	}
 
 	/**

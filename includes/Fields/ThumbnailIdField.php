@@ -6,18 +6,18 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class MenuOrderField
+ * Class ThumbnailIdField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class MenuOrderField extends AbstractField {
+class ThumbnailIdField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'menu_order';
+		return 'thumbnail_id';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class MenuOrderField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The ID of the Disqus thread the object is related to', 'wp-graphql' );
+		return __( 'The ID of the featured image thumbnail for the object', 'wp-graphql' );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class MenuOrderField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->menu_order );
+		return absint( get_post_meta( $value->ID, '_thumbnail_id', true ) );
 	}
 
 }

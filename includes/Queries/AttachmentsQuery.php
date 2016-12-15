@@ -1,11 +1,11 @@
 <?php
 namespace DFM\WPGraphQL\Queries;
 
-use DFM\WPGraphQL\Queries\PostQuery;
+use DFM\WPGraphQL\Queries\PostsQuery;
 use DFM\WPGraphQL\Types\AttachmentsType;
 use Youshido\GraphQL\Execution\ResolveInfo;
 
-class AttachmentQuery extends PostQuery {
+class AttachmentsQuery extends PostsQuery {
 
 	public function getName() {
 		return __( 'attachments', 'wp-graphql' );

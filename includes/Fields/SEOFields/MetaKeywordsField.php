@@ -1,16 +1,16 @@
 <?php
-namespace DFM\WPGraphQL\Fields;
+namespace DFM\WPGraphQL\Fields\SEOFields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class MetaKeywords
+ * Class MetaKeywordsField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class MetaKeywords extends AbstractField {
+class MetaKeywordsField extends AbstractField {
 
 	/**
 	 * @return string
