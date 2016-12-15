@@ -19,6 +19,8 @@
 namespace DFM;
 
 // Exit if accessed directly.
+use DFM\WPGraphQL\Router;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( ! class_exists( 'DFM\WPGraphQL' ) ) :
@@ -44,7 +46,7 @@ final class WPGraphQL{
 			self::$instance->includes();
 
 			// Initialize the classes
-			self::$instance->router = new \DFM\WPGraphQL\Router();
+			self::$instance->router = new Router();
 
 		}
 
@@ -117,6 +119,8 @@ final class WPGraphQL{
 	/**
 	 * Include required files.
 	 *
+	 * Uses composer's autoload
+	 *
 	 * @access private
 	 * @since 0.0.1
 	 * @return void
@@ -132,8 +136,10 @@ final class WPGraphQL{
 
 endif;
 
+// Function that instantiates the plugin
 function WPGraphQL() {
 	return \DFM\WPGraphQL::instance();
 }
 
+// Instantiate the plugin
 WPGraphQL();
