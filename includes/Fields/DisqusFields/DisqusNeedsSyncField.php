@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Fields;
+namespace DFM\WPGraphQL\Fields\DisqusFields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
@@ -7,18 +7,18 @@ use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class DisqusNeedsSync
+ * Class DisqusNeedsSyncField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class DisqusNeedsSync extends AbstractField {
+class DisqusNeedsSyncField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'disqus_needs_sync';
+		return 'needs_sync';
 	}
 
 	/**
@@ -46,7 +46,7 @@ class DisqusNeedsSync extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return get_post_meta( $value->ID, 'dsq_needs_sync', true );
+		return ( get_post_meta( $value->ID, 'dsq_needs_sync', true ) ) ? true : false;
 	}
 
 }

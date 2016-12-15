@@ -6,18 +6,18 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class _MetaTitle
+ * Class OldSlugField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class _OldSlug extends AbstractField {
+class OldSlugField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return '_wp_old_slug';
+		return 'old_slug';
 	}
 
 	/**

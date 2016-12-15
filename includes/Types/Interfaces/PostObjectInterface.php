@@ -2,20 +2,29 @@
 namespace DFM\WPGraphQL\Types\Interfaces;
 
 use DFM\WPGraphQL\Fields\AuthorIdField;
+use DFM\WPGraphQL\Fields\CommentCountField;
 use DFM\WPGraphQL\Fields\CommentStatusField;
 use DFM\WPGraphQL\Fields\ContentField;
+use DFM\WPGraphQL\Fields\ContentFilteredField;
 use DFM\WPGraphQL\Fields\DateField;
 use DFM\WPGraphQL\Fields\DateGmtField;
 use DFM\WPGraphQL\Fields\ExcerptField;
+use DFM\WPGraphQL\Fields\GuidField;
 use DFM\WPGraphQL\Fields\IdField;
 use DFM\WPGraphQL\Fields\LinkField;
+use DFM\WPGraphQL\Fields\MenuOrderField;
+use DFM\WPGraphQL\Fields\MimeTypeField;
 use DFM\WPGraphQL\Fields\ModifiedField;
 use DFM\WPGraphQL\Fields\ModifiedGmtField;
 use DFM\WPGraphQL\Fields\ParentIdField;
+use DFM\WPGraphQL\Fields\PingedField;
 use DFM\WPGraphQL\Fields\PingStatusField;
+use DFM\WPGraphQL\Fields\PostPasswordField;
 use DFM\WPGraphQL\Fields\SlugField;
 use DFM\WPGraphQL\Fields\StatusField;
+use DFM\WPGraphQL\Fields\ThumbnailIdField;
 use DFM\WPGraphQL\Fields\TitleField;
+use DFM\WPGraphQL\Fields\ToPingField;
 use DFM\WPGraphQL\Fields\TypeField;
 use DFM\WPGraphQL\Types\PostType;
 use Youshido\GraphQL\Type\InterfaceType\AbstractInterfaceType;
@@ -73,6 +82,12 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				new AuthorIdField(),
 
 				/**
+				 * CommentCountField
+				 * @since 0.0.2
+				 */
+				new CommentCountField(),
+
+				/**
 				 * AuthorIdField
 				 * @since 0.0.1
 				 */
@@ -83,6 +98,12 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				 * @since 0.0.1
 				 */
 				new ContentField(),
+
+				/**
+				 * ContentFiltered
+				 * @since 0.0.2
+				 */
+				new ContentFilteredField(),
 
 				/**
 				 * DateField
@@ -103,6 +124,12 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				new ExcerptField(),
 
 				/**
+				 * GuidField
+				 * @since 0.0.2
+				 */
+				new GuidField(),
+
+				/**
 				 * IdField
 				 * @since 0.0.1
 				 */
@@ -113,6 +140,18 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				 * @since 0.0.1
 				 */
 				new LinkField(),
+
+				/**
+				 * MenuOrder
+				 * @since 0.0.2
+				 */
+				new MenuOrderField(),
+
+				/**
+				 * MimeTypeField
+				 * @since 0.0.2
+				 */
+				new MimeTypeField(),
 
 				/**
 				 * ModifiedField
@@ -133,10 +172,22 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				new ParentIdField(),
 
 				/**
+				 * Pinged
+				 * @since 0.0.2
+				 */
+				new PingedField(),
+
+				/**
 				 * PingStatusField
 				 * @since 0.0.1
 				 */
 				new PingStatusField(),
+
+				/**
+				 * PostPassword
+				 * @since 0.0.2
+				 */
+				new PostPasswordField(),
 
 				/**
 				 * SlugField
@@ -149,6 +200,12 @@ class PostObjectInterface extends AbstractInterfaceType  {
 				 * @since 0.0.1
 				 */
 				new StatusField(),
+
+				/**
+				 * ToPing
+				 * @since 0.0.2
+				 */
+				new ToPingField(),
 
 				/**
 				 * TitleField

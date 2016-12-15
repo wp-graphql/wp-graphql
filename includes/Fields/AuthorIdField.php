@@ -33,7 +33,7 @@ class AuthorIdField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function getDescription() {
-		return __( 'The id for the author of the object.', 'wp-graphql' );
+		return __( 'The id for the author of the object. (post_author)', 'wp-graphql' );
 	}
 
 	/**

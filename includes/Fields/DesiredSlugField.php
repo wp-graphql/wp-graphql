@@ -6,18 +6,18 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class MetaDescription
+ * Class DesiredSlugField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class MetaDescription extends AbstractField {
+class DesiredSlugField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'meta_description';
+		return 'desired_slug';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class MetaDescription extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The meta description of the object, used for SEO', 'wp-graphql' );
+		return __( 'Desired slug, stored if it is already taken by another object', 'wp-graphql' );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class MetaDescription extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return esc_html( get_post_meta( $value->ID, '_meta_description', true ) );
+		return esc_html( get_post_meta( $value->ID, '_wp_desired_post_slug', true ) );
 	}
 
 }

@@ -6,11 +6,11 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class EditLock
+ * Class EditLockField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class EditLock extends AbstractField {
+class EditLockField extends AbstractField {
 
 	/**
 	 * @return string

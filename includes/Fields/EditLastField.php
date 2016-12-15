@@ -6,11 +6,11 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class EditLast
+ * Class EditLastField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class EditLast extends AbstractField {
+class EditLastField extends AbstractField {
 
 	/**
 	 * @return string

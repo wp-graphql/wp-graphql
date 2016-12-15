@@ -1,7 +1,9 @@
 <?php
 namespace DFM\WPGraphQL\Queries;
-use DFM\WPGraphQL\Queries\AttachmentQuery;
-use DFM\WPGraphQL\Queries\PostQuery;
+use DFM\WPGraphQL\Queries\AttachmentsQuery;
+use DFM\WPGraphQL\Queries\AdLayersQuery;
+use DFM\WPGraphQL\Queries\PostsQuery;
+use DFM\WPGraphQL\Queries\ShortcodesQuery;
 use DFM\WPGraphQL\Queries\TermQuery;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
@@ -28,8 +30,10 @@ class RootQueryType extends AbstractObjectType {
 		 * @since 0.0.1
 		 */
 		$fields = [
-			new AttachmentQuery(),
-			new PostQuery(),
+			new AttachmentsQuery(),
+			new AdLayersQuery(),
+			new PostsQuery(),
+			new ShortcodesQuery(),
 			new TermQuery(),
 		];
 

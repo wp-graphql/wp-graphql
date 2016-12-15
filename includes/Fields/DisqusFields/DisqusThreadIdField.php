@@ -1,24 +1,23 @@
 <?php
-namespace DFM\WPGraphQL\Fields;
+namespace DFM\WPGraphQL\Fields\DisqusFields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class DisqusThreadId
+ * Class DisqusThreadIdField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class DisqusThreadId extends AbstractField {
+class DisqusThreadIdField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'disqus_thread_id';
+		return 'thread_id';
 	}
 
 	/**

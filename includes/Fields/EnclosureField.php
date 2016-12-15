@@ -3,29 +3,29 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class MenuOrderField
+ * Class EnclosureField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class MenuOrderField extends AbstractField {
+class EnclosureField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'menu_order';
+		return 'enclosure';
 	}
 
 	/**
-	 * @return IntType
+	 * @return StringType
 	 * @since 0.0.2
 	 */
 	public function getType() {
-		return new IntType();
+		return new StringType();
 	}
 
 	/**
@@ -33,7 +33,7 @@ class MenuOrderField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function getDescription() {
-		return __( 'The ID of the Disqus thread the object is related to', 'wp-graphql' );
+		return __( 'The RSS enclosure for the object', 'wp-graphql' );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class MenuOrderField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->menu_order );
+		return esc_html( get_post_meta( $value->ID, 'enclosure', true ) );
 	}
 
 }
