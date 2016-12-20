@@ -19,6 +19,8 @@
 namespace DFM;
 
 // Exit if accessed directly.
+use DFM\WPGraphQL\Queries\RootQueries;
+use DFM\WPGraphQL\Queries\RootQueryType;
 use DFM\WPGraphQL\Router;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -44,8 +46,9 @@ final class WPGraphQL{
 			self::$instance = new WPGraphQL;
 			self::$instance->setup_constants();
 			self::$instance->includes();
+			self::$instance->setup_root_queries();
 
-			// Initialize the classes
+			// Initialize the router (sets up the /graphql enpoint)
 			self::$instance->router = new Router();
 
 		}
@@ -129,6 +132,15 @@ final class WPGraphQL{
 
 		// Autoload Required Classes
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php');
+
+	}
+
+	/**
+	 * setup_root_queries
+	 */
+	private function setup_root_queries() {
+
+		add_action( 'graphql_init', [ new RootQueryType(), 'setup' ] );
 
 	}
 

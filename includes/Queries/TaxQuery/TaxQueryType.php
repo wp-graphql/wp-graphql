@@ -1,8 +1,8 @@
 <?php
-namespace DFM\WPGraphQL\Types\QueryTypes\TaxQuery;
+namespace DFM\WPGraphQL\Queries\TaxQuery;
 
-use DFM\WPGraphQL\Types\QueryTypes\TaxQuery\TaxQueryRelationEnum;
-use DFM\WPGraphQL\Types\QueryTypes\TaxQuery\TaxQueryArray;
+use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryRelationEnum;
+use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryArray;
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;
 

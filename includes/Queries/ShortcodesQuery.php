@@ -2,13 +2,9 @@
 namespace DFM\WPGraphQL\Queries;
 
 use DFM\WPGraphQL\Types\ShortcodeType;
-use DFM\WPGraphQL\Utils\Shortcodes;
-use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\ListType\ListType;
-use Youshido\GraphQL\Type\Scalar\IntType;
-use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
  * Class ShortcodesQuery

@@ -57,7 +57,7 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', array( $this, 'resolve_route' ), 10 );
+		add_action( 'template_redirect', array( $this, 'graphql_loaded' ), 10 );
 
 	}
 
@@ -92,29 +92,42 @@ class Router {
 	}
 
 	/**
-	 * Checks if the "graphql" query var is set,
-	 * and redirects to the graphql processor instead of the normal
-	 * WordPress template loading
 	 *
-	 * @since 0.0.1
-	 * @access public
-	 * @return mixed
 	 */
-	public function resolve_route() {
+	public function graphql_loaded() {
 
-		// Access the global wp_query object
+		/**
+		 * Access the $wp_query object
+		 */
 		global $wp_query;
 
-		// Check if "graphql" is true in the wp_query
-		if ( $wp_query->get( $this->route ) ) {
-
-			// Set is_home to false
-			$wp_query->is_home = false;
-
-			// Process the graphql request
-			$this->process_graphql_request();
-
+		/**
+		 * Ensure we're on the registered route for graphql route
+		 */
+		if ( ! $wp_query->get( $this->route ) ) {
+			return;
 		}
+
+		/**
+		 * Set is_home to false
+		 */
+		$wp_query->is_home = false;
+
+		/**
+		 * Define that a GRAPHQL_REQUEST is happening
+		 */
+		define( 'GRAPHQL_REQUEST', true );
+
+		/**
+		 * Fire off init action
+		 */
+		do_action( 'graphql_init' );
+
+		/**
+		 * Resolve the GRAPHQL Request
+		 */
+		$this->process_graphql_request();
+		return;
 
 	}
 

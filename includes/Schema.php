@@ -31,7 +31,9 @@ class Schema extends AbstractSchema {
 		 * @since 0.0.1
 		 */
 		$config->setQuery( new RootQueryType() );
-		$config->setMutation( new RootMutationType() );
+
+		// @todo: Figure out a good pattern for mutations
+		// $config->setMutation( new RootMutationType() );
 
 	}
 
