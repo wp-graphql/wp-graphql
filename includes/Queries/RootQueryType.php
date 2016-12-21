@@ -1,5 +1,8 @@
 <?php
 namespace DFM\WPGraphQL\Queries;
+
+use DFM\WPGraphQL\Queries\PostEntities\Setup as PostEntitiesSetup;
+use DFM\WPGraphQL\Queries\PostObject\PostObjectQueries;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
 /**
@@ -21,14 +24,30 @@ class RootQueryType extends AbstractObjectType {
 	public function build( $config ) {
 
 		/**
-		 * addFields
+		 * Filter the root query fields to allow
+		 * root queries to be added from outside of the
+		 * core plugin
 		 *
-		 * Pass the fields through a filter to allow additional fields to
-		 * be easily added
-		 *
-		 * @since 0.0.1
+		 * @since 0.0.2
 		 */
-		$config->addFields( apply_filters( 'wpgraphql_root_queries', [] ) );
+		$fields = apply_filters( 'wpgraphql_root_queries', [] );
+
+		/**
+		 * Ensure the $fields are a populated array
+		 */
+		if ( ! empty( $fields ) && is_array( $fields ) ) {
+
+			/**
+			 * addFields
+			 *
+			 * Pass the fields through a filter to allow additional fields to
+			 * be easily added
+			 *
+			 * @since 0.0.1
+			 */
+			$config->addFields( $fields );
+
+		}
 
 	}
 
@@ -47,7 +66,7 @@ class RootQueryType extends AbstractObjectType {
 		 *
 		 * @since 0.0.2
 		 */
-		add_filter( 'wpgraphql_root_queries', array( new \DFM\WPGraphQL\Queries\Posts\PostsQueries, 'setup_post_queries' ), 10, 1 );
+		add_filter( 'wpgraphql_root_queries', array( new PostEntitiesSetup(), 'init' ), 10, 1 );
 
 		/**
 		 * Sets up queries related to Taxonomies & Terms

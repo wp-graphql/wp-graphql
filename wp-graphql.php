@@ -137,9 +137,16 @@ final class WPGraphQL{
 
 	/**
 	 * setup_root_queries
+	 *
+	 * This sets up the RootQueryType for the GraphQL Schema
+	 *
+	 * @access private
+	 * @since 0.0.2
+	 * @return void
 	 */
 	private function setup_root_queries() {
 
+		// Hook into "graphql_init" to setup the RootQueryType
 		add_action( 'graphql_init', [ new RootQueryType(), 'setup' ] );
 
 	}

@@ -17,6 +17,18 @@ class PostObjectType extends AbstractObjectType {
 		 */
 		$config->applyInterface( new PostObjectInterface() );
 
+		/**
+		 * Pass fields through a filter to allow modifications from outside the core plugin
+		 *
+		 * Filtering this will filter all types that use or extend the PostObjectInterface
+		 */
+		$fields = apply_filters( 'wpgraphql_post_object_type_fields', [], $config );
+
+		/**
+		 * Add the fields
+		 */
+		$config->addFields( $fields );
+
 	}
 
 }

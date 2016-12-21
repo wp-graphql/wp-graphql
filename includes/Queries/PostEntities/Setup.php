@@ -1,14 +1,14 @@
 <?php
-namespace DFM\WPGraphQL\Queries\Posts;
+namespace DFM\WPGraphQL\Queries\PostEntities;
 
-use DFM\WPGraphQL\Queries\Posts\PostObjectQuery;
+use DFM\WPGraphQL\Queries\PostEntities\PostObjectQuery;
 
 /**
- * Class PostsQueries
- * @package DFM\WPGraphQL\Queries\Posts
+ * Class Setup
+ * @package DFM\WPGraphQL\Queries\PostEntities
  * @since 0.0.2
  */
-class PostsQueries {
+class Setup {
 
 	/**
 	 * allowed_post_types
@@ -62,32 +62,34 @@ class PostsQueries {
 
 		if ( isset( $wp_post_types['attachment'] ) ) {
 			$wp_post_types['attachment']->show_in_graphql = true;
-			$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Queries\Posts\PostObjectQuery';
+			$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Attachments\Query';
+			$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Attachments\Mutation';
+			$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Attachments\Type';
 		}
 
 		if ( isset( $wp_post_types['page'] ) ) {
 			$wp_post_types['page']->show_in_graphql = true;
-			$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Queries\Posts\PostObjectQuery';
+			$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Pages\Query';
 		}
 
 		if ( isset( $wp_post_types['post'] ) ) {
 			$wp_post_types['post']->show_in_graphql = true;
-			$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Queries\Posts\PostObjectQuery';
+			$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Posts\Query';
 		}
 
 	}
 
 	/**
-	 * setup_post_queries
+	 * init
 	 *
-	 * Setup the post queries for each allowed_post_type
+	 * Setup the root queries for each allowed_post_type
 	 *
 	 * @param $fields
 	 * @return array
 	 * @since 0.0.2
 	 *
 	 */
-	public function setup_post_queries( $fields ) {
+	public function init( $fields ) {
 
 		if ( ! empty( $this->allowed_post_types ) && is_array( $this->allowed_post_types ) ) {
 
@@ -97,10 +99,15 @@ class PostsQueries {
 			foreach( $this->allowed_post_types as $allowed_post_type ) {
 
 				/**
+				 * Get the query class from the post_type_object
+				 */
+				$post_type_query_class = get_post_type_object( $allowed_post_type )->graphql_query_class;
+
+				/**
 				 * If the post_type has a "graphql_query_class" defined, use it
 				 * Otherwise fall back to the standard PostObjectQuery class
 				 */
-				$class = ! empty( $allowed_post_type->graphql_query_class ) ? $allowed_post_type->graphql_query_class  : '\DFM\WPGraphQL\Queries\Posts\PostObjectQuery';
+				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Queries\PostEntities\PostObjectQuery';
 
 				/**
 				 * Adds the class to the RootQueryType

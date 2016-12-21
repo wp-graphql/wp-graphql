@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Queries\Posts;
+namespace DFM\WPGraphQL\Queries\PostEntities;
 
 use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryType;
 use Youshido\GraphQL\Type\Enum\EnumType;
@@ -22,9 +22,6 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 	 * @param \Youshido\GraphQL\Config\Object\InputObjectTypeConfig $config
 	 */
 	public function build( $config ) {
-
-
-
 
 		/**
 		 * Category Parameters

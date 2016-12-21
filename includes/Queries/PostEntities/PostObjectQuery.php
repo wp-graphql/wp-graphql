@@ -1,10 +1,10 @@
 <?php
-namespace DFM\WPGraphQL\Queries\Posts;
+namespace DFM\WPGraphQL\Queries\PostEntities;
 
 use DFM\WPGraphQL\Types\PostObjectType;
 use DFM\WPGraphQL\Types\PostsType;
 use DFM\WPGraphQL\Types\PostType;
-use DFM\WPGraphQL\Queries\Posts\PostObjectQueryArgs;
+use DFM\WPGraphQL\Queries\PostEntities\PostObjectQueryArgs;
 use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
@@ -69,6 +69,7 @@ class PostObjectQuery extends AbstractField {
 		 * Define the config for the PostObjectQuery
 		 */
 		$config = [
+			'post_type' => $this->post_type,
 			'name' => $this->getName(),
 			'type' => $this->getType(),
 			'resolve' => [ $this, 'resolve' ]
@@ -127,9 +128,19 @@ class PostObjectQuery extends AbstractField {
 	public function getType() {
 
 		/**
+		 * Filter the Object type
+		 */
+		$post_type_query = apply_filters(
+			'wpgraphql_post_object_query_type',
+			'\DFM\WPGraphQL\Types\PostObjectType',
+			$this->post_type,
+			$this->post_type_object
+		);
+
+		/**
 		 * Return the PostType
 		 */
-		return new PostObjectType();
+		return new $post_type_query();
 
 	}
 
