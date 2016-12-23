@@ -50,6 +50,8 @@ final class WPGraphQL{
 			self::$instance->includes();
 			self::$instance->setup();
 
+			do_action( 'wpgraphql_before_initialize_router' );
+
 			// Initialize the router (sets up the /graphql enpoint)
 			self::$instance->router = new Router();
 
