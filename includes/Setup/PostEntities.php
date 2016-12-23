@@ -24,13 +24,27 @@ class PostEntities {
 	/**
 	 * PostsQueries constructor.
 	 *
+	 * Placeholder
+	 *
 	 * @since 0.0.2
 	 */
 	public function __construct() {
-
 		// Placeholder
-
 	}
+
+	/**
+	 * init
+	 *
+	 * Setup the root queries for each allowed_post_type
+	 *
+	 * @return void
+	 * @since 0.0.2
+	 *
+	 */
+	public function init() {
+		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 999, 1 );
+	}
+
 
 	/**
 	 * Filter the core post types to "show_in_graphql"
@@ -70,16 +84,16 @@ class PostEntities {
 	}
 
 	/**
-	 * init
+	 * setup_post_type_queries
 	 *
-	 * Setup the root queries for each allowed_post_type
+	 * This sets up post_type_queries for all post_types that have "set_in_graphql"
+	 * set to "true" on their post_type_object
 	 *
+	 * @since 0.0.2
 	 * @param $fields
 	 * @return array
-	 * @since 0.0.2
-	 *
 	 */
-	public function init( $fields ) {
+	public function setup_post_type_queries( $fields ) {
 
 		/**
 		 * Add core post_types to show in GraohQL
@@ -120,6 +134,13 @@ class PostEntities {
 				 * Adds the class to the RootQueryType
 				 */
 				$fields[] = new $class( $allowed_post_type );
+
+				/**
+				 * Run an action after each allowed_post_type is added to the root_query
+				 *
+				 * @since 0.0.2
+				 */
+				do_action( 'wpgraphql_after_setup_post_type_query_' . $allowed_post_type, $allowed_post_type, $this->allowed_post_types );
 
 			}
 

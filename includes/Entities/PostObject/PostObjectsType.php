@@ -28,7 +28,7 @@ class PostObjectsType extends AbstractObjectType {
 		 * Check if the post_type is a populated string, otherwise fallback to the
 		 * default "post" type
 		 */
-		$post_type = ( ! empty( $config_post_type ) && is_string( $post_type ) ) ? $post_type: 'post';
+		$post_type = ( ! empty( $config_post_type ) && is_string( $post_type ) ) ? $post_type : 'post';
 
 		/**
 		 * Ensure the Query only contains letters and numbers
@@ -110,7 +110,7 @@ class PostObjectsType extends AbstractObjectType {
 				'type' => new IntType(),
 				'description' => __( 'The number of items displayed in the current paginated request', 'wp-graphqhl' ),
 				'resolve' => function( $value, array $args, ResolveInfo $info ) {
-					return ! empty( $value->query_vars['posts_per_page'] ) ? $value->query_vars['posts_per_page'] : 0;
+					return ! empty( $value->query_vars['posts_per_page'] ) ? $value->query_vars['posts_per_page'] : null;
 				}
 			]
 		);
@@ -118,7 +118,7 @@ class PostObjectsType extends AbstractObjectType {
 		$config->addField(
 			'total',
 			[
-				'type' => new NonNullType( new IntType() ),
+				'type' => new IntType(),
 				'description' => __( 'The total number of items that match the query', 'wp-graphqhl' ),
 				'resolve' => function( $value, array $args, ResolveInfo $info ) {
 					return ! empty( $value->found_posts ) ? absint( $value->found_posts ) : 0;

@@ -173,6 +173,15 @@ class PostObjectQueryType extends AbstractField {
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
 
+		/**
+		 * Since the $args are input as an array under the key of
+		 * "args" this gets that array so we can access the fields
+		 * with the $args var
+		 *
+		 * @since 0.0.2
+		 */
+		$args = $args['args'];
+
 		// Set the default $query_args
 		$query_args = [
 			'post_type' => esc_html( $this->post_type ),
@@ -180,16 +189,25 @@ class PostObjectQueryType extends AbstractField {
 		];
 
 		/**
+		 * This allows query arg defaults to be set before they are merged with user input,
+		 * so defaults can be set but can still be overridden by user input
+		 *
+		 * This allows for settings to be set that can't be overridden by user entry certain contexts
+		 */
+		$query_args = apply_filters( 'wpgraphql_post_object_query_query_arg_defaults_' . $this->post_type, $query_args, $args, $info );
+
+		/**
 		 * Convert the Schema friendly names to the WP_Query friendly names
 		 */
-		$query_args['s'] = $args['search'];
-		$query_args['p'] = $args['id'];
-		$query_args['post_parent'] = $args['parent'];
-		$query_args['post_parent__in'] = $args['parent__in'];
-		$query_args['post_parent__not_in'] = $args['parent__not_in'];
-		$query_args['post__in'] = $args['in'];
-		$query_args['post__not_in'] = $args['not_in'];
-		$query_args['name_in'] = $args['post_name__in'];
+		$query_args['s'] = ! empty( $args['search'] ) ? $args['search'] : $query_args['s'];
+		$query_args['p'] = ! empty( $args['id'] ) ? $args['id'] : $query_args['p'];
+		$query_args['post_parent'] = ! empty( $args['parent'] ) ? $args['parent'] : $query_args['post_parent'];
+		$query_args['post_parent__in'] = ! empty( $args['parent__in'] ) ? $args['parent__in'] : $query_args['post_parent__in'];
+		$query_args['post_parent__not_in'] = ! empty( $args['parent__not_in'] ) ? $args['parent__not_in'] : $query_args['post_parent__not_in'];
+		$query_args['post__in'] = ! empty( $args['in'] ) ? $args['in'] : $query_args['post__in'];
+		$query_args['post__not_in'] = ! empty( $args['not_in'] ) ? $args['not_in'] : $query_args['post__not_in'];
+		$query_args['post_name__in'] = ! empty( $args['name_in'] ) ? $args['name_in'] : $query_args['post_name__in'];
+		$query_args['post_status'] = ! empty( $args['status'] ) ? $args['status'] : $query_args['post_status'];
 
 		/**
 		 * Clean up the Schema friendly names so they're not cluttering the args that are
@@ -202,6 +220,7 @@ class PostObjectQueryType extends AbstractField {
 		unset( $args['in'] );
 		unset( $args['not_in'] );
 		unset( $args['post_name__in'] );
+		unset( $args['status'] );
 
 		// Combine the default $query_arts with the $args passed by the query
 		$query_args = wp_parse_args( $args, $query_args );
@@ -215,6 +234,13 @@ class PostObjectQueryType extends AbstractField {
 
 		// Clean up the unneeded $query_args
 		unset( $query_args['per_page'] );
+
+		/**
+		 * Filter the query_args before sending them to the WP_Query
+		 *
+		 * This allows for settings to be set that can't be overridden by user entry certain contexts
+		 */
+		$query_args = apply_filters( 'wpgraphql_post_object_query_wpquery_args_' . $this->post_type, $query_args, $args, $info );
 
 		// Run the Query
 		$articles = new \WP_Query( $query_args );

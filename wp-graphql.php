@@ -23,6 +23,7 @@ use DFM\WPGraphQL\Queries\RootQueries;
 use DFM\WPGraphQL\RootQuery;
 use DFM\WPGraphQL\Router;
 use DFM\WPGraphQL\Setup\Init;
+use DFM\WPGraphQL\Setup\PostEntities;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -147,8 +148,8 @@ final class WPGraphQL{
 	 */
 	private function setup() {
 
-		// Hook into "graphql_init" to setup the RootQueryType
-		add_action( 'graphql_init', [ new Init(), 'init' ], 999 );
+		$post_entities = new PostEntities();
+		$post_entities->init();
 
 	}
 

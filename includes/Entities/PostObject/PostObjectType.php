@@ -8,6 +8,8 @@ use DFM\WPGraphQL\Fields\ContentField;
 use DFM\WPGraphQL\Fields\ContentFilteredField;
 use DFM\WPGraphQL\Fields\DateField;
 use DFM\WPGraphQL\Fields\DateGmtField;
+use DFM\WPGraphQL\Fields\EditLastField;
+use DFM\WPGraphQL\Fields\EditLockField;
 use DFM\WPGraphQL\Fields\ExcerptField;
 use DFM\WPGraphQL\Fields\GuidField;
 use DFM\WPGraphQL\Fields\IdField;
@@ -16,6 +18,7 @@ use DFM\WPGraphQL\Fields\MenuOrderField;
 use DFM\WPGraphQL\Fields\MimeTypeField;
 use DFM\WPGraphQL\Fields\ModifiedField;
 use DFM\WPGraphQL\Fields\ModifiedGmtField;
+use DFM\WPGraphQL\Fields\OldSlugField;
 use DFM\WPGraphQL\Fields\ParentIdField;
 use DFM\WPGraphQL\Fields\PingedField;
 use DFM\WPGraphQL\Fields\PingStatusField;
@@ -134,6 +137,18 @@ class PostObjectType extends AbstractObjectType {
 			new DateGmtField(),
 
 			/**
+			 * EditLastField
+			 * @since 0.0.2
+			 */
+			new EditLastField(),
+
+			/**
+			 * EditLockField
+			 * @since 0.0.2
+			 */
+			new EditLockField(),
+
+			/**
 			 * ExcerptField
 			 * @since 0.0.1
 			 */
@@ -180,6 +195,12 @@ class PostObjectType extends AbstractObjectType {
 			 * @since 0.0.1
 			 */
 			new ModifiedGmtField(),
+
+			/**
+			 * OldSlugField
+			 * @since 0.0.2
+			 */
+			new OldSlugField(),
 
 			/**
 			 * ParentIdField
