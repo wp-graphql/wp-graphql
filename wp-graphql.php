@@ -20,8 +20,9 @@ namespace DFM;
 
 // Exit if accessed directly.
 use DFM\WPGraphQL\Queries\RootQueries;
-use DFM\WPGraphQL\Queries\RootQueryType;
+use DFM\WPGraphQL\RootQuery;
 use DFM\WPGraphQL\Router;
+use DFM\WPGraphQL\Setup\Init;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -46,7 +47,7 @@ final class WPGraphQL{
 			self::$instance = new WPGraphQL;
 			self::$instance->setup_constants();
 			self::$instance->includes();
-			self::$instance->setup_root_queries();
+			self::$instance->setup();
 
 			// Initialize the router (sets up the /graphql enpoint)
 			self::$instance->router = new Router();
@@ -144,10 +145,10 @@ final class WPGraphQL{
 	 * @since 0.0.2
 	 * @return void
 	 */
-	private function setup_root_queries() {
+	private function setup() {
 
 		// Hook into "graphql_init" to setup the RootQueryType
-		add_action( 'graphql_init', [ new RootQueryType(), 'setup' ] );
+		add_action( 'graphql_init', [ new Init(), 'init' ], 999 );
 
 	}
 

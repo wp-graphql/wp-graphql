@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Queries\PostEntities;
+namespace DFM\WPGraphQL\Entities\PostObject;
 
 use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryType;
 use Youshido\GraphQL\Type\Enum\EnumType;
@@ -9,17 +9,42 @@ use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
+/**
+ * Class PostObjectQueryArgs
+ *
+ * This class sets up the args that can be passed to the PostObjectQueryType (WP_Query)
+ * The args map closely to the args in WordPress core's WP_Query with some subtle
+ * differences in naming, and some fields were intentionally left out, such as the "post_type" as it
+ *
+ *
+ * @package DFM\WPGraphQL\Entities\PostObject
+ */
 class PostObjectQueryArgs extends AbstractInputObjectType {
 
 	/**
+	 * getName
+	 *
+	 * Establishes the name of the Query Args
+	 *
 	 * @return string
+	 * @since 0.0.2
 	 */
 	public function getName() {
-		return 'args';
+
+		$post_type_name = $this->getConfig()->get( 'post_type_name' );
+		$name = ! empty( $post_type_name ) ? $post_type_name : 'Post';
+		return $name . 'Args';
+
 	}
 
 	/**
-	 * @param \Youshido\GraphQL\Config\Object\InputObjectTypeConfig $config
+	 * build
+	 *
+	 * This builds out the PostObjectQueryArgs
+	 *
+	 * @since 0.0.2
+	 * @param $config
+	 * @return mixed|void
 	 */
 	public function build( $config ) {
 
@@ -199,18 +224,13 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		];
 
 		/**
-		 * Type parameters
+		 * Post Type parameters
+		 *
+		 * post_type is not supported as it's the post_type is the entity entry point for the queries
+		 *
 		 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Type_Parameters
 		 * @since 0.0.2
 		 */
-		$type_fields = [
-			[
-				'name' => 'post_type',
-				// @todo: convert to enum of post_types
-				'type' => new StringType(),
-				'description' => __( 'Retrieves posts by Post Types, default value is \'post\'. If \'tax_query\' is set for a query, the default value becomes \'any\'', 'wp-graphql' ),
-			],
-		];
 
 		/**
 		 * Status parameters
@@ -437,6 +457,9 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 			]
 		];
 
+		/**
+		 * Merge the fields
+		 */
 		$fields = array_merge(
 			$category_fields,
 			$tag_fields,
@@ -444,7 +467,6 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 			$search_fields,
 			$post_page_fields,
 			$password_fields,
-			$type_fields,
 			$status_fields,
 			$pagination_fields,
 			$order_fields,
@@ -455,11 +477,17 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 			$return_fields
 		);
 
-		$fields = apply_filters( 'wpgraphql_post_object_query_args_fields', $fields );
+		/**
+		 * Filter the fields that are passed to the query args
+		 */
+		$fields = apply_filters( 'wpgraphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ), $fields, $config );
 
-		$config->addFields( $fields );
-
-		// @todo: Finish building out the query args
+		/**
+		 * If there are fields, add them to the args
+		 */
+		if ( ! empty( $fields ) && is_array( $fields ) ) {
+			$config->addFields( $fields );
+		}
 
 	}
 

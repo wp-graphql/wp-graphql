@@ -1,14 +1,15 @@
 <?php
-namespace DFM\WPGraphQL\Queries\PostEntities;
-
-use DFM\WPGraphQL\Queries\PostEntities\PostObjectQuery;
+namespace DFM\WPGraphQL\Setup;
 
 /**
- * Class Setup
+ * Class Init
+ *
+ * This sets up the PostType entities to be exposed to the RootQuery
+ *
  * @package DFM\WPGraphQL\Queries\PostEntities
  * @since 0.0.2
  */
-class Setup {
+class PostEntities {
 
 	/**
 	 * allowed_post_types
@@ -27,6 +28,59 @@ class Setup {
 	 */
 	public function __construct() {
 
+		// Placeholder
+
+	}
+
+	/**
+	 * Filter the core post types to "show_in_graphql"
+	 *
+	 * Additional post_types can be given GraphQL support in the same way, by adding the
+	 * "show_in_graphql" and optionally a "graphql_query_class". If no "graphql_query_class" is provided
+	 * the default "PostObjectQuery" class will be used which provides the standard fields for all
+	 * post objects.
+	 *
+	 * @since 0.0.2
+	 */
+	public function show_post_types_in_graphql(){
+
+		global $wp_post_types;
+
+		if ( isset( $wp_post_types['attachment'] ) ) {
+			$wp_post_types['attachment']->show_in_graphql = true;
+			//$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Entities\Attachments\Query';
+			//$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Attachments\Mutation';
+			//$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Entities\Attachments\AttachmentType';
+		}
+
+		if ( isset( $wp_post_types['page'] ) ) {
+			$wp_post_types['page']->show_in_graphql = true;
+			//$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Entities\Pages\Query';
+			//$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Pages\Mutation';
+			//$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Entities\Pages\PageType';
+		}
+
+		if ( isset( $wp_post_types['post'] ) ) {
+			$wp_post_types['post']->show_in_graphql = true;
+			//$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Entities\Posts\Query';
+			//$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Posts\Mutation';
+			//$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Entities\Posts\PostType';
+		}
+
+	}
+
+	/**
+	 * init
+	 *
+	 * Setup the root queries for each allowed_post_type
+	 *
+	 * @param $fields
+	 * @return array
+	 * @since 0.0.2
+	 *
+	 */
+	public function init( $fields ) {
+
 		/**
 		 * Add core post_types to show in GraohQL
 		 */
@@ -44,57 +98,6 @@ class Setup {
 		 */
 		$this->allowed_post_types = apply_filters( 'wpgraphql_post_queries_allowed_post_types', $post_types );
 
-	}
-
-	/**
-	 * Filter the core post types to "show_in_graphql"
-	 *
-	 * Additional post_types can be given GraphQL support in the same way, by adding the
-	 * "show_in_graphql" and optionally a "graphql_query_class". If no "graphql_query_class" is provided
-	 * the default "PostObjectQuery" class will be used which provides the standard fields for all
-	 * post objects. 
-	 *
-	 * @since 0.0.2
-	 */
-	public function show_post_types_in_graphql(){
-
-		global $wp_post_types;
-
-		if ( isset( $wp_post_types['attachment'] ) ) {
-			$wp_post_types['attachment']->show_in_graphql = true;
-			$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Entities\Attachments\Query';
-			$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Attachments\Mutation';
-			$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Entities\Attachments\Type';
-		}
-
-		if ( isset( $wp_post_types['page'] ) ) {
-			$wp_post_types['page']->show_in_graphql = true;
-			$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Entities\Pages\Query';
-			$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Pages\Mutation';
-			$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Entities\Pages\Type';
-		}
-
-		if ( isset( $wp_post_types['post'] ) ) {
-			$wp_post_types['post']->show_in_graphql = true;
-			$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Entities\Posts\Query';
-			$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Posts\Mutation';
-			$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Entities\Posts\Type';
-		}
-
-	}
-
-	/**
-	 * init
-	 *
-	 * Setup the root queries for each allowed_post_type
-	 *
-	 * @param $fields
-	 * @return array
-	 * @since 0.0.2
-	 *
-	 */
-	public function init( $fields ) {
-
 		if ( ! empty( $this->allowed_post_types ) && is_array( $this->allowed_post_types ) ) {
 
 			/**
@@ -111,7 +114,7 @@ class Setup {
 				 * If the post_type has a "graphql_query_class" defined, use it
 				 * Otherwise fall back to the standard PostObjectQuery class
 				 */
-				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Entities\PostObject\Query';
+				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Entities\PostObject\PostObjectQueryType';
 
 				/**
 				 * Adds the class to the RootQueryType

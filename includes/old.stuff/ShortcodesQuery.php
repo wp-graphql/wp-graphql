@@ -14,7 +14,7 @@ use Youshido\GraphQL\Type\ListType\ListType;
  * @package DFM\WPGraphQL\Queries
  * @since 0.0.1
  */
-class ShortcodesQuery extends AbstractField  {
+class ShortcodesQuery extends AbstractField {
 
 	/**
 	 * getName
