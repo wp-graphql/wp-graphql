@@ -1,16 +1,16 @@
 <?php
-namespace DFM\WPGraphQL\Entities\TermObject;
+namespace DFM\WPGraphQL\Entities\TermObject\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
- * Class TermTaxonomyId
+ * Class TermTaxonomyIdField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.2
  */
-class TermTaxonomyId extends AbstractField {
+class TermTaxonomyIdField extends AbstractField {
 
 	/**
 	 * @return string

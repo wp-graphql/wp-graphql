@@ -1,9 +1,9 @@
 <?php
-namespace DFM\WPGraphQL\Types;
+namespace DFM\WPGraphQL\Entities\TermObject;
 
-use DFM\WPGraphQL\Entities\TermObject\TermGroupId;
-use DFM\WPGraphQL\Entities\TermObject\TermTaxonomy;
-use DFM\WPGraphQL\Entities\TermObject\TermTaxonomyId;
+use DFM\WPGraphQL\Entities\TermObject\Fields\TermGroupIdField;
+use DFM\WPGraphQL\Entities\TermObject\Fields\TermTaxonomyField;
+use DFM\WPGraphQL\Entities\TermObject\Fields\TermTaxonomyIdField;
 use DFM\WPGraphQL\Fields\CountField;
 use DFM\WPGraphQL\Fields\IdField;
 use DFM\WPGraphQL\Fields\NameField;
@@ -27,14 +27,14 @@ class TermObjectType extends AbstractObjectType {
 			new IdField(),
 			new NameField(),
 			new SlugField(),
-			new TermGroupId(),
-			new TermTaxonomyId(),
-			new TermTaxonomy(),
+			new TermGroupIdField(),
+			new TermTaxonomyIdField(),
+			new TermTaxonomyField(),
 			new ParentIdField(),
 			new CountField(),
 		];
 
-		$fields = apply_filters( 'wpgraphql_term_object_type_fields_' . $config->get( 'taxonomy' ) , $fields, $config );
+		$fields = apply_filters( 'wpgraphql_term_object_type_fields_' . $config->get( 'taxonomy' ), $fields, $config );
 
 		$config->addFields( $fields );
 

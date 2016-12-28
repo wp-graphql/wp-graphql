@@ -1,7 +1,6 @@
 <?php
 namespace DFM\WPGraphQL\Entities\TermObject;
 
-use DFM\WPGraphQL\Types\TermObjectType;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
@@ -21,11 +20,16 @@ class TermObjectsType extends AbstractObjectType {
 	}
 	
 	public function build( $config ) {
+
+		$termObjectConfig = [
+			'taxonomy' => $this->getConfig()->get( 'taxonomy' ),
+			'taxonomy_name' => $this->getConfig()->get( 'taxonomy_name' ),
+		];
 		
 		$config->addField( 
 			'items',
 			[
-				'type' => new ListType( new TermObjectType() ),
+				'type' => new ListType( new TermObjectType( $termObjectConfig ) ),
 				'description' => __( 'List of terms matching the criteria' ),
 				'resolve' => function( $value, array $args, ResolveInfo $info ) {
 					return ( ! empty( $value->items ) ) ? $value->items : [];

@@ -1,12 +1,11 @@
 <?php
 namespace DFM\WPGraphQL\Entities\TermObject;
 
-use DFM\WPGraphQL\Types\TermObjectType;
 use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 
-class TermObjectQuery extends AbstractField {
+class TermObjectQueryType extends AbstractField {
 
 	protected $taxonomy = 'category';
 
