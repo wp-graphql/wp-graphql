@@ -33,7 +33,7 @@ class Init {
 		 *
 		 * @since 0.0.2
 		 */
-		// add_filter( 'wpgraphql_root_queries', array( $this, 'taxonomy_queries' ), 10, 1 );
+		add_filter( 'wpgraphql_root_queries', [ new TermEntities(), 'init' ], 10, 1 );
 
 		/**
 		 * Sets up queries related to Comments
