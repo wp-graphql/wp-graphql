@@ -1,5 +1,6 @@
 <?php
 namespace DFM\WPGraphQL\Setup;
+use DFM\WPGraphQL\Fields\MediaDetailsFieldType;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\Scalar\IntType;
 use Youshido\GraphQL\Type\Scalar\StringType;
@@ -249,6 +250,15 @@ class PostEntities {
 			'description' => __( 'The id for the associated post of the resource.', 'wp-graphql' ),
 			'resolve' => function( $value, array $args, ResolveInfo $info ) {
 				return wp_get_attachment_url( $value->ID );
+			}
+		];
+
+		$fields[] = [
+			'name' => 'media_details',
+			'type' => new MediaDetailsFieldType(),
+			'description' => __( 'Details about the media object.', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return $value;
 			}
 		];
 

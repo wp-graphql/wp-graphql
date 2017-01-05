@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types;
+namespace DFM\WPGraphQL\Fields;
 
 use DFM\WPGraphQL\Fields\MediaDetails\FileField;
 use DFM\WPGraphQL\Fields\MediaDetails\HeightField;
@@ -7,11 +7,11 @@ use DFM\WPGraphQL\Fields\MediaDetails\WidthField;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
 /**
- * Class MediaDetailsType
+ * Class MediaDetailsFieldType
  * @package DFM\WPGraphQL\Types
  * @since 0.0.1
  */
-class MediaDetailsType extends AbstractObjectType {
+class MediaDetailsFieldType extends AbstractObjectType {
 
 	/**
 	 * @return mixed
