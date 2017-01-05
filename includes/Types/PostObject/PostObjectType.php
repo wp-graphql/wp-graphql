@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\PostObject;
+namespace DFM\WPGraphQL\Types\PostObject;
 
 use DFM\WPGraphQL\Fields\AuthorIdField;
 use DFM\WPGraphQL\Fields\CommentCountField;

@@ -4,7 +4,7 @@ namespace DFM\WPGraphQL\Setup;
 /**
  * Class Init
  *
- * Hook into GraphQL to make it aware of various Entities
+ * Hook into GraphQL to make it aware of various Types
  *
  * @package DFM\WPGraphQL\Setup
  * @since 0.0.2

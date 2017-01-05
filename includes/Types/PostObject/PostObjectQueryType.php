@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\PostObject;
+namespace DFM\WPGraphQL\Types\PostObject;
 
 use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
@@ -126,7 +126,7 @@ class PostObjectQueryType extends AbstractField {
 		 */
 		$post_type_query = apply_filters(
 			'wpgraphql_post_object_query_type',
-			'\DFM\WPGraphQL\Entities\PostObject\PostObjectsType',
+			'\DFM\WPGraphQL\Types\PostObject\PostObjectsType',
 			$this->post_type,
 			$this->post_type_object
 		);

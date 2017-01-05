@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\PostObject;
+namespace DFM\WPGraphQL\Types\PostObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;

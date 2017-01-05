@@ -68,23 +68,23 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['attachment'] ) ) {
 			$wp_post_types['attachment']->show_in_graphql = true;
-			//$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Entities\Attachments\Query';
-			//$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Attachments\Mutation';
-			//$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Entities\Attachments\AttachmentType';
+			//$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Types\Attachments\Query';
+			//$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Attachments\Mutation';
+			//$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Types\Attachments\AttachmentType';
 		}
 
 		if ( isset( $wp_post_types['page'] ) ) {
 			$wp_post_types['page']->show_in_graphql = true;
-			//$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Entities\Pages\Query';
-			//$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Pages\Mutation';
-			//$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Entities\Pages\PageType';
+			//$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Types\Pages\Query';
+			//$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Pages\Mutation';
+			//$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Types\Pages\PageType';
 		}
 
 		if ( isset( $wp_post_types['post'] ) ) {
 			$wp_post_types['post']->show_in_graphql = true;
-			//$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Entities\Posts\Query';
-			//$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Entities\Posts\Mutation';
-			//$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Entities\Posts\PostType';
+			//$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Types\Posts\Query';
+			//$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Posts\Mutation';
+			//$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Types\Posts\PostType';
 		}
 
 	}
@@ -134,7 +134,7 @@ class PostEntities {
 				 * If the post_type has a "graphql_query_class" defined, use it
 				 * Otherwise fall back to the standard PostObjectQuery class
 				 */
-				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Entities\PostObject\PostObjectQueryType';
+				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Types\PostObject\PostObjectQueryType';
 
 				/**
 				 * Adds the class to the RootQueryType

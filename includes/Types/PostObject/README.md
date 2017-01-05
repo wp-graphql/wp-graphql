@@ -1,4 +1,4 @@
-#PostObjects
+#PostObject
 
 The files in this directory are for Post Objects of any post_type. 
 
