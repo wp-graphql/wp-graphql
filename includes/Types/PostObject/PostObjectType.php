@@ -179,12 +179,6 @@ class PostObjectType extends AbstractObjectType {
 			new MenuOrderField(),
 
 			/**
-			 * MimeTypeField
-			 * @since 0.0.2
-			 */
-			new MimeTypeField(),
-
-			/**
 			 * ModifiedField
 			 * @since 0.0.1
 			 */
@@ -282,7 +276,7 @@ class PostObjectType extends AbstractObjectType {
 				return strcmp( $a_name, $b_name );
 
 			} );
-			
+
 		}
 
 		/**

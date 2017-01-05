@@ -1,5 +1,9 @@
 <?php
 namespace DFM\WPGraphQL\Setup;
+use Youshido\GraphQL\Execution\ResolveInfo;
+use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
+
 
 /**
  * Class Init
@@ -47,7 +51,10 @@ class PostEntities {
 		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 999, 1 );
 
 		// Set default query args for the attachment post_type
-		add_action( 'wpgraphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_query_args' ] );
+		add_action( 'wpgraphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_attachment_query_args' ] );
+
+		// Add fields to the attachment post_type
+		add_filter( 'wpgraphql_post_object_type_fields_attachment', [ $this, 'add_attachment_post_object_fields' ], 10, 1 );
 
 	}
 
@@ -161,13 +168,91 @@ class PostEntities {
 
 	/**
 	 * @param $args
-	 *
 	 * @return mixed
+	 * @since 0.0.2
 	 */
-	public function default_query_args( $args ) {
+	public function default_attachment_query_args( $args ) {
 
 		$args['post_status'] = 'inherit';
 		return $args;
+
+	}
+
+	/**
+	 * This adds additional fields to the Attachment post_object
+	 *
+	 * @param $fields
+	 * @return array
+	 * @since 0.0.2
+	 */
+	public function add_attachment_post_object_fields( $fields ) {
+
+		$fields[] = [
+			'name' => 'caption',
+			'type' => new StringType(),
+			'description' => __( 'The caption for the resource', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return esc_html( $value->post_excerpt );
+			}
+		];
+
+		$fields[] = [
+			'name' => 'alt_text',
+			'type' => new StringType(),
+			'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return esc_html( get_post_meta( $value->ID, '_wp_attachment_image_alt', true ) );
+			}
+		];
+
+		$fields[] = [
+			'name' => 'description',
+			'type' => new StringType(),
+			'description' => __( 'The description for the resource', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return esc_html( $value->post_excerpt );
+			}
+		];
+
+		$fields[] = [
+			'name' => 'media_type',
+			'type' => new StringType(),
+			'description' => __( 'Type of resource', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return wp_attachment_is_image( $value->ID ) ? 'image' : 'file';
+			}
+		];
+
+		$fields[] = [
+			'name' => 'mime_type',
+			'type' => new StringType(),
+			'description' => __( 'Mime type of resource', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return esc_html( $value->post_mime_type );
+			}
+		];
+
+		// @todo: add support for media details
+
+		$fields[] = [
+			'name' => 'associtated_post_id',
+			'type' => new IntType(),
+			'description' => __( 'The id for the associated post of the resource.', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return ! empty( $value->post_parent ) ? (int) $value->post_parent : null;
+			}
+		];
+
+		$fields[] = [
+			'name' => 'source_url',
+			'type' => new IntType(),
+			'description' => __( 'The id for the associated post of the resource.', 'wp-graphql' ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				return wp_get_attachment_url( $value->ID );
+			}
+		];
+
+		return $fields;
 
 	}
 
