@@ -49,7 +49,7 @@ class PostEntities {
 	public function init() {
 
 		// Add the post_types to the root_queries
-		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 999, 1 );
+		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 10, 1 );
 
 		// Set default query args for the attachment post_type
 		add_action( 'wpgraphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_attachment_query_args' ] );
