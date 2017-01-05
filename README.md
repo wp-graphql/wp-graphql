@@ -1,5 +1,8 @@
 #WP GraphQL
 
+### NOT PRODUCTION READY! 
+This is NOT production ready yet and is currently undergoing a major refactor. Feel free to install and play with it, but things WILL break in the near future
+
 ### Installation
 Install the plugin like any WP Plugin, then flush your permalinks. 
 
