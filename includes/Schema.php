@@ -1,8 +1,7 @@
 <?php
 namespace DFM\WPGraphQL;
 
-use DFM\WPGraphQL\Mutations\RootMutationType;
-use DFM\WPGraphQL\Queries\RootQueryType;
+use DFM\WPGraphQL\RootQuery;
 use Youshido\GraphQL\Config\Schema\SchemaConfig;
 use Youshido\GraphQL\Schema\AbstractSchema;
 
@@ -30,8 +29,10 @@ class Schema extends AbstractSchema {
 		 * Add the QueryTypes and MutationTypes
 		 * @since 0.0.1
 		 */
-		$config->setQuery( new RootQueryType() );
-		$config->setMutation( new RootMutationType() );
+		$config->setQuery( new RootQuery() );
+
+		// @todo: Figure out a good pattern for mutations
+		// $config->setMutation( new RootMutationType() );
 
 	}
 
