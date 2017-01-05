@@ -266,6 +266,26 @@ class PostObjectType extends AbstractObjectType {
 		$fields = apply_filters( 'wpgraphql_post_object_type_fields_' . $config->get( 'post_type' ) , $fields, $config );
 
 		/**
+		 * Sort the fields in alphabetical order
+		 * apply a filter to allow the alphabetical sorting to be disabled
+		 */
+		if ( apply_filters( 'wpgraphql_post_object_type_fields_alphabetical_order', 'return__true', $fields, $config ) ) {
+
+			// Sort the fields
+			usort( $fields, function( $a, $b ) {
+
+				// Determine the name to compare
+				$a_name = ( is_array( $a ) && ! empty( $a['name'] ) ) ? $a['name'] : $a->getName();
+				$b_name = ( is_array( $b ) && ! empty( $b['name'] ) ) ? $b['name'] : $b->getName();
+
+				// Return based on alphabetical order
+				return strcmp( $a_name, $b_name );
+
+			} );
+			
+		}
+
+		/**
 		 * Add the fields
 		 */
 		$config->addFields( $fields );

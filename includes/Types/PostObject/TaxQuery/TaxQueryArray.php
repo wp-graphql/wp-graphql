@@ -1,7 +1,6 @@
 <?php
-namespace DFM\WPGraphQL\Queries\TaxQuery;
+namespace DFM\WPGraphQL\Types\PostObject\TaxQuery;
 
-use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryArrayOperatorEnum;
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;
 use Youshido\GraphQL\Type\NonNullType;

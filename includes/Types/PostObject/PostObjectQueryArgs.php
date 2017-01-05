@@ -1,8 +1,7 @@
 <?php
 namespace DFM\WPGraphQL\Types\PostObject;
 
-use DFM\WPGraphQL\Queries\TaxQuery\TaxQueryType;
-use Youshido\GraphQL\Type\Enum\EnumType;
+use DFM\WPGraphQL\Types\PostObject\TaxQuery\TaxQueryType;
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;
 use Youshido\GraphQL\Type\Scalar\BooleanType;
@@ -133,8 +132,8 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		$taxonomy_fields = [
 			[
 				'name' => 'tax_query',
-				// 'type' => new TaxQueryType(),
-				'type' => new StringType(),
+				'type' => new TaxQueryType(),
+				// 'type' => new StringType(),
 				'description' => __( 'Query objects using Taxonomy paramaters', 'wp-graphql' ),
 			],
 		];

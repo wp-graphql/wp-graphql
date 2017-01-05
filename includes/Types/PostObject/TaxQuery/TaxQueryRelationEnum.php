@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Queries\TaxQuery;
+namespace DFM\WPGraphQL\Types\PostObject\TaxQuery;
 
 use Youshido\GraphQL\Type\Enum\AbstractEnumType;
 
