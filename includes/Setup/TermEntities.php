@@ -3,9 +3,15 @@ namespace DFM\WPGraphQL\Setup;
 
 class TermEntities {
 
-	public $allowed_taxonomies;
+	public $allowed_taxonomies = [];
 
 	public function __construct() {
+		// placeholder
+	}
+
+	public function init() {
+
+		add_action( 'wpgraphql_root_queries', [ $this, 'setup_root_queries' ], 10, 1 );
 
 	}
 
@@ -15,17 +21,17 @@ class TermEntities {
 
 		if ( isset( $wp_taxonomies['category'] ) ) {
 			$wp_taxonomies['category']->show_in_graphql = true;
-			$wp_taxonomies['category']->graphql_query_class = '\DFM\WPGraphQL\Entities\TermObject\TermObjectQueryType';
+			$wp_taxonomies['category']->graphql_query_class = '\DFM\WPGraphQL\Types\TermObject\TermObjectQueryType';
 		}
 
 		if ( isset( $wp_taxonomies['post_tag'] ) ) {
 			$wp_taxonomies['post_tag']->show_in_graphql = true;
-			$wp_taxonomies['post_tag']->graphql_query_class = '\DFM\WPGraphQL\Entities\TermObject\TermObjectQueryType';
+			$wp_taxonomies['post_tag']->graphql_query_class = '\DFM\WPGraphQL\Types\TermObject\TermObjectQueryType';
 		}
 
 	}
 
-	public function init( $fields ) {
+	public function setup_root_queries( $fields ) {
 
 		$this->show_taxonomies_in_graphql();
 
@@ -37,9 +43,11 @@ class TermEntities {
 
 			foreach ( $this->allowed_taxonomies as $allowed_taxonomy ) {
 
-				$class = ( ! empty( $allowed_taxonomy->graphql_query_class ) && class_exists( $allowed_taxonomy->graphql_query_class ) ) ? $allowed_taxonomy->graphql_query_class : '\DFM\WPGraphQL\Entities\TermObject\TermObjectQueryType';
+				$taxonomy_query_class = get_taxonomy( $allowed_taxonomy )->graphql_query_class;
 
-				$fields[] = new $class( $allowed_taxonomy );
+				$class = ( ! empty( $taxonomy_query_class ) && class_exists( $taxonomy_query_class ) ) ? $taxonomy_query_class : '\DFM\WPGraphQL\Types\TermObject\TermObjectQueryType';
+
+				$fields[] = new $class( [ 'taxonomy' => $allowed_taxonomy ] );
 			}
 
 		}

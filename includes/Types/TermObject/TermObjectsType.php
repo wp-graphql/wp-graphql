@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\TermObject;
+namespace DFM\WPGraphQL\Types\TermObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;
@@ -32,7 +32,7 @@ class TermObjectsType extends AbstractObjectType {
 				'type' => new ListType( new TermObjectType( $termObjectConfig ) ),
 				'description' => __( 'List of terms matching the criteria' ),
 				'resolve' => function( $value, array $args, ResolveInfo $info ) {
-					return ( ! empty( $value->items ) ) ? $value->items : [];
+					return ( ! empty( $value->terms ) ) ? $value->terms : [];
 				}
 			]
 		);

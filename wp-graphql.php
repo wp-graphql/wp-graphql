@@ -22,6 +22,7 @@ namespace DFM;
 use DFM\WPGraphQL\Queries\RootQueries;
 use DFM\WPGraphQL\Router;
 use DFM\WPGraphQL\Setup\PostEntities;
+use DFM\WPGraphQL\Setup\TermEntities;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -156,8 +157,13 @@ final class WPGraphQL {
 	 */
 	private function setup() {
 
+		// Initialize PostEntities
 		$post_entities = new PostEntities();
 		$post_entities->init();
+
+		// Initialize TermEntites
+		$term_entities = new TermEntities();
+		$term_entities->init();
 
 	}
 

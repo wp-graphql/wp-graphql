@@ -1,15 +1,16 @@
 <?php
-namespace DFM\WPGraphQL\Entities\TermObject;
+namespace DFM\WPGraphQL\Types\TermObject;
 
-use DFM\WPGraphQL\Entities\TermObject\Fields\TermGroupIdField;
-use DFM\WPGraphQL\Entities\TermObject\Fields\TermTaxonomyField;
-use DFM\WPGraphQL\Entities\TermObject\Fields\TermTaxonomyIdField;
+use DFM\WPGraphQL\Types\TermObject\Fields\TermGroupIdField;
+use DFM\WPGraphQL\Types\TermObject\Fields\TermTaxonomyField;
+use DFM\WPGraphQL\Types\TermObject\Fields\TermTaxonomyIdField;
 use DFM\WPGraphQL\Fields\CountField;
-use DFM\WPGraphQL\Fields\IdField;
 use DFM\WPGraphQL\Fields\NameField;
 use DFM\WPGraphQL\Fields\ParentIdField;
 use DFM\WPGraphQL\Fields\SlugField;
+use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
+use Youshido\GraphQL\Type\Scalar\IntType;
 
 class TermObjectType extends AbstractObjectType {
 	
@@ -24,7 +25,15 @@ class TermObjectType extends AbstractObjectType {
 	public function build( $config ) {
 		
 		$fields = [
-			new IdField(),
+			// note, since terms resolve with term_id instead of `id` we have to define
+			// a different field than what we use for the post objects
+			'id' => [
+				'name' => 'id',
+				'type' => new IntType(),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->term_id ) ? absint( $value->term_id ) : null;
+				},
+			],
 			new NameField(),
 			new SlugField(),
 			new TermGroupIdField(),

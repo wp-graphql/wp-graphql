@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\TermObject;
+namespace DFM\WPGraphQL\Types\TermObject;
 
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;
@@ -10,7 +10,10 @@ use Youshido\GraphQL\Type\Scalar\StringType;
 class TermObjectQueryArgs extends AbstractInputObjectType {
 
 	public function getName() {
-		return 'args';
+
+		$taxonomy_name = $this->getConfig()->get( 'taxonomy_name' );
+		$name = ! empty( $taxonomy_name ) ? $taxonomy_name : 'Category';
+		return $name . 'Args';
 	}
 
 	public function build( $config ) {

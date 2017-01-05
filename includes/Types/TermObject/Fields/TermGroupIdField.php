@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Entities\TermObject\Fields;
+namespace DFM\WPGraphQL\Types\TermObject\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;

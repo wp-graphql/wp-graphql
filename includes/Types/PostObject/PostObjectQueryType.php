@@ -66,7 +66,8 @@ class PostObjectQueryType extends AbstractField {
 		 * Take the name from the PostType labels and clean it up to have only letters and numbers
 		 * as GraphQL doesn't like any funky characters in the naming
 		 */
-		$this->post_type_name = preg_replace( '/[^A-Za-z0-9]/i', '', $this->post_type_object->labels->name );
+		$this->post_type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ',  $this->post_type_object->labels->name );
+		$this->post_type_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $this->post_type_name ) );
 
 		/**
 		 * Set the default posts_per_page
@@ -105,7 +106,7 @@ class PostObjectQueryType extends AbstractField {
 	public function getName() {
 
 		/**
-		 * Return the $query_name
+		 * Return the $post_type_name
 		 */
 		return $this->post_type_name;
 
