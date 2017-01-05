@@ -50,12 +50,12 @@ class PostObjectQueryType extends AbstractField {
 	 * @param array $args
 	 * @since 0.0.2
 	 */
-	public function __construct( $post_type ) {
+	public function __construct( $args ) {
 
 		/**
 		 * Set the post_type from the class instantiation
 		 */
-		$this->post_type = ( ! empty( $post_type ) && post_type_exists( $post_type ) ) ? $post_type : $this->post_type;
+		$this->post_type = ( ! empty( $args['post_type'] ) && post_type_exists( $args['post_type'] ) ) ? $args['post_type'] : $this->post_type;
 
 		/**
 		 * Set the post_type_object from the defined post_type

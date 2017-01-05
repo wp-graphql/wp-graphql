@@ -5,7 +5,7 @@
  * Description: GraphQL Endpoint for WordPress
  * Author: Jason Bahl, Digital First Media
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.1
+ * Version: 0.0.2
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.5.0
@@ -13,23 +13,24 @@
  *
  * @package WPGraphQL
  * @category Core
- * @author Jason Bahl
+ * @author Digital First Media, Jason Bahl, Ryan Kanner
  * @version 0.0.1
  */
 namespace DFM;
 
 // Exit if accessed directly.
 use DFM\WPGraphQL\Queries\RootQueries;
-use DFM\WPGraphQL\RootQuery;
 use DFM\WPGraphQL\Router;
-use DFM\WPGraphQL\Setup\Init;
 use DFM\WPGraphQL\Setup\PostEntities;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( ! class_exists( 'DFM\WPGraphQL' ) ) :
 
-final class WPGraphQL{
+/**
+ * This is the one true WPGraphQL class
+ */
+final class WPGraphQL {
 
 	/**
 	 * @var WPGraphQL The one true WPGraphQL
@@ -50,6 +51,11 @@ final class WPGraphQL{
 			self::$instance->includes();
 			self::$instance->setup();
 
+			/**
+			 * This action allows for other classes to be instantiated
+			 * prior to the router being called
+			 * @since 0.0.2
+			 */
 			do_action( 'wpgraphql_before_initialize_router' );
 
 			// Initialize the router (sets up the /graphql enpoint)
@@ -103,7 +109,7 @@ final class WPGraphQL{
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '0.0.1' );
+			define( 'WPGRAPHQL_VERSION', '0.0.2' );
 		}
 
 		// Plugin Folder Path.

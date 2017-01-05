@@ -42,7 +42,13 @@ class PostEntities {
 	 *
 	 */
 	public function init() {
+
+		// Add the post_types to the root_queries
 		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 999, 1 );
+
+		// Set default query args for the attachment post_type
+		add_action( 'wpgraphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_query_args' ] );
+
 	}
 
 
@@ -133,7 +139,7 @@ class PostEntities {
 				/**
 				 * Adds the class to the RootQueryType
 				 */
-				$fields[] = new $class( $allowed_post_type );
+				$fields[] = new $class( [ 'post_type' => $allowed_post_type ] );
 
 				/**
 				 * Run an action after each allowed_post_type is added to the root_query
@@ -150,6 +156,18 @@ class PostEntities {
 		 * Returns the fields
 		 */
 		return $fields;
+
+	}
+
+	/**
+	 * @param $args
+	 *
+	 * @return mixed
+	 */
+	public function default_query_args( $args ) {
+
+		$args['post_status'] = 'inherit';
+		return $args;
 
 	}
 
