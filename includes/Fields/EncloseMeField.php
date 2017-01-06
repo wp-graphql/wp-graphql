@@ -45,7 +45,8 @@ class EncloseMeField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return get_post_meta( $value->ID, '_enclose_me', true );
+		$meta = get_post_meta( $value->ID, '_enclose_me', true );
+		return ! empty( $meta ) ? true : false;
 	}
 
 }

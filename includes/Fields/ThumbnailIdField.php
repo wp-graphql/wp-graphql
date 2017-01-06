@@ -45,7 +45,8 @@ class ThumbnailIdField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( get_post_meta( $value->ID, '_thumbnail_id', true ) );
+		$meta = get_post_meta( $value->ID, '_thumbnail_id', true );
+		return ! empty( $meta ) ? absint( $meta ) : null;
 	}
 
 }
