@@ -48,14 +48,14 @@ class PostObjectsType extends AbstractObjectType {
 		/**
 		 * Get the post_type
 		 */
-		$post_type_name = $this->getConfig()->get( 'query_name' );
+		$query_name = $this->getConfig()->get( 'query_name' );
 
 		/**
 		 * Return the name with "Items" appended
 		 *
 		 * @since 0.0.2
 		 */
-		return $post_type_name . 'Results';
+		return $query_name . 'Results';
 
 	}
 
@@ -91,7 +91,7 @@ class PostObjectsType extends AbstractObjectType {
 		 */
 		$postObjectConfig = [
 			'post_type' => $this->getConfig()->get( 'post_type' ),
-			'post_type_name' => $this->getConfig()->get( 'post_type_name' ),
+			'query_name' => $this->getConfig()->get( 'query_name' ),
 		];
 
 		$config->addField(

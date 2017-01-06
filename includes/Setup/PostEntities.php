@@ -52,12 +52,6 @@ class PostEntities {
 	public function init() {
 
 		/**
-		 * Add core post_types to show in GraohQL
-		 * @since 0.0.2
-		 */
-		$this->show_post_types_in_graphql();
-
-		/**
 		 * Setup the root queries for post_types
 		 * @since 0.0.2
 		 */
@@ -144,14 +138,14 @@ class PostEntities {
 
 		$fields[] = [
 			'name' => 'thumbnail',
-			'type' => new PostObjectType( [ 'post_type' => 'attachment' ] ),
+			'type' => new PostObjectType( [ 'post_type' => 'attachment', 'query_name' => 'Media' ] ),
 			'resolve' => function( $value, array $args, ResolveInfo $info ) {
 
 				// Get the thumbnail_id
 				$thumbnail_id = get_post_thumbnail_id( $value->ID );
 
 				// Return the object for the thumbnail, or nothing
-				$thumbnail = ! empty( $thumbnail_id ) ? new \WP_Post( $thumbnail_id ) : null;
+				$thumbnail = ! empty( $thumbnail_id ) ? get_post( $thumbnail_id ) : null;
 
 				return $thumbnail;
 
@@ -190,8 +184,8 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['page'] ) ) {
 			$wp_post_types['page']->show_in_graphql = true;
-			$wp_post_types['attachment']->graphql_name = 'Page';
-			$wp_post_types['attachment']->graphql_plural_name = 'Pages';
+			$wp_post_types['page']->graphql_name = 'Page';
+			$wp_post_types['page']->graphql_plural_name = 'Pages';
 			//$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Types\Pages\Query';
 			//$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Pages\Mutation';
 			//$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Types\Pages\PageType';
@@ -199,8 +193,8 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['post'] ) ) {
 			$wp_post_types['post']->show_in_graphql = true;
-			$wp_post_types['attachment']->graphql_name = 'Post';
-			$wp_post_types['attachment']->graphql_plural_name = 'Posts';
+			$wp_post_types['post']->graphql_name = 'Post';
+			$wp_post_types['post']->graphql_plural_name = 'Posts';
 			//$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Types\Posts\Query';
 			//$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Posts\Mutation';
 			//$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Types\Posts\PostType';
@@ -208,6 +202,14 @@ class PostEntities {
 
 	}
 
+	/**
+	 * get_allowed_post_types
+	 *
+	 * Get the post types that are allowed to be used in GraphQL
+	 *
+	 * @return array
+	 * @since 0.0.2
+	 */
 	public function get_allowed_post_types() {
 
 		/**
@@ -222,6 +224,9 @@ class PostEntities {
 		 */
 		$this->allowed_post_types = apply_filters( 'wpgraphql_post_queries_allowed_post_types', $post_types );
 
+		/**
+		 * Returns the list of allowed_post_types
+		 */
 		return $this->allowed_post_types;
 
 	}
@@ -237,6 +242,12 @@ class PostEntities {
 	 * @return array
 	 */
 	public function setup_post_type_queries( $fields ) {
+
+		/**
+		 * Add core post_types to show in GraohQL
+		 * @since 0.0.2
+		 */
+		$this->show_post_types_in_graphql();
 
 		/**
 		 * Get the allowed post types that should be visible in GraphQL
@@ -290,6 +301,8 @@ class PostEntities {
 					'post_type_object' => $allowed_post_type_object,
 					'query_name' => $query_name
 				] );
+
+				// @todo: add entry for getting a single Object instead of a list of objects
 
 				/**
 				 * Run an action after each allowed_post_type is added to the root_query

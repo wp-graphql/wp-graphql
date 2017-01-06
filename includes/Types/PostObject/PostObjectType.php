@@ -25,12 +25,10 @@ use DFM\WPGraphQL\Fields\PingStatusField;
 use DFM\WPGraphQL\Fields\PostPasswordField;
 use DFM\WPGraphQL\Fields\SlugField;
 use DFM\WPGraphQL\Fields\StatusField;
-use DFM\WPGraphQL\Fields\ThumbnailIdField;
 use DFM\WPGraphQL\Fields\TitleField;
 use DFM\WPGraphQL\Fields\ToPingField;
 use DFM\WPGraphQL\Fields\TypeField;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
-use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
  * Class PostObjectType
@@ -81,8 +79,8 @@ class PostObjectType extends AbstractObjectType {
 		/**
 		 * Get the post_type
 		 */
-		$post_type_name = $this->getConfig()->get( 'post_type_name' );
-		$name = ! empty( $post_type_name ) ? $post_type_name : 'Post';
+		$query_name = $this->getConfig()->get( 'query_name' );
+		$name = ! empty( $query_name ) ? $query_name : 'Post';
 		return $name;
 
 	}

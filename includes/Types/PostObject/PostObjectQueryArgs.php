@@ -30,8 +30,8 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 	 */
 	public function getName() {
 
-		$post_type_name = $this->getConfig()->get( 'post_type_name' );
-		$name = ! empty( $post_type_name ) ? $post_type_name : 'Post';
+		$query_name = $this->getConfig()->get( 'query_name' );
+		$name = ! empty( $query_name ) ? $query_name : 'Post';
 		return $name . 'Args';
 
 	}
