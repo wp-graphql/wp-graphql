@@ -24,11 +24,11 @@ class PostObjectQueryType extends AbstractField {
 	protected $post_type = 'post';
 
 	/**
-	 * post_type_name
+	 * query_name
 	 * @var string
 	 * @since 0.0.2
 	 */
-	protected $post_type_name = 'Post';
+	protected $query_name = 'Post';
 
 	/**
 	 * post_type_object
@@ -60,14 +60,13 @@ class PostObjectQueryType extends AbstractField {
 		/**
 		 * Set the post_type_object from the defined post_type
 		 */
-		$this->post_type_object = get_post_type_object( $this->post_type );
+		$this->post_type_object = ( ! empty( $args['post_type_object'] ) ) ? $args['post_type_object'] : get_post_type_object( $this->post_type );
 
 		/**
-		 * Take the name from the PostType labels and clean it up to have only letters and numbers
+		 * Take the name from the GraphQL Plural Name labels and clean it up to have only letters and numbers
 		 * as GraphQL doesn't like any funky characters in the naming
 		 */
-		$this->post_type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ',  $this->post_type_object->labels->name );
-		$this->post_type_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $this->post_type_name ) );
+		$this->query_name = ( ! empty( $args['query_name'] ) ) ? $args['query_name'] : $this->post_type;
 
 		/**
 		 * Set the default posts_per_page
@@ -106,9 +105,9 @@ class PostObjectQueryType extends AbstractField {
 	public function getName() {
 
 		/**
-		 * Return the $post_type_name
+		 * Return the $query_name
 		 */
-		return $this->post_type_name;
+		return $this->query_name;
 
 	}
 
@@ -135,7 +134,11 @@ class PostObjectQueryType extends AbstractField {
 		/**
 		 * Return the PostType
 		 */
-		return new $post_type_query( [ 'post_type' => $this->post_type, 'post_type_name' => $this->post_type_name ] );
+		return new $post_type_query( [
+			'post_type' => $this->post_type,
+			'post_type_object' => $this->post_type_object,
+			'query_name' => $this->query_name
+		] );
 
 	}
 
@@ -255,7 +258,7 @@ class PostObjectQueryType extends AbstractField {
 
 		$queryArgs = [
 			'post_type' => $this->post_type,
-			'post_type_name' => $this->post_type_name,
+			'query_name' => $this->query_name,
 		];
 
 		$config->addArgument(

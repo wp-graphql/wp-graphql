@@ -3,6 +3,7 @@ namespace DFM\WPGraphQL\Setup;
 use DFM\WPGraphQL\Fields\EncloseMeField;
 use DFM\WPGraphQL\Fields\MediaDetailsFieldType;
 use DFM\WPGraphQL\Fields\ThumbnailIdField;
+use DFM\WPGraphQL\Types\PostObject\PostObjectType;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\Scalar\IntType;
 use Youshido\GraphQL\Type\Scalar\StringType;
@@ -141,6 +142,22 @@ class PostEntities {
 		 */
 		$fields[] = new ThumbnailIdField();
 
+		$fields[] = [
+			'name' => 'thumbnail',
+			'type' => new PostObjectType( [ 'post_type' => 'attachment' ] ),
+			'resolve' => function( $value, array $args, ResolveInfo $info ) {
+
+				// Get the thumbnail_id
+				$thumbnail_id = get_post_thumbnail_id( $value->ID );
+
+				// Return the object for the thumbnail, or nothing
+				$thumbnail = ! empty( $thumbnail_id ) ? new \WP_Post( $thumbnail_id ) : null;
+
+				return $thumbnail;
+
+			}
+		];
+
 		return $fields;
 
 	}
@@ -164,6 +181,8 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['attachment'] ) ) {
 			$wp_post_types['attachment']->show_in_graphql = true;
+			$wp_post_types['attachment']->graphql_name = 'Media';
+			$wp_post_types['attachment']->graphql_plural_name = 'Media';
 			//$wp_post_types['attachment']->graphql_query_class = '\DFM\WPGraphQL\Types\Attachments\Query';
 			//$wp_post_types['attachment']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Attachments\Mutation';
 			//$wp_post_types['attachment']->graphql_type_class = '\DFM\WPGraphQL\Types\Attachments\AttachmentType';
@@ -171,6 +190,8 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['page'] ) ) {
 			$wp_post_types['page']->show_in_graphql = true;
+			$wp_post_types['attachment']->graphql_name = 'Page';
+			$wp_post_types['attachment']->graphql_plural_name = 'Pages';
 			//$wp_post_types['page']->graphql_query_class = '\DFM\WPGraphQL\Types\Pages\Query';
 			//$wp_post_types['page']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Pages\Mutation';
 			//$wp_post_types['page']->graphql_type_class = '\DFM\WPGraphQL\Types\Pages\PageType';
@@ -178,6 +199,8 @@ class PostEntities {
 
 		if ( isset( $wp_post_types['post'] ) ) {
 			$wp_post_types['post']->show_in_graphql = true;
+			$wp_post_types['attachment']->graphql_name = 'Post';
+			$wp_post_types['attachment']->graphql_plural_name = 'Posts';
 			//$wp_post_types['post']->graphql_query_class = '\DFM\WPGraphQL\Types\Posts\Query';
 			//$wp_post_types['post']->graphql_mutation_class = '\DFM\WPGraphQL\Types\Posts\Mutation';
 			//$wp_post_types['post']->graphql_type_class = '\DFM\WPGraphQL\Types\Posts\PostType';
@@ -215,8 +238,14 @@ class PostEntities {
 	 */
 	public function setup_post_type_queries( $fields ) {
 
+		/**
+		 * Get the allowed post types that should be visible in GraphQL
+		 */
 		$allowed_post_types = $this->get_allowed_post_types();
 
+		/**
+		 * If there's a populated array of post_types, set up the proper queries
+		 */
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 
 			/**
@@ -236,16 +265,37 @@ class PostEntities {
 				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Types\PostObject\PostObjectQueryType';
 
 				/**
+				 * Set the Query Name to pass to the class
+				 */
+				$allowed_post_type_object = get_post_type_object( $allowed_post_type );
+				$query_name = ! empty( $allowed_post_type_object->graphql_plural_name ) ? $allowed_post_type_object->graphql_plural_name : $this->post_type;
+
+				/**
+				 * Filter the $query_name
+				 * @since 0.0.2
+				 */
+				$query_name = apply_filters( 'wpgraphql_post_type_queries_query_name', $query_name, $allowed_post_type_object );
+
+				/**
+				 * Make sure the name of the
+				 */
+				$query_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $query_name );
+				$query_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $query_name ) );
+
+				/**
 				 * Adds the class to the RootQueryType
 				 */
-				$fields[] = new $class( [ 'post_type' => $allowed_post_type ] );
+				$fields[] = new $class( [
+					'post_type' => $allowed_post_type,
+					'post_type_object' => $allowed_post_type_object,
+					'query_name' => $query_name
+				] );
 
 				/**
 				 * Run an action after each allowed_post_type is added to the root_query
-				 *
 				 * @since 0.0.2
 				 */
-				do_action( 'wpgraphql_after_setup_post_type_query_' . $allowed_post_type, $allowed_post_type, $this->allowed_post_types );
+				do_action( 'wpgraphql_after_setup_post_type_query_' . $allowed_post_type, $allowed_post_type, $allowed_post_type_object, $this->allowed_post_types );
 
 			}
 

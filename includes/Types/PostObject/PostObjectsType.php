@@ -44,10 +44,11 @@ class PostObjectsType extends AbstractObjectType {
 
 	public function getName() {
 
+
 		/**
 		 * Get the post_type
 		 */
-		$post_type_name = $this->getConfig()->get( 'post_type_name' );
+		$post_type_name = $this->getConfig()->get( 'query_name' );
 
 		/**
 		 * Return the name with "Items" appended
