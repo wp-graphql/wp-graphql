@@ -3,7 +3,6 @@ namespace DFM\WPGraphQL\Fields;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
-use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 
 /**
@@ -26,7 +25,7 @@ class IdField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function getType() {
-		return new NonNullType( new IntType() );
+		return new IntType();
 	}
 
 	/**
@@ -46,7 +45,15 @@ class IdField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return $value->ID;
+
+		if ( ! empty( $value->ID ) ) {
+			$id = $value->ID;
+		} else if ( ! empty( $value->id ) ) {
+			$id = $value->id;
+		}
+
+		return absint( $id );
+
 	}
 
 }
