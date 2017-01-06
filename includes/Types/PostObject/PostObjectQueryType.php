@@ -167,7 +167,19 @@ class PostObjectQueryType extends AbstractField {
 	/**
 	 * resolve
 	 *
-	 * This defines the resolver for the query
+	 * This defines the resolver for the PostObjectQuery and maps the "friendly" arg names to the
+	 * standard WP arg names.
+	 *
+	 * This way we can use common system-agnostic names in queries such as
+	 * "type" and "per_page" instead of "post_type" and "posts_per_page" which are pretty WP-specific.
+	 *
+	 * This makes things feel more natural when working with data.
+	 * For example, Instead of asking for page.post_name, we can ask for page.slug,
+	 * which feels much more natural when what you're after is a slug.
+	 *
+	 * @todo: this "mapping" of friendly-to-wp-names can be cleaned up and needs to be expanded a bit more.
+	 * Probably should look at how the WP-API does it, as they do a similar thing to have cleaner names
+	 * in their endpoints
 	 *
 	 * @param $value
 	 * @param array $args
@@ -254,6 +266,14 @@ class PostObjectQueryType extends AbstractField {
 
 	}
 
+	/**
+	 * build
+	 *
+	 * Sets up the $args for the PostObjectQueryType
+	 *
+	 * @param FieldConfig $config
+	 * @since 0.0.1
+	 */
 	public function build( FieldConfig $config ) {
 
 		$queryArgs = [
