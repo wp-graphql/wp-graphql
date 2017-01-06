@@ -4,33 +4,33 @@ namespace DFM\WPGraphQL\Types\PostObject;
 use DFM\WPGraphQL\Fields\AuthorIdField;
 use DFM\WPGraphQL\Fields\CommentCountField;
 use DFM\WPGraphQL\Fields\CommentStatusField;
-use DFM\WPGraphQL\Fields\ContentField;
 use DFM\WPGraphQL\Fields\ContentFilteredField;
 use DFM\WPGraphQL\Fields\DateField;
 use DFM\WPGraphQL\Fields\DateGmtField;
 use DFM\WPGraphQL\Fields\DesiredSlugField;
 use DFM\WPGraphQL\Fields\EditLastField;
 use DFM\WPGraphQL\Fields\EditLockField;
-use DFM\WPGraphQL\Fields\ExcerptField;
+use DFM\WPGraphQL\Fields\EnclosureField;
 use DFM\WPGraphQL\Fields\GuidField;
 use DFM\WPGraphQL\Fields\IdField;
 use DFM\WPGraphQL\Fields\LinkField;
 use DFM\WPGraphQL\Fields\MenuOrderField;
-use DFM\WPGraphQL\Fields\MimeTypeField;
 use DFM\WPGraphQL\Fields\ModifiedField;
 use DFM\WPGraphQL\Fields\ModifiedGmtField;
 use DFM\WPGraphQL\Fields\OldSlugField;
 use DFM\WPGraphQL\Fields\ParentIdField;
 use DFM\WPGraphQL\Fields\PingedField;
 use DFM\WPGraphQL\Fields\PingStatusField;
+use DFM\WPGraphQL\Fields\PostContentField;
+use DFM\WPGraphQL\Fields\PostExcerptField;
 use DFM\WPGraphQL\Fields\PostPasswordField;
+use DFM\WPGraphQL\Fields\TitleField;
 use DFM\WPGraphQL\Fields\SlugField;
 use DFM\WPGraphQL\Fields\StatusField;
-use DFM\WPGraphQL\Fields\TitleField;
 use DFM\WPGraphQL\Fields\ToPingField;
 use DFM\WPGraphQL\Fields\TrashStatusField;
 use DFM\WPGraphQL\Fields\TrashTimeField;
-use DFM\WPGraphQL\Fields\TypeField;
+use DFM\WPGraphQL\Fields\PostTypeField;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
 /**
@@ -97,42 +97,44 @@ class PostObjectType extends AbstractObjectType {
 		$fields = [
 			/**
 			 * AuthorIdField
+			 * post_author
 			 * @since 0.0.1
 			 */
 			new AuthorIdField(),
 
+			// @todo: add Author field that returns a full Author object
+
 			/**
 			 * CommentCountField
+			 * comment_count
 			 * @since 0.0.2
 			 */
 			new CommentCountField(),
 
 			/**
-			 * AuthorIdField
+			 * CommentStatusField
+			 * comment_status
 			 * @since 0.0.1
 			 */
 			new CommentStatusField(),
 
 			/**
-			 * AuthorIdField
-			 * @since 0.0.1
-			 */
-			new ContentField(),
-
-			/**
 			 * ContentFiltered
+			 * post_content_filtered
 			 * @since 0.0.2
 			 */
 			new ContentFilteredField(),
 
 			/**
 			 * DateField
+			 * post_date
 			 * @since 0.0.1
 			 */
 			new DateField(),
 
 			/**
 			 * DateGmtField
+			 * post_date_gmt
 			 * @since 0.0.1
 			 */
 			new DateGmtField(),
@@ -146,24 +148,29 @@ class PostObjectType extends AbstractObjectType {
 
 			/**
 			 * EditLastField
+			 * _edit_last
 			 * @since 0.0.2
 			 */
 			new EditLastField(),
 
 			/**
 			 * EditLockField
+			 * _edit_lock
 			 * @since 0.0.2
 			 */
 			new EditLockField(),
 
 			/**
-			 * ExcerptField
-			 * @since 0.0.1
+			 * EnclusureField
+			 * enclosure
+			 * @since 0.0.2
+			 * @see: https://github.com/WordPress/WordPress/blob/dca7d8d0ea4ca90a715c1cbc46d5fb3cd1bcbdb2/wp-includes/class-wp-xmlrpc-server.php#L5143
 			 */
-			new ExcerptField(),
+			new EnclosureField(),
 
 			/**
 			 * GuidField
+			 * guid
 			 * @since 0.0.2
 			 */
 			new GuidField(),
@@ -182,18 +189,21 @@ class PostObjectType extends AbstractObjectType {
 
 			/**
 			 * MenuOrder
+			 * menu_order
 			 * @since 0.0.2
 			 */
 			new MenuOrderField(),
 
 			/**
 			 * ModifiedField
+			 * post_modified
 			 * @since 0.0.1
 			 */
 			new ModifiedField(),
 
 			/**
 			 * ModifiedGmtField
+			 * post_modified_gmt
 			 * @since 0.0.1
 			 */
 			new ModifiedGmtField(),
@@ -208,27 +218,52 @@ class PostObjectType extends AbstractObjectType {
 
 			/**
 			 * ParentIdField
+			 * post_parent
 			 * @since 0.0.1
 			 */
 			new ParentIdField(),
 
 			/**
 			 * Pinged
+			 * pinged
 			 * @since 0.0.2
 			 */
 			new PingedField(),
 
 			/**
 			 * PingStatusField
+			 * ping_status
 			 * @since 0.0.1
 			 */
 			new PingStatusField(),
 
 			/**
+			 * PostContentField
+			 * post_content
+			 * @since 0.0.2
+			 */
+			new PostContentField(),
+
+			/**
+			 * PostExcerptField
+			 * post_excerpt
+			 * @since 0.0.1
+			 */
+			new PostExcerptField(),
+
+			/**
 			 * PostPassword
+			 * post_password
 			 * @since 0.0.2
 			 */
 			new PostPasswordField(),
+
+			/**
+			 * PostTypeField
+			 * post_type
+			 * @since 0.0.1
+			 */
+			new PostTypeField(),
 
 			/**
 			 * SlugField
@@ -270,12 +305,6 @@ class PostObjectType extends AbstractObjectType {
 			 * @since 0.0.1
 			 */
 			new TitleField(),
-
-			/**
-			 * TypeField
-			 * @since 0.0.1
-			 */
-			new TypeField(),
 
 		];
 

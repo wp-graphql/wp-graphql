@@ -46,7 +46,7 @@ class FileField extends AbstractField {
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
 		$full_src = wp_get_attachment_image_src( $value->ID, 'full' );
-		return ! empty( $full_src[0] ) ? esc_html( wp_basename( $full_src[0] ) ) : '';
+		return ! empty( $full_src[0] ) ? esc_html( $full_src[0] ) : '';
 	}
 
 }

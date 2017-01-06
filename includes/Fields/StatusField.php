@@ -25,6 +25,8 @@ class StatusField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function getType() {
+
+		// @todo: enum using get_post_stati (https://codex.wordpress.org/Function_Reference/get_post_stati)
 		return new StringType();
 	}
 
