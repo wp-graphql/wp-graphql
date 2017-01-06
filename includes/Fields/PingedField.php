@@ -45,7 +45,7 @@ class PingedField extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return absint( $value->pinged );
+		return ! empty( $value->pinged ) ? true : false;
 	}
 
 }
