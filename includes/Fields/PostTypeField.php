@@ -6,18 +6,18 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class TypeField
+ * Class PostTypeField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.1
  */
-class TypeField extends AbstractField {
+class PostTypeField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.1
 	 */
 	public function getName() {
-		return 'type';
+		return 'post_type';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class TypeField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function getDescription() {
-		return __( 'Type of Post for the object.', 'wp-graphql' );
+		return __( 'Post type for the object.', 'wp-graphql' );
 	}
 
 	/**

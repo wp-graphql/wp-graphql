@@ -6,18 +6,18 @@ use Youshido\GraphQL\Field\AbstractField;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
- * Class ContentField
+ * Class PostExcerptField
  * @package DFM\WPGraphQL\Fields
  * @since 0.0.1
  */
-class ContentField extends AbstractField {
+class PostExcerptField extends AbstractField {
 
 	/**
 	 * @return string
 	 * @since 0.0.1
 	 */
 	public function getName() {
-		return 'content';
+		return 'post_excerpt';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class ContentField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function getDescription() {
-		return __( 'The content for the object.', 'wp-graphql' );
+		return __( 'The excerpt for the object.', 'wp-graphql' );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class ContentField extends AbstractField {
 	 * @since 0.0.1
 	 */
 	public function resolve( $value, array $args, ResolveInfo $info ) {
-		return apply_filters( 'the_content', $value->post_content );
+		return apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $value->post_excerpt, $value ) );
 	}
 
 }
