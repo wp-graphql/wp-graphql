@@ -8,6 +8,7 @@ use DFM\WPGraphQL\Fields\ContentField;
 use DFM\WPGraphQL\Fields\ContentFilteredField;
 use DFM\WPGraphQL\Fields\DateField;
 use DFM\WPGraphQL\Fields\DateGmtField;
+use DFM\WPGraphQL\Fields\DesiredSlugField;
 use DFM\WPGraphQL\Fields\EditLastField;
 use DFM\WPGraphQL\Fields\EditLockField;
 use DFM\WPGraphQL\Fields\ExcerptField;
@@ -27,6 +28,8 @@ use DFM\WPGraphQL\Fields\SlugField;
 use DFM\WPGraphQL\Fields\StatusField;
 use DFM\WPGraphQL\Fields\TitleField;
 use DFM\WPGraphQL\Fields\ToPingField;
+use DFM\WPGraphQL\Fields\TrashStatusField;
+use DFM\WPGraphQL\Fields\TrashTimeField;
 use DFM\WPGraphQL\Fields\TypeField;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
@@ -135,6 +138,13 @@ class PostObjectType extends AbstractObjectType {
 			new DateGmtField(),
 
 			/**
+			 * DesiredSlug
+			 * @since 0.0.2
+			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L6185
+			 */
+			new DesiredSlugField(),
+
+			/**
 			 * EditLastField
 			 * @since 0.0.2
 			 */
@@ -190,7 +200,9 @@ class PostObjectType extends AbstractObjectType {
 
 			/**
 			 * OldSlugField
+			 * _wp_old_slug
 			 * @since 0.0.2
+			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L5402
 			 */
 			new OldSlugField(),
 
@@ -229,6 +241,23 @@ class PostObjectType extends AbstractObjectType {
 			 * @since 0.0.1
 			 */
 			new StatusField(),
+
+			/**
+			 * TrashStatusField
+			 * _wp_trash_meta_status
+			 * @since 0.0.2
+			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L2607
+			 */
+			new TrashStatusField(),
+
+			/**
+			 * TrashTimeField
+			 * _wp_trash_meta_time
+			 * @since 0.0.2
+			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L2608
+			 */
+			new TrashTimeField(),
+
 
 			/**
 			 * ToPing
