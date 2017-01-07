@@ -3,6 +3,7 @@ namespace DFM\WPGraphQL;
 
 use DFM\WPGraphQL\Schema;
 use Youshido\GraphQL\Execution\Processor;
+use Youshido\GraphQL\Execution\ResolveInfo;
 
 /**
  * Class Router
@@ -186,7 +187,14 @@ class Router {
 				// Instantiate the GraphQL Processor
 				$processor = new Processor( $schema );
 
-				// Process the payload
+				/**
+				 * Add the current_user to the execution context
+				 */
+				$processor->getExecutionContext()->current_user = wp_get_current_user();
+
+				/**
+				 * Process the payload
+				 */
 				$processor->processPayload( $payload, $variables );
 
 				// Get the response from the processor

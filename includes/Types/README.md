@@ -1,4 +1,3 @@
-#Entities
+#Types
 
-This directory contains entities, and each entity contains definitions of Query, Type, Mutation and Fields specific to the entity.
-
+This directory contains various types that serve as entry points into WordPress data. 
