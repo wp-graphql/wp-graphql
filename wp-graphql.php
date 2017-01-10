@@ -19,10 +19,12 @@
 namespace DFM;
 
 // Exit if accessed directly.
-use DFM\WPGraphQL\Queries\RootQueries;
 use DFM\WPGraphQL\Router;
+use DFM\WPGraphQL\Schema;
 use DFM\WPGraphQL\Setup\PostEntities;
+use DFM\WPGraphQL\Setup\Shortcodes;
 use DFM\WPGraphQL\Setup\TermEntities;
+use Youshido\GraphQL\Execution\Processor;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -164,6 +166,42 @@ final class WPGraphQL {
 		// Initialize TermEntites
 		$term_entities = new TermEntities();
 		$term_entities->init();
+
+		$shortcodes = new Shortcodes();
+		$shortcodes->init();
+
+	}
+
+	/**
+	 * @param $payload
+	 * @param $variables
+	 *
+	 * @return array
+	 */
+	public function query( $payload, $variables ) {
+
+		/**
+		 * Instantiate the DFM\GraphQL\Schema
+		 */
+		$schema = new Schema();
+
+		// Instantiate the GraphQL Processor
+		$processor = new Processor( $schema );
+
+		/**
+		 * Add the current_user to the execution context
+		 */
+		$processor->getExecutionContext()->current_user = wp_get_current_user();
+
+		/**
+		 * Process the payload
+		 */
+		$processor->processPayload( $payload, $variables );
+
+		// Get the response from the processor
+		$result = $processor->getResponseData();
+
+		return $result;
 
 	}
 

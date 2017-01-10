@@ -10,7 +10,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
 
 
 /**
- * Class Init
+ * Class PostEntities
  *
  * This sets up the PostType entities to be exposed to the RootQuery
  *

@@ -1,9 +1,7 @@
 <?php
 namespace DFM\WPGraphQL;
 
-use DFM\WPGraphQL\Schema;
-use Youshido\GraphQL\Execution\Processor;
-use Youshido\GraphQL\Execution\ResolveInfo;
+use DFM\WPGraphQL;
 
 /**
  * Class Router
@@ -171,7 +169,7 @@ class Router {
 		}
 
 		$payload = ! empty( $data['query'] ) ? $data['query'] : null;
-		$variables = isset( $requestData['variables'] ) ? $requestData['variables'] : null;
+		$variables = isset( $data['variables'] ) ? $data['variables'] : null;
 
 		// If there's a query request
 		if ( ! empty( $payload ) ) {
@@ -179,26 +177,7 @@ class Router {
 			// Process the payload
 			try {
 
-				/**
-				 * Instantiate the DFM\GraphQL\Schema
-				 */
-				$schema = new Schema();
-
-				// Instantiate the GraphQL Processor
-				$processor = new Processor( $schema );
-
-				/**
-				 * Add the current_user to the execution context
-				 */
-				$processor->getExecutionContext()->current_user = wp_get_current_user();
-
-				/**
-				 * Process the payload
-				 */
-				$processor->processPayload( $payload, $variables );
-
-				// Get the response from the processor
-				$result = $processor->getResponseData();
+				$result = WPGraphQL::instance()->query( $payload, $variables );
 
 			// Catch any exceptions and pass generate the message
 			} catch (\Exception $exception) {
