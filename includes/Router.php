@@ -1,8 +1,6 @@
 <?php
 namespace DFM\WPGraphQL;
 
-use DFM\WPGraphQL;
-
 /**
  * Class Router
  *
@@ -56,7 +54,7 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', array( $this, 'graphql_loaded' ), 10 );
+		add_action( 'template_redirect', array( $this, 'resolve_http_request' ), 10 );
 
 	}
 
@@ -91,9 +89,15 @@ class Router {
 	}
 
 	/**
+	 * resolve_http_request
 	 *
+	 * This resolves the http request and ensures that WordPress can respond with the appropriate
+	 * JSON response instead of responding with a template from the standard
+	 * WordPress Template Loading process
+	 *
+	 * @since 0.0.1
 	 */
-	public function graphql_loaded() {
+	public function resolve_http_request() {
 
 		/**
 		 * Access the $wp_query object
@@ -113,9 +117,9 @@ class Router {
 		$wp_query->is_home = false;
 
 		/**
-		 * Resolve the GRAPHQL Request
+		 * Process the GraphQL query Request
 		 */
-		$this->process_graphql_request();
+		$this->process_http_request();
 		return;
 
 	}
@@ -134,17 +138,13 @@ class Router {
 	}
 
 	/**
-	 * This processes the graphql requests that come into the /graphql endpoint
-	 *
-	 * @todo: check to see if there are better ways of capturing the POST info and a better way of returning the response.
-	 * This is a quick and dirty implementation, but I have a feeling there are "better" ways to do it
-	 * (maybe check how the REST API, etc handle parsing requests and returning responses?)
+	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
 	 * @since 0.0.1
 	 * @access public
 	 * @return mixed
 	 */
-	public function process_graphql_request() {
+	public function process_http_request() {
 
 		/**
 		 * Set the response headers
@@ -158,16 +158,19 @@ class Router {
 			$data = $_REQUEST;
 		}
 
-		$payload = ! empty( $data['query'] ) ? $data['query'] : null;
-		$variables = isset( $data['variables'] ) ? $data['variables'] : null;
+		$query = ! empty( $data['query'] ) ? $data['query'] : null;
+		$variables = empty( $data['variables'] ) ? $data['variables'] : null;
 
 		// If there's a query request
-		if ( ! empty( $payload ) ) {
+		if ( ! empty( $query ) ) {
 
 			// Process the payload
 			try {
 
-				$result = WPGraphQL::instance()->query( $payload, $variables );
+				/**
+				 * Run the query
+				 */
+				$result = graphql_query( $query, $variables );
 
 			// Catch any exceptions and pass generate the message
 			} catch (\Exception $exception) {
@@ -180,13 +183,22 @@ class Router {
 
 			}
 
-			// Send the json result
+			/**
+			 * Send the json result
+			 * @since 0.0.1
+			 */
 			wp_send_json( $result );
 
 		// If there's no query request, send the notice that the request must require a query
 		} else {
 
-			wp_send_json( __( 'Graphql queries must include a query. Try again.', 'dfm-graphql-endpoints' ) );
+			/**
+			 * Respond with an error message notifying the user that all GraphQL queries
+			 * must include a "query"
+			 *
+			 * @since 0.0.1
+			 */
+			wp_send_json( __( 'Graphql queries must include a query. Try again.', 'wp-graphql' ) );
 
 		}
 
