@@ -53,15 +53,6 @@ final class WPGraphQL {
 			self::$instance->setup_constants();
 			self::$instance->includes();
 			self::$instance->setup();
-
-			/**
-			 * This action allows for other classes to be instantiated
-			 * prior to the router being called
-			 * @since 0.0.2
-			 */
-			do_action( 'wpgraphql_before_initialize_router' );
-
-			// Initialize the router (sets up the /graphql enpoint)
 			self::$instance->router = new Router();
 
 		}
@@ -176,7 +167,11 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * @param $payload
+	 * query
+	 *
+	 * This takes in a query and variables, processes them and returns the result
+	 *
+	 * @param $query
 	 * @param $variables
 	 *
 	 * @return array
