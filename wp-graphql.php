@@ -146,6 +146,9 @@ final class WPGraphQL {
 		// Autoload Required Classes
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php');
 
+		// This required here as it is not a class, so it is not auto-loaded
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'includes/access-functions.php' );
+
 	}
 
 	/**
@@ -178,7 +181,7 @@ final class WPGraphQL {
 	 *
 	 * @return array
 	 */
-	public function query( $payload, $variables ) {
+	public function query( $query, $variables ) {
 
 		/**
 		 * Define that a GRAPHQL_REQUEST is happening
@@ -195,7 +198,9 @@ final class WPGraphQL {
 		 */
 		$schema = new Schema();
 
-		// Instantiate the GraphQL Processor
+		/**
+		 * Instantiate the GraphQL Processor
+		 */
 		$processor = new Processor( $schema );
 
 		/**
@@ -206,12 +211,20 @@ final class WPGraphQL {
 		/**
 		 * Process the payload
 		 */
-		$processor->processPayload( $payload, $variables );
+		$processor->processPayload( $query, $variables );
 
-		// Get the response from the processor
+		/**
+		 * Get the response from the processor
+		 */
 		$result = $processor->getResponseData();
 
-		return $result;
+		/**
+		 * Return the result of the query and pass it through a filter
+		 * to allow for modifications before the results are returned
+		 *
+		 * @since 0.0.2
+		 */
+		return apply_filters( 'wpgraphql_query_result', $result, $query, $variables, $processor );
 
 	}
 
