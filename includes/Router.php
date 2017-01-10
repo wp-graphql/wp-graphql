@@ -29,14 +29,7 @@ class Router {
 	 * @access public
 	 */
 	public function __construct() {
-
-		/**
-		 * This action allows for other classes to be instantiated
-		 * prior to the router being called
-		 * @since 0.0.2
-		 */
-		do_action( 'wpgraphql_before_initialize_router' );
-
+		
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
 		 *
