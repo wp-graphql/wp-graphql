@@ -113,16 +113,6 @@ class Router {
 		$wp_query->is_home = false;
 
 		/**
-		 * Define that a GRAPHQL_REQUEST is happening
-		 */
-		define( 'GRAPHQL_REQUEST', true );
-
-		/**
-		 * Fire off init action
-		 */
-		do_action( 'graphql_init' );
-
-		/**
 		 * Resolve the GRAPHQL Request
 		 */
 		$this->process_graphql_request();

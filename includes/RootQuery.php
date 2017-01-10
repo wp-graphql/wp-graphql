@@ -1,7 +1,6 @@
 <?php
 namespace DFM\WPGraphQL;
 
-use DFM\WPGraphQL\Entities\Init as EntitiesInit;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
 /**
