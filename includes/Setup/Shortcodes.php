@@ -5,7 +5,7 @@ class Shortcodes {
 
 	public function init() {
 
-		add_action( 'wpgraphql_root_queries', [ $this, 'setup_queries' ], 10, 1 );
+		// add_action( 'wpgraphql_root_queries', [ $this, 'setup_queries' ], 10, 1 );
 
 	}
 

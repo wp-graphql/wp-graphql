@@ -5,6 +5,7 @@ use DFM\WPGraphQL\Fields\MediaDetailsFieldType;
 use DFM\WPGraphQL\Fields\ThumbnailIdField;
 use DFM\WPGraphQL\Types\PostObject\PostObjectType;
 use Youshido\GraphQL\Execution\ResolveInfo;
+use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
@@ -279,30 +280,54 @@ class PostEntities {
 				 * Set the Query Name to pass to the class
 				 */
 				$allowed_post_type_object = get_post_type_object( $allowed_post_type );
-				$query_name = ! empty( $allowed_post_type_object->graphql_plural_name ) ? $allowed_post_type_object->graphql_plural_name : $this->post_type;
+				$items_query_name = ! empty( $allowed_post_type_object->graphql_plural_name ) ? $allowed_post_type_object->graphql_plural_name : $this->post_type;
+				$single_query_name = ! empty( $allowed_post_type_object->graphql_name ) ? $allowed_post_type_object->graphql_name : $this->post_type;
 
 				/**
 				 * Filter the $query_name
 				 * @since 0.0.2
 				 */
-				$query_name = apply_filters( 'wpgraphql_post_type_queries_query_name', $query_name, $allowed_post_type_object );
+				$items_query_name = apply_filters( 'wpgraphql_post_type_queries_items_query_name', $items_query_name, $allowed_post_type_object );
+				$single_query_name = apply_filters( 'wpgraphql_post_type_queries_single_query_name', $single_query_name, $allowed_post_type_object );
 
 				/**
-				 * Make sure the name of the
+				 * Make sure the name of the queries doesn't have spaces of funky characters
 				 */
-				$query_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $query_name );
-				$query_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $query_name ) );
+				$items_query_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $items_query_name );
+				$items_query_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $items_query_name ) );
+				$single_query_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $single_query_name );
+				$single_query_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $single_query_name ) );
 
 				/**
-				 * Adds the class to the RootQueryType
+				 * Adds a field to get a single PostObjectType by ID
+				 *
+				 * @since 0.0.2
+				 */
+				$fields[] = [
+					'name' => $single_query_name,
+					'type' => new PostObjectType([
+						'query_name' => $single_query_name,
+						'post_type' => $allowed_post_type,
+					]),
+					'args' => [
+						'id' => new NonNullType( new IntType() ),
+					],
+					'resolve' => function( $value, array $args, ResolveInfo $info ) {
+						$post_object = get_post( $args['id'] );
+						return ! empty( $post_object ) ? $post_object : null;
+					}
+				];
+
+				/**
+				 * Adds a field to query a list of PostObjectTypes items with additional query information returned
+				 *
+				 * @since 0.0.1
 				 */
 				$fields[] = new $class( [
 					'post_type' => $allowed_post_type,
 					'post_type_object' => $allowed_post_type_object,
-					'query_name' => $query_name
+					'query_name' => $items_query_name
 				] );
-
-				// @todo: add entry for getting a single Object instead of a list of objects
 
 				/**
 				 * Run an action after each allowed_post_type is added to the root_query

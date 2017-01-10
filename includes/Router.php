@@ -159,7 +159,7 @@ class Router {
 		}
 
 		$query = ! empty( $data['query'] ) ? $data['query'] : null;
-		$variables = empty( $data['variables'] ) ? $data['variables'] : null;
+		$variables = ! empty( $data['variables'] ) ? $data['variables'] : null;
 
 		// If there's a query request
 		if ( ! empty( $query ) ) {
