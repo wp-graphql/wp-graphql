@@ -29,7 +29,7 @@ class Router {
 	 * @access public
 	 */
 	public function __construct() {
-		
+
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
 		 *
