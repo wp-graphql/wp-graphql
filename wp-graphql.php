@@ -19,14 +19,14 @@
 namespace DFM;
 
 // Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 use DFM\WPGraphQL\Router;
 use DFM\WPGraphQL\Schema;
 use DFM\WPGraphQL\Setup\PostEntities;
 use DFM\WPGraphQL\Setup\Shortcodes;
 use DFM\WPGraphQL\Setup\TermEntities;
 use Youshido\GraphQL\Execution\Processor;
-
-if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( ! class_exists( 'DFM\WPGraphQL' ) ) :
 
