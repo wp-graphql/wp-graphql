@@ -356,12 +356,12 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 				'type' => new IntType(),
 				'description' => __( 'YearMonth (For e.g.: 201307)', 'wp-graphql' ),
 			],
-			[
-				'name' => 'date_query',
-				// @todo: convert to DateQuery type
-				'type' => new StringType(),
-				'description' => __( 'Advanced date paramaters', 'wp-graphql' ),
-			],
+//			[
+//				'name' => 'date_query',
+//				// @todo: convert to DateQuery type
+//				'type' => new StringType(),
+//				'description' => __( 'Advanced date paramaters', 'wp-graphql' ),
+//			],
 		];
 
 		/**
@@ -390,12 +390,12 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 				'type' => new StringType(), // @todo: convert to enum
 				'description' => __( 'Operator to test the \'meta_value\'. Possible values are \'=\', \'!=\', \'>\', \'>=\', \'<\', \'<=\', \'LIKE\', \'NOT LIKE\', \'IN\', \'NOT IN\', \'BETWEEN\', \'NOT BETWEEN\', \'NOT EXISTS\', \'REGEXP\', \'NOT REGEXP\' or \'RLIKE\'. Default value is \'=\'.', 'wp-graphql' ),
 			],
-			[
-				'name' => 'meta_query',
-				// @todo: Support meta_query
-				'type' => new StringType(),
-				'description' => __( 'Advanced custom meta field queries', 'wp-graphql' ),
-			],
+//			[
+//				'name' => 'meta_query',
+//				// @todo: Support meta_query
+//				'type' => new StringType(),
+//				'description' => __( 'Advanced custom meta field queries', 'wp-graphql' ),
+//			],
 		];
 
 		/**
@@ -478,11 +478,12 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 
 		/**
 		 * Filter the fields that are passed to the query args
+		 * @since 0.0.1
 		 */
 		$fields = apply_filters( 'wpgraphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ), $fields, $config );
 
 		/**
-		 * If there are fields, add them to the args
+		 * If there are fields, add them to the config
 		 */
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			$config->addFields( $fields );

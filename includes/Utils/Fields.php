@@ -34,4 +34,22 @@ class Fields {
 
 	}
 
+	/**
+	 * format_field_name
+	 *
+	 * Formats the Field Name to make sure there are no spaces or special characters
+	 * as GraphQL will barf if there are.
+	 *
+	 * @param $query_name
+	 * @return mixed
+	 */
+	public function format_field_name( $query_name ) {
+
+		$query_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $query_name );
+		$query_name = preg_replace( '/[^A-Za-z0-9]/i', '',  ucwords( $query_name ) );
+
+		return $query_name;
+
+	}
+
 }

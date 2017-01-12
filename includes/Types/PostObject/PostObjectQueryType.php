@@ -47,6 +47,8 @@ class PostObjectQueryType extends AbstractField {
 	/**
 	 * PostObjectQuery constructor.
 	 *
+	 * sets default values
+	 *
 	 * @param array $args
 	 * @since 0.0.2
 	 */
@@ -63,18 +65,13 @@ class PostObjectQueryType extends AbstractField {
 		$this->post_type_object = ( ! empty( $args['post_type_object'] ) ) ? $args['post_type_object'] : get_post_type_object( $this->post_type );
 
 		/**
-		 * Take the name from the GraphQL Plural Name labels and clean it up to have only letters and numbers
-		 * as GraphQL doesn't like any funky characters in the naming
+		 * Set the query_name
 		 */
 		$this->query_name = ( ! empty( $args['query_name'] ) ) ? $args['query_name'] : $this->post_type;
 
 		/**
-		 * Set the default posts_per_page
-		 */
-		$this->posts_per_page = apply_filters( 'wpgraphql_post_object_query_default_posts_per_page', $this->posts_per_page, $this->post_type, $this->post_type_object );
-
-		/**
 		 * Define the config for the PostObjectQuery
+		 * @since 0.0.2
 		 */
 		$config = [
 			'name' => $this->getName(),
@@ -84,6 +81,7 @@ class PostObjectQueryType extends AbstractField {
 
 		/**
 		 * Pass the config through a filter
+		 * @since 0.0.2
 		 */
 		$config = apply_filters( 'wpgraphql_post_object_query_config', $config, $this->post_type, $this->post_type_object );
 
@@ -103,12 +101,7 @@ class PostObjectQueryType extends AbstractField {
 	 * @since 0.0.2
 	 */
 	public function getName() {
-
-		/**
-		 * Return the $query_name
-		 */
 		return $this->query_name;
-
 	}
 
 	/**
@@ -134,11 +127,11 @@ class PostObjectQueryType extends AbstractField {
 		/**
 		 * Return the PostType
 		 */
-		return new $post_type_query( [
+		return new $post_type_query([
 			'post_type' => $this->post_type,
 			'post_type_object' => $this->post_type_object,
 			'query_name' => $this->query_name
-		] );
+		]);
 
 	}
 
@@ -255,14 +248,14 @@ class PostObjectQueryType extends AbstractField {
 		 * Filter the query_args before sending them to the WP_Query
 		 *
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
+		 * @since 0.0.2
 		 */
 		$query_args = apply_filters( 'wpgraphql_post_object_query_wpquery_args_' . $this->post_type, $query_args, $args, $info );
 
-		// Run the Query
-		$articles = new \WP_Query( $query_args );
-
-		// Return the posts from the WP_Query
-		return $articles;
+		/**
+		 * Run the query and return it
+		 */
+		return new \WP_Query( $query_args );
 
 	}
 
@@ -286,7 +279,7 @@ class PostObjectQueryType extends AbstractField {
 			[
 				'name' => 'args',
 				'type' => new PostObjectQueryArgs( $queryArgs ),
-				'description' => __( 'Query args for the', 'wp-graphql' ) . ' ' . $this->post_type . ' ' . __( 'post type', 'wp-graphql' ),
+				'description' => sprintf( __( 'Query args for the %s post type', 'wp-graphql' ), $this->post_type ),
 			]
 		);
 

@@ -1,37 +1,12 @@
 <?php
 namespace DFM\WPGraphQL\Types\PostObject;
 
-use DFM\WPGraphQL\Fields\AuthorIdField;
-use DFM\WPGraphQL\Fields\CommentCountField;
-use DFM\WPGraphQL\Fields\CommentStatusField;
-use DFM\WPGraphQL\Fields\ContentFilteredField;
-use DFM\WPGraphQL\Fields\DateField;
-use DFM\WPGraphQL\Fields\DateGmtField;
-use DFM\WPGraphQL\Fields\DesiredSlugField;
-use DFM\WPGraphQL\Fields\EditLastField;
-use DFM\WPGraphQL\Fields\EditLockField;
-use DFM\WPGraphQL\Fields\EnclosureField;
-use DFM\WPGraphQL\Fields\GuidField;
-use DFM\WPGraphQL\Fields\IdField;
-use DFM\WPGraphQL\Fields\LinkField;
-use DFM\WPGraphQL\Fields\MenuOrderField;
-use DFM\WPGraphQL\Fields\ModifiedField;
-use DFM\WPGraphQL\Fields\ModifiedGmtField;
-use DFM\WPGraphQL\Fields\OldSlugField;
-use DFM\WPGraphQL\Fields\ParentIdField;
-use DFM\WPGraphQL\Fields\PingedField;
-use DFM\WPGraphQL\Fields\PingStatusField;
-use DFM\WPGraphQL\Fields\PostContentField;
-use DFM\WPGraphQL\Fields\PostExcerptField;
-use DFM\WPGraphQL\Fields\PostPasswordField;
-use DFM\WPGraphQL\Fields\TitleField;
-use DFM\WPGraphQL\Fields\SlugField;
-use DFM\WPGraphQL\Fields\StatusField;
-use DFM\WPGraphQL\Fields\ToPingField;
-use DFM\WPGraphQL\Fields\TrashStatusField;
-use DFM\WPGraphQL\Fields\TrashTimeField;
-use DFM\WPGraphQL\Fields\PostTypeField;
+use Youshido\GraphQL\Execution\ResolveInfo;
+use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
+use Youshido\GraphQL\Type\Scalar\BooleanType;
+use Youshido\GraphQL\Type\Scalar\IntType;
+use Youshido\GraphQL\Type\Scalar\StringType;
 
 /**
  * Class PostObjectType
@@ -45,295 +20,330 @@ use Youshido\GraphQL\Type\Object\AbstractObjectType;
 class PostObjectType extends AbstractObjectType {
 
 	/**
-	 * getPostType
+	 * getName
 	 *
-	 * Returns the post type
+	 * This sets the name of the ObjectType based on the "query_name" that was passed down
+	 * through the instantiation of the class
 	 *
 	 * @return callable|mixed|null|string
-	 * @since 0.0.2
+	 * @since 0.0.1
 	 */
-	public function getPostType() {
-
-		/**
-		 * Check if the post_type was passed down in the config
-		 */
-		$post_type = $this->getConfig()->get( 'post_type' );
-
-		/**
-		 * Check if the post_type is a populated string, otherwise fallback to the
-		 * default "post" type
-		 */
-		$post_type = ( ! empty( $config_post_type ) && is_string( $post_type ) ) ? $post_type: 'post';
-
-		/**
-		 * Ensure the Query only contains letters and numbers
-		 */
-		$post_type = preg_replace( '/[^A-Za-z0-9]/i', '', $post_type );
-
-		/**
-		 * Return the post_type
-		 */
-		return $post_type;
-
-	}
-
 	public function getName() {
-
-		/**
-		 * Get the post_type
-		 */
 		$query_name = $this->getConfig()->get( 'query_name' );
-		$name = ! empty( $query_name ) ? $query_name : 'Post';
-		return $name;
-
+		return ! empty( $query_name ) ? $query_name : 'Post';
 	}
 
+	/**
+	 * getDescription
+	 *
+	 * This sets the description of the PostObjectType
+	 *
+	 * @return mixed
+	 * @since 0.0.1
+	 */
 	public function getDescription() {
 		return __( 'The ' . $this->getConfig()->get( 'post_type' ) . ' post type', 'wp-graphql' );
 	}
 
+	/**
+	 * build
+	 *
+	 * This builds out the fields for the PostObjectType
+	 *
+	 * @since 0.0.1
+	 * @param \Youshido\GraphQL\Config\Object\ObjectTypeConfig $config
+	 * @return void
+	 */
 	public function build( $config ) {
 
 		$fields = [
-			/**
-			 * AuthorIdField
-			 * post_author
-			 * @since 0.0.1
-			 */
-			new AuthorIdField(),
-
-			// @todo: add Author field that returns a full Author object
-
-			/**
-			 * CommentCountField
-			 * comment_count
-			 * @since 0.0.2
-			 */
-			new CommentCountField(),
-
-			/**
-			 * CommentStatusField
-			 * comment_status
-			 * @since 0.0.1
-			 */
-			new CommentStatusField(),
-
-			/**
-			 * ContentFiltered
-			 * post_content_filtered
-			 * @since 0.0.2
-			 */
-			new ContentFilteredField(),
-
-			/**
-			 * DateField
-			 * post_date
-			 * @since 0.0.1
-			 */
-			new DateField(),
-
-			/**
-			 * DateGmtField
-			 * post_date_gmt
-			 * @since 0.0.1
-			 */
-			new DateGmtField(),
-
-			/**
-			 * DesiredSlug
-			 * @since 0.0.2
-			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L6185
-			 */
-			new DesiredSlugField(),
-
-			/**
-			 * EditLastField
-			 * _edit_last
-			 * @since 0.0.2
-			 */
-			new EditLastField(),
-
-			/**
-			 * EditLockField
-			 * _edit_lock
-			 * @since 0.0.2
-			 */
-			new EditLockField(),
-
-			/**
-			 * EnclusureField
-			 * enclosure
-			 * @since 0.0.2
-			 * @see: https://github.com/WordPress/WordPress/blob/dca7d8d0ea4ca90a715c1cbc46d5fb3cd1bcbdb2/wp-includes/class-wp-xmlrpc-server.php#L5143
-			 */
-			new EnclosureField(),
-
-			/**
-			 * GuidField
-			 * guid
-			 * @since 0.0.2
-			 */
-			new GuidField(),
-
-			/**
-			 * IdField
-			 * @since 0.0.1
-			 */
-			new IdField(),
-
-			/**
-			 * LinkField
-			 * @since 0.0.1
-			 */
-			new LinkField(),
-
-			/**
-			 * MenuOrder
-			 * menu_order
-			 * @since 0.0.2
-			 */
-			new MenuOrderField(),
-
-			/**
-			 * ModifiedField
-			 * post_modified
-			 * @since 0.0.1
-			 */
-			new ModifiedField(),
-
-			/**
-			 * ModifiedGmtField
-			 * post_modified_gmt
-			 * @since 0.0.1
-			 */
-			new ModifiedGmtField(),
-
-			/**
-			 * OldSlugField
-			 * _wp_old_slug
-			 * @since 0.0.2
-			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L5402
-			 */
-			new OldSlugField(),
-
-			/**
-			 * ParentIdField
-			 * post_parent
-			 * @since 0.0.1
-			 */
-			new ParentIdField(),
-
-			/**
-			 * Pinged
-			 * pinged
-			 * @since 0.0.2
-			 */
-			new PingedField(),
-
-			/**
-			 * PingStatusField
-			 * ping_status
-			 * @since 0.0.1
-			 */
-			new PingStatusField(),
-
-			/**
-			 * PostContentField
-			 * post_content
-			 * @since 0.0.2
-			 */
-			new PostContentField(),
-
-			/**
-			 * PostExcerptField
-			 * post_excerpt
-			 * @since 0.0.1
-			 */
-			new PostExcerptField(),
-
-			/**
-			 * PostPassword
-			 * post_password
-			 * @since 0.0.2
-			 */
-			new PostPasswordField(),
-
-			/**
-			 * PostTypeField
-			 * post_type
-			 * @since 0.0.1
-			 */
-			new PostTypeField(),
+			'comment_count' => [
+				'name' => 'comment_count',
+				'type' => new IntType(),
+				'description' => __( 'The number of comments on the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->comment_count ) ? absint( $value->comment_count ) : null;
+				}
+			],
+			'comment_status' => [
+				'name' => 'comment_status',
+				'type' => new StringType(),
+				'description' => __( 'Whether or not comments are open on the object', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->comment_status ) ? $value->comment_status : null;
+				}
+			],
+			'content_filtered' => [
+				'name' => 'content_filtered',
+				'type' => new StringType(),
+				'description' => __( 'A utility DB field for post content (post_content_filtered)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_content_filtered ) ? $value->post_content_filtered : null;
+				}
+			],
+			'date' => [
+				'name' => 'date',
+				'type' => new StringType(),
+				'description' => __( 'The date the object was published, in the site\'s timezone. (post_date)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_date ) ? $value->post_date : null;
+				}
+			],
+			'date_gmt' => [
+				'name' => 'date_gmt',
+				'type' => new StringType(),
+				'description' => __( 'The date the object was published, in GMT (post_date_gmt)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_date_gmt ) ? $value->post_date_gmt : null;
+				}
+			],
+			'desired_slug' => [
+				'name' => 'desired_slug',
+				'type' => new StringType(),
+				'description' => __( 'Desired slug, stored if it is already taken by another object', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$desired_slug = get_post_meta( $value->ID, '_wp_desired_post_slug', true );
+					return ! empty( $desired_slug ) ? $desired_slug : null;
+				}
+			],
+			'edit_last' => [
+				'name' => 'edit_last',
+				'type' => new IntType(),
+				'description' => __( 'The ID of the user that most recently edited the object', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$edit_last = get_post_meta( $value->ID, '_edit_last', true );
+					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
+				}
+			],
+			'edit_lock' => [
+				'name' => 'edit_lock',
+				'type' => new StringType(),
+				'description' => __( 'String indicating the timestamp and ID of the user that most 
+				recently edited an object. Can be used to determine if it can safely be 
+				edited by another user.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$edit_lock = get_post_meta( $value->ID, '_edit_lock', true );
+					return ! empty( $edit_lock ) ? absint( $edit_lock ) : null;
+				}
+			],
+			'enclosure' => [
+				'name' => 'enclosure',
+				'type' => new StringType(),
+				'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$enclosure = get_post_meta( $value->ID, 'enclosure', true );
+					return ! empty( $enclosure ) ? $enclosure : null;
+				}
+			],
+			'guid' => [
+				'name' => 'guid',
+				'type' => new StringType(),
+				'description' => __( 'The globally unique identifier for the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->guid ) ? $value->guid : null;
+				}
+			],
+			'id' => [
+				'name' => 'id',
+				'type' => new NonNullType( new IntType() ),
+				'description' => __( 'Unique identifier for the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return $value->ID;
+				}
+			],
+			'link' => [
+				'name' => 'link',
+				'type' => new StringType(),
+				'description' => __( 'The web-friendly url of the article (get_permalink)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$permalink = get_permalink( $value->ID );
+					return ! empty( $permalink ) ? $permalink : null;
+				}
+			],
+			'modified' => [
+				'name' => 'modified',
+				'type' => new StringType(),
+				'description' => __( 'The date the object was last modified, in the site\'s timezone. (post_modified)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_modified ) ? $value->post_modified : null;
+				}
+			],
+			'modified_gmt' => [
+				'name' => 'modified_gmt',
+				'type' => new StringType(),
+				'description' => __( 'The date the object was last modified, as GMT. (post_modified_gmt)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_modified_gmt ) ? $value->post_modified_gmt : null;
+				}
+			],
+			'old_slug' => [
+				'name' => 'old_slug',
+				'type' => new StringType(),
+				'description' => __( 'The old slug of the object. Can be used to find object where the slug changed or can be used to redirect old slugs to new slugs', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$old_slug = get_post_meta( $value->ID, '_wp_old_slug', true );
+					return ! empty( $old_slug ) ? $old_slug : null;
+				}
+			],
+			'parent' => [
+				'name' => 'parent',
+				'type' => new PostParentUnion(),
+				'description' => __( 'The parent object', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$post_parent = ! empty( $value->post_parent ) ? $value->post_parent : null;
+					return ! empty( $post_parent ) ? get_post( $post_parent ) : null;
+				}
+			],
+			'parent_id' => [
+				'name' => 'parent_id',
+				'type' => new IntType(),
+				'description' => __( 'The id for the author of the object. (post_parent)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_parent ) ? absint( $value->post_parent ) : null;
+				}
+			],
+			'pinged' => [
+				'name' => 'pinged',
+				'type' => new BooleanType(),
+				'description' => __( 'Whether or not the object has been pinged', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->pinged ) ? true : false;
+				}
+			],
+			'ping_status' => [
+				'name' => 'ping_status',
+				'type' => new BooleanType(), // @todo: convert to Enum? Returns "open" or "closed"
+				'description' => __( 'Whether or not the object can be pinged.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->ping_status ) ? $value->ping_status : null;
+				}
+			],
 
 			/**
-			 * SlugField
-			 * @since 0.0.1
+			 * @todo: discuss naming of post_content, post_excerpt and post_type fields.
+			 * @see: https://github.com/wp-graphql/wp-graphql/issues/2
 			 */
-			new SlugField(),
-
+			'post_content' => [
+				'name' => 'post_content',
+				'type' => new StringType(),
+				'description' => __( 'The content for the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_content ) ? apply_filters( 'the_content', $value->post_content ) : null;
+				}
+			],
 			/**
-			 * StatusField
-			 * @since 0.0.1
+			 * @todo: discuss naming of post_content, post_excerpt and post_type fields.
+			 * @see: https://github.com/wp-graphql/wp-graphql/issues/2
 			 */
-			new StatusField(),
-
+			'post_excerpt' => [
+				'name' => 'post_excerpt',
+				'type' => new StringType(),
+				'description' => __( 'The excerpt for the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_excerpt ) ? apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $value->post_excerpt, $value ) ) : null;
+				}
+			],
+			'password' => [
+				'name' => 'password',
+				'type' => new StringType(),
+				'description' => __( 'The password of the object. (post_password)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_password ) ? $value->post_password : null;
+				}
+			],
 			/**
-			 * TrashStatusField
-			 * _wp_trash_meta_status
-			 * @since 0.0.2
-			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L2607
+			 * @todo: discuss naming of post_content, post_excerpt and post_type fields.
+			 * @see: https://github.com/wp-graphql/wp-graphql/issues/2
 			 */
-			new TrashStatusField(),
-
-			/**
-			 * TrashTimeField
-			 * _wp_trash_meta_time
-			 * @since 0.0.2
-			 * @see: https://github.com/WordPress/WordPress/blob/f3a9d2bd9a9be240785855564225ffe933d49482/wp-includes/post.php#L2608
-			 */
-			new TrashTimeField(),
-
-
-			/**
-			 * ToPing
-			 * @since 0.0.2
-			 */
-			new ToPingField(),
-
-			/**
-			 * TitleField
-			 * @since 0.0.1
-			 */
-			new TitleField(),
+			'post_type' => [
+				'name' => 'post_type',
+				'type' => new StringType(),
+				'description' => __( 'Post type for the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_type ) ? $value->post_type : null;
+				}
+			],
+			'slug' => [
+				'name' => 'slug',
+				'type' => new StringType(),
+				'description' => __( 'The object\'s slug. (post_name)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_name ) ? $value->post_name : null;
+				}
+			],
+			'status' => [
+				'name' => 'status',
+				'type' => new StringType(),
+				'description' => __( 'A named status for the object. (post_status)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_status ) ? $value->post_status : null;
+				}
+			],
+			'title' => [
+				'name' => 'title',
+				'type' => new StringType(),
+				'description' => __( 'The title for the object. (post_title)', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->post_title ) ? $value->post_title : null;
+				}
+			],
+			'to_ping' => [
+				'name' => 'to_ping',
+				'type' => new BooleanType(),
+				'description' => __( 'The "to_ping" flag of the object.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					return ! empty( $value->to_ping ) ? true : false;
+				}
+			],
+			'trashed_status' => [
+				'name' => 'trashed_status',
+				'type' => new StringType(),
+				'description' => __( 'The status of the post when it was marked for trash.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$trashed_status = get_post_meta( $value->ID, '_wp_trash_meta_status', true );
+					return ! empty( $trashed_status ) ? $trashed_status : null;
+				}
+			],
+			'trashed_time' => [
+				'name' => 'trashed_time',
+				'type' => new StringType(),
+				'description' => __( 'The UNIX timestamp of when the post was marked for trash.', 'wp-graphql' ),
+				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+					$trashed_time = get_post_meta( $value->ID, '_wp_trash_meta_time', true );
+					return ! empty( $trashed_time ) ? $trashed_time : null;
+				}
+			],
 
 		];
 
 		/**
 		 * Pass fields through a filter to allow modifications from outside the core plugin
 		 *
-		 * Filtering this will filter all types that use or extend the PostObjectInterface
+		 * Allows fields to be filtered per post_type and passes the $config data to the filter
+		 *
+		 * @since 0.0.2
+		 * @params $fields
+		 * @params $config
 		 */
 		$fields = apply_filters( 'wpgraphql_post_object_type_fields_' . $config->get( 'post_type' ) , $fields, $config );
 
 		/**
-		 * Sort the fields in alphabetical order
-		 * apply a filter to allow the alphabetical sorting to be disabled
+		 * This sorts the fields to be returned in alphabetical order.
+		 * For my own sanity I like this, but I'd be open to discussing
+		 * alternatives. We could move this out into a filter in a custom plugin
+		 * instead of leaving here if alphabetical order doesn't seem to be
+		 * everyone's preference?
+		 *
+		 * @since 0.0.2
+		 *
+		 * @note: the <=> operator is only supported in PHP 7,
+		 * so this will need to be re-thought if we want to support older versions
+		 * of PHP.
+		 * @see: http://php.net/manual/en/migration70.new-features.php#migration70.new-features.spaceship-op
 		 */
-		if ( apply_filters( 'wpgraphql_post_object_type_fields_alphabetical_order', 'return__true', $fields, $config ) ) {
-
-			// Sort the fields
-			usort( $fields, function( $a, $b ) {
-
-				// Determine the name to compare
-				$a_name = ( is_array( $a ) && ! empty( $a['name'] ) ) ? $a['name'] : $a->getName();
-				$b_name = ( is_array( $b ) && ! empty( $b['name'] ) ) ? $b['name'] : $b->getName();
-
-				// Return based on alphabetical order
-				return strcmp( $a_name, $b_name );
-
-			} );
-
-		}
+		usort( $fields, function( $a, $b ) {
+			return $a['name'] <=> $b['name'];
+		});
 
 		/**
 		 * Add the fields
