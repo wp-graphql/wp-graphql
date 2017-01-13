@@ -33,7 +33,7 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		$this->route = apply_filters( 'DFM\GraphQL\route', 'graphql' );
+		$this->route = apply_filters( 'graphql_endpoint', 'graphql' );
 
 		/**
 		 * Create the rewrite rule for the route
