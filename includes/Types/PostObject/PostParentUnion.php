@@ -6,6 +6,16 @@ use Youshido\GraphQL\Type\Union\AbstractUnionType;
 
 class PostParentUnion extends AbstractUnionType {
 
+	public function getDescription(){
+		return __( 'Because post objects can have a parent of any other post_type, this field allows for any 
+		post_type to be returned and valid, and fields of that object can be retrieved via a 
+		fragment query.', 'wp-graphql' );
+	}
+
+	public function getName() {
+		return 'ParentUnion';
+	}
+
 	/**
 	 * getTypes
 	 *

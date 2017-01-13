@@ -35,7 +35,7 @@ class PostObjectsType extends AbstractObjectType {
 		 *
 		 * @since 0.0.2
 		 */
-		return $query_name;
+		return $query_name . 'Results';
 
 	}
 

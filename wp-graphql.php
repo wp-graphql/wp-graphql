@@ -149,9 +149,10 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * setup_root_queries
+	 * setup
 	 *
-	 * This sets up the RootQueryType for the GraphQL Schema
+	 * This sets up the various types and other
+	 * plugin functions
 	 *
 	 * @access private
 	 * @since 0.0.2
@@ -166,6 +167,12 @@ final class WPGraphQL {
 		// Initialize TermEntites
 		$term_entities = new TermEntities();
 		$term_entities->init();
+
+		/**
+		 * Fires an action once the plugin has been setup
+		 * @since 0.0.3
+		 */
+		do_action( 'graphql_setup' );
 
 	}
 

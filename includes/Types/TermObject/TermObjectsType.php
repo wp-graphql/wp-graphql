@@ -35,7 +35,7 @@ class TermObjectsType extends AbstractObjectType {
 		 *
 		 * @since 0.0.2
 		 */
-		return $taxonomy_name;
+		return $taxonomy_name . 'Results';
 	}
 
 	/**
