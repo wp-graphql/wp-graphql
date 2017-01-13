@@ -55,6 +55,14 @@ final class WPGraphQL {
 
 		}
 
+		/**
+		 * Fire off init action
+		 */
+		do_action( 'graphql_init', self::$instance );
+
+		/**
+		 * Return the WPGraphQL Instance
+		 */
 		return self::$instance;
 
 	}
@@ -181,7 +189,7 @@ final class WPGraphQL {
 		/**
 		 * Fire off init action
 		 */
-		do_action( 'graphql_init' );
+		do_action( 'graphql_query', $query, $variables );
 
 		/**
 		 * Instantiate the DFM\GraphQL\Schema
@@ -223,9 +231,15 @@ final class WPGraphQL {
 endif;
 
 // Function that instantiates the plugin
-function WPGraphQL() {
+function graphql_init() {
+
+	/**
+	 * Return an instance of the action
+	 */
 	return \WPGraphQL::instance();
+
 }
 
-// Instantiate the plugin
-WPGraphQL();
+// Instantiate the plugin, after themes have loaded so that
+// themes have a chance to filter things as well.
+add_action( 'after_setup_theme', 'graphql_init', 10 );

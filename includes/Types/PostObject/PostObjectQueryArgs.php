@@ -17,6 +17,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  *
  *
  * @package WPGraphQL\Entities\PostObject
+ * @since 0.0.2
  */
 class PostObjectQueryArgs extends AbstractInputObjectType {
 

@@ -7,15 +7,40 @@ use Youshido\GraphQL\Type\Scalar\BooleanType;
 use Youshido\GraphQL\Type\Scalar\IntType;
 use Youshido\GraphQL\Type\Scalar\StringType;
 
+/**
+ * Class TermObjectQueryArgs
+ *
+ * This class sets up the args that can be passed to the PostObjectQueryType
+ *
+ * @package WPGraphQL\Types\TermObject
+ * @since 0.0.2
+ */
 class TermObjectQueryArgs extends AbstractInputObjectType {
 
+	/**
+	 * getName
+	 *
+	 * Establishes the name of the Query Args
+	 *
+	 * @return string
+	 * @since 0.0.2
+	 */
 	public function getName() {
 
-		$taxonomy_name = $this->getConfig()->get( 'taxonomy_name' );
-		$name = ! empty( $taxonomy_name ) ? $taxonomy_name : 'Category';
+		$query_name = $this->getConfig()->get( 'query_name' );
+		$name = ! empty( $query_name ) ? $query_name : 'Category';
 		return $name . 'Args';
 	}
 
+	/**
+	 * build
+	 *
+	 * This builds out the TermObjectQueryArgs
+	 *
+	 * @since 0.0.2
+	 * @param $config
+	 * @return mixed|void
+	 */
 	public function build( $config ) {
 
 		$fields = [
@@ -157,6 +182,8 @@ class TermObjectQueryArgs extends AbstractInputObjectType {
 
 		];
 
+		$taxonomy = ! empty( $config->get( 'query_name' ) ) ? $config->get( 'query_name' ) : 'category';
+		$fields = apply_filters( 'graphql_term_object_query_args_fields_' . $taxonomy, $fields, $config );
 		$config->addFields( $fields );
 
 	}

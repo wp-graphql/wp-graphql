@@ -227,7 +227,7 @@ class TermObjectQueryType extends AbstractField {
 
 		$queryArgs = [
 			'taxonomy' => $this->taxonomy,
-			'taxonomy_name' => $this->taxonomy_name,
+			'query_name' => $this->query_name,
 		];
 
 		$config->addArgument(
