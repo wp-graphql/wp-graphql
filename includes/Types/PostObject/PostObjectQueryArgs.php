@@ -480,7 +480,7 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 * Filter the fields that are passed to the query args
 		 * @since 0.0.1
 		 */
-		$fields = apply_filters( 'wpgraphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ), $fields, $config );
+		$fields = apply_filters( 'graphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ), $fields, $config );
 
 		/**
 		 * If there are fields, add them to the config

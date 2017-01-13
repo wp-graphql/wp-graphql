@@ -81,7 +81,7 @@ class TermObjectQueryType extends AbstractField {
 		 * Pass the config through a filter
 		 * @since 0.0.2
 		 */
-		$config = apply_filters( 'wpgraphql_term_object_query_config', $config, $this->taxonomy, $this->taxonomy_object );
+		$config = apply_filters( 'graphql_term_object_query_config', $config, $this->taxonomy, $this->taxonomy_object );
 
 		/**
 		 * Pass the $config to the parent __construct
@@ -114,7 +114,7 @@ class TermObjectQueryType extends AbstractField {
 		 * Filter the Object type
 		 */
 		$term_type_query = apply_filters(
-			'wpgraphql_term_object_query_type',
+			'graphql_term_object_query_type',
 			'\DFM\WPGraphQL\Types\TermObject\TermObjectsType',
 			$this->taxonomy,
 			$this->taxonomy_object
@@ -145,7 +145,7 @@ class TermObjectQueryType extends AbstractField {
 		/**
 		 * Filter the description
 		 */
-		return apply_filters( 'wpgraphql_term_object_query_description', $description );
+		return apply_filters( 'graphql_term_object_query_description', $description );
 
 	}
 
@@ -185,7 +185,7 @@ class TermObjectQueryType extends AbstractField {
 		 *
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
 		 */
-		$query_args = apply_filter( 'wpgraphql_term_object_query_query_arg_defaults_' . $this->taxonomy, $query_args, $args, $info );
+		$query_args = apply_filter( 'graphql_term_object_query_query_arg_defaults_' . $this->taxonomy, $query_args, $args, $info );
 
 		/**
 		 * Combine the default and filtere query_args with the $args manually passed with the query
@@ -206,7 +206,7 @@ class TermObjectQueryType extends AbstractField {
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
 		 * @since 0.0.2
 		 */
-		$query_args = apply_filters( 'wpgraphql_term_object_query_term_query_args_' . $this->taxonomy, $query_args, $args, $info );
+		$query_args = apply_filters( 'graphql_term_object_query_term_query_args_' . $this->taxonomy, $query_args, $args, $info );
 
 		/**
 		 * Run the query and return it

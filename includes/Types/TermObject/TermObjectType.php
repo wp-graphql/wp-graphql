@@ -111,7 +111,7 @@ class TermObjectType extends AbstractObjectType {
 			],
 		 ];
 
-		$fields = apply_filters( 'wpgraphql_term_object_type_fields_' . $config->get( 'taxonomy' ), $fields, $config );
+		$fields = apply_filters( 'graphql_term_object_type_fields_' . $config->get( 'taxonomy' ), $fields, $config );
 
 		/**
 		 * This sorts the fields to be returned in alphabetical order.

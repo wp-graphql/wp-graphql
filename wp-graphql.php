@@ -219,7 +219,7 @@ final class WPGraphQL {
 		 *
 		 * @since 0.0.2
 		 */
-		return apply_filters( 'wpgraphql_query_result', $result, $query, $variables, $processor );
+		return apply_filters( 'graphql_query_result', $result, $query, $variables, $processor );
 
 	}
 

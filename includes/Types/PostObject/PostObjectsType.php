@@ -114,7 +114,7 @@ class PostObjectsType extends AbstractObjectType {
 		 * Filter the fields that are part of the PostObjectsType
 		 * @since 0.0.2
 		 */
-		$fields = apply_filters( 'wpgraphql_post_objects_type_fields_' . $this->getConfig()->get( 'post_type' ), $fields );
+		$fields = apply_filters( 'graphql_post_objects_type_fields_' . $this->getConfig()->get( 'post_type' ), $fields );
 
 		/**
 		 * Add the fields

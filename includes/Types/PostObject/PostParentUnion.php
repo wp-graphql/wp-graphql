@@ -49,7 +49,7 @@ class PostParentUnion extends AbstractUnionType {
 		 *
 		 * @since 0.0.2
 		 */
-		$types = apply_filters( 'wpgraphql_post_type_parent_union_types', $types, $allowed_post_types );
+		$types = apply_filters( 'graphql_post_type_parent_union_types', $types, $allowed_post_types );
 
 		/**
 		 * Return the Types

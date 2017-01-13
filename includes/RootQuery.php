@@ -28,7 +28,7 @@ class RootQuery extends AbstractObjectType {
 		 *
 		 * @since 0.0.2
 		 */
-		$fields = apply_filters( 'wpgraphql_root_queries', [] );
+		$fields = apply_filters( 'graphql_root_queries', [] );
 
 		/**
 		 * Ensure the $fields are a populated array

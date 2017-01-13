@@ -115,7 +115,7 @@ class TermObjectsType extends AbstractObjectType {
 		 * Filter the fields that are part of the TermObjectsType
 		 * @since 0.0.2
 		 */
-		$fields = apply_filters( 'wpgraphql_term_objects_type_fields_' . $this->getConfig()->get( 'taxonomy' ), $fields );
+		$fields = apply_filters( 'graphql_term_objects_type_fields_' . $this->getConfig()->get( 'taxonomy' ), $fields );
 
 		/**
 		 * If there are fields, add them to the config

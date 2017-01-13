@@ -83,7 +83,7 @@ class PostObjectQueryType extends AbstractField {
 		 * Pass the config through a filter
 		 * @since 0.0.2
 		 */
-		$config = apply_filters( 'wpgraphql_post_object_query_config', $config, $this->post_type, $this->post_type_object );
+		$config = apply_filters( 'graphql_post_object_query_config', $config, $this->post_type, $this->post_type_object );
 
 		/**
 		 * Pass the $config to the parent __construct
@@ -118,7 +118,7 @@ class PostObjectQueryType extends AbstractField {
 		 * Filter the Object type
 		 */
 		$post_type_query = apply_filters(
-			'wpgraphql_post_object_query_type',
+			'graphql_post_object_query_type',
 			'\DFM\WPGraphQL\Types\PostObject\PostObjectsType',
 			$this->post_type,
 			$this->post_type_object
@@ -153,7 +153,7 @@ class PostObjectQueryType extends AbstractField {
 		/**
 		 * Filter the description
 		 */
-		return apply_filters( 'wpgraphql_post_object_query_description', $description );
+		return apply_filters( 'graphql_post_object_query_description', $description );
 
 	}
 
@@ -203,7 +203,7 @@ class PostObjectQueryType extends AbstractField {
 		 *
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
 		 */
-		$query_args = apply_filters( 'wpgraphql_post_object_query_query_arg_defaults_' . $this->post_type, $query_args, $args, $info );
+		$query_args = apply_filters( 'graphql_post_object_query_query_arg_defaults_' . $this->post_type, $query_args, $args, $info );
 
 		/**
 		 * Convert the Schema friendly names to the WP_Query friendly names
@@ -250,7 +250,7 @@ class PostObjectQueryType extends AbstractField {
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
 		 * @since 0.0.2
 		 */
-		$query_args = apply_filters( 'wpgraphql_post_object_query_wpquery_args_' . $this->post_type, $query_args, $args, $info );
+		$query_args = apply_filters( 'graphql_post_object_query_wpquery_args_' . $this->post_type, $query_args, $args, $info );
 
 		/**
 		 * Run the query and return it

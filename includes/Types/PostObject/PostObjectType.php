@@ -325,7 +325,7 @@ class PostObjectType extends AbstractObjectType {
 		 * @params $fields
 		 * @params $config
 		 */
-		$fields = apply_filters( 'wpgraphql_post_object_type_fields_' . $config->get( 'post_type' ) , $fields, $config );
+		$fields = apply_filters( 'graphql_post_object_type_fields_' . $config->get( 'post_type' ) , $fields, $config );
 
 		/**
 		 * This sorts the fields to be returned in alphabetical order.

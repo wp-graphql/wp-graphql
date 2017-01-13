@@ -62,19 +62,19 @@ class PostEntities {
 		 * Setup the root queries for post_types
 		 * @since 0.0.2
 		 */
-		add_action( 'wpgraphql_root_queries', [ $this, 'setup_post_type_queries' ], 5, 1 );
+		add_action( 'graphql_root_queries', [ $this, 'setup_post_type_queries' ], 5, 1 );
 
 		/**
 		 * Add thumbnails and other dynamic fields to post_types that support the feature
 		 * @since 0.0.2
 		 */
-		add_action( 'wpgraphql_after_setup_post_type_queries', [ $this, 'dynamic_fields' ], 5 );
+		add_action( 'graphql_after_setup_post_type_queries', [ $this, 'dynamic_fields' ], 5 );
 
 		/**
 		 * Set default query args for the attachment post_type
 		 * @since 0.0.2
 		 */
-		add_action( 'wpgraphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_attachment_query_args' ] );
+		add_action( 'graphql_post_object_query_query_arg_defaults_attachment', [ $this, 'default_attachment_query_args' ] );
 
 	}
 
@@ -135,7 +135,7 @@ class PostEntities {
 		 *
 		 * @since 0.0.2
 		 */
-		$this->allowed_post_types = apply_filters( 'wpgraphql_post_entities_allowed_post_types', $post_types );
+		$this->allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
 
 		/**
 		 * Returns the array of allowed_post_types
@@ -240,7 +240,7 @@ class PostEntities {
 				 * Run an action after each allowed_post_type is added to the root_query
 				 * @since 0.0.2
 				 */
-				do_action( 'wpgraphql_after_setup_post_type_query_' . $allowed_post_type, $allowed_post_type, $allowed_post_type_object, $this->get_allowed_post_types() );
+				do_action( 'graphql_after_setup_post_type_query_' . $allowed_post_type, $allowed_post_type, $allowed_post_type_object, $this->get_allowed_post_types() );
 
 			}
 
@@ -249,7 +249,7 @@ class PostEntities {
 		/**
 		 * Run an action after the post_type queries have been setup
 		 */
-		do_action( 'wpgraphql_after_setup_post_type_queries', $this->get_allowed_post_types() );
+		do_action( 'graphql_after_setup_post_type_queries', $this->get_allowed_post_types() );
 
 		/**
 		 * Returns the fields
@@ -274,13 +274,13 @@ class PostEntities {
 		 * Add additional fields to the "post" post_type
 		 * @since 0.0.2
 		 */
-		add_filter( 'wpgraphql_post_object_type_fields_post', [ $this, 'add_fields_to_the_post_post_type' ], 10, 1 );
+		add_filter( 'graphql_post_object_type_fields_post', [ $this, 'add_fields_to_the_post_post_type' ], 10, 1 );
 
 		/**
 		 * Add fields to the attachment post_type
 		 * @since 0.0.2
 		 */
-		add_filter( 'wpgraphql_post_object_type_fields_attachment', [ $this, 'add_attachment_post_object_fields' ], 10, 1 );
+		add_filter( 'graphql_post_object_type_fields_attachment', [ $this, 'add_attachment_post_object_fields' ], 10, 1 );
 
 		// Retrieve the list of allowed_post_types
 		$allowed_post_types = $this->get_allowed_post_types();
@@ -298,7 +298,7 @@ class PostEntities {
 				 */
 				if ( post_type_supports( $allowed_post_type, 'thumbnail' ) ) {
 
-					add_filter( 'wpgraphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
+					add_filter( 'graphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
 
 						$fields['thumbnail'] = [
 							'name' => 'thumbnail',
@@ -330,7 +330,7 @@ class PostEntities {
 				 */
 				if ( post_type_supports( $allowed_post_type, 'author' ) ) {
 
-					add_filter( 'wpgraphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
+					add_filter( 'graphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
 
 						$fields['author_id'] = [
 							'name' => 'author_id',
@@ -366,7 +366,7 @@ class PostEntities {
 				if ( post_type_supports( $allowed_post_type, 'revisions' ) && in_array( 'revisions', $allowed_post_types ) ) {
 
 
-					add_filter( 'wpgraphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
+					add_filter( 'graphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
 
 						$fields['revisions'] = [
 							'name' => 'revisions',
@@ -396,7 +396,7 @@ class PostEntities {
 				 */
 				if ( post_type_supports( $allowed_post_type, 'page-attributes' ) ) {
 
-					add_filter( 'wpgraphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
+					add_filter( 'graphql_post_object_type_fields_' . $allowed_post_type, function( $fields ) {
 
 						$fields['menu_order'] = [
 							'name' => 'menu_order',

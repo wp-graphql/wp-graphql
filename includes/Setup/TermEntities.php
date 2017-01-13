@@ -61,13 +61,13 @@ class TermEntities {
 		/**
 		 * Setup the root queries for terms
 		 */
-		add_action( 'wpgraphql_root_queries', [ $this, 'setup_term_queries' ], 5, 1 );
+		add_action( 'graphql_root_queries', [ $this, 'setup_term_queries' ], 5, 1 );
 
 		/**
 		 * Add dynamic fields to terms based on their support for that feature
 		 * @since 0.0.2
 		 */
-		add_action( 'wpgraphql_after_setup_term_object_queries', [ $this, 'dynamic_fields' ], 5 );
+		add_action( 'graphql_after_setup_term_object_queries', [ $this, 'dynamic_fields' ], 5 );
 
 	}
 
@@ -121,7 +121,7 @@ class TermEntities {
 		 *
 		 * @since 0.0.2
 		 */
-		$this->allowed_taxonomies = apply_filters( 'wpgraphql_term_entities_allowed_taxonomies', $taxonomies );
+		$this->allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
 
 		/**
 		 * Returns the array of $allowed_taxonomies
@@ -237,13 +237,13 @@ class TermEntities {
 				 * Run an action after each allowed_taxonomy has been added to the root_query
 				 * @since 0.0.2
 				 */
-				do_action( 'wpgraphql_after_setup_post_type_query_' . $allowed_taxonomy, $allowed_taxonomy, $allowed_taxonomy_object, $this->get_allowed_taxonomies() );
+				do_action( 'graphql_after_setup_post_type_query_' . $allowed_taxonomy, $allowed_taxonomy, $allowed_taxonomy_object, $this->get_allowed_taxonomies() );
 
 			}
 
 		}
 
-		do_action( 'wpgraphql_after_setup_term_object_queries', $this->get_allowed_taxonomies() );
+		do_action( 'graphql_after_setup_term_object_queries', $this->get_allowed_taxonomies() );
 
 		/**
 		 * Return the fields
@@ -287,7 +287,7 @@ class TermEntities {
 					 * Add the parent field to hierarchical taxonomy terms
 					 * @since 0.0.2
 					 */
-					add_filter( 'wpgraphql_term_object_type_fields_' . $this->allowed_taxonomy, function( $fields ) {
+					add_filter( 'graphql_term_object_type_fields_' . $this->allowed_taxonomy, function( $fields ) {
 
 						/**
 						 * Add the parent field to hierarchical terms
