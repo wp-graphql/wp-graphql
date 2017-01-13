@@ -1,7 +1,7 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject;
+namespace WPGraphQL\Types\PostObject;
 
-use DFM\WPGraphQL\Types\PostObject\TaxQuery\TaxQueryType;
+use WPGraphQL\Types\PostObject\TaxQuery\TaxQueryType;
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;
 use Youshido\GraphQL\Type\Scalar\BooleanType;
@@ -16,7 +16,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  * differences in naming, and some fields were intentionally left out, such as the "post_type" as it
  *
  *
- * @package DFM\WPGraphQL\Entities\PostObject
+ * @package WPGraphQL\Entities\PostObject
  */
 class PostObjectQueryArgs extends AbstractInputObjectType {
 

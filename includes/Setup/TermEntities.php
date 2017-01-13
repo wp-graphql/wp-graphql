@@ -1,7 +1,7 @@
 <?php
-namespace DFM\WPGraphQL\Setup;
-use DFM\WPGraphQL\Types\TermObject\TermObjectType;
-use DFM\WPGraphQL\Utils\Fields;
+namespace WPGraphQL\Setup;
+use WPGraphQL\Types\TermObject\TermObjectType;
+use WPGraphQL\Utils\Fields;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Scalar\IntType;
@@ -11,7 +11,7 @@ use Youshido\GraphQL\Type\Scalar\IntType;
  *
  * This setus up the PostType entities to be exposed to the RootQuery
  *
- * @package DFM\WPGraphQL\Setup
+ * @package WPGraphQL\Setup
  * @since 0.0.2
  */
 class TermEntities {
@@ -181,7 +181,7 @@ class TermEntities {
 				 *
 				 * @since 0.0.2
 				 */
-				$class = ( ! empty( $taxonomy_query_class ) && class_exists( $taxonomy_query_class ) ) ? $taxonomy_query_class : '\DFM\WPGraphQL\Types\TermObject\TermObjectQueryType';
+				$class = ( ! empty( $taxonomy_query_class ) && class_exists( $taxonomy_query_class ) ) ? $taxonomy_query_class : '\WPGraphQL\Types\TermObject\TermObjectQueryType';
 
 				/**
 				 * Configure the field names to pass to the fields

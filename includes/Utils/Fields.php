@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Utils;
+namespace WPGraphQL\Utils;
 
 class Fields {
 

@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\TermObject;
+namespace WPGraphQL\Types\TermObject;
 
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;

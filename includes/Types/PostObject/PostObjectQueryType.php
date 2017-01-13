@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject;
+namespace WPGraphQL\Types\PostObject;
 
 use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
@@ -11,7 +11,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  *
  * Define the PostObjectQueryType
  *
- * @package DFM\WPGraphQL\Queries
+ * @package WPGraphQL\Queries
  * @since 0.0.2
  */
 class PostObjectQueryType extends AbstractField {
@@ -119,7 +119,7 @@ class PostObjectQueryType extends AbstractField {
 		 */
 		$post_type_query = apply_filters(
 			'graphql_post_object_query_type',
-			'\DFM\WPGraphQL\Types\PostObject\PostObjectsType',
+			'\WPGraphQL\Types\PostObject\PostObjectsType',
 			$this->post_type,
 			$this->post_type_object
 		);

@@ -1,7 +1,7 @@
 <?php
-namespace DFM\WPGraphQL;
+namespace WPGraphQL;
 
-use DFM\WPGraphQL\RootQuery;
+use WPGraphQL\RootQuery;
 use Youshido\GraphQL\Config\Schema\SchemaConfig;
 use Youshido\GraphQL\Schema\AbstractSchema;
 
@@ -10,7 +10,7 @@ use Youshido\GraphQL\Schema\AbstractSchema;
  *
  * This sets up the base GraphQL Schema
  *
- * @package DFM\WPGraphQL
+ * @package WPGraphQL
  * @since 0.0.1
  */
 class Schema extends AbstractSchema {

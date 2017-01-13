@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL;
+namespace WPGraphQL;
 
 use Youshido\GraphQL\Type\Object\AbstractObjectType;
 
@@ -7,7 +7,7 @@ use Youshido\GraphQL\Type\Object\AbstractObjectType;
  * Class RootQuery
  *
  * This sets up the RootQuery
- * @package DFM\WPGraphQL
+ * @package WPGraphQL
  * @since 0.0.1
  */
 class RootQuery extends AbstractObjectType {

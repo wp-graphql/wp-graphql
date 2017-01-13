@@ -1,12 +1,12 @@
 <?php
-namespace DFM\WPGraphQL;
+namespace WPGraphQL;
 
 /**
  * Class Router
  *
  * This sets up the /graphql endpoint
  *
- * @package DFM\WPGraphQL
+ * @package WPGraphQL
  * @since 0.0.1
  */
 class Router {

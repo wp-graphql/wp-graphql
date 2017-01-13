@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\TermObject;
+namespace WPGraphQL\Types\TermObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\Object\AbstractObjectType;

@@ -7,5 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Youshido\\GraphQL\\' => array($vendorDir . '/youshido/graphql/src'),
-    'DFM\\WPGraphQL\\' => array($baseDir . '/includes'),
+    'WPGraphQL\\' => array($baseDir . '/includes'),
 );

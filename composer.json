@@ -4,7 +4,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DFM\\WPGraphQL\\": "includes"
+            "WPGraphQL\\": "includes"
         }
     }
 }

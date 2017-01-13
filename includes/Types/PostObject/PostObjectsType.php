@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject;
+namespace WPGraphQL\Types\PostObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;
@@ -11,7 +11,7 @@ use Youshido\GraphQL\Type\Scalar\IntType;
  * Class PostObjectsType
  *
  * Defines the PostObjectsType
- * @package DFM\WPGraphQL\Types\TermObject
+ * @package WPGraphQL\Types\TermObject
  * @since 0.0.2
  */
 class PostObjectsType extends AbstractObjectType {

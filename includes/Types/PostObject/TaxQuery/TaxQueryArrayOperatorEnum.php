@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject\TaxQuery;
+namespace WPGraphQL\Types\PostObject\TaxQuery;
 
 use Youshido\GraphQL\Type\Enum\AbstractEnumType;
 
@@ -8,7 +8,7 @@ use Youshido\GraphQL\Type\Enum\AbstractEnumType;
  *
  * Returns the possible values for the TaxQueryArray operator field
  *
- * @package DFM\WPGraphQL\Types\QueryTypes
+ * @package WPGraphQL\Types\QueryTypes
  * @since 0.0.2
  */
 class TaxQueryArrayOperatorEnum extends AbstractEnumType {

@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject\TaxQuery;
+namespace WPGraphQL\Types\PostObject\TaxQuery;
 
 use Youshido\GraphQL\Type\InputObject\AbstractInputObjectType;
 use Youshido\GraphQL\Type\ListType\ListType;

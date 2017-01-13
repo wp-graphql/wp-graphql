@@ -1,7 +1,7 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject;
+namespace WPGraphQL\Types\PostObject;
 
-use DFM\WPGraphQL\Setup\PostEntities;
+use WPGraphQL\Setup\PostEntities;
 use Youshido\GraphQL\Type\Union\AbstractUnionType;
 
 class PostParentUnion extends AbstractUnionType {

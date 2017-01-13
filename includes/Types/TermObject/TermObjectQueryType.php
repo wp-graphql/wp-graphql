@@ -1,7 +1,7 @@
 <?php
-namespace DFM\WPGraphQL\Types\TermObject;
+namespace WPGraphQL\Types\TermObject;
 
-use DFM\WPGraphQL\Utils\Fields;
+use WPGraphQL\Utils\Fields;
 use Youshido\GraphQL\Config\Field\FieldConfig;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
@@ -11,7 +11,7 @@ use Youshido\GraphQL\Field\AbstractField;
  *
  * Define TermObjectQueryType
  *
- * @package DFM\WPGraphQL\Types\TermObject
+ * @package WPGraphQL\Types\TermObject
  */
 class TermObjectQueryType extends AbstractField {
 
@@ -115,7 +115,7 @@ class TermObjectQueryType extends AbstractField {
 		 */
 		$term_type_query = apply_filters(
 			'graphql_term_object_query_type',
-			'\DFM\WPGraphQL\Types\TermObject\TermObjectsType',
+			'\WPGraphQL\Types\TermObject\TermObjectsType',
 			$this->taxonomy,
 			$this->taxonomy_object
 		);

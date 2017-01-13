@@ -15,5 +15,5 @@
  * @return array
  */
 function graphql_query( $query, $variables ) {
-	return \DFM\WPGraphQL::instance()->query( $query, $variables );
+	return \WPGraphQL::instance()->query( $query, $variables );
 }

@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\TermObject;
+namespace WPGraphQL\Types\TermObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\ListType\ListType;
@@ -11,7 +11,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  * Class TermObjectsType
  *
  * Defines the TermObjectsType
- * @package DFM\WPGraphQL\Types\TermObject
+ * @package WPGraphQL\Types\TermObject
  * @since 0.0.2
  */
 class TermObjectsType extends AbstractObjectType {

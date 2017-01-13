@@ -1,5 +1,5 @@
 <?php
-namespace DFM\WPGraphQL\Types\PostObject;
+namespace WPGraphQL\Types\PostObject;
 
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\NonNullType;
@@ -15,7 +15,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  * post_types that are set to "show_in_graphql". This sets up the core
  * fields that WordPress provides across post types.
  *
- * @package DFM\WPGraphQL\Entities\PostObject
+ * @package WPGraphQL\Entities\PostObject
  */
 class PostObjectType extends AbstractObjectType {
 

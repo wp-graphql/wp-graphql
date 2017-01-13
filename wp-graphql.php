@@ -16,19 +16,17 @@
  * @author Digital First Media, Jason Bahl, Ryan Kanner
  * @version 0.0.1
  */
-namespace DFM;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use DFM\WPGraphQL\Router;
-use DFM\WPGraphQL\Schema;
-use DFM\WPGraphQL\Setup\PostEntities;
-use DFM\WPGraphQL\Setup\Shortcodes;
-use DFM\WPGraphQL\Setup\TermEntities;
+use WPGraphQL\Router;
+use WPGraphQL\Schema;
+use WPGraphQL\Setup\PostEntities;
+use WPGraphQL\Setup\Shortcodes;
+use WPGraphQL\Setup\TermEntities;
 use Youshido\GraphQL\Execution\Processor;
 
-if ( ! class_exists( 'DFM\WPGraphQL' ) ) :
+if ( ! class_exists( 'WPGraphQL' ) ) :
 
 /**
  * This is the one true WPGraphQL class
@@ -161,9 +159,6 @@ final class WPGraphQL {
 		$term_entities = new TermEntities();
 		$term_entities->init();
 
-		$shortcodes = new Shortcodes();
-		$shortcodes->init();
-
 	}
 
 	/**
@@ -229,7 +224,7 @@ endif;
 
 // Function that instantiates the plugin
 function WPGraphQL() {
-	return \DFM\WPGraphQL::instance();
+	return \WPGraphQL::instance();
 }
 
 // Instantiate the plugin

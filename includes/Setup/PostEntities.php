@@ -1,8 +1,8 @@
 <?php
-namespace DFM\WPGraphQL\Setup;
+namespace WPGraphQL\Setup;
 
-use DFM\WPGraphQL\Types\PostObject\PostObjectType;
-use DFM\WPGraphQL\Utils\Fields;
+use WPGraphQL\Types\PostObject\PostObjectType;
+use WPGraphQL\Utils\Fields;
 use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Type\NonNullType;
 use Youshido\GraphQL\Type\Object\ObjectType;
@@ -16,7 +16,7 @@ use Youshido\GraphQL\Type\Scalar\StringType;
  *
  * This sets up the PostType entities to be exposed to the RootQuery
  *
- * @package DFM\WPGraphQL\Queries\PostEntities
+ * @package WPGraphQL\Queries\PostEntities
  * @since 0.0.2
  */
 class PostEntities {
@@ -185,7 +185,7 @@ class PostEntities {
 				 * If the post_type has a "graphql_query_class" defined, use it
 				 * Otherwise fall back to the standard PostObjectQuery class
 				 */
-				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\DFM\WPGraphQL\Types\PostObject\PostObjectQueryType';
+				$class = ( ! empty( $post_type_query_class ) && class_exists( $post_type_query_class ) ) ? $post_type_query_class  : '\WPGraphQL\Types\PostObject\PostObjectQueryType';
 
 				/**
 				 * Configure the field names to pass to the fields
