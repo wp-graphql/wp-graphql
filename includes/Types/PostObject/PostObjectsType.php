@@ -57,6 +57,7 @@ class PostObjectsType extends AbstractObjectType {
 	 * Defines the Object Type
 	 *
 	 * @param $config
+	 *
 	 * @return void
 	 * @since 0.0.1
 	 */
@@ -69,44 +70,45 @@ class PostObjectsType extends AbstractObjectType {
 		/**
 		 * Create the config to pass down to the PostObject
 		 */
-		$postObjectConfig = [
-			'post_type' => $this->getConfig()->get( 'post_type' ),
+		$post_object_config = [
+			'post_type'  => $this->getConfig()->get( 'post_type' ),
 			'query_name' => $this->getConfig()->get( 'query_name' ),
 		];
 
 
 		$fields = [
-			'items' =>	[
-				'type' => new ListType( new PostObjectType( $postObjectConfig ) ),
+			'items'       => [
+				'type'        => new ListType( new PostObjectType( $post_object_config ) ),
 				'description' => __( 'List of items matching the query', 'wp-graphqhl' ),
-				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				'resolve'     => function( $value, array $args, ResolveInfo $info ) {
 					return ( ! empty( $value->posts ) && is_array( $value->posts ) ) ? $value->posts : [];
 				},
 			],
-			'per_page' => [
-				'type' => new IntType(),
+			'per_page'    => [
+				'type'        => new IntType(),
 				'description' => __( 'The number of items displayed in the current paginated request', 'wp-graphqhl' ),
-				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				'resolve'     => function( $value, array $args, ResolveInfo $info ) {
 					return ! empty( $value->query_vars['posts_per_page'] ) ? $value->query_vars['posts_per_page'] : null;
-				}
+				},
 			],
-			'total' => [
-				'type' => new IntType(),
+			'total'       => [
+				'type'        => new IntType(),
 				'description' => __( 'The total number of items that match the query', 'wp-graphqhl' ),
-				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				'resolve'     => function( $value, array $args, ResolveInfo $info ) {
 					return ! empty( $value->found_posts ) ? absint( $value->found_posts ) : 0;
-				}
+				},
 			],
 			'total_pages' => [
-				'type' => new NonNullType( new IntType() ),
+				'type'        => new NonNullType( new IntType() ),
 				'description' => __( 'The total number of pages', 'wp-graphqhl' ),
-				'resolve' => function( $value, array $args, ResolveInfo $info ) {
+				'resolve'     => function( $value, array $args, ResolveInfo $info ) {
 					$total_pages = 0;
 					if ( ! empty( $value->found_posts ) && ! empty( $value->query_vars['posts_per_page'] ) ) {
 						$total_pages = absint( $value->found_posts ) / absint( $value->query_vars['posts_per_page'] );
 					}
+
 					return absint( $total_pages );
-				}
+				},
 			],
 		];
 
@@ -114,7 +116,10 @@ class PostObjectsType extends AbstractObjectType {
 		 * Filter the fields that are part of the PostObjectsType
 		 * @since 0.0.2
 		 */
-		$fields = apply_filters( 'graphql_post_objects_type_fields_' . $this->getConfig()->get( 'post_type' ), $fields );
+		$fields = apply_filters(
+			'graphql_post_objects_type_fields_' . $this->getConfig()->get( 'post_type' ),
+			$fields
+		);
 
 		/**
 		 * Add the fields

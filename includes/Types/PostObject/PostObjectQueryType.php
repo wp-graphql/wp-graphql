@@ -50,6 +50,7 @@ class PostObjectQueryType extends AbstractField {
 	 * sets default values
 	 *
 	 * @param array $args
+	 *
 	 * @since 0.0.2
 	 */
 	public function __construct( $args ) {
@@ -74,16 +75,21 @@ class PostObjectQueryType extends AbstractField {
 		 * @since 0.0.2
 		 */
 		$config = [
-			'name' => $this->getName(),
-			'type' => $this->getType(),
-			'resolve' => [ $this, 'resolve' ]
+			'name'    => $this->getName(),
+			'type'    => $this->getType(),
+			'resolve' => [ $this, 'resolve' ],
 		];
 
 		/**
 		 * Pass the config through a filter
 		 * @since 0.0.2
 		 */
-		$config = apply_filters( 'graphql_post_object_query_config', $config, $this->post_type, $this->post_type_object );
+		$config = apply_filters(
+			'graphql_post_object_query_config',
+			$config,
+			$this->post_type,
+			$this->post_type_object
+		);
 
 		/**
 		 * Pass the $config to the parent __construct
@@ -127,11 +133,11 @@ class PostObjectQueryType extends AbstractField {
 		/**
 		 * Return the PostType
 		 */
-		return new $post_type_query([
-			'post_type' => $this->post_type,
+		return new $post_type_query( [
+			'post_type'        => $this->post_type,
 			'post_type_object' => $this->post_type_object,
-			'query_name' => $this->query_name
-		]);
+			'query_name'       => $this->query_name,
+		] );
 
 	}
 
@@ -193,7 +199,7 @@ class PostObjectQueryType extends AbstractField {
 
 		// Set the default $query_args
 		$query_args = [
-			'post_type' => esc_html( $this->post_type ),
+			'post_type'      => esc_html( $this->post_type ),
 			'posts_per_page' => absint( $this->posts_per_page ),
 		];
 
@@ -203,20 +209,25 @@ class PostObjectQueryType extends AbstractField {
 		 *
 		 * This allows for settings to be set that can't be overridden by user entry certain contexts
 		 */
-		$query_args = apply_filters( 'graphql_post_object_query_query_arg_defaults_' . $this->post_type, $query_args, $args, $info );
+		$query_args = apply_filters(
+			'graphql_post_object_query_query_arg_defaults_' . $this->post_type,
+			$query_args,
+			$args,
+			$info
+		);
 
 		/**
 		 * Convert the Schema friendly names to the WP_Query friendly names
 		 */
-		$query_args['s'] = ! empty( $args['search'] ) ? $args['search'] : $query_args['s'];
-		$query_args['p'] = ! empty( $args['id'] ) ? $args['id'] : $query_args['p'];
-		$query_args['post_parent'] = ! empty( $args['parent'] ) ? $args['parent'] : $query_args['post_parent'];
-		$query_args['post_parent__in'] = ! empty( $args['parent__in'] ) ? $args['parent__in'] : $query_args['post_parent__in'];
+		$query_args['s']                   = ! empty( $args['search'] ) ? $args['search'] : $query_args['s'];
+		$query_args['p']                   = ! empty( $args['id'] ) ? $args['id'] : $query_args['p'];
+		$query_args['post_parent']         = ! empty( $args['parent'] ) ? $args['parent'] : $query_args['post_parent'];
+		$query_args['post_parent__in']     = ! empty( $args['parent__in'] ) ? $args['parent__in'] : $query_args['post_parent__in'];
 		$query_args['post_parent__not_in'] = ! empty( $args['parent__not_in'] ) ? $args['parent__not_in'] : $query_args['post_parent__not_in'];
-		$query_args['post__in'] = ! empty( $args['in'] ) ? $args['in'] : $query_args['post__in'];
-		$query_args['post__not_in'] = ! empty( $args['not_in'] ) ? $args['not_in'] : $query_args['post__not_in'];
-		$query_args['post_name__in'] = ! empty( $args['name_in'] ) ? $args['name_in'] : $query_args['post_name__in'];
-		$query_args['post_status'] = ! empty( $args['status'] ) ? $args['status'] : $query_args['post_status'];
+		$query_args['post__in']            = ! empty( $args['in'] ) ? $args['in'] : $query_args['post__in'];
+		$query_args['post__not_in']        = ! empty( $args['not_in'] ) ? $args['not_in'] : $query_args['post__not_in'];
+		$query_args['post_name__in']       = ! empty( $args['name_in'] ) ? $args['name_in'] : $query_args['post_name__in'];
+		$query_args['post_status']         = ! empty( $args['status'] ) ? $args['status'] : $query_args['post_status'];
 
 		/**
 		 * Clean up the Schema friendly names so they're not cluttering the args that are
@@ -265,20 +276,21 @@ class PostObjectQueryType extends AbstractField {
 	 * Sets up the $args for the PostObjectQueryType
 	 *
 	 * @param FieldConfig $config
+	 *
 	 * @since 0.0.1
 	 */
 	public function build( FieldConfig $config ) {
 
-		$queryArgs = [
-			'post_type' => $this->post_type,
+		$query_args = [
+			'post_type'  => $this->post_type,
 			'query_name' => $this->query_name,
 		];
 
 		$config->addArgument(
 			'args',
 			[
-				'name' => 'args',
-				'type' => new PostObjectQueryArgs( $queryArgs ),
+				'name'        => 'args',
+				'type'        => new PostObjectQueryArgs( $query_args ),
 				'description' => sprintf( __( 'Query args for the %s post type', 'wp-graphql' ), $this->post_type ),
 			]
 		);

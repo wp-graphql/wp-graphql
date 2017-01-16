@@ -32,7 +32,8 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 	public function getName() {
 
 		$query_name = $this->getConfig()->get( 'query_name' );
-		$name = ! empty( $query_name ) ? $query_name : 'Post';
+		$name       = ! empty( $query_name ) ? $query_name : 'Post';
+
 		return $name . 'Args';
 
 	}
@@ -43,7 +44,9 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 	 * This builds out the PostObjectQueryArgs
 	 *
 	 * @since 0.0.2
+	 *
 	 * @param $config
+	 *
 	 * @return mixed|void
 	 */
 	public function build( $config ) {
@@ -55,28 +58,28 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$category_fields = [
 			[
-				'name' => 'cat',
-				'type' => new IntType(),
+				'name'        => 'cat',
+				'type'        => new IntType(),
 				'description' => __( 'Category ID', 'wp-graphql' ),
 			],
 			[
-				'name' => 'category_name',
-				'type' => new StringType(),
+				'name'        => 'category_name',
+				'type'        => new StringType(),
 				'description' => __( 'Use Category Slug', 'wp-graphql' ),
 			],
 			[
-				'name' => 'category__and',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'category__and',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of category IDs, used to display objects in one category AND another', 'wp-graphql' ),
 			],
 			[
-				'name' => 'category__in',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'category__in',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of category IDs, used to display objects from one category OR another', 'wp-graphql' ),
 			],
 			[
-				'name' => 'category__not_in',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'category__not_in',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of category IDs, used to exclude objects in specified categories', 'wp-graphql' ),
 			],
 		];
@@ -89,38 +92,38 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$tag_fields = [
 			[
-				'name' => 'tag',
-				'type' => new StringType(),
+				'name'        => 'tag',
+				'type'        => new StringType(),
 				'description' => __( 'Tag Slug', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag_id',
-				'type' => new StringType(),
+				'name'        => 'tag_id',
+				'type'        => new StringType(),
 				'description' => __( 'Use Tag ID', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag__and',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'tag__and',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of tag IDs, used to display objects in one tag AND another', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag__in',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'tag__in',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag__not_in',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'tag__not_in',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of tag IDs, used to exclude objects in specified tags', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag_slug__and',
-				'type' => new ListType( new StringType() ),
+				'name'        => 'tag_slug__and',
+				'type'        => new ListType( new StringType() ),
 				'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
 			],
 			[
-				'name' => 'tag_slug__in',
-				'type' => new ListType( new IntType() ),
+				'name'        => 'tag_slug__in',
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 			],
 		];
@@ -132,9 +135,8 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$taxonomy_fields = [
 			[
-				'name' => 'tax_query',
-				'type' => new TaxQueryType(),
-				// 'type' => new StringType(),
+				'name'        => 'tax_query',
+				'type'        => new TaxQueryType(),
 				'description' => __( 'Query objects using Taxonomy paramaters', 'wp-graphql' ),
 			],
 		];
@@ -146,10 +148,10 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$search_fields = [
 			[
-				'name' => 'search', // originally "s"
-				'type' => new StringType(),
+				'name'        => 'search', // originally "s"
+				'type'        => new StringType(),
 				'description' => __( 'Show Posts based on a keyword search', 'wp-graphql' ),
-			]
+			],
 		];
 
 		/**
@@ -159,48 +161,48 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$post_page_fields = [
 			[
-				'name' => 'id', // originally "p"
-				'type' => new IntType(),
+				'name'        => 'id', // originally "p"
+				'type'        => new IntType(),
 				'description' => __( 'Specific ID of the object', 'wp-graphql' ),
 			],
 			[
-				'name' => 'name',
-				'type' => new StringType(),
+				'name'        => 'name',
+				'type'        => new StringType(),
 				'description' => __( 'Slug / post_name of the object', 'wp-graphql' ),
 			],
 			[
-				'name' => 'title',
-				'type' => new StringType(),
+				'name'        => 'title',
+				'type'        => new StringType(),
 				'description' => __( 'Title of the object', 'wp-graphql' ),
 			],
 			[
-				'name' => 'parent', // originally "post_parent"
-				'type' => new StringType(),
+				'name'        => 'parent', // originally "post_parent"
+				'type'        => new StringType(),
 				'description' => __( 'Use ID to return only children. Use 0 to return only top-level items', 'wp-graphql' ),
 			],
 			[
-				'name' => 'parent__in', // originally "post_parent__in"
-				'type' => new ListType( new IntType() ),
+				'name'        => 'parent__in', // originally "post_parent__in"
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Specify objects whose parent is in an array', 'wp-graphql' ),
 			],
 			[
-				'name' => 'parent__not_in', // originally "post_parent__not_in"
-				'type' => new ListType( new IntType() ),
+				'name'        => 'parent__not_in', // originally "post_parent__not_in"
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Specify posts whose parent is not in an array', 'wp-graphql' ),
 			],
 			[
-				'name' => 'in', // originally post__in
-				'type' => new ListType( new IntType() ),
+				'name'        => 'in', // originally post__in
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Array of IDs for the objects to retrieve', 'wp-graphql' ),
 			],
 			[
-				'name' => 'not_in', // originally "post__not_in"
-				'type' => new ListType( new IntType() ),
+				'name'        => 'not_in', // originally "post__not_in"
+				'type'        => new ListType( new IntType() ),
 				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
 			],
 			[
-				'name' => 'name__in', // originally "post_name__in"
-				'type' => new ListType( new StringType() ),
+				'name'        => 'name__in', // originally "post_name__in"
+				'type'        => new ListType( new StringType() ),
 				'description' => __( 'Specify objects to retrieve. Use slugs', 'wp-graphql' ),
 			],
 		];
@@ -212,14 +214,14 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$password_fields = [
 			[
-				'name' => 'has_password',
-				'type' => new StringType(),
+				'name'        => 'has_password',
+				'type'        => new StringType(),
 				'description' => __( 'True for objects with passwords; False for objects without passwords; null for all objects with or without passwords', 'wp-graphql' ),
 			],
 			[
-				'name' => 'password',
-				'type' => new StringType(),
-				'description' => __( 'Show posts with a specific password.', 'wp-graphql' )
+				'name'        => 'password',
+				'type'        => new StringType(),
+				'description' => __( 'Show posts with a specific password.', 'wp-graphql' ),
 			],
 		];
 
@@ -239,9 +241,9 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$status_fields = [
 			[
-				'name' => 'status',
+				'name'        => 'status',
 				// @todo: convert to enum of post_stati
-				'type' => new StringType(),
+				'type'        => new StringType(),
 				'description' => __( 'Use post status. Retrieves posts by Post Status. Default value is \'publish\'.', 'wp-graphql' ),
 			],
 		];
@@ -253,34 +255,34 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$pagination_fields = [
 			[
-				'name' => 'nopaging',
-				'type' => new BooleanType(),
+				'name'        => 'nopaging',
+				'type'        => new BooleanType(),
 				'description' => __( 'True to not use pagination. False to use pagination. Default: False', 'wp-graphql' ),
 			],
 			[
-				'name' => 'per_page',
-				'type' => new IntType(),
+				'name'        => 'per_page',
+				'type'        => new IntType(),
 				'description' => __( 'Number of items to show per page.', 'wp-graphql' ),
 			],
 
 			// @todo: discuss implementing posts_per_archive_page field
 
 			[
-				'name' => 'offset',
-				'type' => new StringType(),
+				'name'        => 'offset',
+				'type'        => new StringType(),
 				'description' => __( 'Number of items to displace or pass over. WARNING: Setting the offset overrides/ignores the paged parameter and breaks pagination.', 'wp-graphql' ),
 			],
 			[
-				'name' => 'paged',
-				'type' => new IntType(),
+				'name'        => 'paged',
+				'type'        => new IntType(),
 				'description' => __( 'Number of page. Show the posts that would normally show up just on page X.', 'wp-graphql' ),
 			],
 
 			// @todo: discuss implementing page field
 
 			[
-				'name' => 'ignore_sticky_posts',
-				'type' => new BooleanType(),
+				'name'        => 'ignore_sticky_posts',
+				'type'        => new BooleanType(),
 				'description' => __( 'Ignore object stickiness', 'wp-graphql' ),
 			],
 		];
@@ -292,14 +294,14 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$order_fields = [
 			[
-				'name' => 'order',
-				'type' => new ListType( new StringType() ), // @todo: convert to enum
+				'name'        => 'order',
+				'type'        => new ListType( new StringType() ), // @todo: convert to enum
 				'description' => __( 'Designates the ascending or descending order of the \'orderby\' parameter. Defaults to \'DESC\'.', 'wp-graphql' ),
 			],
 			[
-				'name' => 'orderby',
+				'name'        => 'orderby',
 				// @todo: convert to enum type of possible orderby paramaters
-				'type' => new ListType( new StringType() ),
+				'type'        => new ListType( new StringType() ),
 				'description' => __( 'Number of items to show per page.', 'wp-graphql' ),
 			],
 		];
@@ -311,58 +313,53 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$date_fields = [
 			[
-				'name' => 'year',
-				'type' => new IntType(),
+				'name'        => 'year',
+				'type'        => new IntType(),
 				'description' => __( '4 digit year (e.g. 2016', 'wp-graphql' ),
 			],
 			[
-				'name' => 'monthnum',
+				'name'        => 'monthnum',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Month number. (from 1 to 12)', 'wp-graphql' ),
 			],
 			[
-				'name' => 'w',
+				'name'        => 'w',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Week of the year. Note: This is dependent on the "start_of_week" option.', 'wp-graphql' ),
 			],
 			[
-				'name' => 'day',
+				'name'        => 'day',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 			],
 			[
-				'name' => 'hour',
+				'name'        => 'hour',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Hour of the day (from 0 to 23)', 'wp-graphql' ),
 			],
 			[
-				'name' => 'minute',
+				'name'        => 'minute',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Minute (from 0 to 60)', 'wp-graphql' ),
 			],
 			[
-				'name' => 'second',
+				'name'        => 'second',
 				// @todo: convert to enum
-				'type' => new IntType(),
+				'type'        => new IntType(),
 				'description' => __( 'Second (from 0 to 60)', 'wp-graphql' ),
 			],
 			[
 				// @todo: support a different name instead of "m"? like "yearmonth?"
-				'name' => 'm',
-				'type' => new IntType(),
+				'name'        => 'm',
+				'type'        => new IntType(),
 				'description' => __( 'YearMonth (For e.g.: 201307)', 'wp-graphql' ),
 			],
-//			[
-//				'name' => 'date_query',
-//				// @todo: convert to DateQuery type
-//				'type' => new StringType(),
-//				'description' => __( 'Advanced date paramaters', 'wp-graphql' ),
-//			],
+			// @todo: add DateQuery
 		];
 
 		/**
@@ -372,31 +369,26 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$meta_fields = [
 			[
-				'name' => 'meta_key',
-				'type' => new StringType(),
+				'name'        => 'meta_key',
+				'type'        => new StringType(),
 				'description' => __( 'Custom field key', 'wp-graphql' ),
 			],
 			[
-				'name' => 'meta_value',
-				'type' => new StringType(),
+				'name'        => 'meta_value',
+				'type'        => new StringType(),
 				'description' => __( 'Custom field value', 'wp-graphql' ),
 			],
 			[
-				'name' => 'meta_value_num',
-				'type' => new IntType(),
+				'name'        => 'meta_value_num',
+				'type'        => new IntType(),
 				'description' => __( 'Custom field value, if integer', 'wp-graphql' ),
 			],
 			[
-				'name' => 'meta_compare',
-				'type' => new StringType(), // @todo: convert to enum
+				'name'        => 'meta_compare',
+				'type'        => new StringType(), // @todo: convert to enum
 				'description' => __( 'Operator to test the \'meta_value\'. Possible values are \'=\', \'!=\', \'>\', \'>=\', \'<\', \'<=\', \'LIKE\', \'NOT LIKE\', \'IN\', \'NOT IN\', \'BETWEEN\', \'NOT BETWEEN\', \'NOT EXISTS\', \'REGEXP\', \'NOT REGEXP\' or \'RLIKE\'. Default value is \'=\'.', 'wp-graphql' ),
 			],
-//			[
-//				'name' => 'meta_query',
-//				// @todo: Support meta_query
-//				'type' => new StringType(),
-//				'description' => __( 'Advanced custom meta field queries', 'wp-graphql' ),
-//			],
+			// @todo: Support meta_query
 		];
 
 		/**
@@ -414,9 +406,9 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$permission_fields = [
 			[
-				'name' => 'mime_type',
+				'name'        => 'mime_type',
 				// @todo: possibly convert to enum of existing mime types?
-				'type' => new ListType( new StringType() ),
+				'type'        => new ListType( new StringType() ),
 				'description' => __( 'Allowed mime types', 'wp-graphql' ),
 			],
 		];
@@ -428,18 +420,18 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$caching_fields = [
 			[
-				'name' => 'cache_results',
-				'type' => new BooleanType(),
+				'name'        => 'cache_results',
+				'type'        => new BooleanType(),
 				'description' => __( 'Should the object be added to the cache?', 'wp-graphql' ),
 			],
 			[
-				'name' => 'update_meta_cache', // update_post_meta_cache
-				'type' => new BooleanType(),
+				'name'        => 'update_meta_cache', // update_post_meta_cache
+				'type'        => new BooleanType(),
 				'description' => __( 'Should the object custom meta added to the cache?', 'wp-graphql' ),
 			],
 			[
-				'name' => 'update_term_cache', // update_post_term_cache
-				'type' => new BooleanType(),
+				'name'        => 'update_term_cache', // update_post_term_cache
+				'type'        => new BooleanType(),
 				'description' => __( 'Should the object terms be added to the cache?', 'wp-graphql' ),
 			],
 		];
@@ -451,10 +443,11 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 */
 		$return_fields = [
 			[
-				'name' => 'fields',
-				'type' => new StringType(), // @todo: convert to enum (ids, id=>parent, any)
-				'description' => __( 'Which fields should be returned? All fields returned by default. There are 2 other options: "ids", "id=>parent", anything else will return all fields', 'wp-graphql' ),
-			]
+				'name'        => 'fields',
+				'type'        => new StringType(), // @todo: convert to enum (ids, id=>parent, any)
+				'description' => __( 'Which fields should be returned? All fields returned by default. 
+				There are 2 other options: "ids", "id=>parent", anything else will return all fields', 'wp-graphql' ),
+			],
 		];
 
 		/**
@@ -481,7 +474,11 @@ class PostObjectQueryArgs extends AbstractInputObjectType {
 		 * Filter the fields that are passed to the query args
 		 * @since 0.0.1
 		 */
-		$fields = apply_filters( 'graphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ), $fields, $config );
+		$fields = apply_filters(
+			'graphql_query_args_fields_' . $this->getConfig()->get( 'post_type' ),
+			$fields,
+			$config
+		);
 
 		/**
 		 * If there are fields, add them to the config

@@ -6,7 +6,7 @@ use Youshido\GraphQL\Type\Union\AbstractUnionType;
 
 class PostParentUnion extends AbstractUnionType {
 
-	public function getDescription(){
+	public function getDescription() {
 		return __( 'Because post objects can have a parent of any other post_type, this field allows for any 
 		post_type to be returned and valid, and fields of that object can be retrieved via a 
 		fragment query.', 'wp-graphql' );
@@ -30,8 +30,8 @@ class PostParentUnion extends AbstractUnionType {
 	 */
 	public function getTypes() {
 
-		$types = [];
-		$post_entities = new PostEntities();
+		$types              = [];
+		$post_entities      = new PostEntities();
 		$allowed_post_types = $post_entities->get_allowed_post_types();
 
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
@@ -45,12 +45,10 @@ class PostParentUnion extends AbstractUnionType {
 					$types[] = new PostObjectType( [
 						'post_type'  => $allowed_post_type,
 						'query_name' => $query_name,
-					]);
+					] );
 
 				}
-
 			}
-
 		}
 
 		/**
@@ -75,14 +73,16 @@ class PostParentUnion extends AbstractUnionType {
 	 * PostObjectType to return.
 	 *
 	 * @since 0.0.2
+	 *
 	 * @param object $post
+	 *
 	 * @return PostObjectType|null
 	 */
 	public function resolveType( $post ) {
 
-		$post_type = ! empty( $post->post_type ) ? $post->post_type : 'post';
+		$post_type        = ! empty( $post->post_type ) ? $post->post_type : 'post';
 		$post_type_object = get_post_type_object( $post->post_type );
-		$query_name = ! empty( $post_type_object->graphql_name ) ? $post_type_object->graphql_name : 'Post';
+		$query_name       = ! empty( $post_type_object->graphql_name ) ? $post_type_object->graphql_name : 'Post';
 
 		$type = new PostObjectType( [
 			'post_type'  => $post_type,

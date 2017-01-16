@@ -1,5 +1,6 @@
 <?php
 namespace WPGraphQL\Setup;
+
 use WPGraphQL\Types\TermObject\TermObjectType;
 use WPGraphQL\Utils\Fields;
 use Youshido\GraphQL\Execution\ResolveInfo;
@@ -209,7 +210,7 @@ class TermEntities {
 					'name'    => $single_query_name,
 					'type'    => new TermObjectType( [
 						'taxonomy'   => $allowed_taxonomy,
-						'query_name' => $single_query_name
+						'query_name' => $single_query_name,
 					] ),
 					'args'    => [
 						'id' => new NonNullType( new IntType() ),
@@ -218,7 +219,7 @@ class TermEntities {
 						$term_object = get_term( $args->ID, $this->allowed_taxonomy );
 
 						return ! empty( $term_object ) ? $term_object : null;
-					}
+					},
 				];
 
 				/**
@@ -227,11 +228,11 @@ class TermEntities {
 				 *
 				 * @since 0.0.2
 				 */
-				$fields[ $plural_query_name ] = new $class([
+				$fields[ $plural_query_name ] = new $class( [
 					'name'            => $plural_query_name,
 					'taxonomy_object' => $allowed_taxonomy_object,
 					'query_name'      => $plural_query_name,
-				]);
+				] );
 
 				/**
 				 * Run an action after each allowed_taxonomy has been added to the root_query
@@ -240,7 +241,6 @@ class TermEntities {
 				do_action( 'graphql_after_setup_post_type_query_' . $allowed_taxonomy, $allowed_taxonomy, $allowed_taxonomy_object, $this->get_allowed_taxonomies() );
 
 			}
-
 		}
 
 		do_action( 'graphql_after_setup_term_object_queries', $this->get_allowed_taxonomies() );
@@ -258,7 +258,6 @@ class TermEntities {
 	 * This adds dynamic fields to TermObjectType based on various WordPress configuration settings.
 	 * For example, this adds the "parent" field to taxonomies that are hierarchical
 	 *
-	 * @param $fields
 	 * @return mixed
 	 * @since 0.0.2
 	 */
@@ -296,14 +295,14 @@ class TermEntities {
 							'name'        => 'parent',
 							'type'        => new TermObjectType( [
 								'taxonomy'   => $this->allowed_taxonomy,
-								'query_name' => 'ParentTerm'
+								'query_name' => 'ParentTerm',
 							] ),
 							'description' => __( 'The parent term of the object', 'wp-graphql' ),
 							'resolve'     => function( $value, array $args, ResolveInfo $info ) {
 								$term_parent = ( false !== $value->parent ) ? get_term( $value->parent, $this->allowed_taxonomy ) : null;
 
 								return ! empty( $term_parent ) ? $term_parent : null;
-							}
+							},
 						];
 
 						return $fields;
@@ -311,9 +310,7 @@ class TermEntities {
 					}, 10, 1 );
 
 				}
-
 			}
-
 		}
 
 	}

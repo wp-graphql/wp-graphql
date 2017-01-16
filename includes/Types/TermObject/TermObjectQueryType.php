@@ -72,8 +72,8 @@ class TermObjectQueryType extends AbstractField {
 		 * @since 0.0.2
 		 */
 		$config = [
-			'name' => $this->getName(),
-			'type' => $this->getType(),
+			'name'    => $this->getName(),
+			'type'    => $this->getType(),
 			'resolve' => [ $this, 'resolve' ],
 		];
 
@@ -123,10 +123,10 @@ class TermObjectQueryType extends AbstractField {
 		/**
 		 * Return the TermType
 		 */
-		return new $term_type_query([
-			'taxonomy' => $this->taxonomy,
-			'query_name' => $this->query_name
-		]);
+		return new $term_type_query( [
+			'taxonomy'   => $this->taxonomy,
+			'query_name' => $this->query_name,
+		] );
 
 	}
 
@@ -135,7 +135,7 @@ class TermObjectQueryType extends AbstractField {
 	 *
 	 * Define the description for the query
 	 */
-	public function getDescription(){
+	public function getDescription() {
 
 		/**
 		 * Initial description for the query
@@ -176,7 +176,7 @@ class TermObjectQueryType extends AbstractField {
 		 */
 		$query_args = [
 			'taxonomy' => $this->taxonomy,
-			'number' => absint( $this->terms_per_page ),
+			'number'   => absint( $this->terms_per_page ),
 		];
 
 		/**
@@ -221,20 +221,21 @@ class TermObjectQueryType extends AbstractField {
 	 * Sets up the $args for the TermObjectQueryType
 	 *
 	 * @param FieldConfig $config
+	 *
 	 * @since 0.0.2
 	 */
 	public function build( FieldConfig $config ) {
 
-		$queryArgs = [
-			'taxonomy' => $this->taxonomy,
+		$query_args = [
+			'taxonomy'   => $this->taxonomy,
 			'query_name' => $this->query_name,
 		];
 
 		$config->addArgument(
 			'args',
 			[
-				'name' => 'args',
-				'type' => new TermObjectQueryArgs( $queryArgs ),
+				'name'        => 'args',
+				'type'        => new TermObjectQueryArgs( $query_args ),
 				'description' => sprintf( __( 'Query args for the %s taxonomy', 'wp-graphql' ), $this->taxonomy ),
 			]
 		);

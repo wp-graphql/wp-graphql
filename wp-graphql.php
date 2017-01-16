@@ -17,7 +17,9 @@
  * @version 0.0.3
  */
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 use WPGraphQL\Router;
 use WPGraphQL\Schema;
@@ -28,223 +30,189 @@ use Youshido\GraphQL\Execution\Processor;
 
 if ( ! class_exists( 'WPGraphQL' ) ) :
 
-/**
- * This is the one true WPGraphQL class
- */
-final class WPGraphQL {
-
 	/**
-	 * @var WPGraphQL The one true WPGraphQL
-	 * @since 0.0.1
+	 * This is the one true WPGraphQL class
 	 */
-	private static $instance;
+	final class WPGraphQL {
 
-	/**
-	 * @return object|WPGraphQL - The one true WPGraphQL
-	 * @since 0.0.1
-	 */
-	public static function instance() {
+		/**
+		 * @var WPGraphQL The one true WPGraphQL
+		 * @since 0.0.1
+		 */
+		private static $instance;
 
-		if ( ! isset( self::$instance ) && ! ( self::$instance instanceof WPGraphQL ) ) {
+		/**
+		 * @return object|WPGraphQL - The one true WPGraphQL
+		 * @since 0.0.1
+		 */
+		public static function instance() {
+			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof WPGraphQL ) ) {
+				self::$instance = new WPGraphQL;
+				self::$instance->setup_constants();
+				self::$instance->includes();
+				self::$instance->setup();
+				self::$instance->router = new Router();
+			}
 
-			self::$instance = new WPGraphQL;
-			self::$instance->setup_constants();
-			self::$instance->includes();
-			self::$instance->setup();
-			self::$instance->router = new Router();
-
+			/**
+			 * Fire off init action
+			 */
+			do_action( 'graphql_init', self::$instance );
+			/**
+			 * Return the WPGraphQL Instance
+			 */
+			return self::$instance;
 		}
 
 		/**
-		 * Fire off init action
-		 */
-		do_action( 'graphql_init', self::$instance );
-
-		/**
-		 * Return the WPGraphQL Instance
-		 */
-		return self::$instance;
-
-	}
-
-	/**
-	 * Throw error on object clone.
-	 *
-	 * The whole idea of the singleton design pattern is that there is a single
-	 * object therefore, we don't want the object to be cloned.
-	 *
-	 * @since 0.0.1
-	 * @access protected
-	 * @return void
-	 */
-	public function __clone() {
-
-		// Cloning instances of the class is forbidden.
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-graphql' ), '1.6' );
-
-	}
-
-	/**
-	 * Disable unserializing of the class.
-	 *
-	 * @since 0.0.1
-	 * @access protected
-	 * @return void
-	 */
-	public function __wakeup() {
-
-		// Unserializing instances of the class is forbidden.
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-graphql' ), '1.6' );
-
-	}
-
-	/**
-	 * Setup plugin constants.
-	 *
-	 * @access private
-	 * @since 0.0.1
-	 * @return void
-	 */
-	private function setup_constants() {
-
-		// Plugin version.
-		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '0.0.3' );
-		}
-
-		// Plugin Folder Path.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_DIR' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-		}
-
-		// Plugin Folder URL.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-		}
-
-		// Plugin Root File.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_FILE' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_FILE', __FILE__ );
-		}
-
-	}
-
-	/**
-	 * Include required files.
-	 *
-	 * Uses composer's autoload
-	 *
-	 * @access private
-	 * @since 0.0.1
-	 * @return void
-	 */
-	private function includes() {
-
-		// Autoload Required Classes
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php');
-
-		// This required here as it is not a class, so it is not auto-loaded
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'includes/access-functions.php' );
-
-	}
-
-	/**
-	 * setup
-	 *
-	 * This sets up the various types and other
-	 * plugin functions
-	 *
-	 * @access private
-	 * @since 0.0.2
-	 * @return void
-	 */
-	private function setup() {
-
-		// Initialize PostEntities
-		$post_entities = new PostEntities();
-		$post_entities->init();
-
-		// Initialize TermEntites
-		$term_entities = new TermEntities();
-		$term_entities->init();
-
-		/**
-		 * Fires an action once the plugin has been setup
-		 * @since 0.0.3
-		 */
-		do_action( 'graphql_setup' );
-
-	}
-
-	/**
-	 * query
-	 *
-	 * This takes in a query and variables, processes them and returns the result
-	 *
-	 * @param $query
-	 * @param $variables
-	 *
-	 * @return array
-	 */
-	public function query( $query, $variables ) {
-
-		/**
-		 * Define that a GRAPHQL_REQUEST is happening
-		 */
-		define( 'GRAPHQL_REQUEST', true );
-
-		/**
-		 * Fire off init action
-		 */
-		do_action( 'graphql_query', $query, $variables );
-
-		/**
-		 * Instantiate the DFM\GraphQL\Schema
-		 */
-		$schema = new Schema();
-
-		/**
-		 * Instantiate the GraphQL Processor
-		 */
-		$processor = new Processor( $schema );
-
-		/**
-		 * Add the current_user to the execution context
-		 */
-		$processor->getExecutionContext()->current_user = wp_get_current_user();
-
-		/**
-		 * Process the payload
-		 */
-		$processor->processPayload( $query, $variables );
-
-		/**
-		 * Get the response from the processor
-		 */
-		$result = $processor->getResponseData();
-
-		/**
-		 * Return the result of the query and pass it through a filter
-		 * to allow for modifications before the results are returned
+		 * Throw error on object clone.
 		 *
-		 * @since 0.0.2
+		 * The whole idea of the singleton design pattern is that there is a single
+		 * object therefore, we don't want the object to be cloned.
+		 *
+		 * @since 0.0.1
+		 * @access protected
+		 * @return void
 		 */
-		return apply_filters( 'graphql_query_result', $result, $query, $variables, $processor );
+		public function __clone() {
+			// Cloning instances of the class is forbidden.
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-graphql' ), '1.6' );
+		}
 
+		/**
+		 * Disable unserializing of the class.
+		 *
+		 * @since 0.0.1
+		 * @access protected
+		 * @return void
+		 */
+		public function __wakeup() {
+			// Unserializing instances of the class is forbidden.
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-graphql' ), '1.6' );
+		}
+
+		/**
+		 * Setup plugin constants.
+		 *
+		 * @access private
+		 * @since 0.0.1
+		 * @return void
+		 */
+		private function setup_constants() {
+			// Plugin version.
+			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
+				define( 'WPGRAPHQL_VERSION', '0.0.3' );
+			}
+			// Plugin Folder Path.
+			if ( ! defined( 'WPGRAPHQL_PLUGIN_DIR' ) ) {
+				define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+			}
+			// Plugin Folder URL.
+			if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
+				define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+			}
+			// Plugin Root File.
+			if ( ! defined( 'WPGRAPHQL_PLUGIN_FILE' ) ) {
+				define( 'WPGRAPHQL_PLUGIN_FILE', __FILE__ );
+			}
+		}
+
+		/**
+		 * Include required files.
+		 *
+		 * Uses composer's autoload
+		 *
+		 * @access private
+		 * @since 0.0.1
+		 * @return void
+		 */
+		private function includes() {
+			// Autoload Required Classes
+			require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+			// This required here as it is not a class, so it is not auto-loaded
+			require_once( WPGRAPHQL_PLUGIN_DIR . 'includes/access-functions.php' );
+		}
+
+		/**
+		 * setup
+		 *
+		 * This sets up the various types and other
+		 * plugin functions
+		 *
+		 * @access private
+		 * @since 0.0.2
+		 * @return void
+		 */
+		private function setup() {
+			// Initialize PostEntities
+			$post_entities = new PostEntities();
+			$post_entities->init();
+			// Initialize TermEntites
+			$term_entities = new TermEntities();
+			$term_entities->init();
+			/**
+			 * Fires an action once the plugin has been setup
+			 * @since 0.0.3
+			 */
+			do_action( 'graphql_setup' );
+		}
+
+		/**
+		 * query
+		 *
+		 * This takes in a query and variables, processes them and returns the result
+		 *
+		 * @param $query
+		 * @param $variables
+		 *
+		 * @return array
+		 */
+		public function query( $query, $variables ) {
+			/**
+			 * Define that a GRAPHQL_REQUEST is happening
+			 */
+			define( 'GRAPHQL_REQUEST', true );
+			/**
+			 * Fire off init action
+			 */
+			do_action( 'graphql_query', $query, $variables );
+			/**
+			 * Instantiate the DFM\GraphQL\Schema
+			 */
+			$schema = new Schema();
+			/**
+			 * Instantiate the GraphQL Processor
+			 */
+			$processor = new Processor( $schema );
+			/**
+			 * Add the current_user to the execution context
+			 */
+			$processor->getExecutionContext()->current_user = wp_get_current_user();
+			/**
+			 * Process the payload
+			 */
+			$processor->processPayload( $query, $variables );
+			/**
+			 * Get the response from the processor
+			 */
+			$result = $processor->getResponseData();
+			/**
+			 * Return the result of the query and pass it through a filter
+			 * to allow for modifications before the results are returned
+			 *
+			 * @since 0.0.2
+			 */
+			return apply_filters( 'graphql_query_result', $result, $query, $variables, $processor );
+		}
 	}
-
-}
-
 endif;
 
 // Function that instantiates the plugin
 function graphql_init() {
-
 	/**
 	 * Return an instance of the action
 	 */
 	return \WPGraphQL::instance();
-
 }
 
 // Instantiate the plugin, after themes have loaded so that

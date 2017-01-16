@@ -21,15 +21,15 @@ class TaxQueryRelationEnum extends AbstractEnumType {
 	public function getValues() {
 		return [
 			[
-				'name'  => 'AND',
-				'value' => 'AND',
+				'name'        => 'AND',
+				'value'       => 'AND',
 				'description' => __( 'When using multiple tax queries this combines to match both queries', 'wp-graphql' ),
 			],
 			[
-				'name'  => 'OR',
-				'value' => 'OR',
+				'name'        => 'OR',
+				'value'       => 'OR',
 				'description' => __( 'When using multiple tax queries this allows for either query to match', 'wp-graphql' ),
-			]
+			],
 		];
 	}
 }

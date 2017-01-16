@@ -21,6 +21,7 @@ class Schema extends AbstractSchema {
 	 * Build the Schema by applying the RootQueryType and RootMutationType
 	 *
 	 * @param SchemaConfig $config
+	 *
 	 * @since 0.0.1
 	 */
 	public function build( SchemaConfig $config ) {
@@ -32,7 +33,6 @@ class Schema extends AbstractSchema {
 		$config->setQuery( new RootQuery() );
 
 		// @todo: Figure out a good pattern for mutations
-		// $config->setMutation( new RootMutationType() );
 
 	}
 

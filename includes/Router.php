@@ -78,12 +78,15 @@ class Router {
 	 * Adds the query_var for the route
 	 *
 	 * @since 0.0.1
+	 *
 	 * @param $query_vars
+	 *
 	 * @return array
 	 */
 	public function add_query_var( $query_vars ) {
 
 		$query_vars[] = $this->route;
+
 		return $query_vars;
 
 	}
@@ -120,6 +123,7 @@ class Router {
 		 * Process the GraphQL query Request
 		 */
 		$this->process_http_request();
+
 		return;
 
 	}
@@ -151,14 +155,18 @@ class Router {
 		 */
 		$this->set_headers();
 
-		$raw_body = file_get_contents( 'php://input' );
-		$data = json_decode( $raw_body, true );
+		if ( function_exists( 'wpcom_vip_file_get_contents' ) ) {
+			$raw_body = wpcom_vip_file_get_contents( 'php://input' );
+		} else {
+			$raw_body = file_get_contents( 'php://input' );
+		}
+		$data     = json_decode( $raw_body, true );
 
 		if ( empty( $raw_body ) && ! empty( $_REQUEST ) ) {
 			$data = $_REQUEST;
 		}
 
-		$query = ! empty( $data['query'] ) ? $data['query'] : null;
+		$query     = ! empty( $data['query'] ) ? $data['query'] : null;
 		$variables = ! empty( $data['variables'] ) ? $data['variables'] : null;
 
 		// If there's a query request
@@ -172,8 +180,8 @@ class Router {
 				 */
 				$result = graphql_query( $query, $variables );
 
-			// Catch any exceptions and pass generate the message
-			} catch (\Exception $exception) {
+				// Catch any exceptions and pass generate the message
+			} catch ( \Exception $exception ) {
 
 				$result = [
 					'errors' => [
@@ -189,7 +197,7 @@ class Router {
 			 */
 			wp_send_json( $result );
 
-		// If there's no query request, send the notice that the request must require a query
+			// If there's no query request, send the notice that the request must require a query
 		} else {
 
 			/**

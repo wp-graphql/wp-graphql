@@ -16,6 +16,7 @@ class RootQuery extends AbstractObjectType {
 	 * Add the root Query Types
 	 *
 	 * @param ObjectTypeConfig $config
+	 *
 	 * @return mixed
 	 * @since 0.0.1
 	 */
