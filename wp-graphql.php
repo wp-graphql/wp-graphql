@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP GraphQL
  * Plugin URI: https://github.com/dfmedia/wp-graphql
- * Description: GraphQL Endpoint for WordPress
+ * Description: GraphQL API for WordPress
  * Author: Jason Bahl, Digital First Media
  * Author URI: http://www.wpgraphql.com
  * Version: 0.0.2
@@ -14,7 +14,7 @@
  * @package WPGraphQL
  * @category Core
  * @author Digital First Media, Jason Bahl, Ryan Kanner
- * @version 0.0.1
+ * @version 0.0.3
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -109,7 +109,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '0.0.2' );
+			define( 'WPGRAPHQL_VERSION', '0.0.3' );
 		}
 
 		// Plugin Folder Path.
