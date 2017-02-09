@@ -8,25 +8,25 @@ use WPGraphQL\Data\DataSource;
 class Connections {
 
 	/**
-	 * @var array wp_posts_connection
+	 * @var array post_objects_connection
 	 * @since 0.0.5
 	 */
-	protected static $wp_posts_connection;
+	protected static $post_objects_connection;
 
 	/**
-	 * @var array wp_terms_connection
+	 * @var array term_objects_connection
 	 * @since 0.0.5
 	 */
-	protected static $wp_terms_connection;
+	protected static $term_objects_connection;
 
 	/**
-	 * @var array wp_users_connection
+	 * @var array users_connection
 	 * @since 0.0.5
 	 */
-	protected static $wp_users_connection;
+	protected static $users_connection;
 
 	/**
-	 * wp_posts_connection
+	 * post_objects_connection
 	 *
 	 * This sets up a connection to posts (of a specified post_type).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
@@ -35,30 +35,30 @@ class Connections {
 	 * @param bool $name
 	 * @return mixed
 	 */
-	public static function wp_posts_connection( $post_type_object ) {
+	public static function post_objects_connection( $post_type_object ) {
 
-		if ( null === self::$wp_posts_connection->{ $post_type_object->name } ) {
+		if ( null === self::$post_objects_connection->{ $post_type_object->name } ) {
 
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::wp_post( $post_type_object->name ),
+				'nodeType' => Types::post_object( $post_type_object->name ),
 				'name'     => $post_type_object->graphql_plural_name,
 			] );
 
-			self::$wp_posts_connection->{ $post_type_object->name } = [
+			self::$post_objects_connection->{ $post_type_object->name } = [
 				'type'        => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
 				'args'        => Relay::connectionArgs(),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
-					return DataSource::resolve_wp_posts( $post_type_object->name, $source, $args, $context, $info );
+					return DataSource::resolve_post_objects( $post_type_object->name, $source, $args, $context, $info );
 				},
 			];
 		}
 
-		return self::$wp_posts_connection->{ $post_type_object->name };
+		return self::$post_objects_connection->{ $post_type_object->name };
 	}
 
 	/**
-	 * wp_terms_connection
+	 * term_objects_connection
 	 *
 	 * This sets up a connection to posts (of a specified taxonomy).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
@@ -68,43 +68,43 @@ class Connections {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function wp_terms_connection( $taxonomy_object ) {
+	public static function term_objects_connection( $taxonomy_object ) {
 
-		if ( null === self::$wp_terms_connection->{ $taxonomy_object->name } ) {
+		if ( null === self::$term_objects_connection->{ $taxonomy_object->name } ) {
 
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::wp_term( $taxonomy_object->name ),
+				'nodeType' => Types::term_object( $taxonomy_object->name ),
 				'name'     => $taxonomy_object->graphql_plural_name,
 			] );
 
-			self::$wp_terms_connection->{ $taxonomy_object->name } = [
+			self::$term_objects_connection->{ $taxonomy_object->name } = [
 				'type'        => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
 				'args'        => Relay::connectionArgs(),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
-					return DataSource::resolve_wp_terms( $taxonomy_object->name, $source, $args, $context, $info );
+					return DataSource::resolve_term_objects( $taxonomy_object->name, $source, $args, $context, $info );
 				},
 			];
 		}
 
-		return self::$wp_terms_connection->{ $taxonomy_object->name };
+		return self::$term_objects_connection->{ $taxonomy_object->name };
 
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function wp_users_connection() {
+	public static function users_connection() {
 
-		if ( null === self::$wp_users_connection ) {
-			$wp_users_connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::wp_user(),
+		if ( null === self::$users_connection ) {
+			$users_connection = Relay::connectionDefinitions( [
+				'nodeType' => Types::user(),
 			] );
 
-			self::$wp_users_connection = $wp_users_connection;
+			self::$users_connection = $users_connection;
 		}
 
-		return self::$wp_users_connection;
+		return self::$users_connection;
 
 	}
 

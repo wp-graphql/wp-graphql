@@ -4,6 +4,7 @@ namespace WPGraphQL\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Connections;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
@@ -60,6 +61,25 @@ class RootQueryType extends ObjectType {
 		$fields['post_type'] = self::post_type();
 
 		/**
+		 * Creates the taxonomy root query field
+		 * @since 0.0.5
+		 */
+		$fields['taxonomy']  = self::taxonomy();
+
+		/**
+		 * Creates the theme root query field
+		 * @since 0.0.5
+		 */
+		$fields['theme']     = self::theme();
+
+		/**
+		 * Creates the theme root query field to query a collection
+		 * of themes
+		 * @since 0.0.5
+		 */
+		$fields['themes']     = self::themes();
+
+		/**
 		 * Creates the user root query field
 		 * @since 0.0.5
 		 */
@@ -71,20 +91,6 @@ class RootQueryType extends ObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['users']     = self::users();
-
-		/**
-		 * Creates the taxonomy root query field to query a collection
-		 * of users
-		 * @since 0.0.5
-		 */
-		$fields['taxonomy']  = self::taxonomy();
-
-		/**
-		 * Creates the theme root query field to query a collection
-		 * of users
-		 * @since 0.0.5
-		 */
-		$fields['theme']     = self::theme();
 
 		/**
 		 * Creates the root fields for post objects (of any post_type)
@@ -109,7 +115,7 @@ class RootQueryType extends ObjectType {
 				 * @since 0.0.5
 				 */
 				$fields[ $post_type_object->graphql_single_name ] = [
-					'type'        => Types::wp_post( $post_type ),
+					'type'        => Types::post_object( $post_type ),
 					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
@@ -120,7 +126,7 @@ class RootQueryType extends ObjectType {
 				 * Root field for collections of posts (of the specified post_type)
 				 * @since 0.0.5
 				 */
-				$fields[ $post_type_object->graphql_plural_name ] = Connections::wp_posts_connection( $post_type_object );
+				$fields[ $post_type_object->graphql_plural_name ] = Connections::post_objects_connection( $post_type_object );
 			}
 		}
 
@@ -148,7 +154,7 @@ class RootQueryType extends ObjectType {
 				 * @since 0.0.5
 				 */
 				$fields[ $taxonomy_object->graphql_single_name ] = [
-					'type'        => Types::wp_term( $taxonomy ),
+					'type'        => Types::term_object( $taxonomy ),
 					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
@@ -159,7 +165,7 @@ class RootQueryType extends ObjectType {
 				 * Root field for collections of terms (of the specified taxonomy)
 				 * @since 0.0.5
 				 */
-				$fields[ $taxonomy_object->graphql_plural_name ] = Connections::wp_terms_connection( $taxonomy_object );
+				$fields[ $taxonomy_object->graphql_plural_name ] = Connections::term_objects_connection( $taxonomy_object );
 			}
 		}
 
@@ -217,7 +223,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function comment() {
 		return [
-			'type'        => Types::wp_comment(),
+			'type'        => Types::comment(),
 			'description' => __( 'Returns a Comment', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
@@ -233,7 +239,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function plugin() {
 		return [
-			'type'        => Types::wp_plugin(),
+			'type'        => Types::plugin(),
 			'description' => __( 'A WordPress plugin', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
@@ -249,7 +255,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function post_type() {
 		return [
-			'type'        => Types::wp_post_type(),
+			'type'        => Types::post_object_type(),
 			'description' => __( 'A WordPress Post Type', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
@@ -265,13 +271,39 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function theme() {
 		return [
-			'type'        => Types::wp_theme(),
+			'type'        => Types::theme(),
 			'description' => __( 'A Theme object', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
+			'resolve' => function(  $source, array $args, AppContext $context, ResolveInfo $info ) {
+				$theme = wp_get_theme( $args['slug'] );
+				return $theme->exists() ? $theme : null;
+			}
 		];
 	}
+	/**
+	 * theme
+	 * This sets up the theme entry point for the root query
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function themes() {
+		return [
+			'type'        => Types::list_of( Types::theme() ),
+			'description' => __( 'A Theme object', 'wp-graphql' ),
+			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+				$themes = wp_get_themes();
+				if ( isset( $args['first'] ) || isset( $args['after'] ) ) {
+					$limit = isset( $args['first'] ) ? $args['first'] : count( $themes );
+					$offset = isset( $args['after'] ) ? $args['after'] : 0;
+					$themes = array_splice( $themes, $offset, $limit );
+				}
+				return ! empty( $themes ) ? $themes : null;
+			}
+		];
+	}
+
 
 	/**
 	 * taxonomy
@@ -281,7 +313,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function taxonomy() {
 		return [
-			'type'        => Types::wp_taxonomy(),
+			'type'        => Types::taxonomy(),
 			'description' => __( 'A taxonomy object', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
@@ -297,7 +329,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function user() {
 		return [
-			'type'        => Types::wp_user(),
+			'type'        => Types::user(),
 			'description' => __( 'Returns a user', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
@@ -312,13 +344,13 @@ class RootQueryType extends ObjectType {
 	 * @since 0.0.5
 	 */
 	public static function users() {
-		$users_connection = Connections::wp_users_connection();
+		$users_connection = Connections::users_connection();
 		return [
 			'type'        => $users_connection['connectionType'],
 			'description' => 'The users.',
 			'args'        => Relay::connectionArgs(),
 			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
-				return DataSource::resolve_wp_users( $source, $args, $context, $info );
+				return DataSource::get_users( $source, $args, $context, $info );
 			},
 		];
 	}

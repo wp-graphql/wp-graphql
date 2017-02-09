@@ -22,7 +22,7 @@ class TermObjectType extends ObjectType {
 		$config = [
 			'name' => $single_name,
 			'description' => sprintf( __( 'The % object type', 'wp-graphql' ), $single_name ),
-			'fields' => function() use ( $single_name,$taxonomy_object, $allowed_post_types, $allowed_taxonomies ) {
+			'fields' => function() use ( $single_name, $taxonomy_object, $allowed_post_types, $allowed_taxonomies ) {
 				$fields = [
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
@@ -98,7 +98,7 @@ class TermObjectType extends ObjectType {
 				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					foreach ( $allowed_post_types as $post_type ) {
 						$post_type_object = get_post_type_object( $post_type );
-						$fields[ $post_type_object->graphql_plural_name ] = Connections::wp_posts_connection( $post_type_object );
+						$fields[ $post_type_object->graphql_plural_name ] = Connections::post_objects_connection( $post_type_object );
 					}
 				}
 				ksort( $fields );

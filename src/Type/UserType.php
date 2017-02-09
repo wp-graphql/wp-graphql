@@ -32,7 +32,7 @@ class UserType extends ObjectType {
 					'capabilities'       => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'This field is the id of the user. The id of the user matches WP_User->ID 
-						field and the value in the ID column for the `wp_users` table in SQL.', 'wp-graphql' ),
+						field and the value in the ID column for the `users` table in SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							if ( ! empty( $user->allcaps ) ) {
 								// Filters list for capabilities the user has.
@@ -150,6 +150,8 @@ class UserType extends ObjectType {
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The preferred language locale set for the user. Value derived from 
 						get_user_locale().', 'wp-graphql' ),
+						'isDeprecated' => true,
+						'deprecationReason' => 'Fool, go away',
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return get_user_locale( $user );
 						},
@@ -165,8 +167,9 @@ class UserType extends ObjectType {
 
 				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					foreach ( $allowed_post_types as $post_type ) {
+						// @todo: maybe look into narrowing this based on permissions?
 						$post_type_object = get_post_type_object( $post_type );
-						$fields[ $post_type_object->graphql_plural_name ] = Connections::wp_posts_connection( $post_type_object );
+						$fields[ $post_type_object->graphql_plural_name ] = Connections::post_objects_connection( $post_type_object );
 					}
 				}
 

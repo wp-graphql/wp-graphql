@@ -19,15 +19,15 @@ class DataSource {
 	// Placeholder
 	protected static $node_definition;
 
-	public static function wp_user( $id ) {
-		$wp_user = new \WP_User( $id );
-		if ( ! $wp_user->exists() ) {
+	public static function get_user( $id ) {
+		$user = new \WP_User( $id );
+		if ( ! $user->exists() ) {
 			return false;
 		}
-		return $wp_user;
+		return $user;
 	}
 
-	public static function resolve_wp_users( $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_users( $source, array $args, $context, ResolveInfo $info ) {
 
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
@@ -72,7 +72,7 @@ class DataSource {
 
 	}
 
-	public static function resolve_wp_posts( $post_type, $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_post_objects( $post_type, $source, array $args, $context, ResolveInfo $info ) {
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
@@ -106,7 +106,7 @@ class DataSource {
 		return $posts;
 	}
 
-	public static function resolve_wp_terms( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_term_objects( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
@@ -144,20 +144,20 @@ class DataSource {
 		return $terms;
 	}
 
-	public static function wp_post( $id ) {
-		$wp_post = \WP_Post::get_instance( $id );
-		if ( empty( $wp_post ) ) {
+	public static function post_object( $id ) {
+		$post_object = \WP_Post::get_instance( $id );
+		if ( empty( $post_object ) ) {
 			return false;
 		}
-		return $wp_post;
+		return $post_object;
 	}
 
-	public static function wp_term( $id ) {
-		$wp_term = new \WP_Term( $id );
-		if ( empty( $wp_term ) ) {
+	public static function term_object( $id ) {
+		$term_object = new \WP_Term( $id );
+		if ( empty( $term_object ) ) {
 			return false;
 		}
-		return $wp_term;
+		return $term_object;
 	}
 
 	/**
@@ -191,11 +191,11 @@ class DataSource {
 				function( $object ) {
 					$types = new Types();
 					if ( $object instanceof \WP_Post ) {
-						return $types->wp_post( $object->post_type );
+						return Types::post_object( $object->post_type );
 					} elseif ( $object instanceof \WP_Term ) {
-						return $types->wp_term( $object->taxonomy );
+						return Types::term_object( $object->taxonomy );
 					} elseif ( $object instanceof \WP_User ) {
-						return Types::wp_user();
+						return Types::user();
 					}
 					return null;
 				}

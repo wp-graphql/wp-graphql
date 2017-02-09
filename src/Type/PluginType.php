@@ -5,7 +5,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
 
 class PluginType extends ObjectType {
 

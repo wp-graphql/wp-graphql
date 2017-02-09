@@ -26,59 +26,59 @@ use WPGraphQL\Type\UserType;
 class Types {
 
 	private static $root_query;
-	private static $wp_comment;
-	private static $wp_option;
-	private static $wp_plugin;
-	private static $wp_post;
-	private static $wp_post_type;
-	private static $wp_shortcode;
-	private static $wp_taxonomy;
-	private static $wp_term;
-	private static $wp_theme;
-	private static $wp_user;
+	private static $comment;
+	private static $option;
+	private static $plugin;
+	private static $post_object;
+	private static $post_object_type;
+	private static $shortcode;
+	private static $taxonomy;
+	private static $term_object;
+	private static $theme;
+	private static $user;
 
 	public static function root_query() {
 		return self::$root_query ?: ( self::$root_query = new RootQueryType() );
 	}
 
-	public static function wp_comment() {
-		return self::$wp_comment ?: ( self::$wp_comment = new CommentType() );
+	public static function comment() {
+		return self::$comment ?: ( self::$comment = new CommentType() );
 	}
 
-	public static function wp_option() {
-		return self::$wp_option ?: ( self::$wp_option = new OptionType() );
+	public static function option() {
+		return self::$option ?: ( self::$option = new OptionType() );
 	}
 
-	public static function wp_plugin() {
-		return self::$wp_plugin ?: ( self::$wp_plugin = new PluginType() );
+	public static function plugin() {
+		return self::$plugin ?: ( self::$plugin = new PluginType() );
 	}
 
-	public static function wp_post( $post_type ) {
-		return self::$wp_post->{ $post_type } ?: ( self::$wp_post->{ $post_type } = new PostObjectType( $post_type ) );
+	public static function post_object( $post_type ) {
+		return self::$post_object->{ $post_type } ?: ( self::$post_object->{ $post_type } = new PostObjectType( $post_type ) );
 	}
 
-	public static function wp_post_type() {
-		return self::$wp_post_type ?: ( self::$wp_post_type = new PostTypeType() );
+	public static function post_object_type() {
+		return self::$post_object_type ?: ( self::$post_object_type = new PostTypeType() );
 	}
 
-	public static function wp_shortcode() {
-		return self::$wp_shortcode ?: ( self::$wp_shortcode = new ShortcodeType() );
+	public static function shortcode() {
+		return self::$shortcode ?: ( self::$shortcode = new ShortcodeType() );
 	}
 
-	public static function wp_taxonomy() {
-		return self::$wp_taxonomy ?: ( self::$wp_taxonomy = new TaxonomyType() );
+	public static function taxonomy() {
+		return self::$taxonomy ?: ( self::$taxonomy = new TaxonomyType() );
 	}
 
-	public static function wp_term( $taxonomy ) {
-		return self::$wp_term->{ $taxonomy } ?: ( self::$wp_term->{ $taxonomy } = new TermObjectType( $taxonomy ) );
+	public static function term_object( $taxonomy ) {
+		return self::$term_object->{ $taxonomy } ?: ( self::$term_object->{ $taxonomy } = new TermObjectType( $taxonomy ) );
 	}
 
-	public static function wp_theme() {
-		return self::$wp_theme ?: ( self::$wp_theme = new ThemeType() );
+	public static function theme() {
+		return self::$theme ?: ( self::$theme = new ThemeType() );
 	}
 
-	public static function wp_user() {
-		return self::$wp_user ?: ( self::$wp_user = new UserType() );
+	public static function user() {
+		return self::$user ?: ( self::$user = new UserType() );
 	}
 
 	public static function boolean() {
