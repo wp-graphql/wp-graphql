@@ -216,6 +216,8 @@ class Router {
 
 		} catch ( \Exception $error ) {
 
+			var_dump( $error );
+
 			/**
 			 * If there are errors, set the status to 500
 			 * and format the captured errors to be output properly

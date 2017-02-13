@@ -53,6 +53,7 @@ class RootQueryType extends ObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['plugin']    = self::plugin();
+		$fields['plugins']   = self::plugins();
 
 		/**
 		 * Creates the post_type root query field
@@ -247,6 +248,23 @@ class RootQueryType extends ObjectType {
 		];
 	}
 
+	public static function plugins() {
+		return [
+			'type'        => Types::list_of( Types::plugin() ),
+			'description' => __( 'A list of WordPress plugins', 'wp-graphql' ),
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+
+				$plugins = array();
+				// File has not loaded.
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				// This is missing must use and drop in plugins.
+				$plugins = apply_filters( 'all_plugins', get_plugins() );
+				return $plugins;
+
+			}
+		];
+	}
+
 	/**
 	 * post_type
 	 * This sets up the post_type entry point for the root query
@@ -255,7 +273,7 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function post_type() {
 		return [
-			'type'        => Types::post_object_type(),
+			'type'        => Types::post_type(),
 			'description' => __( 'A WordPress Post Type', 'wp-graphql' ),
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),

@@ -228,6 +228,7 @@ class PostObjectType extends ObjectType {
 				];
 				
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+					$fields['comments']     = Connections::comments_connection();
 					$fields['commentCount']  = [
 						'type'        => Types::int(),
 						'description' => esc_html__( 'The number of comments. Even though WP GraphQL denotes this 
