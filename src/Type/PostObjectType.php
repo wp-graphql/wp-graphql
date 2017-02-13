@@ -36,7 +36,7 @@ class PostObjectType extends ObjectType {
 						},
 					),
 					'author'          => array(
-						'type'        => Types::wp_user(),
+						'type'        => Types::user(),
 						'description' => esc_html__( "The author field will return a queryable User type matching the 
 						post's author.", 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
@@ -109,7 +109,7 @@ class PostObjectType extends ObjectType {
 					'slug'            => array(
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The uri slug for the post. This is equivalent to the 
-						WP_Post->post_name field and the post_name column in the database for the `wp_posts` 
+						WP_Post->post_name field and the post_name column in the database for the `post_objects` 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							return ! empty( $post->post_name ) ? $post->post_name : null;
@@ -175,7 +175,7 @@ class PostObjectType extends ObjectType {
 					'guid'            => array(
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The global unique identifier for this post. This currently 
-						matches the value stored in WP_Post->guid and the guid column in the `wp_posts` database 
+						matches the value stored in WP_Post->guid and the guid column in the `post_objects` database 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							return ! empty( $post->guid ) ? $post->guid : null;
@@ -193,7 +193,7 @@ class PostObjectType extends ObjectType {
 						'type'        => Types::string(),
 						'description' => esc_html__( 'This field tells what kind of content type the object is. In 
 						WordPress different post types are used to denote different types of content. This field is 
-						equivalent to the value of WP_Post->post_type and the post_type column in the `wp_posts` 
+						equivalent to the value of WP_Post->post_type and the post_type column in the `post_objects` 
 						database table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							return ! empty( $post->post_type ) ? $post->post_type : null;
@@ -203,7 +203,7 @@ class PostObjectType extends ObjectType {
 						'type'        => Types::string(),
 						'description' => esc_html__( 'If the post is an attachment or a media file, this field will 
 						carry the corresponding MIME type. This field is equivalent to the value of 
-						WP_Post->post_mime_type and the post_mime_type column in the `wp_posts` database 
+						WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
@@ -228,6 +228,7 @@ class PostObjectType extends ObjectType {
 				];
 				
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+					$fields['comments']     = Connections::comments_connection();
 					$fields['commentCount']  = [
 						'type'        => Types::int(),
 						'description' => esc_html__( 'The number of comments. Even though WP GraphQL denotes this 
@@ -248,11 +249,11 @@ class PostObjectType extends ObjectType {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							$tax_object                                 = get_taxonomy( $taxonomy );
-							$fields[ $tax_object->graphql_plural_name ] = Connections::wp_terms_connection( $tax_object );
+							$fields[ $tax_object->graphql_plural_name ] = Connections::term_objects_connection( $tax_object );
 						}
 					}
 				}
-				$fields = apply_filters( 'graphql_wp_post_type_fields_' . $single_name, $fields, $post_type_object );
+				$fields = apply_filters( 'graphql_post_object_type_fields_' . $single_name, $fields, $post_type_object );
 
 				ksort( $fields );
 

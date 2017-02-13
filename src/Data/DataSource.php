@@ -4,6 +4,8 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\Resolvers\PostObjectsConnectionResolver;
+use WPGraphQL\Data\Resolvers\TermObjectsConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -16,18 +18,17 @@ use WPGraphQL\Types;
  */
 class DataSource {
 
-	// Placeholder
 	protected static $node_definition;
 
-	public static function wp_user( $id ) {
-		$wp_user = new \WP_User( $id );
-		if ( ! $wp_user->exists() ) {
+	public static function get_user( $id ) {
+		$user = new \WP_User( $id );
+		if ( ! $user->exists() ) {
 			return false;
 		}
-		return $wp_user;
+		return $user;
 	}
 
-	public static function resolve_wp_users( $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_users( $source, array $args, $context, ResolveInfo $info ) {
 
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
@@ -72,49 +73,15 @@ class DataSource {
 
 	}
 
-	public static function resolve_wp_posts( $post_type, $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_comments( $source, array $args, $context, ResolveInfo $info ) {
+
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
 		$first  = ( ! empty( $args['first'] ) ) ? ArrayConnection::cursorToOffset( $args['first'] ) : null;
 
-		if ( ! empty( $after ) && ! empty( $before ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together.', 'wp-graphql' ) );
-		}
-
-		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
-		}
-
-		$query_args['post_type'] = $post_type;
-		$query_args['posts_per_page'] = ( ! empty( $first ) ) ? absint( $first ) : 10;
-		$query_args['page'] = ( ! empty( $args['after'] ) ) ? absint( ( $after/$query_args['posts_per_page'] ) ) : 0;
-
-		$wp_query = new \WP_Query( $query_args );
-
-		// Calculate the total length of the array
-		// (total count of users)
-		$meta['arrayLength'] = absint( $wp_query->found_posts );
-
-		// Calculate the offset of the array
-		// (the portion of the total query results that are being returned)
-		$meta['sliceStart'] = $query_args['posts_per_page'];
-
-		$posts = ArrayConnection::connectionFromArraySlice( $wp_query->posts, $args, $meta );
-
-		// Return the connection
-		return $posts;
-	}
-
-	public static function resolve_wp_terms( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
-		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
-		$first  = ( ! empty( $args['first'] ) ) ? ArrayConnection::cursorToOffset( $args['first'] ) : null;
-
-		if ( ! empty( $after ) && ! empty( $before ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together.', 'wp-graphql' ) );
-		}
+		$query_args['number'] = ( ! empty( $first ) ) ? absint( $first ) : 10;
+		$query_args['offset'] = ( ! empty( $args['after'] ) ) ? absint( $after ) : 0;
 
 		if ( ! empty( $last ) ) {
 			$query_args['order'] = 'ASC';
@@ -124,40 +91,67 @@ class DataSource {
 			$query_args['order'] = 'DESC';
 		}
 
-		$query_args['taxonomy'] = $taxonomy;
-		$query_args['number'] = ( ! empty( $first ) ) ? absint( $first ) : 10;
-		$query_args['offset'] = ( ! empty( $args['after'] ) ) ? absint( $after ) : 0;
-		$query = new \WP_Term_Query( $query_args );
+		/**
+		 * If the query source is a WP_Post object,
+		 * adjust the query args to only query for comments connected
+		 * to that post_object
+		 *
+		 * @since 0.0.5
+		 */
+		if ( $source instanceof \WP_Post && absint( $source->ID ) ) {
+			$query_args['post_id'] = absint( $source->ID );
+		}
 
-		// Calculate the total length of the array
-		// (total count of users)
-		$meta['arrayLength'] = 100;
+		/**
+		 * If the query source is a WP_User object,
+		 * adjust the query args to only query for the comments connected
+		 * to that user
+		 */
+		if ( $source instanceof  \WP_User && absint( $source->ID ) ) {
+			$query_args['user_id'] = $source->ID;
+		}
 
-		// Calculate the offset of the array
-		// (the portion of the total query results that are being returned)
-		$meta['sliceStart'] = $query_args['offset'];
+		/**
+		 * If the query source is a WP_Comment object,
+		 * adjust the query args to only query for comments that have
+		 * the source ID as their parent
+		 *
+		 * @since 0.0.5
+		 */
+		if ( $source instanceof \WP_Comment && absint( $source->comment_ID ) ) {
+			$query_args['parent'] = absint( $source->comment_ID );
+		}
 
-		$terms = ArrayConnection::connectionFromArraySlice( $query->terms, $args, $meta );
+		$comments_query = new \WP_Comment_Query( $query_args );
+		$comments = $comments_query->get_comments();
 
+		$comments = ArrayConnection::connectionFromArray( $comments, $args );
 
-		// Return the connection
-		return $terms;
+		return $comments;
 	}
 
-	public static function wp_post( $id ) {
-		$wp_post = \WP_Post::get_instance( $id );
-		if ( empty( $wp_post ) ) {
-			return false;
-		}
-		return $wp_post;
+	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
+		return PostObjectsConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
 	}
 
-	public static function wp_term( $id ) {
-		$wp_term = new \WP_Term( $id );
-		if ( empty( $wp_term ) ) {
+	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
+		return TermObjectsConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
+	}
+
+	public static function post_object( $id ) {
+		$post_object = \WP_Post::get_instance( $id );
+		if ( empty( $post_object ) ) {
 			return false;
 		}
-		return $wp_term;
+		return $post_object;
+	}
+
+	public static function term_object( $id ) {
+		$term_object = new \WP_Term( $id );
+		if ( empty( $term_object ) ) {
+			return false;
+		}
+		return $term_object;
 	}
 
 	/**
@@ -191,11 +185,11 @@ class DataSource {
 				function( $object ) {
 					$types = new Types();
 					if ( $object instanceof \WP_Post ) {
-						return $types->wp_post( $object->post_type );
+						return Types::post_object( $object->post_type );
 					} elseif ( $object instanceof \WP_Term ) {
-						return $types->wp_term( $object->taxonomy );
+						return Types::term_object( $object->taxonomy );
 					} elseif ( $object instanceof \WP_User ) {
-						return Types::wp_user();
+						return Types::user();
 					}
 					return null;
 				}

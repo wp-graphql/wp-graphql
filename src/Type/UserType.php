@@ -12,9 +12,9 @@ class UserType extends ObjectType {
 
 	public function __construct() {
 
-		$node_definition = DataSource::get_node_definition();
-		$allowed_post_types  = \WPGraphQL::$allowed_post_types;
-		$allowed_taxonomies  = \WPGraphQL::$allowed_taxonomies;
+		$node_definition    = DataSource::get_node_definition();
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 		$config = [
 			'name'        => 'user',
@@ -22,17 +22,17 @@ class UserType extends ObjectType {
 			'fields'      => function() use ( $allowed_post_types, $allowed_taxonomies ) {
 
 				$fields = [
-					'id'                 => [
+					'id'                => [
 						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique identifier for the user', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return ( ! empty( $info->parentType ) && ! empty( $user->ID ) ) ? Relay::toGlobalId( $info->parentType, $user->ID ) : null;
 						},
 					],
-					'capabilities'       => [
+					'capabilities'      => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'This field is the id of the user. The id of the user matches WP_User->ID 
-						field and the value in the ID column for the `wp_users` table in SQL.', 'wp-graphql' ),
+						field and the value in the ID column for the `users` table in SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							if ( ! empty( $user->allcaps ) ) {
 								// Filters list for capabilities the user has.
@@ -52,7 +52,7 @@ class UserType extends ObjectType {
 							return ! empty( $user->cap_key ) ? $user->cap_key : null;
 						},
 					],
-					'roles'              => [
+					'roles'             => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'A list of roles that the user has. Roles can be used for querying for 
 						certain types of users, but should not be used in permissions checks.', 'wp-graphql' ),
@@ -60,7 +60,7 @@ class UserType extends ObjectType {
 							return ! empty( $user->roles ) ? $user->roles : null;
 						},
 					],
-					'email'              => [
+					'email'             => [
 						'type'        => Types::string(),
 						'description' => __( 'Email of the user. This is equivalent to the WP_User->user_email 
 						property.', 'wp-graphql' ),
@@ -93,14 +93,14 @@ class UserType extends ObjectType {
 							return ! empty( $user->allcaps ) ? array_keys( $user->allcaps ) : null;
 						},
 					],
-					'description'        => [
+					'description'       => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Description of the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return ! empty( $user->description ) ? $user->description : null;
 						},
 					],
-					'username'           => [
+					'username'          => [
 						'type'        => Types::string(),
 						'description' => __( 'Username for the user. This field is equivalent to 
 						WP_User->user_login.', 'wp-graphql' ),
@@ -108,7 +108,7 @@ class UserType extends ObjectType {
 							return ! empty( $user->user_login ) ? $user->user_login : null;
 						},
 					],
-					'name'               => [
+					'name'              => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Display name of the user. This is equivalent to the WP_User->dispaly_name 
 						property.', 'wp-graphql' ),
@@ -124,21 +124,21 @@ class UserType extends ObjectType {
 							return ! empty( $user->user_registered ) ? date( 'c', strtotime( $user->user_registered ) ) : null;
 						},
 					],
-					'nickname'           => [
+					'nickname'          => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Nickname of the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return ! empty( $user->nickname ) ? $user->nickname : null;
 						},
 					],
-					'url'                => [
+					'url'               => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'A website url that is associated with the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return ! empty( $user->user_url ) ? $user->user_url : null;
 						},
 					],
-					'slug'               => [
+					'slug'              => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The slug for the user. This field is equivalent to 
 						WP_User->user_nicename', 'wp-graphql' ),
@@ -146,11 +146,13 @@ class UserType extends ObjectType {
 							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},
 					],
-					'locale'             => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'The preferred language locale set for the user. Value derived from 
+					'locale'            => [
+						'type'              => Types::string(),
+						'description'       => esc_html__( 'The preferred language locale set for the user. Value derived from 
 						get_user_locale().', 'wp-graphql' ),
-						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
+						'isDeprecated'      => true,
+						'deprecationReason' => 'Fool, go away',
+						'resolve'           => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							return get_user_locale( $user );
 						},
 					],
@@ -161,12 +163,33 @@ class UserType extends ObjectType {
 							return ! empty( $user->ID ) ? $user->ID : null;
 						},
 					],
+					'avatar'            => [
+						'type'        => Types::avatar(),
+						'description' => __( 'Avatar object for user. The avatar object can be retrieved in different 
+						sizes by specifying the size argument.', 'wp-graphql' ),
+						'args'        => [
+							'size' => [
+								'type'         => Types::int(),
+								'description'  => __( 'The size attribute of the avatar field can be used to fetch 
+								avatars of different sizes. The value corresponds to the dimension in pixels to fetch. 
+								The default is 96 pixels.', 'wp-graphql' ),
+								'defaultValue' => 96,
+							],
+						],
+						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
+							$avatar = get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
+
+							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
+						},
+					],
+					'comments' => Connections::comments_connection(),
 				];
 
 				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					foreach ( $allowed_post_types as $post_type ) {
-						$post_type_object = get_post_type_object( $post_type );
-						$fields[ $post_type_object->graphql_plural_name ] = Connections::wp_posts_connection( $post_type_object );
+						// @todo: maybe look into narrowing this based on permissions?
+						$post_type_object                                 = get_post_type_object( $post_type );
+						$fields[ $post_type_object->graphql_plural_name ] = Connections::post_objects_connection( $post_type_object );
 					}
 				}
 

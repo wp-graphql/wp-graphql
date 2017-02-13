@@ -208,10 +208,12 @@ class Router {
 			 * @since 0.0.4
 			 */
 			do_action( 'graphql_execute', $result, $schema, $data );
+
 			/**
 			 * Set the status code to 200
 			 */
 			$http_status = 200;
+
 		} catch ( \Exception $error ) {
 
 			var_dump( $error );
