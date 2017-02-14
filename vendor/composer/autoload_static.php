@@ -32,11 +32,21 @@ class ComposerStaticInit1b5fbf1ca9e06eb8b8e6ce2cec737917
         ),
     );
 
+    public static $classMap = array (
+        'GraphQLRelay\\Connection\\ArrayConnection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/ArrayConnection.php',
+        'GraphQLRelay\\Connection\\Connection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/Connection.php',
+        'GraphQLRelay\\Mutation\\Mutation' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Mutation/Mutation.php',
+        'GraphQLRelay\\Node\\Node' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Node.php',
+        'GraphQLRelay\\Node\\Plural' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Plural.php',
+        'GraphQLRelay\\Relay' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Relay.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit1b5fbf1ca9e06eb8b8e6ce2cec737917::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit1b5fbf1ca9e06eb8b8e6ce2cec737917::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1b5fbf1ca9e06eb8b8e6ce2cec737917::$classMap;
 
         }, null, ClassLoader::class);
     }

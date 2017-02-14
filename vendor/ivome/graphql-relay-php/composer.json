@@ -1,0 +1,35 @@
+{
+    "name":              "ivome/graphql-relay-php",
+    "description":       "A PHP port of GraphQL Relay reference implementation",
+    "type":              "library",
+    "license":           "BSD",
+    "homepage":          "https://github.com/ivome/graphql-relay-php",
+    "keywords":          [
+        "graphql",
+        "relay",
+        "API"
+    ],
+    "require": {
+        "php": ">=5.4,<8.0-DEV",
+        "webonyx/graphql-php": ">=0.7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8",
+        "satooshi/php-coveralls": "~1.0"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ],
+        "files": [
+        ]
+    }
+}

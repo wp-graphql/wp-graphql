@@ -7,13 +7,9 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\AvatarType;
 use WPGraphQL\Type\DateQueryType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
-use WPGraphQL\Type\Enum\PostObjectOrderbyEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\RelationEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
-use WPGraphQL\Type\Enum\TaxQueryFieldEnumType;
-use WPGraphQL\Type\Enum\TaxQueryOperatorEnumType;
-use WPGraphQL\Type\MetaQueryType;
 use WPGraphQL\Type\PostObjectQueryArgsType;
 use WPGraphQL\Type\RootQueryType;
 use WPGraphQL\Type\CommentType;
@@ -22,7 +18,6 @@ use WPGraphQL\Type\PostObjectType;
 use WPGraphQL\Type\PostTypeType;
 use WPGraphQL\Type\ShortcodeType;
 use WPGraphQL\Type\TaxonomyType;
-use WPGraphQL\Type\TaxQueryType;
 use WPGraphQL\Type\TermObjectType;
 use WPGraphQL\Type\ThemeType;
 use WPGraphQL\Type\UserType;
@@ -44,11 +39,9 @@ class Types {
 	private static $avatar;
 	private static $comment;
 	private static $date_query;
-	private static $meta_query;
 	private static $mime_type_enum;
 	private static $plugin;
 	private static $post_object;
-	private static $post_object_orderby_enum;
 	private static $post_object_query_args;
 	private static $post_status_enum;
 	private static $post_type;
@@ -57,9 +50,6 @@ class Types {
 	private static $shortcode;
 	private static $taxonomy;
 	private static $taxonomy_enum;
-	private static $tax_query;
-	private static $tax_query_field_enum;
-	private static $tax_query_operator_enum;
 	private static $term_object;
 	private static $theme;
 	private static $user;
@@ -92,16 +82,6 @@ class Types {
 	 */
 	public static function date_query() {
 		return self::$date_query ?: ( self::$date_query = new DateQueryType() );
-	}
-
-	/**
-	 * meta_query
-	 * This returns the definition for the MetaQueryType
-	 * @return MetaQueryType
-	 * @since 0.0.5
-	 */
-	public static function meta_query() {
-		return self::$meta_query ?: ( self::$meta_query = new MetaQueryType() );
 	}
 
 	/**
@@ -143,16 +123,6 @@ class Types {
 	 */
 	public static function post_status_enum() {
 		return self::$post_status_enum ?: ( self::$post_status_enum = new PostStatusEnumType() );
-	}
-
-	/**
-	 * post_object_orderby_enum
-	 * This returns the definition for the PostObjectOrderbyEnumType
-	 * @return PostObjectOrderbyEnumType
-	 * @since 0.0.5
-	 */
-	public static function post_object_orderby_enum() {
-		return self::$post_object_orderby_enum ?: ( self::$post_object_orderby_enum = new PostObjectOrderbyEnumType() );
 	}
 
 	/**
@@ -223,36 +193,6 @@ class Types {
 	 */
 	public static function taxonomy_enum() {
 		return self::$taxonomy_enum ?: ( self::$taxonomy_enum = new TaxonomyEnumType() );
-	}
-
-	/**
-	 * tax_query
-	 * This returns the definition for the TaxQueryType
-	 * @return TaxQueryType
-	 * @since 0.0.5
-	 */
-	public static function tax_query() {
-		return self::$tax_query ?: ( self::$tax_query = new TaxQueryType() );
-	}
-
-	/**
-	 * tax_query_field_enum
-	 * This returns the definition for the TaxQueryFieldEnumType
-	 * @return TaxQueryFieldEnumType
-	 * @since 0.0.5
-	 */
-	public static function tax_query_field_enum() {
-		return self::$tax_query_field_enum ?: ( self::$tax_query_field_enum = new TaxQueryFieldEnumType() );
-	}
-
-	/**
-	 * tax_query_operator_enum
-	 * This returns the definition for the TaxQueryOperatorEnumType
-	 * @return TaxQueryOperatorEnumType
-	 * @since 0.0.5
-	 */
-	public static function tax_query_operator_enum() {
-		return self::$tax_query_operator_enum ?: ( self::$tax_query_operator_enum = new TaxQueryOperatorEnumType() );
 	}
 
 	/**
