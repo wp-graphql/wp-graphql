@@ -20,6 +20,7 @@ class PostObjectsConnectionResolver {
 	 * @param $args
 	 * @param $context
 	 * @param $info
+	 *
 	 * @since 0.0.5
 	 */
 	public function __construct( $post_type, $source, $args, $context, $info ) {
@@ -62,6 +63,7 @@ class PostObjectsConnectionResolver {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -79,15 +81,18 @@ class PostObjectsConnectionResolver {
 		 */
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : 0;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : 0;
-		$first = absint( $args['first'] ) ? $args['first'] : null;
-		$last = absint( $args['last'] ) ? $args['last'] : null;
+		$first  = absint( $args['first'] ) ? $args['first'] : null;
+		$last   = absint( $args['last'] ) ? $args['last'] : null;
 
 		/**
-		 * Throw an error if both First and Last were used, as they should not be used together as the
-		 * first/last determines the order of the query results.
+		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
+		 * results.
 		 *
 		 * @since 0.0.5
 		 */
+		if ( ( ! empty( $args['first'] ) && ! empty( $args['before'] ) ) || ( ! empty( $args['last'] ) && ! empty( $args['after'] ) ) ) {
+			throw new \Exception( __( 'Please provide only (first & after) OR (last & before). This can otherwise lead to confusing behavior', 'wp-graphql' ) );
+		}
 		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
 			throw new \Exception( __( '"Before" and "After" should not be used together in arguments.', 'wp-graphql' ) );
 		}
@@ -100,7 +105,7 @@ class PostObjectsConnectionResolver {
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
+			$query_args['order']          = 'DESC';
 			$query_args['posts_per_page'] = absint( $first );
 			if ( ! empty( $before ) ) {
 				$query_args['paged'] = 1;
@@ -108,7 +113,7 @@ class PostObjectsConnectionResolver {
 				$query_args['paged'] = absint( ( $after / $first ) + 1 );
 			}
 		} elseif ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
+			$query_args['order']          = 'ASC';
 			$query_args['posts_per_page'] = absint( $last );
 			if ( ! empty( $before ) ) {
 				$query_args['order'] = 'DESC';
@@ -144,9 +149,9 @@ class PostObjectsConnectionResolver {
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Query names to be used in the WP_Query
 		 */
-		$entered_args = [];
+		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
-			$entered_args = self::allowed_custom_args( $args['where'], $post_type, $source, $args, $context, $info );
+			$input_fields = self::map_input_fields_to_wp_query( $args['where'], $post_type, $source, $args, $context, $info );
 		}
 
 		/**
@@ -154,8 +159,8 @@ class PostObjectsConnectionResolver {
 		 * in the query.
 		 * @since 0.0.5
 		 */
-		if ( ! empty( $entered_args ) ) {
-			$query_args = array_merge( $query_args, $entered_args );
+		if ( ! empty( $input_fields ) ) {
+			$query_args = array_merge( $query_args, $input_fields );
 		}
 
 		/**
@@ -182,9 +187,9 @@ class PostObjectsConnectionResolver {
 		 * If pagination info was selected and we know the entire length of the data set, we need to build the offsets
 		 * based on the details we received back from the query and query_args
 		 */
-		$edge_count = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
+		$edge_count          = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
 		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart'] = 0;
+		$meta['sliceStart']  = 0;
 
 		/**
 		 * Build the pagination details based on the arguments passed.
@@ -192,7 +197,7 @@ class PostObjectsConnectionResolver {
 		 */
 		if ( ! empty( $last ) ) {
 			$meta['sliceStart'] = ( $edge_count - $last );
-			$post_results = array_reverse( $post_results );
+			$post_results       = array_reverse( $post_results );
 			if ( ! empty( $before ) ) {
 				$meta['sliceStart'] = absint( $before - $last );
 			} elseif ( ! empty( $after ) ) {
@@ -216,7 +221,7 @@ class PostObjectsConnectionResolver {
 			$index = $meta['sliceStart'];
 			foreach ( $post_results as $post ) {
 				$posts_array[ $index ] = $post;
-				$index++;
+				$index ++;
 			}
 		}
 
@@ -235,7 +240,7 @@ class PostObjectsConnectionResolver {
 	}
 
 	/**
-	 * allowed_custom_args
+	 * map_input_fields_to_wp_query
 	 *
 	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_Query friendly keys.
 	 *
@@ -244,7 +249,7 @@ class PostObjectsConnectionResolver {
 	 *
 	 * @since 0.0.5
 	 */
-	public static function allowed_custom_args( $args, $post_type, $source, $args, $context, $info ) {
+	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
 
 		/**
 		 * Start a fresh array
@@ -254,121 +259,139 @@ class PostObjectsConnectionResolver {
 		/**
 		 * Author $args
 		 */
-		if ( ! empty( $args['author'] ) ) { $query_args['author'] = $args['author']; }
-		if ( ! empty( $args['authorName'] ) ) { $query_args['author_name'] = $args['authorName']; }
-		if ( ! empty( $args['authorIn'] ) ) { $query_args['author__in'] = $args['authorIn']; }
-		if ( ! empty( $args['authorNotIn'] ) ) { $query_args['author__not_in'] = $args['authorNotIn']; }
+		if ( ! empty( $args['author'] ) ) {
+			$query_args['author'] = $args['author'];
+		}
+		if ( ! empty( $args['authorName'] ) ) {
+			$query_args['author_name'] = $args['authorName'];
+		}
+		if ( ! empty( $args['authorIn'] ) ) {
+			$query_args['author__in'] = $args['authorIn'];
+		}
+		if ( ! empty( $args['authorNotIn'] ) ) {
+			$query_args['author__not_in'] = $args['authorNotIn'];
+		}
 
 		/**
 		 * Category $args
 		 */
-		if ( ! empty( $args['cat'] ) ) { $query_args['cat'] = $args['cat']; }
-		if ( ! empty( $args['categoryName'] ) ) { $query_args['category_name'] = $args['categoryName']; }
-		if ( ! empty( $args['categoryAnd'] ) ) { $query_args['category__and'] = $args['categoryAnd']; }
-		if ( ! empty( $args['categoryIn'] ) ) { $query_args['category__in'] = $args['categoryIn']; }
-		if ( ! empty( $args['categoryNotIn'] ) ) { $query_args['category__not_in'] = $args['categoryNotIn']; }
+		if ( ! empty( $args['cat'] ) ) {
+			$query_args['cat'] = $args['cat'];
+		}
+		if ( ! empty( $args['categoryName'] ) ) {
+			$query_args['category_name'] = $args['categoryName'];
+		}
+		if ( ! empty( $args['categoryAnd'] ) ) {
+			$query_args['category__and'] = $args['categoryAnd'];
+		}
+		if ( ! empty( $args['categoryIn'] ) ) {
+			$query_args['category__in'] = $args['categoryIn'];
+		}
+		if ( ! empty( $args['categoryNotIn'] ) ) {
+			$query_args['category__not_in'] = $args['categoryNotIn'];
+		}
 
 		/**
 		 * Tag $args
 		 */
-		if ( ! empty( $args['tag'] ) ) { $query_args['tag'] = $args['tag']; }
-		if ( ! empty( $args['tagId'] ) ) { $query_args['tag_id'] = $args['tagId']; }
-		if ( ! empty( $args['tagIds'] ) ) { $query_args['tag__and'] = $args['tagIds']; }
-		if ( ! empty( $args['tagNotIn'] ) ) { $query_args['tag__not_in'] = $args['tagNotIn']; }
-		if ( ! empty( $args['tagSlugAnd'] ) ) { $query_args['tag_slug__and'] = $args['tagSlugAnd']; }
-		if ( ! empty( $args['tagSlugIn'] ) ) { $query_args['tag_slug__in'] = $args['tagSlugIn']; }
+		if ( ! empty( $args['tag'] ) ) {
+			$query_args['tag'] = $args['tag'];
+		}
+		if ( ! empty( $args['tagId'] ) ) {
+			$query_args['tag_id'] = $args['tagId'];
+		}
+		if ( ! empty( $args['tagIds'] ) ) {
+			$query_args['tag__and'] = $args['tagIds'];
+		}
+		if ( ! empty( $args['tagNotIn'] ) ) {
+			$query_args['tag__not_in'] = $args['tagNotIn'];
+		}
+		if ( ! empty( $args['tagSlugAnd'] ) ) {
+			$query_args['tag_slug__and'] = $args['tagSlugAnd'];
+		}
+		if ( ! empty( $args['tagSlugIn'] ) ) {
+			$query_args['tag_slug__in'] = $args['tagSlugIn'];
+		}
+
 
 		/**
-		 * TaxQuery $args
-		 * This maps the GraphQL taxQuery input to the WP_Query tax_query format
-		 * @since 0.0.5
+		 * Search Parameter
 		 */
-		$tax_query = null;
-		if ( ! empty( $args['taxQuery'] ) ) {
-			$tax_query = $args['taxQuery'];
-			if ( ! empty( $tax_query['taxArray'] ) && is_array( $tax_query['taxArray'] ) ) {
-				if ( 2 < count( $tax_query['taxArray'] ) ) {
-					unset( $tax_query['relation'] );
-				}
-				foreach ( $tax_query['taxArray'] as $tax_array_key => $value ) {
-					$tax_query[] = [
-						$tax_array_key => $value,
-					];
-				}
-			}
-			unset( $tax_query['taxArray'] );
-
-		}
-		if ( ! empty( $tax_query ) ) {
-			$query_args['tax_query'] = $tax_query;
+		if ( ! empty( $args['search'] ) ) {
+			$query_args['s'] = $args['search'];
 		}
 
 		/**
 		 * Post & Page Parameters
 		 */
-		if ( ! empty( $args['id'] ) ) { $query_args['p'] = absint( $args['id'] ); }
-		if ( ! empty( $args['name'] ) ) { $query_args['name'] = $args['name']; }
-		if ( ! empty( $args['title'] ) ) { $query_args['title'] = $args['title']; }
-		if ( ! empty( $args['parent'] ) ) { $query_args['post_parent'] = $args['parent']; }
-		if ( ! empty( $args['parentIn'] ) ) { $query_args['post_parent__in'] = $args['parentIn']; }
-		if ( ! empty( $args['parentNotIn'] ) ) { $query_args['post_parent__not_in'] = $args['parentNotIn']; }
-		if ( ! empty( $args['in'] ) ) { $query_args['post__in'] = $args['in']; }
-		if ( ! empty( $args['notIn'] ) ) { $query_args['post__not_in'] = $args['notIn']; }
-		if ( ! empty( $args['nameIn'] ) ) { $query_args['post_name__in'] = $args['nameIn']; }
+		if ( ! empty( $args['id'] ) ) {
+			$query_args['p'] = absint( $args['id'] );
+		}
+		if ( ! empty( $args['name'] ) ) {
+			$query_args['name'] = $args['name'];
+		}
+		if ( ! empty( $args['title'] ) ) {
+			$query_args['title'] = $args['title'];
+		}
+		if ( ! empty( $args['parent'] ) ) {
+			$query_args['post_parent'] = $args['parent'];
+		}
+		if ( ! empty( $args['parentIn'] ) ) {
+			$query_args['post_parent__in'] = $args['parentIn'];
+		}
+		if ( ! empty( $args['parentNotIn'] ) ) {
+			$query_args['post_parent__not_in'] = $args['parentNotIn'];
+		}
+		if ( ! empty( $args['in'] ) ) {
+			$query_args['post__in'] = $args['in'];
+		}
+		if ( ! empty( $args['notIn'] ) ) {
+			$query_args['post__not_in'] = $args['notIn'];
+		}
+		if ( ! empty( $args['nameIn'] ) ) {
+			$query_args['post_name__in'] = $args['nameIn'];
+		}
 
 		/**
 		 * Password Parameters
 		 */
-		if ( ! empty( $args['hasPassword'] ) ) { $query_args['has_password'] = $args['hasPassword']; }
-		if ( ! empty( $args['password'] ) ) { $query_args['post_password'] = $args['password']; }
+		if ( ! empty( $args['hasPassword'] ) ) {
+			$query_args['has_password'] = $args['hasPassword'];
+		}
+		if ( ! empty( $args['password'] ) ) {
+			$query_args['post_password'] = $args['password'];
+		}
 
 		/**
 		 * Status Parameters
 		 */
-		if ( ! empty( $args['status'] ) ) { $query_args['post_status'] = $args['status']; }
+		if ( ! empty( $args['status'] ) ) {
+			$query_args['post_status'] = $args['status'];
+		}
 
 		/**
 		 * Order Parameters
 		 */
-		if ( ! empty( $args['orderby'] ) ) { $query_args['orderby'] = $args['orderby']; }
+		if ( ! empty( $args['orderby'] ) ) {
+			$query_args['orderby'] = $args['orderby'];
+		}
 
 		/**
 		 * DateQuery Parameters
 		 */
-		if ( ! empty( $args['dateQuery'] ) ) { $query_args['date_query'] = $args['dateQuery']; }
-
-		/**
-		 * metaQuery Parameters
-		 */
-		$meta_query = null;
-		if ( ! empty( $args['metaQuery'] ) ) {
-			$meta_query = $args['metaQuery'];
-			if ( ! empty( $meta_query['metaArray'] ) && is_array( $meta_query['metaArray'] ) ) {
-				if ( 2 < count( $meta_query['metaArray'] ) ) {
-					unset( $meta_query['relation'] );
-				}
-				foreach ( $meta_query['metaArray'] as $meta_query_key => $value ) {
-					$meta_query[] = [
-						$meta_query_key => $value,
-					];
-				}
-			}
-			unset( $meta_query['metaArray'] );
-
-		}
-		if ( ! empty( $meta_query ) ) {
-			$query_args['meta_query'] = $meta_query;
+		if ( ! empty( $args['dateQuery'] ) ) {
+			$query_args['date_query'] = $args['dateQuery'];
 		}
 
 		/**
-		 * Filter the $query_args
+		 * Filter the input fields
 		 *
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_wp_query_allowed_args', $query_args, $args, $post_type, $source, $args, $context, $info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $post_type, $source, $all_args, $context, $info );
 
 		/**
 		 * Return the Query Args

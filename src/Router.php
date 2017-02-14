@@ -188,6 +188,14 @@ class Router {
 			}
 
 			/**
+			 * Run an action before generating the schema
+			 * This is a great spot for plugins/themes to hook in to
+			 * customize the schema.
+			 * @since 0.0.5
+			 */
+			do_action( 'graphql_generate_schema' );
+
+			/**
 			 * Generate the Schema
 			 */
 			$schema = new Schema([

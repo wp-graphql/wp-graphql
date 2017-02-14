@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Language\AST\Type;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use WPGraphQL\Type\Enum\PostObjectOrderbyEnumType;
@@ -15,14 +16,34 @@ class PostObjectQueryArgsType extends InputObjectType {
 			'name'   => 'queryArgs',
 			'fields' => function() {
 				$fields = [
+
+					/**
+					 * Author $args
+					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Author_Parameters
+					 * @since 0.0.5
+					 */
 					'author'        => [
 						'type'        => Types::int(),
-						'description' => __( 'The user that\'s connected as the author of the object. 
-									Use the userId for the author object.', 'wp-graphql' ),
+						'description' => __( 'The user that\'s connected as the author of the object. Use the userId for the author object.', 'wp-graphql' ),
 					],
 					'authorName'    => [
-						'type' => Types::string(),
+						'type'        => Types::string(),
+						'description' => __( 'Find objects connected to the author by the author\'s "nicename"', 'wp-graphql' ),
 					],
+					'authorIn'      => [
+						'type'        => Types::list_of( Types::id() ),
+						'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+					],
+					'authorNotIn'   => [
+						'type'        => Types::list_of( Types::int() ),
+						'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+					],
+
+					/**
+					 * Category $args
+					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Category_Parameters
+					 * @since 0.0.5
+					 */
 					'cat'           => [
 						'type'        => Types::int(),
 						'description' => __( 'Category ID', 'wp-graphql' ),
@@ -46,16 +67,57 @@ class PostObjectQueryArgsType extends InputObjectType {
 						'description' => __( 'Array of category IDs, used to exclude objects in specified 
 									categories', 'wp-graphql' ),
 					],
-					'taxQuery'      => [
-						'type' => Types::tax_query(),
-						'description' => __( 'Query objects by taxonomy parameters', 'wp-graphql' ),
+
+					/**
+					 * Tag $args
+					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Tag_Parameters
+					 * @since 0.0.5
+					 */
+					'tag'           => [
+						'type'        => Types::string(),
+						'description' => __( 'Tag Slug', 'wp-graphql' ),
 					],
+					'tagId'         => [
+						'type'        => Types::string(),
+						'description' => __( 'Use Tag ID', 'wp-graphql' ),
+					],
+					'tagAnd'        => [
+						'type'        => Types::list_of( Types::int() ),
+						'description' => __( 'Array of tag IDs, used to display objects in one tag AND another', 'wp-graphql' ),
+					],
+					'tagIn'         => [
+						'type'        => Types::list_of( Types::int() ),
+						'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
+					],
+					'tagNotIn'      => [
+						'type'        => Types::list_of( Types::int() ),
+						'description' => __( 'Array of tag IDs, used to exclude objects in specified tags', 'wp-graphql' ),
+					],
+					'tagSlugAnd'    => [
+						'type'        => Types::list_of( Types::string() ),
+						'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
+					],
+					'tagSlugIn'     => [
+						'type'        => Types::list_of( Types::string() ),
+						'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
+					],
+
+					/**
+					 * Search Parameter
+					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Search_Parameter
+					 * @since 0.0.5
+					 */
+					'search'        => [
+						'name'        => 'search',
+						'type'        => Types::string(),
+						'description' => __( 'Show Posts based on a keyword search', 'wp-graphql' ),
+					],
+
 					/**
 					 * Post & Page Parameters
 					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Post_.26_Page_Parameters
-					 * @since 0.0.2
+					 * @since 0.0.5
 					 */
-					// was 'p'
 					'id'            => [
 						'type'        => Types::int(),
 						'description' => __( 'Specific ID of the object', 'wp-graphql' ),
@@ -92,6 +154,7 @@ class PostObjectQueryArgsType extends InputObjectType {
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Specify objects to retrieve. Use slugs', 'wp-graphql' ),
 					],
+
 					/**
 					 * Password parameters
 					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Password_Parameters
@@ -121,7 +184,7 @@ class PostObjectQueryArgsType extends InputObjectType {
 					 * @since 0.0.2
 					 */
 					'status'        => [
-						'type'        => Types::post_status_enum(),
+						'type' => Types::post_status_enum(),
 					],
 
 					/**
@@ -130,23 +193,107 @@ class PostObjectQueryArgsType extends InputObjectType {
 					 * @since 0.0.2
 					 */
 					'orderby'       => [
-						'type'        => Types::post_object_orderby_enum(),
-						'description' => sprintf( __( 'What paramater to use to order the %s by.', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
+						'type'        => new EnumType( [
+							'name'   => 'orderby',
+							'values' => [
+								[
+									'name'        => 'NONE',
+									'value'       => 'none',
+									'description' => __( 'No order', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'ID',
+									'value'       => 'ID',
+									'description' => __( 'Order by the object\'s id. Note the capitalization', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'AUTHOR',
+									'value'       => 'author',
+									'description' => __( 'Order by author', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'TITLE',
+									'value'       => 'title',
+									'description' => __( 'Order by title', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'SLUG',
+									'value'       => 'name',
+									'description' => __( 'Order by slug', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'DATE',
+									'value'       => 'date',
+									'description' => __( 'Order by date', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'MODIFIED',
+									'value'       => 'modified',
+									'description' => __( 'Order by last modified date', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'PARENT',
+									'value'       => 'parent',
+									'description' => __( 'Order by parent ID', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'COMMENT_COUNT',
+									'value'       => 'comment_count',
+									'description' => __( 'Order by number of comments', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'RELEVANCE',
+									'value'       => 'relevance',
+									'description' => __( 'Order by search terms in the following order: First, whether 
+									the entire sentence is matched. Second, if all the search terms are within the titles. 
+									Third, if any of the search terms appear in the titles. And, fourth, if the full 
+									sentence appears in the contents.', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'IN',
+									'value'       => 'post__in',
+									'description' => __( 'Preserve the ID order given in the IN array', 'wp-graphql' ),
+								],
+								[
+									'name'        => 'NAME_IN',
+									'value'       => 'post_name__in',
+									'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
+								],
+							],
+						] ),
+						'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 					],
+
 					'dateQuery' => Types::date_query(),
-					'metaQuery' => Types::meta_query(),
+
 					'mimeType' => [
-						'type' => Types::mime_type_enum(),
+						'type'        => Types::mime_type_enum(),
 						'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
 					],
 				];
 
+				/**
+				 * Filter the input fields.
+				 *
+				 * This allows plugins/themes to hook in and alter what input fields should be available for use
+				 * with PostObjectQueries (WP_Query)
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_wp_query_input_fields', $fields );
+
 				ksort( $fields );
+
 				return $fields;
 			},
 		];
 
 		parent::__construct( $config );
+
+	}
+
+	private function post_object_orderby_enum() {
+
 
 	}
 

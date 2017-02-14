@@ -6,4 +6,10 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'GraphQLRelay\\Connection\\ArrayConnection' => $vendorDir . '/ivome/graphql-relay-php/src/Connection/ArrayConnection.php',
+    'GraphQLRelay\\Connection\\Connection' => $vendorDir . '/ivome/graphql-relay-php/src/Connection/Connection.php',
+    'GraphQLRelay\\Mutation\\Mutation' => $vendorDir . '/ivome/graphql-relay-php/src/Mutation/Mutation.php',
+    'GraphQLRelay\\Node\\Node' => $vendorDir . '/ivome/graphql-relay-php/src/Node/Node.php',
+    'GraphQLRelay\\Node\\Plural' => $vendorDir . '/ivome/graphql-relay-php/src/Node/Plural.php',
+    'GraphQLRelay\\Relay' => $vendorDir . '/ivome/graphql-relay-php/src/Relay.php',
 );

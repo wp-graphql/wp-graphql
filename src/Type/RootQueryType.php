@@ -26,6 +26,12 @@ class RootQueryType extends ObjectType {
 	public function __construct() {
 
 		/**
+		 * Run an action when the RootQuery is being generated
+		 * @since 0.0.5
+		 */
+		do_action( 'graphql_root_query' );
+
+		/**
 		 * Setup data
 		 * @since 0.0.5
 		 */
