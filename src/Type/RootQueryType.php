@@ -35,9 +35,9 @@ class RootQueryType extends ObjectType {
 		 * Setup data
 		 * @since 0.0.5
 		 */
-		$allowed_post_types  = \WPGraphQL::$allowed_post_types;
-		$allowed_taxonomies  = \WPGraphQL::$allowed_taxonomies;
-		$node_definition     = DataSource::get_node_definition();
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		$node_definition    = DataSource::get_node_definition();
 
 		/**
 		 * Creates the node root query field which can be used
@@ -46,58 +46,53 @@ class RootQueryType extends ObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		$fields['node']      = $node_definition['nodeField'];
+		$fields['node'] = $node_definition['nodeField'];
 
 		/**
 		 * Creates the comment root query field
 		 * @since 0.0.5
 		 */
-		$fields['comment']   = self::comment();
+		$fields['comment'] = self::comment();
+		$fields['comments'] = Connections::comments_connection();
 
 		/**
 		 * Creates the plugin root query field
 		 * @since 0.0.5
 		 */
-		$fields['plugin']    = self::plugin();
-		$fields['plugins']   = self::plugins();
-
-		/**
-		 * Creates the post_type root query field
-		 * @since 0.0.5
-		 */
-		$fields['post_type'] = self::post_type();
-
-		/**
-		 * Creates the taxonomy root query field
-		 * @since 0.0.5
-		 */
-		$fields['taxonomy']  = self::taxonomy();
+		$fields['plugin']  = self::plugin();
+		$fields['plugins'] = Connections::plugins_connection();
 
 		/**
 		 * Creates the theme root query field
 		 * @since 0.0.5
 		 */
-		$fields['theme']     = self::theme();
+		$fields['theme'] = self::theme();
 
 		/**
 		 * Creates the theme root query field to query a collection
 		 * of themes
 		 * @since 0.0.5
 		 */
-		$fields['themes']     = self::themes();
+		$fields['themes'] = Connections::themes_connection();
 
 		/**
 		 * Creates the user root query field
 		 * @since 0.0.5
 		 */
-		$fields['user']      = self::user();
+		$fields['user'] = self::user();
 
 		/**
 		 * Creates the users root query field to query a collection
 		 * of users
 		 * @since 0.0.5
 		 */
-		$fields['users']     = self::users();
+		$fields['users'] = Connections::users_connection();
+
+		/**
+		 * Creates the viewer root query field
+		 * @since 0.0.5
+		 */
+		$fields['viewer'] = self::viewer();
 
 		/**
 		 * Creates the root fields for post objects (of any post_type)
@@ -127,6 +122,10 @@ class RootQueryType extends ObjectType {
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
 					],
+					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type ){
+						$id_components = Relay::fromGlobalId( $args['id'] );
+						return DataSource::resolve_post_object( $id_components['id'], $post_type );
+					},
 				];
 
 				/**
@@ -166,6 +165,10 @@ class RootQueryType extends ObjectType {
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
 					],
+					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy ){
+						$id_components = Relay::fromGlobalId( $args['id'] );
+						return DataSource::resolve_term_object( $id_components['id'], $taxonomy );
+					},
 				];
 
 				/**
@@ -207,9 +210,9 @@ class RootQueryType extends ObjectType {
 			'fields'       => $fields,
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
-					return $this->{ $info->fieldName }( $value, $args, $context, $info );
+					return $this->{$info->fieldName}( $value, $args, $context, $info );
 				} else {
-					return $value->{ $info->fieldName };
+					return $value->{$info->fieldName};
 				}
 			},
 		];
@@ -235,6 +238,10 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_comment( $id_components['id'] );
+			},
 		];
 	}
 
@@ -251,23 +258,10 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-		];
-	}
-
-	public static function plugins() {
-		return [
-			'type'        => Types::list_of( Types::plugin() ),
-			'description' => __( 'A list of WordPress plugins', 'wp-graphql' ),
 			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-
-				$plugins = array();
-				// File has not loaded.
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-				// This is missing must use and drop in plugins.
-				$plugins = apply_filters( 'all_plugins', get_plugins() );
-				return $plugins;
-
-			}
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_plugin( $id_components['id'] );
+			},
 		];
 	}
 
@@ -284,6 +278,10 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_post_type( $id_components['id'] );
+			},
 		];
 	}
 
@@ -300,34 +298,12 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function(  $source, array $args, AppContext $context, ResolveInfo $info ) {
-				$theme = wp_get_theme( $args['slug'] );
-				return $theme->exists() ? $theme : null;
-			}
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_theme( $id_components['id'] );
+			},
 		];
 	}
-	/**
-	 * theme
-	 * This sets up the theme entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function themes() {
-		return [
-			'type'        => Types::list_of( Types::theme() ),
-			'description' => __( 'A Theme object', 'wp-graphql' ),
-			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-				$themes = wp_get_themes();
-				if ( isset( $args['first'] ) || isset( $args['after'] ) ) {
-					$limit = isset( $args['first'] ) ? $args['first'] : count( $themes );
-					$offset = isset( $args['after'] ) ? $args['after'] : 0;
-					$themes = array_splice( $themes, $offset, $limit );
-				}
-				return ! empty( $themes ) ? $themes : null;
-			}
-		];
-	}
-
 
 	/**
 	 * taxonomy
@@ -342,6 +318,10 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_taxonomy( $id_components['id'] );
+			},
 		];
 	}
 
@@ -358,23 +338,30 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
+			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				$id_components = Relay::fromGlobalId( $args['id'] );
+				return DataSource::resolve_user( $id_components['id'] );
+			},
 		];
 	}
 
 	/**
-	 * users
-	 * This sets up the users entry point for the root query
+	 * viewer
+	 * This sets up the viewer entry point for the root query
 	 * @return array
 	 * @since 0.0.5
 	 */
-	public static function users() {
-		$users_connection = Connections::users_connection();
+	public static function viewer() {
 		return [
-			'type'        => $users_connection['connectionType'],
-			'description' => 'The users.',
-			'args'        => Relay::connectionArgs(),
-			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
-				return DataSource::get_users( $source, $args, $context, $info );
+			'type' => Types::user(),
+			'description' => __( 'Returns the current user', 'wp-graphql' ),
+			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+
+				if ( ! ( $context->viewer instanceof \WP_User) ) {
+					throw new \Exception( __( 'The current viewe is invalid', 'wp-graphql' ) );
+				}
+
+				return false !== $context->viewer->ID ? DataSource::resolve_user( $context->viewer->ID ) : null;
 			},
 		];
 	}

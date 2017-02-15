@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\AvatarType;
+use WPGraphQL\Type\CommentsConnectionQueryArgsType;
 use WPGraphQL\Type\DateQueryType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
@@ -18,8 +19,10 @@ use WPGraphQL\Type\PostObjectType;
 use WPGraphQL\Type\PostTypeType;
 use WPGraphQL\Type\ShortcodeType;
 use WPGraphQL\Type\TaxonomyType;
+use WPGraphQL\Type\TermObjectQueryArgsType;
 use WPGraphQL\Type\TermObjectType;
 use WPGraphQL\Type\ThemeType;
+use WPGraphQL\Type\UserConnectionQueryArgsType;
 use WPGraphQL\Type\UserType;
 
 /**
@@ -38,6 +41,7 @@ class Types {
 
 	private static $avatar;
 	private static $comment;
+	private static $comment_connection_query_args;
 	private static $date_query;
 	private static $mime_type_enum;
 	private static $plugin;
@@ -51,8 +55,10 @@ class Types {
 	private static $taxonomy;
 	private static $taxonomy_enum;
 	private static $term_object;
+	private static $term_object_query_args;
 	private static $theme;
 	private static $user;
+	private static $user_connection_query_args;
 
 	/**
 	 * avatar
@@ -72,6 +78,16 @@ class Types {
 	 */
 	public static function comment() {
 		return self::$comment ?: ( self::$comment = new CommentType() );
+	}
+
+	/**
+	 * comment_connection_query_args
+	 * This returns the definition for the CommentsConnectionQueryArgsType
+	 * @return CommentsConnectionQueryArgsType
+	 * @since 0.0.5
+	 */
+	public static function comment_connection_query_args() {
+		return self::$comment_connection_query_args ?: ( self::$comment_connection_query_args = new CommentsConnectionQueryArgsType() );
 	}
 
 	/**
@@ -112,6 +128,9 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function post_object( $post_type ) {
+		if ( null === self::$post_object ) {
+			self::$post_object = new \stdClass();
+		}
 		return self::$post_object->{ $post_type } ?: ( self::$post_object->{ $post_type } = new PostObjectType( $post_type ) );
 	}
 
@@ -203,7 +222,20 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function term_object( $taxonomy ) {
+		if ( null === self::$term_object ) {
+			self::$term_object = new \stdClass();
+		}
 		return self::$term_object->{ $taxonomy } ?: ( self::$term_object->{ $taxonomy } = new TermObjectType( $taxonomy ) );
+	}
+
+	/**
+	 * term_object_query_args
+	 * This returns the definition for the TermObjectQueryArgsType
+	 * @return TermObjectQueryArgsType
+	 * @since 0.0.5
+	 */
+	public static function term_object_query_args() {
+		return self::$term_object_query_args ?: ( self::$term_object_query_args = new TermObjectQueryArgsType() );
 	}
 
 	/**
@@ -224,6 +256,16 @@ class Types {
 	 */
 	public static function user() {
 		return self::$user ?: ( self::$user = new UserType() );
+	}
+
+	/**
+	 * user_connection_query_args
+	 * This returns the definition for the UserConnectionQueryArgsType
+	 * @return UserConnectionQueryArgsType
+	 * @since 0.0.5
+	 */
+	public static function user_connection_query_args() {
+		return self::$user_connection_query_args ?: ( self::$user_connection_query_args = new UserConnectionQueryArgsType() );
 	}
 
 	/**
@@ -259,7 +301,7 @@ class Types {
 	/**
 	 * int
 	 * This is a wrapper for the GraphQL type to give a consistent experience
-	 * @return \GraphQL\Type\Definition\int
+	 * @return \GraphQL\Type\Definition\IntType
 	 * @since 0.0.5
 	 */
 	public static function int() {
@@ -269,7 +311,7 @@ class Types {
 	/**
 	 * string
 	 * This is a wrapper for the GraphQL type to give a consistent experience
-	 * @return \GraphQL\Type\Definition\string
+	 * @return \GraphQL\Type\Definition\StringType
 	 * @since 0.0.5
 	 */
 	public static function string() {
@@ -279,7 +321,7 @@ class Types {
 	/**
 	 * list_of
 	 * This is a wrapper for the GraphQL type to give a consistent experience
-	 * @return \GraphQL\Type\Definition\list_of
+	 * @return \GraphQL\Type\Definition\ListOfType
 	 * @since 0.0.5
 	 */
 	public static function list_of( $type ) {
@@ -289,7 +331,7 @@ class Types {
 	/**
 	 * non_null
 	 * This is a wrapper for the GraphQL type to give a consistent experience
-	 * @return \GraphQL\Type\Definition\non_null
+	 * @return \GraphQL\Type\Definition\NonNull
 	 * @since 0.0.5
 	 */
 	public static function non_null( $type ) {

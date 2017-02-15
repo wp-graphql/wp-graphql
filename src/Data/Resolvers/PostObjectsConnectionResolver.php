@@ -13,21 +13,6 @@ use GraphQLRelay\Relay;
 class PostObjectsConnectionResolver {
 
 	/**
-	 * PostObjectsConnection constructor.
-	 *
-	 * @param $post_type
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
-	 *
-	 * @since 0.0.5
-	 */
-	public function __construct( $post_type, $source, $args, $context, $info ) {
-		self::resolve( $post_type, $source, $args, $context, $info );
-	}
-
-	/**
 	 * resolve
 	 *
 	 * This handles resolving a query for post objects (of any specified $post_type) from the root_query or from any
@@ -130,6 +115,14 @@ class PostObjectsConnectionResolver {
 		$query_args['post_type'] = $post_type;
 
 		/**
+		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
+		 * @since 0.0.6
+		 */
+		if ( 'attachment' === $post_type ) {
+			$query_args['post_status'] = 'inherit';
+		}
+
+		/**
 		 * Set no_found_rows to true by default to make queries more efficient by not having to calculate
 		 * the entire set of data.
 		 * @since 0.0.5
@@ -143,6 +136,39 @@ class PostObjectsConnectionResolver {
 		 */
 		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
 			$query_args['no_found_rows'] = false;
+		}
+
+		/**
+		 * If the source of the Query is a PostType, adjust the query args
+		 * to only query posts connected to the PostType
+		 * @since 0.0.5
+		 */
+		if ( $source instanceof \WP_Post_Type ) {
+			$query_args['post_type'] = $source->name;
+		}
+
+		/**
+		 * If the source of the Query is a Term object, adjust the query args
+		 * to only query posts connected to the term object
+		 * @since 0.0.5
+		 */
+		if ( $source instanceof \WP_Term ) {
+			$query_args['tax_query'] = [
+				[
+					'taxonomy' => $source->taxonomy,
+					'terms'    => [ $source->term_id ],
+					'field'    => 'term_id',
+				],
+			];
+		}
+
+		/**
+		 * If the source of the Query is a User object, adjust the query args
+		 * to only query posts connected to the User object
+		 * @since 0.0.5
+		 */
+		if ( $source instanceof \WP_User ) {
+			$query_args['author'] = $source->ID;
 		}
 
 		/**
@@ -197,7 +223,7 @@ class PostObjectsConnectionResolver {
 		 */
 		if ( ! empty( $last ) ) {
 			$meta['sliceStart'] = ( $edge_count - $last );
-			$post_results       = array_reverse( $post_results );
+			$post_results = array_reverse( $post_results );
 			if ( ! empty( $before ) ) {
 				$meta['sliceStart'] = absint( $before - $last );
 			} elseif ( ! empty( $after ) ) {
@@ -224,6 +250,7 @@ class PostObjectsConnectionResolver {
 				$index ++;
 			}
 		}
+
 
 		/**
 		 * Generate the Relay fields (pageInfo, Edges, Cursor, etc)

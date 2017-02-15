@@ -2,156 +2,312 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\Resolvers\CommentsConnectionResolver;
+use WPGraphQL\Data\Resolvers\PluginsConnectionResolver;
 use WPGraphQL\Data\Resolvers\PostObjectsConnectionResolver;
+use WPGraphQL\Data\Resolvers\PostTypesConnectionResolver;
 use WPGraphQL\Data\Resolvers\TermObjectsConnectionResolver;
+use WPGraphQL\Data\Resolvers\ThemesConnectionResolver;
+use WPGraphQL\Data\Resolvers\UsersConnectionResolver;
 use WPGraphQL\Types;
 
 /**
  * Class DataSource
  *
- * Any complicated resolvers should be defined / centralized here.
+ * This class serves as a factory for all the resolvers for queries and mutations. This layer of
+ * abstraction over the actual resolve functions allows easier, granular control over versioning as
+ * we can change big things behind the scenes if/when needed, and we just need to ensure the
+ * call to the DataSource method returns the expected data later on. This should make it easy
+ * down the road to version resolvers if/when changes to the WordPress API are rolled out.
  *
  * @package WPGraphQL\Data
  * @since 0.0.4
  */
 class DataSource {
 
+	/**
+	 * @var $node_definition
+	 * @since 0.0.4
+	 */
 	protected static $node_definition;
 
-	public static function get_user( $id ) {
-		$user = new \WP_User( $id );
-		if ( ! $user->exists() ) {
-			return false;
+	/**
+	 * resolve_comment
+	 *
+	 * @param $id
+	 * @return mixed
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_comment( $id ) {
+		$comment = \WP_Comment::get_instance( $id );
+		if ( empty( $comment ) ) {
+			throw new \Exception( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
 		}
-		return $user;
+		return $comment;
 	}
 
-	public static function get_users( $source, array $args, $context, ResolveInfo $info ) {
-
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
-		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
-		$first  = ( ! empty( $args['first'] ) ) ? ArrayConnection::cursorToOffset( $args['first'] ) : null;
-
-		// Default to order DESC
-		$query_args['order'] = 'DESC';
-
-		if ( ! empty( $after ) && ! empty( $before ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together.', 'wp-graphql' ) );
-		}
-
-		if ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
-		}
-
-		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
-		}
-
-		$query_args['number'] = ( ! empty( $first ) ) ? absint( $first ) : 10;
-		$query_args['offset'] = ( ! empty( $args['after'] ) ) ? absint( $after ) : 0;
-
-		$users_query = new \WP_User_Query( $query_args );
-		$users_query->query();
-
-		// Calculate the total length of the array
-		// (total count of users)
-		$meta['arrayLength'] = absint( $users_query->total_users );
-
-		// Calculate the offset of the array
-		// (the portion of the total query results that are being returned)
-		$meta['sliceStart'] = $query_args['offset'];
-
-		// Get the resulting array of users from the query
-		$users = $users_query->get_results();
-		$users = ArrayConnection::connectionFromArraySlice( $users, $args, $meta );
-
-		// Return the connection
-		return $users;
-
+	/**
+	 * resolve_comments_connection
+	 *
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return CommentsConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
-	public static function resolve_comments( $source, array $args, $context, ResolveInfo $info ) {
+	/**
+	 * resolve_plugin
+	 *
+	 * @param $name
+	 * @return null
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_plugin( $name ) {
 
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
-		$last   = ( ! empty( $args['last'] ) ) ? ArrayConnection::cursorToOffset( $args['last'] ) : null;
-		$first  = ( ! empty( $args['first'] ) ) ? ArrayConnection::cursorToOffset( $args['first'] ) : null;
+		// Puts input into a url friendly slug format.
+		$slug   = sanitize_title( $name );
+		$plugin = null;
 
-		$query_args['number'] = ( ! empty( $first ) ) ? absint( $first ) : 10;
-		$query_args['offset'] = ( ! empty( $args['after'] ) ) ? absint( $after ) : 0;
-
-		if ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
-		}
-
-		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
+		// The file may have not been loaded yet.
+		if ( ! file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		/**
-		 * If the query source is a WP_Post object,
-		 * adjust the query args to only query for comments connected
-		 * to that post_object
-		 *
+		 * NOTE: This is missing must use and drop in plugins.
+		 */
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		/**
+		 * Loop through the plugins and find the matching one
 		 * @since 0.0.5
 		 */
-		if ( $source instanceof \WP_Post && absint( $source->ID ) ) {
-			$query_args['post_id'] = absint( $source->ID );
+		foreach ( $plugins as $path => $plugin_data ) {
+			if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
+				$plugin         = $plugin_data;
+				$plugin['path'] = $path;
+				// Exit early when plugin is found.
+				break;
+			}
 		}
 
 		/**
-		 * If the query source is a WP_User object,
-		 * adjust the query args to only query for the comments connected
-		 * to that user
+		 * Return the plugin, or throw an exception
 		 */
-		if ( $source instanceof  \WP_User && absint( $source->ID ) ) {
-			$query_args['user_id'] = $source->ID;
+		if ( ! empty( $plugin ) ) {
+			return $plugin;
+		} else {
+			throw new \Exception( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
 		}
-
-		/**
-		 * If the query source is a WP_Comment object,
-		 * adjust the query args to only query for comments that have
-		 * the source ID as their parent
-		 *
-		 * @since 0.0.5
-		 */
-		if ( $source instanceof \WP_Comment && absint( $source->comment_ID ) ) {
-			$query_args['parent'] = absint( $source->comment_ID );
-		}
-
-		$comments_query = new \WP_Comment_Query( $query_args );
-		$comments = $comments_query->get_comments();
-
-		$comments = ArrayConnection::connectionFromArray( $comments, $args );
-
-		return $comments;
 	}
 
-	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
-		return PostObjectsConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+	/**
+	 * resolve_plugins_connection
+	 *
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_plugins_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return PluginsConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
-	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		return TermObjectsConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
-	}
-
-	public static function post_object( $id ) {
+	/**
+	 * resolve_post_object
+	 *
+	 * @param int $id
+	 * @param string $post_type
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_post_object( $id, $post_type ) {
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
-			return false;
+			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$c', 'wp-graphql' ), $id, $post_type ) );
 		}
 		return $post_object;
 	}
 
-	public static function term_object( $id ) {
-		$term_object = new \WP_Term( $id );
+	/**
+	 * resolve_post_objects_connection
+	 *
+	 * @param $post_type
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
+		return PostObjectsConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+	}
+
+	/**
+	 * resolve_post_type
+	 *
+	 * @param $post_type
+	 * @return array
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_post_type( $post_type ) {
+
+		/**
+		 * Get the allowed_post_types
+		 */
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+
+		/**
+		 * If the $post_type is one of the allowed_post_types
+		 */
+		if ( in_array( $post_type, $allowed_post_types, true ) ) {
+			return get_post_type_object( $post_type );
+		} else {
+			throw new \Exception( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
+		}
+
+	}
+
+	/**
+	 * resolve_post_types_connection
+	 *
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_post_types_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return PostTypesConnectionResolver::resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * resolve_taxonomy
+	 *
+	 * @param $taxonomy
+	 * @return array
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_taxonomy( $taxonomy ) {
+
+		/**
+		 * Get the allowed_taxonomies
+		 */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+
+		/**
+		 * If the $post_type is one of the allowed_post_types
+		 */
+		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
+			return get_taxonomy( $taxonomy );
+		} else {
+			throw new \Exception( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+		}
+	}
+
+	/**
+	 * resolve_term_object
+	 *
+	 * @param $id
+	 * @param $taxonomy
+	 * @return mixed
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_term_object( $id, $taxonomy ) {
+		$term_object = \WP_Term::get_instance( $id, $taxonomy );
 		if ( empty( $term_object ) ) {
-			return false;
+			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$c', 'wp-graphql' ), $id, $taxonomy ) );
 		}
 		return $term_object;
+	}
+
+	/**
+	 * resolve_term_objects_connection
+	 *
+	 * @param $taxonomy
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
+		return TermObjectsConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
+	}
+
+	/**
+	 * resolve_theme
+	 *
+	 * @param $stylesheet
+	 * @return mixed
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_theme( $stylesheet ) {
+		$theme = wp_get_theme( $stylesheet );
+		if ( $theme->exists() ) {
+			return $theme;
+		} else {
+			throw new \Exception( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
+		}
+	}
+
+	/**
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return ThemesConnectionResolver::resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * resolve_user
+	 *
+	 * @param $id
+	 * @return bool|\WP_User
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
+	public static function resolve_user( $id ) {
+		$user = new \WP_User( $id );
+		if ( ! $user->exists() ) {
+			throw new \Exception( sprintf( __( 'No user was found with ID %c', 'wp-graphql' ), $id ) );
+		}
+		return $user;
+	}
+
+	/**
+	 * resolve_users_connection
+	 *
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 * @return array
+	 * @since 0.0.5
+	 */
+	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return UsersConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -159,43 +315,95 @@ class DataSource {
 	 *
 	 * The first method is the way we resolve an ID to its object. The second is the
 	 * way we resolve an object that implements node to its type.
+	 *
+	 * @return array|node_definition
+	 * @throws \Exception
 	 */
 	public static function get_node_definition() {
+
 		if ( null === self::$node_definition ) {
 
-			$node_definition       = Relay::nodeDefinitions(
+			$node_definition = Relay::nodeDefinitions(
+
 				// The ID fetcher definition
 				function( $global_id ) {
+
+					/**
+					 * Convert the encoded ID into an array we can work with
+					 * @since 0.0.4
+					 */
 					$id_components = Relay::fromGlobalId( $global_id );
+
+					/**
+					 * Get the allowed_post_types and allowed_taxonomies
+					 * @since 0.0.5
+					 */
 					$allowed_post_types = \WPGraphQL::$allowed_post_types;
 					$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-					if ( in_array( $id_components['type'], $allowed_post_types, true ) ) {
-						return \WP_Post::get_instance( $id_components['id'] );
-					} elseif ( in_array( $id_components['type'], $allowed_taxonomies, true ) ) {
-						$term = get_term_by( 'id', $id_components['id'], $id_components['type'] );
-						return $term;
-					} elseif ( 'user' === $id_components['type'] ) {
-						$user = new \WP_User( $id_components['id'] );
-						return $user;
+
+					if ( ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
+						switch ( $id_components['type'] ) {
+
+							// postObjects
+							case in_array( $id_components['type'], $allowed_post_types, true ):
+								return self::resolve_post_object( $id_components['id'], $id_components['type'] );
+							// termObjects
+							case in_array( $id_components['type'], $allowed_taxonomies, true ):
+								return self::resolve_term_object( $id_components['id'], $id_components['type'] );
+							case 'comment':
+								$comment = self::resolve_comment( $id_components['id'] );
+								return $comment;
+							case 'plugin':
+								return self::resolve_plugin( $id_components['id'] );
+							case 'post_type':
+								return self::resolve_post_type( $id_components['id'] );
+							case 'taxonomy':
+								return self::resolve_taxonomy( $id_components['id'] );
+							case 'theme':
+								return self::resolve_theme( $id_components['id'] );
+							case 'user':
+								return self::resolve_user( $id_components['id'] );
+							default:
+								throw new \Exception( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+
+						}
 					} else {
-						throw new \Exception( sprintf( __( 'No node could be found with global ID: %' , 'wp-graphql' ), $global_id ) );
+						throw new \Exception( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 					}
 				},
+
 				// Type resolver
-				function( $object ) {
-					$types = new Types();
-					if ( $object instanceof \WP_Post ) {
-						return Types::post_object( $object->post_type );
-					} elseif ( $object instanceof \WP_Term ) {
-						return Types::term_object( $object->taxonomy );
-					} elseif ( $object instanceof \WP_User ) {
-						return Types::user();
+				function( $node ) {
+
+					if ( is_object( $node ) ) {
+						if ( $node instanceof \WP_Post ) {
+							return Types::post_object( $node->post_type );
+						} elseif ( $node instanceof \WP_Term ) {
+							return Types::term_object( $node->taxonomy );
+						} elseif ( $node instanceof \WP_Comment ) {
+							return Types::comment();
+						} elseif ( $node instanceof \WP_Post_Type ) {
+							return Types::post_type();
+						} elseif ( $node instanceof \WP_Taxonomy ) {
+							return Types::taxonomy();
+						} elseif ( $node instanceof \WP_Theme ) {
+							return Types::theme();
+						} elseif ( $node instanceof \WP_User ) {
+							return Types::user();
+						}
+					// Some nodes might return an array instead of an object
+					} elseif ( is_array( $node ) ) {
+						if ( ! empty( $node['PluginURI'] ) ) {
+							return Types::plugin();
+						}
 					}
-					return null;
+
+					throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
 				}
 			);
 
 			self::$node_definition = $node_definition;
+
 		}
 
 		return self::$node_definition;

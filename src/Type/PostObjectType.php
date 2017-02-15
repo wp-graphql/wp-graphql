@@ -189,16 +189,6 @@ class PostObjectType extends ObjectType {
 							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : 0;
 						},
 					),
-					'type'            => array(
-						'type'        => Types::string(),
-						'description' => esc_html__( 'This field tells what kind of content type the object is. In 
-						WordPress different post types are used to denote different types of content. This field is 
-						equivalent to the value of WP_Post->post_type and the post_type column in the `post_objects` 
-						database table.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_type ) ? $post->post_type : null;
-						},
-					),
 					'mimeType'       => array(
 						'type'        => Types::string(),
 						'description' => esc_html__( 'If the post is an attachment or a media file, this field will 

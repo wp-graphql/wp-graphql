@@ -1,11 +1,8 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Language\AST\Type;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
-use WPGraphQL\Type\Enum\PostObjectOrderbyEnumType;
-use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Types;
 
 class PostObjectQueryArgsType extends InputObjectType {
@@ -263,9 +260,7 @@ class PostObjectQueryArgsType extends InputObjectType {
 						] ),
 						'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 					],
-
 					'dateQuery' => Types::date_query(),
-
 					'mimeType' => [
 						'type'        => Types::mime_type_enum(),
 						'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
@@ -281,19 +276,12 @@ class PostObjectQueryArgsType extends InputObjectType {
 				 * @since 0.0.5
 				 */
 				$fields = apply_filters( 'graphql_wp_query_input_fields', $fields );
-
 				ksort( $fields );
-
 				return $fields;
 			},
 		];
 
 		parent::__construct( $config );
-
-	}
-
-	private function post_object_orderby_enum() {
-
 
 	}
 
