@@ -4,12 +4,54 @@ namespace WPGraphQL\Data\Resolvers;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 
+/**
+ * Class TermObjectsConnectionResolver
+ * @package WPGraphQL\Data\Resolvers
+ * @since 0.0.5
+ */
 class TermObjectsConnectionResolver {
 
-	public function __construct( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		$this->resolve( $taxonomy, $source, $args, $context, $info );
-	}
-
+	/**
+	 * resolve
+	 *
+	 * This handles resolving a query for post objects (of any specified $taxonomy) from the root_query or from any
+	 * connection where term_objects are queryable.
+	 *
+	 * This resolver takes in the Relay standard args (before, after, first, last) and uses them to query from the
+	 * get_posts query and return results according to the Relay spec.
+	 *
+	 * PAGINATION DETAILS:
+	 * For backward pagination, last and before should be used together.
+	 * - last should be a non-negative integer
+	 * - before should be a cursor which contains the offset of the position in the overall collection of data
+	 *
+	 * For forward pagination, first and after should be used together.
+	 * - first should be a non-negative integer
+	 * - after should be a cursor which contains the offset of the position in the overall collection of data
+	 *
+	 * PAGINATION ALGORITHM:
+	 * If $first is set:
+	 * - if $first is less than 0, throw an error
+	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from the end of $edges
+	 *
+	 * If $last is set:
+	 * - If $last is less than 0, throw an error
+	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from the start of $edges
+	 *
+	 * ADDITIONAL ARGUMENTS:
+	 * Additional "where" arguments are mapped from the GraphQL friendly names to get_terms allowed names and are applied to
+	 * the get_terms query appropriately.
+	 *
+	 * @param $taxonomy
+	 * @param $source
+	 * @param array $args
+	 * @param $context
+	 * @param ResolveInfo $info
+	 *
+	 * @return array
+	 * @throws \Exception
+	 * @since 0.0.5
+	 */
 	public static function resolve( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
 
 		/**
@@ -43,8 +85,11 @@ class TermObjectsConnectionResolver {
 		 * Determine the number, order and offset to query based on the $first/$last/$before/$after args
 		 * @since 0.0.5
 		 */
+		$query_args['number'] = 10;
+		$query_args['offset'] = 0;
+
 		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
+			$query_args['order']  = 'DESC';
 			$query_args['number'] = absint( $first );
 			if ( ! empty( $before ) ) {
 				$query_args['offset'] = 0;
@@ -52,10 +97,10 @@ class TermObjectsConnectionResolver {
 				$query_args['offset'] = absint( $after + 1 );
 			}
 		} elseif ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
+			$query_args['order']  = 'ASC';
 			$query_args['number'] = absint( $last );
 			if ( ! empty( $before ) ) {
-				$query_args['order'] = 'DESC';
+				$query_args['order']  = 'DESC';
 				$query_args['offset'] = ( $before - $last );
 			} elseif ( ! empty( $after ) ) {
 				$query_args['offset'] = 0;
@@ -84,7 +129,7 @@ class TermObjectsConnectionResolver {
 		 */
 		$entered_args = [];
 		if ( ! empty( $args['where'] ) ) {
-			$entered_args = self::map_args_to_query_args( $args['where'] );
+			$entered_args = self::map_input_fields_to_get_terms( $args['where'], $taxonomy, $source, $args, $context, $info );
 		}
 
 		/**
@@ -96,15 +141,21 @@ class TermObjectsConnectionResolver {
 
 		/**
 		 * Run the query
+		 *
+		 * NOTE: We were using new \WP_Term_Query and it was working fine, but with get_terms
+		 * the performance is ~300% faster. . .seems interesting as get_terms is just a wrapper
+		 * for \WP_Term_Query. . .so might be worth investigating further what causes the difference
+		 * in performance and if we should stick with this or move back to \WP_Term_Query...
+		 *
 		 * @since 0.0.5
 		 */
-		$term_query = new \WP_Term_Query( $query_args );
+		$term_query = get_terms( $query_args );
 
 		/**
 		 * Grab the terms from the results of the query
 		 * @since 0.0.5
 		 */
-		$term_results = $term_query->terms;
+		$term_results = $term_query;
 
 		/**
 		 * Throw an exception if no results were found.
@@ -137,7 +188,7 @@ class TermObjectsConnectionResolver {
 		 * based on the details we received back from the query and query_args
 		 */
 		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart'] = 0;
+		$meta['sliceStart']  = 0;
 
 		/**
 		 * Build the pagination details based on the arguments passed.
@@ -169,7 +220,7 @@ class TermObjectsConnectionResolver {
 			$index = $meta['sliceStart'];
 			foreach ( $term_results as $term ) {
 				$terms_array[ $index ] = $term;
-				$index++;
+				$index ++;
 			}
 		}
 
@@ -188,17 +239,114 @@ class TermObjectsConnectionResolver {
 	}
 
 	/**
-	 * map_args_to_query_args
+	 * map_input_fields_to_get_terms
 	 *
-	 * This maps the GraphQL "friendly" args to WP_Term_Query $args.
+	 * This maps the GraphQL "friendly" args to get_terms $args.
 	 *
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
 	 * more dynamic ways to map this, but for now this gets the job done.
 	 *
 	 * @since 0.0.5
 	 */
-	public static function map_args_to_query_args( $args ) {
-		return [];
+	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, $context, $info ) {
+
+		/**
+		 * Start a fresh array
+		 */
+		$query_args = [];
+
+		if ( ! empty( $args['taxonomy'] ) ) {
+			$query_args['taxonomy'] = $args['taxonomy'];
+		}
+
+		if ( ! empty( $args['objectIds'] ) ) {
+			$query_args['object_ids'] = $args['objectIds'];
+		}
+
+		if ( ! empty( $args['orderby'] ) ) {
+			$query_args['orderby'] = $args['orderby'];
+		}
+
+		if ( ! empty( $args['hideEmpty'] ) ) {
+			$query_args['hide_empty'] = $args['hideEmpty'];
+		}
+
+		if ( ! empty( $args['include'] ) ) {
+			$query_args['include'] = $args['include'];
+		}
+
+		if ( ! empty( $args['exclude'] ) ) {
+			$query_args['exclude'] = $args['exclude'];
+		}
+
+		if ( ! empty( $args['excludeTree'] ) ) {
+			$query_args['exclude_tree'] = $args['excludeTree'];
+		}
+
+		if ( ! empty( $args['name'] ) ) {
+			$query_args['name'] = $args['name'];
+		}
+
+		if ( ! empty( $args['slug'] ) ) {
+			$query_args['slug'] = $args['slug'];
+		}
+
+		if ( ! empty( $args['termTaxonomId'] ) ) {
+			$query_args['term_taxonomy_id'] = $args['termTaxonomId'];
+		}
+
+		if ( ! empty( $args['hierarchical'] ) ) {
+			$query_args['hierarchical'] = $args['hierarchical'];
+		}
+
+		if ( ! empty( $args['search'] ) ) {
+			$query_args['search'] = $args['search'];
+		}
+
+		if ( ! empty( $args['nameLike'] ) ) {
+			$query_args['name__like'] = $args['nameLike'];
+		}
+
+		if ( ! empty( $args['descriptionLike'] ) ) {
+			$query_args['description__like'] = $args['descriptionLike'];
+		}
+
+		if ( ! empty( $args['padCounts'] ) ) {
+			$query_args['pad_counts'] = $args['padCounts'];
+		}
+
+		if ( ! empty( $args['childOf'] ) ) {
+			$query_args['child_of'] = $args['childOf'];
+		}
+
+		if ( ! empty( $args['parent'] ) ) {
+			$query_args['parent'] = $args['parent'];
+		}
+
+		if ( ! empty( $args['childless'] ) ) {
+			$query_args['childless'] = $args['childless'];
+		}
+
+		if ( ! empty( $args['cacheDomain'] ) ) {
+			$query_args['cache_domain'] = $args['cacheDomain'];
+		}
+
+		if ( ! empty( $args['updateTermMetaCache'] ) ) {
+			$query_args['update_term_meta_cache'] = $args['updateTermMetaCache'];
+		}
+
+		/**
+		 * Filter the input fields
+		 *
+		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
+		 * from a GraphQL Query to the get_terms query
+		 *
+		 * @since 0.0.5
+		 */
+		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $args, $post_type, $source, $all_args, $context, $info );
+
+		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
+
 	}
 
 }

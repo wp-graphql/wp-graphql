@@ -24,7 +24,7 @@ class CommentType extends ObjectType {
 						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique identifier for the user', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ( ! empty( $info->parentType ) && ! empty( $comment->comment_ID ) ) ? Relay::toGlobalId( $info->parentType, $comment->comment_ID ) : null;
+							return ! empty( $comment->comment_ID ) ? Relay::toGlobalId( 'comment', $comment->comment_ID ) : null;
 						},
 					],
 					'commentId' => [

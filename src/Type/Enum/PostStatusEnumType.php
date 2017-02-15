@@ -46,7 +46,7 @@ class PostStatusEnumType extends EnumType {
 			foreach ( $post_stati as $status ) {
 				self::$values[] = [
 					'name'  => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
-					'description' => sprintf( __( 'Objects with the %2$s status', 'wp-graphql' ), $status ),
+					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
 					'value' => $status,
 				];
 			}

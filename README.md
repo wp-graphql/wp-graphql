@@ -1,28 +1,38 @@
 #WP GraphQL
 
-###Overview
-WPGraphQL brings the power of <a href="http://graphql.org/" target="_blank">GraphQL</a> to WordPress.
+GraphQL API for WordPress.
 
-GraphQL is a Query Language spec open sourced and maintained by Facebook.
-
-As stated on GraphQL.org: "GraphQL provides a complete and understandable description of the data in your API, gives clients the power to ask for exactly what they need and nothing more, makes it easier to evolve APIs over time, and enables powerful developer tools"
-
-In simple terms GraphQL is conceptually similar to REST, in that you ask for data and get a JSON response, however it differs from REST quite substantially, in that there's only a single endpoint, instead of different endpoints for each data type. Additionally, multiple types of data can be retrieved from a single GraphQL API request, and it's back-end agnostic, meaning that the data being returned can come from anywhere. For example, one GraphQL Query could provide a response that consisted of data from a Post, a Page, an Author, a Term and even a remote call to another remote API, such as Google Analytics. . .the sky is the limit.
-
-###Plugin Goals
-The goal of this plugin is to provide full GraphQL parity with WordPress Core, meaning that any data that can be managed in a vanilla WordPress install should be manageable through this plugin via a GraphQL API.
-
-Additionally, there should be appropriate entry points for other plugins/themes to extend the GraphQL functionality to make additional data accessible via GraphQL.
-
-### NOT PRODUCTION READY!
-This is NOT production ready yet and is currently undergoing a major refactor. Feel free to install and play with it, but things WILL break in the near future
-
-### Installation
+##Installing
 Install the plugin like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
 
-### Dev Tools
-Go get the GraphiQL (ChromiQL) Chrome Extension here: https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij
+##Overview
+This plugin brings the power of GraphQL to WordPress.
 
-Open the extension and set the URL to your-site.com/graphql
+<a href="https://graphql.org" target="_blank">GraphQL</a> is a query language spec that was open sourced by Facebook® in 
+2015, and has been used in production by Facebook® since 2012.
 
-Check the docs in the top right to see what Queries/Mutations are available.
+GraphQL has some similarities to REST in that it exposes an HTTP endpoint where requests can be sent and a JSON response is
+returned. However, where REST has a different endpoint per resource, GraphQL has just a single endpoint and the
+data returned isn't implicit, but rather explicit and matches the shape of the request. 
+
+A REST API is implicit, meaning that the data coming back from an endpoint is implied. An endpoint such as `/Posts/` implies 
+that the data I will retrieve is data related to Post objects, but beyond that it's hard to know exactly what will be
+returned. It might be more data than I need or might not be the data I need at all. 
+
+GraphQL is explicit, meaning that you ask for the data you want and you get the data back in the same shape that it was asked for.
+
+Additionally, where REST requires multiple HTTP requests for related data, GraphQL allows related data to be queried and retrieved
+in a single request, and again, in the same shape of the request without any worry of over or under-fetching data.
+
+## GraphiQL API Explorer
+_GraphiQL_ is a fantastic GraphQL API Explorer / IDE. There are various versions of _GraphiQL_
+that you can find, including a <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij?hl=en">Chrome Extension</a> but
+my recommendation is the _GraphiQL_ desktop app below:
+
+- <a href="https://github.com/skevy/graphiql-app">Download the GraphiQL Desktop App</a>
+    - Once the app is downloaded and installed, open the App.
+    - Set the `GraphQL Endpoint` to `http://yoursite.com/graphql`
+    - You should now be able to browse the GraphQL Schema via the "Docs" explorer
+    at the top right. 
+    - On the left side, you can execute GraphQL Queries
+    

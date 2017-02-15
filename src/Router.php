@@ -43,21 +43,21 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'init', array( $this, 'add_rewrite_rule' ), 10 );
+		add_action( 'init', [ $this, 'add_rewrite_rule' ], 10 );
 
 		/**
 		 * Add the query var for the route
 		 *
 		 * @since 0.0.1
 		 */
-		add_filter( 'query_vars', array( $this, 'add_query_var' ), 10, 1 );
+		add_filter( 'query_vars', [ $this, 'add_query_var' ], 10, 1 );
 
 		/**
 		 * Redirects the route to the graphql processor
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', array( $this, 'resolve_http_request' ), 10 );
+		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 10 );
 
 	}
 
@@ -170,21 +170,17 @@ class Router {
 			 * @since 0.0.4
 			 */
 			$app_context = new AppContext();
-			$app_context->viewer = wp_get_current_user();
+			$app_context->viewer =  wp_get_current_user();
 			$app_context->root_url = get_bloginfo( 'url' );
 			$app_context->request = $_REQUEST;
 
 			if ( isset( $_SERVER['CONTENT_TYPE'] ) && strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) !== false ) {
 				$raw = file_get_contents( 'php://input' ) ?: '';
 				$data = json_decode( $raw, true );
-			} else {
-				$data = $_REQUEST;
 			}
 
-			$data += [ 'query' => null, 'variables' => null ];
-
-			if ( null === $data['query'] ) {
-				$data['query'] = '{hello}';
+			if ( empty( $data ) ) {
+				$result['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
 			}
 
 			/**
@@ -224,8 +220,6 @@ class Router {
 
 		} catch ( \Exception $error ) {
 
-			var_dump( $error );
-
 			/**
 			 * If there are errors, set the status to 500
 			 * and format the captured errors to be output properly
@@ -235,7 +229,7 @@ class Router {
 			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
 				$result['extensions']['exception'] = FormattedError::createFromException( $error );
 			} else {
-				$result['errors'] = [ FormattedError::create( 'Unexpected Error' ) ];
+				$result['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
 			}
 		}
 

@@ -27,11 +27,11 @@ class PluginType extends ObjectType {
 					'name'            => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Display name of the plugin.', 'wp-graphql' ),
-						function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['Name'] ) ? $plugin['name'] : null;
-						}
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
+							return ! empty( $plugin['Name'] ) ? $plugin['Name'] : null;
+						},
 					],
-					'plugin_uri'      => [
+					'pluginUri'      => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'URI for the plugin website. This is useful for directing users 
 						for support requests etc.', 'wp-graphql' ),
@@ -54,7 +54,7 @@ class PluginType extends ObjectType {
 							return ! empty( $plugin['Author'] ) ? $plugin['Author'] : null;
 						},
 					],
-					'author_uri'      => [
+					'authorUri'      => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'URI for the related author(s)/company website.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
@@ -69,6 +69,7 @@ class PluginType extends ObjectType {
 						},
 					],
 				];
+				ksort( $fields );
 				return $fields;
 			},
 			'interfaces' => [ $node_definition['nodeInterface'] ],
