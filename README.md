@@ -36,3 +36,4 @@ my recommendation is the _GraphiQL_ desktop app below:
     at the top right. 
     - On the left side, you can execute GraphQL Queries
     
+    <img src="https://github.com/wp-graphql/wp-graphql/blob/master/docs/img/graphql-docs.gif?raw=true" alt="GraphiQL API Explorer">
