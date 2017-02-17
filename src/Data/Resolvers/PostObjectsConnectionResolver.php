@@ -66,8 +66,13 @@ class PostObjectsConnectionResolver {
 		 */
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : 0;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : 0;
-		$first  = absint( $args['first'] ) ? $args['first'] : null;
-		$last   = absint( $args['last'] ) ? $args['last'] : null;
+
+		/**
+		 * Ensure the first/last values max at 100 items so that posts_per_page doesn't exceed 100 items
+		 * @since 0.0.5
+		 */
+		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
+		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
 
 		/**
 		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing

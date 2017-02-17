@@ -28,7 +28,7 @@ class PluginType extends ObjectType {
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Display name of the plugin.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['Name'] ) ? $plugin['Name'] : null;
+							return ! empty( $plugin['Name'] ) ? $plugin['Name'] : '';
 						},
 					],
 					'pluginUri'      => [
@@ -36,14 +36,14 @@ class PluginType extends ObjectType {
 						'description' => esc_html__( 'URI for the plugin website. This is useful for directing users 
 						for support requests etc.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['PluginURI'] ) ? $plugin['PluginURI'] : null;
+							return ! empty( $plugin['PluginURI'] ) ? $plugin['PluginURI'] : '';
 						},
 					],
 					'description'     => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Description of the plugin.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['Description'] ) ? $plugin['Description'] : null;
+							return ! empty( $plugin['Description'] ) ? $plugin['Description'] : '';
 						},
 					],
 					'author'          => [
@@ -51,21 +51,21 @@ class PluginType extends ObjectType {
 						'description' => esc_html__( 'Name of the plugin author(s), may also be a company 
 						name.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['Author'] ) ? $plugin['Author'] : null;
+							return ! empty( $plugin['Author'] ) ? $plugin['Author'] : '';
 						},
 					],
 					'authorUri'      => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'URI for the related author(s)/company website.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['AuthorURI'] ) ? $plugin['AuthorURI'] : null;
+							return ! empty( $plugin['AuthorURI'] ) ? $plugin['AuthorURI'] : '';
 						},
 					],
 					'version'         => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Current version of the plugin.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
-							return ! empty( $plugin['Version'] ) ? $plugin['Version'] : null;
+							return ! empty( $plugin['Version'] ) ? $plugin['Version'] : '';
 						},
 					],
 				];

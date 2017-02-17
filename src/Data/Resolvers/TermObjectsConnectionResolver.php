@@ -65,8 +65,13 @@ class TermObjectsConnectionResolver {
 		 */
 		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
-		$last   = ( ! empty( $args['last'] ) ) ? $args['last'] : null;
-		$first  = ( ! empty( $args['first'] ) ) ? $args['first'] : null;
+
+		/**
+		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
+		 * @since 0.0.5
+		 */
+		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
+		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
 
 		/**
 		 * Throw an error if both First and Last were used, as they should not be used together as the
