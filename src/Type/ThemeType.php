@@ -32,7 +32,7 @@ class ThemeType extends ObjectType {
 							WP_Theme->get_stylesheet().', 'wp-graphql' ),
 							'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
 								$stylesheet = $theme->get_stylesheet();
-								return ! empty( $stylesheet ) ? $stylesheet : null;
+								return ! empty( $stylesheet ) ? $stylesheet : '';
 							},
 						],
 						'name'            => [
@@ -41,7 +41,7 @@ class ThemeType extends ObjectType {
 							WP_Theme->get( "Name" ).', 'wp-graphql' ),
 							'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
 								$name = $theme->get( 'Name' );
-								return ! empty( $name ) ? $name : null;
+								return ! empty( $name ) ? $name : '';
 							},
 						],
 						'screenshot'      => [
@@ -51,7 +51,7 @@ class ThemeType extends ObjectType {
 							to WP_Theme->get_screenshot().', 'wp-graphql' ),
 							'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
 								$screenshot = $theme->get_screenshot();
-								return ! empty( $screenshot ) ? $screenshot : null;
+								return ! empty( $screenshot ) ? $screenshot : '';
 							},
 						],
 						'theme_uri'       => [

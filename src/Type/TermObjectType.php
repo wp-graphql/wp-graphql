@@ -34,56 +34,56 @@ class TermObjectType extends ObjectType {
 						'type'        => Types::int(),
 						'description' => esc_html__( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $term, $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->term_id ) ? absint( $term->term_id ) : null;
+							return ! empty( $term->term_id ) ? absint( $term->term_id ) : 0;
 						},
 					],
 					'count'            => [
 						'type'        => Types::int(),
 						'description' => __( 'The number of objects connected to the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->count ) ? absint( $term->count ) : null;
+							return ! empty( $term->count ) ? absint( $term->count ) : 0;
 						},
 					],
 					'description'      => [
 						'type'        => Types::string(),
 						'description' => __( 'The description of the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->description ) ? $term->description : null;
+							return ! empty( $term->description ) ? $term->description : '';
 						},
 					],
 					'name'             => [
 						'type'        => Types::string(),
 						'description' => __( 'The human friendly name of the object.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->name ) ? $term->name : null;
+							return ! empty( $term->name ) ? $term->name : '';
 						},
 					],
 					'slug'             => [
 						'type'        => Types::string(),
 						'description' => __( 'An alphanumeric identifier for the object unique to its type.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->slug ) ? $term->slug : null;
+							return ! empty( $term->slug ) ? $term->slug : '';
 						},
 					],
 					'termGroupId'    => [
 						'type'        => Types::int(),
 						'description' => __( 'The ID of the term group that this term object belongs to', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->term_group ) ? absint( $term->term_group ) : false;
+							return ! empty( $term->term_group ) ? absint( $term->term_group ) : 0;
 						},
 					],
 					'termTaxonomyId' => [
 						'type'        => Types::int(),
 						'description' => __( 'The taxonomy ID that the object is associated with', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->term_taxonomy_id ) ? absint( $term->term_taxonomy_id ) : null;
+							return ! empty( $term->term_taxonomy_id ) ? absint( $term->term_taxonomy_id ) : 0;
 						},
 					],
 					'taxonomyName'    => [
 						'type'        => Types::string(),
 						'description' => __( 'The name of the taxonomy this term belongs to', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
-							return ! empty( $term->taxonomy ) ? $term->taxonomy : null;
+							return ! empty( $term->taxonomy ) ? $term->taxonomy : '';
 						},
 					],
 					'link' => [
@@ -91,7 +91,7 @@ class TermObjectType extends ObjectType {
 						'description' => __( 'The link to the term', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $term,   $args, $context, ResolveInfo $info ) {
 							$link = get_term_link( $term->term_id );
-							return ( ! is_wp_error( $link ) ) ? $link : null;
+							return ( ! is_wp_error( $link ) ) ? $link : '';
 						},
 					],
 				];

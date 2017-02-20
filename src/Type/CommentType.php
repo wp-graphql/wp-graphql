@@ -31,7 +31,7 @@ class CommentType extends ObjectType {
 						'type' => Types::int(),
 						'description' => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_ID ) ? $comment->comment_ID : null;
+							return ! empty( $comment->comment_ID ) ? $comment->comment_ID : 0;
 						},
 					],
 					//@todo: the related post_object needs to be a union as the parent of a comment can be any post_type
@@ -51,7 +51,7 @@ class CommentType extends ObjectType {
 						WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_author_IP ) ? $comment->comment_author_IP : null;
+							return ! empty( $comment->comment_author_IP ) ? $comment->comment_author_IP : '';
 						},
 					],
 					'date'            => [
@@ -60,7 +60,7 @@ class CommentType extends ObjectType {
 						equivalent to WP_Comment->date and the value matching the `date` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->date ) ? $comment->date : null;
+							return ! empty( $comment->date ) ? $comment->date : '';
 						},
 					],
 					'date_gmt'        => [
@@ -68,7 +68,7 @@ class CommentType extends ObjectType {
 						'description' => esc_html__( 'Date the comment was posted in GMT. This field is equivalent 
 						to WP_Comment->date_gmt and the value matching the `date_gmt` column in SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->date_gmt ) ? $comment->date_gmt : null;
+							return ! empty( $comment->date_gmt ) ? $comment->date_gmt : '';
 						},
 					],
 					'content'         => [
@@ -77,7 +77,7 @@ class CommentType extends ObjectType {
 						WP_Comment->comment_content and the value matching the `comment_content` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_content ) ? $comment->comment_content : null;
+							return ! empty( $comment->comment_content ) ? $comment->comment_content : '';
 						},
 					],
 					'karma'           => [
@@ -86,7 +86,7 @@ class CommentType extends ObjectType {
 						WP_Comment->comment_karma and the value matching the `comment_karma` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_karma ) ? $comment->comment_karma : null;
+							return ! empty( $comment->comment_karma ) ? $comment->comment_karma : 0;
 						},
 					],
 					'approved'        => [
@@ -95,7 +95,7 @@ class CommentType extends ObjectType {
 						to WP_Comment->comment_approved and the value matching the `comment_approved` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_approved ) ? $comment->comment_approved : null;
+							return ! empty( $comment->comment_approved ) ? $comment->comment_approved : '';
 						},
 					],
 					'agent'           => [
@@ -104,7 +104,7 @@ class CommentType extends ObjectType {
 						to WP_Comment->comment_agent and the value matching the `comment_agent` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_agent ) ? $comment->comment_agent : null;
+							return ! empty( $comment->comment_agent ) ? $comment->comment_agent : '';
 						},
 					],
 					'type'            => [
@@ -113,7 +113,7 @@ class CommentType extends ObjectType {
 						WP_Comment->comment_type and the value matching the `comment_type` column in 
 						SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_type ) ? $comment->comment_type : null;
+							return ! empty( $comment->comment_type ) ? $comment->comment_type : '';
 						},
 					],
 					'parent' => [

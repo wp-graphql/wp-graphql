@@ -98,7 +98,6 @@ class ArrayConnection
             $beforeOffset,
             $arrayLength
         ]);
-
         if ($first !== null) {
             $endOffset = min([
                 $endOffset,

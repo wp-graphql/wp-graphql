@@ -53,7 +53,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				self::$instance = new WPGraphQL;
 				self::$instance->setup_constants();
 				self::$instance->includes();
-				self::$instance->setup();
 				self::$instance->router = new \WPGraphQL\Router();
 			}
 
@@ -150,24 +149,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * setup
-		 *
-		 * This sets up the various types and other
-		 * plugin functions
-		 *
-		 * @access private
-		 * @since 0.0.2
-		 * @return void
-		 */
-		private function setup() {
-
-			add_action( 'graphql_process_http_request', [ $this, 'show_in_graphql' ] );
-			add_action( 'graphql_process_http_request', [ $this, 'get_allowed_post_types' ], 20 );
-			add_action( 'graphql_process_http_request', [ $this, 'get_allowed_taxonomies' ], 20 );
-
-		}
-
-		/**
 		 * show_in_graphql
 		 *
 		 * This sets up built-in post_types and taxonomies to show
@@ -175,7 +156,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @since 0.0.2
 		 */
-		public function show_in_graphql() {
+		public static function show_in_graphql() {
 
 			global $wp_post_types, $wp_taxonomies;
 
@@ -273,6 +254,68 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Returns the array of $allowed_taxonomies
 			 */
 			return self::$allowed_taxonomies;
+
+		}
+
+		/**
+		 * do_graphql_request
+		 *
+		 * This
+		 * @param $query
+		 * @param $variables
+		 */
+		public static function do_graphql_request( $query, $variables = null ) {
+
+			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
+
+			/**
+			 * Configure the app_context which gets passed down
+			 * to all the resolvers.
+			 *
+			 * @since 0.0.4
+			 */
+			$app_context = new \WPGraphQL\AppContext();
+			$app_context->viewer =  wp_get_current_user();
+			$app_context->root_url = get_bloginfo( 'url' );
+			$app_context->request = ! empty( $_REQUEST ) ? $_REQUEST : null;
+
+			/**
+			 * Run an action before generating the schema
+			 * This is a great spot for plugins/themes to hook in to
+			 * customize the schema.
+			 * @since 0.0.5
+			 */
+			do_action( 'graphql_generate_schema' );
+
+			/**
+			 * Generate the Schema
+			 */
+			$schema = new \GraphQL\Schema([
+				'query' => \WPGraphQL\Types::root_query(),
+			]);
+
+			$result = \GraphQL\GraphQL::execute(
+				$schema,
+				$query,
+				null,
+				$app_context,
+				(array) $variables
+			);
+
+			/**
+			 * Run an action. This is a good place for debug tools to hook in
+			 * to log things, etc.
+			 * @since 0.0.4
+			 */
+			do_action( 'graphql_execute', $result, $schema, $query, $variables );
+
+			/**
+			 * Return the result of the query
+			 * @since 0.0.5
+			 */
+			return $result;
 
 		}
 	}
