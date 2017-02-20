@@ -10,3 +10,7 @@ function graphql_format_field_name( $field_name ) {
 	$field_name = lcfirst( $field_name );
 	return $field_name;
 }
+
+function do_graphql_request( $query, $variables = null ) {
+	return \WPGraphQL::do_graphql_request( $query, $variables );
+}

@@ -77,9 +77,7 @@ class DataSource {
 		$plugin = null;
 
 		// The file may have not been loaded yet.
-		if ( ! file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		/**
 		 * NOTE: This is missing must use and drop in plugins.
@@ -328,6 +326,10 @@ class DataSource {
 				// The ID fetcher definition
 				function( $global_id ) {
 
+					if ( empty( $global_id ) ) {
+						throw new \Exception( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
+					}
+
 					/**
 					 * Convert the encoded ID into an array we can work with
 					 * @since 0.0.4
@@ -341,7 +343,7 @@ class DataSource {
 					$allowed_post_types = \WPGraphQL::$allowed_post_types;
 					$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
-					if ( ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
+					if ( is_array( $id_components ) && ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
 						switch ( $id_components['type'] ) {
 
 							// postObjects
@@ -392,10 +394,8 @@ class DataSource {
 							return Types::user();
 						}
 					// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node ) ) {
-						if ( ! empty( $node['PluginURI'] ) ) {
-							return Types::plugin();
-						}
+					} elseif ( is_array( $node ) && array_key_exists( 'PluginURI', $node ) ) {
+						return Types::plugin();
 					}
 
 					throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );

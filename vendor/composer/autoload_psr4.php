@@ -7,5 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WPGraphQL\\' => array($baseDir . '/src'),
+    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'GraphQL\\' => array($vendorDir . '/webonyx/graphql-php/src'),
 );

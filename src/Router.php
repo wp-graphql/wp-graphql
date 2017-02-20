@@ -183,35 +183,7 @@ class Router {
 				$result['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
 			}
 
-			/**
-			 * Run an action before generating the schema
-			 * This is a great spot for plugins/themes to hook in to
-			 * customize the schema.
-			 * @since 0.0.5
-			 */
-			do_action( 'graphql_generate_schema' );
-
-			/**
-			 * Generate the Schema
-			 */
-			$schema = new Schema([
-				'query' => Types::root_query(),
-			]);
-
-			$result = GraphQL::execute(
-				$schema,
-				$data['query'],
-				null,
-				$app_context,
-				(array) $data['variables']
-			);
-
-			/**
-			 * Run an action. This is a good place for debug tools to hook in
-			 * to log things, etc.
-			 * @since 0.0.4
-			 */
-			do_action( 'graphql_execute', $result, $schema, $data );
+			$result = do_graphql_request( $data['query'], $data['variables'] );
 
 			/**
 			 * Set the status code to 200

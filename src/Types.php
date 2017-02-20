@@ -128,10 +128,16 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function post_object( $post_type ) {
+
 		if ( null === self::$post_object ) {
-			self::$post_object = new \stdClass();
+			self::$post_object = [];
 		}
-		return self::$post_object->{ $post_type } ?: ( self::$post_object->{ $post_type } = new PostObjectType( $post_type ) );
+
+		if ( empty( self::$post_object[ $post_type ] ) ) {
+			self::$post_object[ $post_type ] = new PostObjectType( $post_type );
+		}
+
+		return ! empty( self::$post_object[ $post_type ] ) ? self::$post_object[ $post_type ] : null;
 	}
 
 	/**
@@ -223,9 +229,14 @@ class Types {
 	 */
 	public static function term_object( $taxonomy ) {
 		if ( null === self::$term_object ) {
-			self::$term_object = new \stdClass();
+			self::$term_object = [];
 		}
-		return self::$term_object->{ $taxonomy } ?: ( self::$term_object->{ $taxonomy } = new TermObjectType( $taxonomy ) );
+
+		if ( empty( self::$term_object[ $taxonomy ] ) ) {
+			self::$term_object[ $taxonomy ] = new TermObjectType( $taxonomy );
+		}
+
+		return ! empty( self::$term_object[ $taxonomy ] ) ? self::$term_object[ $taxonomy ] : null;
 	}
 
 	/**

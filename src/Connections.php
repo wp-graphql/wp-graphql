@@ -151,10 +151,10 @@ class Connections {
 		}
 
 		if ( null === self::$post_objects_connection ) {
-			self::$post_objects_connection = new \stdClass();
+			self::$post_objects_connection = [];
 		}
 
-		if ( null === self::$post_objects_connection->{$post_type_object->name} ) {
+		if ( empty( self::$post_objects_connection[ $post_type_object->name ] ) ) {
 			/**
 			 * Setup the connectionDefinition
 			 * @since 0.0.5
@@ -190,7 +190,7 @@ class Connections {
 			 * Add the connection to the post_objects_connection object
 			 * @since 0.0.5
 			 */
-			self::$post_objects_connection->{$post_type_object->name} = [
+			self::$post_objects_connection[ $post_type_object->name ] = [
 				'type'        => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
@@ -204,7 +204,7 @@ class Connections {
 		 * Return the connection from the post_objects_connection object
 		 * @since 0.0.5
 		 */
-		return self::$post_objects_connection->{$post_type_object->name};
+		return self::$post_objects_connection[ $post_type_object->name ];
 	}
 
 	/**
@@ -266,10 +266,10 @@ class Connections {
 		}
 
 		if ( null === self::$term_objects_connection ) {
-			self::$term_objects_connection = new \stdClass();
+			self::$term_objects_connection = [];
 		}
 
-		if ( null === self::$term_objects_connection->{$taxonomy_object->name} ) {
+		if ( empty( self::$term_objects_connection[ $taxonomy_object->name ] ) ) {
 
 			$connection = Relay::connectionDefinitions( [
 				'nodeType'         => Types::term_object( $taxonomy_object->name ),
@@ -298,7 +298,7 @@ class Connections {
 				],
 			];
 
-			self::$term_objects_connection->{$taxonomy_object->name} = [
+			self::$term_objects_connection[ $taxonomy_object->name ] = [
 				'type'        => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
@@ -308,7 +308,7 @@ class Connections {
 			];
 		}
 
-		return self::$term_objects_connection->{$taxonomy_object->name};
+		return self::$term_objects_connection[ $taxonomy_object->name ];
 
 	}
 
@@ -341,7 +341,7 @@ class Connections {
 				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of theme objects', 'wp-graphql' ),
 				'args'        => Relay::connectionArgs(),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_themes_connection( $source, $args, $context, $info );
 				},
 			];
