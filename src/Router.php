@@ -1,8 +1,6 @@
 <?php
 namespace WPGraphQL;
 use GraphQL\Error\FormattedError;
-use GraphQL\GraphQL;
-use GraphQL\Schema;
 
 /**
  * Class Router
@@ -163,17 +161,6 @@ class Router {
 
 		try {
 
-			/**
-			 * Configure the app_context which gets passed down
-			 * to all the resolvers.
-			 *
-			 * @since 0.0.4
-			 */
-			$app_context = new AppContext();
-			$app_context->viewer =  wp_get_current_user();
-			$app_context->root_url = get_bloginfo( 'url' );
-			$app_context->request = $_REQUEST;
-
 			if ( isset( $_SERVER['CONTENT_TYPE'] ) && strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) !== false ) {
 				$raw = file_get_contents( 'php://input' ) ?: '';
 				$data = json_decode( $raw, true );
@@ -183,6 +170,10 @@ class Router {
 				$result['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
 			}
 
+			/**
+			 * Process the GraphQL request
+			 * @since 0.0.5
+			 */
 			$result = do_graphql_request( $data['query'], $data['variables'] );
 
 			/**

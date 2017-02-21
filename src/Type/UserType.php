@@ -150,8 +150,6 @@ class UserType extends ObjectType {
 						'type'              => Types::string(),
 						'description'       => esc_html__( 'The preferred language locale set for the user. Value derived from 
 						get_user_locale().', 'wp-graphql' ),
-						'isDeprecated'      => true,
-						'deprecationReason' => 'Fool, go away',
 						'resolve'           => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							$user_locale = get_user_locale( $user );
 

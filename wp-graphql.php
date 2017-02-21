@@ -14,7 +14,7 @@
  * @package WPGraphQL
  * @category Core
  * @author Digital First Media, Jason Bahl, Ryan Kanner
- * @version 0.0.4
+ * @version 0.0.5
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -109,7 +109,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.3' );
+				define( 'WPGRAPHQL_VERSION', '0.0.5' );
 			}
 
 			// Plugin Folder Path.
@@ -221,7 +221,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Returns the array of allowed_post_types
 			 */
-			self::$allowed_post_types;
+			return self::$allowed_post_types;
 		}
 
 		/**
@@ -277,7 +277,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @since 0.0.4
 			 */
 			$app_context = new \WPGraphQL\AppContext();
-			$app_context->viewer =  wp_get_current_user();
+			$app_context->viewer = wp_get_current_user();
 			$app_context->root_url = get_bloginfo( 'url' );
 			$app_context->request = ! empty( $_REQUEST ) ? $_REQUEST : null;
 
@@ -287,7 +287,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * customize the schema.
 			 * @since 0.0.5
 			 */
-			do_action( 'graphql_generate_schema' );
+			do_action( 'graphql_generate_schema', $query, $variables, $app_context );
 
 			/**
 			 * Generate the Schema

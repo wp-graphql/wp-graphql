@@ -82,7 +82,7 @@ class Connections {
 
 			self::$comments_connection = [
 				'type'        => $comments_connection['connectionType'],
-				'description' => sprintf( __( 'A collection of comment objects', 'wp-graphql' ) ),
+				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
@@ -121,7 +121,7 @@ class Connections {
 			 */
 			self::$plugins_connection = [
 				'type'        => $connection['connectionType'],
-				'description' => sprintf( __( 'A collection of plugins', 'wp-graphql' ) ),
+				'description' => __( 'A collection of plugins', 'wp-graphql' ),
 				'args'        => Relay::connectionArgs(),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_plugins_connection( $source, $args, $context, $info );
@@ -192,7 +192,7 @@ class Connections {
 			 */
 			self::$post_objects_connection[ $post_type_object->name ] = [
 				'type'        => $connection['connectionType'],
-				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
+				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $post_type_object->name, $source, $args, $context, $info );
@@ -262,7 +262,7 @@ class Connections {
 	public static function term_objects_connection( $taxonomy_object ) {
 
 		if ( empty( $taxonomy_object ) || empty( $taxonomy_object->name ) ) {
-			throw new \Exception( sprintf( __( 'Tried instantiating a term_object_connection for an invalid taxonomy', 'wp-graphql' ) ) );
+			throw new \Exception( __( 'Tried instantiating a term_object_connection for an invalid taxonomy', 'wp-graphql' ) );
 		}
 
 		if ( null === self::$term_objects_connection ) {
@@ -300,7 +300,7 @@ class Connections {
 
 			self::$term_objects_connection[ $taxonomy_object->name ] = [
 				'type'        => $connection['connectionType'],
-				'description' => sprintf( __( 'A collection of % objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
+				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 					return DataSource::resolve_term_objects_connection( $taxonomy_object->name, $source, $args, $context, $info );
@@ -380,7 +380,7 @@ class Connections {
 
 			self::$users_connection = [
 				'type'        => $users_connection['connectionType'],
-				'description' => sprintf( __( 'A collection of user objects', 'wp-graphql' ) ),
+				'description' => __( 'A collection of user objects', 'wp-graphql' ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
