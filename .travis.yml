@@ -45,3 +45,6 @@ before_script:
   - composer install --no-interaction
 
 script: phpunit
+
+after_success:
+  - travis_retry php vendor/bin/coveralls -v
