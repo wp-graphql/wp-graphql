@@ -10,9 +10,9 @@ class TaxonomyEnumType extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'taxonomyEnum',
+			'name'        => 'taxonomyEnum',
 			'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
-			'values' => self::values(),
+			'values'      => self::values(),
 		];
 
 		parent::__construct( $config );

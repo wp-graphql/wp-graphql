@@ -8,10 +8,10 @@ class RelationEnum extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'relation',
+			'name'     => 'relation',
 			'relation' => __( 'The logical relation between each item in the array when there are more than 
 			one.', 'wp-graphql' ),
-			'values' => [
+			'values'   => [
 				[
 					'name'  => 'AND',
 					'value' => 'AND',

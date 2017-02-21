@@ -64,15 +64,15 @@ class PostObjectsConnectionResolver {
 		 * Get the cursor offset based on the Cursor passed to the after/before args
 		 * @since 0.0.5
 		 */
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : 0;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : 0;
+		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
+		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 
 		/**
 		 * Ensure the first/last values max at 100 items so that posts_per_page doesn't exceed 100 items
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$first = ( ! empty( $args['first'] ) && 100 >= intval( $args['first'] ) ) ? $args['first'] : null;
+		$last  = ( ! empty( $args['last'] ) && 100 >= intval( $args['last'] ) ) ? $args['last'] : null;
 
 		/**
 		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing

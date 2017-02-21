@@ -10,114 +10,114 @@ class TermObjectQueryArgsType extends InputObjectType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'termArgs',
+			'name'   => 'termArgs',
 			'fields' => function() {
 				$fields = [
-					'taxonomy' => [
+					'taxonomy'            => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Array of taxonomy names, to which results should be limited.', 'wp-graphql' ),
 					],
-					'objectIds' => [
+					'objectIds'           => [
 						'type'        => Types::list_of( Types::int() ),
 						'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 					],
-					'orderby' => [
-						'type'        => new EnumType([
-							'name' => 'termsOrderby',
+					'orderby'             => [
+						'type'        => new EnumType( [
+							'name'   => 'termsOrderby',
 							'values' => [
 								[
-									'name' => 'NAME',
+									'name'  => 'NAME',
 									'value' => 'name',
 								],
 								[
-									'name' => 'SLUG',
+									'name'  => 'SLUG',
 									'value' => 'slug',
 								],
 								[
-									'name' => 'TERM_GROUP',
+									'name'  => 'TERM_GROUP',
 									'value' => 'term_group',
 								],
 								[
-									'name' => 'TERM_ID',
+									'name'  => 'TERM_ID',
 									'value' => 'term_id',
 								],
 								[
-									'name' => 'ID',
+									'name'  => 'ID',
 									'value' => 'id',
 								],
 								[
-									'name' => 'DESCRIPTION',
+									'name'  => 'DESCRIPTION',
 									'value' => 'description',
 								],
 								[
-									'name' => 'COUNT',
+									'name'  => 'COUNT',
 									'value' => 'count',
 								],
 							],
-						]),
+						] ),
 						'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
 					],
-					'hideEmpty' => [
+					'hideEmpty'           => [
 						'type'        => Types::boolean(),
 						'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default true', 'wp-graphql' ),
 					],
-					'include' => [
+					'include'             => [
 						'type'        => Types::list_of( Types::int() ),
 						'description' => __( 'Array of term ids to include. Default empty array.', 'wp-graphql' ),
 					],
-					'exclude' => [
+					'exclude'             => [
 						'type'        => Types::list_of( Types::int() ),
 						'description' => __( 'Array of term ids to exclude. If $include is non-empty, $exclude is ignored. Default empty array.', 'wp-graphql' ),
 					],
-					'excludeTree' => [
+					'excludeTree'         => [
 						'type'        => Types::list_of( Types::int() ),
 						'description' => __( 'Array of term ids to exclude along with all of their descendant terms. If $include is non-empty, $exclude_tree is ignored. Default empty array.', 'wp-graphql' ),
 					],
-					'name' => [
+					'name'                => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Array of names to return term(s) for. Default empty.', 'wp-graphql' ),
 					],
-					'slug' => [
+					'slug'                => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Array of slugs to return term(s) for. Default empty.', 'wp-graphql' ),
 					],
-					'termTaxonomId' => [
+					'termTaxonomId'       => [
 						'type'        => Types::list_of( Types::int() ),
 						'description' => __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' ),
 					],
-					'hierarchical' => [
+					'hierarchical'        => [
 						'type'        => Types::boolean(),
 						'description' => __( 'Whether to include terms that have non-empty descendants (even if $hide_empty is set to true). Default true.', 'wp-graphql' ),
 					],
-					'search' => [
+					'search'              => [
 						'type'        => Types::string(),
 						'description' => __( 'Search criteria to match terms. Will be SQL-formatted with wildcards before and after. Default empty.', 'wp-graphql' ),
 					],
-					'nameLike' => [
+					'nameLike'            => [
 						'type'        => Types::string(),
 						'description' => __( 'Retrieve terms with criteria by which a term is LIKE `$name__like`. Default empty.', 'wp-graphql' ),
 					],
-					'descriptionLike' => [
+					'descriptionLike'     => [
 						'type'        => Types::string(),
 						'description' => __( 'Retrieve terms where the description is LIKE `$description__like`. Default empty.', 'wp-graphql' ),
 					],
-					'padCounts' => [
+					'padCounts'           => [
 						'type'        => Types::boolean(),
 						'description' => __( 'Whether to pad the quantity of a term\'s children in the quantity of each term\'s "count" object variable. Default false.', 'wp-graphql' ),
 					],
-					'childOf' => [
+					'childOf'             => [
 						'type'        => Types::int(),
 						'description' => __( 'Term ID to retrieve child terms of. If multiple taxonomies are passed, $child_of is ignored. Default 0.', 'wp-graphql' ),
 					],
-					'parent' => [
+					'parent'              => [
 						'type'        => Types::int(),
 						'description' => __( 'Parent term ID to retrieve direct-child terms of. Default empty.', 'wp-graphql' ),
 					],
-					'childless' => [
+					'childless'           => [
 						'type'        => Types::boolean(),
 						'description' => __( 'True to limit results to terms that have no children. This parameter has no effect on non-hierarchical taxonomies. Default false.', 'wp-graphql' ),
 					],
-					'cacheDomain' => [
+					'cacheDomain'         => [
 						'type'        => Types::string(),
 						'description' => __( 'Unique cache key to be produced when this query is stored in an object cache. Default is \'core\'.', 'wp-graphql' ),
 					],
@@ -128,15 +128,20 @@ class TermObjectQueryArgsType extends InputObjectType {
 				];
 
 				/**
-				 * Filter the input fields.
+				 * Pass the fields through a filter
 				 *
-				 * This allows plugins/themes to hook in and alter what input fields should be available for use
-				 * with PostObjectQueries (get_terms)
+				 * @param array $fields
 				 *
 				 * @since 0.0.5
 				 */
-				$fields = apply_filters( 'graphql_get_terms_input_fields', $fields );
+				$fields = apply_filters( 'graphql_term_object_query_args_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
 				ksort( $fields );
+
 				return $fields;
 			},
 		];

@@ -268,7 +268,7 @@ class PostObjectType extends ObjectType {
 						field as an integer, in WordPress this field should be saved as a numeric string for 
 						compatability.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : 0;
+							return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
 						},
 					];
 				}

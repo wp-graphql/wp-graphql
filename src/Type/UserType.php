@@ -41,7 +41,7 @@ class UserType extends ObjectType {
 								} ) );
 							}
 
-							return ! empty( $capabilities ) ? $capabilities : [];
+							return ! empty( $capabilities ) ? $capabilities : null;
 						},
 					],
 					'capKey'            => [
@@ -49,7 +49,7 @@ class UserType extends ObjectType {
 						'description' => __( 'User metadata option name. Usually it will be 
 						`wp_capabilities`.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->cap_key ) ? $user->cap_key : '';
+							return ! empty( $user->cap_key ) ? $user->cap_key : null;
 						},
 					],
 					'roles'             => [
@@ -57,7 +57,7 @@ class UserType extends ObjectType {
 						'description' => __( 'A list of roles that the user has. Roles can be used for querying for 
 						certain types of users, but should not be used in permissions checks.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->roles ) ? $user->roles : [];
+							return ! empty( $user->roles ) ? $user->roles : null;
 						},
 					],
 					'email'             => [
@@ -65,7 +65,7 @@ class UserType extends ObjectType {
 						'description' => __( 'Email of the user. This is equivalent to the WP_User->user_email 
 						property.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->user_email ) ? $user->user_email : '';
+							return ! empty( $user->user_email ) ? $user->user_email : null;
 						},
 					],
 					'firstName'         => [
@@ -73,7 +73,7 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'First name of the user. This is equivalent to the 
 						WP_User->user_first_name property.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->first_name ) ? $user->first_name : '';
+							return ! empty( $user->first_name ) ? $user->first_name : null;
 						},
 					],
 					'lastName'          => [
@@ -82,7 +82,7 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'Last name of the user. This is equivalent to the WP_User->user_last_name 
 						property.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->last_name ) ? $user->last_name : '';
+							return ! empty( $user->last_name ) ? $user->last_name : null;
 						},
 					],
 					'extraCapabilities' => [
@@ -90,14 +90,14 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'A complete list of capabilities including capabilities inherited from a 
 						role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->allcaps ) ? array_keys( $user->allcaps ) : [];
+							return ! empty( $user->allcaps ) ? array_keys( $user->allcaps ) : null;
 						},
 					],
 					'description'       => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Description of the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->description ) ? $user->description : '';
+							return ! empty( $user->description ) ? $user->description : null;
 						},
 					],
 					'username'          => [
@@ -105,7 +105,7 @@ class UserType extends ObjectType {
 						'description' => __( 'Username for the user. This field is equivalent to 
 						WP_User->user_login.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->user_login ) ? $user->user_login : '';
+							return ! empty( $user->user_login ) ? $user->user_login : null;
 						},
 					],
 					'name'              => [
@@ -113,7 +113,7 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'Display name of the user. This is equivalent to the WP_User->dispaly_name 
 						property.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->display_name ) ? $user->display_name : '';
+							return ! empty( $user->display_name ) ? $user->display_name : null;
 						},
 					],
 					'registeredDate'    => [
@@ -121,21 +121,21 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'The date the user registered or was created. The field follows a full 
 						ISO8601 date string format.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->user_registered ) ? date( 'c', strtotime( $user->user_registered ) ) : '';
+							return ! empty( $user->user_registered ) ? date( 'c', strtotime( $user->user_registered ) ) : null;
 						},
 					],
 					'nickname'          => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Nickname of the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->nickname ) ? $user->nickname : '';
+							return ! empty( $user->nickname ) ? $user->nickname : null;
 						},
 					],
 					'url'               => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'A website url that is associated with the user.', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->user_url ) ? $user->user_url : '';
+							return ! empty( $user->user_url ) ? $user->user_url : null;
 						},
 					],
 					'slug'              => [
@@ -143,7 +143,7 @@ class UserType extends ObjectType {
 						'description' => esc_html__( 'The slug for the user. This field is equivalent to 
 						WP_User->user_nicename', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->user_nicename ) ? $user->user_nicename : '';
+							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},
 					],
 					'locale'            => [
@@ -154,14 +154,15 @@ class UserType extends ObjectType {
 						'deprecationReason' => 'Fool, go away',
 						'resolve'           => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
 							$user_locale = get_user_locale( $user );
-							return ! empty( $user_locale ) ? $user_locale : '';
+
+							return ! empty( $user_locale ) ? $user_locale : null;
 						},
 					],
 					'userId'            => [
 						'type'        => Types::int(),
 						'description' => __( 'The Id of the user. Equivelant to WP_User->ID', 'wp-graphql' ),
 						'resolve'     => function( \WP_User $user, $args, $context, ResolveInfo $info ) {
-							return ! empty( $user->ID ) ? $user->ID : 0;
+							return ! empty( $user->ID ) ? $user->ID : null;
 						},
 					],
 					'avatar'            => [
@@ -183,9 +184,14 @@ class UserType extends ObjectType {
 							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : false;
 						},
 					],
-					'comments' => Connections::comments_connection(),
+					'comments'          => Connections::comments_connection(),
 				];
 
+				/**
+				 * Add connection to each of the allowed post_types as users can have connections
+				 * to any post_type.
+				 * @since 0.0.5
+				 */
 				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					foreach ( $allowed_post_types as $post_type ) {
 						// @todo: maybe look into narrowing this based on permissions?
@@ -194,8 +200,21 @@ class UserType extends ObjectType {
 					}
 				}
 
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
 				$fields = apply_filters( 'graphql_user_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
 				ksort( $fields );
+
 				return $fields;
 			},
 			'interfaces'  => [

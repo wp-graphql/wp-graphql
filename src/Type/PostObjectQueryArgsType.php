@@ -21,7 +21,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					 */
 					'author'        => [
 						'type'        => Types::int(),
-						'description' => __( 'The user that\'s connected as the author of the object. Use the userId for the author object.', 'wp-graphql' ),
+						'description' => __( 'The user that\'s connected as the author of the object. Use the 
+						userId for the author object.', 'wp-graphql' ),
 					],
 					'authorName'    => [
 						'type'        => Types::string(),
@@ -33,7 +34,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					],
 					'authorNotIn'   => [
 						'type'        => Types::list_of( Types::int() ),
-						'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+						'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s 
+						userIds', 'wp-graphql' ),
 					],
 
 					/**
@@ -80,23 +82,28 @@ class PostObjectQueryArgsType extends InputObjectType {
 					],
 					'tagAnd'        => [
 						'type'        => Types::list_of( Types::int() ),
-						'description' => __( 'Array of tag IDs, used to display objects in one tag AND another', 'wp-graphql' ),
+						'description' => __( 'Array of tag IDs, used to display objects in one tag AND 
+						another', 'wp-graphql' ),
 					],
 					'tagIn'         => [
 						'type'        => Types::list_of( Types::int() ),
-						'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
+						'description' => __( 'Array of tag IDs, used to display objects from one tag OR 
+						another', 'wp-graphql' ),
 					],
 					'tagNotIn'      => [
 						'type'        => Types::list_of( Types::int() ),
-						'description' => __( 'Array of tag IDs, used to exclude objects in specified tags', 'wp-graphql' ),
+						'description' => __( 'Array of tag IDs, used to exclude objects in specified 
+						tags', 'wp-graphql' ),
 					],
 					'tagSlugAnd'    => [
 						'type'        => Types::list_of( Types::string() ),
-						'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
+						'description' => __( 'Array of tag slugs, used to display objects from one tag OR 
+						another', 'wp-graphql' ),
 					],
 					'tagSlugIn'     => [
 						'type'        => Types::list_of( Types::string() ),
-						'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
+						'description' => __( 'Array of tag slugs, used to exclude objects in specified 
+						tags', 'wp-graphql' ),
 					],
 
 					/**
@@ -129,7 +136,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					],
 					'parent'        => [
 						'type'        => Types::string(),
-						'description' => __( 'Use ID to return only children. Use 0 to return only top-level items', 'wp-graphql' ),
+						'description' => __( 'Use ID to return only children. Use 0 to return only top-level 
+						items', 'wp-graphql' ),
 					],
 					'parentIn'      => [
 						'type'        => Types::list_of( Types::int() ),
@@ -145,7 +153,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					],
 					'notIn'         => [
 						'type'        => Types::list_of( Types::int() ),
-						'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
+						'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", 
+						it will be ignored', 'wp-graphql' ),
 					],
 					'nameIn'        => [
 						'type'        => Types::list_of( Types::string() ),
@@ -159,7 +168,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					 */
 					'hasPassword'   => [
 						'type'        => Types::string(),
-						'description' => __( 'True for objects with passwords; False for objects without passwords; null for all objects with or without passwords', 'wp-graphql' ),
+						'description' => __( 'True for objects with passwords; False for objects without passwords; 
+						null for all objects with or without passwords', 'wp-graphql' ),
 					],
 					'password'      => [
 						'type'        => Types::string(),
@@ -169,7 +179,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 					/**
 					 * post_type
 					 *
-					 * NOTE: post_type is intentionally not supported as it's the post_type is the entity entry point for the queries
+					 * NOTE: post_type is intentionally not supported as it's the post_type is the entity entry
+					 * point for the queries
 					 *
 					 * @see: https://codex.wordpress.org/Class_Reference/WP_Query#Type_Parameters
 					 * @since 0.0.2
@@ -201,7 +212,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 								[
 									'name'        => 'ID',
 									'value'       => 'ID',
-									'description' => __( 'Order by the object\'s id. Note the capitalization', 'wp-graphql' ),
+									'description' => __( 'Order by the object\'s id. Note the 
+									capitalization', 'wp-graphql' ),
 								],
 								[
 									'name'        => 'AUTHOR',
@@ -242,9 +254,9 @@ class PostObjectQueryArgsType extends InputObjectType {
 									'name'        => 'RELEVANCE',
 									'value'       => 'relevance',
 									'description' => __( 'Order by search terms in the following order: First, whether 
-									the entire sentence is matched. Second, if all the search terms are within the titles. 
-									Third, if any of the search terms appear in the titles. And, fourth, if the full 
-									sentence appears in the contents.', 'wp-graphql' ),
+									the entire sentence is matched. Second, if all the search terms are within the 
+									titles. Third, if any of the search terms appear in the titles. And, fourth, if the 
+									full sentence appears in the contents.', 'wp-graphql' ),
 								],
 								[
 									'name'        => 'IN',
@@ -260,8 +272,8 @@ class PostObjectQueryArgsType extends InputObjectType {
 						] ),
 						'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 					],
-					'dateQuery' => Types::date_query(),
-					'mimeType' => [
+					'dateQuery'     => Types::date_query(),
+					'mimeType'      => [
 						'type'        => Types::mime_type_enum(),
 						'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
 					],
@@ -275,8 +287,14 @@ class PostObjectQueryArgsType extends InputObjectType {
 				 *
 				 * @since 0.0.5
 				 */
-				$fields = apply_filters( 'graphql_wp_query_input_fields', $fields );
+				$fields = apply_filters( 'graphql_post_object_query_args_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
 				ksort( $fields );
+
 				return $fields;
 			},
 		];

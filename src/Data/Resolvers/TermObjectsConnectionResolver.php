@@ -70,8 +70,8 @@ class TermObjectsConnectionResolver {
 		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$first = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
+		$last  = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
 
 		/**
 		 * Throw an error if both First and Last were used, as they should not be used together as the
@@ -201,7 +201,7 @@ class TermObjectsConnectionResolver {
 		 */
 		if ( ! empty( $last ) ) {
 			$meta['sliceStart'] = ( $edge_count - $last );
-			$term_results = array_reverse( $term_results );
+			$term_results       = array_reverse( $term_results );
 			if ( ! empty( $before ) ) {
 				$meta['sliceStart'] = absint( $before - $last );
 			} elseif ( ! empty( $after ) ) {

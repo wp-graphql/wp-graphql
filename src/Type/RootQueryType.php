@@ -52,7 +52,7 @@ class RootQueryType extends ObjectType {
 		 * Creates the comment root query field
 		 * @since 0.0.5
 		 */
-		$fields['comment'] = self::comment();
+		$fields['comment']  = self::comment();
 		$fields['comments'] = Connections::comments_connection();
 
 		/**
@@ -122,8 +122,9 @@ class RootQueryType extends ObjectType {
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
 					],
-					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type ){
+					'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type ) {
 						$id_components = Relay::fromGlobalId( $args['id'] );
+
 						return DataSource::resolve_post_object( $id_components['id'], $post_type );
 					},
 				];
@@ -165,8 +166,9 @@ class RootQueryType extends ObjectType {
 					'args'        => [
 						'id' => Types::non_null( Types::id() ),
 					],
-					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy ){
+					'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy ) {
 						$id_components = Relay::fromGlobalId( $args['id'] );
+
 						return DataSource::resolve_term_object( $id_components['id'], $taxonomy );
 					},
 				];
@@ -238,8 +240,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_comment( $id_components['id'] );
 			},
 		];
@@ -258,8 +261,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_plugin( $id_components['id'] );
 			},
 		];
@@ -278,8 +282,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_post_type( $id_components['id'] );
 			},
 		];
@@ -298,8 +303,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_theme( $id_components['id'] );
 			},
 		];
@@ -318,8 +324,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_taxonomy( $id_components['id'] );
 			},
 		];
@@ -338,8 +345,9 @@ class RootQueryType extends ObjectType {
 			'args'        => [
 				'id' => Types::non_null( Types::id() ),
 			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
+
 				return DataSource::resolve_user( $id_components['id'] );
 			},
 		];
@@ -353,11 +361,11 @@ class RootQueryType extends ObjectType {
 	 */
 	public static function viewer() {
 		return [
-			'type' => Types::user(),
+			'type'        => Types::user(),
 			'description' => __( 'Returns the current user', 'wp-graphql' ),
-			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
-				if ( ! ( $context->viewer instanceof \WP_User) ) {
+				if ( ! ( $context->viewer instanceof \WP_User ) ) {
 					throw new \Exception( __( 'The current viewe is invalid', 'wp-graphql' ) );
 				}
 

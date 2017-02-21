@@ -17,7 +17,6 @@ use WPGraphQL\Type\CommentType;
 use WPGraphQL\Type\PluginType;
 use WPGraphQL\Type\PostObjectType;
 use WPGraphQL\Type\PostTypeType;
-use WPGraphQL\Type\ShortcodeType;
 use WPGraphQL\Type\TaxonomyType;
 use WPGraphQL\Type\TermObjectQueryArgsType;
 use WPGraphQL\Type\TermObjectType;
@@ -51,7 +50,6 @@ class Types {
 	private static $post_type;
 	private static $relation_enum;
 	private static $root_query;
-	private static $shortcode;
 	private static $taxonomy;
 	private static $taxonomy_enum;
 	private static $term_object;
@@ -188,16 +186,6 @@ class Types {
 	 */
 	public static function root_query() {
 		return self::$root_query ?: ( self::$root_query = new RootQueryType() );
-	}
-
-	/**
-	 * shortcode
-	 * This returns the definition for the ShortcodeType
-	 * @return ShortcodeType
-	 * @since 0.0.5
-	 */
-	public static function shortcode() {
-		return self::$shortcode ?: ( self::$shortcode = new ShortcodeType() );
 	}
 
 	/**

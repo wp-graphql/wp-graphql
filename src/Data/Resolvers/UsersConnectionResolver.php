@@ -26,8 +26,8 @@ class UsersConnectionResolver {
 		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? intval( $args['first'] ) : 10;
-		$last   = 100 >= intval( $args['last'] ) ? intval( $args['last'] ) : 10;
+		$first = 100 >= intval( $args['first'] ) ? intval( $args['first'] ) : 10;
+		$last  = 100 >= intval( $args['last'] ) ? intval( $args['last'] ) : 10;
 
 		/**
 		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
@@ -152,7 +152,7 @@ class UsersConnectionResolver {
 		 */
 		if ( ! empty( $last ) ) {
 			$meta['sliceStart'] = ( $edge_count - $last );
-			$user_results = array_reverse( $user_results );
+			$user_results       = array_reverse( $user_results );
 			if ( ! empty( $before ) ) {
 				$meta['sliceStart'] = absint( $before - $last );
 			} elseif ( ! empty( $after ) ) {

@@ -1,13 +1,13 @@
 <?php
 /**
- * WPGraphQL Test Post Queries
+ * WPGraphQL Test Post Object Queries
  *
  * This tests post queries (singular and plural) checking to see if the available fields return the expected response
  *
  * @package WPGraphQL
  * @since 0.0.5
  */
-class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
+class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 	/**
 	 * This function is run before each method
@@ -52,7 +52,7 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 		 * Combine the defaults with the $args that were
 		 * passed through
 		 */
-		$args = wp_parse_args( $defaults, $args );
+		$args = wp_parse_args( $args, $defaults );
 
 		/**
 		 * Create the page
@@ -76,6 +76,9 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 
 	/**
 	 * testPostQuery
+	 *
+	 * This tests creating a single post with data and retrieving said post via a GraphQL query
+	 *
 	 * @since 0.0.5
 	 */
 	public function testPostQuery() {
@@ -171,6 +174,96 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testPostsConnectionQuery
+	 *
+	 * This tests creating a 3 posts with data and retrieving said posts via a GraphQL query
+	 *
+	 * @since 0.0.5
+	 */
+	public function testPostsConnectionQuery() {
+
+		/**
+		 * Create 3 new pages to query against
+		 */
+		$page_1 = $this->createPostObject( [ 'post_type' => 'page' ] );
+		$page_2 = $this->createPostObject( [ 'post_type' => 'page' ] );
+		$page_3 = $this->createPostObject( [ 'post_type' => 'page' ] );
+
+		/**
+		 * Get the global IDs from the pages
+		 */
+		$global_id_1 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_1 );
+		$global_id_2 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_2 );
+		$global_id_3 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_3 );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = '
+		query{
+		  pages {
+		    edges {
+		      node {
+		        id
+		        pageId
+		        author {
+		          userId
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = $actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'pages' => [
+					'edges' => [
+						[
+							'node' => [
+								'id' => $global_id_3,
+								'pageId' => $page_3,
+								'author' => [
+									'userId' => $this->admin,
+								],
+							],
+						],
+						[
+							'node' => [
+								'id' => $global_id_2,
+								'pageId' => $page_2,
+								'author' => [
+									'userId' => $this->admin,
+								],
+							],
+						],
+						[
+							'node' => [
+								'id' => $global_id_1,
+								'pageId' => $page_1,
+								'author' => [
+									'userId' => $this->admin,
+								],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 }
