@@ -14,34 +14,26 @@ class PostObjectsConnectionResolver {
 
 	/**
 	 * resolve
-	 *
 	 * This handles resolving a query for post objects (of any specified $post_type) from the root_query or from any
 	 * connection where post_objects are queryable.
-	 *
 	 * This resolver takes in the Relay standard args (before, after, first, last) and uses them to query from the
 	 * WP_Query and return results according to the Relay spec.
-	 *
 	 * PAGINATION DETAILS:
 	 * For backward pagination, last and before should be used together.
 	 * - last should be a non-negative integer
 	 * - before should be a cursor which contains the offset of the position in the overall collection of data
-	 *
 	 * For forward pagination, first and after should be used together.
 	 * - first should be a non-negative integer
 	 * - after should be a cursor which contains the offset of the position in the overall collection of data
-	 *
 	 * PAGINATION ALGORITHM:
 	 * If $first is set:
 	 * - if $first is less than 0, throw an error
-	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from the end of $edges
-	 *
-	 * If $last is set:
+	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from
+	 * the end of $edges If $last is set:
 	 * - If $last is less than 0, throw an error
-	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from the start of $edges
-	 *
-	 * ADDITIONAL ARGUMENTS:
-	 * Additional arguments are mapped from the GraphQL friendly names to WP_Query-friendly names and are applied to
-	 * the WP_Query appropriately.
+	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from
+	 * the start of $edges ADDITIONAL ARGUMENTS: Additional arguments are mapped from the GraphQL friendly names to
+	 * WP_Query-friendly names and are applied to the WP_Query appropriately.
 	 *
 	 * @param $post_type
 	 * @param $source
@@ -64,20 +56,19 @@ class PostObjectsConnectionResolver {
 		 * Get the cursor offset based on the Cursor passed to the after/before args
 		 * @since 0.0.5
 		 */
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : 0;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : 0;
+		$after = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
+		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 
 		/**
 		 * Ensure the first/last values max at 100 items so that posts_per_page doesn't exceed 100 items
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$first = ( ! empty( $args['first'] ) && 100 >= intval( $args['first'] ) ) ? $args['first'] : null;
+		$last = ( ! empty( $args['last'] ) && 100 >= intval( $args['last'] ) ) ? $args['last'] : null;
 
 		/**
 		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
 		 * results.
-		 *
 		 * @since 0.0.5
 		 */
 		if ( ( ! empty( $args['first'] ) && ! empty( $args['before'] ) ) || ( ! empty( $args['last'] ) && ! empty( $args['after'] ) ) ) {
@@ -95,7 +86,7 @@ class PostObjectsConnectionResolver {
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $first ) ) {
-			$query_args['order']          = 'DESC';
+			$query_args['order'] = 'DESC';
 			$query_args['posts_per_page'] = absint( $first );
 			if ( ! empty( $before ) ) {
 				$query_args['paged'] = 1;
@@ -103,7 +94,7 @@ class PostObjectsConnectionResolver {
 				$query_args['paged'] = absint( ( $after / $first ) + 1 );
 			}
 		} elseif ( ! empty( $last ) ) {
-			$query_args['order']          = 'ASC';
+			$query_args['order'] = 'ASC';
 			$query_args['posts_per_page'] = absint( $last );
 			if ( ! empty( $before ) ) {
 				$query_args['order'] = 'DESC';
@@ -161,8 +152,8 @@ class PostObjectsConnectionResolver {
 			$query_args['tax_query'] = [
 				[
 					'taxonomy' => $source->taxonomy,
-					'terms'    => [ $source->term_id ],
-					'field'    => 'term_id',
+					'terms' => [ $source->term_id ],
+					'field' => 'term_id',
 				],
 			];
 		}
@@ -218,9 +209,9 @@ class PostObjectsConnectionResolver {
 		 * If pagination info was selected and we know the entire length of the data set, we need to build the offsets
 		 * based on the details we received back from the query and query_args
 		 */
-		$edge_count          = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
+		$edge_count = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
 		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart']  = 0;
+		$meta['sliceStart'] = 0;
 
 		/**
 		 * Build the pagination details based on the arguments passed.
@@ -273,12 +264,9 @@ class PostObjectsConnectionResolver {
 
 	/**
 	 * map_input_fields_to_wp_query
-	 *
 	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_Query friendly keys.
-	 *
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
 	 * more dynamic ways to map this, but for now this gets the job done.
-	 *
 	 * @since 0.0.5
 	 */
 	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
@@ -417,10 +405,8 @@ class PostObjectsConnectionResolver {
 
 		/**
 		 * Filter the input fields
-		 *
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
-		 *
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $post_type, $source, $all_args, $context, $info );

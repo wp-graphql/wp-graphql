@@ -16,34 +16,56 @@ class TaxonomyType extends ObjectType {
 			'name' => 'taxonomy',
 			'description' => __( 'A taxonomy object', 'wp-graphql' ),
 			'fields' => function() {
-				return [
+				$fields = [
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
 						'resolve' => function( $taxonomy, $args, $context, ResolveInfo $info ) {
 							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( $info->parentType, $taxonomy->name ) : null;
 						},
 					],
-					'name'            => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'The display name of the taxonomy. This field is equivalent to WP_Taxonomy->label', 'wp-graphql' ),
+					'name' => [
+						'type' => Types::string(),
+						'description' => esc_html__( 'The display name of the taxonomy. This field is equivalent to 
+						WP_Taxonomy->label', 'wp-graphql' ),
 					],
-					'slug'            => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'The url friendly name of the taxonomy. This field is equivalent to WP_Taxonomy->name', 'wp-graphql' ),
+					'slug' => [
+						'type' => Types::string(),
+						'description' => esc_html__( 'The url friendly name of the taxonomy. This field is equivalent 
+						to WP_Taxonomy->name', 'wp-graphql' ),
 					],
-					'description'     => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'Description of the taxonomy. This field is equivalent to WP_Taxonomy->description', 'wp-graphql' ),
+					'description' => [
+						'type' => Types::string(),
+						'description' => esc_html__( 'Description of the taxonomy. This field is equivalent to 
+						WP_Taxonomy->description', 'wp-graphql' ),
 					],
-					'show_cloud'      => [
-						'type'        => Types::boolean(),
-						'description' => esc_html__( 'Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' ),
+					'show_cloud' => [
+						'type' => Types::boolean(),
+						'description' => esc_html__( 'Whether to show the taxonomy as part of a tag cloud widget. This 
+						field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' ),
 					],
-					'hierarchical'    => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'Whether the taxonomy is hierarchical. This field is equivalent to WP_Taxonomy->hierarchical', 'wp-graphql' ),
+					'hierarchical' => [
+						'type' => Types::string(),
+						'description' => esc_html__( 'Whether the taxonomy is hierarchical. This field is equivalent to 
+						WP_Taxonomy->hierarchical', 'wp-graphql' ),
 					],
 				];
+
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_taxonomy_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
+				ksort( $fields );
+
+				return $fields;
 			},
 			'interfaces' => [ $node_definition['nodeInterface'] ],
 		];

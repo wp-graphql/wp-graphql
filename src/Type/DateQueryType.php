@@ -76,6 +76,21 @@ class DateQueryType extends InputObjectType {
 					],
 				];
 
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_date_query_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
+				ksort( $fields );
+
 				return $fields;
 			},
 		];
@@ -86,9 +101,7 @@ class DateQueryType extends InputObjectType {
 
 	/**
 	 * column_enum
-	 *
 	 * Creates an Enum type with the columns that can be queried against for the DateQuery
-	 *
 	 * @return EnumType|null
 	 * @since 0.0.5
 	 */
@@ -96,7 +109,7 @@ class DateQueryType extends InputObjectType {
 
 		if ( null === self::$column ) {
 
-			self::$column = new EnumType([
+			self::$column = new EnumType( [
 				'name' => 'dateColumn',
 				'values' => [
 					[
@@ -108,7 +121,7 @@ class DateQueryType extends InputObjectType {
 						'value' => 'post_modified',
 					],
 				],
-			]);
+			] );
 
 		}
 
@@ -118,10 +131,8 @@ class DateQueryType extends InputObjectType {
 
 	/**
 	 * date_after
-	 *
 	 * Creates the date_after input field that allows "after" paramaters
 	 * to be entered
-	 *
 	 * @return InputObjectType|null
 	 * @since 0.0.5
 	 */
@@ -129,7 +140,7 @@ class DateQueryType extends InputObjectType {
 
 		if ( null === self::$date_after ) {
 
-			self::$date_after = new InputObjectType([
+			self::$date_after = new InputObjectType( [
 				'name' => 'dateAfter',
 				'fields' => [
 					'year' => [
@@ -145,7 +156,7 @@ class DateQueryType extends InputObjectType {
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
 				],
-			]);
+			] );
 
 		}
 
@@ -155,10 +166,8 @@ class DateQueryType extends InputObjectType {
 
 	/**
 	 * date_before
-	 *
 	 * Creates the date_before input field that allows "before" paramaters
 	 * to be entered
-	 *
 	 * @return InputObjectType|null
 	 * @since 0.0.5
 	 */
@@ -166,7 +175,7 @@ class DateQueryType extends InputObjectType {
 
 		if ( null === self::$date_before ) {
 
-			self::$date_before = new InputObjectType([
+			self::$date_before = new InputObjectType( [
 				'name' => 'dateBefore',
 				'fields' => [
 					'year' => [
@@ -182,7 +191,7 @@ class DateQueryType extends InputObjectType {
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
 				],
-			]);
+			] );
 
 		}
 

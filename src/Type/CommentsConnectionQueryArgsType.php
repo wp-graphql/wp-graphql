@@ -12,7 +12,7 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 		$config = [
 			'name' => 'commentArgs',
 			'fields' => function() {
-				return [
+				$fields = [
 					'authorEmail' => [
 						'type' => Types::string(),
 						'description' => __( 'Comment author email address.', 'wp-graphql' ),
@@ -35,7 +35,8 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 					],
 					'commentNotIn' => [
 						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
+						'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the 
+						query regardless of status.', 'wp-graphql' ),
 					],
 					'includeUnapproved' => [
 						'type' => Types::list_of( Types::int() ),
@@ -46,7 +47,7 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 						'description' => __( 'Karma score to retrieve matching comments for.', 'wp-graphql' ),
 					],
 					'orderby' => [
-						'type' => new EnumType([
+						'type' => new EnumType( [
 							'name' => 'commentsOrderby',
 							'values' => [
 								[
@@ -114,7 +115,7 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 									'value' => 'comment__in',
 								],
 							],
-						]),
+						] ),
 						'description' => __( 'Field to order the query by.', 'wp-graphql' ),
 					],
 					'parent' => [
@@ -127,7 +128,8 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 					],
 					'parentNotIn' => [
 						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of parent IDs of comments *not* to retrieve children for.', 'wp-graphql' ),
+						'description' => __( 'Array of parent IDs of comments *not* to retrieve children 
+						for.', 'wp-graphql' ),
 					],
 					'contentAuthorIn' => [
 						'type' => Types::list_of( Types::int() ),
@@ -139,15 +141,18 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 					],
 					'contentId' => [
 						'type' => Types::int(),
-						'description' => __( 'Limit results to those affiliated with a given content object ID.', 'wp-graphql' ),
+						'description' => __( 'Limit results to those affiliated with a given content object 
+						ID.', 'wp-graphql' ),
 					],
 					'contentIdIn' => [
 						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of content object IDs to include affiliated comments for.', 'wp-graphql' ),
+						'description' => __( 'Array of content object IDs to include affiliated comments 
+						for.', 'wp-graphql' ),
 					],
 					'contentIdNotIn' => [
 						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of content object IDs to exclude affiliated comments for.', 'wp-graphql' ),
+						'description' => __( 'Array of content object IDs to exclude affiliated comments 
+						for.', 'wp-graphql' ),
 					],
 					'contentAuthor' => [
 						'type' => Types::list_of( Types::int() ),
@@ -155,13 +160,14 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 					],
 					'contentStatus' => [
 						'type' => Types::list_of( Types::post_status_enum() ),
-						'description' => __( 'Array of content object statuses to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
+						'description' => __( 'Array of content object statuses to retrieve affiliated comments for. 
+						Pass \'any\' to match any value.', 'wp-graphql' ),
 					],
-//					'contentType' => [
-//						// @todo: post_type enum
-//						'type' => Types::list_of( Types::string() ),
-//						'description' => __( 'Content object type or array of types to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
-//					],
+					//					'contentType' => [
+					//						// @todo: post_type enum
+					//						'type' => Types::list_of( Types::string() ),
+					//						'description' => __( 'Content object type or array of types to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
+					//					],
 					'contentName' => [
 						'type' => Types::string(),
 						'description' => __( 'Content object name to retrieve affiliated comments for.', 'wp-graphql' ),
@@ -174,36 +180,52 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 						'type' => Types::string(),
 						'description' => __( 'Search term(s) to retrieve matching comments for.', 'wp-graphql' ),
 					],
-//					@todo: make an enum using comment_stati?
-//					'status ' => [
-//						'type' => Types::string(),
-//						'description' => __( 'Comment status to limit results by.', 'wp-graphql' ),
-//					],
-//					@todo: make an enum using comment_types?
-//					'commentType' => [
-//						'type' => Types::string(),
-//						'description' => __( 'Include comments of a given type.', 'wp-graphql' ),
-//					],
-//					@todo: make an enum using comment_types?
-//					'commentTypeIn' => [
-//						'type' => Types::string(),
-//						'description' => __( 'Include comments from a given array of comment types.', 'wp-graphql' ),
-//					],
-//                  @todo: make an enum using comment_types?
-//					'commentTypeNotIn' => [
-//						'type' => Types::string(),
-//						'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
-//					],
+					//					@todo: make an enum using comment_stati?
+					//					'status ' => [
+					//						'type' => Types::string(),
+					//						'description' => __( 'Comment status to limit results by.', 'wp-graphql' ),
+					//					],
+					//					@todo: make an enum using comment_types?
+					//					'commentType' => [
+					//						'type' => Types::string(),
+					//						'description' => __( 'Include comments of a given type.', 'wp-graphql' ),
+					//					],
+					//					@todo: make an enum using comment_types?
+					//					'commentTypeIn' => [
+					//						'type' => Types::string(),
+					//						'description' => __( 'Include comments from a given array of comment types.', 'wp-graphql' ),
+					//					],
+					//                  @todo: make an enum using comment_types?
+					//					'commentTypeNotIn' => [
+					//						'type' => Types::string(),
+					//						'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
+					//					],
 					'userId' => [
 						'type' => Types::int(),
 						'description' => __( 'Include comments for a specific user ID.', 'wp-graphql' ),
 					],
 				];
+
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_comments_query_args_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
+				ksort( $fields );
+
+				return $fields;
+
 			},
 		];
-
 		parent::__construct( $config );
-
 	}
 
 }

@@ -25,8 +25,8 @@ class CommentsConnectionResolver {
 		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$first = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
+		$last  = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
 
 
 		/**
@@ -160,7 +160,7 @@ class CommentsConnectionResolver {
 		 */
 		if ( ! empty( $last ) ) {
 			$meta['sliceStart'] = ( $edge_count - $last );
-			$comments_results = array_reverse( $comments_results );
+			$comments_results   = array_reverse( $comments_results );
 			if ( ! empty( $before ) ) {
 				$meta['sliceStart'] = absint( $before - $last );
 			} elseif ( ! empty( $after ) ) {

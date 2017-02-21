@@ -39,7 +39,7 @@ class TaxonomyEnumType extends EnumType {
 			 */
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				self::$values[ $taxonomy ] = [
-					'name'  => strtoupper( $taxonomy ),
+					'name' => strtoupper( $taxonomy ),
 					'value' => $taxonomy,
 				];
 			}

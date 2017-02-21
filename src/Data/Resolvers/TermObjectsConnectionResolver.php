@@ -13,34 +13,26 @@ class TermObjectsConnectionResolver {
 
 	/**
 	 * resolve
-	 *
 	 * This handles resolving a query for post objects (of any specified $taxonomy) from the root_query or from any
 	 * connection where term_objects are queryable.
-	 *
 	 * This resolver takes in the Relay standard args (before, after, first, last) and uses them to query from the
 	 * get_posts query and return results according to the Relay spec.
-	 *
 	 * PAGINATION DETAILS:
 	 * For backward pagination, last and before should be used together.
 	 * - last should be a non-negative integer
 	 * - before should be a cursor which contains the offset of the position in the overall collection of data
-	 *
 	 * For forward pagination, first and after should be used together.
 	 * - first should be a non-negative integer
 	 * - after should be a cursor which contains the offset of the position in the overall collection of data
-	 *
 	 * PAGINATION ALGORITHM:
 	 * If $first is set:
 	 * - if $first is less than 0, throw an error
-	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from the end of $edges
-	 *
-	 * If $last is set:
+	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from
+	 * the end of $edges If $last is set:
 	 * - If $last is less than 0, throw an error
-	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from the start of $edges
-	 *
-	 * ADDITIONAL ARGUMENTS:
-	 * Additional "where" arguments are mapped from the GraphQL friendly names to get_terms allowed names and are applied to
-	 * the get_terms query appropriately.
+	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from
+	 * the start of $edges ADDITIONAL ARGUMENTS: Additional "where" arguments are mapped from the GraphQL friendly
+	 * names to get_terms allowed names and are applied to the get_terms query appropriately.
 	 *
 	 * @param $taxonomy
 	 * @param $source
@@ -63,20 +55,19 @@ class TermObjectsConnectionResolver {
 		 * Get the cursor offset based on the Cursor passed to the after/before args
 		 * @since 0.0.5
 		 */
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
+		$after = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
 		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
 
 		/**
 		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
 		 * @since 0.0.5
 		 */
-		$first  = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last   = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$first = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
+		$last = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
 
 		/**
 		 * Throw an error if both First and Last were used, as they should not be used together as the
 		 * first/last determines the order of the query results.
-		 *
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
@@ -94,7 +85,7 @@ class TermObjectsConnectionResolver {
 		$query_args['offset'] = 0;
 
 		if ( ! empty( $first ) ) {
-			$query_args['order']  = 'DESC';
+			$query_args['order'] = 'DESC';
 			$query_args['number'] = absint( $first );
 			if ( ! empty( $before ) ) {
 				$query_args['offset'] = 0;
@@ -102,10 +93,10 @@ class TermObjectsConnectionResolver {
 				$query_args['offset'] = absint( $after + 1 );
 			}
 		} elseif ( ! empty( $last ) ) {
-			$query_args['order']  = 'ASC';
+			$query_args['order'] = 'ASC';
 			$query_args['number'] = absint( $last );
 			if ( ! empty( $before ) ) {
-				$query_args['order']  = 'DESC';
+				$query_args['order'] = 'DESC';
 				$query_args['offset'] = ( $before - $last );
 			} elseif ( ! empty( $after ) ) {
 				$query_args['offset'] = 0;
@@ -146,12 +137,10 @@ class TermObjectsConnectionResolver {
 
 		/**
 		 * Run the query
-		 *
 		 * NOTE: We were using new \WP_Term_Query and it was working fine, but with get_terms
 		 * the performance is ~300% faster. . .seems interesting as get_terms is just a wrapper
 		 * for \WP_Term_Query. . .so might be worth investigating further what causes the difference
 		 * in performance and if we should stick with this or move back to \WP_Term_Query...
-		 *
 		 * @since 0.0.5
 		 */
 		$term_query = get_terms( $query_args );
@@ -193,7 +182,7 @@ class TermObjectsConnectionResolver {
 		 * based on the details we received back from the query and query_args
 		 */
 		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart']  = 0;
+		$meta['sliceStart'] = 0;
 
 		/**
 		 * Build the pagination details based on the arguments passed.
@@ -245,12 +234,9 @@ class TermObjectsConnectionResolver {
 
 	/**
 	 * map_input_fields_to_get_terms
-	 *
 	 * This maps the GraphQL "friendly" args to get_terms $args.
-	 *
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
 	 * more dynamic ways to map this, but for now this gets the job done.
-	 *
 	 * @since 0.0.5
 	 */
 	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, $context, $info ) {
@@ -342,10 +328,8 @@ class TermObjectsConnectionResolver {
 
 		/**
 		 * Filter the input fields
-		 *
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the get_terms query
-		 *
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $args, $post_type, $source, $all_args, $context, $info );

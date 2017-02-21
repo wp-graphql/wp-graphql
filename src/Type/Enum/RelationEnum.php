@@ -13,11 +13,11 @@ class RelationEnum extends EnumType {
 			one.', 'wp-graphql' ),
 			'values' => [
 				[
-					'name'  => 'AND',
+					'name' => 'AND',
 					'value' => 'AND',
 				],
 				[
-					'name'  => 'OR',
+					'name' => 'OR',
 					'value' => 'OR',
 				],
 			],

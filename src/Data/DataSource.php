@@ -36,6 +36,7 @@ class DataSource {
 	 * resolve_comment
 	 *
 	 * @param $id
+	 *
 	 * @return mixed
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -45,6 +46,7 @@ class DataSource {
 		if ( empty( $comment ) ) {
 			throw new \Exception( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
 		}
+
 		return $comment;
 	}
 
@@ -55,6 +57,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -66,6 +69,7 @@ class DataSource {
 	 * resolve_plugin
 	 *
 	 * @param $name
+	 *
 	 * @return null
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -114,6 +118,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -126,14 +131,16 @@ class DataSource {
 	 *
 	 * @param int $id
 	 * @param string $post_type
+	 *
 	 * @throws \Exception
 	 * @since 0.0.5
 	 */
 	public static function resolve_post_object( $id, $post_type ) {
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$c', 'wp-graphql' ), $id, $post_type ) );
+			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
 		}
+
 		return $post_object;
 	}
 
@@ -145,6 +152,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -156,6 +164,7 @@ class DataSource {
 	 * resolve_post_type
 	 *
 	 * @param $post_type
+	 *
 	 * @return array
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -185,6 +194,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -196,6 +206,7 @@ class DataSource {
 	 * resolve_taxonomy
 	 *
 	 * @param $taxonomy
+	 *
 	 * @return array
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -222,6 +233,7 @@ class DataSource {
 	 *
 	 * @param $id
 	 * @param $taxonomy
+	 *
 	 * @return mixed
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -229,8 +241,9 @@ class DataSource {
 	public static function resolve_term_object( $id, $taxonomy ) {
 		$term_object = \WP_Term::get_instance( $id, $taxonomy );
 		if ( empty( $term_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$c', 'wp-graphql' ), $id, $taxonomy ) );
+			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $taxonomy ) );
 		}
+
 		return $term_object;
 	}
 
@@ -242,6 +255,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -253,6 +267,7 @@ class DataSource {
 	 * resolve_theme
 	 *
 	 * @param $stylesheet
+	 *
 	 * @return mixed
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -271,6 +286,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -282,6 +298,7 @@ class DataSource {
 	 * resolve_user
 	 *
 	 * @param $id
+	 *
 	 * @return bool|\WP_User
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -289,8 +306,9 @@ class DataSource {
 	public static function resolve_user( $id ) {
 		$user = new \WP_User( $id );
 		if ( ! $user->exists() ) {
-			throw new \Exception( sprintf( __( 'No user was found with ID %c', 'wp-graphql' ), $id ) );
+			throw new \Exception( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
 		}
+
 		return $user;
 	}
 
@@ -301,6 +319,7 @@ class DataSource {
 	 * @param array $args
 	 * @param $context
 	 * @param ResolveInfo $info
+	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -354,6 +373,7 @@ class DataSource {
 								return self::resolve_term_object( $id_components['id'], $id_components['type'] );
 							case 'comment':
 								$comment = self::resolve_comment( $id_components['id'] );
+
 								return $comment;
 							case 'plugin':
 								return self::resolve_plugin( $id_components['id'] );
@@ -393,7 +413,7 @@ class DataSource {
 						} elseif ( $node instanceof \WP_User ) {
 							return Types::user();
 						}
-					// Some nodes might return an array instead of an object
+						// Some nodes might return an array instead of an object
 					} elseif ( is_array( $node ) && array_key_exists( 'PluginURI', $node ) ) {
 						return Types::plugin();
 					}
