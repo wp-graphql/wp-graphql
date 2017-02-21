@@ -148,23 +148,51 @@ class PostObjectType extends ObjectType {
 					),
 					// @todo: add the parent
 					'editLast'          => [
-						'type'        => Types::string(),
-						'description' => __( 'The ID of the user that most recently edited the object', 'wp-graphql' ),
+						'type'        => Types::user(),
+						'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, $context, ResolveInfo $info ) {
 							$edit_last = get_post_meta( $post->ID, '_edit_last', true );
 
-							return ! empty( $edit_last ) ? absint( $edit_last ) : null;
+							return ! empty( $edit_last ) ? DataSource::resolve_user( absint( $edit_last ) ) : null;
 						},
 					],
 					'editLock'          => [
-						'type'        => Types::string(),
-						'description' => __( 'String indicating the timestamp and ID of the user that most 
-						recently edited an object. Can be used to determine if it can safely be 
-						edited by another user.', 'wp-graphql' ),
+						'type'        => new ObjectType([
+							'name' => $single_name . 'editLock',
+							'fields' => [
+								'editTime' => [
+									'type' => Types::string(),
+									'description' => __( 'The time when the object was last edited', 'wp-graphql' ),
+									'resolve' => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
+										$time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
+										return ! empty( $time ) ? date( 'Y-m-d H:i:s', $time ) : null;
+									},
+								],
+								'user' => [
+									'type' => Types::user(),
+									'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
+									'resolve' => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
+										$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
+										return ! empty( $user_id ) ? DataSource::resolve_user( $user_id ) : null;
+									},
+								],
+							],
+						]),
+						'description' => __( 'If a user has edited the object within the past 15 seconds, this will
+						return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, $context, ResolveInfo $info ) {
 							$edit_lock = get_post_meta( $post->ID, '_edit_lock', true );
+							$edit_time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
 
-							return ! empty( $edit_lock ) ? absint( $edit_lock ) : null;
+							/**
+							 * If the timestamp is greater than 15 seconds ago, let's not return anything as we don't
+							 * consider the object locked.
+							 * @since 0.0.5
+							 */
+							if ( $edit_time <= ( strtotime( 'now' ) - 15 ) ) {
+								$edit_lock = null;
+							}
+							return ! empty( $edit_lock ) ? explode( ':', $edit_lock ) : null;
 						},
 					],
 					'enclosure'         => [

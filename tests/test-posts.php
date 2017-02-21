@@ -15,9 +15,14 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+
+		$this->current_time = strtotime( 'now' );
+		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
+		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
 			'role' => 'admin',
 		] );
+
 	}
 
 	/**
@@ -28,33 +33,57 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	public function createPostObject( $args ) {
+
+		/**
+		 * Set up the $defaults
+		 */
+		$defaults = array(
+			'post_author'  => $this->admin,
+			'post_content' => 'Test page content',
+			'post_date'    => $this->current_date,
+			'post_excerpt' => 'Test excerpt',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+		);
+
+		/**
+		 * Combine the defaults with the $args that were
+		 * passed through
+		 */
+		$args = wp_parse_args( $defaults, $args );
+
+		/**
+		 * Create the page
+		 */
+		$post_id = $this->factory->post->create( $args );
+
+		/**
+		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to
+		 * test retrieving the fields
+		 * @since 0.0.5
+		 */
+		update_post_meta( $post_id, '_edit_lock', $this->current_time . ':' . $this->admin );
+		update_post_meta( $post_id, '_edit_last', $this->admin );
+
+		/**
+		 * Return the $id of the post_object that was created
+		 */
+		return $post_id;
+
+	}
+
 	/**
 	 * testPostQuery
 	 * @since 0.0.5
 	 */
 	public function testPostQuery() {
 
-		$current_time = strtotime( 'now' );
-		$date = date( 'Y-m-d H:i:s', $current_time );
-		$gmdate = gmdate( 'Y-m-d H:i:s', $current_time );
-
 		/**
-		 * Set up the $args
+		 * Create a post
 		 */
-		$args = array(
-			'post_author'  => $this->admin,
-			'post_content' => 'Test page content',
-			'post_date'    => $date,
-			'post_excerpt' => 'Test post excerpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Page Title',
-			'post_type'    => 'post',
-		);
-
-		/**
-		 * Create the page
-		 */
-		$post_id = $this->factory->post->create( $args );
+		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -77,8 +106,15 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 				date
 				dateGmt
 				desiredSlug
-				editLast
-				editLock
+				editLast{
+					userId
+				}
+				editLock{
+					editTime
+					user{
+						userId
+					}
+				}
 				enclosure
 				excerpt
 				link
@@ -106,17 +142,24 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 					'commentCount' => 0,
 					'commentStatus' => 'open',
 					'content' => apply_filters( 'the_content', 'Test page content' ),
-					'date' => $date,
-					'dateGmt' => $gmdate,
+					'date' => $this->current_date,
+					'dateGmt' => $this->current_date_gmt,
 					'desiredSlug' => null,
-					'editLast' => null,
-					'editLock' => null,
+					'editLast' => [
+						'userId' => $this->admin,
+					],
+					'editLock' => [
+						'editTime' => $this->current_date,
+						'user' => [
+							'userId' => $this->admin,
+						],
+					],
 					'enclosure' => null,
-					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test post excerpt' ) ),
+					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'link' => get_permalink( $post_id ),
 					'menuOrder' => null,
 					'mimeType' => null,
-					'title' => 'Test Page Title',
+					'title' => 'Test Title',
 				],
 			],
 		];

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1487651218">
-  <project timestamp="1487651218">
+<coverage generated="1487692973">
+  <project timestamp="1487692973">
     <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/access-functions.php">
       <line num="15" type="stmt" count="8"/>
       <metrics loc="15" ncloc="11" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="1" coveredstatements="1" elements="1" coveredelements="1"/>
@@ -302,11 +302,11 @@
         <line num="265" type="stmt" count="0"/>
         <line num="277" type="method" name="resolve_themes_connection" visibility="public" complexity="1" crap="2" count="0"/>
         <line num="278" type="stmt" count="0"/>
-        <line num="289" type="method" name="resolve_user" visibility="public" complexity="2" crap="2.06" count="1"/>
-        <line num="290" type="stmt" count="1"/>
-        <line num="291" type="stmt" count="1"/>
+        <line num="289" type="method" name="resolve_user" visibility="public" complexity="2" crap="2.06" count="2"/>
+        <line num="290" type="stmt" count="2"/>
+        <line num="291" type="stmt" count="2"/>
         <line num="292" type="stmt" count="0"/>
-        <line num="294" type="stmt" count="1"/>
+        <line num="294" type="stmt" count="2"/>
         <line num="307" type="method" name="resolve_users_connection" visibility="public" complexity="1" crap="2" count="0"/>
         <line num="308" type="stmt" count="0"/>
         <line num="320" type="method" name="get_node_definition" visibility="public" complexity="24" crap="24" count="7"/>
@@ -1254,9 +1254,9 @@
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/PostObjectType.php">
         <class name="PostObjectType" namespace="WPGraphQL\Type">
-          <metrics complexity="32" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="122" coveredstatements="122" elements="124" coveredelements="124"/>
+          <metrics complexity="38" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="132" coveredstatements="132" elements="134" coveredelements="134"/>
         </class>
-        <line num="13" type="method" name="__construct" visibility="public" complexity="30" crap="30" count="3"/>
+        <line num="13" type="method" name="__construct" visibility="public" complexity="36" crap="36" count="3"/>
         <line num="15" type="stmt" count="1"/>
         <line num="16" type="stmt" count="1"/>
         <line num="17" type="stmt" count="1"/>
@@ -1338,61 +1338,71 @@
         <line num="157" type="stmt" count="1"/>
         <line num="160" type="stmt" count="1"/>
         <line num="161" type="stmt" count="1"/>
-        <line num="163" type="stmt" count="1"/>
+        <line num="164" type="stmt" count="1"/>
         <line num="165" type="stmt" count="1"/>
         <line num="167" type="stmt" count="1"/>
         <line num="168" type="stmt" count="1"/>
-        <line num="171" type="stmt" count="1"/>
+        <line num="169" type="stmt" count="1"/>
         <line num="172" type="stmt" count="1"/>
-        <line num="174" type="stmt" count="1"/>
+        <line num="173" type="stmt" count="1"/>
+        <line num="175" type="stmt" count="1"/>
         <line num="176" type="stmt" count="1"/>
         <line num="177" type="stmt" count="1"/>
-        <line num="180" type="stmt" count="1"/>
         <line num="181" type="stmt" count="1"/>
         <line num="183" type="stmt" count="1"/>
-        <line num="186" type="stmt" count="1"/>
+        <line num="184" type="stmt" count="1"/>
+        <line num="185" type="stmt" count="1"/>
+        <line num="188" type="stmt" count="1"/>
         <line num="189" type="stmt" count="1"/>
-        <line num="190" type="stmt" count="1"/>
         <line num="191" type="stmt" count="1"/>
         <line num="193" type="stmt" count="1"/>
         <line num="194" type="stmt" count="1"/>
         <line num="197" type="stmt" count="1"/>
         <line num="198" type="stmt" count="1"/>
-        <line num="201" type="stmt" count="1"/>
+        <line num="200" type="stmt" count="1"/>
         <line num="203" type="stmt" count="1"/>
-        <line num="204" type="stmt" count="1"/>
+        <line num="206" type="stmt" count="1"/>
         <line num="207" type="stmt" count="1"/>
         <line num="208" type="stmt" count="1"/>
         <line num="210" type="stmt" count="1"/>
-        <line num="212" type="stmt" count="1"/>
-        <line num="213" type="stmt" count="1"/>
-        <line num="216" type="stmt" count="1"/>
-        <line num="217" type="stmt" count="1"/>
-        <line num="219" type="stmt" count="1"/>
+        <line num="211" type="stmt" count="1"/>
+        <line num="214" type="stmt" count="1"/>
+        <line num="215" type="stmt" count="1"/>
+        <line num="218" type="stmt" count="1"/>
+        <line num="220" type="stmt" count="1"/>
         <line num="221" type="stmt" count="1"/>
-        <line num="222" type="stmt" count="1"/>
+        <line num="224" type="stmt" count="1"/>
+        <line num="225" type="stmt" count="1"/>
+        <line num="227" type="stmt" count="1"/>
+        <line num="229" type="stmt" count="1"/>
         <line num="230" type="stmt" count="1"/>
-        <line num="231" type="stmt" count="1"/>
-        <line num="232" type="stmt" count="1"/>
         <line num="233" type="stmt" count="1"/>
         <line num="234" type="stmt" count="1"/>
         <line num="236" type="stmt" count="1"/>
-        <line num="237" type="method" name="anonymous function" complexity="2" crap="2" count="1"/>
         <line num="238" type="stmt" count="1"/>
         <line num="239" type="stmt" count="1"/>
+        <line num="247" type="stmt" count="1"/>
         <line num="248" type="stmt" count="1"/>
         <line num="249" type="stmt" count="1"/>
+        <line num="250" type="stmt" count="1"/>
         <line num="251" type="stmt" count="1"/>
-        <line num="252" type="stmt" count="1"/>
         <line num="253" type="stmt" count="1"/>
-        <line num="264" type="stmt" count="1"/>
+        <line num="254" type="method" name="anonymous function" complexity="2" crap="2" count="1"/>
+        <line num="255" type="stmt" count="1"/>
+        <line num="256" type="stmt" count="1"/>
+        <line num="265" type="stmt" count="1"/>
+        <line num="266" type="stmt" count="1"/>
+        <line num="268" type="stmt" count="1"/>
+        <line num="269" type="stmt" count="1"/>
         <line num="270" type="stmt" count="1"/>
-        <line num="271" type="stmt" count="1"/>
-        <line num="272" type="stmt" count="1"/>
-        <line num="273" type="stmt" count="1"/>
-        <line num="275" type="stmt" count="1"/>
-        <line num="276" type="stmt" count="1"/>
-        <metrics loc="277" ncloc="254" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="134" coveredstatements="134" elements="136" coveredelements="136"/>
+        <line num="281" type="stmt" count="1"/>
+        <line num="287" type="stmt" count="1"/>
+        <line num="288" type="stmt" count="1"/>
+        <line num="289" type="stmt" count="1"/>
+        <line num="290" type="stmt" count="1"/>
+        <line num="292" type="stmt" count="1"/>
+        <line num="293" type="stmt" count="1"/>
+        <metrics loc="294" ncloc="271" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="144" coveredstatements="144" elements="146" coveredelements="146"/>
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/PostTypeType.php">
         <class name="PostTypeType" namespace="WPGraphQL\Type">
@@ -2000,6 +2010,6 @@
       <line num="318" type="stmt" count="8"/>
       <metrics loc="341" ncloc="152" classes="1" methods="9" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="67" coveredstatements="44" elements="76" coveredelements="48"/>
     </file>
-    <metrics files="34" loc="5894" ncloc="4031" classes="30" methods="121" coveredmethods="78" conditionals="0" coveredconditionals="0" statements="1667" coveredstatements="1097" elements="1788" coveredelements="1175"/>
+    <metrics files="34" loc="5911" ncloc="4048" classes="30" methods="121" coveredmethods="78" conditionals="0" coveredconditionals="0" statements="1677" coveredstatements="1107" elements="1798" coveredelements="1185"/>
   </project>
 </coverage>
