@@ -12,7 +12,7 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 		$config = [
 			'name' => 'commentArgs',
 			'fields' => function() {
-				return [
+				$fields = [
 					'authorEmail' => [
 						'type' => Types::string(),
 						'description' => __( 'Comment author email address.', 'wp-graphql' ),
@@ -199,11 +199,26 @@ class CommentsConnectionQueryArgsType extends InputObjectType {
 						'description' => __( 'Include comments for a specific user ID.', 'wp-graphql' ),
 					],
 				];
+
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_comments_query_args_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
+				ksort( $fields );
+				return $fields;
+
 			},
 		];
-
 		parent::__construct( $config );
-
 	}
 
 }

@@ -128,6 +128,21 @@ class CommentType extends ObjectType {
 
 				$fields['children'] = Connections::comments_connection();
 
+
+				/**
+				 * Pass the fields through a filter
+				 *
+				 * @param array $fields
+				 *
+				 * @since 0.0.5
+				 */
+				$fields = apply_filters( 'graphql_comment_type_fields', $fields );
+
+				/**
+				 * Sort the fields alphabetically by key. This makes reading through docs much easier
+				 * @since 0.0.2
+				 */
+				ksort( $fields );
 				return $fields;
 			},
 			'interfaces' => [ $node_definition['nodeInterface'] ],

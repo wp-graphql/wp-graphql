@@ -157,42 +157,47 @@ class PostObjectType extends ObjectType {
 						},
 					],
 					'editLock'          => [
-						'type'        => new ObjectType([
-							'name' => $single_name . 'editLock',
+						'type'        => new ObjectType( [
+							'name'   => $single_name . 'editLock',
 							'fields' => [
 								'editTime' => [
-									'type' => Types::string(),
+									'type'        => Types::string(),
 									'description' => __( 'The time when the object was last edited', 'wp-graphql' ),
-									'resolve' => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
+									'resolve'     => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
 										$time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
+
 										return ! empty( $time ) ? date( 'Y-m-d H:i:s', $time ) : null;
 									},
 								],
-								'user' => [
-									'type' => Types::user(),
+								'user'     => [
+									'type'        => Types::user(),
 									'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-									'resolve' => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
+									'resolve'     => function( $edit_lock, array $args, $context, ResolveInfo $info ) {
 										$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
+
 										return ! empty( $user_id ) ? DataSource::resolve_user( $user_id ) : null;
 									},
 								],
 							],
-						]),
-						'description' => __( 'If a user has edited the object within the past 15 seconds, this will
-						return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
+						] ),
+						'description' => __( 'If a user has edited the object within the past 15 seconds, this will 
+						return the user and the time they last edited. Null if the edit lock doesn\'t exist or is 
+						greater than 15 seconds', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, $context, ResolveInfo $info ) {
-							$edit_lock = get_post_meta( $post->ID, '_edit_lock', true );
-							$edit_time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
+							$edit_lock       = get_post_meta( $post->ID, '_edit_lock', true );
+							$edit_lock_parts = explode( ':', $edit_lock );
+							$edit_time       = ( is_array( $edit_lock_parts ) && ! empty( $edit_lock_parts[0] ) ) ? $edit_lock_parts[0] : null;
 
 							/**
-							 * If the timestamp is greater than 15 seconds ago, let's not return anything as we don't
+							 * If the $edit_time is older than 15 seconds ago, let's not return anything as we don't
 							 * consider the object locked.
 							 * @since 0.0.5
 							 */
-							if ( $edit_time <= ( strtotime( 'now' ) - 15 ) ) {
-								$edit_lock = null;
+							if ( $edit_time < ( strtotime( 'now' ) - 15 ) ) {
+								$edit_lock_parts = null;
 							}
-							return ! empty( $edit_lock ) ? explode( ':', $edit_lock ) : null;
+
+							return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 						},
 					],
 					'enclosure'         => [
@@ -285,8 +290,10 @@ class PostObjectType extends ObjectType {
 
 				/**
 				 * Pass the fields through a filter
+				 *
 				 * @param array $fields
 				 * @param object $post_type_object
+				 *
 				 * @since 0.0.5
 				 */
 				$fields = apply_filters( 'graphql_post_object_type_fields_' . $single_name, $fields, $post_type_object );
@@ -296,6 +303,7 @@ class PostObjectType extends ObjectType {
 				 * @since 0.0.2
 				 */
 				ksort( $fields );
+
 				return $fields;
 			},
 			'interfaces'  => [ $node_definition['nodeInterface'] ],

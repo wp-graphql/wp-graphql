@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1487692973">
-  <project timestamp="1487692973">
+<coverage generated="1487695041">
+  <project timestamp="1487695041">
     <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/access-functions.php">
       <line num="15" type="stmt" count="8"/>
       <metrics loc="15" ncloc="11" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="1" coveredstatements="1" elements="1" coveredelements="1"/>
@@ -872,37 +872,46 @@
     <package name="WPGraphQL\Type">
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/AvatarType.php">
         <class name="AvatarType" namespace="WPGraphQL\Type">
-          <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="22" coveredstatements="22" elements="24" coveredelements="24"/>
+          <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="31" coveredstatements="31" elements="33" coveredelements="33"/>
         </class>
         <line num="9" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="1"/>
         <line num="12" type="stmt" count="1"/>
         <line num="13" type="method" name="anonymous function" complexity="1" crap="1" count="1"/>
         <line num="16" type="stmt" count="1"/>
         <line num="17" type="stmt" count="1"/>
-        <line num="20" type="stmt" count="1"/>
+        <line num="18" type="stmt" count="1"/>
         <line num="21" type="stmt" count="1"/>
-        <line num="24" type="stmt" count="1"/>
+        <line num="22" type="stmt" count="1"/>
         <line num="25" type="stmt" count="1"/>
-        <line num="28" type="stmt" count="1"/>
+        <line num="26" type="stmt" count="1"/>
         <line num="29" type="stmt" count="1"/>
-        <line num="32" type="stmt" count="1"/>
+        <line num="30" type="stmt" count="1"/>
         <line num="33" type="stmt" count="1"/>
         <line num="36" type="stmt" count="1"/>
         <line num="37" type="stmt" count="1"/>
-        <line num="40" type="stmt" count="1"/>
+        <line num="38" type="stmt" count="1"/>
         <line num="41" type="stmt" count="1"/>
-        <line num="44" type="stmt" count="1"/>
-        <line num="45" type="stmt" count="1"/>
+        <line num="42" type="stmt" count="1"/>
+        <line num="43" type="stmt" count="1"/>
+        <line num="46" type="stmt" count="1"/>
+        <line num="47" type="stmt" count="1"/>
         <line num="48" type="stmt" count="1"/>
-        <line num="49" type="stmt" count="1"/>
+        <line num="51" type="stmt" count="1"/>
         <line num="52" type="stmt" count="1"/>
         <line num="53" type="stmt" count="1"/>
         <line num="56" type="stmt" count="1"/>
         <line num="57" type="stmt" count="1"/>
-        <line num="58" type="stmt" count="1"/>
+        <line num="60" type="stmt" count="1"/>
         <line num="61" type="stmt" count="1"/>
-        <line num="63" type="stmt" count="1"/>
-        <metrics loc="63" ncloc="63" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="26" coveredstatements="26" elements="28" coveredelements="28"/>
+        <line num="72" type="stmt" count="1"/>
+        <line num="78" type="stmt" count="1"/>
+        <line num="79" type="stmt" count="1"/>
+        <line num="80" type="stmt" count="1"/>
+        <line num="81" type="stmt" count="1"/>
+        <line num="82" type="stmt" count="1"/>
+        <line num="85" type="stmt" count="1"/>
+        <line num="87" type="stmt" count="1"/>
+        <metrics loc="87" ncloc="76" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="35" coveredstatements="35" elements="37" coveredelements="37"/>
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/CommentType.php">
         <class name="CommentType" namespace="WPGraphQL\Type">
@@ -961,16 +970,18 @@
         <line num="123" type="method" name="anonymous function" complexity="1" crap="1" count="1"/>
         <line num="125" type="stmt" count="1"/>
         <line num="129" type="stmt" count="1"/>
-        <line num="131" type="stmt" count="1"/>
-        <line num="132" type="stmt" count="1"/>
-        <line num="133" type="stmt" count="1"/>
-        <line num="136" type="stmt" count="1"/>
-        <line num="138" type="stmt" count="1"/>
-        <metrics loc="139" ncloc="137" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="56" coveredstatements="56" elements="58" coveredelements="58"/>
+        <line num="139" type="stmt" count="1"/>
+        <line num="145" type="stmt" count="1"/>
+        <line num="146" type="stmt" count="1"/>
+        <line num="147" type="stmt" count="1"/>
+        <line num="148" type="stmt" count="1"/>
+        <line num="151" type="stmt" count="1"/>
+        <line num="153" type="stmt" count="1"/>
+        <metrics loc="154" ncloc="141" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="58" coveredstatements="58" elements="60" coveredelements="60"/>
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/CommentsConnectionQueryArgsType.php">
         <class name="CommentsConnectionQueryArgsType" namespace="WPGraphQL\Type">
-          <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="49" coveredstatements="49" elements="51" coveredelements="51"/>
+          <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="52" coveredstatements="52" elements="54" coveredelements="54"/>
         </class>
         <line num="10" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="1"/>
         <line num="13" type="stmt" count="1"/>
@@ -1022,10 +1033,13 @@
         <line num="175" type="stmt" count="1"/>
         <line num="198" type="stmt" count="1"/>
         <line num="199" type="stmt" count="1"/>
-        <line num="202" type="stmt" count="1"/>
-        <line num="205" type="stmt" count="1"/>
-        <line num="207" type="stmt" count="1"/>
-        <metrics loc="209" ncloc="159" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="51" coveredstatements="51" elements="53" coveredelements="53"/>
+        <line num="210" type="stmt" count="1"/>
+        <line num="216" type="stmt" count="1"/>
+        <line num="217" type="stmt" count="1"/>
+        <line num="219" type="stmt" count="1"/>
+        <line num="221" type="stmt" count="1"/>
+        <line num="222" type="stmt" count="1"/>
+        <metrics loc="224" ncloc="163" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="54" coveredstatements="54" elements="56" coveredelements="56"/>
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/DateQueryType.php">
         <class name="DateQueryType" namespace="WPGraphQL\Type">
@@ -1254,9 +1268,9 @@
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/PostObjectType.php">
         <class name="PostObjectType" namespace="WPGraphQL\Type">
-          <metrics complexity="38" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="132" coveredstatements="132" elements="134" coveredelements="134"/>
+          <metrics complexity="41" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="138" coveredstatements="138" elements="140" coveredelements="140"/>
         </class>
-        <line num="13" type="method" name="__construct" visibility="public" complexity="36" crap="36" count="3"/>
+        <line num="13" type="method" name="__construct" visibility="public" complexity="39" crap="39" count="4"/>
         <line num="15" type="stmt" count="1"/>
         <line num="16" type="stmt" count="1"/>
         <line num="17" type="stmt" count="1"/>
@@ -1269,7 +1283,7 @@
         <line num="31" type="stmt" count="1"/>
         <line num="32" type="stmt" count="1"/>
         <line num="33" type="stmt" count="1"/>
-        <line num="35" type="stmt" count="3"/>
+        <line num="35" type="stmt" count="4"/>
         <line num="36" type="stmt" count="1"/>
         <line num="39" type="stmt" count="1"/>
         <line num="40" type="stmt" count="1"/>
@@ -1316,9 +1330,11 @@
         <line num="111" type="stmt" count="1"/>
         <line num="112" type="stmt" count="1"/>
         <line num="114" type="stmt" count="1"/>
+        <line num="116" type="stmt" count="1"/>
         <line num="117" type="stmt" count="1"/>
         <line num="120" type="stmt" count="1"/>
         <line num="121" type="stmt" count="1"/>
+        <line num="123" type="stmt" count="1"/>
         <line num="124" type="stmt" count="1"/>
         <line num="127" type="stmt" count="1"/>
         <line num="128" type="stmt" count="1"/>
@@ -1341,68 +1357,72 @@
         <line num="164" type="stmt" count="1"/>
         <line num="165" type="stmt" count="1"/>
         <line num="167" type="stmt" count="1"/>
-        <line num="168" type="stmt" count="1"/>
         <line num="169" type="stmt" count="1"/>
-        <line num="172" type="stmt" count="1"/>
+        <line num="170" type="stmt" count="1"/>
         <line num="173" type="stmt" count="1"/>
-        <line num="175" type="stmt" count="1"/>
+        <line num="174" type="stmt" count="1"/>
         <line num="176" type="stmt" count="1"/>
-        <line num="177" type="stmt" count="1"/>
-        <line num="181" type="stmt" count="1"/>
+        <line num="178" type="stmt" count="1"/>
+        <line num="179" type="stmt" count="1"/>
         <line num="183" type="stmt" count="1"/>
-        <line num="184" type="stmt" count="1"/>
         <line num="185" type="stmt" count="1"/>
+        <line num="187" type="stmt" count="1"/>
         <line num="188" type="stmt" count="1"/>
         <line num="189" type="stmt" count="1"/>
-        <line num="191" type="stmt" count="1"/>
-        <line num="193" type="stmt" count="1"/>
-        <line num="194" type="stmt" count="1"/>
-        <line num="197" type="stmt" count="1"/>
-        <line num="198" type="stmt" count="1"/>
+        <line num="196" type="stmt" count="1"/>
         <line num="200" type="stmt" count="1"/>
-        <line num="203" type="stmt" count="1"/>
-        <line num="206" type="stmt" count="1"/>
+        <line num="201" type="stmt" count="1"/>
+        <line num="204" type="stmt" count="1"/>
+        <line num="205" type="stmt" count="1"/>
         <line num="207" type="stmt" count="1"/>
-        <line num="208" type="stmt" count="1"/>
+        <line num="209" type="stmt" count="1"/>
         <line num="210" type="stmt" count="1"/>
-        <line num="211" type="stmt" count="1"/>
+        <line num="213" type="stmt" count="1"/>
         <line num="214" type="stmt" count="1"/>
-        <line num="215" type="stmt" count="1"/>
-        <line num="218" type="stmt" count="1"/>
-        <line num="220" type="stmt" count="1"/>
-        <line num="221" type="stmt" count="1"/>
+        <line num="216" type="stmt" count="1"/>
+        <line num="219" type="stmt" count="1"/>
+        <line num="222" type="stmt" count="1"/>
+        <line num="223" type="stmt" count="1"/>
         <line num="224" type="stmt" count="1"/>
-        <line num="225" type="stmt" count="1"/>
+        <line num="226" type="stmt" count="1"/>
         <line num="227" type="stmt" count="1"/>
-        <line num="229" type="stmt" count="1"/>
         <line num="230" type="stmt" count="1"/>
-        <line num="233" type="stmt" count="1"/>
+        <line num="231" type="stmt" count="1"/>
         <line num="234" type="stmt" count="1"/>
         <line num="236" type="stmt" count="1"/>
-        <line num="238" type="stmt" count="1"/>
-        <line num="239" type="stmt" count="1"/>
-        <line num="247" type="stmt" count="1"/>
-        <line num="248" type="stmt" count="1"/>
+        <line num="237" type="stmt" count="1"/>
+        <line num="240" type="stmt" count="1"/>
+        <line num="241" type="stmt" count="1"/>
+        <line num="243" type="stmt" count="1"/>
+        <line num="245" type="stmt" count="1"/>
+        <line num="246" type="stmt" count="1"/>
         <line num="249" type="stmt" count="1"/>
         <line num="250" type="stmt" count="1"/>
-        <line num="251" type="stmt" count="1"/>
-        <line num="253" type="stmt" count="1"/>
-        <line num="254" type="method" name="anonymous function" complexity="2" crap="2" count="1"/>
+        <line num="252" type="stmt" count="1"/>
+        <line num="254" type="stmt" count="1"/>
         <line num="255" type="stmt" count="1"/>
-        <line num="256" type="stmt" count="1"/>
+        <line num="263" type="stmt" count="1"/>
+        <line num="264" type="stmt" count="1"/>
         <line num="265" type="stmt" count="1"/>
         <line num="266" type="stmt" count="1"/>
-        <line num="268" type="stmt" count="1"/>
+        <line num="267" type="stmt" count="1"/>
         <line num="269" type="stmt" count="1"/>
-        <line num="270" type="stmt" count="1"/>
+        <line num="270" type="method" name="anonymous function" complexity="2" crap="2" count="1"/>
+        <line num="271" type="stmt" count="1"/>
+        <line num="272" type="stmt" count="1"/>
         <line num="281" type="stmt" count="1"/>
-        <line num="287" type="stmt" count="1"/>
-        <line num="288" type="stmt" count="1"/>
-        <line num="289" type="stmt" count="1"/>
-        <line num="290" type="stmt" count="1"/>
-        <line num="292" type="stmt" count="1"/>
-        <line num="293" type="stmt" count="1"/>
-        <metrics loc="294" ncloc="271" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="144" coveredstatements="144" elements="146" coveredelements="146"/>
+        <line num="282" type="stmt" count="1"/>
+        <line num="284" type="stmt" count="1"/>
+        <line num="285" type="stmt" count="1"/>
+        <line num="286" type="stmt" count="1"/>
+        <line num="299" type="stmt" count="1"/>
+        <line num="305" type="stmt" count="1"/>
+        <line num="307" type="stmt" count="1"/>
+        <line num="308" type="stmt" count="1"/>
+        <line num="309" type="stmt" count="1"/>
+        <line num="311" type="stmt" count="1"/>
+        <line num="312" type="stmt" count="1"/>
+        <metrics loc="313" ncloc="283" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="150" coveredstatements="150" elements="152" coveredelements="152"/>
       </file>
       <file name="/Users/jasonbahl/Sites/wordpress/wp-content/plugins/wp-graphql/src/Type/PostTypeType.php">
         <class name="PostTypeType" namespace="WPGraphQL\Type">
@@ -2010,6 +2030,6 @@
       <line num="318" type="stmt" count="8"/>
       <metrics loc="341" ncloc="152" classes="1" methods="9" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="67" coveredstatements="44" elements="76" coveredelements="48"/>
     </file>
-    <metrics files="34" loc="5911" ncloc="4048" classes="30" methods="121" coveredmethods="78" conditionals="0" coveredconditionals="0" statements="1677" coveredstatements="1107" elements="1798" coveredelements="1185"/>
+    <metrics files="34" loc="5984" ncloc="4081" classes="30" methods="121" coveredmethods="78" conditionals="0" coveredconditionals="0" statements="1697" coveredstatements="1127" elements="1818" coveredelements="1205"/>
   </project>
 </coverage>

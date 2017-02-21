@@ -120,6 +120,9 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 				link
 				menuOrder
 				mimeType
+				postId
+				slug
+				toPing
 				title
 			} 
 		}";
@@ -159,6 +162,9 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 					'link' => get_permalink( $post_id ),
 					'menuOrder' => null,
 					'mimeType' => null,
+					'postId' => $post_id,
+					'slug' => 'test-title',
+					'toPing' => false,
 					'title' => 'Test Title',
 				],
 			],
