@@ -10,7 +10,7 @@ class MimeTypeEnumType extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name'   => 'mimeType',
+			'name' => 'mimeType',
 			'values' => self::values(),
 		];
 
@@ -22,13 +22,13 @@ class MimeTypeEnumType extends EnumType {
 
 		if ( null === self::$values ) {
 
-			self::$values       = [];
+			self::$values = [];
 			$allowed_mime_types = get_allowed_mime_types();
 
 			if ( ! empty( $allowed_mime_types ) ) {
 				foreach ( $allowed_mime_types as $mime_type ) {
 					self::$values[] = [
-						'name'  => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) ),
+						'name' => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) ),
 						'value' => $mime_type,
 					];
 				}

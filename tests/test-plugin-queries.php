@@ -1,9 +1,8 @@
 <?php
+
 /**
  * WPGraphQL Test Plugin Queries
- *
  * This tests post queries (singular and plural) checking to see if the available fields return the expected response
- *
  * @package WPGraphQL
  * @since 0.0.5
  */
@@ -16,10 +15,10 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->current_time     = strtotime( 'now' );
-		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
+		$this->current_time = strtotime( 'now' );
+		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory->user->create( [
+		$this->admin = $this->factory->user->create( [
 			'role' => 'admin',
 		] );
 
@@ -35,12 +34,9 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
 	/**
 	 * testPluginsQuery
-	 *
 	 * This tests querying for a list of plugins.
-	 *
 	 * The test suite should have Hello Dolly and Akismet plugins, so this
 	 * should return those plugins.
-	 *
 	 * @since 0.0.5
 	 */
 	public function testPluginsQuery() {

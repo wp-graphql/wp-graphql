@@ -10,7 +10,6 @@
  * Domain Path: /languages/
  * Requires at least: 4.7.0
  * Tested up to: 4.7.1
- *
  * @package WPGraphQL
  * @category Core
  * @author Digital First Media, Jason Bahl, Ryan Kanner
@@ -69,10 +68,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Throw error on object clone.
-		 *
 		 * The whole idea of the singleton design pattern is that there is a single
 		 * object therefore, we don't want the object to be cloned.
-		 *
 		 * @since 0.0.1
 		 * @access protected
 		 * @return void
@@ -86,7 +83,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Disable unserializing of the class.
-		 *
 		 * @since 0.0.1
 		 * @access protected
 		 * @return void
@@ -100,7 +96,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Setup plugin constants.
-		 *
 		 * @access private
 		 * @since 0.0.1
 		 * @return void
@@ -131,9 +126,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Include required files.
-		 *
 		 * Uses composer's autoload
-		 *
 		 * @access private
 		 * @since 0.0.1
 		 * @return void
@@ -150,10 +143,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * show_in_graphql
-		 *
 		 * This sets up built-in post_types and taxonomies to show
 		 * in the GraphQL Schema
-		 *
 		 * @since 0.0.2
 		 */
 		public static function show_in_graphql() {
@@ -161,31 +152,31 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			global $wp_post_types, $wp_taxonomies;
 
 			if ( isset( $wp_post_types['attachment'] ) ) {
-				$wp_post_types['attachment']->show_in_graphql     = true;
+				$wp_post_types['attachment']->show_in_graphql = true;
 				$wp_post_types['attachment']->graphql_single_name = 'mediaItem';
 				$wp_post_types['attachment']->graphql_plural_name = 'mediaItems';
 			}
 
 			if ( isset( $wp_post_types['page'] ) ) {
-				$wp_post_types['page']->show_in_graphql     = true;
+				$wp_post_types['page']->show_in_graphql = true;
 				$wp_post_types['page']->graphql_single_name = 'page';
 				$wp_post_types['page']->graphql_plural_name = 'pages';
 			}
 
 			if ( isset( $wp_post_types['post'] ) ) {
-				$wp_post_types['post']->show_in_graphql     = true;
+				$wp_post_types['post']->show_in_graphql = true;
 				$wp_post_types['post']->graphql_single_name = 'post';
 				$wp_post_types['post']->graphql_plural_name = 'posts';
 			}
 
 			if ( isset( $wp_taxonomies['category'] ) ) {
-				$wp_taxonomies['category']->show_in_graphql     = true;
+				$wp_taxonomies['category']->show_in_graphql = true;
 				$wp_taxonomies['category']->graphql_single_name = 'category';
 				$wp_taxonomies['category']->graphql_plural_name = 'categories';
 			}
 
 			if ( isset( $wp_taxonomies['post_tag'] ) ) {
-				$wp_taxonomies['post_tag']->show_in_graphql     = true;
+				$wp_taxonomies['post_tag']->show_in_graphql = true;
 				$wp_taxonomies['post_tag']->graphql_single_name = 'postTag';
 				$wp_taxonomies['post_tag']->graphql_plural_name = 'postTags';
 			}
@@ -193,12 +184,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * get_allowed_post_types
-		 *
 		 * Get the post types that are allowed to be used in GraphQL.
 		 * This gets all post_types that are set to show_in_graphql, but allows
 		 * for external code (plugins/theme) to filter the list of allowed_post_types
 		 * to add/remove additional post_types
-		 *
 		 * @return array
 		 * @since 0.0.4
 		 */
@@ -213,7 +202,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Define the $allowed_post_types to be exposed by GraphQL Queries
 			 * Pass through a filter to allow the post_types to be modified (for example if
 			 * a certain post_type should not be exposed to the GraphQL API)
-			 *
 			 * @since 0.0.2
 			 */
 			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
@@ -226,12 +214,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * get_allowed_taxonomies
-		 *
 		 * Get the taxonomies that are allowed to be used in GraphQL/
 		 * This gets all taxonomies that are set to "show_in_graphql" but allows
 		 * for external code (plugins/themes) to filter the list of allowed_taxonomies
 		 * to add/remove additional taxonomies
-		 *
 		 * @since 0.0.4
 		 */
 		public static function get_allowed_taxonomies() {
@@ -245,7 +231,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries
 			 * Pass through a filter to allow the taxonomies to be modified (for example if
 			 * a certain taxonomy should not be exposed to the GraphQL API)
-			 *
 			 * @since 0.0.2
 			 */
 			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
@@ -259,10 +244,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * do_graphql_request
+		 * This processes a GraphQL request, given a $query and optional $variables
 		 *
-		 * This
+		 * This function is used to resolve the HTTP requests for the GraphQL API, but can also be used internally
+		 * to run GraphQL queries inside WordPress via PHP.
 		 * @param $query
 		 * @param $variables
+		 * @return array $result
 		 */
 		public static function do_graphql_request( $query, $variables = null ) {
 
@@ -273,7 +261,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Configure the app_context which gets passed down
 			 * to all the resolvers.
-			 *
 			 * @since 0.0.4
 			 */
 			$app_context = new \WPGraphQL\AppContext();
@@ -292,9 +279,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Generate the Schema
 			 */
-			$schema = new \GraphQL\Schema([
+			$schema = new \GraphQL\Schema( [
 				'query' => \WPGraphQL\Types::root_query(),
-			]);
+			] );
 
 			$result = \GraphQL\GraphQL::execute(
 				$schema,

@@ -55,9 +55,7 @@ class Connections {
 
 	/**
 	 * comments_connection
-	 *
 	 * This sets up a connection of comments
-	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -66,7 +64,7 @@ class Connections {
 		if ( null === self::$comments_connection ) {
 			$comments_connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::comment(),
-				'name'     => 'comments',
+				'name' => 'comments',
 			] );
 
 			/**
@@ -81,10 +79,10 @@ class Connections {
 			];
 
 			self::$comments_connection = [
-				'type'        => $comments_connection['connectionType'],
+				'type' => $comments_connection['connectionType'],
 				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
-				'args'        => array_merge( Relay::connectionArgs(), $args ),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
+				'args' => array_merge( Relay::connectionArgs(), $args ),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
 				},
 			];
@@ -96,9 +94,7 @@ class Connections {
 
 	/**
 	 * plugins_connection
-	 *
 	 * This sets up a connection of plugins
-	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -112,7 +108,7 @@ class Connections {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::plugin(),
-				'name'     => 'plugins',
+				'name' => 'plugins',
 			] );
 
 			/**
@@ -120,10 +116,10 @@ class Connections {
 			 * @since 0.0.5
 			 */
 			self::$plugins_connection = [
-				'type'        => $connection['connectionType'],
+				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of plugins', 'wp-graphql' ),
-				'args'        => Relay::connectionArgs(),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
+				'args' => Relay::connectionArgs(),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_plugins_connection( $source, $args, $context, $info );
 				},
 			];
@@ -136,7 +132,6 @@ class Connections {
 
 	/**
 	 * post_objects_connection
-	 *
 	 * This sets up a connection to posts (of a specified post_type).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
 	 *
@@ -160,14 +155,14 @@ class Connections {
 			 * @since 0.0.5
 			 */
 			$connection = Relay::connectionDefinitions( [
-				'nodeType'         => Types::post_object( $post_type_object->name ),
-				'name'             => $post_type_object->graphql_plural_name,
+				'nodeType' => Types::post_object( $post_type_object->name ),
+				'name' => $post_type_object->graphql_plural_name,
 				'connectionFields' => function() use ( $post_type_object ) {
 					return [
 						'postTypeInfo' => [
-							'type'        => Types::post_type(),
+							'type' => Types::post_type(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-							'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
+							'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
 								return $post_type_object;
 							},
 						],
@@ -191,10 +186,10 @@ class Connections {
 			 * @since 0.0.5
 			 */
 			self::$post_objects_connection[ $post_type_object->name ] = [
-				'type'        => $connection['connectionType'],
+				'type' => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
-				'args'        => array_merge( Relay::connectionArgs(), $args ),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'args' => array_merge( Relay::connectionArgs(), $args ),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $post_type_object->name, $source, $args, $context, $info );
 				},
 			];
@@ -209,9 +204,7 @@ class Connections {
 
 	/**
 	 * post_types_connection
-	 *
 	 * This sets up a connection of post_types
-	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -225,7 +218,7 @@ class Connections {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::post_type(),
-				'name'     => 'postTypes',
+				'name' => 'postTypes',
 			] );
 
 			/**
@@ -233,10 +226,10 @@ class Connections {
 			 * @since 0.0.5
 			 */
 			self::$post_types_connection = [
-				'type'        => $connection['connectionType'],
+				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of post_type objects', 'wp-graphql' ),
-				'args'        => Relay::connectionArgs(),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
+				'args' => Relay::connectionArgs(),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_post_types_connection( $source, $args, $context, $info );
 				},
 			];
@@ -249,7 +242,6 @@ class Connections {
 
 	/**
 	 * term_objects_connection
-	 *
 	 * This sets up a connection to posts (of a specified taxonomy).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
 	 *
@@ -272,14 +264,14 @@ class Connections {
 		if ( empty( self::$term_objects_connection[ $taxonomy_object->name ] ) ) {
 
 			$connection = Relay::connectionDefinitions( [
-				'nodeType'         => Types::term_object( $taxonomy_object->name ),
-				'name'             => $taxonomy_object->graphql_plural_name,
+				'nodeType' => Types::term_object( $taxonomy_object->name ),
+				'name' => $taxonomy_object->graphql_plural_name,
 				'connectionFields' => function() use ( $taxonomy_object ) {
 					return [
 						'taxonomyInfo' => [
-							'type'        => Types::taxonomy(),
+							'type' => Types::taxonomy(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-							'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+							'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 								return $taxonomy_object;
 							},
 						],
@@ -299,10 +291,10 @@ class Connections {
 			];
 
 			self::$term_objects_connection[ $taxonomy_object->name ] = [
-				'type'        => $connection['connectionType'],
+				'type' => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
-				'args'        => array_merge( Relay::connectionArgs(), $args ),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+				'args' => array_merge( Relay::connectionArgs(), $args ),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 					return DataSource::resolve_term_objects_connection( $taxonomy_object->name, $source, $args, $context, $info );
 				},
 			];
@@ -314,9 +306,7 @@ class Connections {
 
 	/**
 	 * themes_connection
-	 *
 	 * This sets up a connection of themes
-	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -330,7 +320,7 @@ class Connections {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::theme(),
-				'name'     => 'themes',
+				'name' => 'themes',
 			] );
 
 			/**
@@ -338,10 +328,10 @@ class Connections {
 			 * @since 0.0.5
 			 */
 			self::$themes_connection = [
-				'type'        => $connection['connectionType'],
+				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of theme objects', 'wp-graphql' ),
-				'args'        => Relay::connectionArgs(),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
+				'args' => Relay::connectionArgs(),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_themes_connection( $source, $args, $context, $info );
 				},
 			];
@@ -354,9 +344,7 @@ class Connections {
 
 	/**
 	 * users_connection
-	 *
 	 * This sets up a connection of users
-	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -379,10 +367,10 @@ class Connections {
 			];
 
 			self::$users_connection = [
-				'type'        => $users_connection['connectionType'],
+				'type' => $users_connection['connectionType'],
 				'description' => __( 'A collection of user objects', 'wp-graphql' ),
-				'args'        => array_merge( Relay::connectionArgs(), $args ),
-				'resolve'     => function( $source, $args, $context, ResolveInfo $info ) {
+				'args' => array_merge( Relay::connectionArgs(), $args ),
+				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
 				},
 			];

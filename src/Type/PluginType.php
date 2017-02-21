@@ -14,57 +14,57 @@ class PluginType extends ObjectType {
 		$node_definition = DataSource::get_node_definition();
 
 		$config = [
-			'name'        => 'plugin',
+			'name' => 'plugin',
 			'description' => __( 'An plugin object', 'wp-graphql' ),
-			'fields'      => function() {
+			'fields' => function() {
 				$fields = [
-					'id'          => [
-						'type'    => Types::non_null( Types::id() ),
+					'id' => [
+						'type' => Types::non_null( Types::id() ),
 						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ( ! empty( $plugin ) && ! empty( $plugin['Name'] ) ) ? Relay::toGlobalId( 'plugin', $plugin['Name'] ) : null;
 						},
 					],
-					'name'        => [
-						'type'        => Types::string(),
+					'name' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'Display name of the plugin.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['Name'] ) ? $plugin['Name'] : '';
 						},
 					],
-					'pluginUri'   => [
-						'type'        => Types::string(),
+					'pluginUri' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'URI for the plugin website. This is useful for directing users 
 						for support requests etc.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['PluginURI'] ) ? $plugin['PluginURI'] : '';
 						},
 					],
 					'description' => [
-						'type'        => Types::string(),
+						'type' => Types::string(),
 						'description' => esc_html__( 'Description of the plugin.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['Description'] ) ? $plugin['Description'] : '';
 						},
 					],
-					'author'      => [
-						'type'        => Types::string(),
+					'author' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'Name of the plugin author(s), may also be a company 
 						name.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['Author'] ) ? $plugin['Author'] : '';
 						},
 					],
-					'authorUri'   => [
-						'type'        => Types::string(),
+					'authorUri' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'URI for the related author(s)/company website.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['AuthorURI'] ) ? $plugin['AuthorURI'] : '';
 						},
 					],
-					'version'     => [
-						'type'        => Types::string(),
+					'version' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'Current version of the plugin.', 'wp-graphql' ),
-						'resolve'     => function( array $plugin, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( array $plugin, $args, $context, ResolveInfo $info ) {
 							return ! empty( $plugin['Version'] ) ? $plugin['Version'] : '';
 						},
 					],
@@ -87,7 +87,7 @@ class PluginType extends ObjectType {
 
 				return $fields;
 			},
-			'interfaces'  => [ $node_definition['nodeInterface'] ],
+			'interfaces' => [ $node_definition['nodeInterface'] ],
 		];
 
 		parent::__construct( $config );

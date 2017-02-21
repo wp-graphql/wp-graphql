@@ -1,12 +1,11 @@
 <?php
 namespace WPGraphQL;
+
 use GraphQL\Error\FormattedError;
 
 /**
  * Class Router
- *
  * This sets up the /graphql endpoint
- *
  * @package WPGraphQL
  * @since 0.0.1
  */
@@ -14,16 +13,13 @@ class Router {
 
 	/**
 	 * route
-	 *
 	 * Sets the route to use as the endpoint
-	 *
 	 * @var string
 	 */
 	public $route = 'graphql';
 
 	/**
 	 * Router constructor.
-	 *
 	 * @since 0.0.1
 	 * @access public
 	 */
@@ -31,28 +27,24 @@ class Router {
 
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
-		 *
 		 * @since 0.0.1
 		 */
 		$this->route = apply_filters( 'graphql_endpoint', 'graphql' );
 
 		/**
 		 * Create the rewrite rule for the route
-		 *
 		 * @since 0.0.1
 		 */
 		add_action( 'init', [ $this, 'add_rewrite_rule' ], 10 );
 
 		/**
 		 * Add the query var for the route
-		 *
 		 * @since 0.0.1
 		 */
 		add_filter( 'query_vars', [ $this, 'add_query_var' ], 10, 1 );
 
 		/**
 		 * Redirects the route to the graphql processor
-		 *
 		 * @since 0.0.1
 		 */
 		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 10 );
@@ -61,7 +53,6 @@ class Router {
 
 	/**
 	 * Adds rewrite rule for the route endpoint
-	 *
 	 * @since 0.0.1
 	 * @access public
 	 */
@@ -77,7 +68,6 @@ class Router {
 
 	/**
 	 * Adds the query_var for the route
-	 *
 	 * @since 0.0.1
 	 *
 	 * @param $query_vars
@@ -94,11 +84,9 @@ class Router {
 
 	/**
 	 * resolve_http_request
-	 *
 	 * This resolves the http request and ensures that WordPress can respond with the appropriate
 	 * JSON response instead of responding with a template from the standard
 	 * WordPress Template Loading process
-	 *
 	 * @since 0.0.1
 	 */
 	public function resolve_http_request() {
@@ -131,7 +119,6 @@ class Router {
 
 	/**
 	 * Set the response headers
-	 *
 	 * @since 0.0.1
 	 */
 	public function set_headers( $http_status ) {
@@ -144,8 +131,8 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 *
-	 * @todo: This needs to be re-worked to be a little more robust. Probably would be good to check out the REST API implementation on processing and responding to HTTP requests.
+	 * @todo: This needs to be re-worked to be a little more robust. Probably would be good to check out the REST API
+	 *     implementation on processing and responding to HTTP requests.
 	 * @since 0.0.1
 	 * @access public
 	 * @return mixed
@@ -162,7 +149,7 @@ class Router {
 		try {
 
 			if ( isset( $_SERVER['CONTENT_TYPE'] ) && strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) !== false ) {
-				$raw = file_get_contents( 'php://input' ) ?: '';
+				$raw = file_get_contents( 'php://input' ) ? : '';
 				$data = json_decode( $raw, true );
 			}
 

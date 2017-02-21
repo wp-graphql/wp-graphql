@@ -1,9 +1,8 @@
 <?php
+
 /**
  * WPGraphQL Test Post Object Queries
- *
  * This tests post queries (singular and plural) checking to see if the available fields return the expected response
- *
  * @package WPGraphQL
  * @since 0.0.5
  */

@@ -9,7 +9,7 @@ class UserConnectionQueryArgsType extends InputObjectType {
 	public function __construct() {
 
 		$config = [
-			'name'   => 'userArgs',
+			'name' => 'userArgs',
 			'fields' => function() {
 				$fields = [
 					//					'role' => [
@@ -27,16 +27,16 @@ class UserConnectionQueryArgsType extends InputObjectType {
 					//						'type' => Types::list_of( Types::string() ),
 					//						'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
 					//					],
-					'include'       => [
-						'type'        => Types::list_of( Types::int() ),
+					'include' => [
+						'type' => Types::list_of( Types::int() ),
 						'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
 					],
-					'exclude'       => [
-						'type'        => Types::list_of( Types::int() ),
+					'exclude' => [
+						'type' => Types::list_of( Types::int() ),
 						'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
 					],
-					'search'        => [
-						'type'        => Types::string(),
+					'search' => [
+						'type' => Types::string(),
 						'description' => __( 'Search keyword. Searches for possible string matches on columns. When `searchColumns` is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
 					],
 					//					'searchColumns' => [
@@ -65,28 +65,28 @@ class UserConnectionQueryArgsType extends InputObjectType {
 					//						'type' => Types::list_of( Types::string() ),
 					//						'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
 					//					],
-					'nicename'      => [
-						'type'        => Types::int(),
+					'nicename' => [
+						'type' => Types::int(),
 						'description' => __( 'The user nicename.', 'wp-graphql' ),
 					],
-					'nicenameIn'    => [
-						'type'        => Types::list_of( Types::string() ),
+					'nicenameIn' => [
+						'type' => Types::list_of( Types::string() ),
 						'description' => __( 'An array of nicenames to include. Users matching one of these nicenames will be included in results.', 'wp-graphql' ),
 					],
 					'nicenameNotIn' => [
-						'type'        => Types::list_of( Types::string() ),
+						'type' => Types::list_of( Types::string() ),
 						'description' => __( 'An array of nicenames to exclude. Users matching one of these nicenames will not be included in results.', 'wp-graphql' ),
 					],
-					'login'         => [
-						'type'        => Types::string(),
+					'login' => [
+						'type' => Types::string(),
 						'description' => __( 'The user login.', 'wp-graphql' ),
 					],
-					'loginIn'       => [
-						'type'        => Types::int(),
+					'loginIn' => [
+						'type' => Types::int(),
 						'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
 					],
-					'loginNotIn'    => [
-						'type'        => Types::int(),
+					'loginNotIn' => [
+						'type' => Types::int(),
 						'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 					],
 				];

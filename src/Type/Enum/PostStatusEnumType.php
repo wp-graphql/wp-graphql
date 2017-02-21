@@ -10,7 +10,7 @@ class PostStatusEnumType extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name'   => 'status',
+			'name' => 'status',
 			'values' => self::values(),
 		];
 
@@ -20,9 +20,7 @@ class PostStatusEnumType extends EnumType {
 
 	/**
 	 * values
-	 *
 	 * Creates a list of post_stati that can be used to query by.
-	 *
 	 * @return array
 	 */
 	private static function values() {
@@ -45,9 +43,9 @@ class PostStatusEnumType extends EnumType {
 			 */
 			foreach ( $post_stati as $status ) {
 				self::$values[] = [
-					'name'        => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
+					'name' => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
 					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
-					'value'       => $status,
+					'value' => $status,
 				];
 			}
 		}

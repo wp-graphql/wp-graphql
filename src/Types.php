@@ -26,13 +26,10 @@ use WPGraphQL\Type\UserType;
 
 /**
  * Class Types
- *
  * Acts as a registry and factory for Types.
- *
  * Each "type" is static ensuring that it will only be instantiated once and can be re-used throughout the system. The
  * types that are "dynamic" (such as post_types, taxonomies, etc) are added as a sub-property to the Types class
  * based on their unique identifier, and are therefore only instantiated once as well.
- *
  * @since 0.0.5
  * @package WPGraphQL
  */
@@ -65,7 +62,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function avatar() {
-		return self::$avatar ?: ( self::$avatar = new AvatarType() );
+		return self::$avatar ? : ( self::$avatar = new AvatarType() );
 	}
 
 	/**
@@ -75,7 +72,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function comment() {
-		return self::$comment ?: ( self::$comment = new CommentType() );
+		return self::$comment ? : ( self::$comment = new CommentType() );
 	}
 
 	/**
@@ -85,7 +82,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function comment_connection_query_args() {
-		return self::$comment_connection_query_args ?: ( self::$comment_connection_query_args = new CommentsConnectionQueryArgsType() );
+		return self::$comment_connection_query_args ? : ( self::$comment_connection_query_args = new CommentsConnectionQueryArgsType() );
 	}
 
 	/**
@@ -95,7 +92,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function date_query() {
-		return self::$date_query ?: ( self::$date_query = new DateQueryType() );
+		return self::$date_query ? : ( self::$date_query = new DateQueryType() );
 	}
 
 	/**
@@ -105,7 +102,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function mime_type_enum() {
-		return self::$mime_type_enum ?: ( self::$mime_type_enum = new MimeTypeEnumType() );
+		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
 	}
 
 	/**
@@ -115,14 +112,16 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function plugin() {
-		return self::$plugin ?: ( self::$plugin = new PluginType() );
+		return self::$plugin ? : ( self::$plugin = new PluginType() );
 	}
 
 	/**
 	 * post_object
 	 * This returns the definition for the PostObjectType
 	 * @return PostObjectType
+	 *
 	 * @param $post_type string
+	 *
 	 * @since 0.0.5
 	 */
 	public static function post_object( $post_type ) {
@@ -145,7 +144,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function post_status_enum() {
-		return self::$post_status_enum ?: ( self::$post_status_enum = new PostStatusEnumType() );
+		return self::$post_status_enum ? : ( self::$post_status_enum = new PostStatusEnumType() );
 	}
 
 	/**
@@ -155,7 +154,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function post_object_query_args() {
-		return self::$post_object_query_args ?: ( self::$post_object_query_args = new PostObjectQueryArgsType() );
+		return self::$post_object_query_args ? : ( self::$post_object_query_args = new PostObjectQueryArgsType() );
 	}
 
 	/**
@@ -165,7 +164,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function post_type() {
-		return self::$post_type ?: ( self::$post_type = new PostTypeType() );
+		return self::$post_type ? : ( self::$post_type = new PostTypeType() );
 	}
 
 	/**
@@ -175,7 +174,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function relation_enum() {
-		return self::$relation_enum ?: ( self::$relation_enum = new RelationEnum() );
+		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnum() );
 	}
 
 	/**
@@ -185,7 +184,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function root_query() {
-		return self::$root_query ?: ( self::$root_query = new RootQueryType() );
+		return self::$root_query ? : ( self::$root_query = new RootQueryType() );
 	}
 
 	/**
@@ -195,7 +194,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function taxonomy() {
-		return self::$taxonomy ?: ( self::$taxonomy = new TaxonomyType() );
+		return self::$taxonomy ? : ( self::$taxonomy = new TaxonomyType() );
 	}
 
 	/**
@@ -205,14 +204,16 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function taxonomy_enum() {
-		return self::$taxonomy_enum ?: ( self::$taxonomy_enum = new TaxonomyEnumType() );
+		return self::$taxonomy_enum ? : ( self::$taxonomy_enum = new TaxonomyEnumType() );
 	}
 
 	/**
 	 * term_object
 	 * This returns the definition for the TermObjectType
 	 * @return TermObjectType
+	 *
 	 * @param string $taxonomy
+	 *
 	 * @since 0.0.5
 	 */
 	public static function term_object( $taxonomy ) {
@@ -234,7 +235,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function term_object_query_args() {
-		return self::$term_object_query_args ?: ( self::$term_object_query_args = new TermObjectQueryArgsType() );
+		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectQueryArgsType() );
 	}
 
 	/**
@@ -244,7 +245,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function theme() {
-		return self::$theme ?: ( self::$theme = new ThemeType() );
+		return self::$theme ? : ( self::$theme = new ThemeType() );
 	}
 
 	/**
@@ -254,7 +255,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function user() {
-		return self::$user ?: ( self::$user = new UserType() );
+		return self::$user ? : ( self::$user = new UserType() );
 	}
 
 	/**
@@ -264,7 +265,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function user_connection_query_args() {
-		return self::$user_connection_query_args ?: ( self::$user_connection_query_args = new UserConnectionQueryArgsType() );
+		return self::$user_connection_query_args ? : ( self::$user_connection_query_args = new UserConnectionQueryArgsType() );
 	}
 
 	/**
