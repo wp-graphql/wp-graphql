@@ -29,10 +29,10 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * testFullPostQuery
+	 * testPostQuery
 	 * @since 0.0.5
 	 */
-	public function testPostId() {
+	public function testPostQuery() {
 
 		$current_time = strtotime( 'now' );
 		$date = date( 'Y-m-d H:i:s', $current_time );
@@ -48,18 +48,18 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 			'post_excerpt' => 'Test post excerpt',
 			'post_status'  => 'publish',
 			'post_title'   => 'Test Page Title',
-			'post_type'    => 'page',
+			'post_type'    => 'post',
 		);
 
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->factory->post->create( $args );
+		$post_id = $this->factory->post->create( $args );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -71,6 +71,8 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 				author{
 					userId
 				}
+				commentCount
+				commentStatus
 				content
 				date
 				dateGmt
@@ -79,6 +81,9 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 				editLock
 				enclosure
 				excerpt
+				link
+				menuOrder
+				mimeType
 				title
 			} 
 		}";
@@ -98,6 +103,8 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 					'author' => [
 						'userId' => $this->admin,
 					],
+					'commentCount' => 0,
+					'commentStatus' => 'open',
 					'content' => apply_filters( 'the_content', 'Test page content' ),
 					'date' => $date,
 					'dateGmt' => $gmdate,
@@ -106,6 +113,9 @@ class WP_GraphQL_Test_Post_Queries extends WP_UnitTestCase {
 					'editLock' => null,
 					'enclosure' => null,
 					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test post excerpt' ) ),
+					'link' => get_permalink( $post_id ),
+					'menuOrder' => null,
+					'mimeType' => null,
 					'title' => 'Test Page Title',
 				],
 			],
