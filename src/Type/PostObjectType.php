@@ -29,10 +29,10 @@ class PostObjectType extends ObjectType {
 						},
 					],
 					$single_name . 'Id'              => array(
-						'type'        => Types::int(),
+						'type'        => Types::non_null( Types::int() ),
 						'description' => esc_html__( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->ID ) ? absint( $post->ID ) : 0;
+							return absint( $post->ID );
 						},
 					),
 					'author'          => array(
@@ -47,14 +47,14 @@ class PostObjectType extends ObjectType {
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Post publishing date.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_date ) ? $post->post_date : '';
+							return ! empty( $post->post_date ) ? $post->post_date : null;
 						},
 					),
 					'dateGmt'        => array(
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The publishing date set in GMT.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_date_gmt ) ? $post->post_date_gmt : '';
+							return ! empty( $post->post_date_gmt ) ? $post->post_date_gmt : null;
 						},
 					),
 					'content'         => array(
@@ -62,7 +62,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The content of the post. This is currently just the raw content. 
 						An amendment to support rendered content needs to be made.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_content ) ? apply_filters( 'the_content', $post->post_content ) : '';
+							return apply_filters( 'the_content', $post->post_content );
 						},
 					),
 					'title'           => array(
@@ -70,7 +70,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The title of the post. This is currently just the raw title. An 
 						amendment to support rendered title needs to be made.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_title ) ? $post->post_title : '';
+							return ! empty( $post->post_title ) ? $post->post_title : null;
 						},
 					),
 					'excerpt'         => array(
@@ -79,7 +79,7 @@ class PostObjectType extends ObjectType {
 						An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
-							return ! empty( $excerpt ) ? $excerpt : '';
+							return ! empty( $excerpt ) ? $excerpt : null;
 						},
 					),
 					'status'     => array(
@@ -87,7 +87,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The current status of the post. ( published, draft, etc. ) This 
 						should be changed to an enum type supporting valid stati.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_status ) ? $post->post_status : '';
+							return ! empty( $post->post_status ) ? $post->post_status : null;
 						},
 					),
 					'commentStatus'  => array(
@@ -95,7 +95,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'Whether the comments are open or closed for this particular post. 
 						Needs investigating.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->comment_status ) ? $post->comment_status : '';
+							return ! empty( $post->comment_status ) ? $post->comment_status : null;
 						},
 					),
 					'pingStatus'     => array(
@@ -103,7 +103,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'Whether the pings are open or closed for this particular post. 
 						Needs investigating.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->ping_status ) ? $post->ping_status : '';
+							return ! empty( $post->ping_status ) ? $post->ping_status : null;
 						},
 					),
 					'slug'            => array(
@@ -112,7 +112,7 @@ class PostObjectType extends ObjectType {
 						WP_Post->post_name field and the post_name column in the database for the `post_objects` 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_name ) ? $post->post_name : '';
+							return ! empty( $post->post_name ) ? $post->post_name : null;
 						},
 					),
 					'toPing'         => array(
@@ -134,7 +134,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The local modified time for a post. If a post was recently 
 						updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_modified ) ? $post->post_modified : '';
+							return ! empty( $post->post_modified ) ? $post->post_modified : null;
 						},
 					),
 					'modifiedGmt'    => array(
@@ -142,16 +142,16 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The GMT modified time for a post. If a post was recently 
 						updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_modified_gmt ) ? $post->post_modified_gmt : '';
+							return ! empty( $post->post_modified_gmt ) ? $post->post_modified_gmt : null;
 						},
 					),
 					// @todo: add the parent
 					'editLast'        => [
 						'type'        => Types::string(),
 						'description' => __( 'The ID of the user that most recently edited the object', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, array $args, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, array $args, $context, ResolveInfo $info ) {
 							$edit_last = get_post_meta( $post->ID, '_edit_last', true );
-							return ! empty( $edit_last ) ? absint( $edit_last ) : '';
+							return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 						},
 					],
 					'editLock'        => [
@@ -159,9 +159,9 @@ class PostObjectType extends ObjectType {
 						'description' => __( 'String indicating the timestamp and ID of the user that most 
 						recently edited an object. Can be used to determine if it can safely be 
 						edited by another user.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, array $args, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, array $args, $context,  ResolveInfo $info ) {
 							$edit_lock = get_post_meta( $post->ID, '_edit_lock', true );
-							return ! empty( $edit_lock ) ? absint( $edit_lock ) : '';
+							return ! empty( $edit_lock ) ? absint( $edit_lock ) : null;
 						},
 					],
 					'enclosure'        => [
@@ -169,7 +169,7 @@ class PostObjectType extends ObjectType {
 						'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, $context, ResolveInfo $info ) {
 							$enclosure = get_post_meta( $post->ID, 'enclosure', true );
-							return ! empty( $enclosure ) ? $enclosure : '';
+							return ! empty( $enclosure ) ? $enclosure : null;
 						},
 					],
 					'guid'            => array(
@@ -178,7 +178,7 @@ class PostObjectType extends ObjectType {
 						matches the value stored in WP_Post->guid and the guid column in the `post_objects` database 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->guid ) ? $post->guid : '';
+							return ! empty( $post->guid ) ? $post->guid : null;
 						},
 					),
 					'menuOrder'      => array(
@@ -186,7 +186,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'A field used for ordering posts. This is typically used with 
 						nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : 0;
+							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : null;
 						},
 					),
 					'mimeType'       => array(
@@ -196,7 +196,7 @@ class PostObjectType extends ObjectType {
 						WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database 
 						table.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-							return ! empty( $post->post_mime_type ) ? $post->post_mime_type : '';
+							return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
 						},
 					),
 					'desiredSlug' => [
@@ -204,7 +204,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							$desired_slug = get_post_meta( $post->ID, '_wp_desired_post_slug', true );
-							return ! empty( $desired_slug ) ? $desired_slug : '';
+							return ! empty( $desired_slug ) ? $desired_slug : null;
 						},
 					],
 					'link' => [
@@ -212,7 +212,7 @@ class PostObjectType extends ObjectType {
 						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							$link = get_permalink( $post->ID );
-							return ! empty( $link ) ? $link : '';
+							return ! empty( $link ) ? $link : null;
 						},
 					],
 				];

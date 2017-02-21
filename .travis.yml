@@ -1,41 +1,47 @@
-sudo: false
-
 language: php
+
+sudo: false
 
 notifications:
   email:
     on_success: never
-    on_failure: change
+    on_failure: never
 
 branches:
   only:
     - master
-
-php:
-  - 5.3
-  - 5.6
-
-env:
-  - WP_VERSION=latest WP_MULTISITE=0
+    - develop
 
 matrix:
   include:
-    - php: 5.3
+    - php: 5.4
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: 5.6
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: 5.4
       env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 5.6
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.0
+      env: WP_VERSION=nightly WP_MULTISITE=0
+  fast_finish: true
+
+cache:
+  directories:
+  - vendor
+  - $HOME/.composer/cache
 
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - |
-    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-      composer global require "phpunit/phpunit=5.7.*"
-    else
-      composer global require "phpunit/phpunit=4.8.*"
-    fi
-  - |
-    composer global require wp-coding-standards/wpcs
-    phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+  - composer self-update
+  - composer install --no-interaction
 
-script:
-  - phpcs --standard=phpcs.ruleset.xml $(find . -name '*.php')
-  - phpunit
+script: phpunit
