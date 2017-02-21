@@ -1,4 +1,5 @@
-#WP GraphQL
+#WPGraphQL [![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql)
+=============
 
 GraphQL API for WordPress.
 
