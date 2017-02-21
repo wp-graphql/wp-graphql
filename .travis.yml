@@ -44,7 +44,9 @@ before_script:
   - composer self-update
   - composer install --no-interaction
 
-script: phpunit
+script:
+ - mkdir -p build/logs
+ - phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
   - travis_retry php vendor/bin/coveralls -v
