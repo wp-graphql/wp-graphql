@@ -11,4 +11,14 @@
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
+	<logging>
+		<log type="coverage-clover" target="build/logs/clover.xml"/>
+	</logging>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+			<file>./wp-graphql.php</file>
+			<file>./access-functions.php</file>
+			<directory suffix=".php">./src/</directory>
+		</whitelist>
+	</filter>
 </phpunit>
