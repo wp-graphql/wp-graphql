@@ -158,7 +158,7 @@ class Connections {
 	 * This sets up a connection to posts (of a specified post_type).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
 	 *
-	 * @param \WP_Post $post_type_object Post object we want to make a connection for
+	 * @param \WP_Post_Type $post_type_object Post type object we want to make a connection for
 	 * @return void|array
 	 * @since  0.5.0
 	 * @access public
