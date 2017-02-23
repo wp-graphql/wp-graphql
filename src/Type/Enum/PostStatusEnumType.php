@@ -1,21 +1,27 @@
 <?php
 namespace WPGraphQL\Type\Enum;
 
-use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 
-class PostStatusEnumType extends EnumType {
+/**
+ * Class PostStatusEnumType
+ *
+ * This defines an EnumType with allowed post stati that are registered to WordPress.
+ *
+ * @package WPGraphQL\Type\Enum
+ * @since 0.0.5
+ */
+class PostStatusEnumType extends WPEnumType {
 
+	/**
+	 * This holds the enum values array
+	 * @var array $values
+	 */
 	private static $values;
 
 	public function __construct() {
-
-		$config = [
-			'name' => 'status',
-			'values' => self::values(),
-		];
-
-		parent::__construct( $config );
-
+		$description = __( 'The status of the object.', 'wp-graphql' );
+		parent::__construct( 'status', self::values(), $description );
 	}
 
 	/**
@@ -24,6 +30,15 @@ class PostStatusEnumType extends EnumType {
 	 * @return array
 	 */
 	private static function values() {
+
+		/**
+		 * Set the default, if no values are built dynamically
+		 * @since 0.0.5
+		 */
+		self::$values = [
+			'name' => 'PUBLISH',
+			'value' => 'publish',
+		];
 
 		/**
 		 * Get the dynamic list of post_stati
@@ -42,7 +57,7 @@ class PostStatusEnumType extends EnumType {
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {
-				self::$values[] = [
+				self::$values[ $status ] = [
 					'name' => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
 					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
 					'value' => $status,
@@ -53,7 +68,7 @@ class PostStatusEnumType extends EnumType {
 		/**
 		 * Return the $values
 		 */
-		return ! empty( self::$values ) ? self::$values : null;
+		return self::$values;
 
 	}
 

@@ -1,24 +1,30 @@
 <?php
 namespace WPGraphQL\Type\Enum;
 
-use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 
-class TaxonomyEnumType extends EnumType {
+class TaxonomyEnumType extends WPEnumType {
 
+	/**
+	 * This holds the enum values array
+	 * @var array $values
+	 */
 	private static $values;
 
+	/**
+	 * TaxonomyEnumType constructor.
+	 * @since 0.0.5
+	 */
 	public function __construct() {
-
-		$config = [
-			'name' => 'taxonomyEnum',
-			'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
-			'values' => self::values(),
-		];
-
-		parent::__construct( $config );
-
+		$description = __( 'Allowed taxonomies', 'wp-graphql' );
+		parent::__construct( 'taxonomyEnum', self::values(), $description );
 	}
 
+	/**
+	 * values
+	 * Returns the values to be used in the Enum
+	 * @return array|null
+	 */
 	private static function values() {
 
 		if ( null === self::$values ) {
@@ -48,7 +54,7 @@ class TaxonomyEnumType extends EnumType {
 		/**
 		 * Return the $values
 		 */
-		return ! empty( self::$values ) ? self::$values : null;
+		return self::$values;
 
 	}
 

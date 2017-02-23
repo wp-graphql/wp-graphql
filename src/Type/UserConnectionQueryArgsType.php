@@ -1,117 +1,207 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\EnumType;
 use WPGraphQL\Types;
 
-class UserConnectionQueryArgsType extends InputObjectType {
+/**
+ * Class UserConnectionQueryArgsType
+ *
+ * This sets up the Query Args for user connections, which uses WP_User_Query, so this defines the allowed
+ * input fields that will be passed to the WP_User_Query
+ *
+ * @package WPGraphQL\Type
+ * @since 0.0.5
+ */
+class UserConnectionQueryArgsType extends WPInputObjectType {
 
+	/**
+	 * This holds the field definitions
+	 * @var array $fields
+	 * @since 0.0.5
+	 */
+	public static $fields;
+
+	/**
+	 * This holds the $roles_enum definition
+	 * @var EnumType
+	 * @since 0.0.5
+	 */
+	private static $roles_enum;
+
+	/**
+	 * This holds the SearchColumnsEnumType
+	 * @var EnumType
+	 * @since 0.0.5
+	 */
+	private static $search_columns_enum;
+
+	/**
+	 * UserConnectionQueryArgsType constructor.
+	 * @since 0.0.5
+	 */
 	public function __construct() {
+		parent::__construct( 'userArgs', self::fields() );
+	}
 
-		$config = [
-			'name' => 'userArgs',
-			'fields' => function() {
-				$fields = [
-					//					'role' => [
-					//						// @todo: enum roles
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' ),
-					//					],
-					//					'roleIn' => [
-					//						// @todo: enum roles
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' ),
-					//					],
-					//					'roleNotIn' => [
-					//						// @todo: enum roles
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
-					//					],
-					'include' => [
-						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
-					],
-					'exclude' => [
-						'type' => Types::list_of( Types::int() ),
-						'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
-					],
-					'search' => [
-						'type' => Types::string(),
-						'description' => __( 'Search keyword. Searches for possible string matches on columns. When `searchColumns` is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
-					],
-					//					'searchColumns' => [
-					//						// @todo: enum columns
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' ),
-					//					],
-					/**
-					 * Field(s) to sort the retrieved users by. May be a single value,
-					 * an array of values, or a multi-dimensional array with fields as
-					 * keys and orders ('ASC' or 'DESC') as values. Accepted values are
-					 * 'display_name' (or 'name'), 'include', 'user_login'
-					 * ogin'), 'login__in', 'user_nicename' (or 'nicename'),
-					 * cename__in', 'user_email (or 'email'), 'user_url' (or 'url'),
-					 * 'user_registered' (or 'registered'), 'post_count', 'meta_value',
-					 * 'meta_value_num', the value of `$meta_key`, or an array key of
-					 * `$meta_query`. To use 'meta_value' or 'meta_value_num', `$meta_key`
-					 */
-					//					'orderby' => [
-					//						// @todo: enum orderby
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'Field(s) to sort the retrieved users by', 'wp-graphql' ),
-					//					],
-					//					'hasPublishedPosts' => [
-					//						// @todo: post_type_enum
-					//						'type' => Types::list_of( Types::string() ),
-					//						'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
-					//					],
-					'nicename' => [
-						'type' => Types::int(),
-						'description' => __( 'The user nicename.', 'wp-graphql' ),
-					],
-					'nicenameIn' => [
-						'type' => Types::list_of( Types::string() ),
-						'description' => __( 'An array of nicenames to include. Users matching one of these nicenames will be included in results.', 'wp-graphql' ),
-					],
-					'nicenameNotIn' => [
-						'type' => Types::list_of( Types::string() ),
-						'description' => __( 'An array of nicenames to exclude. Users matching one of these nicenames will not be included in results.', 'wp-graphql' ),
-					],
-					'login' => [
-						'type' => Types::string(),
-						'description' => __( 'The user login.', 'wp-graphql' ),
-					],
-					'loginIn' => [
-						'type' => Types::int(),
-						'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
-					],
-					'loginNotIn' => [
-						'type' => Types::int(),
-						'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
-					],
-				];
+	/**
+	 * fields
+	 *
+	 * This defines the fields that make up the UserConnectionQueryArgsType
+	 *
+	 * @return array
+	 * @since 0.0.5
+	 */
+	private static function fields() {
 
-				/**
-				 * Pass the fields through a filter
-				 *
-				 * @param array $fields
-				 *
-				 * @since 0.0.5
-				 */
-				$fields = apply_filters( 'graphql_user_connection_query_args_type_fields', $fields );
+		if ( null === self::$fields ) {
 
-				/**
-				 * Sort the fields alphabetically by key. This makes reading through docs much easier
-				 * @since 0.0.2
-				 */
-				ksort( $fields );
+			$fields = [
+				'role' => [
+					'type' => self::roles_enum(),
+					'description' => __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' ),
+				],
+				'roleIn' => [
+					'type' => Types::list_of( self::roles_enum() ),
+					'description' => __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' ),
+				],
+				'roleNotIn' => [
+					'type' => Types::list_of( self::roles_enum() ),
+					'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
+				],
+				'include' => [
+					'type' => Types::list_of( Types::int() ),
+					'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
+				],
+				'exclude' => [
+					'type' => Types::list_of( Types::int() ),
+					'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
+				],
+				'search' => [
+					'type' => Types::string(),
+					'description' => __( 'Search keyword. Searches for possible string matches on columns. When `searchColumns` is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
+				],
+				'searchColumns' => [
+					'type' => Types::list_of( self::search_columns_enum() ),
+					'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' ),
+				],
+				'hasPublishedPosts' => [
+					'type' => Types::list_of( Types::post_type_enum() ),
+					'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
+				],
+				'nicename' => [
+					'type' => Types::int(),
+					'description' => __( 'The user nicename.', 'wp-graphql' ),
+				],
+				'nicenameIn' => [
+					'type' => Types::list_of( Types::string() ),
+					'description' => __( 'An array of nicenames to include. Users matching one of these nicenames will be included in results.', 'wp-graphql' ),
+				],
+				'nicenameNotIn' => [
+					'type' => Types::list_of( Types::string() ),
+					'description' => __( 'An array of nicenames to exclude. Users matching one of these nicenames will not be included in results.', 'wp-graphql' ),
+				],
+				'login' => [
+					'type' => Types::string(),
+					'description' => __( 'The user login.', 'wp-graphql' ),
+				],
+				'loginIn' => [
+					'type' => Types::int(),
+					'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
+				],
+				'loginNotIn' => [
+					'type' => Types::int(),
+					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
+				],
+			];
 
-				return $fields;
+			self::$fields = $fields;
 
-			},
-		];
+		}
 
-		parent::__construct( $config );
+		return self::$fields;
+
+	}
+
+	/**
+	 * search_columns_enum
+	 *
+	 * Returns the searchColumnsEnum type defintion
+	 *
+	 * @return EnumType
+	 * @since 0.0.5
+	 */
+	private static function search_columns_enum() {
+
+		if ( null === self::$search_columns_enum ) {
+
+			self::$search_columns_enum = new EnumType([
+				'name' => 'searchColumnsEnum',
+				'values' => [
+					[
+						'name' => 'ID',
+						'value' => 'ID',
+					],
+					[
+						'name' => 'LOGIN',
+						'value' => 'login',
+					],
+					[
+						'name' => 'NICENAME',
+						'value' => 'nicename',
+					],
+					[
+						'name' => 'EMAIL',
+						'value' => 'email',
+					],
+					[
+						'name' => 'URL',
+						'value' => 'url',
+					],
+				],
+			]);
+
+		}
+
+		return self::$search_columns_enum;
+
+	}
+
+	/**
+	 * roles_enum
+	 *
+	 * Returns the userRoleEnum type definition
+	 *
+	 * @return EnumType
+	 * @since 0.0.5
+	 */
+	private static function roles_enum() {
+
+		if ( null === self::$roles_enum ) {
+
+			global $wp_roles;
+			$all_roles = $wp_roles->roles;
+			$editable_roles = apply_filters( 'editable_roles', $all_roles );
+			$roles = [];
+
+			if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
+				foreach ( $editable_roles as $key => $role ) {
+					$roles[] = [
+						'name' => ! empty( $role['name'] ) ? self::format_enum_name( $role['name'] ) : $key,
+						'value' => $key,
+					];
+				}
+			}
+
+			if ( ! empty( $roles ) ) {
+				self::$roles_enum = new EnumType( [
+					'name' => 'userRoleEnum',
+					'values' => $roles,
+				] );
+			}
+		}
+
+		return self::$roles_enum;
 
 	}
 

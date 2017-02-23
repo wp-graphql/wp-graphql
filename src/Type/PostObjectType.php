@@ -85,8 +85,7 @@ class PostObjectType extends ObjectType {
 					),
 					'status' => array(
 						'type' => Types::string(),
-						'description' => esc_html__( 'The current status of the post. ( published, draft, etc. ) This 
-						should be changed to an enum type supporting valid stati.', 'wp-graphql' ),
+						'description' => esc_html__( 'The current status of the object', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 							return ! empty( $post->post_status ) ? $post->post_status : null;
 						},
