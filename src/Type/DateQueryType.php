@@ -5,97 +5,122 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use WPGraphQL\Types;
 
-class DateQueryType extends InputObjectType {
+/**
+ * Class DateQueryType
+ *
+ * This defines the input fields for date queries
+ *
+ * @package WPGraphQL\Type
+ * @since 0.0.5
+ */
+class DateQueryType extends WPInputObjectType {
 
+	/**
+	 * This holds the field definitions
+	 * @var array $fields
+	 * @since 0.0.5
+	 */
+	public static $fields;
+
+	/**
+	 * Holds the date_after input object definition
+	 * @var WPInputObjectType
+	 * @since 0.0.5
+	 */
 	private static $date_after;
+
+	/**
+	 * Holds the date_before input object definition
+	 * @var WPInputObjectType
+	 * @since 0.0.5
+	 */
 	private static $date_before;
-	private static $column;
+
+	/**
+	 * Holds the column_enum EnumType definition
+	 * @var EnumType
+	 * @since 0.0.5
+	 */
+	private static $column_enum;
 
 	/**
 	 * DateQueryType constructor.
 	 * @since 0.0.5
 	 */
 	public function __construct() {
+		parent::__construct( 'dateQuery', self::fields() );
+	}
 
-		$config = [
-			'name' => 'DateQuery',
-			'fields' => function() {
+	/**
+	 * fields
+	 *
+	 * This defines the fields that make up the DateQueryType
+	 *
+	 * @return array|null
+	 * @since 0.0.5
+	 */
+	private static function fields() {
 
-				$fields = [
-					'year' => [
-						'type' => Types::int(),
-						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
-					],
-					'month' => [
-						'type' => Types::int(),
-						'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
-					],
-					'week' => [
-						'type' => Types::int(),
-						'description' => __( 'Week of the year (from 0 to 53)', 'wp-graphql' ),
-					],
-					'day' => [
-						'type' => Types::int(),
-						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
-					],
-					'hour' => [
-						'type' => Types::int(),
-						'description' => __( 'Hour (from 0 to 23)', 'wp-graphql' ),
-					],
-					'minute' => [
-						'type' => Types::int(),
-						'description' => __( 'Minute (from 0 to 59)', 'wp-graphql' ),
-					],
-					'second' => [
-						'type' => Types::int(),
-						'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
-					],
-					'after' => [
-						'type' => self::date_after(),
-					],
-					'before' => [
-						'type' => self::date_before(),
-					],
-					'inclusive' => [
-						'type' => Types::boolean(),
-						'description' => __( 'For after/before, whether exact value should be 
+		if ( null === self::$fields ) {
+
+			self::$fields = [
+				'year' => [
+					'type' => Types::int(),
+					'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
+				],
+				'month' => [
+					'type' => Types::int(),
+					'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
+				],
+				'week' => [
+					'type' => Types::int(),
+					'description' => __( 'Week of the year (from 0 to 53)', 'wp-graphql' ),
+				],
+				'day' => [
+					'type' => Types::int(),
+					'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
+				],
+				'hour' => [
+					'type' => Types::int(),
+					'description' => __( 'Hour (from 0 to 23)', 'wp-graphql' ),
+				],
+				'minute' => [
+					'type' => Types::int(),
+					'description' => __( 'Minute (from 0 to 59)', 'wp-graphql' ),
+				],
+				'second' => [
+					'type' => Types::int(),
+					'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
+				],
+				'after' => [
+					'type' => self::date_after(),
+				],
+				'before' => [
+					'type' => self::date_before(),
+				],
+				'inclusive' => [
+					'type' => Types::boolean(),
+					'description' => __( 'For after/before, whether exact value should be
 												matched or not', 'wp-graphql' ),
-					],
-					'compare' => [
-						'type' => Types::string(),
-						'description' => __( 'For after/before, whether exact value should be 
+				],
+				'compare' => [
+					'type' => Types::string(),
+					'description' => __( 'For after/before, whether exact value should be
 												matched or not', 'wp-graphql' ),
-					],
-					'column' => [
-						'type' => self::column_enum(),
-						'description' => __( 'Column to query against', 'wp-graphql' ),
-					],
-					'relation' => [
-						'type' => Types::relation_enum(),
-						'description' => __( 'OR or AND, how the sub-arrays should be compared', 'wp-graphql' ),
-					],
-				];
+				],
+				'column' => [
+					'type' => self::column_enum(),
+					'description' => __( 'Column to query against', 'wp-graphql' ),
+				],
+				'relation' => [
+					'type' => Types::relation_enum(),
+					'description' => __( 'OR or AND, how the sub-arrays should be compared', 'wp-graphql' ),
+				],
+			];
 
-				/**
-				 * Pass the fields through a filter
-				 *
-				 * @param array $fields
-				 *
-				 * @since 0.0.5
-				 */
-				$fields = apply_filters( 'graphql_date_query_type_fields', $fields );
+		}
 
-				/**
-				 * Sort the fields alphabetically by key. This makes reading through docs much easier
-				 * @since 0.0.2
-				 */
-				ksort( $fields );
-
-				return $fields;
-			},
-		];
-
-		parent::__construct( $config );
+		return self::$fields;
 
 	}
 
@@ -107,11 +132,11 @@ class DateQueryType extends InputObjectType {
 	 */
 	private static function column_enum() {
 
-		if ( null === self::$column ) {
+		if ( null === self::$column_enum ) {
 
-			self::$column = new EnumType( [
-				'name' => 'dateColumn',
-				'values' => [
+			self::$column_enum = new WPEnumType(
+				$name = 'dateColumn',
+				$values = [
 					[
 						'name' => 'DATE',
 						'value' => 'post_date',
@@ -120,12 +145,12 @@ class DateQueryType extends InputObjectType {
 						'name' => 'MODIFIED',
 						'value' => 'post_modified',
 					],
-				],
-			] );
+				]
+			);
 
 		}
 
-		return ! empty( self::$column ) ? self::$column : null;
+		return self::$column_enum;
 
 	}
 
@@ -133,16 +158,16 @@ class DateQueryType extends InputObjectType {
 	 * date_after
 	 * Creates the date_after input field that allows "after" paramaters
 	 * to be entered
-	 * @return InputObjectType|null
+	 * @return WPInputObjectType|null
 	 * @since 0.0.5
 	 */
 	private static function date_after() {
 
 		if ( null === self::$date_after ) {
 
-			self::$date_after = new InputObjectType( [
-				'name' => 'dateAfter',
-				'fields' => [
+			self::$date_after = new WPInputObjectType(
+				$name = 'dateAfter',
+				$fields = [
 					'year' => [
 						'type' => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
@@ -155,12 +180,12 @@ class DateQueryType extends InputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				],
-			] );
+				]
+			);
 
 		}
 
-		return ! empty( self::$date_after ) ? self::$date_after : null;
+		return self::$date_after;
 
 	}
 
@@ -168,16 +193,16 @@ class DateQueryType extends InputObjectType {
 	 * date_before
 	 * Creates the date_before input field that allows "before" paramaters
 	 * to be entered
-	 * @return InputObjectType|null
+	 * @return WPInputObjectType|null
 	 * @since 0.0.5
 	 */
 	private static function date_before() {
 
 		if ( null === self::$date_before ) {
 
-			self::$date_before = new InputObjectType( [
-				'name' => 'dateBefore',
-				'fields' => [
+			self::$date_before = new WPInputObjectType(
+				$name = 'dateBefore',
+				$fields = [
 					'year' => [
 						'type' => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
@@ -190,12 +215,12 @@ class DateQueryType extends InputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				],
-			] );
+				]
+			);
 
 		}
 
-		return ! empty( self::$date_before ) ? self::$date_before : null;
+		return self::$date_before;
 
 	}
 

@@ -9,7 +9,9 @@ use WPGraphQL\Type\CommentsConnectionQueryArgsType;
 use WPGraphQL\Type\DateQueryType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
+use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnum;
+use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\PostObjectQueryArgsType;
 use WPGraphQL\Type\RootQueryType;
@@ -44,6 +46,7 @@ class Types {
 	private static $post_object;
 	private static $post_object_query_args;
 	private static $post_status_enum;
+	private static $post_type_enum;
 	private static $post_type;
 	private static $relation_enum;
 	private static $root_query;
@@ -148,6 +151,16 @@ class Types {
 	}
 
 	/**
+	 * post_type_enum
+	 * This returns the definition for the PostStatusEnumType
+	 * @return PostTypeEnumType
+	 * @since 0.0.5
+	 */
+	public static function post_type_enum() {
+		return self::$post_type_enum ? : ( self::$post_type_enum = new PostTypeEnumType() );
+	}
+
+	/**
 	 * post_object_query_args
 	 * This returns the definition for the PostObjectQueryArgsType
 	 * @return PostObjectQueryArgsType
@@ -174,7 +187,7 @@ class Types {
 	 * @since 0.0.5
 	 */
 	public static function relation_enum() {
-		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnum() );
+		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnumType() );
 	}
 
 	/**
