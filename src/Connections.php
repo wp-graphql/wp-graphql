@@ -12,52 +12,74 @@ use WPGraphQL\Data\DataSource;
 class Connections {
 
 	/**
-	 * @var array comments_connection
-	 * @since 0.0.5
+	 * Stores some data for the Relay connection for comments
+	 *
+	 * @var array $comments_connection
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $comments_connection;
 
 	/**
+	 * Stores some data for the Relay connection for plugins
+	 *
 	 * @var array plugins_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $plugins_connection;
 
 	/**
+	 * Stores some data for the Relay connection for post objects
+	 *
 	 * @var array post_objects_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $post_objects_connection;
 
 	/**
+	 * Stores some date for the Relay connection for post types
+	 *
 	 * @var array post_types_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $post_types_connection;
 
 	/**
+	 * Stores some date for the Relay connection for term objects
+	 *
 	 * @var array term_objects_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $term_objects_connection;
 
 	/**
+	 * Stores some date for the Relay connection for themes
+	 *
 	 * @var array themes_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $themes_connection;
 
 	/**
+	 * Stores some date for the Relay connection for post types
+	 *
 	 * @var array users_connection
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access protected
 	 */
 	protected static $users_connection;
 
 	/**
-	 * comments_connection
-	 * This sets up a connection of comments
-	 * @return mixed
-	 * @since 0.0.5
+	 * Method that sets up the relay connection for comments
+	 *
+	 * @return array
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function comments_connection() {
 
@@ -90,13 +112,15 @@ class Connections {
 		}
 
 		return self::$comments_connection;
+
 	}
 
 	/**
-	 * plugins_connection
-	 * This sets up a connection of plugins
-	 * @return mixed
-	 * @since 0.0.5
+	 * Method that sets up the relay connection for plugins
+	 *
+	 * @return array
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function plugins_connection() {
 
@@ -131,16 +155,17 @@ class Connections {
 	}
 
 	/**
-	 * post_objects_connection
 	 * This sets up a connection to posts (of a specified post_type).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
 	 *
-	 * @param $post_type_object
-	 *
-	 * @return mixed
+	 * @param \WP_Post $post_type_object Post object we want to make a connection for
+	 * @return void|array
+	 * @since  0.5.0
+	 * @access public
 	 */
 	public static function post_objects_connection( $post_type_object ) {
 
+		// Return early if the post_object passed does not have a name
 		if ( empty( $post_type_object->name ) ) {
 			return;
 		}
@@ -150,6 +175,7 @@ class Connections {
 		}
 
 		if ( empty( self::$post_objects_connection[ $post_type_object->name ] ) ) {
+
 			/**
 			 * Setup the connectionDefinition
 			 * @since 0.0.5
@@ -200,13 +226,15 @@ class Connections {
 		 * @since 0.0.5
 		 */
 		return self::$post_objects_connection[ $post_type_object->name ];
+
 	}
 
 	/**
-	 * post_types_connection
-	 * This sets up a connection of post_types
+	 * Method that sets up the relay connection for post types
+	 *
 	 * @return mixed
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function post_types_connection() {
 
@@ -241,13 +269,13 @@ class Connections {
 	}
 
 	/**
-	 * term_objects_connection
 	 * This sets up a connection to posts (of a specified taxonomy).
 	 * This establishes the Relay connection specs, setting up the edges/node/cursor structure.
 	 *
-	 * @param $taxonomy_object
+	 * @param \WP_Taxonomy $taxonomy_object Taxonomy object for the taxonomy we want to make the
+	 *                                      connection for
 	 *
-	 * @return mixed
+	 * @return array
 	 * @throws \Exception
 	 * @since 0.0.5
 	 */
@@ -305,10 +333,11 @@ class Connections {
 	}
 
 	/**
-	 * themes_connection
-	 * This sets up a connection of themes
-	 * @return mixed
-	 * @since 0.0.5
+	 * Method that sets up the relay connection for themes
+	 *
+	 * @return array
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function themes_connection() {
 
@@ -343,10 +372,11 @@ class Connections {
 	}
 
 	/**
-	 * users_connection
-	 * This sets up a connection of users
+	 * Method that sets up the relay connection for users
+	 *
 	 * @return mixed
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function users_connection() {
 

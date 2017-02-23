@@ -1,17 +1,37 @@
 <?php
 namespace WPGraphQL;
 
+/**
+ * Class AppContext
+ * Creates an object that contains all of the context for the GraphQL query
+ * This class gets instantiated and populated in the main WPGraphQL class
+ *
+ * @package WPGraphQL
+ */
 class AppContext {
+
 	/**
-	 * @var string
+	 * Stores the url string for the current site
+	 *
+	 * @var string $root_url
+	 * @access public
 	 */
 	public $root_url;
+
 	/**
-	 * @var User
+	 * Stores the WP_User object of the current user
+	 *
+	 * @var \WP_User $viewer
+	 * @access public
 	 */
 	public $viewer;
+
 	/**
-	 * @var \mixed
+	 * Stores everything from the $_REQUEST global
+	 *
+	 * @var \mixed $request
+	 * @access public
 	 */
 	public $request;
+
 }

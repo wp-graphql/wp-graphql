@@ -21,30 +21,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! class_exists( 'WPGraphQL' ) ) :
+
 	/**
 	 * This is the one true WPGraphQL class
 	 */
 	final class WPGraphQL {
 
 		/**
+		 * Stores the instance of the WPGraphQL class
+		 *
 		 * @var WPGraphQL The one true WPGraphQL
-		 * @since 0.0.1
+		 * @since  0.0.1
+		 * @access private
 		 */
 		private static $instance;
 
 		/**
+		 * Stores an array of allowed post types
+		 *
 		 * @var array allowed_post_types
+		 * @since  0.0.5
+		 * @access public
 		 */
 		public static $allowed_post_types;
 
 		/**
+		 * Stores an array of allowed taxonomies
+		 *
 		 * @var array allowed_taxonomies
+		 * @since  0.0.5
+		 * @access public
 		 */
 		public static $allowed_taxonomies;
 
 		/**
+		 * The instance of the WPGraphQL object
+		 *
 		 * @return object|WPGraphQL - The one true WPGraphQL
-		 * @since 0.0.1
+		 * @since  0.0.1
+		 * @access public
 		 */
 		public static function instance() {
 
@@ -57,6 +72,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			/**
 			 * Fire off init action
+			 *
+			 * @param WPGraphQL $instance The instance of the WPGraphQL class
 			 */
 			do_action( 'graphql_init', self::$instance );
 
@@ -68,10 +85,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Throw error on object clone.
-		 * The whole idea of the singleton design pattern is that there is a single
-		 * object therefore, we don't want the object to be cloned.
-		 * @since 0.0.1
-		 * @access protected
+		 * The whole idea of the singleton design pattern is that there is a single object
+		 * therefore, we don't want the object to be cloned.
+		 *
+		 * @since  0.0.1
+		 * @access public
 		 * @return void
 		 */
 		public function __clone() {
@@ -83,7 +101,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Disable unserializing of the class.
-		 * @since 0.0.1
+		 *
+		 * @since  0.0.1
 		 * @access protected
 		 * @return void
 		 */
@@ -96,8 +115,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Setup plugin constants.
+		 *
 		 * @access private
-		 * @since 0.0.1
+		 * @since  0.0.1
 		 * @return void
 		 */
 		private function setup_constants() {
@@ -127,8 +147,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * Include required files.
 		 * Uses composer's autoload
+		 *
 		 * @access private
-		 * @since 0.0.1
+		 * @since  0.0.1
 		 * @return void
 		 */
 		private function includes() {
@@ -142,39 +163,45 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * show_in_graphql
-		 * This sets up built-in post_types and taxonomies to show
-		 * in the GraphQL Schema
-		 * @since 0.0.2
+		 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
+		 *
+		 * @since  0.0.2
+		 * @access public
+		 * @return void
 		 */
 		public static function show_in_graphql() {
 
 			global $wp_post_types, $wp_taxonomies;
 
+			// Adds GraphQL support for attachments
 			if ( isset( $wp_post_types['attachment'] ) ) {
 				$wp_post_types['attachment']->show_in_graphql = true;
 				$wp_post_types['attachment']->graphql_single_name = 'mediaItem';
 				$wp_post_types['attachment']->graphql_plural_name = 'mediaItems';
 			}
 
+			// Adds GraphQL support for pages
 			if ( isset( $wp_post_types['page'] ) ) {
 				$wp_post_types['page']->show_in_graphql = true;
 				$wp_post_types['page']->graphql_single_name = 'page';
 				$wp_post_types['page']->graphql_plural_name = 'pages';
 			}
 
+			// Adds GraphQL support for posts
 			if ( isset( $wp_post_types['post'] ) ) {
 				$wp_post_types['post']->show_in_graphql = true;
 				$wp_post_types['post']->graphql_single_name = 'post';
 				$wp_post_types['post']->graphql_plural_name = 'posts';
 			}
 
+			// Adds GraphQL support for categories
 			if ( isset( $wp_taxonomies['category'] ) ) {
 				$wp_taxonomies['category']->show_in_graphql = true;
 				$wp_taxonomies['category']->graphql_single_name = 'category';
 				$wp_taxonomies['category']->graphql_plural_name = 'categories';
 			}
 
+			// Adds GraphQL support for tags
 			if ( isset( $wp_taxonomies['post_tag'] ) ) {
 				$wp_taxonomies['post_tag']->show_in_graphql = true;
 				$wp_taxonomies['post_tag']->graphql_single_name = 'postTag';
@@ -183,13 +210,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * get_allowed_post_types
-		 * Get the post types that are allowed to be used in GraphQL.
-		 * This gets all post_types that are set to show_in_graphql, but allows
-		 * for external code (plugins/theme) to filter the list of allowed_post_types
-		 * to add/remove additional post_types
+		 * Get the post types that are allowed to be used in GraphQL. This gets all post_types that
+		 * are set to show_in_graphql, but allows for external code (plugins/theme) to filter the
+		 * list of allowed_post_types to add/remove additional post_types
+		 *
 		 * @return array
-		 * @since 0.0.4
+		 * @since  0.0.4
+		 * @access public
 		 */
 		public static function get_allowed_post_types() {
 
@@ -199,10 +226,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$post_types = get_post_types( [ 'show_in_graphql' => true ] );
 
 			/**
-			 * Define the $allowed_post_types to be exposed by GraphQL Queries
-			 * Pass through a filter to allow the post_types to be modified (for example if
-			 * a certain post_type should not be exposed to the GraphQL API)
+			 * Define the $allowed_post_types to be exposed by GraphQL Queries Pass through a filter
+			 * to allow the post_types to be modified (for example if a certain post_type should
+			 * not be exposed to the GraphQL API)
+			 *
 			 * @since 0.0.2
+			 * @param array $post_types Array of post types
+			 * @return array
 			 */
 			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
 
@@ -213,12 +243,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * get_allowed_taxonomies
-		 * Get the taxonomies that are allowed to be used in GraphQL/
-		 * This gets all taxonomies that are set to "show_in_graphql" but allows
-		 * for external code (plugins/themes) to filter the list of allowed_taxonomies
-		 * to add/remove additional taxonomies
-		 * @since 0.0.4
+		 * Get the taxonomies that are allowed to be used in GraphQL/This gets all taxonomies that
+		 * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
+		 * the list of allowed_taxonomies to add/remove additional taxonomies
+		 *
+		 * @since  0.0.4
+		 * @access public
+		 * @return array
 		 */
 		public static function get_allowed_taxonomies() {
 
@@ -228,10 +259,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
 
 			/**
-			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries
-			 * Pass through a filter to allow the taxonomies to be modified (for example if
-			 * a certain taxonomy should not be exposed to the GraphQL API)
+			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
+			 * to allow the taxonomies to be modified (for example if a certain taxonomy should not
+			 * be exposed to the GraphQL API)
+			 *
 			 * @since 0.0.2
+			 * @return array
+			 * @param array $taxonomies Array of taxonomy objects
 			 */
 			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
 
@@ -243,14 +277,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * do_graphql_request
 		 * This processes a GraphQL request, given a $query and optional $variables
 		 *
-		 * This function is used to resolve the HTTP requests for the GraphQL API, but can also be used internally
-		 * to run GraphQL queries inside WordPress via PHP.
-		 * @param $query
-		 * @param $variables
-		 * @return array $result
+		 * This function is used to resolve the HTTP requests for the GraphQL API, but can also be
+		 * used internally to run GraphQL queries inside WordPress via PHP.
+		 *
+		 * @since 0.0.5
+		 * @param string     $query     The GraphQL query to be run
+		 * @param array|null $variables Variables to be passed to your GraphQL query
+		 * @return array $result The results of your query
 		 */
 		public static function do_graphql_request( $query, $variables = null ) {
 
@@ -259,8 +294,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			\WPGraphQL::get_allowed_taxonomies();
 
 			/**
-			 * Configure the app_context which gets passed down
-			 * to all the resolvers.
+			 * Configure the app_context which gets passed down to all the resolvers.
 			 * @since 0.0.4
 			 */
 			$app_context = new \WPGraphQL\AppContext();
@@ -270,9 +304,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			/**
 			 * Run an action before generating the schema
-			 * This is a great spot for plugins/themes to hook in to
-			 * customize the schema.
+			 * This is a great spot for plugins/themes to hook in to customize the schema.
+			 *
 			 * @since 0.0.5
+			 * @param string     $query     The query to be run by GraphQL
+			 * @param array|null $variables Variables to be passed to your GraphQL query
+			 * @param            AppContext object The AppContext object containing all of the
+			 *                              information about the context we know at this point
 			 */
 			do_action( 'graphql_generate_schema', $query, $variables, $app_context );
 
@@ -283,6 +321,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'query' => \WPGraphQL\Types::root_query(),
 			] );
 
+			/**
+			 * Executes the query and stores the result
+			 */
 			$result = \GraphQL\GraphQL::execute(
 				$schema,
 				$query,
@@ -292,15 +333,18 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			);
 
 			/**
-			 * Run an action. This is a good place for debug tools to hook in
-			 * to log things, etc.
+			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
+			 *
 			 * @since 0.0.4
+			 * @param array      $result    The result of your GraphQL query
+			 * @param            Schema     object $schema The schema object for the root query
+			 * @param string     $query     The query that GraphQL ran
+			 * @param array|null $variables Variables to passed to your GraphQL query
 			 */
 			do_action( 'graphql_execute', $result, $schema, $query, $variables );
 
 			/**
 			 * Return the result of the query
-			 * @since 0.0.5
 			 */
 			return $result;
 
@@ -311,6 +355,7 @@ endif;
 
 /**
  * Function that instantiates the plugins main class
+ *
  * @since 0.0.1
  */
 function graphql_init() {
@@ -322,8 +367,9 @@ function graphql_init() {
 }
 
 /**
- * Instantiate the plugin, after themes have loaded so that
- * themes have a chance to filter things as well.
+ * Instantiate the plugin, after themes have loaded so that themes have a chance to filter things
+ * as well.
+ *
  * @since 0.0.2
  */
 add_action( 'after_setup_theme', 'graphql_init', 10 );

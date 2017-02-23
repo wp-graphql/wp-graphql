@@ -4,16 +4,35 @@ namespace WPGraphQL\Data\Resolvers;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 
+/**
+ * Class UsersConnectionResolver
+ *
+ * @package WPGraphQL\Data\Resolvers
+ * @since 0.5.0
+ */
 class UsersConnectionResolver {
 
+	/**
+	 * Creates the connections for users
+	 *
+	 * @param mixed       $source  The results of the query calling this relation
+	 * @param array       $args    The Query args
+	 * @param AppContext  $context The AppContext object
+	 * @param ResolveInfo $info    The ResolveInfo object
+	 *
+	 * @return array
+	 * @since  0.5.0
+	 * @throws \Exception
+	 * @access public
+	 */
 	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the subfields that were queried so we can make proper decisions
 		 */
 		$field_selection = $info->getFieldSelection( 5 );
-
 
 		/**
 		 * Get the cursor offset based on the Cursor passed to the after/before args
@@ -72,15 +91,17 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * Set count_total to false by default to make queries more efficient by not having to calculate
-		 * the entire set of data.
+		 * Set count_total to false by default to make queries more efficient by not having to
+		 * calculate the entire set of data.
+		 *
 		 * @since 0.0.5
 		 */
 		$query_args['count_total'] = false;
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so we need to run
-		 * the query with count_total set to true.
+		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so
+		 * we need to run the query with count_total set to true.
+		 *
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
@@ -88,8 +109,9 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * If the source of the Query is a Post object, adjust the query args
-		 * to only query the user connected to the post object
+		 * If the source of the Query is a Post object, adjust the query args to only query the
+		 * user connected to the post object
+		 *
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_Post ) {
@@ -97,8 +119,9 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * If the source of the Query is a Comment object, adjust the query args
-		 * to only query the user that is marked as the comment user ID
+		 * If the source of the Query is a Comment object, adjust the query args to only query the
+		 * user that is marked as the comment user ID
+		 *
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_Comment ) {
@@ -106,8 +129,9 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * Take any of the $args that were part of the GraphQL query and map their
-		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
+		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
+		 * the WP_Term_Query names to be used in the WP_Term_Query
+		 *
 		 * @since 0.0.5
 		 */
 		$entered_args = [];
@@ -116,8 +140,7 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * Merge the default $query_args with the $args that were entered
-		 * in the query.
+		 * Merge the default $query_args with the $args that were entered in the query.
 		 * @since 0.0.5
 		 */
 		$query_args = array_merge( $query_args, $entered_args );
@@ -139,8 +162,8 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to build the offsets
-		 * based on the details we received back from the query and query_args
+		 * If pagination info was selected and we know the entire length of the data set, we need to
+		 * build the offsets based on the details we received back from the query and query_args
 		 */
 		$edge_count          = ! empty( $users_query->total_users ) ? absint( $users_query->total_users ) : count( $user_results );
 		$meta['arrayLength'] = $edge_count;
@@ -167,8 +190,9 @@ class UsersConnectionResolver {
 		}
 
 		/**
-		 * Generate the array of posts with keys representing the position
-		 * of the post in the greater array of data
+		 * Generate the array of posts with keys representing the position of the post in the
+		 * greater array of data
+		 *
 		 * @since 0.0.5
 		 */
 		$users_array = [];
@@ -195,14 +219,21 @@ class UsersConnectionResolver {
 	}
 
 	/**
-	 * map_input_fields_to_wp_query
+	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_User_Query
+	 * friendly keys.
 	 *
-	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_User_Query friendly keys.
+	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
+	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
-	 * more dynamic ways to map this, but for now this gets the job done.
+	 * @param array       $args     The query "where" args
+	 * @param mixed       $source   The query results of the query calling this relation
+	 * @param array       $all_args Array of all the query args (not just the "where" args)
+	 * @param AppContext  $context  The AppContext object
+	 * @param ResolveInfo $info     The ResolveInfo object
 	 *
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @return array
+	 * @access private
 	 */
 	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
 
@@ -273,7 +304,15 @@ class UsersConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the get_terms query
 		 *
+		 * @param array       $query_args The mapped query args
+		 * @param array       $args       The query "where" args
+		 * @param mixed       $source     The query results of the query calling this relation
+		 * @param array       $all_args   Array of all the query args (not just the "where" args)
+		 * @param AppContext  $context    The AppContext object
+		 * @param ResolveInfo $info       The ResolveInfo object
+		 *
 		 * @since 0.0.5
+		 * @return array
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $source, $all_args, $context, $info );
 

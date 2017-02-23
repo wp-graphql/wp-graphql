@@ -4,46 +4,47 @@ namespace WPGraphQL\Data\Resolvers;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 
 /**
- * Class PostObjectsConnection
+ * Class PostObjectsConnection - connects posts to other types
+ *
  * @package WPGraphQL\Data\Resolvers
- * @since 0.0.5
+ * @since   0.0.5
  */
 class PostObjectsConnectionResolver {
 
 	/**
-	 * resolve
-	 * This handles resolving a query for post objects (of any specified $post_type) from the root_query or from any
-	 * connection where post_objects are queryable.
-	 * This resolver takes in the Relay standard args (before, after, first, last) and uses them to query from the
-	 * WP_Query and return results according to the Relay spec.
-	 * PAGINATION DETAILS:
-	 * For backward pagination, last and before should be used together.
+	 * This handles resolving a query for post objects (of any specified $post_type) from the
+	 * root_query or from any connection where post_objects are queryable. This resolver takes in
+	 * the Relay standard args (before, after, first, last) and uses them to query from the
+	 * WP_Query and return results according to the Relay spec. PAGINATION DETAILS: For backward
+	 * pagination, last and before should be used together.
 	 * - last should be a non-negative integer
-	 * - before should be a cursor which contains the offset of the position in the overall collection of data
-	 * For forward pagination, first and after should be used together.
+	 * - before should be a cursor which contains the offset of the position in the overall
+	 * collection of data For forward pagination, first and after should be used together.
 	 * - first should be a non-negative integer
-	 * - after should be a cursor which contains the offset of the position in the overall collection of data
-	 * PAGINATION ALGORITHM:
-	 * If $first is set:
+	 * - after should be a cursor which contains the offset of the position in the overall
+	 * collection of data PAGINATION ALGORITHM: If $first is set:
 	 * - if $first is less than 0, throw an error
-	 * - if $edges has length greater than first, slice the $edges to be the length of $first be removing $edges from
-	 * the end of $edges If $last is set:
+	 * - if $edges has length greater than first, slice the $edges to be the length of $first be
+	 * removing $edges from the end of $edges If $last is set:
 	 * - If $last is less than 0, throw an error
-	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by removing $edges from
-	 * the start of $edges ADDITIONAL ARGUMENTS: Additional arguments are mapped from the GraphQL friendly names to
-	 * WP_Query-friendly names and are applied to the WP_Query appropriately.
+	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by
+	 * removing $edges from the start of $edges ADDITIONAL ARGUMENTS: Additional arguments are
+	 * mapped from the GraphQL friendly names to WP_Query-friendly names and are applied to the
+	 * WP_Query appropriately.
 	 *
-	 * @param $post_type
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param string      $post_type The post type the post is in
+	 * @param mixed       $source    The query results from a parent query
+	 * @param array       $args      The query arguments
+	 * @param AppContext  $context   The AppContext object
+	 * @param ResolveInfo $info      The ResolveInfo object
 	 *
 	 * @return array
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve( $post_type, $source, array $args, $context, ResolveInfo $info ) {
 
@@ -119,15 +120,15 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * Set no_found_rows to true by default to make queries more efficient by not having to calculate
-		 * the entire set of data.
+		 * Set no_found_rows to true by default to make queries more efficient by not having to
+		 * calculate the entire set of data.
 		 * @since 0.0.5
 		 */
 		$query_args['no_found_rows'] = true;
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so we need to run
-		 * the query with no_found_rows set to false.
+		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details,
+		 * so we need to run the query with no_found_rows set to false.
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
@@ -135,8 +136,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * If the source of the Query is a PostType, adjust the query args
-		 * to only query posts connected to the PostType
+		 * If the source of the Query is a PostType, adjust the query args to only query posts
+		 * connected to the PostType
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_Post_Type ) {
@@ -144,8 +145,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * If the source of the Query is a Term object, adjust the query args
-		 * to only query posts connected to the term object
+		 * If the source of the Query is a Term object, adjust the query args to only query posts
+		 * connected to the term object
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_Term ) {
@@ -159,8 +160,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * If the source of the Query is a User object, adjust the query args
-		 * to only query posts connected to the User object
+		 * If the source of the Query is a User object, adjust the query args to only query posts
+		 * connected to the User object
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_User ) {
@@ -168,8 +169,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * Take any of the $args that were part of the GraphQL query and map their
-		 * GraphQL names to the WP_Query names to be used in the WP_Query
+		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
+		 * the WP_Query names to be used in the WP_Query
 		 */
 		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
@@ -177,8 +178,7 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * Merge the default $query_args with the $args that were entered
-		 * in the query.
+		 * Merge the default $query_args with the $args that were entered in the query.
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $input_fields ) ) {
@@ -206,8 +206,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to build the offsets
-		 * based on the details we received back from the query and query_args
+		 * If pagination info was selected and we know the entire length of the data set, we need to
+		 * build the offsets based on the details we received back from the query and query_args
 		 */
 		$edge_count = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
 		$meta['arrayLength'] = $edge_count;
@@ -234,8 +234,8 @@ class PostObjectsConnectionResolver {
 		}
 
 		/**
-		 * Generate the array of posts with keys representing the position
-		 * of the post in the greater array of data
+		 * Generate the array of posts with keys representing the position of the post in the
+		 * greater array of data
 		 * @since 0.0.5
 		 */
 		$posts_array = [];
@@ -263,11 +263,21 @@ class PostObjectsConnectionResolver {
 	}
 
 	/**
-	 * map_input_fields_to_wp_query
-	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_Query friendly keys.
-	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
-	 * more dynamic ways to map this, but for now this gets the job done.
-	 * @since 0.0.5
+	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_Query
+	 * friendly keys. There's probably a cleaner/more dynamic way to approach this, but
+	 * this was quick. I'd be down to explore more dynamic ways to map this, but for
+	 * now this gets the job done.
+	 *
+	 * @param array       $args      Query "where" args
+	 * @param string      $post_type The post type for the query
+	 * @param mixed       $source    The query results for a query calling this
+	 * @param array       $all_args  All of the arguments for the query (not just the "where" args)
+	 * @param AppContext  $context   The AppContext object
+	 * @param ResolveInfo $info      The ResolveInfo object
+	 *
+	 * @since  0.0.5
+	 * @access public
+	 * @return array
 	 */
 	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
 
@@ -407,7 +417,17 @@ class PostObjectsConnectionResolver {
 		 * Filter the input fields
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
+		 *
+		 * @param array       $query_args The mapped query arguments
+		 * @param array       $args       Query "where" args
+		 * @param string      $post_type  The post type for the query
+		 * @param mixed       $source     The query results for a query calling this
+		 * @param array       $all_args   All of the arguments for the query (not just the "where" args)
+		 * @param AppContext  $context    The AppContext object
+		 * @param ResolveInfo $info       The ResolveInfo object
+		 *
 		 * @since 0.0.5
+		 * @return array
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $post_type, $source, $all_args, $context, $info );
 

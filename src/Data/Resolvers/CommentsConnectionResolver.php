@@ -4,9 +4,28 @@ namespace WPGraphQL\Data\Resolvers;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 
+/**
+ * Class CommentsConnectionResolver - Connects the comments to other objects
+ *
+ * @package WPGraphQL\Data\Resolvers
+ */
 class CommentsConnectionResolver {
 
+	/**
+	 * Runs the query for comments
+	 *
+	 * @param mixed       $source  Data returned from the query
+	 * @param array       $args    Args for the query
+	 * @param AppContext  $context AppContext object for the query
+	 * @param ResolveInfo $info    ResolveInfo object
+	 *
+	 * @return array
+	 * @since  0.5.0
+	 * @throws \Exception
+	 * @access public
+	 */
 	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
 
 		/**
@@ -203,14 +222,22 @@ class CommentsConnectionResolver {
 	}
 
 	/**
-	 * map_input_fields_to_wp_query
+	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to
+	 * WP_Comment_Query friendly keys.
 	 *
-	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to WP_Comment_Query friendly keys.
+	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
+	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down to explore
-	 * more dynamic ways to map this, but for now this gets the job done.
+	 * @param array       $args     The array of query arguments
+	 * @param mixed       $source   The query results
+	 * @param array       $all_args Array of all of the original arguments (not just the "where"
+	 *                              args)
+	 * @param AppContext  $context  The AppContext object
+	 * @param ResolveInfo $info     The ResolveInfo object for the query
 	 *
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access private
+	 * @return array
 	 */
 	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
 
