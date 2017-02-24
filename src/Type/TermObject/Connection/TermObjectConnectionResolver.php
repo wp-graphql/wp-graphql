@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\TermObject\Connection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Types;
 
 /**
  * Class TermObjectConnectionResolver
@@ -258,90 +259,23 @@ class TermObjectConnectionResolver {
 	 */
 	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, $context, $info ) {
 
+		$arg_mapping = [
+			'objectIds'           => 'object_ids',
+			'hideEmpty'           => 'hide_empty',
+			'excludeTree'         => 'exclude_tree',
+			'termTaxonomId'       => 'term_taxonomy_id',
+			'nameLike'            => 'name__like',
+			'descriptionLike'     => 'description__like',
+			'padCounts'           => 'pad_counts',
+			'childOf'             => 'child_of',
+			'cacheDomain'         => 'cacheDomain',
+			'updateTermMetaCache' => 'update_term_meta_cache',
+		];
+
 		/**
-		 * Start a fresh array
+		 * Map and sanitize the input args to the WP_Term_Query compatible args
 		 */
-		$query_args = [];
-
-		if ( ! empty( $args['taxonomy'] ) ) {
-			$query_args['taxonomy'] = $args['taxonomy'];
-		}
-
-		if ( ! empty( $args['objectIds'] ) ) {
-			$query_args['object_ids'] = $args['objectIds'];
-		}
-
-		if ( ! empty( $args['orderby'] ) ) {
-			$query_args['orderby'] = $args['orderby'];
-		}
-
-		if ( ! empty( $args['hideEmpty'] ) ) {
-			$query_args['hide_empty'] = $args['hideEmpty'];
-		}
-
-		if ( ! empty( $args['include'] ) ) {
-			$query_args['include'] = $args['include'];
-		}
-
-		if ( ! empty( $args['exclude'] ) ) {
-			$query_args['exclude'] = $args['exclude'];
-		}
-
-		if ( ! empty( $args['excludeTree'] ) ) {
-			$query_args['exclude_tree'] = $args['excludeTree'];
-		}
-
-		if ( ! empty( $args['name'] ) ) {
-			$query_args['name'] = $args['name'];
-		}
-
-		if ( ! empty( $args['slug'] ) ) {
-			$query_args['slug'] = $args['slug'];
-		}
-
-		if ( ! empty( $args['termTaxonomId'] ) ) {
-			$query_args['term_taxonomy_id'] = $args['termTaxonomId'];
-		}
-
-		if ( ! empty( $args['hierarchical'] ) ) {
-			$query_args['hierarchical'] = $args['hierarchical'];
-		}
-
-		if ( ! empty( $args['search'] ) ) {
-			$query_args['search'] = $args['search'];
-		}
-
-		if ( ! empty( $args['nameLike'] ) ) {
-			$query_args['name__like'] = $args['nameLike'];
-		}
-
-		if ( ! empty( $args['descriptionLike'] ) ) {
-			$query_args['description__like'] = $args['descriptionLike'];
-		}
-
-		if ( ! empty( $args['padCounts'] ) ) {
-			$query_args['pad_counts'] = $args['padCounts'];
-		}
-
-		if ( ! empty( $args['childOf'] ) ) {
-			$query_args['child_of'] = $args['childOf'];
-		}
-
-		if ( ! empty( $args['parent'] ) ) {
-			$query_args['parent'] = $args['parent'];
-		}
-
-		if ( ! empty( $args['childless'] ) ) {
-			$query_args['childless'] = $args['childless'];
-		}
-
-		if ( ! empty( $args['cacheDomain'] ) ) {
-			$query_args['cache_domain'] = $args['cacheDomain'];
-		}
-
-		if ( ! empty( $args['updateTermMetaCache'] ) ) {
-			$query_args['update_term_meta_cache'] = $args['updateTermMetaCache'];
-		}
+		$query_args = Types::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

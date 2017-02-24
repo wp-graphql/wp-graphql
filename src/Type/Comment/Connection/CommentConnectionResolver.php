@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Types;
 
 /**
  * Class CommentConnectionResolver - Connects the comments to other objects
@@ -241,102 +242,33 @@ class CommentConnectionResolver {
 	 */
 	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
 
+		$arg_mapping = [
+			'authorEmail'        => 'author_email',
+			'authorUrl'          => 'author_url',
+			'authorIn'           => 'author__in',
+			'authorNotIn'        => 'author__not_in',
+			'commentIn'          => 'comment__in',
+			'commentNotIn'       => 'comment__not_in',
+			'includeUnapproved'  => 'includeUnapproved',
+			'parentIn'           => 'parent__in',
+			'parentNotIn'        => 'parent__not_in',
+			'contentAuthorIn'    => 'post_author__in',
+			'contentAuthorNotIn' => 'post_author__not_in',
+			'contentId'          => 'post_id',
+			'contentIdIn'        => 'post__in',
+			'contentIdNotIn'     => 'post__not_in',
+			'contentAuthor'      => 'post_author',
+			'contentStatus'      => 'post_status',
+			'contentType'        => 'post_type',
+			'contentName'        => 'post_name',
+			'contentParent'      => 'post_parent',
+			'userId'             => 'user_id',
+		];
+
 		/**
-		 * Start a fresh array
+		 * Map and sanitize the input args to the WP_Comment_Query compatible args
 		 */
-		$query_args = [];
-
-		if ( ! empty( $args['authorEmail'] ) ) {
-			$query_args['author_email'] = $args['authorEmail'];
-		}
-
-		if ( ! empty( $args['authorUrl'] ) ) {
-			$query_args['author_url'] = $args['authorUrl'];
-		}
-
-		if ( ! empty( $args['authorIn'] ) ) {
-			$query_args['author__in'] = $args['authorIn'];
-		}
-
-		if ( ! empty( $args['authorNotIn'] ) ) {
-			$query_args['author__not_in'] = $args['authorNotIn'];
-		}
-
-		if ( ! empty( $args['commentIn'] ) ) {
-			$query_args['comment__in'] = $args['commentIn'];
-		}
-
-		if ( ! empty( $args['commentNotIn'] ) ) {
-			$query_args['comment__not_in'] = $args['commentNotIn'];
-		}
-
-		if ( ! empty( $args['includeUnapproved'] ) ) {
-			$query_args['include_unapproved'] = $args['includeUnapproved'];
-		}
-
-		if ( ! empty( $args['karma'] ) ) {
-			$query_args['karma'] = $args['karma'];
-		}
-
-		if ( ! empty( $args['parent'] ) ) {
-			$query_args['parent'] = $args['parent'];
-		}
-
-		if ( ! empty( $args['parentIn'] ) ) {
-			$query_args['parent__in'] = $args['parentIn'];
-		}
-
-		if ( ! empty( $args['parentNotIn'] ) ) {
-			$query_args['parent__not_in'] = $args['parentNotIn'];
-		}
-
-		if ( ! empty( $args['contentAuthorIn'] ) ) {
-			$query_args['post_author__in'] = $args['contentAuthorIn'];
-		}
-
-		if ( ! empty( $args['contentAuthorNotIn'] ) ) {
-			$query_args['post_author__not_in'] = $args['contentAuthorNotIn'];
-		}
-
-		if ( ! empty( $args['contentId'] ) ) {
-			$query_args['post_id'] = $args['contentId'];
-		}
-
-		if ( ! empty( $args['contentIdIn'] ) ) {
-			$query_args['post__in'] = $args['contentIdIn'];
-		}
-
-		if ( ! empty( $args['contentIdNotIn'] ) ) {
-			$query_args['post__not_in'] = $args['contentIdNotIn'];
-		}
-
-		if ( ! empty( $args['contentAuthor'] ) ) {
-			$query_args['post_author'] = $args['contentAuthor'];
-		}
-
-		if ( ! empty( $args['contentStatus'] ) ) {
-			$query_args['post_status'] = $args['contentStatus'];
-		}
-
-		if ( ! empty( $args['contentType'] ) ) {
-			$query_args['post_type'] = $args['contentType'];
-		}
-
-		if ( ! empty( $args['contentName'] ) ) {
-			$query_args['post_name'] = $args['contentName'];
-		}
-
-		if ( ! empty( $args['contentParent'] ) ) {
-			$query_args['post_parent'] = $args['contentParent'];
-		}
-
-		if ( ! empty( $args['search'] ) ) {
-			$query_args['search'] = $args['search'];
-		}
-
-		if ( ! empty( $args['userId'] ) ) {
-			$query_args['user_id'] = $args['userId'];
-		}
+		$query_args = Types::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

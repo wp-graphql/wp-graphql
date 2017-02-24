@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Types;
 
 /**
  * Class PostObjectConnection - connects posts to other types
@@ -284,48 +285,37 @@ class PostObjectConnectionResolver {
 	 */
 	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
 
-		$arg_mapping = array(
-			'authorName' => 'author_name',
-			'authorIn' => 'author__in',
-			'authorNotIn' => 'author__not_in',
-			'categoryName' => 'category_name',
-			'categoryAnd' => 'category__and',
-			'categoryIn' => 'category__in',
+		$arg_mapping = [
+			'authorName'    => 'author_name',
+			'authorIn'      => 'author__in',
+			'authorNotIn'   => 'author__not_in',
+			'categoryName'  => 'category_name',
+			'categoryAnd'   => 'category__and',
+			'categoryIn'    => 'category__in',
 			'categoryNotIn' => 'category__not_in',
-			'tagId' => 'tag_id',
-			'tagIds' => 'tag__and',
-			'tagNotIn' => 'tag__not_in',
-			'tagSlugAnd' => 'tag_slug__and',
-			'tagSlugIn' => 'tag_slug__in',
-			'search' => 's',
-			'id' => 'p',
-			'parent' => 'post_parent',
-			'parentIn' => 'post_parent__in',
-			'parentNotIn' => 'post_parent__not_in',
-			'in' => 'post__in',
-			'notIn' => 'post__not_in',
-			'nameIn' => 'post_name__in',
-			'hasPassword' => 'has_password',
-			'password' => 'post_password',
-			'status' => 'post_status',
-			'dateQuery' => 'date_query',
-		);
+			'tagId'         => 'tag_id',
+			'tagIds'        => 'tag__and',
+			'tagNotIn'      => 'tag__not_in',
+			'tagSlugAnd'    => 'tag_slug__and',
+			'tagSlugIn'     => 'tag_slug__in',
+			'search'        => 's',
+			'id'            => 'p',
+			'parent'        => 'post_parent',
+			'parentIn'      => 'post_parent__in',
+			'parentNotIn'   => 'post_parent__not_in',
+			'in'            => 'post__in',
+			'notIn'         => 'post__not_in',
+			'nameIn'        => 'post_name__in',
+			'hasPassword'   => 'has_password',
+			'password'      => 'post_password',
+			'status'        => 'post_status',
+			'dateQuery'     => 'date_query',
+		];
 
 		/**
-		 * Start a fresh array
+		 * Map and sanitize the input args to the WP_Query compatible args
 		 */
-		$query_args = [];
-
-		/**
-		 * Map the input args to the WP_Query compatible args
-		 */
-		foreach ( $args as $arg => $value ) {
-			if ( array_key_exists( $arg, $arg_mapping ) ) {
-				$query_args[ $arg_mapping[ $arg ] ] = sanitize_text_field( $value );
-			} else {
-				$query_args[ $arg ] = sanitize_text_field( $value );
-			}
-		}
+		$query_args = Types::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields
