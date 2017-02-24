@@ -289,9 +289,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function do_graphql_request( $query, $variables = null ) {
 
+			/**
+			 * Get the Schema Dependencies
+			 * @since 0.0.5
+			 */
 			\WPGraphQL::show_in_graphql();
 			\WPGraphQL::get_allowed_post_types();
 			\WPGraphQL::get_allowed_taxonomies();
+
+			/**
+			 * Whether it's a GraphQL Request (http or internal)
+			 * @since 0.0.5
+			 */
+			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
+				define( 'GRAPHQL_REQUEST', true );
+			}
 
 			/**
 			 * Configure the app_context which gets passed down to all the resolvers.
@@ -367,9 +379,7 @@ function graphql_init() {
 }
 
 /**
- * Instantiate the plugin, after themes have loaded so that themes have a chance to filter things
- * as well.
- *
+ * Instantiate the plugin
  * @since 0.0.2
  */
 add_action( 'after_setup_theme', 'graphql_init', 10 );

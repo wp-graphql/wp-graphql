@@ -4,26 +4,24 @@ namespace WPGraphQL;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Type\AvatarType;
-use WPGraphQL\Type\CommentsConnectionQueryArgsType;
-use WPGraphQL\Type\DateQueryType;
+use WPGraphQL\Type\Avatar\AvatarType;
+use WPGraphQL\Type\Comment\CommentType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
-use WPGraphQL\Type\PostObjectQueryArgsType;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootQueryType;
-use WPGraphQL\Type\CommentType;
-use WPGraphQL\Type\PluginType;
-use WPGraphQL\Type\PostObjectType;
-use WPGraphQL\Type\PostTypeType;
-use WPGraphQL\Type\TaxonomyType;
-use WPGraphQL\Type\TermObjectQueryArgsType;
-use WPGraphQL\Type\TermObjectType;
-use WPGraphQL\Type\ThemeType;
-use WPGraphQL\Type\UserConnectionQueryArgsType;
-use WPGraphQL\Type\UserType;
+use WPGraphQL\Type\Plugin\PluginType;
+use WPGraphQL\Type\PostObject\PostObjectType;
+use WPGraphQL\Type\PostType\PostTypeType;
+use WPGraphQL\Type\Taxonomy\TaxonomyType;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
+use WPGraphQL\Type\TermObject\TermObjectType;
+use WPGraphQL\Type\Theme\ThemeType;
+use WPGraphQL\Type\User\Connection\UserConnectionArgs;
+use WPGraphQL\Type\User\UserType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -57,24 +55,6 @@ class Types {
 	private static $comment;
 
 	/**
-	 * Stores the comment connect query args object
-	 *
-	 * @var CommentsConnectionQueryArgsType object $comment_connection_query_args
-	 * @since  0.5.0
-	 * @access private
-	 */
-	private static $comment_connection_query_args;
-
-	/**
-	 * Stores the date query object
-	 *
-	 * @var DateQueryType obj $date_query
-	 * @since  0.5.0
-	 * @access private
-	 */
-	private static $date_query;
-
-	/**
 	 * Stores the mime type enum object
 	 *
 	 * @var MimeTypeEnumType object $mime_type_enum
@@ -104,7 +84,7 @@ class Types {
 	/**
 	 * Stores the post object type query args
 	 *
-	 * @var PostObjectQueryArgsType object $post_object_query_args
+	 * @var PostObjectConnectionArgs object $post_object_query_args
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -185,7 +165,7 @@ class Types {
 	/**
 	 * Stores the term object query args type
 	 *
-	 * @var TermObjectQueryArgsType object $term_object_query_args
+	 * @var TermObjectConnectionArgs object $term_object_query_args
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -212,7 +192,7 @@ class Types {
 	/**
 	 * Stores the user connection query args type object
 	 *
-	 * @var UserConnectionQueryArgsType object $user_connection_query_args
+	 * @var UserConnectionArgs object $user_connection_query_args
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -238,28 +218,6 @@ class Types {
 	 */
 	public static function comment() {
 		return self::$comment ? : ( self::$comment = new CommentType() );
-	}
-
-	/**
-	 * This returns the definition for the CommentsConnectionQueryArgsType
-	 *
-	 * @return CommentsConnectionQueryArgsType object
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function comment_connection_query_args() {
-		return self::$comment_connection_query_args ? : ( self::$comment_connection_query_args = new CommentsConnectionQueryArgsType() );
-	}
-
-	/**
-	 * This returns the definition for the dateQueryType
-	 *
-	 * @return dateQueryType object
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function date_query() {
-		return self::$date_query ? : ( self::$date_query = new DateQueryType() );
 	}
 
 	/**
@@ -329,14 +287,14 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the PostObjectQueryArgsType
+	 * This returns the definition for the PostObjectConnectionArgs
 	 *
-	 * @return PostObjectQueryArgsType object
+	 * @return PostObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function post_object_query_args() {
-		return self::$post_object_query_args ? : ( self::$post_object_query_args = new PostObjectQueryArgsType() );
+		return self::$post_object_query_args ? : ( self::$post_object_query_args = new PostObjectConnectionArgs() );
 	}
 
 	/**
@@ -417,14 +375,14 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the TermObjectQueryArgsType
+	 * This returns the definition for the TermObjectConnectionArgs
 	 *
-	 * @return TermObjectQueryArgsType object
+	 * @return TermObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function term_object_query_args() {
-		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectQueryArgsType() );
+		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectConnectionArgs() );
 	}
 
 	/**
@@ -450,14 +408,14 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the UserConnectionQueryArgsType
+	 * This returns the definition for the UserConnectionArgs
 	 *
-	 * @return UserConnectionQueryArgsType object
+	 * @return UserConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function user_connection_query_args() {
-		return self::$user_connection_query_args ? : ( self::$user_connection_query_args = new UserConnectionQueryArgsType() );
+		return self::$user_connection_query_args ? : ( self::$user_connection_query_args = new UserConnectionArgs() );
 	}
 
 	/**

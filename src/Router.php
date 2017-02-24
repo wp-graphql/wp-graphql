@@ -119,6 +119,14 @@ class Router {
 		$wp_query->is_home = false;
 
 		/**
+		 * Whether it's a GraphQL HTTP Request
+		 * @since 0.0.5
+		 */
+		if ( ! defined( 'GRAPHQL_HTTP_REQUEST' ) ) {
+			define( 'GRAPHQL_HTTP_REQUEST', true );
+		}
+
+		/**
 		 * Process the GraphQL query Request
 		 */
 		$this->process_http_request();

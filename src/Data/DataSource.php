@@ -3,14 +3,14 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\Resolvers\CommentsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PluginsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PostObjectsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PostTypesConnectionResolver;
-use WPGraphQL\Data\Resolvers\TermObjectsConnectionResolver;
-use WPGraphQL\Data\Resolvers\ThemesConnectionResolver;
-use WPGraphQL\Data\Resolvers\UsersConnectionResolver;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
+use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
+use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
+use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -69,7 +69,7 @@ class DataSource {
 	 * @since 0.0.5
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return CommentsConnectionResolver::resolve( $source, $args, $context, $info );
+		return CommentConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_plugins_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return PluginsConnectionResolver::resolve( $source, $args, $context, $info );
+		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -171,7 +171,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
-		return PostObjectsConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+		return PostObjectConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
 	}
 
 	/**
@@ -200,22 +200,6 @@ class DataSource {
 			throw new \Exception( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
 		}
 
-	}
-
-	/**
-	 * Wrapper for PostTypesConnectionResolver::resolve
-	 *
-	 * @param             $source
-	 * @param array       $args    Args to be passed to the resolve method
-	 * @param AppContext  $context AppContext object to be passed down
-	 * @param ResolveInfo $info    The ResolveInfo object
-	 *
-	 * @return array
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function resolve_post_types_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return PostTypesConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -269,7 +253,7 @@ class DataSource {
 	}
 
 	/**
-	 * Wrapper for TermObjectsConnectionResolver::resolve
+	 * Wrapper for TermObjectConnectionResolver::resolve
 	 *
 	 * @param \WP_Taxonomy $taxonomy The WP_Taxonomy object of the taxonomy the term is connected to
 	 * @param              $source
@@ -282,7 +266,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		return TermObjectsConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
+		return TermObjectConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
 	}
 
 	/**
@@ -317,7 +301,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return ThemesConnectionResolver::resolve( $source, $args, $context, $info );
+		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -352,7 +336,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return UsersConnectionResolver::resolve( $source, $args, $context, $info );
+		return UserConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
