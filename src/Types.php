@@ -499,4 +499,47 @@ class Types {
 		return new NonNull( $type );
 	}
 
+	/**
+	 * Maps new input query args and sanitizes the input
+	 *
+	 * @param array $args The raw query args from the GraphQL query
+	 * @param array $map  The mapping of where each of the args should go
+	 *
+	 * @since  0.5.0
+	 * @return array
+	 * @access public
+	 */
+	public static function map_input( $args, $map ) {
+
+		if ( ! is_array( $args ) || ! is_array( $map ) ) {
+			return array();
+		}
+
+		$query_args = [];
+
+		foreach ( $args as $arg => $value ) {
+
+			if ( is_array( $value ) && ! empty( $value ) ) {
+				$value = array_map( function( $value ) {
+					if ( is_string( $value ) ) {
+						$value = sanitize_text_field( $value );
+					}
+					return $value;
+				}, $value );
+			} elseif ( is_string( $value ) ) {
+				$value = sanitize_text_field( $value );
+			}
+
+			if ( array_key_exists( $arg, $map ) ) {
+				$query_args[ $map[ $arg ] ] = $value;
+			} else {
+				$query_args[ $arg ] = $value;
+			}
+
+		}
+
+		return $query_args;
+
+	}
+
 }

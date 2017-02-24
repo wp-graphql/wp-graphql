@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Types;
 
 /**
  * Class UserConnectionResolver
@@ -237,66 +238,21 @@ class UserConnectionResolver {
 	 */
 	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
 
+		$arg_mapping = [
+			'roleIn'            => 'role__in',
+			'roleNotIn'         => 'role__not_in',
+			'searchColumns'     => 'search_columns',
+			'hasPublishedPosts' => 'has_published_posts',
+			'nicenameIn'        => 'nicename__in',
+			'nicenameNotIn'     => 'nicename__not_in',
+			'loginIn'           => 'login__in',
+			'loginNotIn'        => 'login__not_in',
+		];
+
 		/**
-		 * Start a fresh array
+		 * Map and sanitize the input args to the WP_User_Query compatible args
 		 */
-		$query_args = [];
-
-		if ( ! empty( $args['role'] ) ) {
-			$query_args['role'] = $args['role'];
-		}
-
-		if ( ! empty( $args['roleIn'] ) ) {
-			$query_args['role__in'] = $args['roleIn'];
-		}
-
-		if ( ! empty( $args['roleNotIn'] ) ) {
-			$query_args['role__not_in'] = $args['roleNotIn'];
-		}
-
-		if ( ! empty( $args['include'] ) ) {
-			$query_args['include'] = $args['include'];
-		}
-
-		if ( ! empty( $args['exclude'] ) ) {
-			$query_args['exclude'] = $args['exclude'];
-		}
-
-		if ( ! empty( $args['search'] ) ) {
-			$query_args['search'] = $args['search'];
-		}
-
-		if ( ! empty( $args['searchColumns'] ) ) {
-			$query_args['search_columns'] = $args['searchColumns'];
-		}
-
-		if ( ! empty( $args['orderby'] ) ) {
-			$query_args['orderby'] = $args['orderby'];
-		}
-
-		if ( ! empty( $args['hasPublishedPosts'] ) ) {
-			$query_args['has_published_posts'] = $args['hasPublishedPosts'];
-		}
-
-		if ( ! empty( $args['nicenameIn'] ) ) {
-			$query_args['nicename__in'] = $args['nicenameIn'];
-		}
-
-		if ( ! empty( $args['nicenameNotIn'] ) ) {
-			$query_args['nicename__not_in'] = $args['nicenameNotIn'];
-		}
-
-		if ( ! empty( $args['login'] ) ) {
-			$query_args['login'] = $args['login'];
-		}
-
-		if ( ! empty( $args['loginIn'] ) ) {
-			$query_args['login__in'] = $args['loginIn'];
-		}
-
-		if ( ! empty( $args['loginNotIn'] ) ) {
-			$query_args['login__not_in'] = $args['loginNotIn'];
-		}
+		$query_args = Types::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

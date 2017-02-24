@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Types;
 
 /**
  * Class PostObjectConnection - connects posts to other types
@@ -284,137 +285,37 @@ class PostObjectConnectionResolver {
 	 */
 	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
 
-		/**
-		 * Start a fresh array
-		 */
-		$query_args = [];
+		$arg_mapping = [
+			'authorName'    => 'author_name',
+			'authorIn'      => 'author__in',
+			'authorNotIn'   => 'author__not_in',
+			'categoryName'  => 'category_name',
+			'categoryAnd'   => 'category__and',
+			'categoryIn'    => 'category__in',
+			'categoryNotIn' => 'category__not_in',
+			'tagId'         => 'tag_id',
+			'tagIds'        => 'tag__and',
+			'tagNotIn'      => 'tag__not_in',
+			'tagSlugAnd'    => 'tag_slug__and',
+			'tagSlugIn'     => 'tag_slug__in',
+			'search'        => 's',
+			'id'            => 'p',
+			'parent'        => 'post_parent',
+			'parentIn'      => 'post_parent__in',
+			'parentNotIn'   => 'post_parent__not_in',
+			'in'            => 'post__in',
+			'notIn'         => 'post__not_in',
+			'nameIn'        => 'post_name__in',
+			'hasPassword'   => 'has_password',
+			'password'      => 'post_password',
+			'status'        => 'post_status',
+			'dateQuery'     => 'date_query',
+		];
 
 		/**
-		 * Author $args
+		 * Map and sanitize the input args to the WP_Query compatible args
 		 */
-		if ( ! empty( $args['author'] ) ) {
-			$query_args['author'] = $args['author'];
-		}
-		if ( ! empty( $args['authorName'] ) ) {
-			$query_args['author_name'] = $args['authorName'];
-		}
-		if ( ! empty( $args['authorIn'] ) ) {
-			$query_args['author__in'] = $args['authorIn'];
-		}
-		if ( ! empty( $args['authorNotIn'] ) ) {
-			$query_args['author__not_in'] = $args['authorNotIn'];
-		}
-
-		/**
-		 * Category $args
-		 */
-		if ( ! empty( $args['cat'] ) ) {
-			$query_args['cat'] = $args['cat'];
-		}
-		if ( ! empty( $args['categoryName'] ) ) {
-			$query_args['category_name'] = $args['categoryName'];
-		}
-		if ( ! empty( $args['categoryAnd'] ) ) {
-			$query_args['category__and'] = $args['categoryAnd'];
-		}
-		if ( ! empty( $args['categoryIn'] ) ) {
-			$query_args['category__in'] = $args['categoryIn'];
-		}
-		if ( ! empty( $args['categoryNotIn'] ) ) {
-			$query_args['category__not_in'] = $args['categoryNotIn'];
-		}
-
-		/**
-		 * Tag $args
-		 */
-		if ( ! empty( $args['tag'] ) ) {
-			$query_args['tag'] = $args['tag'];
-		}
-		if ( ! empty( $args['tagId'] ) ) {
-			$query_args['tag_id'] = $args['tagId'];
-		}
-		if ( ! empty( $args['tagIds'] ) ) {
-			$query_args['tag__and'] = $args['tagIds'];
-		}
-		if ( ! empty( $args['tagNotIn'] ) ) {
-			$query_args['tag__not_in'] = $args['tagNotIn'];
-		}
-		if ( ! empty( $args['tagSlugAnd'] ) ) {
-			$query_args['tag_slug__and'] = $args['tagSlugAnd'];
-		}
-		if ( ! empty( $args['tagSlugIn'] ) ) {
-			$query_args['tag_slug__in'] = $args['tagSlugIn'];
-		}
-
-
-		/**
-		 * Search Parameter
-		 */
-		if ( ! empty( $args['search'] ) ) {
-			$query_args['s'] = $args['search'];
-		}
-
-		/**
-		 * Post & Page Parameters
-		 */
-		if ( ! empty( $args['id'] ) ) {
-			$query_args['p'] = absint( $args['id'] );
-		}
-		if ( ! empty( $args['name'] ) ) {
-			$query_args['name'] = $args['name'];
-		}
-		if ( ! empty( $args['title'] ) ) {
-			$query_args['title'] = $args['title'];
-		}
-		if ( ! empty( $args['parent'] ) ) {
-			$query_args['post_parent'] = $args['parent'];
-		}
-		if ( ! empty( $args['parentIn'] ) ) {
-			$query_args['post_parent__in'] = $args['parentIn'];
-		}
-		if ( ! empty( $args['parentNotIn'] ) ) {
-			$query_args['post_parent__not_in'] = $args['parentNotIn'];
-		}
-		if ( ! empty( $args['in'] ) ) {
-			$query_args['post__in'] = $args['in'];
-		}
-		if ( ! empty( $args['notIn'] ) ) {
-			$query_args['post__not_in'] = $args['notIn'];
-		}
-		if ( ! empty( $args['nameIn'] ) ) {
-			$query_args['post_name__in'] = $args['nameIn'];
-		}
-
-		/**
-		 * Password Parameters
-		 */
-		if ( ! empty( $args['hasPassword'] ) ) {
-			$query_args['has_password'] = $args['hasPassword'];
-		}
-		if ( ! empty( $args['password'] ) ) {
-			$query_args['post_password'] = $args['password'];
-		}
-
-		/**
-		 * Status Parameters
-		 */
-		if ( ! empty( $args['status'] ) ) {
-			$query_args['post_status'] = $args['status'];
-		}
-
-		/**
-		 * Order Parameters
-		 */
-		if ( ! empty( $args['orderby'] ) ) {
-			$query_args['orderby'] = $args['orderby'];
-		}
-
-		/**
-		 * DateQuery Parameters
-		 */
-		if ( ! empty( $args['dateQuery'] ) ) {
-			$query_args['date_query'] = $args['dateQuery'];
-		}
+		$query_args = Types::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

@@ -3,7 +3,7 @@
  * Plugin Name: WP GraphQL
  * Plugin URI: https://github.com/dfmedia/wp-graphql
  * Description: GraphQL API for WordPress
- * Author: Jason Bahl, Digital First Media
+ * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
  * Version: 0.0.5
  * Text Domain: wp-graphql
@@ -12,13 +12,37 @@
  * Tested up to: 4.7.1
  * @package WPGraphQL
  * @category Core
- * @author Digital First Media, Jason Bahl, Ryan Kanner
+ * @author WPGraphQL
  * @version 0.0.5
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+/**
+ * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
+ *
+ * This plugin is based on the hard work of Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign), and
+ * Jason Bahl and Ryan Kanner of Digital First Media (https://github.com/dfmedia).
+ *
+ * The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes
+ * use of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
+ *
+ * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development resources to push
+ * the project forward.
+ *
+ * Some of the concepts and code are based on the WordPress Rest API.
+ * Much love to the folks (https://github.com/orgs/WP-API/people) that put their blood, sweat and tears into the
+ * WP-API project, as it's been huge in moving WordPress forward as a platform and helped inspire and direct the
+ * development of WPGraphQL.
+ *
+ * Much love to Facebook® for open sourcing the GraphQL spec (https://facebook.github.io/graphql/) and maintaining the
+ * JS reference implementation (https://github.com/graphql/graphql-js)
+ *
+ * Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a
+ * lot of insight into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.com/
+ */
 
 if ( ! class_exists( 'WPGraphQL' ) ) :
 
@@ -345,6 +369,28 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			);
 
 			/**
+			 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
+			 * it's returned, allowing granular control over the response at the latest point.
+			 *
+			 * POSSIBLE USAGE EXAMPLES:
+			 * This could be used to ensure that certain fields never make it to the response if they match
+			 * certain criteria, etc. For example, this filter could be used to check if a current user is
+			 * allowed to see certain things, and if they are not, the $result could be filtered to remove
+			 * the data they should not be allowed to see.
+			 *
+			 * Or, perhaps some systems want the result to always include some additional piece of data in
+			 * every response, regardless of the request that was sent to it, this could allow for that
+			 * to be hooked in and included in the $result
+			 *
+			 * @since 0.0.5
+			 * @param array      $result    The result of your GraphQL query
+			 * @param            Schema     object $schema The schema object for the root query
+			 * @param string     $query     The query that GraphQL ran
+			 * @param array|null $variables Variables to passed to your GraphQL query
+			 */
+			$result = apply_filters( 'graphql_request_results', $result, $schema, $query, $variables );
+
+			/**
 			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 			 *
 			 * @since 0.0.4
@@ -363,7 +409,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 	}
 endif;
-
 
 /**
  * Function that instantiates the plugins main class
