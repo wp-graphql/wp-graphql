@@ -3,13 +3,14 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\Resolvers\CommentsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PluginsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PostObjectsConnectionResolver;
-use WPGraphQL\Data\Resolvers\PostTypesConnectionResolver;
-use WPGraphQL\Data\Resolvers\TermObjectsConnectionResolver;
-use WPGraphQL\Data\Resolvers\ThemesConnectionResolver;
-use WPGraphQL\Data\Resolvers\UsersConnectionResolver;
+
+use WPGraphQL\AppContext;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
+use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
+use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
+use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -22,57 +23,64 @@ use WPGraphQL\Types;
  * down the road to version resolvers if/when changes to the WordPress API are rolled out.
  *
  * @package WPGraphQL\Data
- * @since 0.0.4
+ * @since   0.0.4
  */
 class DataSource {
 
 	/**
-	 * @var $node_definition
-	 * @since 0.0.4
+	 * Stores an array of node definitions
+	 *
+	 * @var array $node_definition
+	 * @since  0.0.4
+	 * @access protected
 	 */
 	protected static $node_definition;
 
 	/**
-	 * resolve_comment
+	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
-	 * @param $id
+	 * @param int $id ID of the comment we want to get the object for
 	 *
-	 * @return mixed
+	 * @return \WP_Comment object
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_comment( $id ) {
+
 		$comment = \WP_Comment::get_instance( $id );
 		if ( empty( $comment ) ) {
 			throw new \Exception( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
 		}
 
 		return $comment;
+
 	}
 
 	/**
-	 * resolve_comments_connection
+	 * Wrapper for the CommentsConnectionResolver::resolve method
 	 *
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param             WP_Post  object $source
+	 * @param array       $args    Query args to pass to the connection resolver
+	 * @param AppContext  $context The context of the query to pass along
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
 	 * @since 0.0.5
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return CommentsConnectionResolver::resolve( $source, $args, $context, $info );
+		return CommentConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
-	 * resolve_plugin
+	 * Returns an array of data about the plugin you are requesting
 	 *
-	 * @param $name
+	 * @param string $name Name of the plugin you want info for
 	 *
-	 * @return null
+	 * @return null|array
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_plugin( $name ) {
 
@@ -112,62 +120,69 @@ class DataSource {
 	}
 
 	/**
-	 * resolve_plugins_connection
+	 * Wrapper for PluginsConnectionResolver::resolve
 	 *
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param \WP_Post    $source  WP_Post object
+	 * @param array       $args    Array of arguments to pass to reolve method
+	 * @param object      $context AppContext object passed down
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_plugins_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return PluginsConnectionResolver::resolve( $source, $args, $context, $info );
+		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
-	 * resolve_post_object
+	 * Returns the post object for the ID and post type passed
 	 *
-	 * @param int $id
-	 * @param string $post_type
+	 * @param int    $id        ID of the post you are trying to retrieve
+	 * @param string $post_type Post type the post is attached to
 	 *
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @return \WP_Post
+	 * @access public
 	 */
 	public static function resolve_post_object( $id, $post_type ) {
+
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
 			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
 		}
 
 		return $post_object;
+
 	}
 
 	/**
-	 * resolve_post_objects_connection
+	 * Wrapper for PostObjectsConnectionResolver::resolve
 	 *
-	 * @param $post_type
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param string      $post_type Post type of the post we are trying to resolve
+	 * @param             $source
+	 * @param array       $args      Arguments to pass to the resolve method
+	 * @param AppContext  $context   AppContext object to pass down
+	 * @param ResolveInfo $info      The ResolveInfo object
 	 *
 	 * @return array
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
-		return PostObjectsConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+		return PostObjectConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
 	}
 
 	/**
-	 * resolve_post_type
+	 * Gets the post type object from the post type name
 	 *
-	 * @param $post_type
+	 * @param string $post_type Name of the post type you want to retrieve the object for
 	 *
-	 * @return array
+	 * @return \WP_Post_Type object
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_post_type( $post_type ) {
 
@@ -188,28 +203,14 @@ class DataSource {
 	}
 
 	/**
-	 * resolve_post_types_connection
+	 * Retrieves the taxonomy object for the name of the taxonomy passed
 	 *
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function resolve_post_types_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return PostTypesConnectionResolver::resolve( $source, $args, $context, $info );
-	}
-
-	/**
-	 * resolve_taxonomy
-	 *
-	 * @param $taxonomy
-	 *
-	 * @return array
+	 * @return \WP_Taxonomy object
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_taxonomy( $taxonomy ) {
 
@@ -226,51 +227,57 @@ class DataSource {
 		} else {
 			throw new \Exception( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
+
 	}
 
 	/**
-	 * resolve_term_object
+	 * Get the term object for a term
 	 *
-	 * @param $id
-	 * @param $taxonomy
+	 * @param int    $id       ID of the term you are trying to retrieve the object for
+	 * @param string $taxonomy Name of the taxonomy the term is in
 	 *
 	 * @return mixed
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_term_object( $id, $taxonomy ) {
+
 		$term_object = \WP_Term::get_instance( $id, $taxonomy );
 		if ( empty( $term_object ) ) {
 			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $taxonomy ) );
 		}
 
 		return $term_object;
+
 	}
 
 	/**
-	 * resolve_term_objects_connection
+	 * Wrapper for TermObjectConnectionResolver::resolve
 	 *
-	 * @param $taxonomy
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param \WP_Taxonomy $taxonomy The WP_Taxonomy object of the taxonomy the term is connected to
+	 * @param              $source
+	 * @param array        $args     Array of args to be passed to the resolve method
+	 * @param AppContext   $context  The AppContext object to be passed down
+	 * @param ResolveInfo  $info     The ResolveInfo object
 	 *
 	 * @return array
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		return TermObjectsConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
+		return TermObjectConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
 	}
 
 	/**
-	 * resolve_theme
+	 * Retrieves the theme object for the theme you are looking for
 	 *
-	 * @param $stylesheet
+	 * @param string $stylesheet Directory name for the theme.
 	 *
-	 * @return mixed
+	 * @return \WP_Theme object
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
@@ -282,26 +289,30 @@ class DataSource {
 	}
 
 	/**
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * Wrapper for the ThemesConnectionResolver::resolve method
+	 *
+	 * @param             $source
+	 * @param array       $args    Passes an array of arguments to the resolve method
+	 * @param AppContext  $context The AppContext object to be passed down
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return ThemesConnectionResolver::resolve( $source, $args, $context, $info );
+		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
-	 * resolve_user
+	 * Gets the user object for the user ID specified
 	 *
-	 * @param $id
+	 * @param int $id ID of the user you want the object for
 	 *
 	 * @return bool|\WP_User
 	 * @throws \Exception
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_user( $id ) {
 		$user = new \WP_User( $id );
@@ -313,28 +324,30 @@ class DataSource {
 	}
 
 	/**
-	 * resolve_users_connection
+	 * Wrapper for the UsersConnectionResolver::resolve method
 	 *
-	 * @param $source
-	 * @param array $args
-	 * @param $context
-	 * @param ResolveInfo $info
+	 * @param             $source
+	 * @param array       $args    Array of args to be passed down to the resolve method
+	 * @param AppContext  $context The AppContext object to be passed down
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
-	 * @since 0.0.5
+	 * @since  0.0.5
+	 * @access public
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return UsersConnectionResolver::resolve( $source, $args, $context, $info );
+		return UserConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
 	 * We get the node interface and field from the relay library.
 	 *
-	 * The first method is the way we resolve an ID to its object. The second is the
-	 * way we resolve an object that implements node to its type.
+	 * The first method is the way we resolve an ID to its object. The second is the way we resolve
+	 * an object that implements node to its type.
 	 *
-	 * @return array|node_definition
+	 * @return array
 	 * @throws \Exception
+	 * @access public
 	 */
 	public static function get_node_definition() {
 

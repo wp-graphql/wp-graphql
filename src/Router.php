@@ -6,28 +6,33 @@ use GraphQL\Error\FormattedError;
 /**
  * Class Router
  * This sets up the /graphql endpoint
+ *
  * @package WPGraphQL
- * @since 0.0.1
+ * @since   0.0.1
  */
 class Router {
 
 	/**
-	 * route
 	 * Sets the route to use as the endpoint
-	 * @var string
+	 *
+	 * @var string $route
+	 * @access public
 	 */
 	public $route = 'graphql';
 
 	/**
 	 * Router constructor.
-	 * @since 0.0.1
+	 *
+	 * @since  0.0.1
 	 * @access public
 	 */
 	public function __construct() {
 
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
+		 *
 		 * @since 0.0.1
+		 * @return string
 		 */
 		$this->route = apply_filters( 'graphql_endpoint', 'graphql' );
 
@@ -53,8 +58,11 @@ class Router {
 
 	/**
 	 * Adds rewrite rule for the route endpoint
-	 * @since 0.0.1
+	 *
+	 * @uses   add_rewrite_rule()
+	 * @since  0.0.1
 	 * @access public
+	 * @return void
 	 */
 	public function add_rewrite_rule() {
 
@@ -68,10 +76,10 @@ class Router {
 
 	/**
 	 * Adds the query_var for the route
-	 * @since 0.0.1
 	 *
-	 * @param $query_vars
-	 *
+	 * @param array $query_vars The array of whitelisted query variables
+	 * @access public
+	 * @since  0.0.1
 	 * @return array
 	 */
 	public function add_query_var( $query_vars ) {
@@ -83,11 +91,13 @@ class Router {
 	}
 
 	/**
-	 * resolve_http_request
 	 * This resolves the http request and ensures that WordPress can respond with the appropriate
-	 * JSON response instead of responding with a template from the standard
-	 * WordPress Template Loading process
-	 * @since 0.0.1
+	 * JSON response instead of responding with a template from the standard WordPress Template
+	 * Loading process
+	 *
+	 * @since  0.0.1
+	 * @access public
+	 * @return void
 	 */
 	public function resolve_http_request() {
 
@@ -109,6 +119,14 @@ class Router {
 		$wp_query->is_home = false;
 
 		/**
+		 * Whether it's a GraphQL HTTP Request
+		 * @since 0.0.5
+		 */
+		if ( ! defined( 'GRAPHQL_HTTP_REQUEST' ) ) {
+			define( 'GRAPHQL_HTTP_REQUEST', true );
+		}
+
+		/**
 		 * Process the GraphQL query Request
 		 */
 		$this->process_http_request();
@@ -119,7 +137,11 @@ class Router {
 
 	/**
 	 * Set the response headers
-	 * @since 0.0.1
+	 *
+	 * @param int $http_status The status code to send as a header
+	 * @since  0.0.1
+	 * @access public
+	 * @return void
 	 */
 	public function set_headers( $http_status ) {
 
@@ -131,9 +153,10 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 * @todo: This needs to be re-worked to be a little more robust. Probably would be good to check out the REST API
-	 *     implementation on processing and responding to HTTP requests.
-	 * @since 0.0.1
+	 *
+	 * @todo   : This needs to be re-worked to be a little more robust. Probably would be good to
+	 *         check out the REST API implementation on processing and responding to HTTP requests.
+	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
 	 */

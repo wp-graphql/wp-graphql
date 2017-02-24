@@ -5,8 +5,18 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Connections;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Type\Comment\CommentQuery;
+use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
+use WPGraphQL\Type\Plugin\PluginQuery;
+use WPGraphQL\Type\PostObject\PostObjectQuery;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
+use WPGraphQL\Type\TermObject\TermObjectQuery;
+use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
+use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
+use WPGraphQL\Type\User\UserQuery;
 use WPGraphQL\Types;
 
 /**
@@ -49,15 +59,15 @@ class RootQueryType extends ObjectType {
 		 * Creates the comment root query field
 		 * @since 0.0.5
 		 */
-		$fields['comment'] = self::comment();
-		$fields['comments'] = Connections::comments_connection();
+		$fields['comment'] = CommentQuery::root_query();
+		$fields['comments'] = CommentConnectionDefinition::connection();
 
 		/**
 		 * Creates the plugin root query field
 		 * @since 0.0.5
 		 */
-		$fields['plugin'] = self::plugin();
-		$fields['plugins'] = Connections::plugins_connection();
+		$fields['plugin'] = PluginQuery::root_query();
+		$fields['plugins'] = PluginConnectionDefinition::connection();
 
 		/**
 		 * Creates the theme root query field
@@ -70,20 +80,20 @@ class RootQueryType extends ObjectType {
 		 * of themes
 		 * @since 0.0.5
 		 */
-		$fields['themes'] = Connections::themes_connection();
+		$fields['themes'] = ThemeConnectionDefinition::connection();
 
 		/**
 		 * Creates the user root query field
 		 * @since 0.0.5
 		 */
-		$fields['user'] = self::user();
+		$fields['user'] = UserQuery::root_query();
 
 		/**
 		 * Creates the users root query field to query a collection
 		 * of users
 		 * @since 0.0.5
 		 */
-		$fields['users'] = Connections::users_connection();
+		$fields['users'] = UserConnectionDefinition::connection();
 
 		/**
 		 * Creates the viewer root query field
@@ -107,27 +117,16 @@ class RootQueryType extends ObjectType {
 				$post_type_object = get_post_type_object( $post_type );
 
 				/**
-				 * Root field for single posts (of the specified post_type)
+				 * Root query for single posts (of the specified post_type)
 				 * @since 0.0.5
 				 */
-				$fields[ $post_type_object->graphql_single_name ] = [
-					'type' => Types::post_object( $post_type ),
-					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-					'args' => [
-						'id' => Types::non_null( Types::id() ),
-					],
-					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
-
-						return DataSource::resolve_post_object( $id_components['id'], $post_type );
-					},
-				];
+				$fields[ $post_type_object->graphql_single_name ] = PostObjectQuery::root_query( $post_type_object );
 
 				/**
-				 * Root field for collections of posts (of the specified post_type)
+				 * Root query for collections of posts (of the specified post_type)
 				 * @since 0.0.5
 				 */
-				$fields[ $post_type_object->graphql_plural_name ] = Connections::post_objects_connection( $post_type_object );
+				$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
 			}
 		}
 
@@ -148,27 +147,16 @@ class RootQueryType extends ObjectType {
 				$taxonomy_object = get_taxonomy( $taxonomy );
 
 				/**
-				 * Root field for single terms (of the specified taxonomy)
+				 * Root query for single terms (of the specified taxonomy)
 				 * @since 0.0.5
 				 */
-				$fields[ $taxonomy_object->graphql_single_name ] = [
-					'type' => Types::term_object( $taxonomy ),
-					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
-					'args' => [
-						'id' => Types::non_null( Types::id() ),
-					],
-					'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
-
-						return DataSource::resolve_term_object( $id_components['id'], $taxonomy );
-					},
-				];
+				$fields[ $taxonomy_object->graphql_single_name ] = TermObjectQuery::root_query( $taxonomy_object );
 
 				/**
-				 * Root field for collections of terms (of the specified taxonomy)
+				 * Root query for collections of terms (of the specified taxonomy)
 				 * @since 0.0.5
 				 */
-				$fields[ $taxonomy_object->graphql_plural_name ] = Connections::term_objects_connection( $taxonomy_object );
+				$fields[ $taxonomy_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $taxonomy_object );
 			}
 		}
 
@@ -213,48 +201,6 @@ class RootQueryType extends ObjectType {
 		 */
 		parent::__construct( $config );
 
-	}
-
-	/**
-	 * comment
-	 * This sets up the comment entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function comment() {
-		return [
-			'type' => Types::comment(),
-			'description' => __( 'Returns a Comment', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_comment( $id_components['id'] );
-			},
-		];
-	}
-
-	/**
-	 * plugin
-	 * This sets up the plugin entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function plugin() {
-		return [
-			'type' => Types::plugin(),
-			'description' => __( 'A WordPress plugin', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_plugin( $id_components['id'] );
-			},
-		];
 	}
 
 	/**
@@ -316,27 +262,6 @@ class RootQueryType extends ObjectType {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
 				return DataSource::resolve_taxonomy( $id_components['id'] );
-			},
-		];
-	}
-
-	/**
-	 * user
-	 * This sets up the user entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function user() {
-		return [
-			'type' => Types::user(),
-			'description' => __( 'Returns a user', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_user( $id_components['id'] );
 			},
 		];
 	}
