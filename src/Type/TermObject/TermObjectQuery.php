@@ -31,8 +31,12 @@ class TermObjectQuery {
 	public static function root_query( $taxonomy_object ) {
 
 		if ( null === self::$root_query ) {
+			self::$root_query = [];
+		}
 
-			self::$root_query = [
+		if ( null === self::$root_query[ $taxonomy_object->name ] ) {
+
+			self::$root_query[ $taxonomy_object->name ] = [
 				'type' => Types::term_object( $taxonomy_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
 				'args' => [
@@ -47,7 +51,7 @@ class TermObjectQuery {
 
 		}
 
-		return self::$root_query;
+		return ! empty( self::$root_query[ $taxonomy_object->name ] ) ? self::$root_query[ $taxonomy_object->name ] : null;
 	}
 
 }
