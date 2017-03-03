@@ -411,6 +411,10 @@ class DataSource {
 								/**
 								 * Add a filter to allow externally registered node types to resolve based on
 								 * the id_components
+								 *
+								 * @param int    $id    The id of the node, from the global ID
+								 * @param string $type  The type of node to resolve, from the global ID
+								 *
 								 * @since 0.0.6
 								 */
 								$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'] );
@@ -477,6 +481,10 @@ class DataSource {
 					/**
 					 * Add a filter to allow externally registered node types to return the proper type
 					 * based on the node_object that's returned
+					 *
+					 * @param mixed|object|array $type  The type definition the node should resolve to.
+					 * @param mixed|object|array $node  The $node that is being resolved
+					 *
 					 * @since 0.0.6
 					 */
 					$type = apply_filters( 'graphql_resolve_node_type', $type, $node );
