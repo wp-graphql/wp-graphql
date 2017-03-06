@@ -1,6 +1,8 @@
 .idea
 vendor/
-!vendor/webonyx
+!vendor/autoload.php
 !vendor/composer
-!vendor/psr
+!vendor/webonyx
+!vendor/ivome
+!tests
 build/
