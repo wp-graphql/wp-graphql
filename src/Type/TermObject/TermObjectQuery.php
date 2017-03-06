@@ -23,8 +23,7 @@ class TermObjectQuery {
 	/**
 	 * Method that returns the root query field definition for the post object type
 	 *
-	 * @param object $post_type_object
-	 *
+	 * @param object $taxonomy_object
 	 * @return array
 	 * @since 0.0.5
 	 */
@@ -34,7 +33,7 @@ class TermObjectQuery {
 			self::$root_query = [];
 		}
 
-		if ( null === self::$root_query[ $taxonomy_object->name ] ) {
+		if ( ! empty( $taxonomy_object->name ) && null === self::$root_query[ $taxonomy_object->name ] ) {
 
 			self::$root_query[ $taxonomy_object->name ] = [
 				'type' => Types::term_object( $taxonomy_object->name ),
@@ -49,9 +48,9 @@ class TermObjectQuery {
 				},
 			];
 
+			return self::$root_query[ $taxonomy_object->name ];
 		}
-
-		return ! empty( self::$root_query[ $taxonomy_object->name ] ) ? self::$root_query[ $taxonomy_object->name ] : null;
+		return self::$root_query;
 	}
 
 }

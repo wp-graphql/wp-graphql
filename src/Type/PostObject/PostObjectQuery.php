@@ -33,7 +33,7 @@ class PostObjectQuery {
 			self::$root_query = [];
 		}
 
-		if ( null === self::$root_query[ $post_type_object->name ] ) {
+		if ( ! empty( $post_type_object->name ) && null === self::$root_query[ $post_type_object->name ] ) {
 
 			self::$root_query[ $post_type_object->name ] = [
 				'type' => Types::post_object( $post_type_object->name ),
@@ -48,9 +48,9 @@ class PostObjectQuery {
 				},
 			];
 
+			return self::$root_query[ $post_type_object->name ];
 		}
-
-		return ! empty( self::$root_query[ $post_type_object->name ] ) ? self::$root_query[ $post_type_object->name ] : null;
+		return self::$root_query;
 	}
 
 }
