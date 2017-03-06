@@ -1,3 +1,6 @@
 .idea
-!vendor/
+vendor/
+!vendor/webonyx
+!vendor/composer
+!vendor/psr
 build/
