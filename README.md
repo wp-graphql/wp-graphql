@@ -1,4 +1,4 @@
-#WPGraphQL 
+# WPGraphQL
 
 <a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a> • <a href="https://slackin-wpgraphql.herokuapp.com/" target="_blank">Slack</a>
 
@@ -9,10 +9,10 @@ GraphQL API for WordPress.
 
 =============
 
-##Installing
+## Installing
 Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
 
-##Overview
+## Overview
 This plugin brings the power of GraphQL to WordPress.
 
 <a href="https://graphql.org" target="_blank">GraphQL</a> is a query language spec that was open sourced by Facebook® in 
@@ -50,13 +50,13 @@ my recommendation is the _GraphiQL_ desktop app below:
     
     <img src="https://github.com/wp-graphql/wp-graphql/blob/master/img/graphql-docs.gif?raw=true" alt="GraphiQL API Explorer">
 
-##Example Queries
+## Example Queries
 Here's some example queries to get you going with experimenting. You can simply copy and paste these into the GraphiQL 
 query inspector and you'll receive a response of data in the same shape as the request. There's also a video walkthrough 
 of GraphQL queries using WPGraphQL here: 
 <a href="https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/">https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/</a>
 
-####Get a list of posts:
+#### Get a List of Posts
 ```
 {
     posts{
@@ -73,7 +73,7 @@ of GraphQL queries using WPGraphQL here:
 }
 ```
 
-####Get a list of category terms:
+#### Get a List of Category Terms
 ```
 {
 	categories{
@@ -89,7 +89,7 @@ of GraphQL queries using WPGraphQL here:
 }
 ```
 
-####Get a lost of posts, with the categories it's attached to:
+#### Get a List of Posts, with the categories it's connected to
 
 ```
 {
@@ -117,7 +117,7 @@ of GraphQL queries using WPGraphQL here:
 
 ```
 
-##Unit Testing
+## Unit Testing
 To run unit tests during development, you'll first need a testing database that you'd like to use. 
 
 Open the command line and navigate to the plugin's directory. From within the plugin directory, run the following 
