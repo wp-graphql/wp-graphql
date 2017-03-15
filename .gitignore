@@ -1,3 +1,7 @@
 .idea
-!vendor/
+vendor/
+!vendor/autoload.php
+!vendor/composer/
+
+!/tests
 build/
