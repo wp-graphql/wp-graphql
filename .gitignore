@@ -1,7 +1,9 @@
 .idea
 vendor/
 !vendor/autoload.php
-!vendor/composer/
-
+!vendor/composer/*
+vendor/composer/installed.json
+!vendor/webonyx/graphql-php/src/*
+!vendor/ivome/graphql-relay-php/src/*
 !/tests
 build/
