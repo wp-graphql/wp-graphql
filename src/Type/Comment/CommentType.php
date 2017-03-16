@@ -74,7 +74,13 @@ class CommentType extends WPObjectType {
 							return ! empty( $comment->comment_ID ) ? $comment->comment_ID : 0;
 						},
 					],
-					//@todo: the related post_object needs to be a union as the parent of a comment can be any post_type
+					'commentedOn' => [
+						'type' => Types::post_object_union(),
+						'description' => __( 'The object the comment was added to', 'wp-graphql' ),
+						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
+							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
+						},
+					],
 					'author' => [
 						'type' => Types::user(),
 						'description' => esc_html__( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),

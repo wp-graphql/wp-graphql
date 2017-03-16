@@ -33,7 +33,7 @@ class TermObjectQuery {
 			self::$root_query = [];
 		}
 
-		if ( ! empty( $taxonomy_object->name ) && null === self::$root_query[ $taxonomy_object->name ] ) {
+		if ( ! empty( $taxonomy_object->name ) && empty( self::$root_query[ $taxonomy_object->name ] ) ) {
 
 			self::$root_query[ $taxonomy_object->name ] = [
 				'type' => Types::term_object( $taxonomy_object->name ),
