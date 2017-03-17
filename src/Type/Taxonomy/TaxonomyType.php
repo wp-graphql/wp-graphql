@@ -205,9 +205,10 @@ class TaxonomyType extends WPObjectType {
 					'description' => esc_html__( 'List of Post Types connected to the Taxonomy', 'wp-graphql' ),
 					'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_post_types ) {
 						$post_type_objects = [];
+						$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 						if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 							foreach ( $allowed_post_types as $post_type ) {
-								if ( in_array( $post_type, get_object_taxonomies( $post_type->name ), true ) ) {
+								if ( in_array( $post_type, $connected_post_types, true ) ) {
 									$post_type_object = get_post_type_object( $post_type );
 									$post_type_objects[ $post_type_object->graphql_single_name ] = $post_type_object;
 								}
