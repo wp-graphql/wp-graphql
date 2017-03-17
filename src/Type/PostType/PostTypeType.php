@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\PostType;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
@@ -73,7 +74,7 @@ class PostTypeType extends WPObjectType {
 			self::$fields = [
 				'id' => [
 					'type' => Types::non_null( Types::id() ),
-					'resolve' => function( $post_type, $args, $context, ResolveInfo $info ) {
+					'resolve' => function( $post_type, $args, AppContext $context, ResolveInfo $info ) {
 						return ( ! empty( $post_type->name ) && ! empty( $post_type->name ) ) ? Relay::toGlobalId( 'post_type', $post_type->name ) : null;
 					},
 				],
@@ -101,7 +102,7 @@ class PostTypeType extends WPObjectType {
 				'excludeFromSearch' => [
 					'type' => Types::boolean(),
 					'description' => esc_html__( 'Whether to exclude posts with this post type from front end search results.', 'wp-graphql' ),
-					'resolve' => function( \WP_Post_Type $post_type, $args, $context, ResolveInfo $info ) {
+					'resolve' => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
 						return ! empty( $post_type->exclude_from_search ) ? $post_type->exclude_from_search : false;
 					},
 				],
@@ -237,7 +238,7 @@ class PostTypeType extends WPObjectType {
 				'connectedTaxonomies' => [
 					'type' => Types::list_of( Types::taxonomy() ),
 					'description' => esc_html__( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
-					'resolve' => function( \WP_Post_Type $post_type_object, array $args, $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+					'resolve' => function( \WP_Post_Type $post_type_object, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 						$tax_objects = [];
 						if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 							foreach ( $allowed_taxonomies as $taxonomy ) {
