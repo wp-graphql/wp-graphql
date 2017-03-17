@@ -20,6 +20,7 @@ use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
+use WPGraphQL\Type\Union\PostObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
 
@@ -89,6 +90,15 @@ class Types {
 	 * @access private
 	 */
 	private static $post_object_query_args;
+
+	/**
+	 * Stores the post object union type config
+	 *
+	 * @var PostObjectUnionType object $post_object_union
+	 * @since 0.0.6
+	 * @access private
+	 */
+	private static $post_object_union;
 
 	/**
 	 * Stores the post status enum type object
@@ -262,6 +272,17 @@ class Types {
 
 		return ! empty( self::$post_object[ $post_type ] ) ? self::$post_object[ $post_type ] : null;
 
+	}
+
+	/**
+	 * This returns the definition for the PostObjectUnionType
+	 *
+	 * @return PostObjectUnionType object
+	 * @since 0.0.5
+	 * @access public
+	 */
+	public static function post_object_union() {
+		return self::$post_object_union ? : ( self::$post_object_union = new PostObjectUnionType() );
 	}
 
 	/**
