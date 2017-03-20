@@ -37,7 +37,7 @@ class CommentType extends WPObjectType {
 		$config = [
 			'name' => self::$type_name,
 			'description' => __( 'A Comment object', 'wp-graphql' ),
-			'fields' => self::fields( self::$type_name ),
+			'fields' => self::fields(),
 			'interfaces' => [ self::node_interface() ],
 		];
 
@@ -46,18 +46,16 @@ class CommentType extends WPObjectType {
 	}
 
 	/**
-	 * fields
-	 *
 	 * This defines the fields that make up the CommentType
 	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	private static function fields( $name ) {
+	private static function fields() {
 
 		if ( null === self::$fields ) {
 
-			self::$fields = function() use ( $name ) {
+			self::$fields = function() {
 
 				$fields = [
 					'id' => [
@@ -84,7 +82,7 @@ class CommentType extends WPObjectType {
 							return ! empty( $author ) ? $author : null;
 						},
 					],
-					'author_ip' => [
+					'authorIp' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
@@ -98,7 +96,7 @@ class CommentType extends WPObjectType {
 							return ! empty( $comment->date ) ? $comment->date : '';
 						},
 					],
-					'date_gmt' => [
+					'dateGmt' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the `date_gmt` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
