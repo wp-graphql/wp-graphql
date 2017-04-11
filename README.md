@@ -7,7 +7,7 @@ GraphQL API for WordPress.
 [![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql) [![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg?branch=master)](https://coveralls.io/github/wp-graphql/wp-graphql?branch=master)
 [![WPGraphQL on Slack](https://slackin-wpgraphql.herokuapp.com/badge.svg)](https://slackin-wpgraphql.herokuapp.com/)
 
-=============
+------
 
 ## Installing
 Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
@@ -89,7 +89,8 @@ of GraphQL queries using WPGraphQL here:
 }
 ```
 
-#### Get a lost of posts, with the categories it's attached to:
+#### Get a list of posts, with the categories it's attached to:
+
 
 ```
 {

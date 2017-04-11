@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Type\Avatar;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -59,59 +61,72 @@ class AvatarType extends WPObjectType {
 
 		if ( null === self::$fields ) {
 
-			self::$fields = [
-				'size' => [
-					'type' => Types::int(),
-					'description' => esc_html__( 'The size of the avatar in pixels. A value of 96 will match a 96px x 96px gravatar image.', 'wp-graphql' ),
-				],
-				'height' => [
-					'type' => Types::int(),
-					'description' => esc_html__( 'Height of the avatar image.', 'wp-graphql' ),
-				],
-				'width' => [
-					'type' => Types::int(),
-					'description' => esc_html__( 'Width of the avatar image.', 'wp-graphql' ),
-				],
-				'default' => [
-					'type' => Types::string(),
-					'description' => esc_html__( "URL for the default image or a default type. Accepts '404' (return a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster), 'wavatar' (cartoon face), 'indenticon' (the 'quilt'), 'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or 'gravatar_default' (the Gravatar logo).", 'wp-graphql' ),
-				],
-				'force_default' => [
-					'type' => Types::boolean(),
-					'description' => esc_html__( 'Whether to always show the default image, never the 
-						Gravatar.', 'wp-graphql' ),
-				],
-				'rating' => [
-					'type' => Types::string(),
-					'description' => esc_html__( "What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are judged in that order.", 'wp-graphql' ),
-				],
-				'scheme' => [
-					'type' => Types::string(),
-					'description' => esc_html__( 'Type of url scheme to use. Typically HTTP vs. 
-						HTTPS.', 'wp-graphql' ),
-				],
-				'extra_attr' => [
-					'type' => Types::string(),
-					'description' => esc_html__( 'HTML attributes to insert in the IMG element. Is not 
-						sanitized.', 'wp-graphql' ),
-				],
-				'found_avatar' => [
-					'type' => Types::boolean(),
-					'description' => esc_html__( 'Whether the avatar was successfully found.', 'wp-graphql' ),
-				],
-				'url' => [
-					'type' => Types::string(),
-					'description' => esc_html__( 'URL for the gravatar image source.', 'wp-graphql' ),
-				],
-			];
+			self::$fields = function() {
+				$fields = [
+					'size'          => [
+						'type'        => Types::int(),
+						'description' => esc_html__( 'The size of the avatar in pixels. A value of 96 will match a 96px x 96px gravatar image.', 'wp-graphql' ),
+					],
+					'height'        => [
+						'type'        => Types::int(),
+						'description' => esc_html__( 'Height of the avatar image.', 'wp-graphql' ),
+					],
+					'width'         => [
+						'type'        => Types::int(),
+						'description' => esc_html__( 'Width of the avatar image.', 'wp-graphql' ),
+					],
+					'default'       => [
+						'type'        => Types::string(),
+						'description' => esc_html__( "URL for the default image or a default type. Accepts '404' (return a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster), 'wavatar' (cartoon face), 'indenticon' (the 'quilt'), 'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or 'gravatar_default' (the Gravatar logo).", 'wp-graphql' ),
+					],
+					'forceDefault' => [
+						'type'        => Types::boolean(),
+						'description' => esc_html__( 'Whether to always show the default image, never the Gravatar.', 'wp-graphql' ),
+						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $avatar->force_default ) ? $avatar->force_default : null;
+						},
+					],
+					'rating'        => [
+						'type'        => Types::string(),
+						'description' => esc_html__( "What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are judged in that order.", 'wp-graphql' ),
+					],
+					'scheme'        => [
+						'type'        => Types::string(),
+						'description' => esc_html__( 'Type of url scheme to use. Typically HTTP vs. 
+							HTTPS.', 'wp-graphql' ),
+					],
+					'extraAttr'    => [
+						'type'        => Types::string(),
+						'description' => esc_html__( 'HTML attributes to insert in the IMG element. Is not sanitized.', 'wp-graphql' ),
+						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $avatar->extra_attr ) ? $avatar->extra_attr : null;
+						},
+					],
+					'foundAvatar'  => [
+						'type'        => Types::boolean(),
+						'description' => esc_html__( 'Whether the avatar was successfully found.', 'wp-graphql' ),
+						function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $avatar->found_avatar ) ? $avatar->found_avatar : null;
+						},
+					],
+					'url'           => [
+						'type'        => Types::string(),
+						'description' => esc_html__( 'URL for the gravatar image source.', 'wp-graphql' ),
+					],
+				];
+
+				/**
+				 * This prepares the fields by sorting them and applying a filter for adjusting the schema.
+				 * Because these fields are implemented via a closure the prepare_fields needs to be applied
+				 * to the fields directly instead of being applied to all objects extending
+				 * the WPObjectType class.
+				 */
+				return self::prepare_fields( $fields, self::$type_name );
+
+			};
 		}
 
-		/**
-		 * Pass the fields through a filter to allow for hooking in and adjusting the shape
-		 * of the type's schema
-		 * @since 0.0.5
-		 */
-		return self::prepare_fields( self::$fields, self::$type_name );
+		return self::$fields;
 
 	}
 }
