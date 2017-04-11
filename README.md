@@ -91,6 +91,7 @@ of GraphQL queries using WPGraphQL here:
 
 #### Get a list of posts, with the categories it's attached to:
 
+
 ```
 {
   posts {
