@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\TermObject\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -53,7 +54,7 @@ class TermObjectConnectionDefinition {
 						'taxonomyInfo' => [
 							'type' => Types::taxonomy(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-							'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+							'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 								return $taxonomy_object;
 							},
 						],
@@ -80,7 +81,7 @@ class TermObjectConnectionDefinition {
 				'type' => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
 				'args' => array_merge( Relay::connectionArgs(), $args ),
-				'resolve' => function( $source, $args, $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 					return DataSource::resolve_term_objects_connection( $taxonomy_object->name, $source, $args, $context, $info );
 				},
 			];

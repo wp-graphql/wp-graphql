@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\Comment\Connection;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -55,7 +56,7 @@ class CommentConnectionDefinition {
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
 				'args' => array_merge( Relay::connectionArgs(), $args ),
-				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
+				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
 				},
 			];

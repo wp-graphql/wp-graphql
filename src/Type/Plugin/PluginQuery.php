@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\Plugin;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -36,7 +37,7 @@ class PluginQuery {
 				'args' => [
 					'id' => Types::non_null( Types::id() ),
 				],
-				'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
+				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 
 					return DataSource::resolve_plugin( $id_components['id'] );

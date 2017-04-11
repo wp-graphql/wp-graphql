@@ -59,7 +59,7 @@ class PostObjectConnectionDefinition {
 						'postTypeInfo' => [
 							'type'        => Types::post_type(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-							'resolve'     => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
+							'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 								return $post_type_object;
 							},
 						],

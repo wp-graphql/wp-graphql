@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\Theme;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -66,7 +67,7 @@ class ThemeType extends WPObjectType {
 				$fields = [
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$stylesheet = $theme->get_stylesheet();
 
 							return ( ! empty( $info->parentType ) && ! empty( $stylesheet ) ) ? Relay::toGlobalId( $info->parentType, $stylesheet ) : null;
@@ -75,7 +76,7 @@ class ThemeType extends WPObjectType {
 					'slug' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet().', 'wp-graphql' ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$stylesheet = $theme->get_stylesheet();
 
 							return ! empty( $stylesheet ) ? $stylesheet : null;
@@ -84,7 +85,7 @@ class ThemeType extends WPObjectType {
 					'name' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'Display name of the theme. This field is equivalent to WP_Theme->get( "Name" ).', 'wp-graphql' ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$name = $theme->get( 'Name' );
 
 							return ! empty( $name ) ? $name : null;
@@ -93,7 +94,7 @@ class ThemeType extends WPObjectType {
 					'screenshot' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot().', 'wp-graphql' ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$screenshot = $theme->get_screenshot();
 
 							return ! empty( $screenshot ) ? $screenshot : null;
@@ -102,7 +103,7 @@ class ThemeType extends WPObjectType {
 					'themeUri' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( "ThemeURI" ).', 'wp-graphql' ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$theme_uri = $theme->get('ThemeURI');
 
 							return ! empty( $theme_uri ) ? $theme_uri : null;
@@ -119,7 +120,7 @@ class ThemeType extends WPObjectType {
 					'authorUri' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "AuthorURI" ).', 'wp-graphql' ),
-						'resolve' => function( \WP_Theme $theme, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$author_uri = $theme->get('AuthorURI');
 
 							return ! empty( $author_uri ) ? $author_uri : null;

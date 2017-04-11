@@ -49,7 +49,7 @@ class TermObjectConnectionResolver {
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve( $taxonomy, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the sub fields that were queried so we can make proper decisions
@@ -257,7 +257,7 @@ class TermObjectConnectionResolver {
 	 * @return array
 	 * @access public
 	 */
-	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, $context, $info ) {
+	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, AppContext $context, ResolveInfo $info ) {
 
 		$arg_mapping = [
 			'objectIds'           => 'object_ids',
