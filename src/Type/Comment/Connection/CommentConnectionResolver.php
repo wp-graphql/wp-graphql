@@ -2,9 +2,8 @@
 namespace WPGraphQL\Type\Comment\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Connection\ArrayConnection;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -12,214 +11,103 @@ use WPGraphQL\Types;
  *
  * @package WPGraphQL\Data\Resolvers
  */
-class CommentConnectionResolver {
+class CommentConnectionResolver extends ConnectionResolver {
+
+	public static function get_query( $query_args ) {
+		$query = new \WP_Comment_Query( $query_args );
+
+		return $query;
+	}
 
 	/**
-	 * Runs the query for comments
+	 * This prepares the $query_args for use in the connection query. This is where default $args are set, where dynamic
+	 * $args from the $source get set, and where mapping the input $args to the actual $query_args occurs.
 	 *
-	 * @param mixed       $source  Data returned from the query
-	 * @param array       $args    Args for the query
-	 * @param AppContext  $context AppContext object for the query
-	 * @param ResolveInfo $info    ResolveInfo object
+	 * @param             $source
+	 * @param array       $args
+	 * @param AppContext  $context
+	 * @param ResolveInfo $info
 	 *
-	 * @return array
-	 * @since  0.5.0
-	 * @throws \Exception
-	 * @access public
+	 * @return mixed
 	 */
-	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Get the subfields that were queried so we can make proper decisions
-		 */
-		$field_selection = $info->getFieldSelection( 5 );
-
-		/**
-		 * Get the cursor offset based on the Cursor passed to the after/before args
-		 * @since 0.0.5
-		 */
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : 0;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : 0;
-
-		/**
-		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
-		 * @since 0.0.5
-		 */
-		$first = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last  = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
-
-
-		/**
-		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
-		 * results.
-		 *
-		 * @since 0.0.5
-		 */
-		if ( ( ! empty( $args['first'] ) && ! empty( $args['before'] ) ) || ( ! empty( $args['last'] ) && ! empty( $args['after'] ) ) ) {
-			throw new \Exception( __( 'Please provide only (first & after) OR (last & before). This can otherwise lead to confusing behavior', 'wp-graphql' ) );
-		}
-		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
-			throw new \Exception( __( '"Before" and "After" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-		if ( ! empty( $args['first'] ) && ! empty( $args['last'] ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * Determine the number, order and offset to query based on the $first/$last/$before/$after args
-		 * @since 0.0.5
-		 */
-		$query_args['number'] = 10;
-		$query_args['offset'] = 0;
-
-		if ( ! empty( $first ) ) {
-			$query_args['order']  = 'DESC';
-			$query_args['number'] = absint( $first );
-			if ( ! empty( $before ) ) {
-				$query_args['offset'] = 0;
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = absint( $after + 1 );
-			}
-		} elseif ( ! empty( $last ) ) {
-			$query_args['order']  = 'ASC';
-			$query_args['number'] = absint( $last );
-			if ( ! empty( $before ) ) {
-				$query_args['order']  = 'DESC';
-				$query_args['offset'] = ( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = 0;
-			}
-		}
-
-		/**
-		 * Set no_found_rows to true by default to make queries more efficient by not having to calculate
-		 * the entire set of data.
-		 * @since 0.0.5
+		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['no_found_rows'] = true;
+		$query_args['offset']        = self::get_offset( $args );
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so we need to run
-		 * the query with no_found_rows set to false.
-		 * @since 0.0.5
+		 * If pagination info is requested as part of the query, we need to run the query with no_found_rows
+		 * set to false, so that we can get the amount of posts matching the query to accurately return
+		 * pagination info
 		 */
-		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
+		$field_selection = $info->getFieldSelection( 3 );
+		if ( ! empty( $field_selection['pageInfo'] ) || ! empty( $field_selection['edges']['cursor'] ) ) {
 			$query_args['no_found_rows'] = false;
 		}
 
 		/**
-		 * If the query source is a WP_Post object,
-		 * adjust the query args to only query for comments connected
-		 * to that post_object
-		 *
-		 * @since 0.0.5
+		 * Handle setting dynamic $query_args based on the source (higher level query)
 		 */
-		if ( $source instanceof \WP_Post && absint( $source->ID ) ) {
-			$query_args['post_id'] = absint( $source->ID );
+		if ( true === is_object( $source ) ) {
+			switch ( true ) {
+				case $source instanceof \WP_Post:
+					$query_args['post_id'] = absint( $source->ID );
+					break;
+				case $source instanceof \WP_User:
+					$query_args['user_id'] = absint( $source->ID );
+					break;
+				case $source instanceof \WP_Comment:
+					$query_args['parent'] = absint( $source->comment_ID );
+					break;
+				default:
+					break;
+			}
 		}
 
 		/**
-		 * If the query source is a WP_User object,
-		 * adjust the query args to only query for the comments connected
-		 * to that user
-		 */
-		if ( $source instanceof \WP_User && absint( $source->ID ) ) {
-			$query_args['user_id'] = $source->ID;
-		}
-
-		/**
-		 * If the query source is a WP_Comment object,
-		 * adjust the query args to only query for comments that have
-		 * the source ID as their parent
+		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
-		 * @since 0.0.5
+		 * @since 0.0.6
 		 */
-		if ( $source instanceof \WP_Comment && absint( $source->comment_ID ) ) {
-			$query_args['parent'] = absint( $source->comment_ID );
-		}
+		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info );
 
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
+		 *
 		 * @since 0.0.5
 		 */
-		$entered_args = [];
+		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
-			$entered_args = self::map_input_fields_to_get_terms( $args['where'], $source, $args, $context, $info );
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
 		}
 
 		/**
 		 * Merge the default $query_args with the $args that were entered
 		 * in the query.
+		 *
 		 * @since 0.0.5
 		 */
-		$query_args = array_merge( $query_args, $entered_args );
-
-		$comments_query   = new \WP_Comment_Query( $query_args );
-		$comments_results = $comments_query->comments;
+		$query_args = array_merge( $query_args, $input_fields );
 
 		/**
-		 * Throw an exception if no results were found.
-		 * @since 0.0.5
+		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
+		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 *
+		 * @param array       $query_args array of query_args being passed to the
+		 * @param mixed       $source     source passed down from the resolve tree
+		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+		 * @param AppContext  $context    object passed down zthe resolve tree
+		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 *
+		 * @since 0.0.6
 		 */
-		if ( empty( $comments_results ) ) {
-			throw new \Exception( __( 'No results were found for the query. Try broadening the arguments.', 'wp-graphql' ) );
-		}
+		$query_args = apply_filters( 'graphql_comment_connection_query_args', $query_args, $source, $args, $context, $info );
 
-		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to build the offsets
-		 * based on the details we received back from the query and query_args
-		 */
-		$edge_count          = ! empty( $comments_query->found_comments ) ? absint( $comments_query->found_comments ) : count( $comments_results );
-		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart']  = 0;
-
-		/**
-		 * Build the pagination details based on the arguments passed.
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $last ) ) {
-			$meta['sliceStart'] = ( $edge_count - $last );
-			$comments_results   = array_reverse( $comments_results );
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after );
-			}
-		} elseif ( ! empty( $first ) ) {
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( 0 );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after + 1 );
-			}
-		}
-
-		/**
-		 * Generate the array of posts with keys representing the position
-		 * of the post in the greater array of data
-		 * @since 0.0.5
-		 */
-		$comments_array = [];
-		if ( is_array( $comments_results ) && ! empty( $comments_results ) ) {
-			$index = ( 0 <= $meta['sliceStart'] ) ? $meta['sliceStart'] : 0;
-			foreach ( $comments_results as $post ) {
-				$comments_array[ $index ] = $post;
-				$index ++;
-			}
-		}
-
-		/**
-		 * Generate the Relay fields (pageInfo, Edges, Cursor, etc)
-		 * @since 0.0.5
-		 */
-		$comments = Relay::connectionFromArraySlice( $comments_array, $args, $meta );
-
-		/**
-		 * Return the connection
-		 * @since 0.0.5
-		 */
-		return $comments;
-
+		return $query_args;
 	}
 
 	/**
@@ -240,28 +128,28 @@ class CommentConnectionResolver {
 	 * @access private
 	 * @return array
 	 */
-	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
+	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
 
 		$arg_mapping = [
 			'authorEmail'        => 'author_email',
-			'authorUrl'          => 'author_url',
 			'authorIn'           => 'author__in',
 			'authorNotIn'        => 'author__not_in',
+			'authorUrl'          => 'author_url',
 			'commentIn'          => 'comment__in',
 			'commentNotIn'       => 'comment__not_in',
-			'includeUnapproved'  => 'includeUnapproved',
-			'parentIn'           => 'parent__in',
-			'parentNotIn'        => 'parent__not_in',
+			'contentAuthor'      => 'post_author',
 			'contentAuthorIn'    => 'post_author__in',
 			'contentAuthorNotIn' => 'post_author__not_in',
 			'contentId'          => 'post_id',
 			'contentIdIn'        => 'post__in',
 			'contentIdNotIn'     => 'post__not_in',
-			'contentAuthor'      => 'post_author',
-			'contentStatus'      => 'post_status',
-			'contentType'        => 'post_type',
 			'contentName'        => 'post_name',
 			'contentParent'      => 'post_parent',
+			'contentStatus'      => 'post_status',
+			'contentType'        => 'post_type',
+			'includeUnapproved'  => 'includeUnapproved',
+			'parentIn'           => 'parent__in',
+			'parentNotIn'        => 'parent__not_in',
 			'userId'             => 'user_id',
 		];
 

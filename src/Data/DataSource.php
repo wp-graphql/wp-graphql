@@ -58,18 +58,19 @@ class DataSource {
 	}
 
 	/**
-	 * Wrapper for the CommentsConnectionResolver::resolve method
+	 * Wrapper for the CommentsConnectionResolver class
 	 *
 	 * @param             WP_Post  object $source
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
-	 * @return array
+	 * @return mixed
 	 * @since 0.0.5
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return CommentConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new CommentConnectionResolver();
+		return $resolver->resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -124,14 +125,14 @@ class DataSource {
 	 *
 	 * @param \WP_Post    $source  WP_Post object
 	 * @param array       $args    Array of arguments to pass to reolve method
-	 * @param object      $context AppContext object passed down
+	 * @param AppContext      $context AppContext object passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_plugins_connection( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
@@ -158,7 +159,7 @@ class DataSource {
 	}
 
 	/**
-	 * Wrapper for PostObjectsConnectionResolver::resolve
+	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param string      $post_type Post type of the post we are trying to resolve
 	 * @param             $source
@@ -166,12 +167,13 @@ class DataSource {
 	 * @param AppContext  $context   AppContext object to pass down
 	 * @param ResolveInfo $info      The ResolveInfo object
 	 *
-	 * @return array
+	 * @return mixed
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
-		return PostObjectConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
+		$resolver = new PostObjectConnectionResolver( $post_type );
+		return $resolver->resolve( $source, $args, $context, $info );
 	}
 
 	/**

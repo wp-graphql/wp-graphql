@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\TermObject;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
@@ -164,7 +165,7 @@ class TermObjectType extends WPObjectType {
 					'taxonomyName' => [
 						'type' => Types::string(),
 						'description' => __( 'The name of the taxonomy this term belongs to', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $term, array $args, $context, ResolveInfo $info ) {
+						'resolve' => function( \WP_Term $term, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $term->taxonomy ) ? $term->taxonomy : null;
 						},
 					],

@@ -101,14 +101,14 @@ class CommentType extends WPObjectType {
 						'type' => Types::string(),
 						'description' => esc_html__( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the `date` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->date ) ? $comment->date : '';
+							return ! empty( $comment->comment_date ) ? $comment->comment_date : '';
 						},
 					],
 					'date_gmt' => [
 						'type' => Types::string(),
 						'description' => esc_html__( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the `date_gmt` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, $context, ResolveInfo $info ) {
-							return ! empty( $comment->date_gmt ) ? $comment->date_gmt : '';
+							return ! empty( $comment->comment_date_gmt ) ? $comment->comment_date_gmt : '';
 						},
 					],
 					'content' => [

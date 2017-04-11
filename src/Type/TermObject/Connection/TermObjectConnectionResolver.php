@@ -150,13 +150,13 @@ class TermObjectConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
-		$term_query = get_terms( $query_args );
+		$term_query = new \WP_Term_Query( $query_args );
 
 		/**
 		 * Grab the terms from the results of the query
 		 * @since 0.0.5
 		 */
-		$term_results = $term_query;
+		$term_results = $term_query->get_terms();
 
 		/**
 		 * Throw an exception if no results were found.

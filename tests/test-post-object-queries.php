@@ -8,6 +8,11 @@
  */
 class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
+	public $current_time;
+	public $current_date;
+	public $current_date_gmt;
+	public $admin;
+
 	/**
 	 * This function is run before each method
 	 * @since 0.0.5

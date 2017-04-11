@@ -11,12 +11,13 @@ use WPGraphQL\Data\DataSource;
  * and consistent filters.
  *
  * @package WPGraphQL\Type
- * @since 0.0.5
+ * @since   0.0.5
  */
 class WPObjectType extends ObjectType {
 
 	/**
 	 * Holds the $prepared_fields definition for the PostObjectType
+	 *
 	 * @var $fields
 	 */
 	private static $prepared_fields;
@@ -33,6 +34,7 @@ class WPObjectType extends ObjectType {
 
 	/**
 	 * WPObjectType constructor.
+	 *
 	 * @since 0.0.5
 	 */
 	public function __construct( $config ) {
@@ -51,7 +53,7 @@ class WPObjectType extends ObjectType {
 	public static function node_interface() {
 
 		if ( null === self::$node_interface ) {
-			$node_interface = DataSource::get_node_definition();
+			$node_interface       = DataSource::get_node_definition();
 			self::$node_interface = $node_interface['nodeInterface'];
 		}
 
@@ -65,8 +67,9 @@ class WPObjectType extends ObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array $fields
+	 * @param array  $fields
 	 * @param string $type_name
+	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
