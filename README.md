@@ -9,6 +9,9 @@ GraphQL API for WordPress.
 
 ------
 
+## POSSIBLE BREAKING CHANGES
+Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
+
 ## Installing
 Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
 
