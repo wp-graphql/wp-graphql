@@ -323,6 +323,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 
 			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 *
+			 * @param string $request        The GraphQL request to be run
+			 * @param string $operation_name The name of the operation
+			 * @param string $variables      Variables to be passed to your GraphQL request
+			 */
+			do_action( 'do_graphql_request', $request, $operation_name, $variables );
+
+			/**
 			 * Get the Schema Dependencies
 			 *
 			 * @since 0.0.5
@@ -365,12 +374,24 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$variables = ( array ) json_decode( $variables );
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
+			$executable_schema = [
+				'query' => \WPGraphQL\Types::root_query(),
+				'mutation' => \WPGraphQL\Types::root_mutation(),
+			];
+
+			/**
+			 * Filter the executable schema
+			 *
+			 * @param array $executable_schema The schema that should be executed against
+			 * @param mixed string|array $query The query, or AST that is being executed
+			 * @param array $variables The variables
+			 */
+			$executable_schema = apply_filters( 'graphql_executable_schema', $executable_schema, $query, $variables, $app_context );
+
 			/**
 			 * Generate the Schema
 			 */
-			$schema = new \GraphQL\Schema( [
-				'query' => \WPGraphQL\Types::root_query(),
-			] );
+			$schema = new \GraphQL\Schema( $executable_schema );
 
 			/**
 			 * Executes the request and captures the result
