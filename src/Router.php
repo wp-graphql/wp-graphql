@@ -18,7 +18,7 @@ class Router {
 	 * @var string $route
 	 * @access public
 	 */
-	public $route = 'graphql';
+	public static $route = 'graphql';
 
 	/**
 	 * Router constructor.
@@ -34,7 +34,7 @@ class Router {
 		 * @since 0.0.1
 		 * @return string
 		 */
-		$this->route = apply_filters( 'graphql_endpoint', 'graphql' );
+		self::$route = apply_filters( 'graphql_endpoint', 'graphql' );
 
 		/**
 		 * Create the rewrite rule for the route
@@ -67,8 +67,8 @@ class Router {
 	public function add_rewrite_rule() {
 
 		add_rewrite_rule(
-			$this->route . '/?$',
-			'index.php?' . $this->route . '=true',
+			self::$route . '/?$',
+			'index.php?' . self::$route . '=true',
 			'top'
 		);
 
@@ -84,7 +84,7 @@ class Router {
 	 */
 	public function add_query_var( $query_vars ) {
 
-		$query_vars[] = $this->route;
+		$query_vars[] = self::$route;
 
 		return $query_vars;
 
@@ -109,7 +109,7 @@ class Router {
 		/**
 		 * Ensure we're on the registered route for graphql route
 		 */
-		if ( ! $wp_query->get( $this->route ) ) {
+		if ( ! $wp_query->get( self::$route ) ) {
 			return;
 		}
 

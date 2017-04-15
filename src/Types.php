@@ -12,6 +12,7 @@ use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
+use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
 use WPGraphQL\Type\Plugin\PluginType;
 use WPGraphQL\Type\PostObject\PostObjectType;
@@ -135,6 +136,15 @@ class Types {
 	 * @access private
 	 */
 	private static $relation_enum;
+
+	/**
+	 * Stores the root mutation type object
+	 *
+	 * @var RootMutationType object $root_mutation
+	 * @since 0.0.6
+	 * @access private
+	 */
+	private static $root_mutation;
 
 	/**
 	 * Stores the root query type object
@@ -339,6 +349,18 @@ class Types {
 	public static function relation_enum() {
 		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnumType() );
 	}
+
+	/**
+	 * This returns the definition for the RootMutationType
+	 *
+	 * @return RootMutationType object
+	 * @since  0.0.8
+	 * @access public
+	 */
+	public static function root_mutation() {
+		return self::$root_mutation ? : ( self::$root_mutation = new RootMutationType() );
+	}
+
 
 	/**
 	 * This returns the definition for the RootQueryType
