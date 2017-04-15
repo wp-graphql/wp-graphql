@@ -383,10 +383,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Filter the executable schema
 			 *
 			 * @param array $executable_schema The schema that should be executed against
-			 * @param mixed string|array $query The query, or AST that is being executed
+			 * @param mixed string|array $request The graphql request, or AST that is being executed
 			 * @param array $variables The variables
 			 */
-			$executable_schema = apply_filters( 'graphql_executable_schema', $executable_schema, $query, $variables, $app_context );
+			$executable_schema = apply_filters( 'graphql_executable_schema', $executable_schema, $request, $variables, $app_context );
 
 			/**
 			 * Generate the Schema

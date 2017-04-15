@@ -25,7 +25,7 @@ function graphql_format_field_name( $field_name ) {
 /**
  * Provides a simple way to run a GraphQL query with out posting a request to the endpoint.
  *
- * @param string $query          The GraphQL query to run
+ * @param string $request          The GraphQL query to run
  * @param string $operation_name The name of the operation
  * @param string $variables      Variables to be passed to your GraphQL request
  *
@@ -33,6 +33,6 @@ function graphql_format_field_name( $field_name ) {
  * @return array
  * @since  0.0.2
  */
-function do_graphql_request( $query, $operation_name = '', $variables = '' ) {
-	return \WPGraphQL::do_graphql_request( $query, $operation_name, $variables );
+function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
+	return \WPGraphQL::do_graphql_request( $request, $operation_name, $variables );
 }
