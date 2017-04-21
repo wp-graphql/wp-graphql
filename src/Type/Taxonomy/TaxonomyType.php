@@ -74,7 +74,7 @@ class TaxonomyType extends WPObjectType {
 				$fields = [
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
-						'resolve' => function( $taxonomy, $args, $context, ResolveInfo $info ) {
+						'resolve' => function( $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( $info->parentType, $taxonomy->name ) : null;
 						},
 					],

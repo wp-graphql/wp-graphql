@@ -73,10 +73,6 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 								'value' => 'term_id',
 							],
 							[
-								'name' => 'ID',
-								'value' => 'id',
-							],
-							[
 								'name' => 'DESCRIPTION',
 								'value' => 'description',
 							],

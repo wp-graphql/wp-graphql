@@ -25,7 +25,7 @@ class PluginConnectionResolver {
 	 * @return array
 	 * @access public
 	 */
-	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		// File has not loaded.
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';

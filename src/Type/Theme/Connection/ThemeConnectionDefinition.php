@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\Theme\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -50,7 +51,7 @@ class ThemeConnectionDefinition {
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of theme objects', 'wp-graphql' ),
 				'args' => Relay::connectionArgs(),
-				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
+				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_themes_connection( $source, $args, $context, $info );
 				},
 			];

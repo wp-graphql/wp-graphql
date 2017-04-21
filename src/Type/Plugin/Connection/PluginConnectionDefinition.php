@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\Plugin\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -46,7 +47,7 @@ class PluginConnectionDefinition {
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of plugins', 'wp-graphql' ),
 				'args' => Relay::connectionArgs(),
-				'resolve' => function( $source, $args, $context, ResolveInfo $info ) {
+				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_plugins_connection( $source, $args, $context, $info );
 				},
 			];
