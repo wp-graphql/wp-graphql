@@ -283,7 +283,7 @@ class Router {
 			}
 
 			$request        = isset( $data['query'] ) ? $data['query'] : null;
-			$operation_name = isset( $data['operation'] ) ? $data['operation'] : null;
+			$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : null;
 			$variables      = isset( $data['variables'] ) ? $data['variables'] : null;
 
 			/**

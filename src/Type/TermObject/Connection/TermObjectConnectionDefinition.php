@@ -81,8 +81,8 @@ class TermObjectConnectionDefinition {
 				'type' => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
 				'args' => array_merge( Relay::connectionArgs(), $args ),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
-					return DataSource::resolve_term_objects_connection( $taxonomy_object->name, $source, $args, $context, $info );
+				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+					return DataSource::resolve_term_objects_connection( $source, $args, $context, $info, $taxonomy_object->name );
 				},
 			];
 		}

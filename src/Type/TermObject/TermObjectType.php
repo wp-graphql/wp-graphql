@@ -162,11 +162,12 @@ class TermObjectType extends WPObjectType {
 							return ! empty( $term->term_taxonomy_id ) ? absint( $term->term_taxonomy_id ) : null;
 						},
 					],
-					'taxonomyName' => [
-						'type' => Types::string(),
+					'taxonomy' => [
+						'type' => Types::taxonomy(),
 						'description' => __( 'The name of the taxonomy this term belongs to', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $term, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $term->taxonomy ) ? $term->taxonomy : null;
+							$taxonomy = get_taxonomy( $term->taxonomy );
+							return ! empty( $term->taxonomy ) && false !== $taxonomy ? $taxonomy : null;
 						},
 					],
 					'link' => [

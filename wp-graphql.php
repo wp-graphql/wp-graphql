@@ -323,6 +323,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 
 			/**
+			 * Whether it's a GraphQL Request (http or internal)
+			 *
+			 * @since 0.0.5
+			 */
+			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
+				define( 'GRAPHQL_REQUEST', true );
+			}
+
+			/**
 			 * Run an action as soon when do_graphql_request begins.
 			 *
 			 * @param string $request        The GraphQL request to be run
@@ -339,15 +348,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			\WPGraphQL::show_in_graphql();
 			\WPGraphQL::get_allowed_post_types();
 			\WPGraphQL::get_allowed_taxonomies();
-
-			/**
-			 * Whether it's a GraphQL Request (http or internal)
-			 *
-			 * @since 0.0.5
-			 */
-			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
-				define( 'GRAPHQL_REQUEST', true );
-			}
 
 			/**
 			 * Configure the app_context which gets passed down to all the resolvers.
@@ -427,7 +427,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param string     $request        The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL request
 			 */
-			$result = apply_filters( 'graphql_request_results', $result, $schema, $request, $operation_name, $variables );
+			$result = apply_filters( 'graphql_request_results', $result, $schema, $operation_name, $request, $variables );
 
 			/**
 			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
@@ -436,11 +436,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @param array      $result         The result of your GraphQL request
 			 * @param            Schema          object $schema The schema object for the root request
-			 * @param string     $request        The request that GraphQL executed
 			 * @param string     $operation_name The name of the operation
+			 * @param string $request The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL query
 			 */
-			do_action( 'graphql_execute', $result, $schema, $request, $operation_name, $variables );
+			do_action( 'graphql_execute', $result, $schema, $operation_name, $request, $variables );
 
 			/**
 			 * Return the result of the request

@@ -29,11 +29,54 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	 */
 	public static function resolve( $source, $args, AppContext $context, ResolveInfo $info ) {
 
-		$query_args          = static::get_query_args( $source, $args, $context, $info );
-		$query               = static::get_query( $query_args );
-		$array_slice         = self::get_array_slice( $query, $args );
-		$meta                = self::get_array_meta( $query, $args );
-		$connection          = ArrayConnection::connectionFromArray( $array_slice, $args, $meta );
+		$query_args  = static::get_query_args( $source, $args, $context, $info );
+		$query       = static::get_query( $query_args );
+		$array_slice = self::get_array_slice( $query, $args );
+		$connection  = static::get_connection( $array_slice, $args, $query );
+
+		/**
+		 * Filter the connection, and provide heaps of info to make it easy to filter very specific cases
+		 *
+		 * @param array $connection  The connection to return
+		 * @param array $array_slice The Array to create the connection from
+		 * @param mixed $query       The query that was run to retrieve the items
+		 * @param array $query_args  The args that were used by the query
+		 * @param mixed $source      The source being passed down the GraphQL tree
+		 * @param array $args        The args that were input for the specific GraphQL query
+		 * @param       AppContext   object $context The AppContext that gets passed down the GraphQL tree
+		 * @param       ResolveInfo  object $info The ResolveInfo object that gets passed down the GraphQL tree
+		 *
+		 */
+		$connection = apply_filters(
+			'graphql_connection_resolver_resolve',
+			$connection,
+			$array_slice,
+			$query,
+			$query_args,
+			$source,
+			$args,
+			$context,
+			$info
+		);
+
+		return $connection;
+
+	}
+
+	/**
+	 * Take an array return a connection
+	 *
+	 * @param array $array
+	 * @param array $args
+	 * @param       $query
+	 *
+	 * @return array
+	 */
+	public static function get_connection( array $array, array $args, $query ) {
+
+		$meta       = self::get_array_meta( $query, $args );
+		$connection = ArrayConnection::connectionFromArray( $array, $args, $meta );
+
 		return $connection;
 
 	}
@@ -54,7 +97,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$possible_orders = [ 'ASC', 'DESC' ];
 		$query_order     = ( ! empty( $query_args['order'] && in_array( $query_args['order'], $possible_orders, true ) ) ) ? $query_args['order'] : 'DESC';
 		if ( ! empty( $args['last'] ) && empty( $args['before'] && empty( $args['after'] ) ) ) {
-			if ( 'ASC' === $query_order  ) {
+			if ( 'ASC' === $query_order ) {
 				$query_order = 'DESC';
 			} elseif ( 'DESC' === $query_order ) {
 				$query_order = 'ASC';
@@ -78,7 +121,25 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$items       = $info['items'];
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
-				$array_slice[ $item->ID ] = $item;
+
+				if ( true === is_object( $item ) ) {
+					switch ( true ) {
+						case $item instanceof \WP_Comment:
+							$array_slice[ $item->comment_ID ] = $item;
+							break;
+						case $item instanceof \WP_Term:
+							$array_slice[ $item->term_id ] = $item;
+							break;
+						case $item instanceof \WP_Post:
+							$array_slice[ $item->ID ] = $item;
+							break;
+							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
+						case $item instanceof \WP_User:
+							$array_slice[] = $item;
+						default:
+							$array_slice[] = $item;
+					}
+				}
 			}
 		}
 
@@ -212,7 +273,6 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 			$offset = ArrayConnection::cursorToOffset( $args['after'] );
 		} elseif ( ! empty( $args['before'] ) ) {
 			$offset = ArrayConnection::cursorToOffset( $args['before'] );
-			$offset = intval( $offset ) - intval( self::get_amount_requested( $args ) );
 		}
 
 		/**
@@ -243,17 +303,17 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		if ( true === is_object( $query ) ) {
 			switch ( true ) {
 				case $query instanceof \WP_Query:
-					$query_info['total_items'] = $query->found_posts;
+					$query_info['total_items'] = ! empty( $query->found_posts ) ? $query->found_posts : count( $query->posts );
 					$query_info['items']       = $query->posts;
 					$query_info['request']     = $query->request;
 					break;
 				case $query instanceof \WP_Comment_Query:
 					$query_info['total_items'] = $query->found_comments;
-					$query_info['items']       = $query->comments;
+					$query_info['items']       = $query->get_comments();
 					break;
 				case $query instanceof \WP_Term_Query:
-					$query_info['total_items'] = ! empty( $query->query_vars ) ? wp_count_terms( $query->query_vars ) : 0;
-					$query_info['items']       = $query->terms;
+					$query_info['total_items'] = ! empty( $query->query_vars['taxonomy'] ) ? wp_count_terms( $query->query_vars['taxonomy'][0], $query->query_vars ) : 0;
+					$query_info['items']       = $query->get_terms();
 					break;
 				case $query instanceof \WP_User_Query:
 					$query_info['total_items'] = ! empty( $query->get_total() ) ? $query->get_total() : count( $query->get_results() );

@@ -23,18 +23,20 @@ use WPGraphQL\Types;
  * altogether instead of utilizing the PostObjectType.
  *
  * @package WPGraphQL\Type
- * @since 0.0.5
+ * @since   0.0.5
  */
 class PostObjectType extends WPObjectType {
 
 	/**
 	 * Holds the $fields definition for the PostObjectType
+	 *
 	 * @var $fields
 	 */
 	private static $fields;
 
 	/**
 	 * Holds the post_type_object
+	 *
 	 * @var object $post_type_object
 	 */
 	private static $post_type_object;
@@ -43,6 +45,7 @@ class PostObjectType extends WPObjectType {
 	 * PostObjectType constructor.
 	 *
 	 * @param array $post_type
+	 *
 	 * @since 0.0.5
 	 */
 	public function __construct( $post_type ) {
@@ -50,15 +53,16 @@ class PostObjectType extends WPObjectType {
 		/**
 		 * Get the post_type_object from the post_type and store it
 		 * for later use
+		 *
 		 * @since 0.0.5
 		 */
 		self::$post_type_object = get_post_type_object( $post_type );
 
 		$config = [
-			'name' => self::$post_type_object->graphql_single_name,
+			'name'        => self::$post_type_object->graphql_single_name,
 			'description' => sprintf( __( 'The %s object type', 'wp-graphql' ), self::$post_type_object->graphql_single_name ),
-			'fields' => self::fields( self::$post_type_object ),
-			'interfaces' => [ self::node_interface() ],
+			'fields'      => self::fields( self::$post_type_object ),
+			'interfaces'  => [ self::node_interface() ],
 		];
 		parent::__construct( $config );
 	}
@@ -68,6 +72,7 @@ class PostObjectType extends WPObjectType {
 	 * This defines the fields for PostObjectTypes
 	 *
 	 * @param $post_type_object
+	 *
 	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
 	 * @since 0.0.5
 	 */
@@ -75,6 +80,7 @@ class PostObjectType extends WPObjectType {
 
 		/**
 		 * Get the $single_name out of the post_type_object
+		 *
 		 * @since 0.0.5
 		 */
 		$single_name = self::$post_type_object->graphql_single_name;
@@ -82,6 +88,7 @@ class PostObjectType extends WPObjectType {
 		/**
 		 * If no fields have been defined for this type already,
 		 * make sure the $fields var is an empty array
+		 *
 		 * @since 0.0.5
 		 */
 		if ( null === self::$fields ) {
@@ -91,169 +98,172 @@ class PostObjectType extends WPObjectType {
 		/**
 		 * If the $fields haven't already been defined for this type,
 		 * define the fields
+		 *
 		 * @since 0.0.5
 		 */
 		if ( empty( self::$fields[ $single_name ] ) ) {
 
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
+			 *
 			 * @since 0.0.5
 			 */
 			$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 			/**
 			 * Define the fields for the post_type
+			 *
 			 * @return mixed
 			 * @since 0.0.5
 			 */
 			self::$fields[ $single_name ] = function() use ( $single_name, $post_type_object, $allowed_taxonomies ) {
 				$fields = [
-					'id' => [
-						'type' => Types::non_null( Types::id() ),
+					'id'                => [
+						'type'    => Types::non_null( Types::id() ),
 						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $post->post_type ) && ! empty( $post->ID ) ) ? Relay::toGlobalId( $post->post_type, $post->ID ) : null;
 						},
 					],
 					$single_name . 'Id' => [
-						'type' => Types::non_null( Types::int() ),
+						'type'        => Types::non_null( Types::int() ),
 						'description' => esc_html__( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return absint( $post->ID );
 						},
 					],
-					'author' => [
-						'type' => Types::user(),
+					'author'            => [
+						'type'        => Types::user(),
 						'description' => esc_html__( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_author ) ? new \WP_User( $post->post_author ) : null;
 						},
 					],
-					'date' => [
-						'type' => Types::string(),
+					'date'              => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'Post publishing date.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_date ) ? $post->post_date : null;
 						},
 					],
-					'dateGmt' => [
-						'type' => Types::string(),
+					'dateGmt'           => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The publishing date set in GMT.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_date_gmt ) ? $post->post_date_gmt : null;
 						},
 					],
-					'content' => [
-						'type' => Types::string(),
+					'content'           => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The content of the post. This is currently just the raw content. An amendment to support rendered content needs to be made.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return apply_filters( 'the_content', $post->post_content );
 						},
 					],
-					'title' => [
-						'type' => Types::string(),
+					'title'             => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_title ) ? $post->post_title : null;
 						},
 					],
-					'excerpt' => [
-						'type' => Types::string(),
+					'excerpt'           => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
 
 							return ! empty( $excerpt ) ? $excerpt : null;
 						},
 					],
-					'status' => [
-						'type' => Types::string(),
+					'status'            => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The current status of the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_status ) ? $post->post_status : null;
 						},
 					],
-					'commentStatus' => array(
-						'type' => Types::string(),
+					'commentStatus'     => array(
+						'type'        => Types::string(),
 						'description' => esc_html__( 'Whether the comments are open or closed for this particular post.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->comment_status ) ? $post->comment_status : null;
 						},
 					),
-					'pingStatus' => [
-						'type' => Types::string(),
+					'pingStatus'        => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'Whether the pings are open or closed for this particular post.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->ping_status ) ? $post->ping_status : null;
 						},
 					],
-					'slug' => [
-						'type' => Types::string(),
+					'slug'              => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the `post_objects` table.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_name ) ? $post->post_name : null;
 						},
 					],
-					'toPing' => [
-						'type' => Types::boolean(),
+					'toPing'            => [
+						'type'        => Types::boolean(),
 						'description' => esc_html__( 'URLs queued to be pinged.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->to_ping ) ? true : false;
 						},
 					],
-					'pinged' => [
-						'type' => Types::boolean(),
+					'pinged'            => [
+						'type'        => Types::boolean(),
 						'description' => esc_html__( 'URLs that have been pinged.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->pinged ) ? true : false;
 						},
 					],
-					'modified' => [
-						'type' => Types::string(),
+					'modified'          => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_modified ) ? $post->post_modified : null;
 						},
 					],
-					'modifiedGmt' => [
-						'type' => Types::string(),
+					'modifiedGmt'       => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_modified_gmt ) ? $post->post_modified_gmt : null;
 						},
 					],
-					'parent' => [
-						'type' => Types::post_object_union(),
+					'parent'            => [
+						'type'        => Types::post_object_union(),
 						'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_parent ) ? get_post( $post->post_parent ) : null;
 						},
 					],
-					'editLast' => [
-						'type' => Types::user(),
+					'editLast'          => [
+						'type'        => Types::user(),
 						'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
 							$edit_last = get_post_meta( $post->ID, '_edit_last', true );
 
 							return ! empty( $edit_last ) ? DataSource::resolve_user( absint( $edit_last ) ) : null;
 						},
 					],
-					'editLock' => [
-						'type' => new ObjectType( [
-							'name' => $single_name . 'editLock',
+					'editLock'          => [
+						'type'        => new ObjectType( [
+							'name'   => $single_name . 'editLock',
 							'fields' => [
 								'editTime' => [
-									'type' => Types::string(),
+									'type'        => Types::string(),
 									'description' => __( 'The time when the object was last edited', 'wp-graphql' ),
-									'resolve' => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
+									'resolve'     => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
 										$time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
 
 										return ! empty( $time ) ? date( 'Y-m-d H:i:s', $time ) : null;
 									},
 								],
-								'user' => [
-									'type' => Types::user(),
+								'user'     => [
+									'type'        => Types::user(),
 									'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-									'resolve' => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
+									'resolve'     => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
 										$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
 
 										return ! empty( $user_id ) ? DataSource::resolve_user( $user_id ) : null;
@@ -262,66 +272,56 @@ class PostObjectType extends WPObjectType {
 							],
 						] ),
 						'description' => __( 'If a user has edited the object within the past 15 seconds, this will return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
-							$edit_lock = get_post_meta( $post->ID, '_edit_lock', true );
+						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
+							$edit_lock       = get_post_meta( $post->ID, '_edit_lock', true );
 							$edit_lock_parts = explode( ':', $edit_lock );
-							$edit_time = ( is_array( $edit_lock_parts ) && ! empty( $edit_lock_parts[0] ) ) ? $edit_lock_parts[0] : null;
-
-							/**
-							 * If the $edit_time is older than 15 seconds ago, let's not return anything as we don't
-							 * consider the object locked.
-							 * @since 0.0.5
-							 */
-							if ( $edit_time < ( strtotime( 'now' ) - 15 ) ) {
-								$edit_lock_parts = null;
-							}
 
 							return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 						},
 					],
-					'enclosure' => [
-						'type' => Types::string(),
+					'enclosure'         => [
+						'type'        => Types::string(),
 						'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
 							$enclosure = get_post_meta( $post->ID, 'enclosure', true );
 
 							return ! empty( $enclosure ) ? $enclosure : null;
 						},
 					],
-					'guid' => [
-						'type' => Types::string(),
+					'guid'              => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the `post_objects` database table.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->guid ) ? $post->guid : null;
 						},
 					],
-					'menuOrder' => [
-						'type' => Types::int(),
+					'menuOrder'         => [
+						'type'        => Types::int(),
 						'description' => esc_html__( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : null;
 						},
 					],
-					'mimeType' => [
-						'type' => Types::string(),
+					'mimeType'          => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
 						},
 					],
-					'desiredSlug' => [
-						'type' => Types::string(),
+					'desiredSlug'       => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$desired_slug = get_post_meta( $post->ID, '_wp_desired_post_slug', true );
 
 							return ! empty( $desired_slug ) ? $desired_slug : null;
 						},
 					],
-					'link' => [
-						'type' => Types::string(),
+					'link'              => [
+						'type'        => Types::string(),
 						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$link = get_permalink( $post->ID );
 
 							return ! empty( $link ) ? $link : null;
@@ -331,14 +331,15 @@ class PostObjectType extends WPObjectType {
 
 				/**
 				 * Add comment fields to the schema if the post_type supports "comments"
+				 *
 				 * @since 0.0.5
 				 */
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					$fields['comments'] = CommentConnectionDefinition::connection();
+					$fields['comments']     = CommentConnectionDefinition::connection();
 					$fields['commentCount'] = [
-						'type' => Types::int(),
+						'type'        => Types::int(),
 						'description' => esc_html__( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
 						},
 					];
@@ -347,13 +348,14 @@ class PostObjectType extends WPObjectType {
 				/**
 				 * Add term connections based on the allowed taxonomies that are also
 				 * registered to the post_type
+				 *
 				 * @since 0.0.5
 				 */
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-							$tax_object = get_taxonomy( $taxonomy );
+							$tax_object                                 = get_taxonomy( $taxonomy );
 							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object );
 						}
 					}
@@ -364,6 +366,7 @@ class PostObjectType extends WPObjectType {
 				 * Because these fields are implemented via a closure the prepare_fields needs to be applied
 				 * to the fields directly instead of being applied to all objects extending
 				 * the WPObjectType class.
+				 *
 				 * @since 0.0.5
 				 */
 				return self::prepare_fields( $fields, $single_name );

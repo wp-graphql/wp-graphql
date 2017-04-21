@@ -20,7 +20,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->current_time = strtotime( 'now' );
+		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
@@ -42,21 +42,21 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Set up the $defaults
 		 */
-		$defaults = array(
+		$defaults = [
 			'post_author'  => $this->admin,
 			'post_content' => 'Test page content',
-			'post_date'    => $this->current_date,
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
 			'post_title'   => 'Test Title',
 			'post_type'    => 'post',
-		);
+			'post_date'    => $this->current_date,
+		];
 
 		/**
 		 * Combine the defaults with the $args that were
 		 * passed through
 		 */
-		$args = wp_parse_args( $args, $defaults );
+		$args = array_merge( $defaults, $args );
 
 		/**
 		 * Create the page
@@ -149,7 +149,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'author' => [
 						'userId' => $this->admin,
 					],
-					'commentCount' => 0,
+					'commentCount' => null,
 					'commentStatus' => 'open',
 					'content' => apply_filters( 'the_content', 'Test page content' ),
 					'date' => $this->current_date,
@@ -236,8 +236,8 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'edges' => [
 						[
 							'node' => [
-								'id' => $global_id_3,
-								'pageId' => $page_3,
+								'id' => $global_id_1,
+								'pageId' => $page_1,
 								'author' => [
 									'userId' => $this->admin,
 								],
@@ -254,8 +254,8 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 						],
 						[
 							'node' => [
-								'id' => $global_id_1,
-								'pageId' => $page_1,
+								'id' => $global_id_3,
+								'pageId' => $page_3,
 								'author' => [
 									'userId' => $this->admin,
 								],
