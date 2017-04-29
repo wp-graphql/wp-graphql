@@ -8,8 +8,10 @@ vendor/composer/installed.json
 vendor/webonyx/*
 !vendor/webonyx/graphql-php/
 vendor/webonyx/graphql-php/*
-!vendor/webonyx/graphql-php/src
+!vendor/webonyx/graphql-php/src/
 vendor/ivome/*
-!vendor/ivome/graphql-relay-php/src
+!vendor/ivome/graphql-relay-php/
+vendor/ivome/graphql-relay-php/*
+!vendor/ivome/graphql-relay-php/src/
 !/tests
 build/
