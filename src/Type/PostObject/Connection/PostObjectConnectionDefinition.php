@@ -1,7 +1,10 @@
 <?php
 namespace WPGraphQL\Type\PostObject\Connection;
 
+use GraphQL\Language\Parser;
+use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Utils\AST;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;

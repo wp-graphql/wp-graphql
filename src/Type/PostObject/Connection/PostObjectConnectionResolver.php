@@ -93,7 +93,8 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * We only need to calculate the totalItems matching the query, if it's been specifically asked
 		 * for in the Query response.
 		 */
-		$field_selection = $info->getFieldSelection( 2 );
+		$field_selection = $info->getFieldSelection( 10 );
+
 		if ( ! empty( $field_selection['debug']['totalItems'] ) ) {
 			$query_args['no_found_rows'] = false;
 		}
@@ -201,7 +202,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public static function get_connection( array $items, array $args, $query ) {
+	public static function get_connection( $query,  array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query
@@ -223,7 +224,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Get the edges from the $items
 		 */
-		$edges = self::get_edges( $items );
+		$edges = self::get_edges( $items, $source, $args, $context, $info );
 
 		/**
 		 * Find the first_edge and last_edge
@@ -232,7 +233,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		$last_edge  = $edges ? $edges[ count( $edges ) - 1 ] : null;
 
 		$edges_to_return = $edges;
-
 
 		/**
 		 * Create the connection to return
@@ -258,8 +258,9 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public static function get_edges( $items ) {
+	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
+
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
 				$edges[] = [

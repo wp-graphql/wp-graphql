@@ -55,7 +55,7 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 10 );
+		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 100 );
 
 	}
 
@@ -282,9 +282,9 @@ class Router {
 				$response['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
 			}
 
-			$request        = isset( $data['query'] ) ? $data['query'] : null;
-			$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : null;
-			$variables      = isset( $data['variables'] ) ? $data['variables'] : null;
+			$request        = isset( $data['query'] ) ? $data['query'] : '';
+			$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : '';
+			$variables      = isset( $data['variables'] ) ? $data['variables'] : '';
 
 			/**
 			 * Process the GraphQL request

@@ -34,4 +34,20 @@ class AppContext {
 	 */
 	public $request;
 
+	/**
+	 * Stores additional $config properties
+	 * @var \mixed $config
+	 * @access public
+	 */
+	public $config;
+
+	/**
+	 * AppContext constructor.
+	 */
+	public function __construct() {
+
+		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
+
+	}
+
 }

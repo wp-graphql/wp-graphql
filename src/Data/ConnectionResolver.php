@@ -32,7 +32,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$query_args  = static::get_query_args( $source, $args, $context, $info );
 		$query       = static::get_query( $query_args );
 		$array_slice = self::get_array_slice( $query, $args );
-		$connection  = static::get_connection( $array_slice, $args, $query );
+		$connection  = static::get_connection( $query, $array_slice, $source, $args, $context, $info );
 
 		/**
 		 * Filter the connection, and provide heaps of info to make it easy to filter very specific cases
@@ -72,7 +72,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	 *
 	 * @return array
 	 */
-	public static function get_connection( array $array, array $args, $query ) {
+	public static function get_connection( $query,  array $array, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		$meta       = self::get_array_meta( $query, $args );
 		$connection = ArrayConnection::connectionFromArray( $array, $args, $meta );
