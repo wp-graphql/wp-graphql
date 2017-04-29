@@ -47,7 +47,7 @@ before_script:
   - ls -al
 
 script:
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
   - travis_retry php coveralls.phar -v
