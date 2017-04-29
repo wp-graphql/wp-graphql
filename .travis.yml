@@ -15,19 +15,19 @@ branches:
 matrix:
   include:
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=0
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=0
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.1
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=1
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=1
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.1
     - php: 7.0
-      env: WP_VERSION=nightly WP_MULTISITE=0
+      env: WP_VERSION=nightly WP_MULTISITE=0 PHP_UNIT_VERSION=6.1
   fast_finish: true
 
 # Composer package installation
@@ -42,7 +42,7 @@ install:
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
   - composer self-update
-  - composer require phpunit/phpunit:5.6
+  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
   - mkdir -p build/logs
   - ls -al
