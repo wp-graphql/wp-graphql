@@ -1,7 +1,6 @@
 .idea
-vendor/
-vendor/bin
-vendor/phpunit
+!vendor/
+vendor/*
 !vendor/webonyx/
 vendor/webonyx/*
 !vendor/webonyx/graphql-php/
