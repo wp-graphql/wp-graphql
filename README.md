@@ -76,7 +76,7 @@ of GraphQL queries using WPGraphQL here:
 #### Get a list of category terms:
 ```
 {
-	categories{
+  categories{
     edges{
       node{
         id
