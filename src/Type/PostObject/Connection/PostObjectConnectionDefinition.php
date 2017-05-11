@@ -1,10 +1,7 @@
 <?php
 namespace WPGraphQL\Type\PostObject\Connection;
 
-use GraphQL\Language\Parser;
-use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQL\Utils\AST;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
@@ -48,8 +45,7 @@ class PostObjectConnectionDefinition {
 			self::$debug_fields = [];
 		}
 
-		if ( empty( self::$debug_fields[ $connection_name ] ) ) {
-
+		if ( empty( self::$debug_fields[ $connection_name ] ) ) :
 			self::$debug_fields[ $connection_name ] = new WPObjectType([
 				'name' => $connection_name . 'ConnectionDebug',
 				'fields' => [
@@ -63,7 +59,7 @@ class PostObjectConnectionDefinition {
 					],
 				],
 			]);
-		}
+		endif;
 
 		return ! empty( self::$debug_fields[ $connection_name ] ) ? self::$debug_fields[ $connection_name ] : null;
 
@@ -89,8 +85,7 @@ class PostObjectConnectionDefinition {
 			self::$connection = [];
 		}
 
-		if ( empty( self::$connection[ $post_type_object->name ] ) ) {
-
+		if ( empty( self::$connection[ $post_type_object->name ] ) ) :
 			/**
 			 * Setup the connectionDefinition
 			 *
@@ -140,7 +135,7 @@ class PostObjectConnectionDefinition {
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_type_object->name );
 				},
 			];
-		}
+		endif;
 
 		/**
 		 * Return the connection from the post_objects_connection object

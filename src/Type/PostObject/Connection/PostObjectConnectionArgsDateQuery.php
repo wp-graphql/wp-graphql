@@ -62,8 +62,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			self::$fields = [
 				'year' => [
 					'type' => Types::int(),
@@ -118,11 +117,8 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 					'description' => __( 'OR or AND, how the sub-arrays should be compared', 'wp-graphql' ),
 				],
 			];
-
-		}
-
+		endif;
 		return self::$fields;
-
 	}
 
 	/**
@@ -133,8 +129,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function column_enum() {
 
-		if ( null === self::$column_enum ) {
-
+		if ( null === self::$column_enum ) :
 			self::$column_enum = new WPEnumType(
 				$name = 'dateColumn',
 				$values = [
@@ -148,11 +143,8 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 					],
 				]
 			);
-
-		}
-
+		endif;
 		return self::$column_enum;
-
 	}
 
 	/**
@@ -163,9 +155,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	private static function date_after() {
-
-		if ( null === self::$date_after ) {
-
+		if ( null === self::$date_after ) :
 			self::$date_after = new WPInputObjectType(
 				$name = 'dateAfter',
 				$fields = [
@@ -183,11 +173,8 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 					],
 				]
 			);
-
-		}
-
+		endif;
 		return self::$date_after;
-
 	}
 
 	/**
@@ -199,8 +186,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function date_before() {
 
-		if ( null === self::$date_before ) {
-
+		if ( null === self::$date_before ) :
 			self::$date_before = new WPInputObjectType(
 				$name = 'dateBefore',
 				$fields = [
@@ -218,11 +204,8 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 					],
 				]
 			);
-
-		}
-
+		endif;
 		return self::$date_before;
-
 	}
 
 }

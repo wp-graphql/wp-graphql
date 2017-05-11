@@ -39,7 +39,7 @@ class TermObjectType extends WPObjectType {
 	/**
 	 * TermObjectType constructor.
 	 *
-	 * @param array $taxonomy
+	 * @param string $taxonomy The taxonomy name
 	 *
 	 * @since 0.0.5
 	 */
@@ -91,7 +91,7 @@ class TermObjectType extends WPObjectType {
 		 * define the fields
 		 * @since 0.0.5
 		 */
-		if ( empty( self::$fields[ $single_name ] ) ) {
+		if ( empty( self::$fields[ $single_name ] ) ) :
 
 			/**
 			 * Get the post_types and taxonomies that are allowed
@@ -202,10 +202,7 @@ class TermObjectType extends WPObjectType {
 				return self::prepare_fields( $fields, $single_name );
 
 			};
-
-		}
-
+		endif;
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
-
 	}
 }

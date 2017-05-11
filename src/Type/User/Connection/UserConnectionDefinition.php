@@ -31,7 +31,7 @@ class UserConnectionDefinition {
 	 */
 	public static function connection() {
 
-		if ( null === self::$connection ) {
+		if ( null === self::$connection ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::user(),
 			] );
@@ -55,10 +55,8 @@ class UserConnectionDefinition {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
 				},
 			];
-		}
-
+		endif;
 		return self::$connection;
-
 	}
 
 }

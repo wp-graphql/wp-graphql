@@ -101,8 +101,7 @@ class PostObjectType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		if ( empty( self::$fields[ $single_name ] ) ) {
-
+		if ( empty( self::$fields[ $single_name ] ) ) :
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
 			 *
@@ -372,11 +371,8 @@ class PostObjectType extends WPObjectType {
 				return self::prepare_fields( $fields, $single_name );
 
 			};
-
-		}
-
+		endif;
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
-
 	}
 
 }

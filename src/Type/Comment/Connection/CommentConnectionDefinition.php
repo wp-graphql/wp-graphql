@@ -35,7 +35,7 @@ class CommentConnectionDefinition {
 	 */
 	public static function connection() {
 
-		if ( null === self::$connection ) {
+		if ( null === self::$connection ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::comment(),
 				'name' => 'comments',
@@ -60,16 +60,15 @@ class CommentConnectionDefinition {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
 				},
 			];
-
-		}
-
+		endif;
 		return self::$connection;
 	}
 
 
 	/**
-	 * args
-	 * @return CommentConnectionArgs
+	 * Return the $args to use for the connection
+	 *
+	 * @return mixed
 	 * @since 0.0.5
 	 */
 	private static function args() {

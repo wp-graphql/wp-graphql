@@ -38,5 +38,4 @@ class WPSchema extends Schema {
 		parent::__construct( $this->filterable_config );
 	}
 
-
 }

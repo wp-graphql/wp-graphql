@@ -26,14 +26,12 @@ class ThemeConnectionDefinition {
 	/**
 	 * Method that sets up the relay connection for term objects
 	 *
-	 * @param object $taxonomy_object
 	 * @return mixed
 	 * @since 0.0.5
 	 */
 	public static function connection() {
 
-		if ( null === self::$connection ) {
-
+		if ( null === self::$connection ) :
 			/**
 			 * Setup the connectionDefinition
 			 * @since 0.0.5
@@ -55,11 +53,8 @@ class ThemeConnectionDefinition {
 					return DataSource::resolve_themes_connection( $source, $args, $context, $info );
 				},
 			];
-
-		}
-
+		endif;
 		return self::$connection;
-
 	}
 
 }

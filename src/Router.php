@@ -322,7 +322,7 @@ class Router {
 			} else {
 				$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
 			}
-		}
+		} // End try().
 
 		/**
 		 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools

@@ -34,8 +34,7 @@ class TermObjectQuery {
 			self::$root_query = [];
 		}
 
-		if ( ! empty( $taxonomy_object->name ) && empty( self::$root_query[ $taxonomy_object->name ] ) ) {
-
+		if ( ! empty( $taxonomy_object->name ) && empty( self::$root_query[ $taxonomy_object->name ] ) ) :
 			self::$root_query[ $taxonomy_object->name ] = [
 				'type' => Types::term_object( $taxonomy_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
@@ -50,7 +49,7 @@ class TermObjectQuery {
 			];
 
 			return self::$root_query[ $taxonomy_object->name ];
-		}
+		endif;
 		return self::$root_query;
 	}
 

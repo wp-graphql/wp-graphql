@@ -34,8 +34,7 @@ class PostObjectQuery {
 			self::$root_query = [];
 		}
 
-		if ( ! empty( $post_type_object->name ) && empty( self::$root_query[ $post_type_object->name ] ) ) {
-
+		if ( ! empty( $post_type_object->name ) && empty( self::$root_query[ $post_type_object->name ] ) ) :
 			self::$root_query[ $post_type_object->name ] = [
 				'type' => Types::post_object( $post_type_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
@@ -50,7 +49,7 @@ class PostObjectQuery {
 			];
 
 			return self::$root_query[ $post_type_object->name ];
-		}
+		endif;
 		return self::$root_query;
 	}
 

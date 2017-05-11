@@ -40,8 +40,7 @@ class TermObjectConnectionDefinition {
 			self::$connection = [];
 		}
 
-		if ( empty( self::$connection[ $taxonomy_object->name ] ) ) {
-
+		if ( empty( self::$connection[ $taxonomy_object->name ] ) ) :
 			/**
 			 * Setup the connectionDefinition
 			 * @since 0.0.5
@@ -85,10 +84,8 @@ class TermObjectConnectionDefinition {
 					return DataSource::resolve_term_objects_connection( $source, $args, $context, $info, $taxonomy_object->name );
 				},
 			];
-		}
-
+		endif;
 		return self::$connection[ $taxonomy_object->name ];
-
 	}
 
 }

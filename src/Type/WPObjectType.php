@@ -79,8 +79,7 @@ class WPObjectType extends ObjectType {
 			self::$prepared_fields = [];
 		}
 
-		if ( empty( self::$prepared_fields[ $type_name ] ) ) {
-
+		if ( empty( self::$prepared_fields[ $type_name ] ) ) :
 			/**
 			 * Filter all object fields, passing the $typename as a param
 			 *
@@ -108,10 +107,8 @@ class WPObjectType extends ObjectType {
 			 */
 			ksort( $fields );
 			self::$prepared_fields[ $type_name ] = $fields;
-		}
-
+		endif;
 		return ! empty( self::$prepared_fields[ $type_name ] ) ? self::$prepared_fields[ $type_name ] : null;
-
 	}
 
 }

@@ -250,7 +250,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all post_types that have been registered to "show_in_graphql"
 			 */
-			$post_types = get_post_types( [ 'show_in_graphql' => true ] );
+			$post_types = get_post_types(
+				[
+					'show_in_graphql' => true,
+				]
+			);
 
 			/**
 			 * Define the $allowed_post_types to be exposed by GraphQL Queries Pass through a filter
@@ -285,7 +289,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
-			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+			$taxonomies = get_taxonomies(
+				[
+					'show_in_graphql' => true,
+				]
+			);
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
@@ -372,7 +380,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *                                   information about the context we know at this point
 			 */
 			$variables = is_object( $variables ) ? wp_json_encode( $variables ) : $variables;
-			$variables = ( array ) $variables;
+			$variables = (array) $variables;
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [

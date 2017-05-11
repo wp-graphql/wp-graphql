@@ -29,8 +29,7 @@ class UserQuery {
 	 */
 	public static function root_query() {
 
-		if ( null === self::$root_query ) {
-
+		if ( null === self::$root_query ) :
 			self::$root_query = [
 				'type' => Types::user(),
 				'description' => __( 'Returns a user', 'wp-graphql' ),
@@ -43,9 +42,7 @@ class UserQuery {
 					return DataSource::resolve_user( $id_components['id'] );
 				},
 			];
-
-		}
-
+		endif;
 		return self::$root_query;
 	}
 

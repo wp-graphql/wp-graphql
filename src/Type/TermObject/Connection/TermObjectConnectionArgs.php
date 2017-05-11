@@ -41,8 +41,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			self::$fields = [
 				'taxonomy' => [
 					'type' => Types::list_of( Types::string() ),
@@ -153,11 +152,8 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Whether to prime meta caches for matched terms. Default true.', 'wp-graphql' ),
 				],
 			];
-
-		}
-
+		endif;
 		return self::$fields;
-
 	}
 
 }

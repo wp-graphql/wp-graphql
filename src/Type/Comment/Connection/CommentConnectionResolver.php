@@ -134,7 +134,17 @@ class CommentConnectionResolver extends ConnectionResolver {
 		return $query;
 	}
 
-	public static function get_connection( array $items, array $args, $query ) {
+	/**
+	 * @param array       $query The query that was processed to retrieve connection data
+	 * @param array       $array The array of connected items
+	 * @param mixed       $source The source being passed down the resolve tree
+	 * @param array       $args The Input args for the field
+	 * @param AppContext  $context The AppContext passed down the resolve tree
+	 * @param ResolveInfo $info The ResolveInfo passed down the resolve tree
+	 *
+	 * @return array
+	 */
+	public static function get_connection( $query, array $array, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query
@@ -172,7 +182,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 				'hasNextPage'     => $has_next_page,
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
-			]
+			],
 		];
 
 		return $connection;

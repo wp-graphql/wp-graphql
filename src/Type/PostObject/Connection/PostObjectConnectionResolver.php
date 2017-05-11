@@ -131,7 +131,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Handle setting dynamic $query_args based on the source (higher level query)
 		 */
-		if ( true === is_object( $source ) ) {
+		if ( true === is_object( $source ) ) :
 			switch ( true ) {
 				case $source instanceof \WP_Post:
 					$query_args['post_type'] = $source->name;
@@ -151,7 +151,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				default:
 					break;
 			}
-		}
+		endif;
 
 		/**
 		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
@@ -196,13 +196,16 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 * This takes an array of items, the $args and the $query and returns the connection including
 	 * the edges and page info
 	 *
-	 * @param array $items The items
+	 * @param mixed $query The Query that was processed to get the connection data
+	 * @param array $items The array of items being connected
 	 * @param array $args  The $args that were passed to the query
-	 * @param mixed $query The query that
+	 * @param mixed $source The source being passed down the resolve tree
+	 * @param AppContext $context The AppContext being passed down the resolve tree
+	 * @param ResolveInfo $info the ResolveInfo passed down the resolve tree
 	 *
 	 * @return array
 	 */
-	public static function get_connection( $query,  array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query
@@ -244,7 +247,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				'hasNextPage'     => $has_next_page,
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
-			]
+			],
 		];
 
 		return $connection;

@@ -49,8 +49,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			$fields = [
 				'authorEmail' => [
 					'type' => Types::string(),
@@ -173,8 +172,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 			];
 
 			self::$fields = $fields;
-
-		}
+		endif;
 		return self::$fields;
 
 	}
@@ -189,8 +187,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function comments_orderby_enum() {
 
-		if ( null === self::$comments_orderby_enum ) {
-
+		if ( null === self::$comments_orderby_enum ) :
 			self::$comments_orderby_enum = new EnumType([
 				'name' => 'commentsOrderby',
 				'values' => [
@@ -260,10 +257,8 @@ class CommentConnectionArgs extends WPInputObjectType {
 					],
 				],
 			]);
-
-		}
+		endif;
 		return self::$comments_orderby_enum;
-
 	}
 
 }

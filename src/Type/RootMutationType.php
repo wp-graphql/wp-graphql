@@ -70,27 +70,8 @@ class RootMutationType extends WPObjectType {
 				'type' => Types::string(),
 				'description' => esc_html__( 'Example mutation field', 'wp-graphql' ),
 				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
-					$payload = wp_json_encode( [
-						'query' => 'mutation{createTransportEvent(wpAction:"demo",wpType:"helloWorld"){createdAt,wpType,wpAction}}',
-						'variables' => null,
-					] );
-
-					$event_trigger = wp_remote_post( 'https://api.graph.cool/simple/v1/cj1xmyllis1hv0133ixhz3pmx', [
-						'method' => 'POST',
-						'blocking' => true,
-						'body' => $payload,
-						'headers' => [
-							'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0OTA4MDQ1MzYsImNsaWVudElkIjoiY2l6N3RzdDFlNnVlYjAxNDl2OHhtbm5nZiJ9.IYrJA-5GjjthFaabmaLj-4dz_vQb1CG5Xliclp2KGhc',
-							'Content-Type' => 'application/json',
-						],
-					] );
-
-//					var_dump( $event_trigger );
-
-
 					return 'world';
-				}
+				},
 			];
 
 		}

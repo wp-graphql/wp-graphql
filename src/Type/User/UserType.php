@@ -63,8 +63,7 @@ class UserType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			self::$fields = function() {
 				$fields = [
 					'id' => [
@@ -244,11 +243,8 @@ class UserType extends WPObjectType {
 				return self::prepare_fields( $fields, self::$type_name );
 
 			};
-
-		}
-
+		endif;
 		return self::$fields;
-
 	}
 
 }

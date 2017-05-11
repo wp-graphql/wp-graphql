@@ -55,7 +55,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
+		if ( null === self::$fields ) :
 
 			$fields = [
 				'role' => [
@@ -115,11 +115,8 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 				],
 			];
-
 			self::$fields = $fields;
-
-		}
-
+		endif;
 		return self::$fields;
 
 	}
@@ -134,8 +131,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function search_columns_enum() {
 
-		if ( null === self::$search_columns_enum ) {
-
+		if ( null === self::$search_columns_enum ) :
 			self::$search_columns_enum = new EnumType([
 				'name' => 'searchColumnsEnum',
 				'values' => [
@@ -161,11 +157,8 @@ class UserConnectionArgs extends WPInputObjectType {
 					],
 				],
 			]);
-
-		}
-
+		endif;
 		return self::$search_columns_enum;
-
 	}
 
 	/**
@@ -178,8 +171,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function roles_enum() {
 
-		if ( null === self::$roles_enum ) {
-
+		if ( null === self::$roles_enum ) :
 			global $wp_roles;
 			$all_roles = $wp_roles->roles;
 			$editable_roles = apply_filters( 'editable_roles', $all_roles );
@@ -200,10 +192,8 @@ class UserConnectionArgs extends WPInputObjectType {
 					'values' => $roles,
 				] );
 			}
-		}
-
+		endif;
 		return self::$roles_enum;
-
 	}
 
 }

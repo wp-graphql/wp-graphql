@@ -68,8 +68,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			$fields = [
 
 				/**
@@ -257,9 +256,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 			];
 
 			self::$fields = $fields;
-
-		}
-
+		endif;
 		return self::$fields;
 
 	}
@@ -310,8 +307,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function orderby_enum() {
 
-		if ( null === self::$orderby_enum ) {
-
+		if ( null === self::$orderby_enum ) :
 			self::$orderby_enum = new WPEnumType(
 				$name = 'orderby',
 				$values = [
@@ -362,11 +358,8 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 					],
 				]
 			);
-
-		}
-
+		endif;
 		return self::$orderby_enum;
-
 	}
 
 }
