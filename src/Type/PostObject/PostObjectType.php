@@ -130,6 +130,30 @@ class PostObjectType extends WPObjectType {
 							return absint( $post->ID );
 						},
 					],
+					'ancestors' => [
+						'type' => Types::list_of( Types::post_object_union() ),
+						'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
+						'args' => [
+							'types' => [
+								'type' => Types::list_of( Types::post_type_enum() ),
+								'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
+							],
+						],
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$ancestors = [];
+							$types = ! empty( $args['types'] ) ? $args['types'] : [ $post->post_type ];
+							$ancestor_ids = get_ancestors( $post->ID, $post->post_type );
+							if ( ! empty( $ancestor_ids ) ) {
+								foreach ( $ancestor_ids as $ancestor_id ) {
+									$ancestor_obj = get_post( $ancestor_id );
+									if ( in_array( $ancestor_obj->post_type, $types, true ) ) {
+										$ancestors[] = $ancestor_obj;
+									}
+								}
+							}
+							return ! empty( $ancestors ) ? $ancestors : null;
+						},
+					],
 					'author'            => [
 						'type'        => Types::user(),
 						'description' => esc_html__( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
@@ -369,7 +393,6 @@ class PostObjectType extends WPObjectType {
 				 * @since 0.0.5
 				 */
 				return self::prepare_fields( $fields, $single_name );
-
 			};
 		endif;
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;

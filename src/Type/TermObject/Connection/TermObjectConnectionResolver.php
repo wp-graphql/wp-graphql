@@ -128,23 +128,22 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	public static function get_query( $query_args ) {
 		$query = new \WP_Term_Query( $query_args );
 
-
 		return $query;
 	}
 
 	/**
 	 * This gets the connection to return
 	 *
-	 * @param array|mixed $query       The query that was processed to get data
-	 * @param array       $array_slice The array slice that was returned
-	 * @param mixed       $source      The source being passed down the resolve tress
-	 * @param array       $args        The input args for the resolving field
-	 * @param AppContext  $context     The context being passed down the resolve tree
-	 * @param ResolveInfo $info        The ResolveInfo passed down the resolve tree
+	 * @param array|mixed $query   The query that was processed to get data
+	 * @param array       $items   The array slice that was returned
+	 * @param mixed       $source  The source being passed down the resolve tress
+	 * @param array       $args    The input args for the resolving field
+	 * @param AppContext  $context The context being passed down the resolve tree
+	 * @param ResolveInfo $info    The ResolveInfo passed down the resolve tree
 	 *
 	 * @return array
 	 */
-	public static function get_connection( $query, array $array_slice, $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query
