@@ -44,7 +44,7 @@ class PostObjectType extends WPObjectType {
 	/**
 	 * PostObjectType constructor.
 	 *
-	 * @param array $post_type
+	 * @param string $post_type
 	 *
 	 * @since 0.0.5
 	 */
@@ -203,17 +203,17 @@ class PostObjectType extends WPObjectType {
 						},
 					],
 					'toPing'            => [
-						'type'        => Types::boolean(),
+						'type'        => Types::list_of( Types::string() ),
 						'description' => esc_html__( 'URLs queued to be pinged.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->to_ping ) ? true : false;
+							return ! empty( $post->to_ping ) ? implode( ',', $post->to_ping ) : null;
 						},
 					],
 					'pinged'            => [
-						'type'        => Types::boolean(),
+						'type'        => Types::list_of( Types::string() ),
 						'description' => esc_html__( 'URLs that have been pinged.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->pinged ) ? true : false;
+							return ! empty( $post->pinged ) ? implode( ',', $post->pinged ) : null;
 						},
 					],
 					'modified'          => [
@@ -319,7 +319,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'link'              => [
 						'type'        => Types::string(),
-						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
+						'description' => esc_html__( 'The permalink of the post', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$link = get_permalink( $post->ID );
 
