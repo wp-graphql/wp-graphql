@@ -6,6 +6,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -204,11 +205,57 @@ class UserType extends WPObjectType {
 								'description' => __( 'The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels.', 'wp-graphql' ),
 								'defaultValue' => 96,
 							],
+							'forceDefault' => [
+								'type' => Types::boolean(),
+								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
+							],
+							'rating' => [
+								'type' => new WPEnumType([
+									'name' => 'avatarRatingEnum',
+									'description' => __( 'What rating to display avatars up to. Accepts \'G\', \'PG\', \'R\', \'X\', and are judged in that order. Default is the value of the \'avatar_rating\' option', 'wp-graphql' ),
+									'values' => [
+										'G' => [
+											'name' => 'G',
+											'value' => 'G',
+										],
+										'PG' => [
+											'name' => 'PG',
+											'value' => 'PG',
+										],
+										'R' => [
+											'name' => 'R',
+											'value' => 'R',
+										],
+										'X' => [
+											'name' => 'X',
+											'value' => 'X',
+										],
+									],
+								]),
+							],
+
 						],
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
-							$avatar = get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
 
-							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : false;
+							$avatar_args = [];
+							if ( is_numeric( $args['size'] ) ) {
+								$avatar_args['size'] = absint( $args['size'] );
+								if ( ! $avatar_args['size'] ) {
+									$avatar_args['size'] = 96;
+								}
+							}
+
+							if ( true === $args['forceDefault'] ) {
+								$avatar_args['force_default'] = true;
+							}
+
+							if ( ! empty( $args['rating'] ) ) {
+								$avatar_args['rating'] = esc_html( $args['rating'] );
+							}
+
+							$avatar = get_avatar_data( $user->ID, $avatar_args );
+
+							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
 						},
 					],
 					'comments' => CommentConnectionDefinition::connection(),

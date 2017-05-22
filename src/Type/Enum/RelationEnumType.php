@@ -24,8 +24,12 @@ class RelationEnumType extends WPEnumType {
 	 * @since 0.0.5
 	 */
 	public function __construct() {
-		$description = __( 'The logical relation between each item in the array when there are more than one.', 'wp-graphql' );
-		parent::__construct( 'relation', self::values(), $description );
+		$config = [
+			'name' => 'relation',
+			'description' => __( 'The logical relation between each item in the array when there are more than one.', 'wp-graphql' ),
+			'values' => self::values(),
+		];
+		parent::__construct( $config );
 
 	}
 
