@@ -379,8 +379,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param            AppContext      object The AppContext object containing all of the
 			 *                                   information about the context we know at this point
 			 */
-			$variables = is_object( $variables ) ? wp_json_encode( $variables ) : $variables;
-			$variables = (array) $variables;
+			if ( ! is_array( $variables ) ) {
+				$variables = (string) $variables;
+				$variables = (array) json_decode( $variables );
+			}
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
