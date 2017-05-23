@@ -207,9 +207,9 @@ class UserType extends WPObjectType {
 							],
 						],
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
-							$avatar = get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
+							$avatar = get_avatar_data( $user->ID, array( 'size' => $args['size'] ) );
 
-							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : false;
+							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
 						},
 					],
 					'comments' => CommentConnectionDefinition::connection(),

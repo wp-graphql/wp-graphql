@@ -83,7 +83,7 @@ class AvatarType extends WPObjectType {
 						'type'        => Types::boolean(),
 						'description' => esc_html__( 'Whether to always show the default image, never the Gravatar.', 'wp-graphql' ),
 						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $avatar->force_default ) ? $avatar->force_default : null;
+							return ! empty( $avatar['force_default'] ) ? $avatar['force_default'] : null;
 						},
 					],
 					'rating'        => [
@@ -92,21 +92,20 @@ class AvatarType extends WPObjectType {
 					],
 					'scheme'        => [
 						'type'        => Types::string(),
-						'description' => esc_html__( 'Type of url scheme to use. Typically HTTP vs. 
-							HTTPS.', 'wp-graphql' ),
+						'description' => esc_html__( 'Type of url scheme to use. Typically HTTP vs. HTTPS.', 'wp-graphql' ),
 					],
 					'extraAttr'    => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'HTML attributes to insert in the IMG element. Is not sanitized.', 'wp-graphql' ),
 						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $avatar->extra_attr ) ? $avatar->extra_attr : null;
+							return ! empty( $avatar['extra_attr'] ) ? $avatar['extra_attr'] : null;
 						},
 					],
 					'foundAvatar'  => [
 						'type'        => Types::boolean(),
 						'description' => esc_html__( 'Whether the avatar was successfully found.', 'wp-graphql' ),
-						function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $avatar->found_avatar ) ? $avatar->found_avatar : null;
+						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $avatar['found_avatar'] ) ? $avatar['found_avatar'] : null;
 						},
 					],
 					'url'           => [
