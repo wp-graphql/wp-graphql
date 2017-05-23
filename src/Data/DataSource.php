@@ -160,14 +160,6 @@ class DataSource {
 
 	}
 
-	public static function resolve_post_node( $source, $args, $context, ResolveInfo $info ) {
-
-		var_dump( $source );
-		var_dump( $info->getFieldSelection( 5 ) );
-		die();
-
-	}
-
 	/**
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
