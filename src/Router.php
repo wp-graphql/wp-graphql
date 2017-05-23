@@ -55,7 +55,7 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 100 );
+		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 10 );
 
 	}
 
