@@ -28,7 +28,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 
 	public function createTermObject( $args = [] ) {
 		/**
-		 * Create the page
+		 * Create the term
 		 */
 		$term_id = $this->factory->term->create( $args );
 
