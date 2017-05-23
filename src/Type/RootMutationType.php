@@ -5,7 +5,8 @@ namespace WPGraphQL\Type;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
-use WPGraphQL\Types;
+use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
+use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 
 /**
  * Class RootMutationType
@@ -65,7 +66,6 @@ class RootMutationType extends WPObjectType {
 
 			$fields             = [];
 			$allowed_post_types = \WPGraphQL::$allowed_post_types;
-			$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 			if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 				foreach ( $allowed_post_types as $post_type ) {
@@ -82,10 +82,12 @@ class RootMutationType extends WPObjectType {
 					 * @since 0.0.5
 					 */
 					$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectCreate::mutate( $post_type_object );
+					$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectUpdate::mutate( $post_type_object );
+					$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
 
 				} // End foreach().
 			} // End if().
-			
+
 			self::$fields = $fields;
 
 		} // End if().
