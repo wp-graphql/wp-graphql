@@ -76,7 +76,7 @@ of GraphQL queries using WPGraphQL here:
 #### Get a list of category terms:
 ```
 {
-	categories{
+  categories{
     edges{
       node{
         id
@@ -120,6 +120,16 @@ of GraphQL queries using WPGraphQL here:
 
 ## POSSIBLE BREAKING CHANGES
 Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
+
+## Extensions
+There are a few extensions available as well:
+- https://github.com/wp-graphql/wp-graphql-meta-query 
+Adds support for meta_query
+- https://github.com/wp-graphql/wp-graphql-tax-query
+Adds support for tax_query
+- https://github.com/roborourke/wp-graphql-meta
+Adds support for automatically exposing fields registered using the `register_meta` API to GraphQL calls
+
 
 ## Unit Testing
 To run unit tests during development, you'll first need a testing database that you'd like to use. 
