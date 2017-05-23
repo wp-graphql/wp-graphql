@@ -21,7 +21,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 
 	}
