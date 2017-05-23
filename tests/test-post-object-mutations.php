@@ -269,8 +269,6 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
 
-		var_dump( $actual );
-
 		/**
 		 * Define the expected output.
 		 *
