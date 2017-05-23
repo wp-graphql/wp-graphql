@@ -24,7 +24,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 
 	}
