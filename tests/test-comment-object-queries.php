@@ -244,8 +244,6 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		var_dump( $actual['data']['comment']['children'] );
-
 		/**
 		 * Establish the expectation for the output of the query
 		 */
