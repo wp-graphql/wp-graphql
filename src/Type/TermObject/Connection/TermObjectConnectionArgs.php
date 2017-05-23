@@ -155,7 +155,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 		endif;
-		return self::$fields;
+		return self::prepare_fields( self::$fields, 'termArgs' );
 	}
 
 }

@@ -120,7 +120,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 				],
 			];
 		endif;
-		return self::$fields;
+		return self::prepare_fields( self::$fields, 'dateQuery' );
 	}
 
 	/**
@@ -160,7 +160,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 		if ( null === self::$date_after ) :
 			self::$date_after = new WPInputObjectType( [
 				'name' => 'dateAfter',
-				'fields' => [
+				'fields' => self::prepare_fields( [
 					'year' => [
 						'type' => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
@@ -173,7 +173,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				],
+				], 'dateAfter' ),
 			] );
 		endif;
 		return self::$date_after;
@@ -191,7 +191,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 		if ( null === self::$date_before ) :
 			self::$date_before = new WPInputObjectType( [
 				'name' => 'dateBefore',
-				'fields' => [
+				'fields' => self::prepare_fields( [
 					'year' => [
 						'type' => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
@@ -204,7 +204,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				],
+				], 'dateBefore' ),
 			] );
 		endif;
 		return self::$date_before;
