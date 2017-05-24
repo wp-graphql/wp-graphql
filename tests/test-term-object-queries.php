@@ -75,21 +75,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 				description
 				id
 				link
-				mediaItems {
-					edges {
-						node {
-							mediaItemId
-						}
-					}
-				}
 				name
-				pages {
-					edges {
-						node {
-							pageId
-						}
-					}
-				}
 				posts {
 					edges {
 						node {
@@ -122,13 +108,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 					'description' => 'just a description',
 					'id' => $global_id,
 					'link' => "http://example.org/?cat={$term_id}",
-					'mediaItems' => [
-						'edges' => [],
-					],
 					'name' => 'A Category',
-					'pages' => [
-						'edges' => [],
-					],
 					'posts' => [
 						'edges' => [],
 					],
@@ -188,20 +168,6 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 						}
 					}
 				}
-				pages {
-					edges {
-						node {
-							pageId
-						}
-					}
-				}
-				mediaItems {
-					edges {
-						node {
-							mediaItemId
-						}
-					}
-				}
 			}
 		}";
 
@@ -216,29 +182,11 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'category' => [
-					'pages' => [
-						'edges' => [
-							[
-								'node' => [
-									'pageId' => $page_id,
-								],
-							],
-						],
-					],
 					'posts' => [
 						'edges' => [
 							[
 								'node' => [
 									'postId' => $post_id,
-								],
-							],
-						],
-					],
-					'mediaItems' => [
-						'edges' => [
-							[
-								'node' => [
-									'mediaItemId' => $media_id,
 								],
 							],
 						],
