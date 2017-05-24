@@ -59,21 +59,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 					hierarchical
 					id
 					label
-					mediaItems {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					name
-					pages {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					posts {
 						edges {
 							node {
@@ -118,9 +104,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 						'hierarchical' => true,
 						'id' => $global_id,
 						'label' => 'Categories',
-						'mediaItems' => [ 'edges' => [] ],
 						'name' => 'category',
-						'pages' => [ 'edges' => [] ],
 						'posts' => [ 'edges' => [] ],
 						'public' => true,
 						'restBase' => 'categories',
@@ -166,21 +150,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 					hierarchical
 					id
 					label
-					mediaItems {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					name
-					pages {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					posts {
 						edges {
 							node {
@@ -225,9 +195,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 						'hierarchical' => false,
 						'id' => $global_id,
 						'label' => 'Tags',
-						'mediaItems' => [ 'edges' => [] ],
 						'name' => 'post_tag',
-						'pages' => [ 'edges' => [] ],
 						'posts' => [ 'edges' => [] ],
 						'public' => true,
 						'restBase' => 'tags',
@@ -274,20 +242,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 			categories {
 				taxonomyInfo {
 					name
-					mediaItems {
-						edges {
-							node {
-								mediaItemId
-							}
-						}
-					}
-					pages {
-						edges {
-							node {
-								pageId
-							}
-						}
-					}
 					posts {
 						edges {
 							node {
@@ -314,20 +268,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 				'categories' => [
 					'taxonomyInfo' => [
 						'name' => 'category',
-						'mediaItems' => [
-							'edges' => [
-								[
-									'node' => [ 'mediaItemId' => $attachment_id ],
-								],
-							],
-						],
-						'pages' => [
-							'edges' => [
-								[
-									'node' => [ 'pageId' => $page_id ],
-								],
-							],
-						],
 						'posts' => [
 							'edges' => [
 								[
@@ -358,8 +298,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		$post_tag_id = $this->factory->term->create( [ 'name' => 'Test' ] );
 
 		wp_set_object_terms( $post_id, $post_tag_id, 'post_tag' );
-		wp_set_object_terms( $page_id, $post_tag_id, 'post_tag' );
-		wp_set_object_terms( $attachment_id, $post_tag_id, 'post_tag' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -369,20 +307,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 			postTags {
 				taxonomyInfo {
 					name
-					mediaItems {
-						edges {
-							node {
-								mediaItemId
-							}
-						}
-					}
-					pages {
-						edges {
-							node {
-								pageId
-							}
-						}
-					}
 					posts {
 						edges {
 							node {
@@ -409,20 +333,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 				'postTags' => [
 					'taxonomyInfo' => [
 						'name' => 'post_tag',
-						'mediaItems' => [
-							'edges' => [
-								[
-									'node' => [ 'mediaItemId' => $attachment_id ],
-								],
-							],
-						],
-						'pages' => [
-							'edges' => [
-								[
-									'node' => [ 'pageId' => $page_id ],
-								],
-							],
-						],
 						'posts' => [
 							'edges' => [
 								[
