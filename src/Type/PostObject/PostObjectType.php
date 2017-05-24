@@ -43,24 +43,6 @@ class PostObjectType extends WPObjectType {
 	private static $post_type_object;
 
 	/**
-	 * Holds the object definition for media details
-	 * @var object $media_details
-	 */
-	private static $media_details;
-
-	/**
-	 * Holds the object definition for media item meta
-	 * @var object $media_item_meta
-	 */
-	private static $media_item_meta;
-
-	/**
-	 * Holds the object definition for media sizes
-	 * @var object $media_sizes
-	 */
-	private static $media_sizes;
-
-	/**
 	 * PostObjectType constructor.
 	 *
 	 * @param string $post_type The post_type name
@@ -77,12 +59,6 @@ class PostObjectType extends WPObjectType {
 		 */
 		self::$post_type_object = get_post_type_object( $post_type );
 
-		/**
-		 * Adjust the mediaItem fields to have a custom shape
-		 * @since 0.0.6
-		 */
-		add_filter( 'graphql_mediaItem_fields', [ $this, 'media_item_fields' ], 10, 1 );
-
 		$config = [
 			'name'        => self::$post_type_object->graphql_single_name,
 			// translators: the placeholder is the post_type of the object
@@ -90,6 +66,7 @@ class PostObjectType extends WPObjectType {
 			'fields'      => self::fields( self::$post_type_object ),
 			'interfaces'  => [ self::node_interface() ],
 		];
+
 		parent::__construct( $config );
 	}
 
@@ -396,239 +373,6 @@ class PostObjectType extends WPObjectType {
 		} // End if().
 
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
-
-	}
-
-	/**
-	 * This customizes the fields for the mediaItem type ( attachment post_type) as the shape of the mediaItem Schema
-	 * is different than a standard post
-	 *
-	 * @param array $fields
-	 *
-	 * @return array
-	 */
-	public function media_item_fields( $fields ) {
-
-		/**
-		 * Deprecate fields for the mediaItem type.
-		 * These fields can still be queried, but are just not preferred for the mediaItem type
-		 * @since 0.0.6
-		 */
-		$fields['excerpt']['isDeprecated'] = true;
-		$fields['excerpt']['deprecationReason'] = __( 'Use the caption field instead of excerpt', 'wp-graphql' );
-		$fields['content']['isDeprecated'] = true;
-		$fields['content']['deprecationReason'] = __( 'Use the description field instead of content', 'wp-graphql' );
-
-		/**
-		 * Add new fields to the mediaItem type
-		 * @since 0.0.6
-		 */
-		$new_fields = [
-			'caption' => [
-				'type' => Types::string(),
-				'description' => esc_html__( 'The caption for the resource', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
-
-					return ! empty( $caption ) ? $caption : null;
-				},
-			],
-			'altText' => [
-				'type' => Types::string(),
-				'description' => esc_html__( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return get_post_meta( $post->ID, '_wp_attachment_image_alt', true );
-				},
-			],
-			'description' => [
-				'type' => Types::string(),
-				'description' => esc_html__( 'Description of the image (stored as post_content)', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return apply_filters( 'the_content', $post->post_content );
-				},
-			],
-			'mediaType' => [
-				'type' => Types::string(),
-				'description' => esc_html__( 'Type of resource', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return wp_attachment_is_image( $post->ID ) ? 'image' : 'file';
-				},
-			],
-			'sourceUrl' => [
-				'type' => Types::string(),
-				'description' => esc_html__( 'Url of the mediaItem', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return wp_get_attachment_url( $post->ID );
-				},
-			],
-			'mediaDetails' => [
-				'type' => self::media_details(),
-				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
-				'resolve' => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return wp_get_attachment_metadata( $post->ID );
-				},
-			],
-
-		];
-
-		return array_merge( $fields, $new_fields );
-
-	}
-
-	/**
-	 * This defines the media details object type that can be queried on mediaItems
-	 * @return null|WPObjectType
-	 * @since 0.0.6
-	 */
-	private static function media_details() {
-
-		if ( null === self::$media_details ) {
-			self::$media_details = new WPObjectType([
-				'name' => 'mediaDetails',
-				'fields' => function() {
-					$fields = [
-						'width' => [
-							'type' => Types::int(),
-							'description' => __( 'The width of the mediaItem', 'wp-graphql' ),
-						],
-						'height' => [
-							'type' => Types::int(),
-							'description' => __( 'The height of the mediaItem', 'wp-graphql' ),
-						],
-						'file' => [
-							'type' => Types::string(),
-							'description' => __( 'The height of the mediaItem', 'wp-graphql' ),
-						],
-						'sizes' => [
-							'type' => Types::list_of( self::media_sizes() ),
-							'description' => __( 'The available sizes of the mediaItem', 'wp-graphql' ),
-							'resolve' => function( $media_details, $args, $context, ResolveInfo $info ) {
-								if ( ! empty( $media_details['sizes'] ) ) {
-									foreach ( $media_details['sizes'] as $size_name => $size ) {
-										$sizes[] = $size;
-										$sizes['name'] = $size_name;
-									}
-								}
-								return ! empty( $sizes ) ? $sizes : null;
-							},
-						],
-						'meta' => [
-							'type' => self::media_item_meta(),
-							'resolve' => function( $media_details, $args, $context, ResolveInfo $info ) {
-								return ! empty( $media_details['image_meta'] ) ? $media_details['image_meta'] : null;
-							},
-						],
-					];
-					return self::prepare_fields( $fields, 'mediaDetails' );
-				},
-			]);
-		} // End if().
-
-		return ! empty( self::$media_details ) ? self::$media_details : null;
-
-	}
-
-	/**
-	 * This defines the media item meta object type that can be queried on mediaItems
-	 * @return null|WPObjectType
-	 * @since 0.0.6
-	 */
-	private static function media_item_meta() {
-		if ( null === self::$media_item_meta ) {
-			self::$media_item_meta = new WPObjectType([
-				'name' => 'meta',
-				'fields' => [
-					'aperture' => [
-						'type' => Types::float(),
-					],
-					'credit' => [
-						'type' => Types::string(),
-					],
-					'camera' => [
-						'type' => Types::string(),
-					],
-					'caption' => [
-						'type' => Types::string(),
-					],
-					'createdTimestamp' => [
-						'type' => Types::int(),
-						'resolve' => function( $meta, $args, $context, ResolveInfo $info ) {
-							return ! empty( $meta['created_timestamp'] ) ? $meta['created_timestamp'] : null;
-						},
-					],
-					'copyright' => [
-						'type' => Types::string(),
-					],
-					'focalLength' => [
-						'type' => Types::int(),
-						'resolve' => function( $meta, $args, $context, ResolveInfo $info ) {
-							return ! empty( $meta['focal_length'] ) ? $meta['focal_length'] : null;
-						},
-					],
-					'iso' => [
-						'type' => Types::int(),
-					],
-					'shutterSpeed' => [
-						'type' => Types::float(),
-						'resolve' => function( $meta, $args, $context, ResolveInfo $info ) {
-							return ! empty( $meta['shutter_speed'] ) ? $meta['shutter_speed'] : null;
-						},
-					],
-					'title' => [
-						'type' => Types::string(),
-					],
-					'orientation' => [
-						'type' => Types::string(),
-					],
-					'keywords' => [
-						'type' => Types::list_of( Types::string() ),
-					],
-				],
-			]);
-		} // End if().
-		return ! empty( self::$media_item_meta ) ? self::$media_item_meta : null;
-	}
-
-	/**
-	 * This defines the sizes object type that can be queried on mediaItems within the mediaDetails
-	 * @return null|WPObjectType
-	 * @since 0.0.6
-	 */
-	private static function media_sizes() {
-
-		if ( null === self::$media_sizes ) {
-			self::$media_sizes = new WPObjectType([
-				'name' => 'sizes',
-				'fields' => [
-					'name' => [
-						'type' => Types::string(),
-						'description' => __( 'The referenced size name', 'wp-graphql' ),
-					],
-					'file' => [
-						'type' => Types::string(),
-						'description' => __( 'The file of the for the referenced size', 'wp-graphql' ),
-					],
-					'width' => [
-						'type' => Types::string(),
-						'description' => __( 'The width of the for the referenced size', 'wp-graphql' ),
-					],
-					'height' => [
-						'type' => Types::string(),
-						'description' => __( 'The height of the for the referenced size', 'wp-graphql' ),
-					],
-					'mimeType' => [
-						'type' => Types::string(),
-						'description' => __( 'The mime type of the resource', 'wp-graphql' ),
-					],
-					'sourceUrl' => [
-						'type' => Types::string(),
-						'description' => __( 'The url of the for the referenced size', 'wp-graphql' ),
-					],
-				],
-			]);
-		} // End if().
-
-		return ! empty( self::$media_sizes ) ? self::$media_sizes : null;
 
 	}
 

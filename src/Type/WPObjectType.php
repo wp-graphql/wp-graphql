@@ -38,6 +38,23 @@ class WPObjectType extends ObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config ) {
+
+		/**
+		 * Filter the config of WPObjectType
+		 *
+		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param Object $this The instance of the WPObjectType class
+		 */
+		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
+
+		/**
+		 * Run an action when the WPObjectType is instantiating
+		 *
+		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param Object $this The instance of the WPObjectType class
+		 */
+		do_action( 'graphql_wp_object_type', $config, $this );
+
 		parent::__construct( $config );
 	}
 
