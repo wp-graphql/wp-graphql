@@ -80,7 +80,7 @@ class WP_GraphQL_Test_Theme_Object_Queries extends WP_UnitTestCase {
 					'description' => null,
 					'id' => $global_id,
 					'name' => 'Twenty Seventeen',
-					'screenshot' => 'http://example.org/wp-content/themes/twentyseventeen/screenshot.png',
+					'screenshot' => null,
 					'slug' => 'twentyseventeen',
 					'tags' => null,
 					'themeUri' => 'https://wordpress.org/themes/twentyseventeen/',
