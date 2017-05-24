@@ -107,6 +107,13 @@ class MediaItemType {
 					return wp_get_attachment_url( $post->ID );
 				},
 			],
+			'mimeType' => [
+				'type' => Types::string(),
+				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
+				function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
+					return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
+				},
+			],
 			'mediaDetails' => [
 				'type'        => self::media_details(),
 				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
@@ -156,7 +163,6 @@ class MediaItemType {
 										$sizes[]        = $size;
 									}
 								}
-
 								return ! empty( $sizes ) ? $sizes : null;
 							},
 						],
