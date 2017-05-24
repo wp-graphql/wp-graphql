@@ -92,6 +92,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				self::$instance = new WPGraphQL;
 				self::$instance->setup_constants();
 				self::$instance->includes();
+				self::$instance->actions();
+				self::$instance->filters();
 			}
 
 			new \WPGraphQL\Data\Config();
@@ -186,6 +188,27 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
+
+		}
+
+		/**
+		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
+		 */
+		private function actions() {
+			// @placeholder where actions can be added throughout. This will be useful for mutations
+		}
+
+		/**
+		 * Setup filters
+		 */
+		private function filters() {
+
+			/**
+			 * mediaItems are the attachment postObject, but they have a different schema shape
+			 * than postObjects out of the box, so this filter adjusts the core mediaItem
+			 * shape of data
+			 */
+			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
 		}
 
@@ -289,6 +312,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
+
 			$taxonomies = get_taxonomies(
 				[
 					'show_in_graphql' => true,
