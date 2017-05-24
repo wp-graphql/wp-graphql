@@ -358,6 +358,17 @@ class PostObjectType extends WPObjectType {
 					}
 				}
 
+				if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+					$fields['featuredImage'] = [
+						'type' => Types::post_object( 'attachment' ),
+						'description' => __( 'The featured image for the object', 'wp-graphql' ),
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$thumbnail_id = get_post_thumbnail_id( $post->ID );
+							return ! empty( $thumbnail_id ) ? get_post( absint( $thumbnail_id ) ) : null;
+						},
+					];
+				}
+
 				/**
 				 * This prepares the fields by sorting them and applying a filter for adjusting the schema.
 				 * Because these fields are implemented via a closure the prepare_fields needs to be applied

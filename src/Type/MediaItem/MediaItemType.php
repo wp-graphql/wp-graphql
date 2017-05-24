@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\MediaItem;
 
+use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -151,8 +152,8 @@ class MediaItemType {
 							'resolve'     => function( $media_details, $args, $context, ResolveInfo $info ) {
 								if ( ! empty( $media_details['sizes'] ) ) {
 									foreach ( $media_details['sizes'] as $size_name => $size ) {
-										$sizes[]       = $size;
-										$sizes['name'] = $size_name;
+										$size['name']   = $size_name;
+										$sizes[]        = $size;
 									}
 								}
 
@@ -270,10 +271,16 @@ class MediaItemType {
 					'mimeType'  => [
 						'type'        => Types::string(),
 						'description' => __( 'The mime type of the resource', 'wp-graphql' ),
+						'resolve'     => function( $image, $args, $context, ResolveInfo $info ) {
+							return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
+						},
 					],
 					'sourceUrl' => [
 						'type'        => Types::string(),
 						'description' => __( 'The url of the for the referenced size', 'wp-graphql' ),
+						'resolve'     => function( $image, $args, $context, ResolveInfo $info ) {
+							return ! empty( $image['file'] ) ? $image['file'] : null;
+						},
 					],
 				],
 			] );
