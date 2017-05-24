@@ -8,6 +8,12 @@
  */
 class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
+	public $current_time;
+	public $current_date;
+	public $current_date_gmt;
+	public $admin;
+
+
 	/**
 	 * This function is run before each method
 	 * @since 0.0.5
@@ -43,7 +49,7 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
 		$query = '
 		{
-		  plugins{
+		  plugins(last: 1){
 		    edges{
 		      node{
 		        id
@@ -60,12 +66,6 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 			'data' => [
 				'plugins' => [
 					'edges' => [
-						[
-							'node' => [
-								'id' => 'cGx1Z2luOkFraXNtZXQ=',
-								'name' => 'Akismet',
-							],
-						],
 						[
 							'node' => [
 								'id' => 'cGx1Z2luOkhlbGxvIERvbGx5',
@@ -89,7 +89,7 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
 		$query = '
 		{
-		  plugin(id: "cGx1Z2luOkFraXNtZXQ="){
+		  plugin(id: "cGx1Z2luOkhlbGxvIERvbGx5"){
 		    id
 		    name
 		  }
@@ -101,8 +101,8 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'plugin' => [
-					'id' => 'cGx1Z2luOkFraXNtZXQ=',
-					'name' => 'Akismet',
+					'id' => 'cGx1Z2luOkhlbGxvIERvbGx5',
+					'name' => 'Hello Dolly',
 				],
 			],
 		];

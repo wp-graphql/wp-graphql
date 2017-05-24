@@ -3,8 +3,8 @@ namespace WPGraphQL\Type\PostObject\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -13,176 +13,103 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Resolvers
  * @since   0.0.5
  */
-class PostObjectConnectionResolver {
+class PostObjectConnectionResolver extends ConnectionResolver {
 
 	/**
-	 * This handles resolving a query for post objects (of any specified $post_type) from the
-	 * root_query or from any connection where post_objects are queryable. This resolver takes in
-	 * the Relay standard args (before, after, first, last) and uses them to query from the
-	 * WP_Query and return results according to the Relay spec.
+	 * Stores the name of the $post_type being resolved
 	 *
-	 * PAGINATION DETAILS: For backward pagination, last and before should be used together.
-	 * - last should be a non-negative integer
-	 * - before should be a cursor which contains the offset of the position in the overall
-	 *   collection of data For forward pagination, first and after should be used together.
-	 * - first should be a non-negative integer
-	 * - after should be a cursor which contains the offset of the position in the overall
-	 *   collection of data
+	 * @var $post_type
+	 */
+	public static $post_type;
+
+	/**
+	 * PostObjectConnectionResolver constructor.
 	 *
-	 * PAGINATION ALGORITHM: If $first is set:
-	 * - if $first is less than 0, throw an error
-	 * - if $edges has length greater than first, slice the $edges to be the length of $first be
-	 *   removing $edges from the end of $edges If $last is set:
-	 * - If $last is less than 0, throw an error
-	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by
-	 *   removing $edges from the start of $edges ADDITIONAL ARGUMENTS: Additional arguments are
-	 *   mapped from the GraphQL friendly names to WP_Query-friendly names and are applied to the
-	 *   WP_Query appropriately.
+	 * @param $post_type
+	 */
+	public function __construct( $post_type ) {
+		self::$post_type = $post_type;
+	}
+
+	/**
+	 * This returns the $query_args that should be used when querying for posts in the postObjectConnectionResolver.
+	 * This checks what input $args are part of the query, combines them with various filters, etc and returns an
+	 * array of $query_args to be used in the \WP_Query call
 	 *
-	 * @param string      $post_type The post type the post is in
-	 * @param mixed       $source    The query results from a parent query
-	 * @param array       $args      The query arguments
-	 * @param AppContext  $context   The AppContext object
-	 * @param ResolveInfo $info      The ResolveInfo object
+	 * @param mixed       $source  The query source being passed down to the resolver
+	 * @param array       $args    The arguments that were provided to the query
+	 * @param AppContext  $context Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
 	 *
 	 * @return array
 	 * @throws \Exception
-	 * @since  0.0.5
-	 * @access public
 	 */
-	public static function resolve( $post_type, $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Get the subfields that were queried so we can make proper decisions
+		 * The post_type is set based on the type being queried.
 		 */
-		$field_selection = $info->getFieldSelection( 5 );
+		$query_args['post_type'] = ! empty( self::$post_type ) ? self::$post_type : 'post';
 
 		/**
-		 * Get the cursor offset based on the Cursor passed to the after/before args
-		 * @since 0.0.5
+		 * Pass the graphql $args to the WP_Query
 		 */
-		$after = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
+		$query_args['graphql_args'] = $args;
 
 		/**
-		 * Ensure the first/last values max at 100 items so that posts_per_page doesn't exceed 100 items
-		 * @since 0.0.5
+		 * Sticky posts are off by default to reduce unexpected results in queries.
 		 */
-		$first = ( ! empty( $args['first'] ) && 100 >= intval( $args['first'] ) ) ? $args['first'] : null;
-		$last = ( ! empty( $args['last'] ) && 100 >= intval( $args['last'] ) ) ? $args['last'] : null;
+		$query_args['ignore_sticky_posts'] = true;
 
 		/**
-		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
-		 * results.
-		 * @since 0.0.5
-		 */
-		if ( ( ! empty( $args['first'] ) && ! empty( $args['before'] ) ) || ( ! empty( $args['last'] ) && ! empty( $args['after'] ) ) ) {
-			throw new \Exception( __( 'Please provide only (first & after) OR (last & before). This can otherwise lead to confusing behavior', 'wp-graphql' ) );
-		}
-		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
-			throw new \Exception( __( '"Before" and "After" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-		if ( ! empty( $first ) && ! empty( $last ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * Determine the posts_per_page to query based on the $first/$last args
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
-			$query_args['posts_per_page'] = absint( $first );
-			if ( ! empty( $before ) ) {
-				$query_args['paged'] = 1;
-			} elseif ( ! empty( $after ) ) {
-				$query_args['paged'] = absint( ( $after / $first ) + 1 );
-			}
-		} elseif ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
-			$query_args['posts_per_page'] = absint( $last );
-			if ( ! empty( $before ) ) {
-				$query_args['order'] = 'DESC';
-				$query_args['paged'] = absint( $before / $last );
-			} elseif ( ! empty( $after ) ) {
-				$query_args['paged'] = 1;
-			}
-		}
-
-		/**
-		 * Set the post_type based on the $post_type passed to the resolver
-		 * @since 0.0.5
-		 */
-		$query_args['post_type'] = $post_type;
-
-		/**
-		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
-		 * @since 0.0.6
-		 */
-		if ( 'attachment' === $post_type ) {
-			$query_args['post_status'] = 'inherit';
-		}
-
-		/**
-		 * Set no_found_rows to true by default to make queries more efficient by not having to
-		 * calculate the entire set of data.
-		 * @since 0.0.5
+		 * Cursor based pagination allows us to efficiently page through data without having to know the total number
+		 * of items matching the query.
 		 */
 		$query_args['no_found_rows'] = true;
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details,
-		 * so we need to run the query with no_found_rows set to false.
-		 * @since 0.0.5
+		 * Set the graphql_cursor_offset
 		 */
-		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
+		$query_args['graphql_cursor_offset'] = self::get_offset( $args );
+
+		/**
+		 * Set the cursor compare direction
+		 */
+		if ( ! empty( $args['before'] ) ) {
+			$query_args['graphql_cursor_compare'] = '<';
+		} elseif ( ! empty( $args['after'] ) ) {
+			$query_args['graphql_cursor_compare'] = '>';
+		}
+
+		/**
+		 * Set the orderby to orderby DATE, DESC by default
+		 */
+		$id_order              = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
+		$query_args['orderby'] = [
+			'date' => esc_html( $id_order ),
+		];
+
+		/**
+		 * We only need to calculate the totalItems matching the query, if it's been specifically asked
+		 * for in the Query response.
+		 */
+		$field_selection = $info->getFieldSelection( 2 );
+		if ( ! empty( $field_selection['debug']['totalItems'] ) ) {
 			$query_args['no_found_rows'] = false;
 		}
 
 		/**
-		 * If the source of the Query is a PostType, adjust the query args to only query posts
-		 * connected to the PostType
-		 * @since 0.0.5
-		 */
-		if ( $source instanceof \WP_Post_Type ) {
-			$query_args['post_type'] = $source->name;
-		}
-
-		/**
-		 * If the source of the Query is a Term object, adjust the query args to only query posts
-		 * connected to the term object
-		 * @since 0.0.5
-		 */
-		if ( $source instanceof \WP_Term ) {
-			$query_args['tax_query'] = [
-				[
-					'taxonomy' => $source->taxonomy,
-					'terms' => [ $source->term_id ],
-					'field' => 'term_id',
-				],
-			];
-		}
-
-		/**
-		 * If the source of the Query is a User object, adjust the query args to only query posts
-		 * connected to the User object
-		 * @since 0.0.5
-		 */
-		if ( $source instanceof \WP_User ) {
-			$query_args['author'] = $source->ID;
-		}
-
-		/**
-		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
-		 * the WP_Query names to be used in the WP_Query
+		 * Take any of the input $args (under the "where" input) that were part of the GraphQL query and map and
+		 * sanitize their GraphQL input to apply to the WP_Query
 		 */
 		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
-			$input_fields = self::map_input_fields_to_wp_query( $args['where'], $post_type, $source, $args, $context, $info );
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
 		}
 
 		/**
 		 * Merge the default $query_args with the $args that were entered in the query.
+		 *
 		 * @since 0.0.5
 		 */
 		if ( ! empty( $input_fields ) ) {
@@ -190,80 +117,159 @@ class PostObjectConnectionResolver {
 		}
 
 		/**
-		 * Run the query
-		 * @since 0.0.5
+		 * Map the orderby Input args to the WP_Query args
 		 */
-		$wp_query = new \WP_Query( $query_args );
-
-		/**
-		 * Grab the post results out of the query
-		 * @since 0.0.5
-		 */
-		$post_results = $wp_query->posts;
-
-		/**
-		 * Throw an exception if no results were found.
-		 * @since 0.0.5
-		 */
-		if ( empty( $post_results ) ) {
-			throw new \Exception( __( 'No results were found for the query. Try broadening the arguments.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to
-		 * build the offsets based on the details we received back from the query and query_args
-		 */
-		$edge_count = ! empty( $wp_query->found_posts ) ? absint( $wp_query->found_posts ) : count( $wp_query->posts );
-		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart'] = 0;
-
-		/**
-		 * Build the pagination details based on the arguments passed.
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $last ) ) {
-			$meta['sliceStart'] = ( $edge_count - $last );
-			$post_results = array_reverse( $post_results );
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after );
-			}
-		} elseif ( ! empty( $first ) ) {
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( 0 );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after + 1 );
+		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
+			foreach ( $args['where']['orderby'] as $orderby_input ) {
+				if ( ! empty( $orderby_input['field'] ) ) {
+					$query_args['orderby'][ esc_html( $orderby_input['field'] ) ] = ! empty( $orderby_input['order'] ) ? esc_html( $orderby_input['order'] ) : 'DESC';
+				}
 			}
 		}
 
 		/**
-		 * Generate the array of posts with keys representing the position of the post in the
-		 * greater array of data
-		 * @since 0.0.5
+		 * Handle setting dynamic $query_args based on the source (higher level query)
 		 */
-		$posts_array = [];
-		if ( is_array( $post_results ) && ! empty( $post_results ) ) {
-			$index = $meta['sliceStart'];
-			foreach ( $post_results as $post ) {
-				$posts_array[ $index ] = $post;
-				$index ++;
+		if ( true === is_object( $source ) ) {
+			switch ( true ) {
+				case $source instanceof \WP_Post:
+					$query_args['post_type'] = $source->name;
+					break;
+				case $source instanceof \WP_Term:
+					$query_args['tax_query'] = [
+						[
+							'taxonomy' => $source->taxonomy,
+							'terms'    => [ $source->term_id ],
+							'field'    => 'term_id',
+						],
+					];
+					break;
+				case $source instanceof \WP_User:
+					$query_args['author'] = $source->ID;
+					break;
+				default:
+					break;
 			}
 		}
 
+		/**
+		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
+		 */
+		if ( 'attachment' === self::$post_type ) {
+			$query_args['post_status'] = 'inherit';
+		}
 
 		/**
-		 * Generate the Relay fields (pageInfo, Edges, Cursor, etc)
-		 * @since 0.0.5
+		 * Ensure that the query is ordered by ID in addition to any other orderby options
 		 */
-		$posts = Relay::connectionFromArraySlice( $posts_array, $args, $meta );
+		$query_args['orderby'] = array_merge( $query_args['orderby'], [
+			'ID' => esc_html( $id_order ),
+		] );
 
 		/**
-		 * Return the connection
-		 * @since 0.0.5
+		 * Set the posts_per_page, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 *
+		 * @since 0.0.6
 		 */
-		return $posts;
+		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
+		$query_args['posts_per_page'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
 
+		return $query_args;
+
+	}
+
+	/**
+	 * This runs the query and returns the response
+	 *
+	 * @param $query_args
+	 *
+	 * @return \WP_Query
+	 */
+	public static function get_query( $query_args ) {
+		$query = new \WP_Query( $query_args );
+
+		return $query;
+	}
+
+	/**
+	 * This takes an array of items, the $args and the $query and returns the connection including
+	 * the edges and page info
+	 *
+	 * @param array $items The items
+	 * @param array $args  The $args that were passed to the query
+	 * @param mixed $query The query that
+	 *
+	 * @return array
+	 */
+	public static function get_connection( array $items, array $args, $query ) {
+
+		/**
+		 * Get the $posts from the query
+		 */
+		$items = ! empty( $items ) && is_array( $items ) ? $items : [];
+
+		/**
+		 * Set whether there is or is not another page
+		 */
+		$has_previous_page = ( ! empty( $args['last'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
+		$has_next_page     = ( ! empty( $args['first'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
+
+		/**
+		 * Slice the array to the amount of items that were requested
+		 */
+		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
+		$items = array_reverse( $items );
+
+		/**
+		 * Get the edges from the $items
+		 */
+		$edges = self::get_edges( $items );
+
+		/**
+		 * Find the first_edge and last_edge
+		 */
+		$first_edge = $edges ? $edges[0] : null;
+		$last_edge  = $edges ? $edges[ count( $edges ) - 1 ] : null;
+
+		$edges_to_return = $edges;
+
+
+		/**
+		 * Create the connection to return
+		 */
+		$connection = [
+			'edges'    => $edges_to_return,
+			'pageInfo' => [
+				'hasPreviousPage' => $has_previous_page,
+				'hasNextPage'     => $has_next_page,
+				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
+				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
+			]
+		];
+
+		return $connection;
+
+	}
+
+	/**
+	 * Takes an array of items and returns the edges
+	 *
+	 * @param $items
+	 *
+	 * @return array
+	 */
+	public static function get_edges( $items ) {
+		$edges = [];
+		if ( ! empty( $items ) && is_array( $items ) ) {
+			foreach ( $items as $item ) {
+				$edges[] = [
+					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
+					'node'   => $item,
+				];
+			}
+		}
+
+		return $edges;
 	}
 
 	/**
@@ -272,44 +278,41 @@ class PostObjectConnectionResolver {
 	 * this was quick. I'd be down to explore more dynamic ways to map this, but for
 	 * now this gets the job done.
 	 *
-	 * @param array       $args      Query "where" args
-	 * @param string      $post_type The post type for the query
-	 * @param mixed       $source    The query results for a query calling this
-	 * @param array       $all_args  All of the arguments for the query (not just the "where" args)
-	 * @param AppContext  $context   The AppContext object
-	 * @param ResolveInfo $info      The ResolveInfo object
+	 * @param array       $args     Query "where" args
+	 * @param mixed       $source   The query results for a query calling this
+	 * @param array       $all_args All of the arguments for the query (not just the "where" args)
+	 * @param AppContext  $context  The AppContext object
+	 * @param ResolveInfo $info     The ResolveInfo object
 	 *
 	 * @since  0.0.5
 	 * @access public
 	 * @return array
 	 */
-	public static function map_input_fields_to_wp_query( $args, $post_type, $source, $all_args, $context, $info ) {
+	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
 
 		$arg_mapping = [
-			'authorName'    => 'author_name',
-			'authorIn'      => 'author__in',
-			'authorNotIn'   => 'author__not_in',
-			'categoryName'  => 'category_name',
-			'categoryAnd'   => 'category__and',
-			'categoryIn'    => 'category__in',
-			'categoryNotIn' => 'category__not_in',
-			'tagId'         => 'tag_id',
-			'tagIds'        => 'tag__and',
-			'tagNotIn'      => 'tag__not_in',
-			'tagSlugAnd'    => 'tag_slug__and',
-			'tagSlugIn'     => 'tag_slug__in',
-			'search'        => 's',
-			'id'            => 'p',
-			'parent'        => 'post_parent',
-			'parentIn'      => 'post_parent__in',
-			'parentNotIn'   => 'post_parent__not_in',
-			'in'            => 'post__in',
-			'notIn'         => 'post__not_in',
-			'nameIn'        => 'post_name__in',
-			'hasPassword'   => 'has_password',
-			'password'      => 'post_password',
-			'status'        => 'post_status',
-			'dateQuery'     => 'date_query',
+			'authorName'   => 'author_name',
+			'authorIn'     => 'author__in',
+			'authorNotIn'  => 'author__not_in',
+			'categoryId'   => 'cat',
+			'categoryName' => 'category_name',
+			'categoryIn'   => 'category__in',
+			'tagId'        => 'tag_id',
+			'tagIds'       => 'tag__and',
+			'tagSlugAnd'   => 'tag_slug__and',
+			'tagSlugIn'    => 'tag_slug__in',
+			'search'       => 's',
+			'id'           => 'p',
+			'parent'       => 'post_parent',
+			'parentIn'     => 'post_parent__in',
+			'parentNotIn'  => 'post_parent__not_in',
+			'in'           => 'post__in',
+			'notIn'        => 'post__not_in',
+			'nameIn'       => 'post_name__in',
+			'hasPassword'  => 'has_password',
+			'password'     => 'post_password',
+			'status'       => 'post_status',
+			'dateQuery'    => 'date_query',
 		];
 
 		/**
@@ -333,7 +336,7 @@ class PostObjectConnectionResolver {
 		 * @since 0.0.5
 		 * @return array
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $post_type, $source, $all_args, $context, $info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $source, $all_args, $context, $info );
 
 		/**
 		 * Return the Query Args

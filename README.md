@@ -1,4 +1,4 @@
-#WPGraphQL 
+# WPGraphQL 
 
 <a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a>
 
@@ -7,12 +7,12 @@ GraphQL API for WordPress.
 [![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql) [![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg?branch=master)](https://coveralls.io/github/wp-graphql/wp-graphql?branch=master)
 [![WPGraphQL on Slack](https://slackin-wpgraphql.herokuapp.com/badge.svg)](https://slackin-wpgraphql.herokuapp.com/)
 
-=============
+------
 
-##Installing
+## Installing
 Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
 
-##Overview
+## Overview
 This plugin brings the power of GraphQL to WordPress.
 
 <a href="https://graphql.org" target="_blank">GraphQL</a> is a query language spec that was open sourced by Facebook® in 
@@ -50,13 +50,13 @@ my recommendation is the _GraphiQL_ desktop app below:
     
     <img src="https://github.com/wp-graphql/wp-graphql/blob/master/img/graphql-docs.gif?raw=true" alt="GraphiQL API Explorer">
 
-##Example Queries
+## Example Queries
 Here's some example queries to get you going with experimenting. You can simply copy and paste these into the GraphiQL 
 query inspector and you'll receive a response of data in the same shape as the request. There's also a video walkthrough 
 of GraphQL queries using WPGraphQL here: 
 <a href="https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/">https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/</a>
 
-####Get a list of posts:
+#### Get a list of posts:
 ```
 {
     posts{
@@ -73,10 +73,10 @@ of GraphQL queries using WPGraphQL here:
 }
 ```
 
-####Get a list of category terms:
+#### Get a list of category terms:
 ```
 {
-	categories{
+  categories{
     edges{
       node{
         id
@@ -89,7 +89,8 @@ of GraphQL queries using WPGraphQL here:
 }
 ```
 
-####Get a lost of posts, with the categories it's attached to:
+#### Get a list of posts, with the categories it's attached to:
+
 
 ```
 {
@@ -117,12 +118,27 @@ of GraphQL queries using WPGraphQL here:
 
 ```
 
-##Unit Testing
+## POSSIBLE BREAKING CHANGES
+Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
+
+## Extensions
+There are a few extensions available as well:
+- https://github.com/wp-graphql/wp-graphql-meta-query 
+Adds support for meta_query
+- https://github.com/wp-graphql/wp-graphql-tax-query
+Adds support for tax_query
+- https://github.com/roborourke/wp-graphql-meta
+Adds support for automatically exposing fields registered using the `register_meta` API to GraphQL calls
+
+
+## Unit Testing
 To run unit tests during development, you'll first need a testing database that you'd like to use. 
 
 Open the command line and navigate to the plugin's directory. From within the plugin directory, run the following 
-command to install the test suite, filling in the parameters appropriately to link to an existing test database or to
+commands to install the test suite, filling in the parameters appropriately to link to an existing test database or to
 create a new test database:
+
+`composer install`
 
 `bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]`
 

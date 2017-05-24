@@ -3,6 +3,7 @@ namespace WPGraphQL\Type\PostObject;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
@@ -30,22 +31,26 @@ class PostObjectQuery {
 	public static function root_query( $post_type_object ) {
 
 		if ( null === self::$root_query ) {
+			self::$root_query = [];
+		}
 
-			self::$root_query = [
+		if ( ! empty( $post_type_object->name ) && empty( self::$root_query[ $post_type_object->name ] ) ) {
+
+			self::$root_query[ $post_type_object->name ] = [
 				'type' => Types::post_object( $post_type_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'args' => [
 					'id' => Types::non_null( Types::id() ),
 				],
-				'resolve' => function( $source, array $args, $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 
 					return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
 				},
 			];
 
+			return self::$root_query[ $post_type_object->name ];
 		}
-
 		return self::$root_query;
 	}
 

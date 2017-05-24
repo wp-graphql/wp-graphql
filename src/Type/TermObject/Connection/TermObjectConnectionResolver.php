@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\TermObject\Connection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -11,109 +12,87 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Resolvers
  * @since 0.0.5
  */
-class TermObjectConnectionResolver {
+class TermObjectConnectionResolver extends ConnectionResolver {
 
 	/**
-	 * resolve
-	 * This handles resolving a query for post objects (of any specified $taxonomy) from the
-	 * root_query or from any connection where term_objects are queryable. This resolver takes in
-	 * the Relay standard args (before, after, first, last) and uses them to query from the
-	 * get_posts query and return results according to the Relay spec.
+	 * Stores the name of the taxonomy for the connection being resolved
 	 *
-	 * PAGINATION DETAILS: For backward pagination, last and before should be used together.
-	 * - last should be a non-negative integer
-	 * - before should be a cursor which contains the offset of the position in the overall
-	 *   collection of data For forward pagination, first and after should be used together.
-	 * - first should be a non-negative integer
-	 * - after should be a cursor which contains the offset of the position in the overall
-	 *   collection of data
+	 * @var string $taxonomy
+	 */
+	public static $taxonomy;
+
+	/**
+	 * TermObjectConnectionResolver constructor.
 	 *
-	 * PAGINATION ALGORITHM: If $first is set:
-	 * - if $first is less than 0, throw an error
-	 * - if $edges has length greater than first, slice the $edges to be the length of $first be
-	 *   removing $edges from the end of $edges If $last is set:
-	 * - If $last is less than 0, throw an error
-	 * - if $edges has length greater than $last, slice the $edges to be the length of $last by
-	 *   removing $edges from the start of $edges ADDITIONAL ARGUMENTS: Additional "where" arguments
-	 *   are mapped from the GraphQL friendly names to get_terms allowed names and are applied to the
-	 *   get_terms query appropriately.
-	 *
-	 * @param string      $taxonomy Name of the taxonomy we are making a connection for
-	 * @param mixed       $source   Results of the query calling this connection
-	 * @param array       $args     Query arguments
-	 * @param AppContext  $context  The AppContext object
-	 * @param ResolveInfo $info     The ResolveInfo object
+	 * @param $taxonomy
+	 */
+	public function __construct( $taxonomy ) {
+		self::$taxonomy = $taxonomy;
+	}
+
+	/**
+	 * Returns an array of query_args to use in the WP_Term_Query to fetch the necessary terms for the connection
+	 * 
+	 * @param             $source
+	 * @param array       $args
+	 * @param AppContext  $context
+	 * @param ResolveInfo $info
 	 *
 	 * @return array
-	 * @throws \Exception
-	 * @since  0.0.5
-	 * @access public
 	 */
-	public static function resolve( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Get the sub fields that were queried so we can make proper decisions
+		 * Set the taxonomy for the $args
 		 */
-		$field_selection = $info->getFieldSelection( 5 );
+		$query_args['taxonomy'] = ! empty( self::$taxonomy ) ? self::$taxonomy : 'category';
 
 		/**
-		 * Get the cursor offset based on the Cursor passed to the after/before args
-		 * @since 0.0.5
+		 * Pass the graphql $args to the WP_Query
 		 */
-		$after = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
+		$query_args['graphql_args'] = $args;
 
 		/**
-		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't
-		 * exceed 100
-		 * @since 0.0.5
+		 * Set the graphql_cursor_offset
 		 */
-		$first = 100 >= intval( $args['first'] ) ? $args['first'] : 10;
-		$last = 100 >= intval( $args['last'] ) ? $args['last'] : 10;
+		$query_args['graphql_cursor_offset'] = self::get_offset( $args );
 
 		/**
-		 * Throw an error if both First and Last were used, as they should not be used together as the
-		 * first/last determines the order of the query results.
-		 * @since 0.0.5
+		 * Set the cursor compare direction
 		 */
-		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
-			throw new \Exception( __( '"Before" and "After" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-		if ( ! empty( $first ) && ! empty( $last ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together in arguments.', 'wp-graphql' ) );
+		if ( ! empty( $args['before'] ) ) {
+			$query_args['graphql_cursor_compare'] = '<';
+		} elseif ( ! empty( $args['after'] ) ) {
+			$query_args['graphql_cursor_compare'] = '>';
 		}
 
 		/**
-		 * Determine the number, order and offset to query based on the $first/$last/$before/$after args
+		 * Orderby Name by default
+		 */
+		$query_args['orderby'] = 'count';
+
+		/**
+		 * Set the order
+		 */
+		$order = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
+		$query_args['order'] = $order;
+
+		/**
+		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
+		 * the WP_Term_Query names to be used in the WP_Term_Query
 		 * @since 0.0.5
 		 */
-		$query_args['number'] = 10;
-		$query_args['offset'] = 0;
-
-		if ( ! empty( $first ) ) {
-			$query_args['order'] = 'DESC';
-			$query_args['number'] = absint( $first );
-			if ( ! empty( $before ) ) {
-				$query_args['offset'] = 0;
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = absint( $after + 1 );
-			}
-		} elseif ( ! empty( $last ) ) {
-			$query_args['order'] = 'ASC';
-			$query_args['number'] = absint( $last );
-			if ( ! empty( $before ) ) {
-				$query_args['order'] = 'DESC';
-				$query_args['offset'] = ( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = 0;
-			}
+		$input_fields = [];
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
 		}
 
 		/**
-		 * Set the post_type based on the $post_type passed to the resolver
+		 * Merge the default $query_args with the $args that were entered in the query.
 		 * @since 0.0.5
 		 */
-		$query_args['taxonomy'] = $taxonomy;
+		$query_args = array_merge( $query_args, $input_fields );
+
 
 		/**
 		 * If the source of the Query is a Post object, adjust the query args to only query terms
@@ -125,120 +104,98 @@ class TermObjectConnectionResolver {
 		}
 
 		/**
-		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
-		 * the WP_Term_Query names to be used in the WP_Term_Query
-		 * @since 0.0.5
+		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$entered_args = [];
-		if ( ! empty( $args['where'] ) ) {
-			$entered_args = self::map_input_fields_to_get_terms( $args['where'], $taxonomy, $source, $args, $context, $info );
-		}
+		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
+		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info ) + $pagination_increase;
+
+		return $query_args;
+
+	}
+
+	/**
+	 * This runs the query and returns the response
+	 *
+	 * @param $query_args
+	 *
+	 * @return \WP_Term_Query
+	 */
+	public static function get_query( $query_args ) {
+		$query = new \WP_Term_Query( $query_args );
+
+
+		return $query;
+	}
+
+	public static function get_connection( array $items, array $args, $query ) {
 
 		/**
-		 * Merge the default $query_args with the $args that were entered in the query.
-		 * @since 0.0.5
+		 * Get the $posts from the query
 		 */
-		$query_args = array_merge( $query_args, $entered_args );
+		$items = ! empty( $items ) && is_array( $items ) ? $items : [];
 
 		/**
-		 * Run the query
-		 * NOTE: We were using new \WP_Term_Query and it was working fine, but with get_terms the
-		 * performance is ~300% faster... seems interesting as get_terms is just a wrapper for
-		 * \WP_Term_Query... so might be worth investigating further what causes the
-		 * difference in performance and if we should stick with this or move back
-		 * to \WP_Term_Query...
-		 *
-		 * @since 0.0.5
+		 * Set whether there is or is not another page
 		 */
-		$term_query = get_terms( $query_args );
+		$has_previous_page = ( ! empty( $args['last'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
+		$has_next_page     = ( ! empty( $args['first'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
 
 		/**
-		 * Grab the terms from the results of the query
-		 * @since 0.0.5
+		 * Slice the array to the amount of items that were requested
 		 */
-		$term_results = $term_query;
+		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
+		$items = array_reverse( $items );
 
 		/**
-		 * Throw an exception if no results were found.
-		 * @since 0.0.5
+		 * Get the edges from the $items
 		 */
-		if ( empty( $term_results ) ) {
-			throw new \Exception( __( 'No results were found for the query. Try broadening the 
-			arguments.', 'wp-graphql' ) );
-		}
+		$edges = self::get_edges( $items );
 
 		/**
-		 * Default the $edge_count to the number of results returned from the query.
-		 * @since 0.0.5
+		 * Find the first_edge and last_edge
 		 */
-		$edge_count = count( $term_results );
+		$first_edge = $edges ? $edges[0] : null;
+		$last_edge  = $edges ? $edges[ count( $edges ) - 1 ] : null;
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so
-		 * we need to run the query with no_found_rows set to false.
-		 *
-		 * @since 0.0.5
+		 * Create the connection to return
 		 */
-		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
-			$count_args = $query_args;
-			unset( $count_args['number'], $count_args['offset'] );
-			$edge_count = wp_count_terms( $taxonomy, $count_args );
-		}
+		$connection = [
+			'edges'    => $edges,
+			'debug'    => [
+				'queryRequest' => ! empty( $query->request ) ? $query->request : null,
+			],
+			'pageInfo' => [
+				'hasPreviousPage' => $has_previous_page,
+				'hasNextPage'     => $has_next_page,
+				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
+				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
+			]
+		];
 
-		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to
-		 * build the offsets based on the details we received back from the query and query_args
-		 */
-		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart'] = 0;
+		return $connection;
 
-		/**
-		 * Build the pagination details based on the arguments passed.
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $last ) ) {
-			$meta['sliceStart'] = ( $edge_count - $last );
-			$term_results = array_reverse( $term_results );
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after );
-			}
-		} elseif ( ! empty( $first ) ) {
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( 0 );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after + 1 );
-			}
-		}
+	}
 
-		/**
-		 * Generate the array of terms with keys representing the position of the term in the
-		 * greater array of data
-		 *
-		 * @since 0.0.5
-		 */
-		$terms_array = [];
-		if ( is_array( $term_results ) && ! empty( $term_results ) ) {
-			$index = $meta['sliceStart'];
-			foreach ( $term_results as $term ) {
-				$terms_array[ $index ] = $term;
-				$index ++;
+	/**
+	 * Takes an array of items and returns the edges
+	 *
+	 * @param $items
+	 *
+	 * @return array
+	 */
+	public static function get_edges( $items ) {
+		$edges = [];
+		if ( ! empty( $items ) && is_array( $items ) ) {
+			foreach ( $items as $item ) {
+				$edges[] = [
+					'cursor' => ArrayConnection::offsetToCursor( $item->term_id ),
+					'node'   => $item,
+				];
 			}
 		}
 
-		/**
-		 * Generate the Relay fields (pageInfo, Edges, Cursor, etc)
-		 * @since 0.0.5
-		 */
-		$terms = ArrayConnection::connectionFromArraySlice( $terms_array, $args, $meta );
-
-		/**
-		 * Return the connection
-		 * @since 0.0.5
-		 */
-		return $terms;
-
+		return $edges;
 	}
 
 	/**
@@ -257,7 +214,7 @@ class TermObjectConnectionResolver {
 	 * @return array
 	 * @access public
 	 */
-	public static function map_input_fields_to_get_terms( $args, $taxonomy, $source, $all_args, $context, $info ) {
+	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
 
 		$arg_mapping = [
 			'objectIds'           => 'object_ids',
@@ -293,7 +250,7 @@ class TermObjectConnectionResolver {
 		 * @since 0.0.5
 		 * @return array
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $args, $taxonomy, $source, $all_args, $context, $info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $args, self::$taxonomy, $source, $all_args, $context, $info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 

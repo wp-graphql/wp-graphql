@@ -12,6 +12,7 @@ use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
+use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
 use WPGraphQL\Type\Plugin\PluginType;
 use WPGraphQL\Type\PostObject\PostObjectType;
@@ -20,6 +21,7 @@ use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
+use WPGraphQL\Type\Union\PostObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
 
@@ -91,6 +93,15 @@ class Types {
 	private static $post_object_query_args;
 
 	/**
+	 * Stores the post object union type config
+	 *
+	 * @var PostObjectUnionType object $post_object_union
+	 * @since 0.0.6
+	 * @access private
+	 */
+	private static $post_object_union;
+
+	/**
 	 * Stores the post status enum type object
 	 *
 	 * @var PostStatusEnumType object $post_status_enum
@@ -125,6 +136,15 @@ class Types {
 	 * @access private
 	 */
 	private static $relation_enum;
+
+	/**
+	 * Stores the root mutation type object
+	 *
+	 * @var RootMutationType object $root_mutation
+	 * @since 0.0.6
+	 * @access private
+	 */
+	private static $root_mutation;
 
 	/**
 	 * Stores the root query type object
@@ -265,6 +285,17 @@ class Types {
 	}
 
 	/**
+	 * This returns the definition for the PostObjectUnionType
+	 *
+	 * @return PostObjectUnionType object
+	 * @since 0.0.5
+	 * @access public
+	 */
+	public static function post_object_union() {
+		return self::$post_object_union ? : ( self::$post_object_union = new PostObjectUnionType() );
+	}
+
+	/**
 	 * This returns the definition for the PostStatusEnumType
 	 *
 	 * @return PostStatusEnumType object
@@ -318,6 +349,18 @@ class Types {
 	public static function relation_enum() {
 		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnumType() );
 	}
+
+	/**
+	 * This returns the definition for the RootMutationType
+	 *
+	 * @return RootMutationType object
+	 * @since  0.0.8
+	 * @access public
+	 */
+	public static function root_mutation() {
+		return self::$root_mutation ? : ( self::$root_mutation = new RootMutationType() );
+	}
+
 
 	/**
 	 * This returns the definition for the RootQueryType

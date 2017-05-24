@@ -2,9 +2,8 @@
 namespace WPGraphQL\Type\User\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Connection\ArrayConnection;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -13,209 +12,100 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Resolvers
  * @since 0.5.0
  */
-class UserConnectionResolver {
+class UserConnectionResolver extends ConnectionResolver {
 
 	/**
-	 * Creates the connections for users
+	 * This runs the query and returns the repsonse
 	 *
-	 * @param mixed       $source  The results of the query calling this relation
-	 * @param array       $args    The Query args
-	 * @param AppContext  $context The AppContext object
-	 * @param ResolveInfo $info    The ResolveInfo object
+	 * @param $query_args
+	 *
+	 * @return \WP_User_Query
+	 */
+	public static function get_query( $query_args ) {
+		$query = new \WP_User_Query( $query_args );
+		return $query;
+	}
+
+	/**
+	 * This returns the $query_args that should be used when querying for posts in the postObjectConnectionResolver.
+	 * This checks what input $args are part of the query, combines them with various filters, etc and returns an
+	 * array of $query_args to be used in the \WP_Query call
+	 *
+	 * @param mixed       $source    The query source being passed down to the resolver
+	 * @param array       $args      The arguments that were provided to the query
+	 * @param AppContext  $context   Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info      Info about fields passed down the resolve tree
 	 *
 	 * @return array
-	 * @since  0.5.0
 	 * @throws \Exception
-	 * @access public
 	 */
-	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
+	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Get the subfields that were queried so we can make proper decisions
-		 */
-		$field_selection = $info->getFieldSelection( 5 );
-
-		/**
-		 * Get the cursor offset based on the Cursor passed to the after/before args
-		 * @since 0.0.5
-		 */
-		$after  = ( ! empty( $args['after'] ) ) ? ArrayConnection::cursorToOffset( $args['after'] ) : null;
-		$before = ( ! empty( $args['before'] ) ) ? ArrayConnection::cursorToOffset( $args['before'] ) : null;
-
-		/**
-		 * Ensure the first/last values max at 100 items so that "number" query_arg doesn't exceed 100
-		 * @since 0.0.5
-		 */
-		$first = 100 >= intval( $args['first'] ) ? intval( $args['first'] ) : 10;
-		$last  = 100 >= intval( $args['last'] ) ? intval( $args['last'] ) : 10;
-
-		/**
-		 * Throw an error if mixed pagination paramaters are used that will lead to poor/confusing
-		 * results.
-		 *
-		 * @since 0.0.5
-		 */
-		if ( ( ! empty( $args['first'] ) && ! empty( $args['before'] ) ) || ( ! empty( $args['last'] ) && ! empty( $args['after'] ) ) ) {
-			throw new \Exception( __( 'Please provide only (first & after) OR (last & before). This can otherwise lead to confusing behavior', 'wp-graphql' ) );
-		}
-		if ( ! empty( $args['after'] ) && ! empty( $args['before'] ) ) {
-			throw new \Exception( __( '"Before" and "After" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-		if ( ! empty( $first ) && ! empty( $last ) ) {
-			throw new \Exception( __( '"First" and "Last" should not be used together in arguments.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * Determine the number, order and offset to query based on the $first/$last/$before/$after args
-		 * @since 0.0.5
-		 */
-		$query_args['number'] = 10;
-		$query_args['offset'] = 0;
-
-		if ( ! empty( $first ) ) {
-			$query_args['order']  = 'DESC';
-			$query_args['number'] = absint( $first );
-			if ( ! empty( $before ) ) {
-				$query_args['offset'] = 0;
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = absint( $after + 1 );
-			}
-		} elseif ( ! empty( $last ) ) {
-			$query_args['order']  = 'ASC';
-			$query_args['number'] = absint( $last );
-			if ( ! empty( $before ) ) {
-				$query_args['order']  = 'DESC';
-				$query_args['offset'] = ( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$query_args['offset'] = 0;
-			}
-		}
-
-		/**
-		 * Set count_total to false by default to make queries more efficient by not having to
-		 * calculate the entire set of data.
-		 *
-		 * @since 0.0.5
+		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['count_total'] = false;
+		$query_args['offset'] = self::get_offset( $args );
+		$query_args['order'] = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
 
 		/**
 		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so
 		 * we need to run the query with count_total set to true.
-		 *
-		 * @since 0.0.5
 		 */
-		if ( ! empty( $args ) || ! empty( $field_selection['pageInfo'] ) ) {
+		$field_selection = $info->getFieldSelection( 2 );
+		if ( ! empty( $field_selection['pageInfo'] ) ) {
 			$query_args['count_total'] = true;
 		}
 
-		/**
-		 * If the source of the Query is a Post object, adjust the query args to only query the
-		 * user connected to the post object
-		 *
-		 * @since 0.0.5
-		 */
-		if ( $source instanceof \WP_Post ) {
-			$query_args['include'] = [ $source->post_author ];
+		if ( true === is_object( $source ) ) {
+			switch ( true ) {
+				case $source instanceof \WP_Post:
+					$query_args['include'] = [ $source->post_author ];
+					break;
+				case $source instanceof \WP_Comment:
+					$query_args['include'] = [ $source->user_ID ];
+					break;
+			}
 		}
 
 		/**
-		 * If the source of the Query is a Comment object, adjust the query args to only query the
-		 * user that is marked as the comment user ID
-		 *
-		 * @since 0.0.5
+		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		if ( $source instanceof \WP_Comment ) {
-			$query_args['include'] = [ $source->user_ID ];
-		}
+		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info );
 
 		/**
-		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
-		 * the WP_Term_Query names to be used in the WP_Term_Query
-		 *
-		 * @since 0.0.5
+		 * Take any of the input $args (under the "where" input) that were part of the GraphQL query and map and
+		 * sanitize their GraphQL input to apply to the WP_Query
 		 */
-		$entered_args = [];
+		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
-			$entered_args = self::map_input_fields_to_get_terms( $args['where'], $source, $args, $context, $info );
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
 		}
 
 		/**
 		 * Merge the default $query_args with the $args that were entered in the query.
-		 * @since 0.0.5
-		 */
-		$query_args = array_merge( $query_args, $entered_args );
-
-		/**
-		 * Run the query
-		 * @since 0.0.5
-		 */
-		$users_query = new \WP_User_Query( $query_args );
-		$users_query->query();
-		$user_results = $users_query->get_results();
-
-		/**
-		 * Throw an exception if no results were found.
-		 * @since 0.0.5
-		 */
-		if ( empty( $user_results ) ) {
-			throw new \Exception( __( 'No results were found for the query. Try broadening the arguments.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * If pagination info was selected and we know the entire length of the data set, we need to
-		 * build the offsets based on the details we received back from the query and query_args
-		 */
-		$edge_count          = ! empty( $users_query->total_users ) ? absint( $users_query->total_users ) : count( $user_results );
-		$meta['arrayLength'] = $edge_count;
-		$meta['sliceStart']  = 0;
-
-		/**
-		 * Build the pagination details based on the arguments passed.
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $last ) ) {
-			$meta['sliceStart'] = ( $edge_count - $last );
-			$user_results       = array_reverse( $user_results );
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( $before - $last );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after );
-			}
-		} elseif ( ! empty( $first ) ) {
-			if ( ! empty( $before ) ) {
-				$meta['sliceStart'] = absint( 0 );
-			} elseif ( ! empty( $after ) ) {
-				$meta['sliceStart'] = absint( $after + 1 );
-			}
-		}
-
-		/**
-		 * Generate the array of posts with keys representing the position of the post in the
-		 * greater array of data
 		 *
 		 * @since 0.0.5
 		 */
-		$users_array = [];
-		if ( is_array( $user_results ) && ! empty( $user_results ) ) {
-			$index = $meta['sliceStart'];
-			foreach ( $user_results as $user ) {
-				$users_array[ $index ] = $user;
-				$index ++;
-			}
+		if ( ! empty( $input_fields ) ) {
+			$query_args = array_merge( $query_args, $input_fields );
 		}
 
 		/**
-		 * Generate the Relay fields (pageInfo, Edges, Cursor, etc)
-		 * @since 0.0.5
+		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
+		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 *
+		 * @param array       $query_args array of query_args being passed to the
+		 * @param mixed       $source     source passed down from the resolve tree
+		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+		 * @param AppContext  $context    object passed down zthe resolve tree
+		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 *
+		 * @since 0.0.6
 		 */
-		$users = Relay::connectionFromArraySlice( $users_array, $args, $meta );
+		$query_args = apply_filters( 'graphql_user_connection_query_args', $query_args, $source, $args, $context, $info );
 
-		/**
-		 * Return the connection
-		 * @since 0.0.5
-		 */
-		return $users;
+		return $query_args;
 
 	}
 
@@ -236,7 +126,7 @@ class UserConnectionResolver {
 	 * @return array
 	 * @access private
 	 */
-	private static function map_input_fields_to_get_terms( $args, $source, $all_args, $context, $info ) {
+	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
 
 		$arg_mapping = [
 			'roleIn'            => 'role__in',

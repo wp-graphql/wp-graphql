@@ -25,7 +25,7 @@ class ThemeConnectionResolver {
 	 * @return array
 	 * @access public
 	 */
-	public static function resolve( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$themes = wp_get_themes();
 
 		return Relay::connectionFromArray( $themes, $args );

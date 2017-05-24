@@ -8,6 +8,11 @@
  */
 class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
+	public $current_time;
+	public $current_date;
+	public $current_date_gmt;
+	public $admin;
+
 	/**
 	 * This function is run before each method
 	 * @since 0.0.5
@@ -15,11 +20,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->current_time = strtotime( 'now' );
+		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 
 	}
@@ -37,21 +42,21 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Set up the $defaults
 		 */
-		$defaults = array(
+		$defaults = [
 			'post_author'  => $this->admin,
 			'post_content' => 'Test page content',
-			'post_date'    => $this->current_date,
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
 			'post_title'   => 'Test Title',
 			'post_type'    => 'post',
-		);
+			'post_date'    => $this->current_date,
+		];
 
 		/**
 		 * Combine the defaults with the $args that were
 		 * passed through
 		 */
-		$args = wp_parse_args( $args, $defaults );
+		$args = array_merge( $defaults, $args );
 
 		/**
 		 * Create the page
@@ -85,7 +90,9 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -96,8 +103,8 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
-		query { 
-			post(id: \"{$global_id}\") { 
+		query {
+			post(id: \"{$global_id}\") {
 				id
 				author{
 					userId
@@ -121,12 +128,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 				excerpt
 				link
 				menuOrder
-				mimeType
 				postId
 				slug
 				toPing
 				title
-			} 
+			}
 		}";
 
 		/**
@@ -144,7 +150,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'author' => [
 						'userId' => $this->admin,
 					],
-					'commentCount' => 0,
+					'commentCount' => null,
 					'commentStatus' => 'open',
 					'content' => apply_filters( 'the_content', 'Test page content' ),
 					'date' => $this->current_date,
@@ -163,7 +169,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'link' => get_permalink( $post_id ),
 					'menuOrder' => null,
-					'mimeType' => null,
 					'postId' => $post_id,
 					'slug' => 'test-title',
 					'toPing' => false,
@@ -176,83 +181,207 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * testPostsConnectionQuery
+	 * testPostQueryWithComments
 	 *
-	 * This tests creating a 3 posts with data and retrieving said posts via a GraphQL query
+	 * This tests creating a single post with comments.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testPostsConnectionQuery() {
+	public function testPostQueryWithComments() {
 
 		/**
-		 * Create 3 new pages to query against
+		 * Create a post
 		 */
-		$page_1 = $this->createPostObject( [ 'post_type' => 'page' ] );
-		$page_2 = $this->createPostObject( [ 'post_type' => 'page' ] );
-		$page_3 = $this->createPostObject( [ 'post_type' => 'page' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
+
+		// Create a comment and assign it to post.
+		$comment_id = $this->factory->comment->create( [
+			'comment_post_ID' => $post_id,
+		] );
 
 		/**
-		 * Get the global IDs from the pages
+		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id_1 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_1 );
-		$global_id_2 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_2 );
-		$global_id_3 = \GraphQLRelay\Relay::toGlobalId( 'page', $page_3 );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = '
-		query{
-		  pages {
-		    edges {
-		      node {
-		        id
-		        pageId
-		        author {
-		          userId
-		        }
-		      }
-		    }
-		  }
-		}
-		';
+		$query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				commentCount
+				commentStatus
+				comments {
+					edges {
+						node {
+							commentId
+						}
+					}
+				}
+			}
+		}";
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = $actual = do_graphql_request( $query );
+		$actual = do_graphql_request( $query );
 
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data' => [
-				'pages' => [
-					'edges' => [
-						[
-							'node' => [
-								'id' => $global_id_3,
-								'pageId' => $page_3,
-								'author' => [
-									'userId' => $this->admin,
+				'post' => [
+					'id' => $global_id,
+					'comments' => [
+						'edges' => [
+							[
+								'node' => [
+									'commentId' => $comment_id,
 								],
 							],
 						],
-						[
-							'node' => [
-								'id' => $global_id_2,
-								'pageId' => $page_2,
-								'author' => [
-									'userId' => $this->admin,
-								],
-							],
-						],
-						[
-							'node' => [
-								'id' => $global_id_1,
-								'pageId' => $page_1,
-								'author' => [
-									'userId' => $this->admin,
+					],
+					'commentCount' => 1,
+					'commentStatus' => 'open',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testPageQueryWithParent
+	 *
+	 * This tests a hierarchical post type assigned a parent.
+	 *
+	 * @since 0.0.5
+	 */
+	public function testPageQueryWithParent() {
+
+		// Parent post.
+		$parent_id = $this->createPostObject( [
+			'post_type' => 'page',
+		] );
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'page', 'post_parent' => $parent_id,
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			page(id: \"{$global_id}\") {
+				id
+				parent {
+					... on page {
+						pageId
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'page' => [
+					'id' => $global_id,
+					'parent' => [
+						'pageId' => $parent_id,
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testPostQueryWithTags
+	 *
+	 * This tests creating a single post with assigned post tags.
+	 *
+	 * @since 0.0.5
+	 */
+	public function testPostQueryWithTags() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
+
+		// Create a comment and assign it to post.
+		$tag_id = $this->factory->tag->create( [
+			'name' => 'A tag',
+		] );
+
+		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				postTags {
+					edges {
+						node {
+							postTagId
+							name
+						}
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'post' => [
+					'id' => $global_id,
+					'postTags' => [
+						'edges' => [
+							[
+								'node' => [
+									'postTagId' => $tag_id,
+									'name' => 'A tag',
 								],
 							],
 						],
@@ -262,7 +391,80 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
-
 	}
 
+	/**
+	 * testPostQueryWithCategories
+	 *
+	 * This tests creating a single post with categories assigned.
+	 *
+	 * @since 0.0.5
+	 */
+	public function testPostQueryWithCategories() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
+
+		// Create a comment and assign it to post.
+		$category_id = $this->factory->category->create( [
+			'name' => 'A category',
+		] );
+
+		wp_set_object_terms( $post_id, $category_id, 'category' );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				categories {
+					edges {
+						node {
+							categoryId
+							name
+						}
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'post' => [
+					'id' => $global_id,
+					'categories' => [
+						'edges' => [
+							[
+								'node' => [
+									'categoryId' => $category_id,
+									'name' => 'A category',
+								],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
 }

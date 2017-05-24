@@ -279,7 +279,7 @@ class RootQueryType extends ObjectType {
 			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 				if ( ! ( $context->viewer instanceof \WP_User ) ) {
-					throw new \Exception( __( 'The current viewe is invalid', 'wp-graphql' ) );
+					throw new \Exception( __( 'The current viewer is invalid', 'wp-graphql' ) );
 				}
 
 				return false !== $context->viewer->ID ? DataSource::resolve_user( $context->viewer->ID ) : null;

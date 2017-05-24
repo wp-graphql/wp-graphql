@@ -58,18 +58,20 @@ class DataSource {
 	}
 
 	/**
-	 * Wrapper for the CommentsConnectionResolver::resolve method
+	 * Wrapper for the CommentsConnectionResolver class
 	 *
 	 * @param             WP_Post  object $source
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
-	 * @return array
+	 * @return mixed
 	 * @since 0.0.5
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return CommentConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new CommentConnectionResolver();
+
+		return $resolver->resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -98,6 +100,7 @@ class DataSource {
 
 		/**
 		 * Loop through the plugins and find the matching one
+		 *
 		 * @since 0.0.5
 		 */
 		foreach ( $plugins as $path => $plugin_data ) {
@@ -124,14 +127,14 @@ class DataSource {
 	 *
 	 * @param \WP_Post    $source  WP_Post object
 	 * @param array       $args    Array of arguments to pass to reolve method
-	 * @param object      $context AppContext object passed down
+	 * @param AppContext  $context AppContext object passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_plugins_connection( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
@@ -158,7 +161,7 @@ class DataSource {
 	}
 
 	/**
-	 * Wrapper for PostObjectsConnectionResolver::resolve
+	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param string      $post_type Post type of the post we are trying to resolve
 	 * @param             $source
@@ -166,12 +169,14 @@ class DataSource {
 	 * @param AppContext  $context   AppContext object to pass down
 	 * @param ResolveInfo $info      The ResolveInfo object
 	 *
-	 * @return array
+	 * @return mixed
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_post_objects_connection( $post_type, $source, array $args, $context, ResolveInfo $info ) {
-		return PostObjectConnectionResolver::resolve( $post_type, $source, $args, $context, $info );
+	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
+		$resolver = new PostObjectConnectionResolver( $post_type );
+
+		return $resolver->resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -255,18 +260,20 @@ class DataSource {
 	/**
 	 * Wrapper for TermObjectConnectionResolver::resolve
 	 *
-	 * @param \WP_Taxonomy $taxonomy The WP_Taxonomy object of the taxonomy the term is connected to
 	 * @param              $source
 	 * @param array        $args     Array of args to be passed to the resolve method
 	 * @param AppContext   $context  The AppContext object to be passed down
 	 * @param ResolveInfo  $info     The ResolveInfo object
+	 * @param \WP_Taxonomy $taxonomy The WP_Taxonomy object of the taxonomy the term is connected to
 	 *
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_term_objects_connection( $taxonomy, $source, array $args, $context, ResolveInfo $info ) {
-		return TermObjectConnectionResolver::resolve( $taxonomy, $source, $args, $context, $info );
+	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
+		$resolver = new TermObjectConnectionResolver( $taxonomy );
+
+		return $resolver->resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -355,7 +362,7 @@ class DataSource {
 
 			$node_definition = Relay::nodeDefinitions(
 
-				// The ID fetcher definition
+			// The ID fetcher definition
 				function( $global_id ) {
 
 					if ( empty( $global_id ) ) {
@@ -364,44 +371,83 @@ class DataSource {
 
 					/**
 					 * Convert the encoded ID into an array we can work with
+					 *
 					 * @since 0.0.4
 					 */
 					$id_components = Relay::fromGlobalId( $global_id );
 
 					/**
-					 * Get the allowed_post_types and allowed_taxonomies
+					 * If the $id_components is a proper array with a type and id
+					 *
 					 * @since 0.0.5
 					 */
-					$allowed_post_types = \WPGraphQL::$allowed_post_types;
-					$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-
 					if ( is_array( $id_components ) && ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
+
+						/**
+						 * Get the allowed_post_types and allowed_taxonomies
+						 *
+						 * @since 0.0.5
+						 */
+						$allowed_post_types = \WPGraphQL::$allowed_post_types;
+						$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+
 						switch ( $id_components['type'] ) {
 
-							// postObjects
 							case in_array( $id_components['type'], $allowed_post_types, true ):
-								return self::resolve_post_object( $id_components['id'], $id_components['type'] );
-							// termObjects
+								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
+								break;
 							case in_array( $id_components['type'], $allowed_taxonomies, true ):
-								return self::resolve_term_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_term_object( $id_components['id'], $id_components['type'] );
+								break;
 							case 'comment':
-								$comment = self::resolve_comment( $id_components['id'] );
-
-								return $comment;
+								$node = self::resolve_comment( $id_components['id'] );
+								break;
 							case 'plugin':
-								return self::resolve_plugin( $id_components['id'] );
+								$node = self::resolve_plugin( $id_components['id'] );
+								break;
 							case 'post_type':
-								return self::resolve_post_type( $id_components['id'] );
+								$node = self::resolve_post_type( $id_components['id'] );
+								break;
 							case 'taxonomy':
-								return self::resolve_taxonomy( $id_components['id'] );
+								$node = self::resolve_taxonomy( $id_components['id'] );
+								break;
 							case 'theme':
-								return self::resolve_theme( $id_components['id'] );
+								$node = self::resolve_theme( $id_components['id'] );
+								break;
 							case 'user':
-								return self::resolve_user( $id_components['id'] );
+								$node = self::resolve_user( $id_components['id'] );
+								break;
 							default:
-								throw new \Exception( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+								/**
+								 * Add a filter to allow externally registered node types to resolve based on
+								 * the id_components
+								 *
+								 * @param int    $id   The id of the node, from the global ID
+								 * @param string $type The type of node to resolve, from the global ID
+								 *
+								 * @since 0.0.6
+								 */
+								$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'] );
+								break;
 
 						}
+
+						/**
+						 * If the $node is not properly resolved, throw an exception
+						 *
+						 * @since 0.0.6
+						 */
+						if ( null === $node ) {
+							throw new \Exception( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+						}
+
+						/**
+						 * Return the resolved $node
+						 *
+						 * @since 0.0.5
+						 */
+						return $node;
+
 					} else {
 						throw new \Exception( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 					}
@@ -410,28 +456,67 @@ class DataSource {
 				// Type resolver
 				function( $node ) {
 
-					if ( is_object( $node ) ) {
-						if ( $node instanceof \WP_Post ) {
-							return Types::post_object( $node->post_type );
-						} elseif ( $node instanceof \WP_Term ) {
-							return Types::term_object( $node->taxonomy );
-						} elseif ( $node instanceof \WP_Comment ) {
-							return Types::comment();
-						} elseif ( $node instanceof \WP_Post_Type ) {
-							return Types::post_type();
-						} elseif ( $node instanceof \WP_Taxonomy ) {
-							return Types::taxonomy();
-						} elseif ( $node instanceof \WP_Theme ) {
-							return Types::theme();
-						} elseif ( $node instanceof \WP_User ) {
-							return Types::user();
+					if ( true === is_object( $node ) ) {
+
+						switch ( true ) {
+							case $node instanceof \WP_Post:
+								$type = Types::post_object( $node->post_type );
+								break;
+							case $node instanceof \WP_Term:
+								$type = Types::term_object( $node->taxonomy );
+								break;
+							case $node instanceof \WP_Comment:
+								$type = Types::comment();;
+								break;
+							case $node instanceof \WP_Post_Type:
+								$type = Types::post_type();
+								break;
+							case $node instanceof \WP_Taxonomy:
+								$type = Types::taxonomy();
+								break;
+							case $node instanceof \WP_Theme:
+								$type = Types::theme();
+								break;
+							case $node instanceof \WP_User:
+								$type = Types::user();
+								break;
+							default:
+								$type = null;
+								break;
 						}
+
 						// Some nodes might return an array instead of an object
 					} elseif ( is_array( $node ) && array_key_exists( 'PluginURI', $node ) ) {
-						return Types::plugin();
+						$type = Types::plugin();
 					}
 
-					throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
+					/**
+					 * Add a filter to allow externally registered node types to return the proper type
+					 * based on the node_object that's returned
+					 *
+					 * @param mixed|object|array $type The type definition the node should resolve to.
+					 * @param mixed|object|array $node The $node that is being resolved
+					 *
+					 * @since 0.0.6
+					 */
+					$type = apply_filters( 'graphql_resolve_node_type', $type, $node );
+
+					/**
+					 * If the $type is not properly resolved, throw an exception
+					 *
+					 * @since 0.0.6
+					 */
+					if ( null === $type ) {
+						throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
+					}
+
+					/**
+					 * Return the resolved $type for the $node
+					 *
+					 * @since 0.0.5
+					 */
+					return $type;
+
 				}
 			);
 
