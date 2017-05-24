@@ -24,7 +24,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 
 	}
@@ -90,7 +90,9 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -126,7 +128,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 				excerpt
 				link
 				menuOrder
-				mimeType
 				postId
 				slug
 				toPing
@@ -168,7 +169,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'link' => get_permalink( $post_id ),
 					'menuOrder' => null,
-					'mimeType' => null,
 					'postId' => $post_id,
 					'slug' => 'test-title',
 					'toPing' => false,
@@ -192,10 +192,14 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
 
 		// Create a comment and assign it to post.
-		$comment_id = $this->factory->comment->create( [ 'comment_post_ID' => $post_id ] );
+		$comment_id = $this->factory->comment->create( [
+			'comment_post_ID' => $post_id,
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -261,12 +265,16 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	public function testPageQueryWithParent() {
 
 		// Parent post.
-		$parent_id = $this->createPostObject( [ 'post_type' => 'page' ] );
+		$parent_id = $this->createPostObject( [
+			'post_type' => 'page',
+		] );
 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'page', 'post_parent' => $parent_id ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'page', 'post_parent' => $parent_id,
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -322,10 +330,14 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
 
 		// Create a comment and assign it to post.
-		$tag_id = $this->factory->tag->create( [ 'name' => 'A tag' ] );
+		$tag_id = $this->factory->tag->create( [
+			'name' => 'A tag',
+		] );
 
 		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
 
@@ -393,10 +405,14 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [ 'post_type' => 'post' ] );
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
 
 		// Create a comment and assign it to post.
-		$category_id = $this->factory->category->create( [ 'name' => 'A category' ] );
+		$category_id = $this->factory->category->create( [
+			'name' => 'A category',
+		] );
 
 		wp_set_object_terms( $post_id, $category_id, 'category' );
 
