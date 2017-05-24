@@ -1,9 +1,11 @@
+
 <?php
 namespace WPGraphQL\Type\PostObject;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
@@ -44,7 +46,7 @@ class PostObjectType extends WPObjectType {
 	/**
 	 * PostObjectType constructor.
 	 *
-	 * @param string $post_type
+	 * @param string $post_type The post_type name
 	 *
 	 * @since 0.0.5
 	 */
@@ -60,10 +62,12 @@ class PostObjectType extends WPObjectType {
 
 		$config = [
 			'name'        => self::$post_type_object->graphql_single_name,
+			// translators: the placeholder is the post_type of the object
 			'description' => sprintf( __( 'The %s object type', 'wp-graphql' ), self::$post_type_object->graphql_single_name ),
 			'fields'      => self::fields( self::$post_type_object ),
 			'interfaces'  => [ self::node_interface() ],
 		];
+
 		parent::__construct( $config );
 	}
 
@@ -119,6 +123,7 @@ class PostObjectType extends WPObjectType {
 				$fields = [
 					'id'                => [
 						'type'    => Types::non_null( Types::id() ),
+						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $post->post_type ) && ! empty( $post->ID ) ) ? Relay::toGlobalId( $post->post_type, $post->ID ) : null;
 						},
@@ -301,15 +306,8 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : null;
 						},
 					],
-					'mimeType'          => [
-						'type'        => Types::string(),
-						'description' => esc_html__( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
-						},
-					],
-					'desiredSlug'       => [
-						'type'        => Types::string(),
+					'desiredSlug' => [
+						'type' => Types::string(),
 						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$desired_slug = get_post_meta( $post->ID, '_wp_desired_post_slug', true );
@@ -358,6 +356,17 @@ class PostObjectType extends WPObjectType {
 							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object );
 						}
 					}
+				}
+
+				if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+					$fields['featuredImage'] = [
+						'type' => Types::post_object( 'attachment' ),
+						'description' => __( 'The featured image for the object', 'wp-graphql' ),
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$thumbnail_id = get_post_thumbnail_id( $post->ID );
+							return ! empty( $thumbnail_id ) ? get_post( absint( $thumbnail_id ) ) : null;
+						},
+					];
 				}
 
 				/**

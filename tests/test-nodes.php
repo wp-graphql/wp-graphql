@@ -18,7 +18,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 	}
 
