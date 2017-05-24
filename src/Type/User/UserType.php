@@ -245,7 +245,7 @@ class UserType extends WPObjectType {
 								}
 							}
 
-							if ( true === $args['forceDefault'] ) {
+							if ( ! empty( $args['forceDefault'] ) && true === $args['forceDefault'] ) {
 								$avatar_args['force_default'] = true;
 							}
 

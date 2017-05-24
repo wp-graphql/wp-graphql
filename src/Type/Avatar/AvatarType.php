@@ -88,7 +88,7 @@ class AvatarType extends WPObjectType {
 						'type'        => Types::boolean(),
 						'description' => esc_html__( 'Whether to always show the default image, never the Gravatar.', 'wp-graphql' ),
 						'resolve'     => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
-							return ( ! empty( $avatar['force_default'] ) ) ? true : false;
+							return ( ! empty( $avatar['force_default'] ) && true === $avatar['force_default'] ) ? true : false;
 						},
 					],
 					'rating'       => [
@@ -110,7 +110,7 @@ class AvatarType extends WPObjectType {
 						'type'        => Types::boolean(),
 						'description' => esc_html__( 'Whether the avatar was successfully found.', 'wp-graphql' ),
 						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $avatar['found_avatar'] ) ? $avatar['found_avatar'] : null;
+							return ! empty( $avatar['found_avatar'] && true === $avatar['found_avatar'] ) ? true : false;
 						},
 					],
 					'url'          => [
