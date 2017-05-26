@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\Comment;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Connections;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
@@ -54,10 +53,8 @@ class CommentType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			self::$fields = function() {
-
 				$fields = [
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
@@ -168,8 +165,7 @@ class CommentType extends WPObjectType {
 				 */
 				return self::prepare_fields( $fields, self::$type_name );
 			};
-		}
-
+		endif;
 		return self::$fields;
 	}
 

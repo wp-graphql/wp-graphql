@@ -54,8 +54,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 *
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-		parent::__construct( 'queryArgs', self::fields() );
+	public function __construct( $config = [] ) {
+		$config['name'] = 'queryArgs';
+		$config['fields'] = self::fields();
+		parent::__construct( $config );
 	}
 
 	/**
@@ -68,8 +70,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			$fields = [
 
 				/**
@@ -256,10 +257,8 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = $fields;
-
-		}
-
+			self::$fields = self::prepare_fields( $fields, 'queryArgs' );
+		endif;
 		return self::$fields;
 
 	}
@@ -283,9 +282,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function orderby_field() {
 		if ( null === self::$orderby_field ) {
-			self::$orderby_field = new WPInputObjectType(
-				'orderbyOptions',
-				[
+
+			self::$orderby_field = new WPInputObjectType( [
+				'name' => 'orderbyOptions',
+				'fields' => self::prepare_fields( [
 					'field' => Types::non_null( self::orderby_enum() ),
 					'order' => new EnumType( [
 						'name'   => 'order',
@@ -294,8 +294,8 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 							'DESC' => 'DESC',
 						],
 					] ),
-				]
-			);
+				], 'orderbyOptions' ),
+			] );
 		}
 
 		return ! empty( self::$orderby_field ) ? self::$orderby_field : null;
@@ -310,11 +310,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function orderby_enum() {
 
-		if ( null === self::$orderby_enum ) {
-
-			self::$orderby_enum = new WPEnumType(
-				$name = 'orderby',
-				$values = [
+		if ( null === self::$orderby_enum ) :
+			self::$orderby_enum = new WPEnumType([
+				'name' => 'orderby',
+				'values' => [
 					[
 						'name'        => 'AUTHOR',
 						'value'       => 'author',
@@ -360,13 +359,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 						'value'       => 'post_name__in',
 						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
 					],
-				]
-			);
-
-		}
-
+				],
+			]);
+		endif;
 		return self::$orderby_enum;
-
 	}
 
 }

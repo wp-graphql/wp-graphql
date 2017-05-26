@@ -1,35 +1,38 @@
 <?php
+
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
+use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
+use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
+use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 
 /**
  * Class RootMutationType
  * The RootMutationType is the primary entry point for Mutations in the GraphQL Schema
+ *
  * @package WPGraphQL\Type
- * @since 0.0.8
+ * @since   0.0.8
  */
 class RootMutationType extends WPObjectType {
 
 	/**
 	 * Holds the $fields definition for the PluginType
+	 *
 	 * @var $fields
-	 * @since 0.0.8
 	 */
 	private static $fields;
 
 	/**
 	 * Holds the type name
+	 *
 	 * @var string $type_name
-	 * @since 0.0.8
 	 */
 	private static $type_name;
 
 	/**
 	 * RootMutationType constructor.
-	 * @since 0.0.8
 	 */
 	public function __construct() {
 
@@ -37,17 +40,15 @@ class RootMutationType extends WPObjectType {
 
 		/**
 		 * Configure the rootMutation
-		 * @since 0.0.8
 		 */
 		$config = [
-			'name' => self::$type_name,
+			'name'        => self::$type_name,
 			'description' => __( 'The root mutation', 'wp-graphql' ),
-			'fields' => self::fields(),
+			'fields'      => self::fields(),
 		];
 
 		/**
 		 * Pass the config to the parent construct
-		 * @since 0.0.8
 		 */
 		parent::__construct( $config );
 
@@ -58,28 +59,42 @@ class RootMutationType extends WPObjectType {
 	 * schema can be modified, for example to add entry points to Types that are unique to certain plugins.
 	 *
 	 * @return array|\GraphQL\Type\Definition\FieldDefinition[]
-	 * @since 0.0.8
 	 */
 	private static function fields() {
 
 		if ( null === self::$fields ) {
 
-			// @todo: Remove this once mutations are built out. This was added to get mutations going, so that
-			// Authentication mutations could be added, but this will not be a long-term mutation that will remain
-			self::$fields['hello'] = [
-				'type' => Types::string(),
-				'description' => esc_html__( 'Example mutation field', 'wp-graphql' ),
-				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-					return 'world';
-				}
-			];
+			$fields             = [];
+			$allowed_post_types = \WPGraphQL::$allowed_post_types;
 
-		}
+			if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+				foreach ( $allowed_post_types as $post_type ) {
+					/**
+					 * Get the post_type object to pass down to the schema
+					 *
+					 * @since 0.0.5
+					 */
+					$post_type_object = get_post_type_object( $post_type );
+
+					/**
+					 * Root mutation for single posts (of the specified post_type)
+					 *
+					 * @since 0.0.5
+					 */
+					$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectCreate::mutate( $post_type_object );
+					$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectUpdate::mutate( $post_type_object );
+					$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
+
+				} // End foreach().
+			} // End if().
+
+			self::$fields = $fields;
+
+		} // End if().
 
 		/**
 		 * Pass the fields through a filter to allow for hooking in and adjusting the shape
 		 * of the type's schema
-		 * @since @since 0.0.8
 		 */
 		return self::prepare_fields( self::$fields, self::$type_name );
 

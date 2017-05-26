@@ -61,8 +61,7 @@ class PostTypeType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
 			 * @since 0.0.6
@@ -272,11 +271,8 @@ class PostTypeType extends WPObjectType {
 				return self::prepare_fields( $fields, self::$type_name );
 
 			};
-
-		}
-
+		endif;
 		return self::$fields;
-
 	}
 
 }

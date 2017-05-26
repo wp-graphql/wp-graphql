@@ -32,7 +32,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$query_args  = static::get_query_args( $source, $args, $context, $info );
 		$query       = static::get_query( $query_args );
 		$array_slice = self::get_array_slice( $query, $args );
-		$connection  = static::get_connection( $array_slice, $args, $query );
+		$connection  = static::get_connection( $query, $array_slice, $source, $args, $context, $info );
 
 		/**
 		 * Filter the connection, and provide heaps of info to make it easy to filter very specific cases
@@ -66,45 +66,22 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	/**
 	 * Take an array return a connection
 	 *
-	 * @param array $array
-	 * @param array $args
-	 * @param       $query
+	 * @param mixed $query The query being performed
+	 * @param array $array The array of connection items
+	 * @param mixed $source The source being passed down the resolve tree
+	 * @param array $args The args for the field being resolved
+	 * @param AppContext $context The context being passed down the Resolve tree
+	 * @param ResolveInfo $info The ResolveInfo for the field being resolved
 	 *
 	 * @return array
 	 */
-	public static function get_connection( array $array, array $args, $query ) {
+	public static function get_connection( $query, array $array, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		$meta       = self::get_array_meta( $query, $args );
 		$connection = ArrayConnection::connectionFromArray( $array, $args, $meta );
 
 		return $connection;
 
-	}
-
-	/**
-	 * Returns the query_order to use when making queries
-	 *
-	 * If First is set, select the amount of records asked for from the front of the data set by using the
-	 * specified order.
-	 *
-	 * If Last is set, select the amount of records asked for from the back of the data set by reversing the
-	 * specified order.
-	 *
-	 *
-	 */
-	public static function get_query_order( $args, $query_args ) {
-
-		$possible_orders = [ 'ASC', 'DESC' ];
-		$query_order     = ( ! empty( $query_args['order'] && in_array( $query_args['order'], $possible_orders, true ) ) ) ? $query_args['order'] : 'DESC';
-		if ( ! empty( $args['last'] ) && empty( $args['before'] && empty( $args['after'] ) ) ) {
-			if ( 'ASC' === $query_order ) {
-				$query_order = 'DESC';
-			} elseif ( 'DESC' === $query_order ) {
-				$query_order = 'ASC';
-			}
-		}
-
-		return $query_order;
 	}
 
 	/**
@@ -136,6 +113,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:
 							$array_slice[] = $item;
+							break;
 						default:
 							$array_slice[] = $item;
 					}

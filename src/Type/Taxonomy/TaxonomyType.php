@@ -62,8 +62,7 @@ class TaxonomyType extends WPObjectType {
 	 */
 	private function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			/**
 			 * Get the post_types that are allowed in WPGraphQL
 			 * @since 0.0.6
@@ -197,7 +196,7 @@ class TaxonomyType extends WPObjectType {
 								}
 							}
 							return ! empty( $post_type_names ) ? $post_type_names : null;
-						}
+						},
 					],
 					'connectedPostTypes' => [
 						'type' => Types::list_of( Types::post_type() ),
@@ -238,8 +237,7 @@ class TaxonomyType extends WPObjectType {
 				return self::prepare_fields( $fields, self::$type_name );
 
 			};
-		}
-
+		endif;
 		return self::$fields;
 
 	}

@@ -104,8 +104,7 @@ class PostObjectType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		if ( empty( self::$fields[ $single_name ] ) ) {
-
+		if ( empty( self::$fields[ $single_name ] ) ) :
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
 			 *
@@ -208,17 +207,17 @@ class PostObjectType extends WPObjectType {
 						},
 					],
 					'toPing'            => [
-						'type'        => Types::boolean(),
+						'type'        => Types::list_of( Types::string() ),
 						'description' => esc_html__( 'URLs queued to be pinged.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->to_ping ) ? true : false;
+							return ! empty( $post->to_ping ) ? implode( ',', $post->to_ping ) : null;
 						},
 					],
 					'pinged'            => [
-						'type'        => Types::boolean(),
+						'type'        => Types::list_of( Types::string() ),
 						'description' => esc_html__( 'URLs that have been pinged.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->pinged ) ? true : false;
+							return ! empty( $post->pinged ) ? implode( ',', $post->pinged ) : null;
 						},
 					],
 					'modified'          => [
@@ -317,7 +316,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'link'              => [
 						'type'        => Types::string(),
-						'description' => esc_html__( 'The desired slug of the post', 'wp-graphql' ),
+						'description' => esc_html__( 'The permalink of the post', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$link = get_permalink( $post->ID );
 
@@ -380,11 +379,8 @@ class PostObjectType extends WPObjectType {
 				return self::prepare_fields( $fields, $single_name );
 
 			};
-
-		} // End if().
-
+		endif;
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
-
 	}
 
 }

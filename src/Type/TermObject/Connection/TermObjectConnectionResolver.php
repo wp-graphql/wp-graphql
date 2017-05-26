@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\TermObject\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
@@ -9,8 +10,9 @@ use WPGraphQL\Types;
 
 /**
  * Class TermObjectConnectionResolver
+ *
  * @package WPGraphQL\Data\Resolvers
- * @since 0.0.5
+ * @since   0.0.5
  */
 class TermObjectConnectionResolver extends ConnectionResolver {
 
@@ -32,7 +34,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 
 	/**
 	 * Returns an array of query_args to use in the WP_Term_Query to fetch the necessary terms for the connection
-	 * 
+	 *
 	 * @param             $source
 	 * @param array       $args
 	 * @param AppContext  $context
@@ -74,12 +76,13 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Set the order
 		 */
-		$order = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
+		$order               = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 		$query_args['order'] = $order;
 
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
 		 * the WP_Term_Query names to be used in the WP_Term_Query
+		 *
 		 * @since 0.0.5
 		 */
 		$input_fields = [];
@@ -89,6 +92,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 
 		/**
 		 * Merge the default $query_args with the $args that were entered in the query.
+		 *
 		 * @since 0.0.5
 		 */
 		$query_args = array_merge( $query_args, $input_fields );
@@ -97,6 +101,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If the source of the Query is a Post object, adjust the query args to only query terms
 		 * connected to the post object
+		 *
 		 * @since 0.0.5
 		 */
 		if ( $source instanceof \WP_Post ) {
@@ -106,7 +111,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
+		$pagination_increase  = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
 		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info ) + $pagination_increase;
 
 		return $query_args;
@@ -123,11 +128,22 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	public static function get_query( $query_args ) {
 		$query = new \WP_Term_Query( $query_args );
 
-
 		return $query;
 	}
 
-	public static function get_connection( array $items, array $args, $query ) {
+	/**
+	 * This gets the connection to return
+	 *
+	 * @param array|mixed $query   The query that was processed to get data
+	 * @param array       $items   The array slice that was returned
+	 * @param mixed       $source  The source being passed down the resolve tress
+	 * @param array       $args    The input args for the resolving field
+	 * @param AppContext  $context The context being passed down the resolve tree
+	 * @param ResolveInfo $info    The ResolveInfo passed down the resolve tree
+	 *
+	 * @return array
+	 */
+	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query
@@ -170,7 +186,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 				'hasNextPage'     => $has_next_page,
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
-			]
+			],
 		];
 
 		return $connection;
@@ -204,7 +220,6 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	 * to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
 	 * @param array       $args     Array of query "where" args
-	 * @param string      $taxonomy The name of the taxonomy
 	 * @param mixed       $source   The query results
 	 * @param array       $all_args All of the query arguments (not just the "where" args)
 	 * @param AppContext  $context  The AppContext object

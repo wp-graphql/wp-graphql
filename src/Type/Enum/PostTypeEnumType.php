@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Enum;
 
 use GraphQL\Type\Definition\EnumType;
@@ -10,9 +11,9 @@ class PostTypeEnumType extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'postTypeEnum',
+			'name'        => 'postTypeEnum',
 			'description' => __( 'Allowed Post Types', 'wp-graphql' ),
-			'values' => self::values(),
+			'values'      => self::values(),
 		];
 
 		parent::__construct( $config );
@@ -39,7 +40,7 @@ class PostTypeEnumType extends EnumType {
 			 */
 			foreach ( $allowed_post_types as $post_type ) {
 				self::$values[ $post_type ] = [
-					'name' => strtoupper( $post_type ),
+					'name'  => strtoupper( $post_type ),
 					'value' => $post_type,
 				];
 			}

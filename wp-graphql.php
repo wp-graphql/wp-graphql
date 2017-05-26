@@ -186,7 +186,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Autoload Required Classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
 
-			// This required here as it is not an autoload class
+			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
 
 		}
@@ -273,9 +273,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all post_types that have been registered to "show_in_graphql"
 			 */
-			$post_types = get_post_types( [
-				'show_in_graphql' => true,
-			] );
+			$post_types = get_post_types(
+				[
+					'show_in_graphql' => true,
+				]
+			);
 
 			/**
 			 * Define the $allowed_post_types to be exposed by GraphQL Queries Pass through a filter
@@ -310,9 +312,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
-			$taxonomies = get_taxonomies( [
-				'show_in_graphql' => true,
-			] );
+			 $taxonomies = get_taxonomies(
+				[
+					'show_in_graphql' => true,
+				]
+			);
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
@@ -398,27 +402,35 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param            AppContext      object The AppContext object containing all of the
 			 *                                   information about the context we know at this point
 			 */
-			$variables = ( array ) json_decode( $variables );
+			if ( ! is_array( $variables ) ) {
+				$variables = (string) $variables;
+				$variables = (array) json_decode( $variables );
+			}
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
-				'query' => \WPGraphQL\Types::root_query(),
+				'query'    => \WPGraphQL\Types::root_query(),
 				'mutation' => \WPGraphQL\Types::root_mutation(),
 			];
 
 			/**
-			 * Filter the executable schema
-			 *
-			 * @param array $executable_schema The schema that should be executed against
-			 * @param mixed string|array $request The graphql request, or AST that is being executed
-			 * @param array $variables The variables
-			 */
-			$executable_schema = apply_filters( 'graphql_executable_schema', $executable_schema, $request, $variables, $app_context );
-
-			/**
 			 * Generate the Schema
 			 */
-			$schema = new \GraphQL\Schema( $executable_schema );
+			$schema = new \WPGraphQL\WPSchema( $executable_schema );
+
+			/**
+			 * Generate & Filter the schema.
+			 *
+			 * @since 0.0.5
+			 *
+			 * @param array      $schema         The executable Schema that GraphQL executes against
+			 * @param string     $request        The request to be executed by GraphQL
+			 * @param string     $operation_name The name of the operation
+			 * @param array|null $variables      Variables to be passed to the GraphQL query
+			 * @param            object          AppContext  Object The AppContext object containing all of the
+			 *                                   information about the context we know at this point
+			 */
+			$schema = apply_filters( 'graphql_schema', $schema, $request, $operation_name, $variables, $app_context );
 
 			/**
 			 * Executes the request and captures the result
@@ -464,7 +476,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param array      $result         The result of your GraphQL request
 			 * @param            Schema          object $schema The schema object for the root request
 			 * @param string     $operation_name The name of the operation
-			 * @param string $request The request that GraphQL executed
+			 * @param string     $request        The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL query
 			 */
 			do_action( 'graphql_execute', $result, $schema, $operation_name, $request, $variables );

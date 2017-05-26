@@ -24,7 +24,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 
 	}
@@ -80,7 +80,9 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a comment
 		 */
-		$comment_id = $this->createCommentObject( [ 'user_id' => $this->admin ] );
+		$comment_id = $this->createCommentObject( [
+			'user_id' => $this->admin,
+		] );
 
 		/**
 		 * Create the global ID based on the comment_type and the created $id
@@ -138,11 +140,11 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 					'agent'       => '',
 					'approved'    => '1',
 					'author'      => [
-						'userId'  => $this->admin
+						'userId'  => $this->admin,
 					],
 					'authorIp'    => '',
 					'children'    => [
-						'edges' => []
+						'edges' => [],
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,
@@ -170,13 +172,17 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 	public function testCommentQueryWithChildrenAssignedPostAndParent() {
 
 		// Post object to assign comments to.
-		$post_id = $this->factory->post->create( [ 'post_content' => 'Post object' ] );
+		$post_id = $this->factory->post->create([
+			'post_content' => 'Post object',
+		]);
 
 		// Parent comment.
-		$parent_comment = $this->createCommentObject( [
-			'comment_post_ID' => $post_id,
-			'comment_content' => 'Parent comment'
-		] );
+		$parent_comment = $this->createCommentObject(
+			[
+				'comment_post_ID' => $post_id,
+				'comment_content' => 'Parent comment',
+			]
+		);
 
 		/**
 		 * Create a comment

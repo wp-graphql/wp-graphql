@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type\Comment\Connection;
 
 use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -35,8 +36,10 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 *
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-		parent::__construct( 'commentArgs', self::fields() );
+	public function __construct( $config = [] ) {
+		$config['name'] = 'commentArgs';
+		$config['fields'] = self::fields();
+		parent::__construct( $config );
 	}
 
 	/**
@@ -49,8 +52,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			$fields = [
 				'authorEmail' => [
 					'type' => Types::string(),
@@ -172,9 +174,8 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = $fields;
-
-		}
+			self::$fields = self::prepare_fields( $fields, 'commentArgs' );
+		endif;
 		return self::$fields;
 
 	}
@@ -189,9 +190,8 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function comments_orderby_enum() {
 
-		if ( null === self::$comments_orderby_enum ) {
-
-			self::$comments_orderby_enum = new EnumType([
+		if ( null === self::$comments_orderby_enum ) :
+			self::$comments_orderby_enum = new WPEnumType([
 				'name' => 'commentsOrderby',
 				'values' => [
 					[
@@ -260,10 +260,8 @@ class CommentConnectionArgs extends WPInputObjectType {
 					],
 				],
 			]);
-
-		}
+		endif;
 		return self::$comments_orderby_enum;
-
 	}
 
 }

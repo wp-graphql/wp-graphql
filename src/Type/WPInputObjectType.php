@@ -17,14 +17,9 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param string $name
-	 * @param array $fields
-	 * @param string $description
+	 * @param array $config The configuration for the InputObjectType
 	 */
-	public function __construct( $name, $fields, $description = null ) {
-		$config['name'] = $name;
-		$config['fields'] = self::prepare_fields( $fields, $name );
-		$config['description'] = $description;
+	public function __construct( $config = [] ) {
 		parent::__construct( $config );
 	}
 

@@ -171,7 +171,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'menuOrder' => null,
 					'postId' => $post_id,
 					'slug' => 'test-title',
-					'toPing' => false,
+					'toPing' => null,
 					'title' => 'Test Title',
 				],
 			],

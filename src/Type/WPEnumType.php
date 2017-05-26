@@ -15,14 +15,10 @@ class WPEnumType extends EnumType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param string $name
-	 * @param array $values
-	 * @param string $description
+	 * @param array $config
 	 */
-	public function __construct( $name, $values, $description = null ) {
-		$config['name'] = $name;
-		$config['values'] = self::prepare_values( $values, $name );
-		$config['description'] = $description;
+	public function __construct( $config ) {
+		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
 		parent::__construct( $config );
 	}
 

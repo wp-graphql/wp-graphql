@@ -282,9 +282,9 @@ class Router {
 				$response['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
 			}
 
-			$request        = isset( $data['query'] ) ? $data['query'] : null;
-			$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : null;
-			$variables      = isset( $data['variables'] ) ? $data['variables'] : null;
+			$request        = isset( $data['query'] ) ? $data['query'] : '';
+			$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : '';
+			$variables      = isset( $data['variables'] ) ? $data['variables'] : '';
 
 			/**
 			 * Process the GraphQL request
@@ -322,7 +322,7 @@ class Router {
 			} else {
 				$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
 			}
-		}
+		} // End try().
 
 		/**
 		 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools

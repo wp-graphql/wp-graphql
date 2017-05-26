@@ -81,7 +81,7 @@ class WP_GraphQL_Test_Avatar_Object_Queries extends WP_UnitTestCase {
 					'avatar' => [
 						'default'      => 'mm',
 						'extraAttr'    => null,
-						'forceDefault' => null,
+						'forceDefault' => false,
 						'foundAvatar'  => true,
 						'height'       => 96,
 						'rating'       => 'g',
@@ -151,7 +151,7 @@ class WP_GraphQL_Test_Avatar_Object_Queries extends WP_UnitTestCase {
 					'avatar' => [
 						'default'      => 'mm',
 						'extraAttr'    => null,
-						'forceDefault' => null,
+						'forceDefault' => false,
 						'foundAvatar'  => true,
 						'height'       => 48,
 						'rating'       => 'g',

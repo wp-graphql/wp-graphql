@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type\User\Connection;
 
 use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -41,8 +42,10 @@ class UserConnectionArgs extends WPInputObjectType {
 	 * UserConnectionArgs constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-		parent::__construct( 'userArgs', self::fields() );
+	public function __construct( $config = [] ) {
+		$config['name'] = 'userArgs';
+		$config['fields'] = self::fields();
+		parent::__construct( $config );
 	}
 
 	/**
@@ -55,7 +58,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
+		if ( null === self::$fields ) :
 
 			$fields = [
 				'role' => [
@@ -115,11 +118,8 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 				],
 			];
-
-			self::$fields = $fields;
-
-		}
-
+			self::$fields = self::prepare_fields( $fields, 'userArgs' );
+		endif;
 		return self::$fields;
 
 	}
@@ -134,9 +134,8 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function search_columns_enum() {
 
-		if ( null === self::$search_columns_enum ) {
-
-			self::$search_columns_enum = new EnumType([
+		if ( null === self::$search_columns_enum ) :
+			self::$search_columns_enum = new WPEnumType([
 				'name' => 'searchColumnsEnum',
 				'values' => [
 					[
@@ -161,11 +160,8 @@ class UserConnectionArgs extends WPInputObjectType {
 					],
 				],
 			]);
-
-		}
-
+		endif;
 		return self::$search_columns_enum;
-
 	}
 
 	/**
@@ -178,8 +174,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 */
 	private static function roles_enum() {
 
-		if ( null === self::$roles_enum ) {
-
+		if ( null === self::$roles_enum ) :
 			global $wp_roles;
 			$all_roles = $wp_roles->roles;
 			$editable_roles = apply_filters( 'editable_roles', $all_roles );
@@ -195,15 +190,13 @@ class UserConnectionArgs extends WPInputObjectType {
 			}
 
 			if ( ! empty( $roles ) ) {
-				self::$roles_enum = new EnumType( [
+				self::$roles_enum = new WPEnumType( [
 					'name' => 'userRoleEnum',
 					'values' => $roles,
 				] );
 			}
-		}
-
+		endif;
 		return self::$roles_enum;
-
 	}
 
 }

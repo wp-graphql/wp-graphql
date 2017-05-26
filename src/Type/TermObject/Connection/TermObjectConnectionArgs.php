@@ -27,8 +27,10 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 * TermObjectConnectionArgs constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-		parent::__construct( 'termArgs', self::fields() );
+	public function __construct( $config = [] ) {
+		$config['name'] = 'termArgs';
+		$config['fields'] = self::fields();
+		parent::__construct( $config );
 	}
 
 	/**
@@ -41,8 +43,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) {
-
+		if ( null === self::$fields ) :
 			self::$fields = [
 				'taxonomy' => [
 					'type' => Types::list_of( Types::string() ),
@@ -153,11 +154,8 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Whether to prime meta caches for matched terms. Default true.', 'wp-graphql' ),
 				],
 			];
-
-		}
-
-		return self::$fields;
-
+		endif;
+		return self::prepare_fields( self::$fields, 'termArgs' );
 	}
 
 }

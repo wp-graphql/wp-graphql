@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Type\WPEnumType;
@@ -9,29 +10,36 @@ use WPGraphQL\Type\WPEnumType;
  * This defines an EnumType with allowed relations for use in various query args.
  *
  * @package WPGraphQL\Type\Enum
- * @since 0.0.5
+ * @since   0.0.5
  */
 class RelationEnumType extends WPEnumType {
 
 	/**
 	 * This holds the enum values array
+	 *
 	 * @var array $values
 	 */
 	private static $values;
 
 	/**
 	 * RelationEnumType constructor.
+	 *
 	 * @since 0.0.5
 	 */
 	public function __construct() {
-		$description = __( 'The logical relation between each item in the array when there are more than one.', 'wp-graphql' );
-		parent::__construct( 'relation', self::values(), $description );
+		$config = [
+			'name'        => 'relation',
+			'description' => __( 'The logical relation between each item in the array when there are more than one.', 'wp-graphql' ),
+			'values'      => self::values(),
+		];
+		parent::__construct( $config );
 
 	}
 
 	/**
 	 * values
 	 * Returns the values to be used in the Enum
+	 *
 	 * @return array|null
 	 */
 	private static function values() {
@@ -40,11 +48,11 @@ class RelationEnumType extends WPEnumType {
 
 			self::$values = [
 				'AND' => [
-					'name' => 'AND',
+					'name'  => 'AND',
 					'value' => 'AND',
 				],
-				'OR' => [
-					'name' => 'OR',
+				'OR'  => [
+					'name'  => 'OR',
 					'value' => 'OR',
 				],
 			];

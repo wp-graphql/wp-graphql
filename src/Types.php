@@ -578,7 +578,6 @@ class Types {
 			} else {
 				$query_args[ $arg ] = $value;
 			}
-
 		}
 
 		return $query_args;
