@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQLRelay\Relay;
@@ -17,7 +18,7 @@ class PostObjectUpdate {
 	 *
 	 * @var array $mutation
 	 */
-	private static $mutation;
+	private static $mutation = [];
 
 	/**
 	 * Defines the Update mutation for PostTypeObjects
@@ -28,10 +29,6 @@ class PostObjectUpdate {
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
 
-		if ( null === self::$mutation ) {
-			self::$mutation = [];
-		}
-
 		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
 
 			/**
@@ -40,11 +37,11 @@ class PostObjectUpdate {
 			$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
 
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( array(
-				'name'        => esc_html( $mutation_name ),
+				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the post type being updated
-				'description' => sprintf( esc_html__( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				'inputFields' => self::input_fields( $post_type_object ),
-				'outputFields' => array(
+				'description'         => sprintf( esc_html__( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'inputFields'         => self::input_fields( $post_type_object ),
+				'outputFields'        => array(
 					$post_type_object->graphql_single_name => array(
 						'type'    => Types::post_object( $post_type_object->name ),
 						'resolve' => function( $payload ) {
@@ -54,7 +51,7 @@ class PostObjectUpdate {
 				),
 				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
 
-					$id_parts = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 					$existing_post = get_post( absint( $id_parts['id'] ) );
 
 					/**
@@ -90,24 +87,24 @@ class PostObjectUpdate {
 
 					/**
 					 * @todo: when we add support for making posts sticky, we should check permissions to make sure users can make posts sticky
-					 * @see: https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L640-L642
+					 * @see : https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L640-L642
 					 */
 
 					/**
 					 * @todo: when we add support for assigning terms to posts, we should check permissions to make sure they can assign terms
-					 * @see: https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L644-L646
+					 * @see : https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L644-L646
 					 */
 
 					/**
 					 * insert the post object and get the ID
 					 */
-					$post_args = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
+					$post_args       = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 					$post_args['ID'] = absint( $id_parts['id'] );
 
 					/**
 					 * Insert the post and retrieve the ID
 					 */
-					$post_id = wp_update_post( $post_args );
+					$post_id = wp_update_post( $post_args, true );
 
 					/**
 					 * Throw an exception if the post failed to update
@@ -158,7 +155,7 @@ class PostObjectUpdate {
 		 */
 		return array_merge(
 			[
-				'id'      => [
+				'id' => [
 					'type'        => Types::non_null( Types::id() ),
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => sprintf( esc_html__( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),

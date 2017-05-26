@@ -17,7 +17,7 @@ class PostObjectDelete {
 	 *
 	 * @var array $mutation
 	 */
-	private static $mutation;
+	private static $mutation = [];
 
 	/**
 	 * Defines the delete mutation for PostTypeObjects
@@ -27,10 +27,6 @@ class PostObjectDelete {
 	 * @return array|mixed
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
-
-		if ( null === self::$mutation ) {
-			self::$mutation = [];
-		}
 
 		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
 
@@ -55,17 +51,20 @@ class PostObjectDelete {
 					],
 				],
 				'outputFields'        => [
-					'deletedId'                            => [
-						'type'    => Types::string(),
-						'resolve' => function( $payload ) {
-							return ! empty( $payload['deletedId'] ) ? $payload['deletedId'] : null;
+					'deletedId' => [
+						'type'        => Types::id(),
+						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
+						'resolve'     => function( $payload ) use ( $post_type_object ) {
+							$deleted = (object) $payload['postObject'];
+							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 						},
 					],
 					$post_type_object->graphql_single_name => [
 						'type'        => Types::post_object( $post_type_object->name ),
 						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
 						'resolve'     => function( $payload ) {
-							return $payload['post'];
+							$deleted = (object) $payload['postObject'];
+							return ! empty( $deleted ) ? $deleted : null;
 						},
 					],
 				],
@@ -135,8 +134,7 @@ class PostObjectDelete {
 					 * Return the deletedId and the object before it was deleted
 					 */
 					return [
-						'deletedId' => uniqid(),
-						'post'      => $post_before_delete,
+						'postObject' => $post_before_delete,
 					];
 
 				},

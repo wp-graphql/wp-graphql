@@ -17,7 +17,7 @@ class PostObjectMutation {
 	 *
 	 * @var array
 	 */
-	private static $input_fields;
+	private static $input_fields = [];
 
 	/**
 	 * @param $post_type_object
@@ -25,10 +25,6 @@ class PostObjectMutation {
 	 * @return mixed|array|null $input_fields
 	 */
 	public static function input_fields( $post_type_object ) {
-
-		if ( null === self::$input_fields ) {
-			self::$input_fields = [];
-		}
 
 		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$input_fields[ $post_type_object->graphql_single_name ] ) ) {
 
@@ -311,7 +307,7 @@ class PostObjectMutation {
 		$lock = "$now:$user_id";
 		update_post_meta( $post->ID, '_edit_lock', $lock );
 
-		return array( $now, $user_id );
+		return [ $now, $user_id ];
 
 	}
 

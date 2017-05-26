@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Type\WPEnumType;
@@ -9,26 +10,28 @@ use WPGraphQL\Type\WPEnumType;
  * This defines an EnumType with allowed mime types that are registered to WordPress.
  *
  * @package WPGraphQL\Type\Enum
- * @since 0.0.5
+ * @since   0.0.5
  */
 class MimeTypeEnumType extends WPEnumType {
 
 	/**
 	 * This holds the enum values array
+	 *
 	 * @var array $values
 	 */
 	private static $values;
 
 	/**
 	 * MimeTypeEnumType constructor.
+	 *
 	 * @since 0.0.5
 	 */
 	public function __construct() {
 
 		$config = [
-			'name' => 'mimeType',
+			'name'        => 'mimeType',
 			'description' => __( 'The MimeType of the object', 'wp-graphql' ),
-			'values' => self::values(),
+			'values'      => self::values(),
 		];
 
 		parent::__construct( $config );
@@ -37,6 +40,7 @@ class MimeTypeEnumType extends WPEnumType {
 	/**
 	 * values
 	 * Returns the values to be used in the Enum
+	 *
 	 * @return array|null
 	 */
 	private static function values() {
@@ -46,10 +50,11 @@ class MimeTypeEnumType extends WPEnumType {
 			/**
 			 * Establish a default MimeType value to ensure we don't
 			 * return null values
+			 *
 			 * @since 0.0.5
 			 */
 			self::$values = [
-				'name' => 'IMAGE_JPEG',
+				'name'  => 'IMAGE_JPEG',
 				'value' => 'image/jpeg',
 			];
 
@@ -59,7 +64,7 @@ class MimeTypeEnumType extends WPEnumType {
 				self::$values = [];
 				foreach ( $allowed_mime_types as $mime_type ) {
 					self::$values[ $mime_type ] = [
-						'name' => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) ),
+						'name'  => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) ),
 						'value' => $mime_type,
 					];
 				}

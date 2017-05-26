@@ -18,17 +18,21 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 	 * This function is run before each method
 	 */
 	public function setUp() {
-		parent::setUp();
 
-		$this->title = 'some title';
-		$this->content = 'some content';
+		$this->title              = 'some title';
+		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
-		$this->admin            = $this->factory->user->create( [
+
+		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->subscriber       = $this->factory->user->create( [
+
+		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
 		] );
+
+		parent::setUp();
+
 	}
 
 	/**
@@ -45,7 +49,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 	 */
 	public function createPostMutation() {
 
-		$mutation  = '
+		$mutation = '
 		mutation createPost( $clientMutationId:String!, $title:String!, $content:String! ){
 		  createPost(
 		    input:{
@@ -77,7 +81,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 
 	public function createPageMutation() {
 
-		$mutation  = '
+		$mutation = '
 		mutation createPage( $clientMutationId:String!, $title:String!, $content:String! ){
 		  createPage(
 		    input:{
@@ -116,9 +120,9 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		wp_set_current_user( $this->admin );
 
 		$args = [
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_title' => 'Original Title',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title',
 			'post_content' => 'Original Content',
 		];
 
@@ -165,12 +169,12 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Set the variables to use with the mutation
 		 */
-		$variables = wp_json_encode([
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-			'title' => 'Some updated title',
-			'content' => 'Some updated content',
+		$variables = wp_json_encode( [
+			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'title'            => 'Some updated title',
+			'content'          => 'Some updated content',
 			'clientMutationId' => 'someId',
-		]);
+		] );
 
 		/**
 		 * Execute the request
@@ -186,11 +190,11 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 			'data' => [
 				'updatePage' => [
 					'clientMutationId' => 'someId',
-					'page' => [
-						'id' => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-						'title' => 'Some updated title',
+					'page'             => [
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'title'   => 'Some updated title',
 						'content' => apply_filters( 'the_content', 'Some updated content' ),
-						'pageId' => $page_id,
+						'pageId'  => $page_id,
 					],
 				],
 			],
@@ -212,9 +216,9 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		wp_set_current_user( $this->admin );
 
 		$args = [
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_title' => 'Original Title',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title',
 			'post_content' => 'Original Content',
 		];
 
@@ -247,6 +251,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		    }
 		  ) {
 		    clientMutationId
+		    deletedId
 		    page{
 		      id
 		      title
@@ -259,10 +264,10 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Set the variables to use with the mutation
 		 */
-		$variables = wp_json_encode([
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+		$variables = wp_json_encode( [
+			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
 			'clientMutationId' => 'someId',
-		]);
+		] );
 
 		/**
 		 * Execute the request
@@ -278,11 +283,12 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 			'data' => [
 				'deletePage' => [
 					'clientMutationId' => 'someId',
-					'page' => [
-						'id' => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-						'title' => 'Original Title',
+					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+					'page'             => [
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'title'   => 'Original Title',
 						'content' => apply_filters( 'the_content', 'Original Content' ),
-						'pageId' => $page_id,
+						'pageId'  => $page_id,
 					],
 				],
 			],

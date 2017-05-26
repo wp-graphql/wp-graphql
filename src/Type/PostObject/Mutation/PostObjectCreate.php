@@ -18,7 +18,7 @@ class PostObjectCreate {
 	 *
 	 * @var array $mutation
 	 */
-	private static $mutation;
+	private static $mutation = [];
 
 	/**
 	 * Defines the create mutation for PostTypeObjects
@@ -28,10 +28,6 @@ class PostObjectCreate {
 	 * @return array|mixed
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
-
-		if ( null === self::$mutation ) {
-			self::$mutation = [];
-		}
 
 		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
 
@@ -93,7 +89,7 @@ class PostObjectCreate {
 					/**
 					 * Insert the post and retrieve the ID
 					 */
-					$post_id = wp_insert_post( $post_args );
+					$post_id = wp_insert_post( $post_args, true );
 
 					/**
 					 * Throw an exception if the post failed to create
