@@ -121,7 +121,7 @@ of GraphQL queries using WPGraphQL here:
 ## POSSIBLE BREAKING CHANGES
 Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
 
-## Extensions
+## Extensions and/or plugins with WPGraphQL support
 There are a few extensions available as well:
 - https://github.com/wp-graphql/wp-graphql-meta-query 
 Adds support for meta_query
@@ -129,6 +129,8 @@ Adds support for meta_query
 Adds support for tax_query
 - https://github.com/roborourke/wp-graphql-meta
 Adds support for automatically exposing fields registered using the `register_meta` API to GraphQL calls
+- https://github.com/dfmedia/wp-term-timestamps
+Simple plugin that stores created and modified timestamps along with the user ID as term_meta when terms are created and updated. Adds `created` and `modified` fields to TermObject's if this plugin is active alongside WPGraphQL.
 
 
 ## Unit Testing
