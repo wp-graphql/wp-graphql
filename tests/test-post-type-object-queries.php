@@ -78,6 +78,32 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					hierarchical
 					id
 					label
+					labels {
+						name
+						singularName
+						addNew
+						addNewItem
+						editItem
+						newItem
+						viewItem
+						viewItems
+						searchItems
+						notFound
+						notFoundInTrash
+						parentItemColon
+						allItems
+						archives
+						attributes
+						insertIntoItem
+						uploadedToThisItem
+						featuredImage
+						setFeaturedImage
+						removeFeaturedImage
+						useFeaturedImage
+						filterItemsList
+						itemsListNavigation
+						itemsList
+					}
 					menuIcon
 					menuPosition
 					name
@@ -132,6 +158,32 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'hierarchical' => false,
 						'id' => $global_id,
 						'label' => 'Posts',
+						'labels' => [
+							'name' => 'Posts',
+							'singularName' => 'Post',
+							'addNew' => 'Add New',
+							'addNewItem' => 'Add New Post',
+							'editItem' => 'Edit Post',
+							'newItem' => 'New Post',
+							'viewItem' => 'View Post',
+							'viewItems' => 'View Posts',
+							'searchItems' => 'Search Posts',
+							'notFound' => 'No posts found.',
+							'notFoundInTrash' => 'No posts found in Trash.',
+							'parentItemColon' => null,
+							'allItems' => 'All Posts',
+							'archives' => 'Post Archives',
+							'attributes' => 'Post Attributes',
+							'insertIntoItem' => 'Insert into post',
+							'uploadedToThisItem' => 'Uploaded to this post',
+							'featuredImage' => 'Featured Image',
+							'setFeaturedImage' => 'Set featured image',
+							'removeFeaturedImage' => 'Remove featured image',
+							'useFeaturedImage' => null,
+							'filterItemsList' => 'Filter posts list',
+							'itemsListNavigation' => 'Posts list navigation',
+							'itemsList' => 'Posts list',
+						],
 						'menuIcon' => null,
 						'menuPosition' => 5,
 						'name' => 'post',
