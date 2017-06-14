@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Type\PostObject;
+namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
@@ -207,7 +207,9 @@ class PostObjectMutation {
 		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
 		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts[1] ) && is_int( $parent_id_parts[1] ) ) {
 			$insert_post_args['post_parent'] = absint( $parent_id_parts[1] );
-		}
+		} else {
+			throw new \Exception( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
+		} // End if().
 
 		if ( ! empty( $input['menuOrder'] ) ) {
 			$insert_post_args['menu_order'] = $input['menuOrder'];
@@ -232,7 +234,7 @@ class PostObjectMutation {
 		$insert_post_args = apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
 		/**
-		 * Return the $post_id
+		 * Return the $args
 		 */
 		return $insert_post_args;
 

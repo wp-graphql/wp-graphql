@@ -2,11 +2,11 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
+use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
+use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 
 /**
  * Class RootMutationType
@@ -66,6 +66,7 @@ class RootMutationType extends WPObjectType {
 
 			$fields             = [];
 			$allowed_post_types = \WPGraphQL::$allowed_post_types;
+			$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 			if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 				foreach ( $allowed_post_types as $post_type ) {
@@ -86,6 +87,22 @@ class RootMutationType extends WPObjectType {
 					$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
 
 				} // End foreach().
+			} // End if().
+
+			if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+				foreach ( $allowed_taxonomies as $taxonomy ) {
+
+					/**
+					 * Get the taxonomy object to pass down to the schema
+					 */
+					$taxonomy_object = get_taxonomy( $taxonomy );
+
+					/**
+					 * Root mutation for single term objects (of the specified taxonomy)
+					 */
+					$fields[ 'create' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectCreate::mutate( $taxonomy_object );
+					$fields[ 'update' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectUpdate::mutate( $taxonomy_object );
+				}
 			} // End if().
 
 			self::$fields = $fields;

@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Type\PostObject\PostObjectMutation;
 use WPGraphQL\Types;
 
 /**
@@ -36,19 +35,19 @@ class PostObjectUpdate {
 			 */
 			$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
 
-			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( array(
+			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId([
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the post type being updated
 				'description'         => sprintf( esc_html__( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => self::input_fields( $post_type_object ),
-				'outputFields'        => array(
-					$post_type_object->graphql_single_name => array(
+				'outputFields'        => [
+					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),
 						'resolve' => function( $payload ) {
 							return get_post( $payload['postObjectId'] );
 						},
-					),
-				),
+					],
+				],
 				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
@@ -104,7 +103,7 @@ class PostObjectUpdate {
 					/**
 					 * Insert the post and retrieve the ID
 					 */
-					$post_id = wp_update_post( $post_args, true );
+					$post_id = wp_update_post( wp_slash( (array) $post_args ), true );
 
 					/**
 					 * Throw an exception if the post failed to update
@@ -126,6 +125,17 @@ class PostObjectUpdate {
 					}
 
 					/**
+					 * Fires after a single term is created or updated via a GraphQL mutation
+					 *
+					 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
+					 *
+					 * @param int    $post_id       Inserted post ID
+					 * @param array  $args          The args used to insert the term
+					 * @param string $mutation_name The name of the mutation being performed
+					 */
+					do_action( "graphql_insert_{$post_type_object->name}", $post_id, $post_args, $mutation_name );
+
+					/**
 					 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)
 					 *
 					 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
@@ -138,7 +148,7 @@ class PostObjectUpdate {
 					];
 
 				},
-			) );
+			]);
 
 			return self::$mutation[ $post_type_object->graphql_single_name ];
 
@@ -148,6 +158,13 @@ class PostObjectUpdate {
 
 	}
 
+	/**
+	 * Add the id as a nonNull field for update mutations
+	 *
+	 * @param \WP_Post_Type $post_type_object
+	 *
+	 * @return array
+	 */
 	private static function input_fields( $post_type_object ) {
 
 		/**
