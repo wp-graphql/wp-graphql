@@ -144,8 +144,8 @@ class PostObjectMutation {
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_post/
 		 */
 		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts[1] ) && is_int( $author_id_parts[1] ) ) {
-			$insert_post_args['post_author'] = absint( $author_id_parts[1] );
+		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
+			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
@@ -205,8 +205,8 @@ class PostObjectMutation {
 		}
 
 		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
-		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts[1] ) && is_int( $parent_id_parts[1] ) ) {
-			$insert_post_args['post_parent'] = absint( $parent_id_parts[1] );
+		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && is_int( $parent_id_parts['id'] ) ) {
+			$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
 		} else {
 			throw new \Exception( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
 		} // End if().

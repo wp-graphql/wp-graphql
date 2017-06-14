@@ -122,8 +122,8 @@ class TermObjectMutation {
 			/**
 			 * If the term
 			 */
-			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts[1] ) && is_int( $parent_id_parts[1] ) ) {
-				$parent_id = $parent_id_parts[1];
+			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && is_int( $parent_id_parts['id'] ) ) {
+				$parent_id = $parent_id_parts['id'];
 
 				$parent_term = get_term( absint( $parent_id, $taxonomy->name ) );
 

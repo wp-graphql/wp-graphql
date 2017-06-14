@@ -56,7 +56,7 @@ class PostObjectUpdate {
 					/**
 					 * If there's no existing post, throw an exception
 					 */
-					if ( empty( $id_parts['id'] ) || false === $existing_post ) {
+					if ( empty( $id_parts['id'] ) || false === $existing_post || $id_parts['type'] !== $post_type_object->name ) {
 						// translators: the placeholder is the name of the type of post being updated
 						throw new \Exception( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 					}
@@ -79,7 +79,7 @@ class PostObjectUpdate {
 					 * make sure they have permission to edit others posts
 					 */
 					$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-					if ( ! empty( $author_id_parts[0] ) && get_current_user_id() !== $author_id_parts[0] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+					if ( ! empty( $author_id_parts['id'] ) && get_current_user_id() !== $author_id_parts['id'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 						// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
 						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
@@ -143,6 +143,9 @@ class PostObjectUpdate {
 					 */
 					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name );
 
+					/**
+					 * Return the payload
+					 */
 					return [
 						'postObjectId' => $post_id,
 					];

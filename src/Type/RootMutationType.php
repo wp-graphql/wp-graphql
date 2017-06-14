@@ -5,6 +5,7 @@ namespace WPGraphQL\Type;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
+use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 
@@ -102,6 +103,7 @@ class RootMutationType extends WPObjectType {
 					 */
 					$fields[ 'create' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectCreate::mutate( $taxonomy_object );
 					$fields[ 'update' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectUpdate::mutate( $taxonomy_object );
+					$fields[ 'delete' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectDelete::mutate( $taxonomy_object );
 				}
 			} // End if().
 

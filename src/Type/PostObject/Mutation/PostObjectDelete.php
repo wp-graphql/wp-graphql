@@ -53,7 +53,7 @@ class PostObjectDelete {
 				'outputFields'        => [
 					'deletedId' => [
 						'type'        => Types::id(),
-						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
+						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
 						'resolve'     => function( $payload ) use ( $post_type_object ) {
 							$deleted = (object) $payload['postObject'];
 							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
@@ -74,7 +74,8 @@ class PostObjectDelete {
 					 * Throw an exception if there's no input
 					 */
 					if ( ( empty( $post_type_object->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-						throw new \Exception( __( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
+						// Translators: The placeholder is the name of the post type for the object being deleted
+						throw new \Exception( sprintf( __( 'Mutation not processed. There was no input for the mutation or the %1$s was invalid', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 					}
 
 					/**
