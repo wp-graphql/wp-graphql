@@ -1,3 +1,5 @@
+![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-250x.png)
+
 # WPGraphQL 
 
 <a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a>
