@@ -353,10 +353,10 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		query {
 			post(id: \"{$global_id}\") {
 				id
-				postTags {
+				tags {
 					edges {
 						node {
-							postTagId
+							tagId
 							name
 						}
 					}
@@ -376,11 +376,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 			'data' => [
 				'post' => [
 					'id' => $global_id,
-					'postTags' => [
+					'tags' => [
 						'edges' => [
 							[
 								'node' => [
-									'postTagId' => $tag_id,
+									'tagId' => $tag_id,
 									'name' => 'A tag',
 								],
 							],
