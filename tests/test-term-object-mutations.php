@@ -334,14 +334,14 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Try to update a Cagegory using a Tag ID, which should return errors
 		 */
-		$try_to_update_tag = $this->updateCategoryMutation( $actual['data']['createPostTag']['category']['id'] );
-		$this->assertNotEmpty( $try_to_update_tag['errors'] );
+		$try_to_update_category = $this->updateCategoryMutation( $actual['data']['createPostTag']['postTag']['id'] );
+		$this->assertNotEmpty( $try_to_update_category['errors'] );
 
 		/**
 		 * Try to update a Category using a Tag ID, which should return errors
 		 */
-		$try_to_delete_tag = $this->deleteCategoryMutation( $actual['data']['createCategory']['category']['id'] );
-		$this->assertNotEmpty( $try_to_delete_tag['errors'] );
+		$try_to_delete_category = $this->deleteCategoryMutation( $actual['data']['createPostTag']['postTag']['id'] );
+		$this->assertNotEmpty( $try_to_delete_category['errors'] );
 
 		/**
 		 * Run the update mutation with the ID of the created tag
