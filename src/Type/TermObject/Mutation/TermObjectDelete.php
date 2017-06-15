@@ -75,6 +75,14 @@ class TermObjectDelete {
 					}
 
 					/**
+					 * Ensure the type for the Global ID matches the type being mutated
+					 */
+					if ( empty( $id_parts['type'] ) || $taxonomy->name !== $id_parts['type'] ) {
+						// Translators: The placeholder is the name of the taxonomy for the term being edited
+						throw new \Exception( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+					}
+
+					/**
 					 * Get the term before deleting it
 					 */
 					$term_object = get_term( $term_id, $taxonomy->name );
