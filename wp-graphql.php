@@ -254,8 +254,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Adds GraphQL support for tags
 			if ( isset( $wp_taxonomies['post_tag'] ) ) {
 				$wp_taxonomies['post_tag']->show_in_graphql     = true;
-				$wp_taxonomies['post_tag']->graphql_single_name = 'postTag';
-				$wp_taxonomies['post_tag']->graphql_plural_name = 'postTags';
+				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
+				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
 			}
 		}
 
