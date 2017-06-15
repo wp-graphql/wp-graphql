@@ -207,9 +207,7 @@ class PostObjectMutation {
 		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
 		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && is_int( $parent_id_parts['id'] ) ) {
 			$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
-		} else {
-			throw new \Exception( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
-		} // End if().
+		}
 
 		if ( ! empty( $input['menuOrder'] ) ) {
 			$insert_post_args['menu_order'] = $input['menuOrder'];
