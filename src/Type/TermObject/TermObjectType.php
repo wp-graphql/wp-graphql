@@ -125,7 +125,7 @@ class TermObjectType extends WPObjectType {
 					],
 					$single_name . 'Id' => [
 						'type'        => Types::int(),
-						'description' => esc_html__( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+						'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $term->term_id ) ? absint( $term->term_id ) : null;
 						},

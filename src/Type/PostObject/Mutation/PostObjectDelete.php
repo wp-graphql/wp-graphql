@@ -38,7 +38,7 @@ class PostObjectDelete {
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the object type
-				'description'         => sprintf( esc_html__( 'Delete %1$s objects. By default %1$s objects will be moved to the trash unless the forceDelete is used', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description'         => sprintf( __( 'Delete %1$s objects. By default %1$s objects will be moved to the trash unless the forceDelete is used', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => [
 					'id'          => [
 						'type'        => Types::non_null( Types::id() ),

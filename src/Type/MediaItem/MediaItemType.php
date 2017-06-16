@@ -72,7 +72,7 @@ class MediaItemType {
 		$new_fields = [
 			'caption'      => [
 				'type'        => Types::string(),
-				'description' => esc_html__( 'The caption for the resource', 'wp-graphql' ),
+				'description' => __( 'The caption for the resource', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
 
@@ -81,28 +81,28 @@ class MediaItemType {
 			],
 			'altText'      => [
 				'type'        => Types::string(),
-				'description' => esc_html__( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
+				'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return get_post_meta( $post->ID, '_wp_attachment_image_alt', true );
 				},
 			],
 			'description'  => [
 				'type'        => Types::string(),
-				'description' => esc_html__( 'Description of the image (stored as post_content)', 'wp-graphql' ),
+				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return apply_filters( 'the_content', $post->post_content );
 				},
 			],
 			'mediaType'    => [
 				'type'        => Types::string(),
-				'description' => esc_html__( 'Type of resource', 'wp-graphql' ),
+				'description' => __( 'Type of resource', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return wp_attachment_is_image( $post->ID ) ? 'image' : 'file';
 				},
 			],
 			'sourceUrl'    => [
 				'type'        => Types::string(),
-				'description' => esc_html__( 'Url of the mediaItem', 'wp-graphql' ),
+				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return wp_get_attachment_url( $post->ID );
 				},

@@ -39,7 +39,7 @@ class PostObjectCreate {
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the object type
-				'description'         => sprintf( esc_html__( 'Create %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description'         => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => PostObjectMutation::input_fields( $post_type_object ),
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
