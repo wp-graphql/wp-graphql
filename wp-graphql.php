@@ -433,10 +433,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$schema = apply_filters( 'graphql_schema', $schema, $request, $operation_name, $variables, $app_context );
 
 			/**
+			 * Sanitize the Schema as late as possible before execution
+			 */
+			$sanitized_schema = \WPGraphQL\WPSchema::sanitize_schema( $schema );
+
+			/**
 			 * Executes the request and captures the result
 			 */
 			$result = \GraphQL\GraphQL::execute(
-				$schema,
+				$sanitized_schema,
 				$request,
 				null,
 				$app_context,

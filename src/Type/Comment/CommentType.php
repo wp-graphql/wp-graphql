@@ -79,7 +79,7 @@ class CommentType extends WPObjectType {
 					],
 					'author' => [
 						'type' => Types::user(),
-						'description' => esc_html__( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							$author = new \WP_User( $comment->user_id );
 
@@ -88,63 +88,63 @@ class CommentType extends WPObjectType {
 					],
 					'authorIp' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_author_IP ) ? $comment->comment_author_IP : '';
 						},
 					],
 					'date' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the `date` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the `date` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_date ) ? $comment->comment_date : '';
 						},
 					],
 					'dateGmt' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the `date_gmt` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the `date_gmt` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_date_gmt ) ? $comment->comment_date_gmt : '';
 						},
 					],
 					'content' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the `comment_content` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the `comment_content` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_content ) ? $comment->comment_content : '';
 						},
 					],
 					'karma' => [
 						'type' => Types::int(),
-						'description' => esc_html__( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the `comment_karma` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the `comment_karma` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_karma ) ? $comment->comment_karma : 0;
 						},
 					],
 					'approved' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the `comment_approved` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the `comment_approved` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_approved ) ? $comment->comment_approved : '';
 						},
 					],
 					'agent' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the `comment_agent` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the `comment_agent` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_agent ) ? $comment->comment_agent : '';
 						},
 					],
 					'type' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the `comment_type` column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the `comment_type` column in SQL.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $comment->comment_type ) ? $comment->comment_type : '';
 						},
 					],
 					'parent' => [
 						'type' => Types::comment(),
-						'description' => esc_html__( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
+						'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							return get_comment( $comment->comment_parent );
 						},

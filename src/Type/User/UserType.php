@@ -111,7 +111,7 @@ class UserType extends WPObjectType {
 					],
 					'firstName' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' ),
+						'description' => __( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->first_name ) ? $user->first_name : null;
 						},
@@ -119,21 +119,21 @@ class UserType extends WPObjectType {
 					'lastName' => [
 						'name' => 'last_name',
 						'type' => Types::string(),
-						'description' => esc_html__( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
+						'description' => __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->last_name ) ? $user->last_name : null;
 						},
 					],
 					'extraCapabilities' => [
 						'type' => Types::list_of( Types::string() ),
-						'description' => esc_html__( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
+						'description' => __( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->allcaps ) ? array_keys( $user->allcaps ) : null;
 						},
 					],
 					'description' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Description of the user.', 'wp-graphql' ),
+						'description' => __( 'Description of the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->description ) ? $user->description : null;
 						},
@@ -147,42 +147,42 @@ class UserType extends WPObjectType {
 					],
 					'name' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
+						'description' => __( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->display_name ) ? $user->display_name : null;
 						},
 					],
 					'registeredDate' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' ),
+						'description' => __( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_registered ) ? date( 'c', strtotime( $user->user_registered ) ) : null;
 						},
 					],
 					'nickname' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Nickname of the user.', 'wp-graphql' ),
+						'description' => __( 'Nickname of the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->nickname ) ? $user->nickname : null;
 						},
 					],
 					'url' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'A website url that is associated with the user.', 'wp-graphql' ),
+						'description' => __( 'A website url that is associated with the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_url ) ? $user->user_url : null;
 						},
 					],
 					'slug' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
+						'description' => __( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},
 					],
 					'locale' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
+						'description' => __( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							$user_locale = get_user_locale( $user );
 
@@ -250,7 +250,7 @@ class UserType extends WPObjectType {
 							}
 
 							if ( ! empty( $args['rating'] ) ) {
-								$avatar_args['rating'] = esc_html( $args['rating'] );
+								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
 							$avatar = get_avatar_data( $user->ID, $avatar_args );
