@@ -138,7 +138,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		 */
 		$query = "
 		query {
-			postTags {
+			tags {
 				taxonomyInfo {
 					connectedPostTypeNames
 					connectedPostTypes {
@@ -185,13 +185,13 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		 */
 		$expected = [
 			'data' => [
-				'postTags' => [
+				'tags' => [
 					'taxonomyInfo' => [
 						'connectedPostTypeNames' => [ 'post' ],
 						'connectedPostTypes' => [ [ 'name' => 'post'] ],
 						'description' => '',
-						'graphqlPluralName' => 'postTags',
-						'graphqlSingleName' => 'postTag',
+						'graphqlPluralName' => 'tags',
+						'graphqlSingleName' => 'tag',
 						'hierarchical' => false,
 						'id' => $global_id,
 						'label' => 'Tags',
@@ -304,7 +304,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		 */
 		$query = "
 		query {
-			postTags {
+			tags {
 				taxonomyInfo {
 					name
 					posts {
@@ -330,7 +330,7 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 		 */
 		$expected = [
 			'data' => [
-				'postTags' => [
+				'tags' => [
 					'taxonomyInfo' => [
 						'name' => 'post_tag',
 						'posts' => [

@@ -123,7 +123,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 		 * Ensure that the query is ordered by ID in addition to any other orderby options
 		 */
 		$query_args['orderby'] = array_merge( $query_args['orderby'], [
-			'ID' => esc_html( $id_order ),
+			'ID' => esc_sql( $id_order ),
 		] );
 
 		return $query_args;

@@ -38,7 +38,7 @@ class PostObjectUpdate {
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId([
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the post type being updated
-				'description'         => sprintf( esc_html__( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description'         => sprintf( __( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => self::input_fields( $post_type_object ),
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
@@ -178,7 +178,7 @@ class PostObjectUpdate {
 				'id' => [
 					'type'        => Types::non_null( Types::id() ),
 					// translators: the placeholder is the name of the type of post object being updated
-					'description' => sprintf( esc_html__( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				],
 			],
 			PostObjectMutation::input_fields( $post_type_object )

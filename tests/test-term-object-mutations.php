@@ -75,7 +75,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 
 		$mutation = '
 		mutation createTag( $clientMutationId:String!, $name:String!, $description:String ) {
-		  createPostTag(
+		  createTag(
 		    input: {
 			  clientMutationId: $clientMutationId
 			    name: $name
@@ -83,7 +83,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 			}
 		  ) {
 			clientMutationId
-			postTag {
+			tag {
 			  id
 			  name
 			  description
@@ -112,7 +112,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 
 		$mutation = '
 		mutation updateTag( $clientMutationId:String!, $id:ID! $description:String ) {
-		  updatePostTag(
+		  updateTag(
 		    input: {
 			  clientMutationId: $clientMutationId
 			  description: $description
@@ -120,7 +120,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 			}
 		  ) {
 			clientMutationId
-			postTag {
+			tag {
 			  id
 			  name
 			  description
@@ -143,14 +143,14 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 
 		$mutation = '
 		mutation deleteTag( $clientMutationId:String!, $id:ID! ) {
-		  deletePostTag(
+		  deleteTag(
 		    input: {
 			  id: $id
 			  clientMutationId: $clientMutationId
 		    }
 		  ) {
 		    clientMutationId
-		    postTag {
+		    tag {
 		        id
 		        name
 		    }
@@ -323,56 +323,56 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Assert that the created tag is what it should be
 		 */
-		$this->assertEquals( $actual['data']['createPostTag']['clientMutationId'], $this->client_mutation_id );
-		$this->assertNotEmpty( $actual['data']['createPostTag']['postTag']['id'] );
-		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createPostTag']['postTag']['id'] );
+		$this->assertEquals( $actual['data']['createTag']['clientMutationId'], $this->client_mutation_id );
+		$this->assertNotEmpty( $actual['data']['createTag']['tag']['id'] );
+		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'post_tag' );
 		$this->assertNotEmpty( $id_parts['id'] );
-		$this->assertEquals( $actual['data']['createPostTag']['postTag']['name'], $this->tag_name );
-		$this->assertEquals( $actual['data']['createPostTag']['postTag']['description'], $this->description );
+		$this->assertEquals( $actual['data']['createTag']['tag']['name'], $this->tag_name );
+		$this->assertEquals( $actual['data']['createTag']['tag']['description'], $this->description );
 
 		/**
 		 * Try to update a Cagegory using a Tag ID, which should return errors
 		 */
-		$try_to_update_category = $this->updateCategoryMutation( $actual['data']['createPostTag']['postTag']['id'] );
+		$try_to_update_category = $this->updateCategoryMutation( $actual['data']['createTag']['tag']['id'] );
 		$this->assertNotEmpty( $try_to_update_category['errors'] );
 
 		/**
 		 * Try to update a Category using a Tag ID, which should return errors
 		 */
-		$try_to_delete_category = $this->deleteCategoryMutation( $actual['data']['createPostTag']['postTag']['id'] );
+		$try_to_delete_category = $this->deleteCategoryMutation( $actual['data']['createTag']['tag']['id'] );
 		$this->assertNotEmpty( $try_to_delete_category['errors'] );
 
 		/**
 		 * Run the update mutation with the ID of the created tag
 		 */
-		$updated_tag = $this->updateTagMutation( $actual['data']['createPostTag']['postTag']['id'] );
+		$updated_tag = $this->updateTagMutation( $actual['data']['createTag']['tag']['id'] );
 
 		/**
 		 * Make some assertions on the response
 		 */
-		$this->assertEquals( $updated_tag['data']['updatePostTag']['clientMutationId'], $this->client_mutation_id );
-		$this->assertNotEmpty( $updated_tag['data']['updatePostTag']['postTag']['id'] );
-		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_tag['data']['updatePostTag']['postTag']['id'] );
+		$this->assertEquals( $updated_tag['data']['updateTag']['clientMutationId'], $this->client_mutation_id );
+		$this->assertNotEmpty( $updated_tag['data']['updateTag']['tag']['id'] );
+		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_tag['data']['updateTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'post_tag' );
 		$this->assertNotEmpty( $id_parts['id'] );
-		$this->assertEquals( $updated_tag['data']['updatePostTag']['postTag']['name'], $this->tag_name );
-		$this->assertEquals( $updated_tag['data']['updatePostTag']['postTag']['description'], $this->description_update );
+		$this->assertEquals( $updated_tag['data']['updateTag']['tag']['name'], $this->tag_name );
+		$this->assertEquals( $updated_tag['data']['updateTag']['tag']['description'], $this->description_update );
 
 		/**
 		 * Delete the tag
 		 */
-		$deleted_tag = $this->deleteTagMutation( $updated_tag['data']['updatePostTag']['postTag']['id'] );
+		$deleted_tag = $this->deleteTagMutation( $updated_tag['data']['updateTag']['tag']['id'] );
 
 		/**
 		 * Make some assertions on the response
 		 */
 		$this->assertNotEmpty( $deleted_tag );
-		$this->assertEquals( $deleted_tag['data']['deletePostTag']['clientMutationId'], $this->client_mutation_id );
-		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deletePostTag']['postTag']['id'] );
+		$this->assertEquals( $deleted_tag['data']['deleteTag']['clientMutationId'], $this->client_mutation_id );
+		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deleteTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'post_tag' );
 		$this->assertNotEmpty( $id_parts['id'] );
-		$this->assertEquals( $deleted_tag['data']['deletePostTag']['postTag']['name'], $this->tag_name );
+		$this->assertEquals( $deleted_tag['data']['deleteTag']['tag']['name'], $this->tag_name );
 
 	}
 

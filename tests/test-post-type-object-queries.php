@@ -107,7 +107,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					postTags {
+					tags {
 						edges {
 							node {
 								name
@@ -187,7 +187,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => 5,
 						'name' => 'post',
-						'postTags' => [
+						'tags' => [
 							'edges' => [],
 						],
 						'public' => true,
@@ -236,10 +236,10 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		query {
 			posts {
 				postTypeInfo {
-					postTags {
+					tags {
 						edges {
 							node {
-								postTagId
+								tagId
 								name
 							}
 						}
@@ -268,11 +268,11 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			'data' => [
 				'posts' => [
 					'postTypeInfo' => [
-						'postTags' => [
+						'tags' => [
 							'edges' => [
 								[
 									'node' => [
-										'postTagId' => $tag_id,
+										'tagId' => $tag_id,
 										'name' => 'A tag',
 									],
 								],
@@ -340,7 +340,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					postTags {
+					tags {
 						edges {
 							node {
 								name
@@ -391,7 +391,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => 20,
 						'name' => 'page',
-						'postTags' => [
+						'tags' => [
 							'edges' => [],
 						],
 						'public' => true,
@@ -440,10 +440,10 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		query {
 			pages {
 				postTypeInfo {
-					postTags {
+					tags {
 						edges {
 							node {
-								postTagId
+								tagId
 								name
 							}
 						}
@@ -472,7 +472,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			'data' => [
 				'pages' => [
 					'postTypeInfo' => [
-						'postTags' => [
+						'tags' => [
 							'edges' => [],
 						],
 						'categories' => [
@@ -530,7 +530,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					postTags {
+					tags {
 						edges {
 							node {
 								name
@@ -581,7 +581,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => null,
 						'name' => 'attachment',
-						'postTags' => [
+						'tags' => [
 							'edges' => [],
 						],
 						'public' => true,
@@ -630,10 +630,10 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		query {
 			pages {
 				postTypeInfo {
-					postTags {
+					tags {
 						edges {
 							node {
-								postTagId
+								tagId
 								name
 							}
 						}
@@ -662,7 +662,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			'data' => [
 				'pages' => [
 					'postTypeInfo' => [
-						'postTags' => [
+						'tags' => [
 							'edges' => [],
 						],
 						'categories' => [

@@ -86,7 +86,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		$id_order              = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 		$query_args['orderby'] = [
-			'date' => esc_html( $id_order ),
+			'date' => esc_sql( $id_order ),
 		];
 
 		/**
@@ -123,7 +123,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
 			foreach ( $args['where']['orderby'] as $orderby_input ) {
 				if ( ! empty( $orderby_input['field'] ) ) {
-					$query_args['orderby'][ esc_html( $orderby_input['field'] ) ] = ! empty( $orderby_input['order'] ) ? esc_html( $orderby_input['order'] ) : 'DESC';
+					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = ! empty( $orderby_input['order'] ) ? esc_sql( $orderby_input['order'] ) : 'DESC';
 				}
 			}
 		}
@@ -164,7 +164,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * Ensure that the query is ordered by ID in addition to any other orderby options
 		 */
 		$query_args['orderby'] = array_merge( $query_args['orderby'], [
-			'ID' => esc_html( $id_order ),
+			'ID' => esc_sql( $id_order ),
 		] );
 
 		/**

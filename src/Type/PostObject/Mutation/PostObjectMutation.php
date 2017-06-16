@@ -31,79 +31,79 @@ class PostObjectMutation {
 			$input_fields = [
 				'authorId'      => [
 					'type'        => Types::id(),
-					'description' => esc_html__( 'The userId to assign as the author of the post', 'wp-graphql' ),
+					'description' => __( 'The userId to assign as the author of the post', 'wp-graphql' ),
 				],
 				'commentCount'  => [
 					'type'        => Types::int(),
-					'description' => esc_html__( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
+					'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
 				],
 				'commentStatus' => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The comment status for the object', 'wp-graphql' ),
+					'description' => __( 'The comment status for the object', 'wp-graphql' ),
 				],
 				'content'       => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The content of the object', 'wp-graphql' ),
+					'description' => __( 'The content of the object', 'wp-graphql' ),
 				],
 				'date'          => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The date of the object', 'wp-graphql' ),
+					'description' => __( 'The date of the object', 'wp-graphql' ),
 				],
 				'dateGmt'       => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The date (in GMT zone) of the object', 'wp-graphql' ),
+					'description' => __( 'The date (in GMT zone) of the object', 'wp-graphql' ),
 				],
 				'excerpt'       => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The excerpt of the object', 'wp-graphql' ),
+					'description' => __( 'The excerpt of the object', 'wp-graphql' ),
 				],
 				'menuOrder'     => [
 					'type'        => Types::int(),
-					'description' => esc_html__( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
+					'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
 				],
 				'mimeType'      => [
 					'type'        => Types::mime_type_enum(),
-					'description' => esc_html__( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
+					'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
 				],
 				'modified'      => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
+					'description' => __( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
 				],
 				'modifiedGmt'   => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
+					'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 				],
 				'parentId'      => [
 					'type'        => Types::id(),
-					'description' => esc_html__( 'The ID of the parent object', 'wp-graphql' ),
+					'description' => __( 'The ID of the parent object', 'wp-graphql' ),
 				],
 				'password'      => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The password used to protect the content of the object', 'wp-graphql' ),
+					'description' => __( 'The password used to protect the content of the object', 'wp-graphql' ),
 				],
 				'pinged'        => [
 					'type'        => Types::list_of( Types::string() ),
-					'description' => esc_html__( 'URLs that have been pinged.', 'wp-graphql' ),
+					'description' => __( 'URLs that have been pinged.', 'wp-graphql' ),
 				],
 				'pingStatus'    => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The ping status for the object', 'wp-graphql' ),
+					'description' => __( 'The ping status for the object', 'wp-graphql' ),
 				],
 				'slug'          => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The slug of the object', 'wp-graphql' ),
+					'description' => __( 'The slug of the object', 'wp-graphql' ),
 				],
 				'status'        => [
 					'type'        => Types::post_status_enum(),
-					'description' => esc_html__( 'The status of the object', 'wp-graphql' ),
+					'description' => __( 'The status of the object', 'wp-graphql' ),
 				],
 				'title'         => [
 					'type'        => Types::string(),
-					'description' => esc_html__( 'The title of the post', 'wp-graphql' ),
+					'description' => __( 'The title of the post', 'wp-graphql' ),
 				],
 				'toPing'        => [
 					'type'        => Types::list_of( Types::string() ),
-					'description' => esc_html__( 'URLs queued to be pinged.', 'wp-graphql' ),
+					'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
 				],
 			];
 

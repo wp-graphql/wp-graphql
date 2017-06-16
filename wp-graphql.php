@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.12
+ * Version: 0.0.14
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -14,7 +14,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.12
+ * @version  0.0.14
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -153,7 +153,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.12' );
+				define( 'WPGRAPHQL_VERSION', '0.0.14' );
 			}
 
 			// Plugin Folder Path.
@@ -254,8 +254,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Adds GraphQL support for tags
 			if ( isset( $wp_taxonomies['post_tag'] ) ) {
 				$wp_taxonomies['post_tag']->show_in_graphql     = true;
-				$wp_taxonomies['post_tag']->graphql_single_name = 'postTag';
-				$wp_taxonomies['post_tag']->graphql_plural_name = 'postTags';
+				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
+				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
 			}
 		}
 
@@ -433,10 +433,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$schema = apply_filters( 'graphql_schema', $schema, $request, $operation_name, $variables, $app_context );
 
 			/**
+			 * Sanitize the Schema as late as possible before execution
+			 */
+			$sanitized_schema = \WPGraphQL\WPSchema::sanitize_schema( $schema );
+
+			/**
 			 * Executes the request and captures the result
 			 */
 			$result = \GraphQL\GraphQL::execute(
-				$schema,
+				$sanitized_schema,
 				$request,
 				null,
 				$app_context,
