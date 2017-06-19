@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Type\PostObject\PostObjectMutation;
 use WPGraphQL\Types;
 
 /**
@@ -36,19 +35,19 @@ class PostObjectUpdate {
 			 */
 			$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
 
-			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( array(
+			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId([
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the post type being updated
 				'description'         => sprintf( __( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => self::input_fields( $post_type_object ),
-				'outputFields'        => array(
-					$post_type_object->graphql_single_name => array(
+				'outputFields'        => [
+					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),
 						'resolve' => function( $payload ) {
 							return get_post( $payload['postObjectId'] );
 						},
-					),
-				),
+					],
+				],
 				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
@@ -57,7 +56,7 @@ class PostObjectUpdate {
 					/**
 					 * If there's no existing post, throw an exception
 					 */
-					if ( empty( $id_parts['id'] ) || false === $existing_post ) {
+					if ( empty( $id_parts['id'] ) || false === $existing_post || $id_parts['type'] !== $post_type_object->name ) {
 						// translators: the placeholder is the name of the type of post being updated
 						throw new \Exception( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 					}
@@ -80,7 +79,7 @@ class PostObjectUpdate {
 					 * make sure they have permission to edit others posts
 					 */
 					$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-					if ( ! empty( $author_id_parts[0] ) && get_current_user_id() !== $author_id_parts[0] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+					if ( ! empty( $author_id_parts['id'] ) && get_current_user_id() !== $author_id_parts['id'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 						// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
 						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
@@ -104,7 +103,7 @@ class PostObjectUpdate {
 					/**
 					 * Insert the post and retrieve the ID
 					 */
-					$post_id = wp_update_post( $post_args, true );
+					$post_id = wp_update_post( wp_slash( (array) $post_args ), true );
 
 					/**
 					 * Throw an exception if the post failed to update
@@ -126,6 +125,17 @@ class PostObjectUpdate {
 					}
 
 					/**
+					 * Fires after a single term is created or updated via a GraphQL mutation
+					 *
+					 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
+					 *
+					 * @param int    $post_id       Inserted post ID
+					 * @param array  $args          The args used to insert the term
+					 * @param string $mutation_name The name of the mutation being performed
+					 */
+					do_action( "graphql_insert_{$post_type_object->name}", $post_id, $post_args, $mutation_name );
+
+					/**
 					 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)
 					 *
 					 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
@@ -133,12 +143,15 @@ class PostObjectUpdate {
 					 */
 					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name );
 
+					/**
+					 * Return the payload
+					 */
 					return [
 						'postObjectId' => $post_id,
 					];
 
 				},
-			) );
+			]);
 
 			return self::$mutation[ $post_type_object->graphql_single_name ];
 
@@ -148,6 +161,13 @@ class PostObjectUpdate {
 
 	}
 
+	/**
+	 * Add the id as a nonNull field for update mutations
+	 *
+	 * @param \WP_Post_Type $post_type_object
+	 *
+	 * @return array
+	 */
 	private static function input_fields( $post_type_object ) {
 
 		/**

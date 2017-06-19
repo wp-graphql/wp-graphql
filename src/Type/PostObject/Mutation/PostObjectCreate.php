@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Type\PostObject\PostObjectMutation;
 use WPGraphQL\Types;
 
 /**
@@ -89,7 +88,7 @@ class PostObjectCreate {
 					/**
 					 * Insert the post and retrieve the ID
 					 */
-					$post_id = wp_insert_post( $post_args, true );
+					$post_id = wp_insert_post( wp_slash( (array) $post_args ), true );
 
 					/**
 					 * Throw an exception if the post failed to create
