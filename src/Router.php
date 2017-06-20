@@ -260,20 +260,33 @@ class Router {
 
 		try {
 
-			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
-				$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
-			}
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
+				$data = [
+					'query'        => sanitize_text_field( isset( $_GET['query'] ) ? $_GET['query'] : '' ),
+					'oprationName' => sanitize_text_field( isset( $_GET['oprationName'] ) ? $_GET['oprationName'] : '' ),
+					'variables'    => sanitize_text_field( isset( $_GET['variables'] ) ? $_GET['variables'] : '' ),
+				];
 
-			if ( ! isset( $_SERVER['CONTENT_TYPE'] ) || false === strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) ) {
-				$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
-			}
+				// Decode variables string since it's should be sent as a JSON-encoded string.
+				if ( ! empty( $data['variables'] ) ) {
+					$data['variables'] = json_decode( $data['variables'], true );
+				}
+			} else {
+				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
+				}
 
-			/**
-			 * Retrieve the raw data from the request and encode it to JSON
-			 *
-			 * @since 0.0.5
-			 */
-			$data = json_decode( $this->get_raw_data(), true );
+				if ( ! isset( $_SERVER['CONTENT_TYPE'] ) || false === strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) ) {
+					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
+				}
+
+				/**
+				 * Retrieve the raw data from the request and encode it to JSON
+				 *
+				 * @since 0.0.5
+				 */
+				$data = json_decode( $this->get_raw_data(), true );
+			}
 
 			/**
 			 * If the $data is empty, catch an error.
