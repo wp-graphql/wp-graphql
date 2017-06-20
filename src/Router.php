@@ -262,9 +262,9 @@ class Router {
 
 			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 				$data = [
-					'query'        => sanitize_text_field( isset( $_GET['query'] ) ? $_GET['query'] : '' ),
-					'oprationName' => sanitize_text_field( isset( $_GET['oprationName'] ) ? $_GET['oprationName'] : '' ),
-					'variables'    => sanitize_text_field( isset( $_GET['variables'] ) ? $_GET['variables'] : '' ),
+					'query'         => sanitize_text_field( isset( $_GET['query'] ) ? $_GET['query'] : '' ),
+					'operationName' => sanitize_text_field( isset( $_GET['operationName'] ) ? $_GET['operationName'] : '' ),
+					'variables'     => sanitize_text_field( isset( $_GET['variables'] ) ? $_GET['variables'] : '' ),
 				];
 
 				// Decode variables string since it's should be sent as a JSON-encoded string.
