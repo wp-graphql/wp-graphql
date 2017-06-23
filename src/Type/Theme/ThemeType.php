@@ -74,7 +74,7 @@ class ThemeType extends WPObjectType {
 					],
 					'slug' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet().', 'wp-graphql' ),
+						'description' => __( 'The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet().', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$stylesheet = $theme->get_stylesheet();
 
@@ -83,7 +83,7 @@ class ThemeType extends WPObjectType {
 					],
 					'name' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Display name of the theme. This field is equivalent to WP_Theme->get( "Name" ).', 'wp-graphql' ),
+						'description' => __( 'Display name of the theme. This field is equivalent to WP_Theme->get( "Name" ).', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$name = $theme->get( 'Name' );
 
@@ -92,7 +92,7 @@ class ThemeType extends WPObjectType {
 					],
 					'screenshot' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot().', 'wp-graphql' ),
+						'description' => __( 'The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot().', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$screenshot = $theme->get_screenshot();
 
@@ -101,7 +101,7 @@ class ThemeType extends WPObjectType {
 					],
 					'themeUri' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( "ThemeURI" ).', 'wp-graphql' ),
+						'description' => __( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( "ThemeURI" ).', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$theme_uri = $theme->get('ThemeURI');
 
@@ -110,15 +110,15 @@ class ThemeType extends WPObjectType {
 					],
 					'description' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The description of the theme. This field is equivalent to WP_Theme->get( "Description" ).', 'wp-graphql' ),
+						'description' => __( 'The description of the theme. This field is equivalent to WP_Theme->get( "Description" ).', 'wp-graphql' ),
 					],
 					'author' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Name of the theme author(s), could also be a company name. This field is equivalent to WP_Theme->get( "Author" ).', 'wp-graphql' ),
+						'description' => __( 'Name of the theme author(s), could also be a company name. This field is equivalent to WP_Theme->get( "Author" ).', 'wp-graphql' ),
 					],
 					'authorUri' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "AuthorURI" ).', 'wp-graphql' ),
+						'description' => __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "AuthorURI" ).', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$author_uri = $theme->get('AuthorURI');
 
@@ -127,11 +127,11 @@ class ThemeType extends WPObjectType {
 					],
 					'tags' => [
 						'type' => Types::list_of( Types::string() ),
-						'description' => esc_html__( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "Tags" ).', 'wp-graphql' ),
+						'description' => __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "Tags" ).', 'wp-graphql' ),
 					],
 					'version' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' ),
+						'description' => __( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' ),
 					],
 				];
 

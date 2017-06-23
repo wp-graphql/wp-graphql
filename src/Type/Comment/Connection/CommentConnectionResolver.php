@@ -123,7 +123,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 		 * Ensure that the query is ordered by ID in addition to any other orderby options
 		 */
 		$query_args['orderby'] = array_merge( $query_args['orderby'], [
-			'ID' => esc_html( $id_order ),
+			'ID' => esc_sql( $id_order ),
 		] );
 
 		return $query_args;
@@ -131,12 +131,13 @@ class CommentConnectionResolver extends ConnectionResolver {
 
 	public static function get_query( $query_args ) {
 		$query = new \WP_Comment_Query( $query_args );
+
 		return $query;
 	}
 
 	/**
 	 * @param array       $query The query that was processed to retrieve connection data
-	 * @param array       $array The array of connected items
+	 * @param array       $items The array of connected items
 	 * @param mixed       $source The source being passed down the resolve tree
 	 * @param array       $args The Input args for the field
 	 * @param AppContext  $context The AppContext passed down the resolve tree
@@ -144,7 +145,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public static function get_connection( $query, array $array, $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Get the $posts from the query

@@ -6,6 +6,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -110,7 +111,7 @@ class UserType extends WPObjectType {
 					],
 					'firstName' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' ),
+						'description' => __( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->first_name ) ? $user->first_name : null;
 						},
@@ -118,21 +119,21 @@ class UserType extends WPObjectType {
 					'lastName' => [
 						'name' => 'last_name',
 						'type' => Types::string(),
-						'description' => esc_html__( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
+						'description' => __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->last_name ) ? $user->last_name : null;
 						},
 					],
 					'extraCapabilities' => [
 						'type' => Types::list_of( Types::string() ),
-						'description' => esc_html__( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
+						'description' => __( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->allcaps ) ? array_keys( $user->allcaps ) : null;
 						},
 					],
 					'description' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Description of the user.', 'wp-graphql' ),
+						'description' => __( 'Description of the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->description ) ? $user->description : null;
 						},
@@ -146,42 +147,42 @@ class UserType extends WPObjectType {
 					],
 					'name' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
+						'description' => __( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->display_name ) ? $user->display_name : null;
 						},
 					],
 					'registeredDate' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' ),
+						'description' => __( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_registered ) ? date( 'c', strtotime( $user->user_registered ) ) : null;
 						},
 					],
 					'nickname' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Nickname of the user.', 'wp-graphql' ),
+						'description' => __( 'Nickname of the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->nickname ) ? $user->nickname : null;
 						},
 					],
 					'url' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'A website url that is associated with the user.', 'wp-graphql' ),
+						'description' => __( 'A website url that is associated with the user.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_url ) ? $user->user_url : null;
 						},
 					],
 					'slug' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
+						'description' => __( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},
 					],
 					'locale' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
+						'description' => __( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							$user_locale = get_user_locale( $user );
 
@@ -204,11 +205,57 @@ class UserType extends WPObjectType {
 								'description' => __( 'The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels.', 'wp-graphql' ),
 								'defaultValue' => 96,
 							],
+							'forceDefault' => [
+								'type' => Types::boolean(),
+								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
+							],
+							'rating' => [
+								'type' => new WPEnumType([
+									'name' => 'avatarRatingEnum',
+									'description' => __( 'What rating to display avatars up to. Accepts \'G\', \'PG\', \'R\', \'X\', and are judged in that order. Default is the value of the \'avatar_rating\' option', 'wp-graphql' ),
+									'values' => [
+										'G' => [
+											'name' => 'G',
+											'value' => 'G',
+										],
+										'PG' => [
+											'name' => 'PG',
+											'value' => 'PG',
+										],
+										'R' => [
+											'name' => 'R',
+											'value' => 'R',
+										],
+										'X' => [
+											'name' => 'X',
+											'value' => 'X',
+										],
+									],
+								]),
+							],
+
 						],
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
-							$avatar = get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
 
-							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : false;
+							$avatar_args = [];
+							if ( is_numeric( $args['size'] ) ) {
+								$avatar_args['size'] = absint( $args['size'] );
+								if ( ! $avatar_args['size'] ) {
+									$avatar_args['size'] = 96;
+								}
+							}
+
+							if ( ! empty( $args['forceDefault'] ) && true === $args['forceDefault'] ) {
+								$avatar_args['force_default'] = true;
+							}
+
+							if ( ! empty( $args['rating'] ) ) {
+								$avatar_args['rating'] = esc_sql( $args['rating'] );
+							}
+
+							$avatar = get_avatar_data( $user->ID, $avatar_args );
+
+							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
 						},
 					],
 					'comments' => CommentConnectionDefinition::connection(),

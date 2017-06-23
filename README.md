@@ -1,3 +1,5 @@
+![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-250x.png)
+
 # WPGraphQL 
 
 <a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a>
@@ -76,7 +78,7 @@ of GraphQL queries using WPGraphQL here:
 #### Get a list of category terms:
 ```
 {
-	categories{
+  categories{
     edges{
       node{
         id
@@ -120,6 +122,18 @@ of GraphQL queries using WPGraphQL here:
 
 ## POSSIBLE BREAKING CHANGES
 Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
+
+## Extensions and/or plugins with WPGraphQL support
+There are a few extensions available as well:
+- https://github.com/wp-graphql/wp-graphql-meta-query 
+Adds support for meta_query
+- https://github.com/wp-graphql/wp-graphql-tax-query
+Adds support for tax_query
+- https://github.com/roborourke/wp-graphql-meta
+Adds support for automatically exposing fields registered using the `register_meta` API to GraphQL calls
+- https://github.com/dfmedia/wp-term-timestamps
+Simple plugin that stores created and modified timestamps along with the user ID as term_meta when terms are created and updated. Adds `created` and `modified` fields to TermObject's if this plugin is active alongside WPGraphQL.
+
 
 ## Unit Testing
 To run unit tests during development, you'll first need a testing database that you'd like to use. 

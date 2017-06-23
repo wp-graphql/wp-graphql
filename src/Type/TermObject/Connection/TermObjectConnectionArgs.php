@@ -27,8 +27,10 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 * TermObjectConnectionArgs constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-		parent::__construct( 'termArgs', self::fields() );
+	public function __construct( $config = [] ) {
+		$config['name'] = 'termArgs';
+		$config['fields'] = self::fields();
+		parent::__construct( $config );
 	}
 
 	/**
@@ -153,7 +155,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 		endif;
-		return self::$fields;
+		return self::prepare_fields( self::$fields, 'termArgs' );
 	}
 
 }

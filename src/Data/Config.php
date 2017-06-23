@@ -82,9 +82,7 @@ class Config {
 				} else {
 					$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID {$compare} %d", $cursor_offset );
 				}
-
 			}
-
 		}
 
 		return $where;
@@ -125,9 +123,7 @@ class Config {
 				} else {
 					$pieces['where'] .= sprintf( ' AND t.term_id %1$s %2$d', $compare, $cursor_offset );
 				}
-
 			}
-
 		}
 
 		return $pieces;
@@ -161,18 +157,12 @@ class Config {
 				// Get the $cursor_post
 				$cursor_comment = get_comment( $cursor_offset );
 
-				// var_dump( $pieces['where'] );
-
 				if ( ! empty( $cursor_comment ) && ! empty( $cursor_comment->comment_date ) ) {
 					$pieces['where'] .= sprintf( ' AND comment_date %1$s= "%3$s" AND NOT ( comment_date %2$s= "%3$s" AND comment_ID %2$s= %4$d )', $compare, $compare_opposite, esc_html( $cursor_comment->comment_date ), absint( $cursor_offset ) );
 				} else {
 					$pieces['where'] .= sprintf( ' AND comment_ID %1$s %2$d', $compare, $cursor_offset );
 				}
-
-				// var_dump( $pieces['where'] );
-
 			}
-
 		}
 
 		return $pieces;

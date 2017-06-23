@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef
+class ComposerStaticInit1e072e261675e0b8440f1da532408811
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -201,6 +201,7 @@ class ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef
         'WPGraphQL\\Type\\Enum\\PostTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostTypeEnumType.php',
         'WPGraphQL\\Type\\Enum\\RelationEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/RelationEnumType.php',
         'WPGraphQL\\Type\\Enum\\TaxonomyEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyEnumType.php',
+        'WPGraphQL\\Type\\MediaItem\\MediaItemType' => __DIR__ . '/../..' . '/src/Type/MediaItem/MediaItemType.php',
         'WPGraphQL\\Type\\Plugin\\Connection\\PluginConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Plugin/Connection/PluginConnectionDefinition.php',
         'WPGraphQL\\Type\\Plugin\\Connection\\PluginConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Plugin/Connection/PluginConnectionResolver.php',
         'WPGraphQL\\Type\\Plugin\\PluginQuery' => __DIR__ . '/../..' . '/src/Type/Plugin/PluginQuery.php',
@@ -209,6 +210,11 @@ class ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef
         'WPGraphQL\\Type\\PostObject\\Connection\\PostObjectConnectionArgsDateQuery' => __DIR__ . '/../..' . '/src/Type/PostObject/Connection/PostObjectConnectionArgsDateQuery.php',
         'WPGraphQL\\Type\\PostObject\\Connection\\PostObjectConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/PostObject/Connection/PostObjectConnectionDefinition.php',
         'WPGraphQL\\Type\\PostObject\\Connection\\PostObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Type/PostObject/Connection/PostObjectConnectionResolver.php',
+        'WPGraphQL\\Type\\PostObject\\Mutation\\PostObjectCreate' => __DIR__ . '/../..' . '/src/Type/PostObject/Mutation/PostObjectCreate.php',
+        'WPGraphQL\\Type\\PostObject\\Mutation\\PostObjectDelete' => __DIR__ . '/../..' . '/src/Type/PostObject/Mutation/PostObjectDelete.php',
+        'WPGraphQL\\Type\\PostObject\\Mutation\\PostObjectMutation' => __DIR__ . '/../..' . '/src/Type/PostObject/Mutation/PostObjectMutation.php',
+        'WPGraphQL\\Type\\PostObject\\Mutation\\PostObjectUpdate' => __DIR__ . '/../..' . '/src/Type/PostObject/Mutation/PostObjectUpdate.php',
+        'WPGraphQL\\Type\\PostObject\\Mutation\\TermObjectDelete' => __DIR__ . '/../..' . '/src/Type/TermObject/Mutation/TermObjectDelete.php',
         'WPGraphQL\\Type\\PostObject\\PostObjectQuery' => __DIR__ . '/../..' . '/src/Type/PostObject/PostObjectQuery.php',
         'WPGraphQL\\Type\\PostObject\\PostObjectType' => __DIR__ . '/../..' . '/src/Type/PostObject/PostObjectType.php',
         'WPGraphQL\\Type\\PostType\\PostTypeType' => __DIR__ . '/../..' . '/src/Type/PostType/PostTypeType.php',
@@ -218,6 +224,9 @@ class ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionArgs' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionArgs.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionDefinition.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionResolver.php',
+        'WPGraphQL\\Type\\TermObject\\Mutation\\TermObjectCreate' => __DIR__ . '/../..' . '/src/Type/TermObject/Mutation/TermObjectCreate.php',
+        'WPGraphQL\\Type\\TermObject\\Mutation\\TermObjectMutation' => __DIR__ . '/../..' . '/src/Type/TermObject/Mutation/TermObjectMutation.php',
+        'WPGraphQL\\Type\\TermObject\\Mutation\\TermObjectUpdate' => __DIR__ . '/../..' . '/src/Type/TermObject/Mutation/TermObjectUpdate.php',
         'WPGraphQL\\Type\\TermObject\\TermObjectQuery' => __DIR__ . '/../..' . '/src/Type/TermObject/TermObjectQuery.php',
         'WPGraphQL\\Type\\TermObject\\TermObjectType' => __DIR__ . '/../..' . '/src/Type/TermObject/TermObjectType.php',
         'WPGraphQL\\Type\\Theme\\Connection\\ThemeConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Theme/Connection/ThemeConnectionDefinition.php',
@@ -239,9 +248,9 @@ class ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitcc440e3b13871dd8fcc9048ccceadfef::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1e072e261675e0b8440f1da532408811::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1e072e261675e0b8440f1da532408811::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1e072e261675e0b8440f1da532408811::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.11
+ * Version: 0.0.15
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -14,7 +14,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.11
+ * @version  0.0.15
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -92,6 +92,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				self::$instance = new WPGraphQL;
 				self::$instance->setup_constants();
 				self::$instance->includes();
+				self::$instance->actions();
+				self::$instance->filters();
 			}
 
 			new \WPGraphQL\Data\Config();
@@ -151,7 +153,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.11' );
+				define( 'WPGRAPHQL_VERSION', '0.0.15' );
 			}
 
 			// Plugin Folder Path.
@@ -186,6 +188,27 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
+
+		}
+
+		/**
+		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
+		 */
+		private function actions() {
+			// @placeholder where actions can be added throughout. This will be useful for mutations
+		}
+
+		/**
+		 * Setup filters
+		 */
+		private function filters() {
+
+			/**
+			 * mediaItems are the attachment postObject, but they have a different schema shape
+			 * than postObjects out of the box, so this filter adjusts the core mediaItem
+			 * shape of data
+			 */
+			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
 		}
 
@@ -231,8 +254,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Adds GraphQL support for tags
 			if ( isset( $wp_taxonomies['post_tag'] ) ) {
 				$wp_taxonomies['post_tag']->show_in_graphql     = true;
-				$wp_taxonomies['post_tag']->graphql_single_name = 'postTag';
-				$wp_taxonomies['post_tag']->graphql_plural_name = 'postTags';
+				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
+				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
 			}
 		}
 
@@ -289,7 +312,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
-			$taxonomies = get_taxonomies(
+			 $taxonomies = get_taxonomies(
 				[
 					'show_in_graphql' => true,
 				]
@@ -379,8 +402,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param            AppContext      object The AppContext object containing all of the
 			 *                                   information about the context we know at this point
 			 */
-			$variables = is_object( $variables ) ? wp_json_encode( $variables ) : $variables;
-			$variables = (array) $variables;
+			if ( ! is_array( $variables ) ) {
+				$variables = (string) $variables;
+				$variables = (array) json_decode( $variables );
+			}
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
@@ -408,10 +433,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$schema = apply_filters( 'graphql_schema', $schema, $request, $operation_name, $variables, $app_context );
 
 			/**
+			 * Sanitize the Schema as late as possible before execution
+			 */
+			$sanitized_schema = \WPGraphQL\WPSchema::sanitize_schema( $schema );
+
+			/**
 			 * Executes the request and captures the result
 			 */
 			$result = \GraphQL\GraphQL::execute(
-				$schema,
+				$sanitized_schema,
 				$request,
 				null,
 				$app_context,

@@ -29,6 +29,13 @@ class PostTypeType extends WPObjectType {
 	private static $fields;
 
 	/**
+	 * Holds the object definition for labels details
+	 *
+	 * @var object $labels_details
+	 */
+	private static $labels_details;
+
+	/**
 	 * PostTypeType constructor.
 	 * @since 0.0.5
 	 */
@@ -78,140 +85,146 @@ class PostTypeType extends WPObjectType {
 					],
 					'name' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The internal name of the post type. This should not be used for display purposes.', 'wp-graphql' ),
+						'description' => __( 'The internal name of the post type. This should not be used for display purposes.', 'wp-graphql' ),
 					],
 					'label' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Display name of the content type.', 'wp-graphql' ),
+						'description' => __( 'Display name of the content type.', 'wp-graphql' ),
 					],
-					//@todo: add "labels" field
+					'labels' => [
+						'type'        => self::labels_details(),
+						'description' => __( 'Details about the post type labels.', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post_Type $post_type, $args, $context, ResolveInfo $info ) {
+							return get_post_type_labels( $post_type );
+						},
+					],
 					'description' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Description of the content type.', 'wp-graphql' ),
+						'description' => __( 'Description of the content type.', 'wp-graphql' ),
 					],
 					'public' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether a post type is intended for use publicly either via the admin interface or by front-end users. While the default settings of exclude_from_search, publicly_queryable, show_ui, and show_in_nav_menus are inherited from public, each does not rely on this relationship and controls a very specific intention.', 'wp-graphql' ),
+						'description' => __( 'Whether a post type is intended for use publicly either via the admin interface or by front-end users. While the default settings of exclude_from_search, publicly_queryable, show_ui, and show_in_nav_menus are inherited from public, each does not rely on this relationship and controls a very specific intention.', 'wp-graphql' ),
 					],
 					'hierarchical' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether the post type is hierarchical, for example pages.', 'wp-graphql' ),
+						'description' => __( 'Whether the post type is hierarchical, for example pages.', 'wp-graphql' ),
 					],
 					'excludeFromSearch' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether to exclude posts with this post type from front end search results.', 'wp-graphql' ),
+						'description' => __( 'Whether to exclude posts with this post type from front end search results.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->exclude_from_search ) ? $post_type->exclude_from_search : false;
 						},
 					],
 					'publiclyQueryable' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether queries can be performed on the front end for the post type as part of parse_request().', 'wp-graphql' ),
+						'description' => __( 'Whether queries can be performed on the front end for the post type as part of parse_request().', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->publicly_queryable ) ? $post_type->publicly_queryable : null;
 						},
 					],
 					'showUi' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether to generate and allow a UI for managing this post type in the admin.', 'wp-graphql' ),
+						'description' => __( 'Whether to generate and allow a UI for managing this post type in the admin.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_ui ) ? $post_type->show_ui : null;
 						},
 					],
 					'showInMenu' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Where to show the post type in the admin menu. To work, $show_ui must be true. If true, the post type is shown in its own top level menu. If false, no menu is shown. If a string of an existing top level menu (eg. "tools.php" or "edit.php?post_type=page"), the post type will be placed as a sub-menu of that.', 'wp-graphql' ),
+						'description' => __( 'Where to show the post type in the admin menu. To work, $show_ui must be true. If true, the post type is shown in its own top level menu. If false, no menu is shown. If a string of an existing top level menu (eg. "tools.php" or "edit.php?post_type=page"), the post type will be placed as a sub-menu of that.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_in_menu ) ? $post_type->show_in_menu : null;
 						},
 					],
 					'showInNavMenus' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Makes this post type available for selection in navigation menus.', 'wp-graphql' ),
+						'description' => __( 'Makes this post type available for selection in navigation menus.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_in_nav_menus ) ? $post_type->show_in_nav_menus : null;
 						},
 					],
 					'showInAdminBar' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Makes this post type available via the admin bar.', 'wp-graphql' ),
+						'description' => __( 'Makes this post type available via the admin bar.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_in_admin_bar ) ? $post_type->show_in_admin_bar : null;
 						},
 					],
 					'menuPosition' => [
 						'type' => Types::int(),
-						'description' => esc_html__( 'The position of this post type in the menu. Only applies if show_in_menu is true.', 'wp-graphql' ),
+						'description' => __( 'The position of this post type in the menu. Only applies if show_in_menu is true.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->menu_position ) ? $post_type->menu_position : null;
 						},
 					],
 					'menuIcon' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The name of the icon file to display as a menu icon.', 'wp-graphql' ),
+						'description' => __( 'The name of the icon file to display as a menu icon.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->menu_icon ) ? $post_type->menu_icon : null;
 						},
 					],
 					'hasArchive' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether this content type should have archives. Content archives are generated by type and by date.', 'wp-graphql' ),
+						'description' => __( 'Whether this content type should have archives. Content archives are generated by type and by date.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->has_archive ) ? $post_type->has_archive : null;
 						},
 					],
 					'canExport' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether this content type should can be exported.', 'wp-graphql' ),
+						'description' => __( 'Whether this content type should can be exported.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->can_export ) ? $post_type->can_export : null;
 						},
 					],
 					'deleteWithUser' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether delete this type of content when the author of it is deleted from the system.', 'wp-graphql' ),
+						'description' => __( 'Whether delete this type of content when the author of it is deleted from the system.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->delete_with_user ) ? $post_type->delete_with_user : null;
 						},
 					],
 					'showInRest' => [
 						'type' => Types::boolean(),
-						'description' => esc_html__( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_in_rest ) ? $post_type->show_in_rest : null;
 						},
 					],
 					'restBase' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Name of content type to diplay in REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Name of content type to diplay in REST API `wp/v2` namespace.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->rest_base ) ? $post_type->rest_base : null;
 						},
 					],
 					'restControllerClass' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The REST Controller class assigned to handling this content type.', 'wp-graphql' ),
+						'description' => __( 'The REST Controller class assigned to handling this content type.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->rest_controller_class ) ? $post_type->rest_controller_class : null;
 						},
 					],
 					'showInGraphql' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'Whether to add the post type to the GraphQL Schema.', 'wp-graphql' ),
+						'description' => __( 'Whether to add the post type to the GraphQL Schema.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->show_in_graphql ) ? $post_type->show_in_graphql : null;
 						},
 					],
 					'graphqlSingleName' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The singular name of the post type within the GraphQL Schema.', 'wp-graphql' ),
+						'description' => __( 'The singular name of the post type within the GraphQL Schema.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->graphql_single_name ) ? $post_type->graphql_single_name : null;
 						},
 					],
 					'graphqlPluralName' => [
 						'type' => Types::string(),
-						'description' => esc_html__( 'The plural name of the post type within the GraphQL Schema.', 'wp-graphql' ),
+						'description' => __( 'The plural name of the post type within the GraphQL Schema.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->graphql_plural_name ) ? $post_type->graphql_plural_name : null;
 						},
@@ -235,7 +248,7 @@ class PostTypeType extends WPObjectType {
 					],
 					'connectedTaxonomies' => [
 						'type' => Types::list_of( Types::taxonomy() ),
-						'description' => esc_html__( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
+						'description' => __( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type_object, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 							$tax_objects = [];
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
@@ -273,6 +286,192 @@ class PostTypeType extends WPObjectType {
 			};
 		endif;
 		return self::$fields;
+	}
+
+	/**
+	 * This defines the labels details object type that can be queried on mediaItems
+	 *
+	 * @return null|WPObjectType
+	 * @since 0.0.6
+	 */
+	private static function labels_details() {
+		if ( null === self::$labels_details ) {
+			self::$labels_details = new WPObjectType( [
+				'name'   => 'labelsDetails',
+				'fields' => function() {
+					$fields = [
+						'name' => [
+							'type' => Types::string(),
+							'description' => __( 'General name for the post type, usually plural.', 'wp-graphql' ),
+						],
+						'singularName' => [
+							'type' => Types::string(),
+							'description' => __( 'Name for one object of this post type.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->singular_name ) ? $labels->singular_name : null;
+							},
+						],
+						'addNew' => [
+							'type' => Types::string(),
+							'description' => __( 'Default is ‘Add New’ for both hierarchical and non-hierarchical types.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->add_new ) ? $labels->add_new : null;
+							},
+						],
+						'addNewItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for adding a new singular item.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->add_new_item ) ? $labels->add_new_item : null;
+							},
+						],
+						'editItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for editing a singular item.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->edit_item ) ? $labels->edit_item : null;
+							},
+						],
+						'newItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the new item page title.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->new_item ) ? $labels->new_item : null;
+							},
+						],
+						'viewItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for viewing a singular item.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->view_item ) ? $labels->view_item : null;
+							},
+						],
+						'viewItems' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for viewing post type archives.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->view_items ) ? $labels->view_items : null;
+							},
+						],
+						'searchItems' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for searching plural items.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->search_items ) ? $labels->search_items : null;
+							},
+						],
+						'notFound' => [
+							'type' => Types::string(),
+							'description' => __( 'Label used when no items are found.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->not_found ) ? $labels->not_found : null;
+							},
+						],
+						'notFoundInTrash' => [
+							'type' => Types::string(),
+							'description' => __( 'Label used when no items are in the trash.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->not_found_in_trash ) ? $labels->not_found_in_trash : null;
+							},
+						],
+						'parentItemColon' => [
+							'type' => Types::string(),
+							'description' => __( 'Label used to prefix parents of hierarchical items.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->parent_item_colon ) ? $labels->parent_item_colon : null;
+							},
+						],
+						'allItems' => [
+							'type' => Types::string(),
+							'description' => __( 'Label to signify all items in a submenu link.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->all_items ) ? $labels->all_items : null;
+							},
+						],
+						'archives' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for archives in nav menus', 'wp-graphql' ),
+						],
+						'attributes' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the attributes meta box.', 'wp-graphql' ),
+						],
+						'insertIntoItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the media frame button.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->insert_into_item ) ? $labels->insert_into_item : null;
+							},
+						],
+						'uploadedToThisItem' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the media frame filter.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->uploaded_to_this_item ) ? $labels->uploaded_to_this_item : null;
+							},
+						],
+						'featuredImage' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the Featured Image meta box title.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->featured_image ) ? $labels->featured_image : null;
+							},
+						],
+						'setFeaturedImage' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for setting the featured image.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->set_featured_image ) ? $labels->set_featured_image : null;
+							},
+						],
+						'removeFeaturedImage' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for removing the featured image.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->remove_featured_image ) ? $labels->remove_featured_image : null;
+							},
+						],
+						'useFeaturedImage' => [
+							'type' => Types::string(),
+							'description' => __( 'Label in the media frame for using a featured image.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->use_featured_item ) ? $labels->use_featured_item : null;
+							},
+						],
+						'menuName' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the menu name.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->menu_name ) ? $labels->menu_name : null;
+							},
+						],
+						'filterItemsList' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the table views hidden heading.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->filter_items_list ) ? $labels->filter_items_list : null;
+							},
+						],
+						'itemsListNavigation' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the table pagination hidden heading.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->items_list_navigation ) ? $labels->items_list_navigation : null;
+							},
+						],
+						'itemsList' => [
+							'type' => Types::string(),
+							'description' => __( 'Label for the table hidden heading.', 'wp-graphql' ),
+							'resolve' => function( $labels ) {
+								return ! empty( $labels->items_list ) ? $labels->items_list : null;
+							},
+						],
+					];
+					return self::prepare_fields( $fields, 'labelsDetails' );
+				},
+			] );
+		} // End if().
+		return ! empty( self::$labels_details ) ? self::$labels_details : null;
 	}
 
 }

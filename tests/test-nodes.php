@@ -18,7 +18,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->admin = $this->factory->user->create( [
-			'role' => 'admin',
+			'role' => 'administrator',
 		] );
 	}
 
@@ -28,6 +28,67 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		parent::tearDown();
+	}
+
+	public function testNodeQueryWithVariables() {
+
+		/**
+		 * Set up the $args
+		 */
+		$args = array(
+			'post_status'  => 'publish',
+			'post_content' => 'Test page content',
+			'post_title'   => 'Test Page Title',
+			'post_type'    => 'page',
+			'post_author'  => $this->admin,
+		);
+
+		/**
+		 * Create the page
+		 */
+		$page_id = $this->factory->post->create( $args );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = '
+		query getPageByNode( $id:ID! ) { 
+			node( id:$id ) { 
+				__typename 
+				...on page {
+					pageId
+				}
+			} 
+		}';
+
+		$variables = wp_json_encode([
+			'id' => $global_id,
+		]);
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query, 'getPageByNode', $variables );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'node' => [
+					'__typename' => 'page',
+					'pageId' => $page_id,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 	/**
