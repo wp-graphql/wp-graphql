@@ -114,7 +114,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 					],
 					'slug' => 'a-category',
 					'taxonomy' => [
-						'name' => 'category'
+						'name' => 'category',
 					],
 					'termGroupId' => null,
 					'termTaxonomyId' => $term_id,
@@ -196,6 +196,56 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function testTermQueryWithParentTerm() {
+
+		$parent_id = $this->createTermObject( [
+			'name' => 'Parent Category',
+			'taxonomy' => 'category',
+		] );
+
+		$child_id = $this->createTermObject( [
+			'name' => 'Child category',
+			'taxonomy' => 'category',
+			'parent' => $parent_id,
+		] );
+
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+
+		$query = "
+		query {
+			category(id: \"{$global_child_id}\"){
+				id
+				categoryId
+				ancestors{
+					id
+					categoryId
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'category' => [
+					'id' => $global_child_id,
+					'categoryId' => $child_id,
+					'ancestors' => [
+						[
+							'id' => $global_parent_id,
+							'categoryId' => $parent_id,
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 	/**

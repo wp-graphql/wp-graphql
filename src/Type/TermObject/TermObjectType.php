@@ -69,8 +69,7 @@ class TermObjectType extends WPObjectType {
 	 *
 	 * This defines the fields for TermObjectType
 	 *
-	 * @param $taxonomy_object
-	 *
+	 * @param \WP_Taxonomy $taxonomy_object
 	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
 	 * @since 0.0.5
 	 */
@@ -130,8 +129,22 @@ class TermObjectType extends WPObjectType {
 							return ! empty( $term->term_id ) ? absint( $term->term_id ) : null;
 						},
 					],
-					'count'             => [
-						'type'        => Types::int(),
+					'ancestors' => [
+						'type' => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
+						'description' => esc_html__( 'The ancestors of the object', 'wp-graphql' ),
+						'resolve' => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
+							$ancestors = [];
+							$ancestor_ids = get_ancestors( $term->term_id, $term->taxonomy );
+							if ( ! empty( $ancestor_ids ) ) {
+								foreach ( $ancestor_ids as $ancestor_id ) {
+									$ancestors[] = get_term( $ancestor_id );
+								}
+							}
+							return ! empty( $ancestors ) ? $ancestors : null;
+						},
+					],
+					'count' => [
+						'type' => Types::int(),
 						'description' => __( 'The number of objects connected to the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $term->count ) ? absint( $term->count ) : null;

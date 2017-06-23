@@ -293,6 +293,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 						pageId
 					}
 				}
+				ancestors {
+					... on page {
+						pageId
+					}
+				}
 			}
 		}";
 
@@ -310,6 +315,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'id' => $global_id,
 					'parent' => [
 						'pageId' => $parent_id,
+					],
+					'ancestors' => [
+						[
+							'pageId' => $parent_id,
+						],
 					],
 				],
 			],
