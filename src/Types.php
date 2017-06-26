@@ -11,6 +11,9 @@ use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
+use WPGraphQL\Type\MenuItem\MenuItemType;
+use WPGraphQL\Type\MenuLocation\MenuLocationType;
+use WPGraphQL\Type\Menu\MenuType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
@@ -64,6 +67,10 @@ class Types {
 	 * @access private
 	 */
 	private static $mime_type_enum;
+
+	private static $menu_item_type;
+	private static $menu_location_type;
+	private static $menu_type;
 
 	/**
 	 * Stores the plugin type object
@@ -249,6 +256,18 @@ class Types {
 	 */
 	public static function mime_type_enum() {
 		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
+	}
+
+	public static function menu_item() {
+		return self::$menu_item_type ? : ( self::$menu_item_type = new MenuItemType() );
+	}
+
+	public static function menu_location() {
+		return self::$menu_location_type ? : ( self::$menu_location_type = new MenuLocationType() );
+	}
+
+	public static function menu() {
+		return self::$menu_type ? : ( self::$menu_type = new MenuType() );
 	}
 
 	/**
