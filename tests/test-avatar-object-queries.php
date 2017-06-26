@@ -219,7 +219,7 @@ class WP_GraphQL_Test_Avatar_Object_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'user' => [
-					'avatar' => null
+					'avatar' => null,
 				],
 			],
 		];

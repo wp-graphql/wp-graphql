@@ -62,6 +62,60 @@ class RootQueryType extends ObjectType {
 		$fields['comment'] = CommentQuery::root_query();
 		$fields['comments'] = CommentConnectionDefinition::connection();
 
+		$fields['_menus'] = [
+			'type' => Types::list_of( Types::menu() ),
+			'resolve' => function() {
+				$menus = wp_get_nav_menus();
+				return $menus;
+			},
+		];
+
+		$fields['_menu_item'] = array(
+			'type' => Types::menu_item(),
+			'description' => 'Returns menu_item by id',
+			'args' => [
+				'id' => Types::non_null( Types::id() ),
+			],
+			'resolve' => function( $value, $args, AppContext $context ) {
+				$menu_item = get_post( $args['id'] );
+				// If it is a nav menu item return it otherwise null.
+				return 'nav_menu_item' === $menu_item->post_type ? $menu_item : null;
+			},
+		);
+
+		/**
+		 * Add menu fields if the site has any registered menus
+		 */
+		$registered_menus = get_registered_nav_menus();
+
+		if ( ! empty( $registered_menus ) ) {
+
+			$menu_enum_values = [];
+			if ( ! empty( $registered_menus ) ) {
+				foreach ( $registered_menus as $menu => $name ) {
+					$menu_enum_values[ strtoupper( str_ireplace( ' ', '_',  $name ) ) ] = $menu;
+				}
+			}
+
+			$fields['menu'] = array(
+				'type'        => Types::menu(),
+				'description' => __( 'Retrieve a menu by providing a Menu name, ID or slug', 'wp-graphql' ),
+				'args'        => [
+					'location' => [
+						'type' => new WPEnumType( [
+							'name'   => 'location',
+							'values' => $menu_enum_values,
+						] ),
+					],
+				],
+				'resolve'     => function( $value, $args, AppContext $context ) {
+					$theme_locations = get_nav_menu_locations();
+					$menu = wp_get_nav_menu_object( $theme_locations[ $args['location'] ] );
+					return ( ! empty( $menu ) && 'nav_menu' === $menu->taxonomy ) ? $menu : null;
+				},
+			);
+		}
+
 		/**
 		 * Creates the plugin root query field
 		 * @since 0.0.5
