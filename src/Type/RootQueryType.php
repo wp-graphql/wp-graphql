@@ -62,27 +62,6 @@ class RootQueryType extends ObjectType {
 		$fields['comment'] = CommentQuery::root_query();
 		$fields['comments'] = CommentConnectionDefinition::connection();
 
-		$fields['_menus'] = [
-			'type' => Types::list_of( Types::menu() ),
-			'resolve' => function() {
-				$menus = wp_get_nav_menus();
-				return $menus;
-			},
-		];
-
-		$fields['_menu_item'] = array(
-			'type' => Types::menu_item(),
-			'description' => 'Returns menu_item by id',
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $value, $args, AppContext $context ) {
-				$menu_item = get_post( $args['id'] );
-				// If it is a nav menu item return it otherwise null.
-				return 'nav_menu_item' === $menu_item->post_type ? $menu_item : null;
-			},
-		);
-
 		/**
 		 * Add menu fields if the site has any registered menus
 		 */
