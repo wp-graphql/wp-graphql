@@ -93,7 +93,7 @@ class RootQueryType extends ObjectType {
 			$menu_enum_values = [];
 			if ( ! empty( $registered_menus ) ) {
 				foreach ( $registered_menus as $menu => $name ) {
-					$menu_enum_values[ strtoupper( str_ireplace( ' ', '_',  $name ) ) ] = $menu;
+					$menu_enum_values[ strtoupper( str_ireplace( ' ', '_',  $menu ) ) ] = $menu;
 				}
 			}
 
