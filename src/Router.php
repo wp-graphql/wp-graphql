@@ -48,14 +48,14 @@ class Router {
 		 *
 		 * @since 0.0.1
 		 */
-		add_filter( 'query_vars', [ $this, 'add_query_var' ], 10, 1 );
+		add_filter( 'query_vars', [ $this, 'add_query_var' ], 1, 1 );
 
 		/**
 		 * Redirects the route to the graphql processor
 		 *
 		 * @since 0.0.1
 		 */
-		add_action( 'template_redirect', [ $this, 'resolve_http_request' ], 10 );
+		add_action( 'parse_request', [ $this, 'resolve_http_request' ], 10 );
 
 	}
 
@@ -113,7 +113,7 @@ class Router {
 		/**
 		 * Ensure we're on the registered route for graphql route
 		 */
-		if ( ! $wp_query->get( self::$route ) ) {
+		if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
 			return;
 		}
 
@@ -288,6 +288,7 @@ class Router {
 				$data = json_decode( $this->get_raw_data(), true );
 			}
 
+
 			/**
 			 * If the $data is empty, catch an error.
 			 */
@@ -305,6 +306,7 @@ class Router {
 			 * @since 0.0.5
 			 */
 			$graphql_results = do_graphql_request( $request, $operation_name, $variables );
+
 
 			/**
 			 * Ensure the $graphql_request is returned as a proper, populated array,
