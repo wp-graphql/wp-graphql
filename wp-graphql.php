@@ -406,6 +406,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$variables = (string) $variables;
 				$variables = (array) json_decode( $variables );
 			}
+
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
