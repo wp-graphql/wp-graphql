@@ -2,7 +2,7 @@
 
 # WPGraphQL 
 
-<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a>
+<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://www.gitbook.com/book/wp-graphql/wp-graphql/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a>
 
 GraphQL API for WordPress.
 
