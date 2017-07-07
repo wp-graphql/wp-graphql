@@ -237,7 +237,7 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 *
+	 * 
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
@@ -266,8 +266,8 @@ class Router {
 			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
-					'query'         => isset( $_GET['query'] ) ? $_GET['query'] : '',
-					'operationName' => isset( $_GET['operationName'] ) ? $_GET['operationName'] : '',
+					'query'         => isset( $_GET['query'] ) ? sanitize_text_field( $_GET['query'] ) : '',
+					'operationName' => isset( $_GET['operationName'] ) ? sanitize_text_field( $_GET['operationName'] ) : '',
 					'variables'     => isset( $_GET['variables'] ) ? $_GET['variables'] : '',
 				];
 
@@ -280,7 +280,11 @@ class Router {
 				 * ?query=query getPosts($first:Int){posts(first:$first){edges{node{id}}}}&variables[first]=1
 				 */
 				if ( is_array( $data['variables'] ) ) {
-					$decoded_variables = $data['variables'];
+					$sanitized_variables = [];
+					foreach ( $data['variables'] as $key => $value ) {
+						$sanitized_variables[ $key ] = sanitize_text_field( $value );
+					}
+					$decoded_variables = $sanitized_variables;
 
 				/**
 				 * If the variables are not an array, let's attempt to decode them and convert them to an array for
