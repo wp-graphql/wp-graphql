@@ -80,6 +80,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static $allowed_taxonomies;
 
 		/**
+		 * Stores an array of allowed menu locations
+		 *
+		 * @var array allowed_menus
+		 * @access public
+		 */
+		public static $allowed_menus;
+
+		/**
 		 * The instance of the WPGraphQL object
 		 *
 		 * @return object|WPGraphQL - The one true WPGraphQL
@@ -290,7 +298,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @return array
 			 */
-			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
+			self::$allowed_post_types = apply_filters( 'graphql_allowed_post_types', $post_types );
 
 			/**
 			 * Returns the array of allowed_post_types
@@ -312,7 +320,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
-			 $taxonomies = get_taxonomies(
+			$taxonomies = get_taxonomies(
 				[
 					'show_in_graphql' => true,
 				]
@@ -328,12 +336,26 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @param array $taxonomies Array of taxonomy objects
 			 */
-			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
+			self::$allowed_taxonomies = apply_filters( 'graphql_allowed_taxonomies', $taxonomies );
 
 			/**
 			 * Returns the array of $allowed_taxonomies
 			 */
 			return self::$allowed_taxonomies;
+
+		}
+
+		/**
+		 * Get the menu locations that have been registered for use in the Schema
+		 *
+		 * @return array
+		 */
+		public static function get_allowed_menus() {
+
+			$menus               = get_registered_nav_menus();
+			self::$allowed_menus = apply_filters( 'graphql_allowed_menus', $menus );
+
+			return self::$allowed_menus;
 
 		}
 
@@ -379,6 +401,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			\WPGraphQL::show_in_graphql();
 			\WPGraphQL::get_allowed_post_types();
 			\WPGraphQL::get_allowed_taxonomies();
+			\WPGraphQL::get_allowed_menus();
 
 			/**
 			 * Configure the app_context which gets passed down to all the resolvers.
