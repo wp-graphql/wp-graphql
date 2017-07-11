@@ -46,12 +46,13 @@ class MenuQuery {
 					'location' => [
 						'type' => self::menu_enum(),
 						'description' => __( 'The registered menu location for the menu being queried', 'wp-graphql' ),
-						'defaultValue' => null,
 					],
 				],
 				'resolve'     => function( $value, $args, AppContext $context, ResolveInfo $info ) {
 					$theme_locations = get_nav_menu_locations();
-					$menu = wp_get_nav_menu_object( $theme_locations[ $args['location'] ] );
+					$location = ! empty( $args['location'] ) ? $args['location'] : null;
+					$menu_object = ! empty( $location ) ? wp_get_nav_menu_object( $theme_locations[ $location ] ) : null;
+					$menu = ! empty( $menu_object ) && is_object( $menu_object ) ? $menu_object : null;
 					return ( ! empty( $menu ) && 'nav_menu' === $menu->taxonomy ) ? $menu : null;
 				},
 			);
