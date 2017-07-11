@@ -49,10 +49,10 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		/**
 		 * If the menuLocation is set in the $args, use it to set the menu slug
 		 */
-		if ( ! empty( $args['where']['menuLocation'] ) ) {
+		if ( ! empty( $args['where']['menuLocationSlug'] ) ) {
 			$theme_locations = get_nav_menu_locations();
-			$menu = wp_get_nav_menu_object( $theme_locations[ $args['where']['menuLocation'] ] );
-			$menu_slug = $menu->slug;
+			$menu = wp_get_nav_menu_object( $theme_locations[ $args['where']['menuLocationSlug'] ] );
+			$menu_slug = ! empty( $menu->slug ) ? $menu->slug : $menu_slug;
 		}
 
 		/**

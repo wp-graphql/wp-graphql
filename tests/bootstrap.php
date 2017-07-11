@@ -22,6 +22,38 @@ function _manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 /**
+ * Setup some basic theme supports so we can query against it
+ */
+function _theme_setup() {
+
+	/**
+	 * Create a random menu
+	 */
+	$menu_id = wp_create_nav_menu( 'test_menu' );
+
+	/**
+	 * Register some menus to use in our testing
+	 */
+	$registered_menus = [
+		'header' => 'Header Nav',
+		'footer' => 'Footer Nav',
+	];
+	register_nav_menus( $registered_menus );
+
+	$locations = [];
+	foreach ( $registered_menus as $key => $value ) {
+		$locations[ $key ] = $menu_id;
+	}
+
+	/**
+	 * Set the created "test" menu as the active menu for each of the registered locations
+	 */
+	set_theme_mod( 'nav_menu_locations', $locations );
+
+}
+tests_add_filter( 'graphql_init', '_theme_setup' );
+
+/**
  * Require the autholoader
  */
 require_once dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';

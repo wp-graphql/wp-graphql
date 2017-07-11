@@ -5,7 +5,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\Menu\MenuQuery;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -29,6 +28,8 @@ class MenuItemConnectionDefinition {
 	 * @var array $where_args
 	 */
 	private static $where_args;
+
+	private static $where_fields;
 
 	/**
 	 * Method that sets up the relay connection for term objects
@@ -73,27 +74,37 @@ class MenuItemConnectionDefinition {
 			self::$where_args = new WPInputObjectType([
 				'name' => 'menuQueryArgs',
 				'fields' => function() {
-					return [
-						'menuSlug' => [
-							'type' => Types::string(),
-							'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
-						],
-						'menuLocation' => [
-							'type' => MenuQuery::menu_enum(),
-							'description' => __( 'If populated, the active menu from this location will be used to resolve the items.', 'wp-graphql' ),
-							'defaultValue' => null,
-						],
-						'parentMenuItemId' => [
-							'type' => Types::id(),
-							'description' => __( 'The global ID for the parent menu item', 'wp-graphql' ),
-							'defaultValue' => null,
-						],
-					];
+					return self::where_fields();
 				},
 			]);
 		}
 
-		return self::$where_args;
+
+		return ! empty( self::$where_args ) ? self::$where_args : null;
+
+	}
+
+	private static function where_fields() {
+		if ( null === self::$where_fields ) :
+			$fields = [
+				'menuSlug' => [
+					'type' => Types::string(),
+					'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
+				],
+				'menuLocationSlug' => [
+					// @todo: look at making an Enum
+					'type' => Types::string(),
+					'description' => __( 'The registered menu location for the menu being queried', 'wp-graphql' ),
+				],
+				'parentMenuItemId' => [
+					'type' => Types::id(),
+					'description' => __( 'The global ID for the parent menu item', 'wp-graphql' ),
+					'defaultValue' => null,
+				],
+			];
+			self::$where_fields = WPInputObjectType::prepare_fields( $fields, 'menuQueryArgs' );
+		endif;
+		return self::$where_fields;
 
 	}
 

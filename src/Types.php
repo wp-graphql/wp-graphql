@@ -6,13 +6,13 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
+use WPGraphQL\Type\Enum\MenuLocationEnumType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\MenuItem\MenuItemType;
-use WPGraphQL\Type\MenuLocation\MenuLocationType;
 use WPGraphQL\Type\Menu\MenuType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
@@ -68,9 +68,9 @@ class Types {
 	 */
 	private static $mime_type_enum;
 
-	private static $menu_item;
-	private static $menu_location;
 	private static $menu;
+	private static $menu_item;
+	private static $menu_location_enum;
 
 	/**
 	 * Stores the plugin type object
@@ -259,6 +259,15 @@ class Types {
 	}
 
 	/**
+	 * This returns the definition for the MenuType
+	 * @return MenuType
+	 * @access public
+	 */
+	public static function menu() {
+		return self::$menu ? : ( self::$menu = new MenuType() );
+	}
+
+	/**
 	 * This returns the definition for the Menu Item
 	 * @return MenuItemType
 	 * @access public
@@ -267,14 +276,10 @@ class Types {
 		return self::$menu_item ? : ( self::$menu_item = new MenuItemType() );
 	}
 
-	/**
-	 * This returns the definition for the MenuType
-	 * @return MenuType
-	 * @access public
-	 */
-	public static function menu() {
-		return self::$menu ? : ( self::$menu = new MenuType() );
+	public static function menu_location_enum() {
+		return self::$menu_item ? : ( self::$menu_location_enum = new MenuLocationEnumType() );
 	}
+
 
 	/**
 	 * This returns the definition for the PluginType
