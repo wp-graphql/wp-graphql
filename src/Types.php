@@ -68,8 +68,28 @@ class Types {
 	 */
 	private static $mime_type_enum;
 
+	/**
+	 * Stores the menu type object definition
+	 *
+	 * @var MenuType object $menu
+	 * @access private
+	 */
 	private static $menu;
+
+	/**
+	 * Stores the menuItem object definition
+	 *
+	 * @var MenuItemType object $menu_item
+	 * @access private
+	 */
 	private static $menu_item;
+
+	/**
+	 * Stores the menuLocationEnumType object definition
+	 *
+	 * @var MenuLocationEnumType object $menu_location_enum
+	 * @access private
+	 */
 	private static $menu_location_enum;
 
 	/**
