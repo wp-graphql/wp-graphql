@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\MenuItem;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -65,15 +66,23 @@ class MenuItemType extends WPObjectType {
 						},
 					],
 					self::$type_name . 'Id' => [
-						'type'        => Types::id(),
+						'type'        => Types::int(),
 						'description' => __( 'ID of the nav menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->ID ) ? $menu_item->ID : null;
 						},
 					],
+					'childItems' => MenuItemConnectionDefinition::connection(),
 					'title'                 => [
 						'type'        => Types::string(),
 						'description' => __( 'Title of the nav menu item. This is what is displayed visually in a menu as text.', 'wp-graphql' ),
+					],
+					'titleAttribute' => [
+						'type' => Types::string(),
+						'description' => __( 'The title attribute for the menu', 'wp-graphql' ),
+						'resolve' => function( \WP_Post $menu_item ) {
+							return ! empty( $menu_item->attr_title ) ? $menu_item->attr_title : null;
+						},
 					],
 					'parentItem' => [
 						'type' => Types::menu_item(),
@@ -88,68 +97,21 @@ class MenuItemType extends WPObjectType {
 							return ! empty( $parent_menu_item ) ? $parent_menu_item : null;
 						},
 					],
-					'childItems' => [
-						'type'        => Types::list_of( Types::menu_item() ),
-						'description' => esc_html__( 'The nav menu items assigned to the menu.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $menu_item ) {
-
-							/**
-							 * Setup the query to get menu items that are children of the menu item currently
-							 * being resolved.
-							 */
-							$menu_args = [
-								'post_type' => 'nav_menu_item',
-								'posts_per_page' => 100,
-								'meta_key' => '_menu_item_menu_item_parent',
-								'meta_value' => $menu_item->ID,
-								'tax_query' => [
-									[
-										'taxonomy' => 'nav_menu',
-										'field' => 'slug',
-										'terms' => [ $menu_item->menu->slug ],
-									],
-								],
-								'order' => 'ASC',
-								'orderby' => 'menu_order',
-							];
-
-							/**
-							 * Query for the menu_items
-							 */
-							$child_menu_items = new \WP_Query( $menu_args );
-							$child_menu_items_output = [];
-
-							/**
-							 * Adjust the items to return with the appropriate data
-							 */
-							if ( ! empty( $child_menu_items->posts ) && is_array( $child_menu_items->posts ) ) {
-								foreach ( $child_menu_items->posts as $child_menu_item ) {
-									$child_menu_item->menu = $menu_item->menu;
-									$child_menu_items_output[] = wp_setup_nav_menu_item( $child_menu_item );
-								}
-							}
-
-							/**
-							 * Return the menu_items
-							 */
-							return ! empty( $child_menu_items_output ) ? $child_menu_items_output : null;
-						},
-					],
-					'type'            => [
+					'connectedObjectType'            => [
 						'type'        => Types::string(),
 						'description' => __( 'The type relating the object being displayed in the type.', 'wp-graphql' ),
 						'resolve' => function( \WP_Post $menu_item ) {
-							return get_post_meta( $menu_item->ID, '_menu_item_type', true );
+							return get_post_meta( $menu_item->ID, '_menu_item_object', true );
 						},
 					],
-					'object_id'       => [
+					'connectedObjectId'       => [
 						'type'        => Types::id(),
 						'description' => __( 'The ID of the object the menu item relates to.', 'wp-graphql' ),
+						'resolve' => function( \WP_Post $menu_item ) {
+							return get_post_meta( $menu_item->ID, '_menu_item_object_id', true );
+						},
 					],
-					'object'          => [
-						'type'        => Types::string(),
-						'description' => __( 'The serialized object that the menu item represents.', 'wp-graphql' ),
-					],
+					// @todo: add a union to resolve the actual object the menu links to as it could be a term, post_type, etc
 					'target'                => [
 						'type'        => Types::string(),
 						'description' => __( 'Target attribute for the link.', 'wp-graphql' ),

@@ -68,9 +68,9 @@ class Types {
 	 */
 	private static $mime_type_enum;
 
-	private static $menu_item_type;
-	private static $menu_location_type;
-	private static $menu_type;
+	private static $menu_item;
+	private static $menu_location;
+	private static $menu;
 
 	/**
 	 * Stores the plugin type object
@@ -258,16 +258,22 @@ class Types {
 		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
 	}
 
+	/**
+	 * This returns the definition for the Menu Item
+	 * @return MenuItemType
+	 * @access public
+	 */
 	public static function menu_item() {
-		return self::$menu_item_type ? : ( self::$menu_item_type = new MenuItemType() );
+		return self::$menu_item ? : ( self::$menu_item = new MenuItemType() );
 	}
 
-	public static function menu_location() {
-		return self::$menu_location_type ? : ( self::$menu_location_type = new MenuLocationType() );
-	}
-
+	/**
+	 * This returns the definition for the MenuType
+	 * @return MenuType
+	 * @access public
+	 */
 	public static function menu() {
-		return self::$menu_type ? : ( self::$menu_type = new MenuType() );
+		return self::$menu ? : ( self::$menu = new MenuType() );
 	}
 
 	/**

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Menu;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -64,66 +65,33 @@ class MenuType extends WPObjectType {
 							return ! empty( $menu->term_id ) ? Relay::toGlobalId( self::$type_name, $menu->term_id ) : null;
 						},
 					],
-					self::$type_name . 'Id'              => array(
+					self::$type_name . 'Id'              => [
 						'type'        =>  Types::non_null( Types::id() ),
 						'description' => esc_html__( 'ID of the menu. Equivalent to WP_Term->term_id.', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_id ) ? $menu->term_id : null;
 						},
-					),
-					'name'            => array(
+					],
+					'name'            => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Display name of the menu. Equivalent to WP_Term->name.', 'wp-graphql' ),
-					),
-					'slug'            => array(
+					],
+					'slug'            => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The url friendly name of the menu. Equivalent to WP_Term->slug', 'wp-graphql' ),
-					),
+					],
 					'count' => [
 						'type' => Types::int(),
 						'description' => __( 'The number of items in the menu', 'wp-graphql' ),
 					],
-					'group'           => array(
+					'group'           => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Group of the menu. Groups are useful as secondary indexes for SQL. Equivalent to WP_Term->term_group.', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_group ) ? $menu->term_group : null;
 						},
-					),
-					'items'           => array(
-						'type'        => Types::list_of( Types::menu_item() ),
-						'description' => esc_html__( 'The nav menu items assigned to the menu.', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $menu ) {
-
-							$menu_args = [
-								'post_type' => 'nav_menu_item',
-								'posts_per_page' => 100,
-								'meta_key' => '_menu_item_menu_item_parent',
-								'meta_value' => 0,
-								'tax_query' => [
-									[
-										'taxonomy' => 'nav_menu',
-										'field' => 'slug',
-										'terms' => [ $menu->slug ],
-									],
-								],
-								'order' => 'ASC',
-								'orderby' => 'menu_order',
-							];
-
-							$menu_items = new \WP_Query( $menu_args );
-							$menu_items_output = [];
-
-							if ( ! empty( $menu_items->posts ) && is_array( $menu_items->posts ) ) {
-								foreach ( $menu_items->posts as $menu_item ) {
-									$menu_item->menu = $menu;
-									$menu_items_output[] = wp_setup_nav_menu_item( $menu_item );
-								}
-							}
-
-							return ! empty( $menu_items_output ) ? $menu_items_output : null;
-						},
-					),
+					],
+					'menuItems' => MenuItemConnectionDefinition::connection(),
 				];
 
 				return self::prepare_fields( $fields, self::$type_name );

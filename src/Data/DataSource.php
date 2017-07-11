@@ -1,10 +1,12 @@
 <?php
+
 namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionResolver;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
@@ -60,7 +62,7 @@ class DataSource {
 	/**
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
-	 * @param             WP_Post  object $source
+	 * @param object      $source
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object
@@ -72,6 +74,18 @@ class DataSource {
 		$resolver = new CommentConnectionResolver();
 
 		return $resolver->resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * @param mixed       $source
+	 * @param array       $args
+	 * @param AppContext  $context
+	 * @param ResolveInfo $info
+	 *
+	 * @return array
+	 */
+	public static function resolve_menu_items_connection( $source, array $args, $context, ResolveInfo $info ) {
+		return MenuItemConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -125,7 +139,7 @@ class DataSource {
 	/**
 	 * Wrapper for PluginsConnectionResolver::resolve
 	 *
-	 * @param \WP_Post    $source  WP_Post object
+	 * @param mixed       $source  WP_Post object
 	 * @param array       $args    Array of arguments to pass to reolve method
 	 * @param AppContext  $context AppContext object passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
@@ -164,7 +178,7 @@ class DataSource {
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param string      $post_type Post type of the post we are trying to resolve
-	 * @param             $source
+	 * @param mixed       $source
 	 * @param array       $args      Arguments to pass to the resolve method
 	 * @param AppContext  $context   AppContext object to pass down
 	 * @param ResolveInfo $info      The ResolveInfo object
