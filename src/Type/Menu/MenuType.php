@@ -66,7 +66,7 @@ class MenuType extends WPObjectType {
 						},
 					],
 					self::$type_name . 'Id'              => [
-						'type'        =>  Types::non_null( Types::id() ),
+						'type'        =>  Types::non_null( Types::int() ),
 						'description' => esc_html__( 'ID of the menu. Equivalent to WP_Term->term_id.', 'wp-graphql' ),
 						'resolve' => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_id ) ? $menu->term_id : null;
