@@ -8,6 +8,8 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\Menu\MenuQuery;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -65,35 +67,8 @@ class RootQueryType extends ObjectType {
 		/**
 		 * Add menu fields if the site has any registered menus
 		 */
-		$registered_menus = get_registered_nav_menus();
-
-		if ( ! empty( $registered_menus ) ) {
-
-			$menu_enum_values = [];
-			if ( ! empty( $registered_menus ) ) {
-				foreach ( $registered_menus as $menu => $name ) {
-					$menu_enum_values[ strtoupper( str_ireplace( ' ', '_',  str_ireplace( '-', '_', $menu ) ) ) ] = $menu;
-				}
-			}
-
-			$fields['menu'] = array(
-				'type'        => Types::menu(),
-				'description' => __( 'Retrieve a menu by providing a Menu name, ID or slug', 'wp-graphql' ),
-				'args'        => [
-					'location' => [
-						'type' => new WPEnumType( [
-							'name'   => 'location',
-							'values' => $menu_enum_values,
-						] ),
-					],
-				],
-				'resolve'     => function( $value, $args, AppContext $context ) {
-					$theme_locations = get_nav_menu_locations();
-					$menu = wp_get_nav_menu_object( $theme_locations[ $args['location'] ] );
-					return ( ! empty( $menu ) && 'nav_menu' === $menu->taxonomy ) ? $menu : null;
-				},
-			);
-		}
+		$fields['menu'] = MenuQuery::root_query();
+		$fields['menuItems'] = MenuItemConnectionDefinition::connection();
 
 		/**
 		 * Creates the plugin root query field
