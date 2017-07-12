@@ -50,7 +50,6 @@ class TermObjectQuery {
 
 			return self::$root_query[ $taxonomy_object->name ];
 		endif;
-		return self::$root_query;
 	}
 
 }
