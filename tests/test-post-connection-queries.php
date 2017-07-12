@@ -143,7 +143,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = $actual = do_graphql_request( $query );
+		$actual = do_graphql_request( $query );
 
 		/**
 		 * Ensure we're getting posts back
