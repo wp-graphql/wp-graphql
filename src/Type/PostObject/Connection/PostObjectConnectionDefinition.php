@@ -77,10 +77,6 @@ class PostObjectConnectionDefinition {
 	 */
 	public static function connection( $post_type_object ) {
 
-		if ( empty( $post_type_object->name ) ) {
-			return null;
-		}
-
 		if ( null === self::$connection ) {
 			self::$connection = [];
 		}
