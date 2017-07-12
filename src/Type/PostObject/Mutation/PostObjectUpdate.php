@@ -153,11 +153,9 @@ class PostObjectUpdate {
 				},
 			]);
 
-			return self::$mutation[ $post_type_object->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 
 	}
 

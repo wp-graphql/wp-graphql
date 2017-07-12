@@ -131,11 +131,9 @@ class TermObjectUpdate {
 				},
 			] );
 
-			return self::$mutation[ $taxonomy->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ?  self::$mutation[ $taxonomy->graphql_single_name ] : null;
 
 	}
 
