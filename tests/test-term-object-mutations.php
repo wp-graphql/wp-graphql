@@ -304,6 +304,100 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		$this->assertEquals( $deleted_category['data']['deleteCategory']['category']['name'], $this->category_name );
 	}
 
+	public function testCreateTagThatAlreadyExists() {
+
+		/**
+		 * Set the user as the admin
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual1 = $this->createCategoryMutation();
+		$actual2 = $this->createCategoryMutation();
+
+		/**
+		 * Create the term
+		 */
+		$this->assertNotEmpty( $actual1 );
+
+		/**
+		 * Make sure there were no errors
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual1 );
+		$this->assertArrayHasKey( 'data', $actual1 );
+
+		/**
+		 * Try to create the exact same term
+		 */
+		$this->assertNotEmpty( $actual2 );
+
+		/**
+		 * Now we should expect an error
+		 */
+		$this->assertArrayHasKey( 'errors', $actual2 );
+		$this->assertArrayHasKey( 'data', $actual2 );
+
+	}
+
+	public function testTermIdNotReturningAfterCreate() {
+
+		/**
+		 * Filter the term response to simulate a failure with the response of a term creation mutation
+		 */
+		add_filter( 'term_id_filter', '__return_false' );
+
+		/**
+		 * Set the user as the admin
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual = $this->createCategoryMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		remove_filter( 'term_id_filter', '__return_false' );
+
+
+	}
+
+	public function testCreateTagWithNoName() {
+
+		$mutation = '
+		mutation createTag( $clientMutationId:String!, $name:String!, $description:String ) {
+		  createTag(
+		    input: {
+			  clientMutationId: $clientMutationId
+			    name: $name
+				description: $description
+			}
+		  ) {
+			clientMutationId
+			tag {
+			  id
+			  name
+			  description
+			}
+		  }
+		}
+		';
+
+		$variables = wp_json_encode([
+			'clientMutationId' => $this->client_mutation_id,
+			'description' => $this->description,
+		]);
+
+		$actual = do_graphql_request( $mutation, 'createTag', $variables );
+
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
 	/**
 	 * Test creating a tag
 	 */
