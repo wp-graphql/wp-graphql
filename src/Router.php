@@ -263,7 +263,6 @@ class Router {
 
 		try {
 
-
 			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
@@ -272,6 +271,12 @@ class Router {
 					'variables'     => isset( $_GET['variables'] ) ? $_GET['variables'] : '',
 				];
 
+				/**
+				 * Allow the data to be filtered
+				 *
+				 * @param array $data An array containing the pieces of the data of the GraphQL request
+				 */
+				$data = apply_filters( 'graphql_request_data', $data );
 
 				/**
 				 * If the variables are already formatted as an array use them.
@@ -293,10 +298,6 @@ class Router {
 					 */
 				} else {
 					$decoded_variables = json_decode( $data['variables'] );
-					if ( empty( $decoded_variables ) ) {
-						$variables         = preg_replace( '#(?<pre>\{|\[|,)\s*(?<key>(?:\w|_)+)\s*:#im', '$1"$2":', sanitize_text_field( $_GET['variables'] ) );
-						$decoded_variables = (array) json_decode( $variables );
-					}
 				}
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
@@ -318,7 +319,6 @@ class Router {
 				 */
 				$data = json_decode( self::get_raw_data(), true );
 			}
-
 
 			/**
 			 * If the $data is empty, catch an error.
