@@ -48,11 +48,13 @@ class WP_GraphQL_Test_Avatar_Object_Queries extends WP_UnitTestCase {
 
 		/**
 		 * Create the query string to pass to the $query
+		 * Set the size to 0 to make sure that it defaults back to 96 as it has to be a positive
+		 * integer
 		 */
 		$query = "
 		query {
 			user(id: \"{$global_id}\") {
-				avatar {
+				avatar(size:0 rating:G forceDefault:true) {
 					default,
 					extraAttr,
 					forceDefault,
@@ -81,7 +83,7 @@ class WP_GraphQL_Test_Avatar_Object_Queries extends WP_UnitTestCase {
 					'avatar' => [
 						'default'      => 'mm',
 						'extraAttr'    => null,
-						'forceDefault' => false,
+						'forceDefault' => true,
 						'foundAvatar'  => true,
 						'height'       => 96,
 						'rating'       => 'g',
