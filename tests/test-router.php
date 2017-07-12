@@ -123,7 +123,57 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 */
 		add_filter( 'graphql_request_data', function( $data ) {
 			$data['query'] = 'query getPosts($first:Int){ posts(first:$first){ edges{ node{ id } } } }';
-			$data['variables'] = wp_json_encode([ 'first' => 1 ]);
+			$data['variables'] = [ 'first' => 1 ];
+			$data['operationName'] = 'getPosts';
+			return $data;
+		} );
+
+		/**
+		 * Set the query var to "graphql" so we can mock like we're visiting the endpoint via
+		 */
+		set_query_var( 'graphql', true );
+		$GLOBALS['wp']->query_vars['graphql'] = true;
+
+		/**
+		 * Instantiate the router
+		 */
+		$router = new \WPGraphQL\Router();
+
+		/**
+		 * Process the request using our filtered data
+		 */
+		$router::resolve_http_request();
+
+		/**
+		 * Make sure the constant gets defined when it's a GraphQL Request
+		 */
+		$this->assertTrue( defined( 'GRAPHQL_HTTP_REQUEST' ) );
+		$this->assertEquals( true, GRAPHQL_HTTP_REQUEST );
+
+		/**
+		 * Make sure the actions we expect to be firing are firing
+		 */
+		$this->assertNotFalse( did_action( 'graphql_process_http_request' ) );
+		$this->assertNotFalse( did_action( 'graphql_process_http_request_response' ) );
+
+	}
+
+	public function testResolveHttpRequestWithJsonVariables() {
+
+		/**
+		 * Create a test a query
+		 */
+		$this->factory->post->create([
+			'post_title' => 'test',
+			'post_status' => 'publish',
+		]);
+
+		/**
+		 * Filter the request data
+		 */
+		add_filter( 'graphql_request_data', function( $data ) {
+			$data['query'] = 'query getPosts($first:Int){ posts(first:$first){ edges{ node{ id } } } }';
+			$data['variables'] = wp_json_encode( [ 'first' => 1 ] );
 			$data['operationName'] = 'getPosts';
 			return $data;
 		} );
@@ -165,7 +215,6 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 	 */
 	public function testResolveHttpRequestWrongQueryVars() {
 
-
 		set_query_var( 'graphql', false );
 		$GLOBALS['wp']->query_vars['graphql'] = false;
 
@@ -178,6 +227,38 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 * Process the request using our filtered data
 		 */
 		$this->assertNull( $router::resolve_http_request() );
+
+	}
+
+	/**
+	 */
+	public function testResolveRequestWithNoData() {
+
+		/**
+		 * Filter the request data
+		 */
+		add_filter( 'graphql_request_data', function( $data ) {
+			return [];
+		} );
+
+		/**
+		 * Set the query var to "graphql" so we can mock like we're visiting the endpoint via
+		 */
+		set_query_var( 'graphql', true );
+		$GLOBALS['wp']->query_vars['graphql'] = true;
+
+		/**
+		 * Instantiate the router
+		 */
+		$router = new \WPGraphQL\Router();
+
+		/**
+		 * Process the request using our filtered data
+		 */
+		$response = $router::resolve_http_request();
+
+		$this->assertTrue( defined( 'GRAPHQL_HTTP_REQUEST' ) );
+		$this->assertEquals( true, GRAPHQL_HTTP_REQUEST );
 
 	}
 
