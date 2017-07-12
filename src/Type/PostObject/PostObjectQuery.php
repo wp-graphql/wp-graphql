@@ -50,7 +50,6 @@ class PostObjectQuery {
 
 			return self::$root_query[ $post_type_object->name ];
 		endif;
-		return self::$root_query;
 	}
 
 }
