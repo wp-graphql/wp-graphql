@@ -32,10 +32,6 @@ class TermObjectConnectionDefinition {
 	 */
 	public static function connection( $taxonomy_object ) {
 
-		if ( empty( $taxonomy_object->name ) ) {
-			return;
-		}
-
 		if ( null === self::$connection ) {
 			self::$connection = [];
 		}

@@ -159,8 +159,8 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Slice the array to the amount of items that were requested
 		 */
-		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
 		$items = array_reverse( $items );
+		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
 
 		/**
 		 * Get the edges from the $items

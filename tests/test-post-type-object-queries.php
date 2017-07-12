@@ -100,6 +100,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						setFeaturedImage
 						removeFeaturedImage
 						useFeaturedImage
+						menuName
 						filterItemsList
 						itemsListNavigation
 						itemsList
@@ -145,8 +146,12 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 							'edges' => [],
 						],
 						'connectedTaxonomies' => [
-							[ 'name' => 'category' ],
-							[ 'name' => 'post_tag' ],
+							[
+								'name' => 'category'
+							],
+							[
+								'name' => 'post_tag'
+							],
 						],
 						'connectedTaxonomyNames' => [ 'category', 'post_tag' ],
 						'deleteWithUser' => true,
@@ -180,6 +185,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 							'setFeaturedImage' => 'Set featured image',
 							'removeFeaturedImage' => 'Remove featured image',
 							'useFeaturedImage' => null,
+							'menuName' => 'Posts',
 							'filterItemsList' => 'Filter posts list',
 							'itemsListNavigation' => 'Posts list navigation',
 							'itemsList' => 'Posts list',
