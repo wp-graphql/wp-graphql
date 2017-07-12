@@ -264,8 +264,6 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 		$this->assertNotEmpty( $mediaDetails['meta'] );
 		$meta = $mediaDetails['meta'];
 
-		var_dump( $meta );
-
 		$this->assertEquals( $meta_data['image_meta']['aperture'],  $meta['aperture'] );
 		$this->assertEquals( $meta_data['image_meta']['credit'],  $meta['credit'] );
 		$this->assertEquals( $meta_data['image_meta']['camera'],  $meta['camera'] );
