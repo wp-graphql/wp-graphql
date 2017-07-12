@@ -42,13 +42,19 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 	public function testTermObjectConnectionQuery() {
 
 		$term_id1 = $this->createTermObject( [
-			'name'     => 'New Category For Test',
+			'name'     => 'AAA1 Term',
 			'taxonomy' => 'category',
 			'description' => 'just a description',
 		] );
 
 		$term_id2 = $this->createTermObject( [
-			'name'     => 'Another New Category For Test',
+			'name'     => 'AAA2 Term',
+			'taxonomy' => 'category',
+			'description' => 'just a description',
+		] );
+
+		$term_id3 = $this->createTermObject( [
+			'name'     => 'AAA3 Term',
 			'taxonomy' => 'category',
 			'description' => 'just a description',
 		] );
@@ -60,6 +66,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		      node {
 		        id
 		        categoryId
+		        name
 		      }
 		    }
 		  }
@@ -78,6 +85,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 			    node{
 			      id
 			      categoryId
+			      name
 			    }
 			  }
 			}  
@@ -87,7 +95,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a cursor for the first term ID
 		 */
-		$cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $term_id1 );
+		$cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $term_id2 );
 
 		/**
 		 * Use the cursor in our variables
@@ -105,7 +113,44 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		 * Assert that we should have received just 1 node, $term_id2
 		 */
 		$this->assertCount( 1, $actual['data']['categories']['edges'] );
-		$this->assertEquals( $actual['data']['categories']['edges'][0]['node']['categoryId'], $term_id2 );
+		$this->assertEquals( $actual['data']['categories']['edges'][0]['node']['categoryId'], $term_id1 );
+
+		$query = '
+		query getCategoriesAfter($afterCursor:String){
+			categories(first:1 after:$afterCursor where:{hideEmpty:false}){
+			  edges{
+			    node{
+			      id
+			      categoryId
+			      name
+			    }
+			  }
+			}  
+		}
+		';
+
+		/**
+		 * Create a cursor for the first term ID
+		 */
+		$cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $term_id2 );
+
+		/**
+		 * Use the cursor in our variables
+		 */
+		$variables = wp_json_encode([
+			'afterCursor' => $cursor,
+		]);
+
+		/**
+		 * Do the request
+		 */
+		$actual = do_graphql_request( $query, 'getCategoriesAfter', $variables );
+
+		/**
+		 * Assert that we should have received just 1 node, $term_id2
+		 */
+		$this->assertCount( 1, $actual['data']['categories']['edges'] );
+		$this->assertEquals( $actual['data']['categories']['edges'][0]['node']['categoryId'], $term_id3 );
 
 	}
 

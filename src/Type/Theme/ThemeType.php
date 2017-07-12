@@ -103,7 +103,7 @@ class ThemeType extends WPObjectType {
 						'type' => Types::string(),
 						'description' => __( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( "ThemeURI" ).', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
-							$theme_uri = $theme->get('ThemeURI');
+							$theme_uri = $theme->get( 'ThemeURI' );
 
 							return ! empty( $theme_uri ) ? $theme_uri : null;
 						},
@@ -120,7 +120,7 @@ class ThemeType extends WPObjectType {
 						'type' => Types::string(),
 						'description' => __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "AuthorURI" ).', 'wp-graphql' ),
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
-							$author_uri = $theme->get('AuthorURI');
+							$author_uri = $theme->get( 'AuthorURI' );
 
 							return ! empty( $author_uri ) ? $author_uri : null;
 						},

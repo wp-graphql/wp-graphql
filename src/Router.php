@@ -348,7 +348,6 @@ class Router {
 			 */
 			$graphql_results = do_graphql_request( $request, $operation_name, $variables );
 
-
 			/**
 			 * Ensure the $graphql_request is returned as a proper, populated array,
 			 * otherwise add an error to the result
