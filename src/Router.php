@@ -149,7 +149,7 @@ class Router {
 	 * @param string $key   Header key.
 	 * @param string $value Header value.
 	 */
-	public function send_header( $key, $value ) {
+	public static function send_header( $key, $value ) {
 		/*
 		 * Sanitize as per RFC2616 (Section 4.2):
 		 *
@@ -169,7 +169,7 @@ class Router {
 	 *
 	 * @param int $code HTTP status.
 	 */
-	protected function set_status( $code ) {
+	protected static function set_status( $code ) {
 		status_header( $code );
 	}
 

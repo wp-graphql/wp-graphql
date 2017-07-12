@@ -33,16 +33,66 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 	}
 
 	public function testGetRawData() {
-
 		$router = new \WPGraphQL\Router();
-
 		global $HTTP_RAW_POST_DATA;
-		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
-			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
-		}
-
 		$actual = $router->get_raw_data();
 		$this->assertEquals( $actual, $HTTP_RAW_POST_DATA );
+	}
+
+	public function testGetRawDataEmptyGlobal() {
+		$router = new \WPGraphQL\Router();
+		global $HTTP_RAW_POST_DATA;
+		$HTTP_RAW_POST_DATA = null;
+		$actual = $router->get_raw_data();
+		$this->assertEquals( $actual, $HTTP_RAW_POST_DATA );
+	}
+
+	/**
+	 * Test the "send_header" method in the Router class
+	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720
+	 * @runInSeparateProcess
+	 */
+	public function testSendHeader() {
+		$router = new \WPGraphQL\Router();
+		$router::send_header( 'some_key', 'some_value' );
+		if ( function_exists( 'xdebug_get_headers' ) ) {
+			$this->assertContains( 'some_key: some_value', xdebug_get_headers() );
+		}
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 */
+	public function testSetHeadersNoCache() {
+
+		$router = new \WPGraphQL\Router();
+		$router::set_headers( '200' );
+
+		$headers = xdebug_get_headers();
+
+		$this->assertContains( 'Access-Control-Allow-Origin: *', $headers );
+		$this->assertContains( 'Content-Type: application/json ; charset=' . get_option( 'blog_charset' ), $headers );
+		$this->assertContains( 'X-Robots-Tag: noindex', $headers );
+		$this->assertContains( 'X-Content-Type-Options: nosniff', $headers );
+		$this->assertContains( 'Access-Control-Allow-Headers: Authorization, Content-Type', $headers );
+		$this->assertContains( 'X-hacker: If you\'re reading this, you should visit github.com/wp-graphql and contribute!', $headers );
+
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 */
+	public function testSetHeadersWithCache() {
+
+		add_filter( 'graphql_send_nocache_headers', function() {
+			return true;
+		} );
+
+		$router = new \WPGraphQL\Router();
+		$router::set_headers( '200' );
+		$headers = xdebug_get_headers();
+		$this->assertContains( 'Cache-Control: no-cache, must-revalidate, max-age=0', $headers );
+
 	}
 
 	/**
