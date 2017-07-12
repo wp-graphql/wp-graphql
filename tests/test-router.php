@@ -60,6 +60,16 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		}
 	}
 
+	public function testAddRewriteRule() {
+
+		global $wp_rewrite;
+		\WPGraphQL\Router::add_rewrite_rule();
+		flush_rewrite_rules();
+
+		$this->assertContains( 'index.php?' . \WPGraphQL\Router::$route . '=true', $wp_rewrite->extra_rules_top );
+
+	}
+
 	/**
 	 * @runInSeparateProcess
 	 */
