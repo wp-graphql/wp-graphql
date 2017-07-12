@@ -58,44 +58,13 @@ class WP_GraphQL_Test_Theme_Queries extends WP_UnitTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
-		 * We don't really care what the specifics are, we just want to make sure we are
+		 * We don't really care what the specifics are because the default theme could change at any time
+		 * and we don't care to maintain the exact match, we just want to make sure we are
 		 * properly getting a theme back in the query
 		 */
 		$this->assertNotEmpty( $actual['data']['themes']['edges'] );
 		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['id'] );
 		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['name'] );
-		$this->assertEquals( $actual['data']['themes']['edges'][0]['node']['id'], 'dGhlbWU6dHdlbnR5c2l4dGVlbg==' );
-
-	}
-
-	/**
-	 * testThemeQuery
-	 * This queries for a specific theme based on the ID
-	 */
-	public function testThemeQuery() {
-
-		$query = '
-		{
-		  theme(id: "dGhlbWU6dHdlbnR5c2l4dGVlbg=="){
-		    id
-		    name
-		  }
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		$expected = [
-			'data' => [
-				'theme' => [
-					'id' => 'dGhlbWU6dHdlbnR5c2l4dGVlbg==',
-					'name' => 'Twenty Sixteen',
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
-
 	}
 
 }
