@@ -84,11 +84,4 @@ class PostObjectUnionType extends UnionType {
 
 	}
 
-	/**
-	 * @return callable|null
-	 */
-	public function getResolveTypeFn() {
-		return $this->resolveTypeFn;
-	}
-
 }
