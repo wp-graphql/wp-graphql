@@ -130,7 +130,7 @@ class ThemeType extends WPObjectType {
 						'description' => __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "Tags" ).', 'wp-graphql' ),
 					],
 					'version' => [
-						'type' => Types::string(),
+						'type' => Types::float(),
 						'description' => __( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' ),
 					],
 				];
