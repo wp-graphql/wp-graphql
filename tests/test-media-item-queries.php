@@ -116,6 +116,7 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 					'width' => 150,
 					'height' => 150,
 					'mime-type' => 'image/jpeg',
+					'source_url' => 'example-thumbnail.jpg',
 				],
 			],
 			'image_meta' => [
@@ -142,14 +143,15 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $attachment_id );
+		$post_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
 		query {
-			mediaItem(id: \"{$global_id}\") {
+			mediaItem(id: \"{$attachment_global_id}\") {
 				altText
 				author{
 				  id
@@ -252,8 +254,27 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 		$this->assertTrue( ( null === $mediaItem['enclosure'] || is_string( $mediaItem['enclosure'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['excerpt'] || is_string( $mediaItem['excerpt'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['guid'] || is_string( $mediaItem['guid'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['id'] || is_string( $mediaItem['id'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['link'] || is_string( $mediaItem['link'] ) ) );
+		$this->assertEquals( $attachment_global_id, $mediaItem['id'] );
+		$this->assertEquals( $attachment_id, $mediaItem['mediaItemId'] );
+		$this->assertTrue( ( null === $mediaItem['mediaType'] || is_string( $mediaItem['mediaType'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['menuOrder'] || is_integer( $mediaItem['menuOrder'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['mimeType'] || is_string( $mediaItem['mimeType'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['modified'] || is_string( $mediaItem['modified'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['modifiedGmt'] || is_string( $mediaItem['modifiedGmt'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['pingStatus'] || is_string( $mediaItem['pingStatus'] ) ) );
+		$this->assertTrue( ( empty( $mediaItem['pinged'] ) || is_array( $mediaItem['pinged'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['slug'] || is_string( $mediaItem['slug'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['sourceUrl'] || is_string( $mediaItem['sourceUrl'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
+		$this->assertTrue( ( empty( $mediaItem['toPing'] ) || is_array( $mediaItem['toPing'] ) ) );
+
+		$this->assertEquals(
+			[
+				'id' => $post_global_id,
+			],
+			$mediaItem['parent']
+		);
 
 		$this->assertNotEmpty( $mediaItem['mediaDetails'] );
 		$mediaDetails = $mediaItem['mediaDetails'];
@@ -288,6 +309,7 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 		$this->assertEquals( 150, $sizes[0]['height'] );
 		$this->assertEquals( 150, $sizes[0]['width'] );
 		$this->assertEquals( 'image/jpeg', $sizes[0]['mimeType'] );
+		$this->assertEquals( 'example-thumbnail.jpg', $sizes[0]['sourceUrl'] );
 
 	}
 }
