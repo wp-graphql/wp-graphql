@@ -347,6 +347,67 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $link ) ? $link : null;
 						},
 					],
+					'terms' => [
+						'type' => Types::list_of( Types::term_object_union() ),
+						'args' => [
+							'taxonomy' => [
+								'type' => Types::list_of( Types::taxonomy_enum() ),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'defaultValue' => null,
+							],
+						],
+						// Translators: placeholder is the name of the post_type
+						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+
+							$terms = [];
+							/**
+							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+							 * otherwise use the default $allowed_taxonomies passed down
+							 */
+							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
+							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+								foreach ( $allowed_taxonomies as $taxonomy ) {
+									$tax_terms = get_the_terms( $post->ID, $taxonomy );
+									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
+										$terms = array_merge( $terms, $tax_terms );
+									}
+								}
+							}
+							return ! empty( $terms ) ? $terms : null;
+						},
+					],
+					'termNames' => [
+						'type' => Types::list_of( Types::string() ),
+						'args' => [
+							'taxonomy' => [
+								'type' => Types::taxonomy_enum(),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'defaultValue' => null,
+							],
+						],
+						// Translators: placeholder is the name of the post_type
+						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+
+							$terms = [];
+							/**
+							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+							 * otherwise use the default $allowed_taxonomies passed down
+							 */
+							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
+							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+								foreach ( $allowed_taxonomies as $taxonomy ) {
+									$tax_terms = get_the_terms( $post->ID, $taxonomy );
+									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
+										$terms = array_merge( $terms, $tax_terms );
+									}
+								}
+							}
+							$term_names = wp_list_pluck( $terms, 'name' );
+							return ! empty( $term_names ) ? $term_names : null;
+						},
+					],
 				];
 
 				/**

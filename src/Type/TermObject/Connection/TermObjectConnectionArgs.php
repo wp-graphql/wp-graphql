@@ -45,10 +45,6 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 
 		if ( null === self::$fields ) :
 			self::$fields = [
-				'taxonomy' => [
-					'type' => Types::list_of( Types::string() ),
-					'description' => __( 'Array of taxonomy names, to which results should be limited.', 'wp-graphql' ),
-				],
 				'objectIds' => [
 					'type' => Types::list_of( Types::int() ),
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
