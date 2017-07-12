@@ -122,7 +122,9 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 * Filter the request data
 		 */
 		add_filter( 'graphql_request_data', function( $data ) {
-			$data['query'] = 'query{ posts{ edges{ node{ id } } } }';
+			$data['query'] = 'query getPosts($first:Int){ posts(first:$first){ edges{ node{ id } } } }';
+			$data['variables'] = wp_json_encode([ 'first' => 1 ]);
+			$data['operationName'] = 'getPosts';
 			return $data;
 		} );
 
@@ -153,6 +155,29 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 */
 		$this->assertNotFalse( did_action( 'graphql_process_http_request' ) );
 		$this->assertNotFalse( did_action( 'graphql_process_http_request_response' ) );
+
+	}
+
+	/**
+	 * This tests the resolve_http_request method for a route that's not the
+	 * /graphql endpoint to make sure that graphql isn't improperly initiated
+	 * when it's not supposed to be.
+	 */
+	public function testResolveHttpRequestWrongQueryVars() {
+
+
+		set_query_var( 'graphql', false );
+		$GLOBALS['wp']->query_vars['graphql'] = false;
+
+		/**
+		 * Instantiate the router
+		 */
+		$router = new \WPGraphQL\Router();
+
+		/**
+		 * Process the request using our filtered data
+		 */
+		$this->assertNull( $router::resolve_http_request() );
 
 	}
 

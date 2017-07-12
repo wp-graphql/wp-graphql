@@ -150,7 +150,8 @@ class Router {
 	 * @param string $value Header value.
 	 */
 	public static function send_header( $key, $value ) {
-		/*
+
+		/**
 		 * Sanitize as per RFC2616 (Section 4.2):
 		 *
 		 * Any LWS that occurs between field-content MAY be replaced with a
@@ -286,10 +287,10 @@ class Router {
 					}
 					$decoded_variables = $sanitized_variables;
 
-				/**
-				 * If the variables are not an array, let's attempt to decode them and convert them to an array for
-				 * use in the executor.
-				 */
+					/**
+					 * If the variables are not an array, let's attempt to decode them and convert them to an array for
+					 * use in the executor.
+					 */
 				} else {
 					$decoded_variables = json_decode( $data['variables'] );
 					if ( empty( $decoded_variables ) ) {
