@@ -150,6 +150,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		    }
 		  ) {
 		    clientMutationId
+		    deletedId
 		    tag {
 		        id
 		        name
@@ -291,6 +292,18 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Delete the tag
 		 */
+		wp_set_current_user( $this->subscriber );
+		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
+
+		/**
+		 * A subscriber shouldn't be able to delete, so we should get an error
+		 */
+		$this->assertArrayHasKey( 'errors', $deleted_category );
+
+		/**
+		 * Set the user back to admin and delete again
+		 */
+		wp_set_current_user( $this->admin );
 		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
 
 		/**
@@ -357,10 +370,44 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		 * Run the mutation
 		 */
 		$actual = $this->createCategoryMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$actual = $this->deleteTagMutation( 'someInvalidId' );
 
+		/**
+		 * We should get an error because the ID is invalid
+		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 
+		/**
+		 * Cleanup by removing the filter
+		 */
 		remove_filter( 'term_id_filter', '__return_false' );
+
+		/**
+		 * Now let's filter to mimick the response returning a WP_Error to make sure we also respond with an error
+		 */
+		add_filter( 'get_post_tag', function() {
+			return new \WP_Error( 'this is a test error' );
+		} );
+
+		/**
+		 * Create a term
+		 */
+		$term = $this->factory->term->create([
+			'taxonomy' => 'post_tag',
+			'name' => 'some random name',
+		]);
+
+		/**
+		 * Now try and delete it.
+		 */
+		$id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $term );
+		$actual = $this->deleteTagMutation( $id );
+
+		/**
+		 * Assert that we have an error because the response to the deletion responded with a WP_Error
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
 
 
 	}
@@ -463,6 +510,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		 */
 		$this->assertNotEmpty( $deleted_tag );
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['clientMutationId'], $this->client_mutation_id );
+		$this->assertNotEmpty( $deleted_tag['data']['deleteTag']['deletedId'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deleteTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'post_tag' );
 		$this->assertNotEmpty( $id_parts['id'] );
