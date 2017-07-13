@@ -42,11 +42,6 @@ class TermObjectUpdate {
 				],
 				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
 
-					if ( empty( $input['id'] ) ) {
-						// Translators: The placeholder is the name of the taxonomy for the term being edited
-						throw new \Exception( sprintf( __( 'ID is required to update the %1$s', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
-					}
-
 					/**
 					 * Get the ID parts
 					 */
@@ -102,13 +97,8 @@ class TermObjectUpdate {
 						 * Respond with any errors
 						 */
 						if ( is_wp_error( $update ) ) {
-							$error_message = $update->get_error_message();
-							if ( ! empty( $error_message ) ) {
-								throw new \Exception( esc_html( $error_message ) );
-							} else {
-								// Translators: The placeholder is the name of the taxonomy for the term being deleted
-								throw new \Exception( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
-							}
+							// Translators: the placeholder is the name of the taxonomy
+							throw new \Exception( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
 						}
 					}
 

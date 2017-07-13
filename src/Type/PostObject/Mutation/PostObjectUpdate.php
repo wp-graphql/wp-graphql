@@ -109,12 +109,7 @@ class PostObjectUpdate {
 					 * Throw an exception if the post failed to update
 					 */
 					if ( is_wp_error( $post_id ) ) {
-						$error_message = $post_id->get_error_message();
-						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
-						} else {
-							throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
-						}
+						throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
 					}
 
 					/**

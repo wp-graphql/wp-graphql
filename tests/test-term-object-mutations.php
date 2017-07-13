@@ -479,10 +479,20 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		$this->assertNotEmpty( $try_to_update_category['errors'] );
 
 		/**
+		 * Try to update the tag as a user with improper permissions
+		 */
+		wp_set_current_user( $this->subscriber );
+		$try_to_delete_category = $this->updateTagMutation( $actual['data']['createTag']['tag']['id'] );
+		$this->assertNotEmpty( $try_to_delete_category['errors'] );
+		wp_set_current_user( $this->admin );
+
+		/**
 		 * Try to update a Category using a Tag ID, which should return errors
 		 */
-		$try_to_delete_category = $this->deleteCategoryMutation( $actual['data']['createTag']['tag']['id'] );
+		$try_to_delete_category = $this->updateCategoryMutation( $actual['data']['createTag']['tag']['id'] );
 		$this->assertNotEmpty( $try_to_delete_category['errors'] );
+
+
 
 		/**
 		 * Run the update mutation with the ID of the created tag
