@@ -186,13 +186,6 @@ class RootQueryType extends ObjectType {
 		$config = [
 			'name' => 'rootQuery',
 			'fields' => $fields,
-			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
-				if ( method_exists( $this, $info->fieldName ) ) {
-					return $this->{$info->fieldName}( $value, $args, $context, $info );
-				} else {
-					return $value->{$info->fieldName};
-				}
-			},
 		];
 
 		/**
@@ -201,27 +194,6 @@ class RootQueryType extends ObjectType {
 		 */
 		parent::__construct( $config );
 
-	}
-
-	/**
-	 * post_type
-	 * This sets up the post_type entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function post_type() {
-		return [
-			'type' => Types::post_type(),
-			'description' => __( 'A WordPress Post Type', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_post_type( $id_components['id'] );
-			},
-		];
 	}
 
 	/**
@@ -241,27 +213,6 @@ class RootQueryType extends ObjectType {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
 				return DataSource::resolve_theme( $id_components['id'] );
-			},
-		];
-	}
-
-	/**
-	 * taxonomy
-	 * This sets up the taxonomy entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function taxonomy() {
-		return [
-			'type' => Types::taxonomy(),
-			'description' => __( 'A taxonomy object', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_taxonomy( $id_components['id'] );
 			},
 		];
 	}
