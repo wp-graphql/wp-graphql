@@ -83,7 +83,9 @@ class PostObjectDelete {
 						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
-					// Check if we should force delete or not
+					/**
+					 * Check if we should force delete or not
+					 */
 					$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
 
 					/**
@@ -95,17 +97,11 @@ class PostObjectDelete {
 					 * If the post is already in the trash, and the forceDelete input was not passed,
 					 * don't remove from the trash
 					 */
-					if ( true !== $force_delete && 'trash' === $post_before_delete->post_status ) {
-						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
-					}
-
-					/**
-					 * If there's no post with the input ID, or the post with that ID is of a different post_type
-					 */
-					if ( empty( $post_before_delete ) || $post_before_delete->post_type !== $post_type_object->name ) {
-						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'No %1$s with id %2$s exists', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
+					if ( 'trash' === $post_before_delete->post_status ) {
+						if ( true !== $force_delete ) {
+							// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+							throw new \Exception( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
+						}
 					}
 
 					/**

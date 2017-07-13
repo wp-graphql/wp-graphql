@@ -243,13 +243,8 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * Prepare the mutation
 		 */
 		$mutation = '
-		mutation deletePageTest( $clientMutationId:String! $id:ID! ){
-		  deletePage(
-		    input: {
-		        clientMutationId:$clientMutationId
-		        id:$id
-		    }
-		  ) {
+		mutation deletePageTest($input:deletePageInput!){
+		  deletePage(input:$input){
 		    clientMutationId
 		    deletedId
 		    page{
@@ -264,10 +259,13 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Set the variables to use with the mutation
 		 */
-		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-			'clientMutationId' => 'someId',
-		] );
+		$variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'clientMutationId' => 'someId',
+			],
+		];
+
 
 		/**
 		 * Execute the request
@@ -323,6 +321,37 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * We should get an error because we're not using forceDelete
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Try to delete again, this time with forceDelete
+		 */
+		$variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'clientMutationId' => 'someId',
+				'forceDelete' => true,
+			],
+		];
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+
+		/**
+		 * This time, we used forceDelete so the mutation should have succeeded
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'someId', $actual['data']['deletePage']['clientMutationId'] );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ), $actual['data']['deletePage']['deletedId'] );
+
+		/**
+		 * Try to delete the page one more time, and now there's nothing to delete, not even from the trash
+		 */
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+		/**
+		 * Now we should have errors again, because there's nothing to be deleted
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
 
 	}
 
