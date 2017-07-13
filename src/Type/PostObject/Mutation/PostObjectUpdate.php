@@ -118,13 +118,6 @@ class PostObjectUpdate {
 					}
 
 					/**
-					 * If the $post_id is empty, we should throw an exception
-					 */
-					if ( empty( $post_id ) ) {
-						throw new \Exception( __( 'The object failed to update', 'wp-graphql' ) );
-					}
-
-					/**
 					 * Fires after a single term is created or updated via a GraphQL mutation
 					 *
 					 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
