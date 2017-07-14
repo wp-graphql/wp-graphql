@@ -57,37 +57,38 @@ class MenuType extends WPObjectType {
 		if ( null === self::$fields ) {
 
 			self::$fields = function() {
+
 				$fields = [
-					'id'                    => [
+					'id'        => [
 						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'ID of the nav menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_id ) ? Relay::toGlobalId( self::$type_name, $menu->term_id ) : null;
 						},
 					],
-					self::$type_name . 'Id'              => [
-						'type'        =>  Types::non_null( Types::int() ),
+					'menuId'    => [
+						'type'        => Types::non_null( Types::int() ),
 						'description' => esc_html__( 'ID of the menu. Equivalent to WP_Term->term_id.', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $menu ) {
+						'resolve'     => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_id ) ? $menu->term_id : null;
 						},
 					],
-					'name'            => [
+					'name'      => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'Display name of the menu. Equivalent to WP_Term->name.', 'wp-graphql' ),
 					],
-					'slug'            => [
+					'slug'      => [
 						'type'        => Types::string(),
 						'description' => esc_html__( 'The url friendly name of the menu. Equivalent to WP_Term->slug', 'wp-graphql' ),
 					],
-					'count' => [
-						'type' => Types::int(),
+					'count'     => [
+						'type'        => Types::int(),
 						'description' => __( 'The number of items in the menu', 'wp-graphql' ),
 					],
-					'group'           => [
-						'type'        => Types::string(),
+					'groupId'   => [
+						'type'        => Types::int(),
 						'description' => esc_html__( 'Group of the menu. Groups are useful as secondary indexes for SQL. Equivalent to WP_Term->term_group.', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $menu ) {
+						'resolve'     => function( \WP_Term $menu ) {
 							return ! empty( $menu->term_group ) ? $menu->term_group : null;
 						},
 					],

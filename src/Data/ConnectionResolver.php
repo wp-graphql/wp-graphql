@@ -223,7 +223,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$info = self::get_query_info( $query );
 		$meta = [
 			'sliceStart'  => max( 0, absint( self::get_offset( $args ) ) ),
-			'arrayLength' => absint( max( 0, $info['total_items'], count( $info['items'] ) ) ),
+			'arrayLength' => absint( max( 0, absint( $info['total_items'] ), count( $info['items'] ) ) ),
 		];
 
 		return $meta;

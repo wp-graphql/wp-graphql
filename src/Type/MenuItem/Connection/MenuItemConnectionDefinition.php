@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\MenuItem\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
@@ -24,11 +25,17 @@ class MenuItemConnectionDefinition {
 	private static $connection;
 
 	/**
-	 * Stores the fields for the "where" args input type
-	 * @var array $where_args
+	 * Stores the where_args Input Object Type
+	 *
+	 * @var \WPGraphQL\Type\WPInputObjectType $where_args
 	 */
 	private static $where_args;
 
+	/**
+	 * Stores the fields for the $where_args
+	 *
+	 * @var array $where_fields
+	 */
 	private static $where_fields;
 
 	/**
@@ -42,7 +49,7 @@ class MenuItemConnectionDefinition {
 
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::menu_item(),
-				'name' => 'menuItems',
+				'name'     => 'menuItems',
 			] );
 
 			$args = [
@@ -53,30 +60,32 @@ class MenuItemConnectionDefinition {
 			];
 
 			self::$connection = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of menu item objects', 'wp-graphql' ),
-				'args' => array_merge( Relay::connectionArgs(), $args ),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				'args'        => array_merge( Relay::connectionArgs(), $args ),
+				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_menu_items_connection( $source, $args, $context, $info );
 				},
 			];
 		endif;
+
 		return ! empty( self::$connection ) ? self::$connection : null;
 	}
 
 	/**
 	 * Defines the "where" args that can be used to query menuItems
+	 *
 	 * @return array|WPInputObjectType
 	 */
 	private static function where_args() {
 
 		if ( null === self::$where_args ) {
-			self::$where_args = new WPInputObjectType([
-				'name' => 'menuQueryArgs',
+			self::$where_args = new WPInputObjectType( [
+				'name'   => 'menuQueryArgs',
 				'fields' => function() {
 					return self::where_fields();
 				},
-			]);
+			] );
 		}
 
 
@@ -84,26 +93,32 @@ class MenuItemConnectionDefinition {
 
 	}
 
+	/**
+	 * This defines the fields to be used in the $where_args input type
+	 *
+	 * @return array|mixed
+	 */
 	private static function where_fields() {
 		if ( null === self::$where_fields ) :
-			$fields = [
-				'menuSlug' => [
-					'type' => Types::string(),
+			$fields             = [
+				'menuSlug'         => [
+					'type'        => Types::string(),
 					'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 				],
 				'menuLocationSlug' => [
 					// @todo: look at making an Enum
-					'type' => Types::string(),
+					'type'        => Types::string(),
 					'description' => __( 'The registered menu location for the menu being queried', 'wp-graphql' ),
 				],
 				'parentMenuItemId' => [
-					'type' => Types::id(),
-					'description' => __( 'The global ID for the parent menu item', 'wp-graphql' ),
+					'type'         => Types::id(),
+					'description'  => __( 'The global ID for the parent menu item', 'wp-graphql' ),
 					'defaultValue' => null,
 				],
 			];
 			self::$where_fields = WPInputObjectType::prepare_fields( $fields, 'menuQueryArgs' );
 		endif;
+
 		return self::$where_fields;
 
 	}

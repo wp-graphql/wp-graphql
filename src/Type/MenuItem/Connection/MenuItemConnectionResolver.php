@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\MenuItem\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
@@ -11,7 +12,7 @@ use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
  * Class ThemeConnectionResolver
  *
  * @package WPGraphQL\Data\Resolvers
- * @since 0.5.0
+ * @since   0.5.0
  */
 class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
@@ -35,7 +36,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 */
 		if ( $source instanceof \WP_Term ) {
 			$menu_slug = ! empty( $source->slug ) ? $source->slug : null;
-		} elseif ( $source instanceof  \WP_Post ) {
+		} elseif ( $source instanceof \WP_Post ) {
 			$menu_slug = ! empty( $source->menu->slug ) ? $source->menu->slug : null;
 		}
 
@@ -51,8 +52,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 */
 		if ( ! empty( $args['where']['menuLocationSlug'] ) ) {
 			$theme_locations = get_nav_menu_locations();
-			$menu = wp_get_nav_menu_object( $theme_locations[ $args['where']['menuLocationSlug'] ] );
-			$menu_slug = ! empty( $menu->slug ) ? $menu->slug : $menu_slug;
+			$menu            = wp_get_nav_menu_object( $theme_locations[ $args['where']['menuLocationSlug'] ] );
+			$menu_slug       = ! empty( $menu->slug ) ? $menu->slug : $menu_slug;
 		}
 
 		/**
@@ -69,7 +70,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			$parent_id = 0;
 		}
 
-
 		/**
 		 * If an argument was passed for a specific parentId, use it
 		 */
@@ -80,13 +80,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			}
 		}
 
-		$query_args['post_type'] = 'nav_menu_item';
-		$query_args['posts_per_page'] = 100;
+		$query_args['post_type']      = 'nav_menu_item';
 
 		/**
 		 * Limit the query to items of a specific parent
 		 */
-		$query_args['meta_key'] = '_menu_item_menu_item_parent';
+		$query_args['meta_key']   = '_menu_item_menu_item_parent';
 		$query_args['meta_value'] = $parent_id;
 
 		/**
@@ -102,8 +101,17 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			];
 		}
 
-		$query_args['order'] = 'ASC';
+		/**
+		 * Set the order to match the menu order
+		 */
+		$query_args['order']   = 'ASC';
 		$query_args['orderby'] = 'menu_order';
+
+		/**
+		 * Set the posts_per_page, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 */
+		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
+		$query_args['posts_per_page'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
 
 		return $query_args;
 
@@ -121,6 +129,13 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			$items = array_reverse( $items );
+			/**
+			 * If the $items returned is more than the amount that was asked for, slice the array to match
+			 */
+			$query_amount = self::get_query_amount( $source, $args, $context, $info );
+			if ( count( $items ) > $query_amount ) {
+				$items = array_slice( $items, absint( $query_amount ) );
+			}
 			foreach ( $items as $item ) {
 				/**
 				 * Add the menu as context to each item to pass down the graph
