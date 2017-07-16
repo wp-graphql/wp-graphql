@@ -58,13 +58,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			posts {
 				postTypeInfo {
 					canExport
-					categories {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					connectedTaxonomies {
 						name
 					}
@@ -108,13 +101,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					tags {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					public
 					publiclyQueryable
 					restBase
@@ -142,9 +128,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 				'posts' => [
 					'postTypeInfo' => [
 						'canExport' => true,
-						'categories' => [
-							'edges' => [],
-						],
 						'connectedTaxonomies' => [
 							[
 								'name' => 'category'
@@ -193,9 +176,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => 5,
 						'name' => 'post',
-						'tags' => [
-							'edges' => [],
-						],
 						'public' => true,
 						'publiclyQueryable' => true,
 						'restBase' => 'posts',
@@ -206,94 +186,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'showInNavMenus' => true,
 						'showInRest' => true,
 						'showUi' => true,
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * testPostTypeQueryForPostConnections
-	 *
-	 * This tests connections for the post post type.
-	 *
-	 * @since 0.0.5
-	 */
-	public function testPostTypeQueryForPostConnections() {
-
-		/**
-		 * Create a post
-		 */
-		$post_id = $this->factory->post->create();
-
-		// Create a comment and assign it to postType.
-		$tag_id = $this->factory->tag->create( [ 'name' => 'A tag' ] );
-		$category_id = $this->factory->category->create( [ 'name' => 'A category' ] );
-
-		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
-		wp_set_object_terms( $post_id, $category_id, 'category' );
-
-		/**
-		 * Create the query string to pass to the $query
-		 */
-		$query = "
-		query {
-			posts {
-				postTypeInfo {
-					tags {
-						edges {
-							node {
-								tagId
-								name
-							}
-						}
-					}
-					categories {
-						edges {
-							node {
-								categoryId
-								name
-							}
-						}
-					}
-				}
-			}
-		}";
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'posts' => [
-					'postTypeInfo' => [
-						'tags' => [
-							'edges' => [
-								[
-									'node' => [
-										'tagId' => $tag_id,
-										'name' => 'A tag',
-									],
-								],
-							],
-						],
-						'categories' => [
-							'edges' => [
-								[
-									'node' => [
-										'categoryId' => $category_id,
-										'name' => 'A category',
-									],
-								],
-							],
-						],
 					],
 				],
 			],
@@ -323,13 +215,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			pages {
 				postTypeInfo {
 					canExport
-					categories {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					connectedTaxonomies {
 						name
 					}
@@ -346,13 +231,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					tags {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					public
 					publiclyQueryable
 					restBase
@@ -380,9 +258,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 				'pages' => [
 					'postTypeInfo' => [
 						'canExport' => true,
-						'categories' => [
-							'edges' => [],
-						],
 						'connectedTaxonomies' => null,
 						'connectedTaxonomyNames' => null,
 						'deleteWithUser' => true,
@@ -397,9 +272,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => 20,
 						'name' => 'page',
-						'tags' => [
-							'edges' => [],
-						],
 						'public' => true,
 						'publiclyQueryable' => null,
 						'restBase' => 'pages',
@@ -410,80 +282,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'showInNavMenus' => true,
 						'showInRest' => true,
 						'showUi' => true,
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * testPostTypeQueryForPageConnections
-	 *
-	 * This tests post type page connections.
-	 *
-	 * @since 0.0.5
-	 */
-	public function testPostTypeQueryForPageConnections() {
-
-		/**
-		 * Create a post
-		 */
-		$post_id = $this->factory->post->create( [ 'post_type' => 'page' ] );
-
-		// Create a comment and assign it to postType.
-		$tag_id = $this->factory->tag->create( [ 'name' => 'A tag' ] );
-		$category_id = $this->factory->category->create( [ 'name' => 'A category' ] );
-
-		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
-		wp_set_object_terms( $post_id, $category_id, 'category' );
-
-		/**
-		 * Create the query string to pass to the $query
-		 */
-		$query = "
-		query {
-			pages {
-				postTypeInfo {
-					tags {
-						edges {
-							node {
-								tagId
-								name
-							}
-						}
-					}
-					categories {
-						edges {
-							node {
-								categoryId
-								name
-							}
-						}
-					}
-				}
-			}
-		}";
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'pages' => [
-					'postTypeInfo' => [
-						'tags' => [
-							'edges' => [],
-						],
-						'categories' => [
-							'edges' => [],
-						],
 					],
 				],
 			],
@@ -513,13 +311,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 			mediaItems {
 				postTypeInfo {
 					canExport
-					categories {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					connectedTaxonomies {
 						name
 					}
@@ -536,13 +327,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 					menuIcon
 					menuPosition
 					name
-					tags {
-						edges {
-							node {
-								name
-							}
-						}
-					}
 					public
 					publiclyQueryable
 					restBase
@@ -570,9 +354,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 				'mediaItems' => [
 					'postTypeInfo' => [
 						'canExport' => true,
-						'categories' => [
-							'edges' => [],
-						],
 						'connectedTaxonomies' => null,
 						'connectedTaxonomyNames' => null,
 						'deleteWithUser' => true,
@@ -587,9 +368,6 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 						'menuIcon' => null,
 						'menuPosition' => null,
 						'name' => 'attachment',
-						'tags' => [
-							'edges' => [],
-						],
 						'public' => true,
 						'publiclyQueryable' => true,
 						'restBase' => 'media',
@@ -607,78 +385,5 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-
-	/**
-	 * testPostTypeQueryForMediaConnections
-	 *
-	 * This tests connections for the media post type ( attachments ).
-	 *
-	 * @since 0.0.5
-	 */
-	public function testPostTypeQueryForMediaConnections() {
-
-		/**
-		 * Create a post
-		 */
-		$post_id = $this->factory->post->create( [ 'post_type' => 'page' ] );
-
-		// Create a comment and assign it to postType.
-		$tag_id = $this->factory->tag->create( [ 'name' => 'A tag' ] );
-		$category_id = $this->factory->category->create( [ 'name' => 'A category' ] );
-
-		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
-		wp_set_object_terms( $post_id, $category_id, 'category' );
-
-		/**
-		 * Create the query string to pass to the $query
-		 */
-		$query = "
-		query {
-			pages {
-				postTypeInfo {
-					tags {
-						edges {
-							node {
-								tagId
-								name
-							}
-						}
-					}
-					categories {
-						edges {
-							node {
-								categoryId
-								name
-							}
-						}
-					}
-				}
-			}
-		}";
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'pages' => [
-					'postTypeInfo' => [
-						'tags' => [
-							'edges' => [],
-						],
-						'categories' => [
-							'edges' => [],
-						],
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
-	}
+	
 }
