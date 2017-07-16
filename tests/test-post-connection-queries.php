@@ -29,7 +29,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		$this->admin            = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->created_post_ids    = $this->create_posts();
+		$this->created_post_ids = $this->create_posts();
 
 	}
 
@@ -93,13 +93,14 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 		// Create 20 posts
 		$created_posts = [];
-		for ( $i = 1; $i <= 20; $i ++ ) {
+		for ( $i = 1; $i <= 200; $i ++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
 			$created_posts[ $i ] = $this->createPostObject( [
 				'post_type'   => 'post',
 				'post_date'   => $date,
 				'post_status' => 'publish',
+				'post_title'  => $i,
 			] );
 		}
 
@@ -107,177 +108,171 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 	}
 
-	/**
-	 * This runs a posts query looking for the last 10 posts before the 10th created item from the create_posts method
-	 */
-	public function testPostConnectionQueryWithBeforeCursor() {
+	public function postsQuery( $variables ) {
 
-		/**
-		 * Get the array of created post IDs
-		 */
-		$created_posts = $this->created_post_ids;
+		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:queryArgs){
+			posts( first:$first last:$last after:$after before:$before where:$where ) {
+				pageInfo {
+					hasNextPage
+					hasPreviousPage
+					startCursor
+					endCursor
+				}
+				edges {
+					cursor
+					node {
+						id
+						postId
+						title
+						date
+					}
+				}
+			}
+		}';
 
-		/**
-		 * Get a cursor for the 10th post to use in the next query
-		 */
-		$before_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $created_posts[10] );
-
-		/**
-		 * Query 10 posts, starting at the 10th one from $created_posts
-		 */
-		$query = '
-		{
-		  posts(last:10, before: "' . $before_cursor . '") {
-		    edges {
-		      node {
-		        id
-		        title
-		        postId
-		        date
-		      }
-		    }
-		  }
-		}
-		';
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Ensure we're getting posts back
-		 */
-		$edges = $actual['data']['posts']['edges'];
-		$this->assertNotEmpty( $edges );
-
-		/**
-		 * Verify the node data
-		 */
-		$edge_count = 1;
-		foreach ( $edges as $edge ) {
-
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
-
-			// Ensure each node that was returned, matches the Id of the created post in the order that
-			// the posts were created
-			$this->assertEquals( $edge['node']['postId'], $created_posts[ $edge_count ] );
-
-			$edge_count ++;
-		}
+		return do_graphql_request( $query, 'postsQuery', $variables );
 
 	}
 
-	/**
-	 * This runs a posts query looking for the last 10 posts after the 20th created item from the create_posts method
-	 */
-	public function testPostConnectionQueryWithAfterCursor() {
-
-		$created_posts = $this->created_post_ids;
+	public function testfirstPost() {
 
 		/**
-		 * Get a cursor for the 10th post to use in the next query
+		 * Here we're querying the first post in our dataset
 		 */
-		$after_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $created_posts[10] );
+		$variables = [
+			'first' => 1,
+		];
+		$results   = $this->postsQuery( $variables );
 
 		/**
-		 * Query 10 posts, starting at the 10th one from $created_posts
+		 * Let's query the first post in our data set so we can test against it
 		 */
-		$query = '
-		{
-		  posts(first:10, after: "' . $after_cursor . '") {
-		    edges {
-		      node {
-		        id
-		        title
-		        postId
-		        date
-		      }
-		    }
-		  }
-		}
-		';
+		$first_post      = new WP_Query( [
+			'posts_per_page' => 1,
+		] );
+		$first_post_id   = $first_post->posts[0]->ID;
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_post_id );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
+		$this->assertEquals( $first_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
 
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = $actual = do_graphql_request( $query );
-
-		/**
-		 * Ensure we're getting posts back
-		 */
-		$edges = $actual['data']['posts']['edges'];
-		$this->assertNotEmpty( $edges );
-
-		/**
-		 * Verify the node data
-		 */
-		$edge_count = 20;
-		foreach ( $edges as $edge ) {
-
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
-
-			// Ensure each node that was returned, matches the Id of the created post in the order that
-			// the posts were created
-			$this->assertEquals( $edge['node']['postId'], $created_posts[ $edge_count ] );
-
-			$edge_count --;
-		}
+		$this->forwardPagination( $expected_cursor );
 
 	}
 
-	/**
-	 * Tests a posts query, ensuring the 10 most recent posts come back
-	 */
-	public function testPostConnectionQuery() {
-
-		$created_posts = $this->created_post_ids;
+	public function testLastPost() {
+		/**
+		 * Here we're trying to query the last post in our dataset
+		 */
+		$variables = [
+			'last' => 1,
+		];
+		$results   = $this->postsQuery( $variables );
 
 		/**
-		 * Create the query string to pass to the $query
+		 * Let's query the last post in our data set so we can test against it
 		 */
-		$query = '
-		{
-		  posts {
-		    edges {
-		      node {
-		        id
-		        title
-		        postId
-		        date
-		      }
-		    }
-		  }
-		}
-		';
+		$last_post    = new WP_Query( [
+			'posts_per_page' => 1,
+			'order'          => 'ASC',
+		] );
+		$last_post_id = $last_post->posts[0]->ID;
 
-		$actual = do_graphql_request( $query );
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_post_id );
+
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
+		$this->assertEquals( $last_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+
+		$this->backwardPagination( $expected_cursor );
+
+	}
+
+	public function forwardPagination( $cursor ) {
+
+		$variables = [
+			'first' => 1,
+			'after' => $cursor,
+		];
+
+		$results = $this->postsQuery( $variables );
+
+		$second_post     = new WP_Query( [
+			'posts_per_page' => 1,
+			'paged'          => 2,
+		] );
+		$second_post_id  = $second_post->posts[0]->ID;
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_post_id );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
+		$this->assertEquals( $second_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+	}
+
+	public function backwardPagination( $cursor ) {
+
+		$variables = [
+			'last'   => 1,
+			'before' => $cursor,
+		];
+
+		$results = $this->postsQuery( $variables );
+
+		$second_to_last_post    = new WP_Query( [
+			'posts_per_page' => 1,
+			'paged'          => 2,
+			'order'          => 'ASC',
+		] );
+		$second_to_last_post_id = $second_to_last_post->posts[0]->ID;
+		$expected_cursor        = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_post_id );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
+		$this->assertEquals( $second_to_last_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+
+	}
+
+	public function testMaxQueryAmount() {
+		$variables = [
+			'first' => 150,
+		];
+		$results   = $this->postsQuery( $variables );
+		$this->assertNotEmpty( $results );
 
 		/**
-		 * Ensure we're getting posts back
+		 * The max that can be queried by default is 100 items
 		 */
-		$edges = $actual['data']['posts']['edges'];
-		$this->assertNotEmpty( $edges );
+		$this->assertCount( 100, $results['data']['posts']['edges'] );
+		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 		/**
-		 * Verify the node data
+		 * Test the filter to make sure it's capping the results properly
 		 */
-		$edge_count = 11;
-		foreach ( $edges as $edge ) {
+		add_filter( 'graphql_connection_max_query_amount', function() {
+			return 20;
+		} );
 
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
+		$variables = [
+			'first' => 150,
+		];
+		$results   = $this->postsQuery( $variables );
 
+		add_filter( 'graphql_connection_max_query_amount', function() {
+			return 100;
+		} );
 
-			// Ensure each node that was returned, matches the Id of the created post in the order that
-			// the posts were created
-			$this->assertEquals( $edge['node']['postId'], $created_posts[ $edge_count ] );
-
-			$edge_count ++;
-		}
-
+		$this->assertCount( 20, $results['data']['posts']['edges'] );
+		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
 	}
 
 }

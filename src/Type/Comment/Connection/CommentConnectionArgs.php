@@ -91,6 +91,22 @@ class CommentConnectionArgs extends WPInputObjectType {
 					'type' => self::comments_orderby_enum(),
 					'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 				],
+				'order' => [
+					'type' => new WPEnumType([
+						'name' => 'commentsOrder',
+						'values' => [
+							[
+								'name' => 'ASC',
+								'value' => 'ASC',
+							],
+							[
+								'name' => 'DESC',
+								'value' => 'DESC',
+							],
+						],
+						'defaultValue' => 'DESC',
+					]),
+				],
 				'parent' => [
 					'type' => Types::int(),
 					'description' => __( 'Parent ID of comment to retrieve children of.', 'wp-graphql' ),

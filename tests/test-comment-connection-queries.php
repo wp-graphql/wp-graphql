@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WPGraphQL Test Comment Object Queries
  * This tests comment queries (singular and plural) checking to see if the available fields return the expected response
@@ -6,7 +7,6 @@
  * @package WPGraphQL
  * @since   0.0.5
  */
-
 class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 	public $admin;
 
@@ -20,10 +20,10 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 
 		$this->post_id = $this->factory->post->create();
 
-		$this->current_time     = strtotime( '- 1 day' );
-		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
-		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory->user->create( [
+		$this->current_time        = strtotime( '- 1 day' );
+		$this->current_date        = date( 'Y-m-d H:i:s', $this->current_time );
+		$this->current_date_gmt    = gmdate( 'Y-m-d H:i:s', $this->current_time );
+		$this->admin               = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
 		$this->created_comment_ids = $this->create_comments();
@@ -74,171 +74,170 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 		// Create 20 comments
 		$created_comments = [];
 		for ( $i = 1; $i <= 20; $i ++ ) {
-			$created_comments[ $i ] = $this->createCommentObject( [ 'comment_content' => $i ] );
+			$date                   = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
+			$created_comments[ $i ] = $this->createCommentObject( [
+				'comment_content' => $i,
+				'comment_date'    => $date,
+			] );
 		}
 
 		return $created_comments;
 	}
 
-	/**
-	 * This runs a comments query looking for the last 10 comments before the 10th created item from the create_comments method
-	 */
-	public function testCommentConnectionQueryWithBeforeCursor() {
-		/**
-		 * Get the array of created comment IDs
-		 */
-		$created_comments = $this->created_comment_ids;
+	public function commentsQuery( $variables ) {
+		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:commentArgs){
+			comments( first:$first last:$last after:$after before:$before where:$where ) {
+				pageInfo {
+					hasNextPage
+					hasPreviousPage
+					startCursor
+					endCursor
+				}
+				edges {
+					cursor
+					node {
+						id
+						commentId
+						content
+						date
+					}
+				}
+			}
+		}';
 
-		/**
-		 * Get a cursor for the 10th comment to use in the next query
-		 */
-		$before_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $created_comments[10] );
-
-		/**
-		 * Query 10 comments, starting at the 10th one from $created_comments
-		 */
-		$query = '
-		{
-		  comments(last:10, before: "' . $before_cursor . '") {
-		    edges {
-		      node {
-		        id
-		        content
-		      }
-		    }
-		  }
-		}
-		';
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Ensure we're getting comments back
-		 */
-		$edges = $actual['data']['comments']['edges'];
-		$this->assertNotEmpty( $edges );
-
-		/**
-		 * Verify the node data
-		 */
-		$edge_count = 9;
-		foreach ( $edges as $edge ) {
-
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
-
-			// Ensure each node that was returned, matches the Id of the created comment in the order that
-			// the comments were created
-			$this->assertEquals( $edge['node']['content'], ( string ) $edge_count );
-
-			$edge_count --;
-		}
+		return do_graphql_request( $query, 'commentsQuery', $variables );
 	}
 
-	/**
-	 * This runs a comments query looking for the last 10 comments after the 20th created item from the create_comments method
-	 */
-	public function testCommentConnectionQueryWithAfterCursor() {
-		$created_comments = $this->created_comment_ids;
+	public function testFirstComment() {
 
-		/**
-		 * Get a cursor for the 10th comment to use in the next query
-		 */
-		$after_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $created_comments[10] );
+		$variables = [
+			'first' => 1,
+		];
 
-		/**
-		 * Query 10 comments, starting at the 10th one from $created_comments
-		 */
-		$query = '
-		{
-		  comments(first:10, after: "' . $after_cursor . '") {
-		    edges {
-		      node {
-		        id
-		        content
-		      }
-		    }
-		  }
-		}
-		';
+		$results        = $this->commentsQuery( $variables );
+		$comments_query = new WP_Comment_Query;
+		$comments       = $comments_query->query( [
+			'comment_status' => 'approved',
+			'number'         => 1,
+			'order'          => 'DESC',
+			'comment_status' => 'approved',
+			'orderby'        => 'comment_date',
+			'comment_parent' => 0,
+		] );
+		$first_comment  = $comments[0];
 
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = $actual = do_graphql_request( $query );
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_comment->comment_ID );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
 
-		/**
-		 * Ensure we're getting comments back
-		 */
-		$edges = $actual['data']['comments']['edges'];
-		$this->assertNotEmpty( $edges );
-
-		/**
-		 * Verify the node data
-		 */
-		$edge_count = 11;
-		foreach ( $edges as $edge ) {
-
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
-
-			// Ensure each node that was returned, matches the Id of the created comment in the order that
-			// the comments were created
-			$this->assertEquals( $edge['node']['content'], ( string ) $edge_count );
-
-			$edge_count ++;
-		}
 	}
 
-	/**
-	 * Tests a comments query, ensuring the 10 most recent comments come back
-	 */
-	public function testCommentConnectionQuery() {
-
-		$created_comments = $this->created_comment_ids;
+	public function testForwardPagination() {
 
 		/**
-		 * Create the query string to pass to the $query
+		 * Create the cursor for the comment with the oldest comment_date
 		 */
-		$query = '
-		{
-		  comments {
-		    edges {
-		      node {
-		        id
-		        content
-		      }
-		    }
-		  }
-		}
-		';
-
-		$actual = do_graphql_request( $query );
+		$first_comment_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $this->created_comment_ids[20] );
 
 		/**
-		 * Ensure we're getting comments back
+		 * Set the variables to use in the GraphQL Query
 		 */
-		$edges = $actual['data']['comments']['edges'];
-		$this->assertNotEmpty( $edges );
+		$variables = [
+			'first' => 1,
+			'after' => $first_comment_cursor,
+		];
 
 		/**
-		 * Verify the node data
+		 * Run the GraphQL Query
 		 */
-		$edge_count = 20;
-		foreach ( $edges as $edge ) {
+		$results = $this->commentsQuery( $variables );
 
-			// Ensure each edge has a node
-			$this->assertArrayHasKey( 'node', $edge );
+		$comments_query  = new WP_Comment_Query;
+		$comments        = $comments_query->query( [
+			'comment_status' => 'approved',
+			'number'         => 1,
+			'offset'         => 1,
+			'order'          => 'DESC',
+			'orderby'        => 'comment_date',
+			'comment_parent' => 0,
+		] );
+		$second_comment  = $comments[0];
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_comment->comment_ID );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
+		$this->assertEquals( $second_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
+
+	}
+
+	public function testLastComment() {
+
+		$variables = [
+			'last' => 1,
+		];
+
+		$results = $this->commentsQuery( $variables );
+
+		$comments_query = new WP_Comment_Query;
+		$comments       = $comments_query->query( [
+			'comment_status' => 'approved',
+			'number'         => 1,
+			'order'          => 'ASC',
+			'orderby'        => 'comment_date',
+			'comment_parent' => 0,
+		] );
+		$last_comment  = $comments[0];
+
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_comment->comment_ID );
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
+		$this->assertEquals( $last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
 
 
-			// Ensure each node that was returned, matches the Id of the created comment in the order that
-			// the comments were created
-			$this->assertEquals( $edge['node']['content'], ( string ) $edge_count );
+	}
 
-			$edge_count --;
-		}
+	public function testBackwardPagination() {
+
+		/**
+		 * Create the cursor for the comment with the newest comment_date
+		 */
+		$last_comment_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $this->created_comment_ids[1] );
+
+		$variables = [
+			'last'   => 1,
+			'before' => $last_comment_cursor,
+		];
+
+		$results = $this->commentsQuery( $variables );
+
+		$comments_query = new WP_Comment_Query;
+		$comments       = $comments_query->query( [
+			'comment_status' => 'approved',
+			'number'         => 1,
+			'offset'         => 1,
+			'order'          => 'ASC',
+			'orderby'        => 'comment_date',
+			'comment_parent' => 0,
+		] );
+		$second_to_last_comment  = $comments[0];
+
+		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_comment->comment_ID );
+
+		$this->assertNotEmpty( $results );
+		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
+		$this->assertEquals( $second_to_last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
+		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
+
 	}
 }
