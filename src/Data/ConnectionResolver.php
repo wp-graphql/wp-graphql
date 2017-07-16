@@ -33,7 +33,6 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		$query       = static::get_query( $query_args );
 		$array_slice = self::get_array_slice( $query, $args );
 		$connection  = static::get_connection( $query, $array_slice, $source, $args, $context, $info );
-
 		/**
 		 * Filter the connection, and provide heaps of info to make it easy to filter very specific cases
 		 *
@@ -78,7 +77,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	public static function get_connection( $query, array $array, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		$meta       = self::get_array_meta( $query, $args );
-		$connection = ArrayConnection::connectionFromArray( $array, $args, $meta );
+		$connection = ArrayConnection::connectionFromArraySlice( $array, $args, $meta );
 
 		return $connection;
 
@@ -93,12 +92,12 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	 * @return array
 	 */
 	public static function get_array_slice( $query, array $args ) {
-		$array_slice = [];
+
 		$info        = self::get_query_info( $query );
 		$items       = $info['items'];
+		$array_slice = [];
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
-
 				if ( true === is_object( $item ) ) {
 					switch ( true ) {
 						case $item instanceof \WP_Comment:
@@ -115,12 +114,11 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							$array_slice[] = $item;
 							break;
 						default:
-							$array_slice[] = $item;
+							$array_slice = $items;
 					}
 				}
 			}
 		}
-
 		return $array_slice;
 	}
 
@@ -171,7 +169,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 			}
 		}
 
-		return max( 0, absint( $amount_requested ) );
+		return max( 0, $amount_requested );
 
 	}
 
@@ -281,13 +279,14 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		if ( true === is_object( $query ) ) {
 			switch ( true ) {
 				case $query instanceof \WP_Query:
-					$query_info['total_items'] = ! empty( $query->found_posts ) ? $query->found_posts : count( $query->posts );
-					$query_info['items']       = $query->posts;
-					$query_info['request']     = $query->request;
+					$found_posts = $query->posts;
+					$query_info['total_items'] = ! empty( $found_posts ) ? count( $found_posts ) : null;
+					$query_info['items']       = $found_posts;
 					break;
 				case $query instanceof \WP_Comment_Query:
-					$query_info['total_items'] = $query->found_comments;
-					$query_info['items']       = $query->get_comments();
+					$found_comments = $query->get_comments();
+					$query_info['total_items'] = ! empty( $found_comments ) ? count( $found_comments ) : null;
+					$query_info['items']       = ! empty( $found_comments ) ? $found_comments : [];
 					break;
 				case $query instanceof \WP_Term_Query:
 					$query_info['total_items'] = ! empty( $query->query_vars['taxonomy'] ) ? wp_count_terms( $query->query_vars['taxonomy'][0], $query->query_vars ) : 0;

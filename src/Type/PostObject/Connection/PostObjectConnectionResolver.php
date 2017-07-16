@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\PostObject\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
@@ -21,6 +22,13 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 * @var $post_type
 	 */
 	public static $post_type;
+
+	/**
+	 * Holds the maximum number of items that can be queried per request
+	 *
+	 * @var int $max_query_amount
+	 */
+	public static $max_query_amount = 100;
 
 	/**
 	 * PostObjectConnectionResolver constructor.
@@ -47,9 +55,37 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * The post_type is set based on the type being queried.
+		 * Prepare for later use
+		 */
+		$last  = ! empty( $args['last'] ) ? $args['last'] : null;
+		$first = ! empty( $args['first'] ) ? $args['first'] : null;
+
+		/**
+		 * Set the post_type for the query based on the type of post being queried
 		 */
 		$query_args['post_type'] = ! empty( self::$post_type ) ? self::$post_type : 'post';
+
+		/**
+		 * Don't calculate the total rows, it's not needed and can be expensive
+		 */
+		$query_args['no_found_rows'] = true;
+
+		/**
+		 * Set the post_status to "publish" by default
+		 */
+		$query_args['post_status'] = 'publish';
+
+		/**
+		 * Set posts_per_page the highest value of $first and $last, with a (filterable) max of 100
+		 */
+		$query_args['posts_per_page'] = min( max( absint( $first ), absint( $last ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
+
+		/**
+		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
+		 * to filter the WP_Query to support cursor pagination
+		 */
+		$query_args['graphql_cursor_offset']  = self::get_offset( $args );
+		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -57,51 +93,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		$query_args['graphql_args'] = $args;
 
 		/**
-		 * Sticky posts are off by default to reduce unexpected results in queries.
-		 */
-		$query_args['ignore_sticky_posts'] = true;
-
-		/**
-		 * Cursor based pagination allows us to efficiently page through data without having to know the total number
-		 * of items matching the query.
-		 */
-		$query_args['no_found_rows'] = true;
-
-		/**
-		 * Set the graphql_cursor_offset
-		 */
-		$query_args['graphql_cursor_offset'] = self::get_offset( $args );
-
-		/**
-		 * Set the cursor compare direction
-		 */
-		if ( ! empty( $args['before'] ) ) {
-			$query_args['graphql_cursor_compare'] = '<';
-		} elseif ( ! empty( $args['after'] ) ) {
-			$query_args['graphql_cursor_compare'] = '>';
-		}
-
-		/**
-		 * Set the orderby to orderby DATE, DESC by default
-		 */
-		$id_order              = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
-		$query_args['orderby'] = [
-			'date' => esc_sql( $id_order ),
-		];
-
-		/**
-		 * We only need to calculate the totalItems matching the query, if it's been specifically asked
-		 * for in the Query response.
-		 */
-		$field_selection = $info->getFieldSelection( 10 );
-
-		if ( ! empty( $field_selection['debug']['totalItems'] ) ) {
-			$query_args['no_found_rows'] = false;
-		}
-
-		/**
-		 * Take any of the input $args (under the "where" input) that were part of the GraphQL query and map and
-		 * sanitize their GraphQL input to apply to the WP_Query
+		 * Collect the input_fields and sanitize them to prepare them for sending to the WP_Query
 		 */
 		$input_fields = [];
 		if ( ! empty( $args['where'] ) ) {
@@ -109,27 +101,38 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * Merge the default $query_args with the $args that were entered in the query.
-		 *
-		 * @since 0.0.5
+		 * Merge the input_fields with the default query_args
 		 */
 		if ( ! empty( $input_fields ) ) {
 			$query_args = array_merge( $query_args, $input_fields );
 		}
 
 		/**
-		 * Map the orderby Input args to the WP_Query args
+		 * Map the orderby inputArgs to the WP_Query
 		 */
 		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
+			$query_args['orderby'] = [];
 			foreach ( $args['where']['orderby'] as $orderby_input ) {
 				if ( ! empty( $orderby_input['field'] ) ) {
-					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = ! empty( $orderby_input['order'] ) ? esc_sql( $orderby_input['order'] ) : 'DESC';
+					$query_args['orderby'] = [
+						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
+					];
 				}
 			}
 		}
 
 		/**
-		 * Handle setting dynamic $query_args based on the source (higher level query)
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( empty( $query_args['orderby'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+		}
+
+		/**
+		 * Determine where we're at in the Graph and adjust the query context appropriately.
+		 *
+		 * For example, if we're querying for posts as a field of termObject query, this will automatically
+		 * set the query to pull posts that belong to that term.
 		 */
 		if ( true === is_object( $source ) ) :
 			switch ( true ) {
@@ -161,19 +164,15 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * Ensure that the query is ordered by ID in addition to any other orderby options
-		 */
-		$query_args['orderby'] = array_merge( $query_args['orderby'], [
-			'ID' => esc_sql( $id_order ),
-		] );
-
-		/**
-		 * Set the posts_per_page, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
-		 * @since 0.0.6
+		 * @param $query_args The args that will be passed to the WP_Query
+		 * @param $source     The source that's passed down the GraphQL queries
+		 * @param $args       The inputArgs on the field
+		 * @param $context    The AppContext passed down the GraphQL tree
+		 * @param $info       The ResolveInfo passed down the GraphQL tree
 		 */
-		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
-		$query_args['posts_per_page'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
+		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $source, $args, $context, $info );
 
 		return $query_args;
 
@@ -196,12 +195,12 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 * This takes an array of items, the $args and the $query and returns the connection including
 	 * the edges and page info
 	 *
-	 * @param mixed $query The Query that was processed to get the connection data
-	 * @param array $items The array of items being connected
-	 * @param array $args  The $args that were passed to the query
-	 * @param mixed $source The source being passed down the resolve tree
-	 * @param AppContext $context The AppContext being passed down the resolve tree
-	 * @param ResolveInfo $info the ResolveInfo passed down the resolve tree
+	 * @param mixed       $query   The Query that was processed to get the connection data
+	 * @param array       $items   The array of items being connected
+	 * @param array       $args    The $args that were passed to the query
+	 * @param mixed       $source  The source being passed down the resolve tree
+	 * @param AppContext  $context The AppContext being passed down the resolve tree
+	 * @param ResolveInfo $info    the ResolveInfo passed down the resolve tree
 	 *
 	 * @return array
 	 */
@@ -212,17 +211,18 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		$items = ! empty( $items ) && is_array( $items ) ? $items : [];
 
+		$info = self::get_query_info( $query );
+
 		/**
 		 * Set whether there is or is not another page
 		 */
-		$has_previous_page = ( ! empty( $args['last'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
-		$has_next_page     = ( ! empty( $args['first'] ) && count( $items ) > self::get_amount_requested( $args ) ) ? true : false;
+		$has_previous_page = ( ! empty( $args['last'] ) && ( $info['total_items'] >= self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
+		$has_next_page     = ( ! empty( $args['first'] ) && ( $info['total_items'] >= self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
 
 		/**
 		 * Slice the array to the amount of items that were requested
 		 */
-		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
-		$items = array_reverse( $items );
+		$items = array_slice( $items, 0, self::get_query_amount( $source, $args, $query, $info ) );
 
 		/**
 		 * Get the edges from the $items
@@ -232,9 +232,8 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Find the first_edge and last_edge
 		 */
-		$first_edge = $edges ? $edges[0] : null;
-		$last_edge  = $edges ? $edges[ count( $edges ) - 1 ] : null;
-
+		$first_edge      = $edges ? $edges[0] : null;
+		$last_edge       = $edges ? $edges[ count( $edges ) - 1 ] : null;
 		$edges_to_return = $edges;
 
 		/**
@@ -263,6 +262,14 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 */
 	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
+
+		/**
+		 * If we're doing backward pagination we want to reverse the array before
+		 * returning it to the edges
+		 */
+		if ( ! empty( $args['last'] ) ) {
+			$items = array_reverse( $items );
+		}
 
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
