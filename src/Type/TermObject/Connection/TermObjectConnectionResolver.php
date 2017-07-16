@@ -277,7 +277,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 			'descriptionLike'     => 'description__like',
 			'padCounts'           => 'pad_counts',
 			'childOf'             => 'child_of',
-			'cacheDomain'         => 'cacheDomain',
+			'cacheDomain'         => 'cache_domain',
 			'updateTermMetaCache' => 'update_term_meta_cache',
 		];
 

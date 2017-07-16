@@ -186,13 +186,6 @@ class RootQueryType extends ObjectType {
 		$config = [
 			'name' => 'rootQuery',
 			'fields' => $fields,
-			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
-				if ( method_exists( $this, $info->fieldName ) ) {
-					return $this->{$info->fieldName}( $value, $args, $context, $info );
-				} else {
-					return $value->{$info->fieldName};
-				}
-			},
 		];
 
 		/**
@@ -201,27 +194,6 @@ class RootQueryType extends ObjectType {
 		 */
 		parent::__construct( $config );
 
-	}
-
-	/**
-	 * post_type
-	 * This sets up the post_type entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function post_type() {
-		return [
-			'type' => Types::post_type(),
-			'description' => __( 'A WordPress Post Type', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_post_type( $id_components['id'] );
-			},
-		];
 	}
 
 	/**
@@ -246,27 +218,6 @@ class RootQueryType extends ObjectType {
 	}
 
 	/**
-	 * taxonomy
-	 * This sets up the taxonomy entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function taxonomy() {
-		return [
-			'type' => Types::taxonomy(),
-			'description' => __( 'A taxonomy object', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_taxonomy( $id_components['id'] );
-			},
-		];
-	}
-
-	/**
 	 * viewer
 	 * This sets up the viewer entry point for the root query
 	 * @return array
@@ -277,12 +228,7 @@ class RootQueryType extends ObjectType {
 			'type' => Types::user(),
 			'description' => __( 'Returns the current user', 'wp-graphql' ),
 			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
-				if ( ! ( $context->viewer instanceof \WP_User ) ) {
-					throw new \Exception( __( 'The current viewer is invalid', 'wp-graphql' ) );
-				}
-
-				return false !== $context->viewer->ID ? DataSource::resolve_user( $context->viewer->ID ) : null;
+				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID ) : null;
 			},
 		];
 	}

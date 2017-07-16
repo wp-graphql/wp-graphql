@@ -385,5 +385,4 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-	
 }

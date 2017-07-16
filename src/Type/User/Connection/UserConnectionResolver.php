@@ -57,17 +57,6 @@ class UserConnectionResolver extends ConnectionResolver {
 			$query_args['count_total'] = true;
 		}
 
-		if ( true === is_object( $source ) ) {
-			switch ( true ) {
-				case $source instanceof \WP_Post:
-					$query_args['include'] = [ $source->post_author ];
-					break;
-				case $source instanceof \WP_Comment:
-					$query_args['include'] = [ $source->user_ID ];
-					break;
-			}
-		}
-
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */

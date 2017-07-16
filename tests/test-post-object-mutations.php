@@ -13,6 +13,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 	public $client_mutation_id;
 	public $admin;
 	public $subscriber;
+	public $author;
 
 	/**
 	 * This function is run before each method
@@ -22,6 +23,10 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		$this->title              = 'some title';
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
+
+		$this->author = $this->factory->user->create( [
+			'role' => 'author',
+		] );
 
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
@@ -113,12 +118,6 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 
 	public function testUpdatePageMutation() {
 
-		/**
-		 * Set the current user as the admin role so we
-		 * can test the mutation
-		 */
-		wp_set_current_user( $this->admin );
-
 		$args = [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
@@ -175,6 +174,42 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 			'content'          => 'Some updated content',
 			'clientMutationId' => 'someId',
 		] );
+
+		/**
+		 * Set the current user as the subscriber so we can test, and expect to fail
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		/**
+		 * Execute the request
+		 */
+		$actual = do_graphql_request( $mutation, 'updatePageTest', $variables );
+
+		/**
+		 * We should get an error because the user is a subscriber and can't edit posts
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Set the current user to a user with permission to edit posts, but NOT permission to edit OTHERS posts
+		 */
+		wp_set_current_user( $this->author );
+
+		/**
+		 * Execute the request
+		 */
+		$actual = do_graphql_request( $mutation, 'updatePageTest', $variables );
+
+		/**
+		 * We should get an error because the user is an and can't edit others posts
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Set the current user as the admin role so we
+		 * successfully run the mutation
+		 */
+		wp_set_current_user( $this->admin );
 
 		/**
 		 * Execute the request
@@ -243,13 +278,8 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * Prepare the mutation
 		 */
 		$mutation = '
-		mutation deletePageTest( $clientMutationId:String! $id:ID! ){
-		  deletePage(
-		    input: {
-		        clientMutationId:$clientMutationId
-		        id:$id
-		    }
-		  ) {
+		mutation deletePageTest($input:deletePageInput!){
+		  deletePage(input:$input){
 		    clientMutationId
 		    deletedId
 		    page{
@@ -264,10 +294,13 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Set the variables to use with the mutation
 		 */
-		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-			'clientMutationId' => 'someId',
-		] );
+		$variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'clientMutationId' => 'someId',
+			],
+		];
+
 
 		/**
 		 * Execute the request
@@ -321,6 +354,85 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 
 		/**
 		 * We should get an error because we're not using forceDelete
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Try to delete again, this time with forceDelete
+		 */
+		$variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'clientMutationId' => 'someId',
+				'forceDelete' => true,
+			],
+		];
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+
+		/**
+		 * This time, we used forceDelete so the mutation should have succeeded
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'someId', $actual['data']['deletePage']['clientMutationId'] );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ), $actual['data']['deletePage']['deletedId'] );
+
+		/**
+		 * Try to delete the page one more time, and now there's nothing to delete, not even from the trash
+		 */
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+		/**
+		 * Now we should have errors again, because there's nothing to be deleted
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testUpdatePostWithInvalidId() {
+
+		$mutation = '
+		mutation updatePostWithInvalidId($input:updatePostInput!) {
+			updatePost(input:$input) {
+				clientMutationId
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'someId',
+				'id' => 'invalidIdThatShouldThrowAnError',
+			],
+		];
+
+		$actual = do_graphql_request( $mutation, 'updatePostWithInvalidId', $variables );
+
+		/**
+		 * We should get an error thrown if we try and update a post with an invalid id
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		$page_id = $this->factory->post->create([
+			'post_type' => 'page',
+		]);
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'someId',
+				'id' => $global_id,
+			],
+		];
+
+		/**
+		 * Try to update a post, with a valid ID of a page
+		 */
+		$actual = do_graphql_request( $mutation, 'updatePostWithInvalidId', $variables );
+
+		/**
+		 * We should get an error here because the updatePost mutation should only be able to update "post" objects
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 

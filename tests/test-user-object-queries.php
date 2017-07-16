@@ -557,4 +557,68 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $expected, $actual );
 
 	}
+
+	public function testPageInfoQuery() {
+
+		/**
+		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
+		 */
+		$this->factory->user->create([
+			'role' => 'administrator',
+		]);
+
+		$this->factory->user->create([
+			'role' => 'administrator',
+		]);
+
+		$this->factory->user->create([
+			'role' => 'subscriber',
+		]);
+
+		$query = '
+		query{
+		  users(first:2 where: {role:ADMINISTRATOR}){
+		    pageInfo{
+		      hasNextPage
+		    }
+		    edges{
+		      node{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+		$this->assertCount( 2, $actual['data']['users']['edges'] );
+
+		$query = '
+		query{
+		  users(first:2 where: {role:SUBSCRIBER}){
+		    pageInfo{
+		      hasNextPage
+		    }
+		    edges{
+		      node{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Now let's make sure the subscriber role query worked
+		 */
+		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+		$this->assertCount( 1, $actual['data']['users']['edges'] );
+
+	}
 }

@@ -60,13 +60,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 					id
 					label
 					name
-					posts {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					public
 					restBase
 					restControllerClass
@@ -105,7 +98,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 						'id' => $global_id,
 						'label' => 'Categories',
 						'name' => 'category',
-						'posts' => [ 'edges' => [] ],
 						'public' => true,
 						'restBase' => 'categories',
 						'restControllerClass' => 'WP_REST_Terms_Controller',
@@ -151,13 +143,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 					id
 					label
 					name
-					posts {
-						edges {
-							node {
-								id
-							}
-						}
-					}
 					public
 					restBase
 					restControllerClass
@@ -196,7 +181,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 						'id' => $global_id,
 						'label' => 'Tags',
 						'name' => 'post_tag',
-						'posts' => [ 'edges' => [] ],
 						'public' => true,
 						'restBase' => 'tags',
 						'restControllerClass' => 'WP_REST_Terms_Controller',
@@ -242,13 +226,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 			categories {
 				taxonomyInfo {
 					name
-					posts {
-						edges {
-							node {
-								postId
-							}
-						}
-					}
 				}
 			}
 		}";
@@ -268,13 +245,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 				'categories' => [
 					'taxonomyInfo' => [
 						'name' => 'category',
-						'posts' => [
-							'edges' => [
-								[
-									'node' => [ 'postId' => $post_id ],
-								],
-							],
-						],
 					],
 				],
 			],
@@ -307,13 +277,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 			tags {
 				taxonomyInfo {
 					name
-					posts {
-						edges {
-							node {
-								postId
-							}
-						}
-					}
 				}
 			}
 		}";
@@ -333,13 +296,6 @@ class WP_GraphQL_Test_Taxonomy_Object_Queries extends WP_UnitTestCase {
 				'tags' => [
 					'taxonomyInfo' => [
 						'name' => 'post_tag',
-						'posts' => [
-							'edges' => [
-								[
-									'node' => [ 'postId' => $post_id ],
-								],
-							],
-						],
 					],
 				],
 			],
