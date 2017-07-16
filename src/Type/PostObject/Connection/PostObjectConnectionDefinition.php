@@ -26,46 +26,6 @@ class PostObjectConnectionDefinition {
 	private static $connection;
 
 	/**
-	 * Stores the definition for the debug fields that can be used for introspection into the query
-	 *
-	 * @var mixed|null|\WPGraphQL\Type\WPObjectType $debug_fields
-	 */
-	public static $debug_fields;
-
-	/**
-	 * Configures the debug_fields
-	 *
-	 * @param $connection_name
-	 *
-	 * @return mixed|null
-	 */
-	public static function debug_fields( $connection_name ) {
-
-		if ( null === self::$debug_fields ) {
-			self::$debug_fields = [];
-		}
-
-		if ( empty( self::$debug_fields[ $connection_name ] ) ) :
-			self::$debug_fields[ $connection_name ] = new WPObjectType([
-				'name' => $connection_name . 'ConnectionDebug',
-				'fields' => [
-					'queryRequest' => [
-						'type' => Types::string(),
-						'description' => __( 'The request used to query items. Useful for debugging.', 'wp-graphql' ),
-					],
-					'totalItems' => [
-						'type' => Types::int(),
-						'description' => __( 'The total items matching the query. (NOTE: Using this field can degrade performance.)', 'wp-graphql' ),
-					],
-				],
-			]);
-		endif;
-
-		return ! empty( self::$debug_fields[ $connection_name ] ) ? self::$debug_fields[ $connection_name ] : null;
-
-	}
-
-	/**
 	 * Method that sets up the relay connection for post objects
 	 *
 	 * @param object $post_type_object
@@ -99,9 +59,6 @@ class PostObjectConnectionDefinition {
 								return $post_type_object;
 							},
 						],
-						'debug' => [
-							'type' => self::debug_fields( $post_type_object->graphql_plural_name ),
-						],
 					];
 				},
 			] );
@@ -125,6 +82,7 @@ class PostObjectConnectionDefinition {
 			 */
 			self::$connection[ $post_type_object->name ] = [
 				'type'        => $connection['connectionType'],
+				// Translators: the placeholder is the name of the post_type
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {

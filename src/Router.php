@@ -238,7 +238,7 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 *
+	 * 
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed

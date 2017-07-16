@@ -28,28 +28,83 @@ class CommentConnectionResolver extends ConnectionResolver {
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Set the $query_args based on various defaults and primary input $args
+		 * Prepare for later use
+		 */
+		$last  = ! empty( $args['last'] ) ? $args['last'] : null;
+		$first = ! empty( $args['first'] ) ? $args['first'] : null;
+
+		/**
+		 * Don't calculate the total rows, it's not needed and can be expensive
 		 */
 		$query_args['no_found_rows'] = true;
+
+		/**
+		 * Set the default comment_status for Comment Queries to be "approved"
+		 */
+		$query_args['comment_status'] = 'approved';
+
+		/**
+		 * Set the default comment_parent for Comment Queries to be "0" to only get top level comments
+		 */
+		$query_args['comment_parent'] = 0;
+
+		/**
+		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 *
+		 * @since 0.0.6
+		 */
+		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
+
+		/**
+		 * Set the default order
+		 */
+		$query_args['orderby'] = 'comment_date';
+
+		/**
+		 * Take any of the $args that were part of the GraphQL query and map their
+		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
+		 *
+		 * @since 0.0.5
+		 */
+		$input_fields = [];
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
+		}
+
+		/**
+		 * Merge the default $query_args with the $args that were entered
+		 * in the query.
+		 *
+		 * @since 0.0.5
+		 */
+		if ( ! empty( $input_fields ) ) {
+			$query_args = array_merge( $query_args, $input_fields );
+		}
+
+		/**
+		 * Throw an exception if the query is attempted to be queried by
+		 */
+		if ( 'comment__in' === $query_args['orderby'] && empty( $query_args['comment__in'] ) ) {
+			throw new \Exception( __( 'In order to sort by comment__in, an array of IDs must be passed as the commentIn argument', 'wp-graphql' ) );
+		}
+
+		/**
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( empty( $query_args['order'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+		}
+
+		/**
+		 * Set the graphql_cursor_offset
+		 */
+		$query_args['graphql_cursor_offset']  = self::get_offset( $args );
+		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
 		/**
 		 * Pass the graphql $args to the WP_Query
 		 */
 		$query_args['graphql_args'] = $args;
-
-		/**
-		 * Set the graphql_cursor_offset
-		 */
-		$query_args['graphql_cursor_offset'] = self::get_offset( $args );
-
-		/**
-		 * Set the cursor compare direction
-		 */
-		if ( ! empty( $args['before'] ) ) {
-			$query_args['graphql_cursor_compare'] = '<';
-		} elseif ( ! empty( $args['after'] ) ) {
-			$query_args['graphql_cursor_compare'] = '>';
-		}
 
 		/**
 		 * Handle setting dynamic $query_args based on the source (higher level query)
@@ -71,41 +126,6 @@ class CommentConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * Set the orderby to orderby DATE, DESC by default
-		 */
-		$id_order              = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
-		$query_args['orderby'] = [
-			'comment_date' => $id_order,
-		];
-
-		/**
-		 * Take any of the $args that were part of the GraphQL query and map their
-		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
-		 *
-		 * @since 0.0.5
-		 */
-		$input_fields = [];
-		if ( ! empty( $args['where'] ) ) {
-			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
-		}
-
-		/**
-		 * Merge the default $query_args with the $args that were entered
-		 * in the query.
-		 *
-		 * @since 0.0.5
-		 */
-		$query_args = array_merge( $query_args, $input_fields );
-
-		/**
-		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
-		 *
-		 * @since 0.0.6
-		 */
-		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
-		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
-
-		/**
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
 		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
 		 *
@@ -119,19 +139,18 @@ class CommentConnectionResolver extends ConnectionResolver {
 		 */
 		$query_args = apply_filters( 'graphql_comment_connection_query_args', $query_args, $source, $args, $context, $info );
 
-		/**
-		 * Ensure that the query is ordered by ID in addition to any other orderby options
-		 */
-		$query_args['orderby'] = array_merge( $query_args['orderby'], [
-			'ID' => esc_sql( $id_order ),
-		] );
-
 		return $query_args;
 	}
 
+	/**
+	 *
+	 * @param $query_args
+	 *
+	 * @return \WP_Comment_Query
+	 */
 	public static function get_query( $query_args ) {
-		$query = new \WP_Comment_Query( $query_args );
-
+		$query = new \WP_Comment_Query;
+		$query->query( $query_args );
 		return $query;
 	}
 
@@ -166,18 +185,15 @@ class CommentConnectionResolver extends ConnectionResolver {
 		/**
 		 * Get the edges from the $items
 		 */
-		$edges = self::get_edges( $items );
+		$edges = self::get_edges( $items, $source, $args, $context, $info );
 
 		/**
 		 * Find the first_edge and last_edge
 		 */
 		$first_edge = $edges ? $edges[0] : null;
 		$last_edge  = $edges ? $edges[ count( $edges ) - 1 ] : null;
-
-		$edges_to_return = $edges;
-
 		$connection = [
-			'edges'    => $edges_to_return,
+			'edges'    => $edges,
 			'pageInfo' => [
 				'hasPreviousPage' => $has_previous_page,
 				'hasNextPage'     => $has_next_page,
@@ -197,8 +213,15 @@ class CommentConnectionResolver extends ConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public static function get_edges( $items ) {
+	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
+		/**
+		 * If we're doing backward pagination we want to reverse the array before
+		 * returning it to the edges
+		 */
+		if ( ! empty( $args['last'] ) ) {
+			$items = array_reverse( $items );
+		}
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
 				$edges[] = [
