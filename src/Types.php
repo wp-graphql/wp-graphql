@@ -7,11 +7,14 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
+use WPGraphQL\Type\Enum\MenuLocationEnumType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
+use WPGraphQL\Type\MenuItem\MenuItemType;
+use WPGraphQL\Type\Menu\MenuType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
@@ -66,6 +69,30 @@ class Types {
 	 * @access private
 	 */
 	private static $mime_type_enum;
+
+	/**
+	 * Stores the menu type object definition
+	 *
+	 * @var MenuType object $menu
+	 * @access private
+	 */
+	private static $menu;
+
+	/**
+	 * Stores the menuItem object definition
+	 *
+	 * @var MenuItemType object $menu_item
+	 * @access private
+	 */
+	private static $menu_item;
+
+	/**
+	 * Stores the menuLocationEnumType object definition
+	 *
+	 * @var MenuLocationEnumType object $menu_location_enum
+	 * @access private
+	 */
+	private static $menu_location_enum;
 
 	/**
 	 * Stores the plugin type object
@@ -260,6 +287,29 @@ class Types {
 	public static function mime_type_enum() {
 		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
 	}
+
+	/**
+	 * This returns the definition for the MenuType
+	 * @return MenuType
+	 * @access public
+	 */
+	public static function menu() {
+		return self::$menu ? : ( self::$menu = new MenuType() );
+	}
+
+	/**
+	 * This returns the definition for the Menu Item
+	 * @return MenuItemType
+	 * @access public
+	 */
+	public static function menu_item() {
+		return self::$menu_item ? : ( self::$menu_item = new MenuItemType() );
+	}
+
+	public static function menu_location_enum() {
+		return self::$menu_item ? : ( self::$menu_location_enum = new MenuLocationEnumType() );
+	}
+
 
 	/**
 	 * This returns the definition for the PluginType

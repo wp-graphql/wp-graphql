@@ -84,13 +84,14 @@ class WPObjectType extends ObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array  $fields
-	 * @param string $type_name
+	 * @param array  $fields The fields being prepared
+	 * @param string $type_name The name of the type of object for which the fields being prepared
+	 * @param object $type The Type object for which the fields are being prepared
 	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( $fields, $type_name ) {
+	public static function prepare_fields( $fields, $type_name, $type = null ) {
 
 		if ( null === self::$prepared_fields ) {
 			self::$prepared_fields = [];
@@ -105,8 +106,9 @@ class WPObjectType extends ObjectType {
 			 *
 			 * @param array $fields The array of fields for the object config
 			 * @param string $type_name The name of the object type
+			 * @param object $type The object type being filtered
 			 */
-			$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
+			$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $type );
 
 			/**
 			 * Filter the fields with the typename explicitly in the filter name
@@ -115,8 +117,9 @@ class WPObjectType extends ObjectType {
 			 * more specific overrides
 			 *
 			 * @param array $fields The array of fields for the object config
+			 * @param object $type The object type being filtered
 			 */
-			$fields = apply_filters( "graphql_{$type_name}_fields", $fields );
+			$fields = apply_filters( "graphql_{$type_name}_fields", $fields, $type );
 
 			/**
 			 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,

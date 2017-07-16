@@ -314,4 +314,20 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 
 	}
 
+	/**
+	 * This method is expected to be implemented by the extending class and is used to make sure the inputs are safe
+	 * before passing to queries
+	 *
+	 * @param array       $args
+	 * @param             $source
+	 * @param array       $all_args
+	 * @param AppContext  $context
+	 * @param ResolveInfo $info
+	 *
+	 * @return mixed;
+	 */
+	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
+		// TODO: Implement sanitize_input_fields() method.
+	}
+
 }

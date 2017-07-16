@@ -8,6 +8,8 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\Menu\MenuQuery;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -61,6 +63,12 @@ class RootQueryType extends ObjectType {
 		 */
 		$fields['comment'] = CommentQuery::root_query();
 		$fields['comments'] = CommentConnectionDefinition::connection();
+
+		/**
+		 * Add menu fields if the site has any registered menus
+		 */
+		$fields['menu'] = MenuQuery::root_query();
+		$fields['menuItems'] = MenuItemConnectionDefinition::connection();
 
 		/**
 		 * Creates the plugin root query field
