@@ -213,7 +213,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * Set the current user as the admin role so we
 		 * can test the mutation
 		 */
-		wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->subscriber );
 
 		$args = [
 			'post_type'    => 'page',
@@ -275,6 +275,21 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
 
 		/**
+		 * The deletion should fail because we're a subscriber
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Set the user to an admin and try again
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Execute the request
+		 */
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+		/**
 		 * Define the expected output.
 		 *
 		 * The mutation should've updated the article to contain the updated content
@@ -298,6 +313,57 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * Compare the actual output vs the expected output
 		 */
 		$this->assertEquals( $actual, $expected );
+
+		/**
+		 * Try to delete again
+		 */
+		$actual = do_graphql_request( $mutation, 'deletePageTest', $variables );
+
+		/**
+		 * We should get an error because we're not using forceDelete
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	public function testDeletePostOfAnotherType() {
+
+		$args = [
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title',
+			'post_content' => 'Original Content',
+		];
+
+		/**
+		 * Create a page to test against
+		 */
+		$page_id = $this->factory->post->create( $args );
+
+		$mutation = '
+		mutation deletePostWithPageIdShouldFail{
+		  deletePost( $clientMutationId:String! $id:ID! ){
+		    post{
+		      id
+		    }
+		  }
+		}
+		';
+
+		$variables = wp_json_encode( [
+			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'clientMutationId' => 'someId',
+		] );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual = do_graphql_request( $mutation, 'deletePostWithPageIdShouldFail', $variables );
+
+		/**
+		 * The mutation should fail because the ID is for a page, but we're trying to delete a post
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
 
@@ -361,6 +427,27 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testCreatePostWithNoInput() {
+
+		$mutation = '
+		mutation {
+		  createPost{
+		    post{
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $mutation );
+
+		/**
+		 * Make sure we're throwing an error if there's no $input with the mutation
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
 }

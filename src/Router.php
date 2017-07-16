@@ -149,8 +149,9 @@ class Router {
 	 * @param string $key   Header key.
 	 * @param string $value Header value.
 	 */
-	public function send_header( $key, $value ) {
-		/*
+	public static function send_header( $key, $value ) {
+
+		/**
 		 * Sanitize as per RFC2616 (Section 4.2):
 		 *
 		 * Any LWS that occurs between field-content MAY be replaced with a
@@ -169,7 +170,7 @@ class Router {
 	 *
 	 * @param int $code HTTP status.
 	 */
-	protected function set_status( $code ) {
+	protected static function set_status( $code ) {
 		status_header( $code );
 	}
 
@@ -237,7 +238,7 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 *
+	 * 
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
@@ -262,15 +263,20 @@ class Router {
 
 		try {
 
-
 			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
-					'query'         => isset( $_GET['query'] ) ? $_GET['query'] : '',
-					'operationName' => isset( $_GET['operationName'] ) ? $_GET['operationName'] : '',
+					'query'         => isset( $_GET['query'] ) ? sanitize_text_field( $_GET['query'] ) : '',
+					'operationName' => isset( $_GET['operationName'] ) ? sanitize_text_field( $_GET['operationName'] ) : '',
 					'variables'     => isset( $_GET['variables'] ) ? $_GET['variables'] : '',
 				];
 
+				/**
+				 * Allow the data to be filtered
+				 *
+				 * @param array $data An array containing the pieces of the data of the GraphQL request
+				 */
+				$data = apply_filters( 'graphql_request_data', $data );
 
 				/**
 				 * If the variables are already formatted as an array use them.
@@ -280,18 +286,18 @@ class Router {
 				 * ?query=query getPosts($first:Int){posts(first:$first){edges{node{id}}}}&variables[first]=1
 				 */
 				if ( is_array( $data['variables'] ) ) {
-					$decoded_variables = $data['variables'];
+					$sanitized_variables = [];
+					foreach ( $data['variables'] as $key => $value ) {
+						$sanitized_variables[ $key ] = sanitize_text_field( $value );
+					}
+					$decoded_variables = $sanitized_variables;
 
-				/**
-				 * If the variables are not an array, let's attempt to decode them and convert them to an array for
-				 * use in the executor.
-				 */
+					/**
+					 * If the variables are not an array, let's attempt to decode them and convert them to an array for
+					 * use in the executor.
+					 */
 				} else {
 					$decoded_variables = json_decode( $data['variables'] );
-					if ( empty( $decoded_variables ) ) {
-						$variables         = preg_replace( '#(?<pre>\{|\[|,)\s*(?<key>(?:\w|_)+)\s*:#im', '$1"$2":', sanitize_text_field( $_GET['variables'] ) );
-						$decoded_variables = (array) json_decode( $variables );
-					}
 				}
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
@@ -313,7 +319,6 @@ class Router {
 				 */
 				$data = json_decode( self::get_raw_data(), true );
 			}
-
 
 			/**
 			 * If the $data is empty, catch an error.
@@ -342,7 +347,6 @@ class Router {
 			 * @since 0.0.5
 			 */
 			$graphql_results = do_graphql_request( $request, $operation_name, $variables );
-
 
 			/**
 			 * Ensure the $graphql_request is returned as a proper, populated array,
