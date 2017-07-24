@@ -16,7 +16,7 @@ use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
  * @package WPGraphQL\Type
  * @since   0.0.8
  */
-class RootMutationType extends WPObjectType {
+class RootMutationType extends WPObjectType {4
 
 	/**
 	 * Holds the $fields definition for the PluginType

@@ -316,38 +316,33 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				'values' => [
 					[
 						'name'        => 'AUTHOR',
-						'value'       => 'author',
+						'value'       => 'post_author',
 						'description' => __( 'Order by author', 'wp-graphql' ),
 					],
 					[
 						'name'        => 'TITLE',
-						'value'       => 'title',
+						'value'       => 'post_title',
 						'description' => __( 'Order by title', 'wp-graphql' ),
 					],
 					[
 						'name'        => 'SLUG',
-						'value'       => 'name',
+						'value'       => 'post_name',
 						'description' => __( 'Order by slug', 'wp-graphql' ),
 					],
 					[
 						'name'        => 'MODIFIED',
-						'value'       => 'modified',
+						'value'       => 'post_modified',
 						'description' => __( 'Order by last modified date', 'wp-graphql' ),
 					],
 					[
+						'name'        => 'DATE',
+						'value'       => 'post_date',
+						'description' => __( 'Order by publish date', 'wp-graphql' ),
+					],
+					[
 						'name'        => 'PARENT',
-						'value'       => 'parent',
+						'value'       => 'post_parent',
 						'description' => __( 'Order by parent ID', 'wp-graphql' ),
-					],
-					[
-						'name'        => 'COMMENT_COUNT',
-						'value'       => 'comment_count',
-						'description' => __( 'Order by number of comments', 'wp-graphql' ),
-					],
-					[
-						'name'        => 'RELEVANCE',
-						'value'       => 'relevance',
-						'description' => __( 'Order by search terms in the following order: First, whether the entire sentence is matched. Second, if all the search terms are within the titles. Third, if any of the search terms appear in the titles. And, fourth, if the full sentence appears in the contents.', 'wp-graphql' ),
 					],
 					[
 						'name'        => 'IN',

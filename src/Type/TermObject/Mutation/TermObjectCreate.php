@@ -46,13 +46,6 @@ class TermObjectCreate {
 				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
 
 					/**
-					 * Throw an exception if there's no input
-					 */
-					if ( ( empty( $taxonomy->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-						throw new \Exception( __( 'Mutation not processed. There was no input for the mutation or the taxonomy was invalid', 'wp-graphql' ) );
-					}
-
-					/**
 					 * Ensure the user can edit_terms
 					 */
 					if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
@@ -115,12 +108,9 @@ class TermObjectCreate {
 				},
 			] );
 
-			return self::$mutation[ $taxonomy->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
-
+		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ? self::$mutation[ $taxonomy->graphql_single_name ] : null;
 	}
 
 	/**

@@ -95,6 +95,14 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		] );
 
 		/**
+		 * Create a featured image and attach it to the post
+		 */
+		$featured_image_id = $this->createPostObject( [
+			'post_type' => 'attachment',
+		] );
+		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
+
+		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
@@ -126,12 +134,20 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 				}
 				enclosure
 				excerpt
+				status
 				link
 				menuOrder
 				postId
 				slug
 				toPing
+				pinged
+				modified
+				modifiedGmt
 				title
+				guid
+				featuredImage{
+					mediaItemId
+				}
 			}
 		}";
 
@@ -167,12 +183,20 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					],
 					'enclosure' => null,
 					'excerpt' => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
+					'status' => 'publish',
 					'link' => get_permalink( $post_id ),
 					'menuOrder' => null,
 					'postId' => $post_id,
 					'slug' => 'test-title',
 					'toPing' => null,
+					'pinged' => null,
+					'modified' => get_post( $post_id )->post_modified,
+					'modifiedGmt' => get_post( $post_id )->post_modified_gmt,
 					'title' => 'Test Title',
+					'guid' => get_post( $post_id )->guid,
+					'featuredImage' => [
+						'mediaItemId' => $featured_image_id,
+					],
 				],
 			],
 		];
@@ -346,10 +370,11 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 		// Create a comment and assign it to post.
 		$tag_id = $this->factory->tag->create( [
-			'name' => 'A tag',
+			'name' => 'Test Tag',
 		] );
 
-		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
+		wp_delete_object_term_relationships( $post_id, [ 'post_tag', 'category' ] );
+		wp_set_object_terms( $post_id, $tag_id, 'post_tag', true );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -371,6 +396,13 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 						}
 					}
 				}
+				tagNames:termNames(taxonomy:TAG)
+				terms{
+				  ...on tag{
+				    name
+				  }
+				}
+				termNames
 			}
 		}";
 
@@ -391,11 +423,18 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 							[
 								'node' => [
 									'tagId' => $tag_id,
-									'name' => 'A tag',
+									'name' => 'Test Tag',
 								],
 							],
 						],
 					],
+					'tagNames' => [ 'Test Tag' ],
+					'terms' => [
+						[
+							'name' => 'Test Tag',
+						],
+					],
+					'termNames' => [ 'Test Tag' ],
 				],
 			],
 		];

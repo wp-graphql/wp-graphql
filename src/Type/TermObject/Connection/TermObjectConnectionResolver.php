@@ -50,38 +50,34 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		$query_args['taxonomy'] = ! empty( self::$taxonomy ) ? self::$taxonomy : 'category';
 
 		/**
-		 * Pass the graphql $args to the WP_Query
+		 * Prepare for later use
 		 */
-		$query_args['graphql_args'] = $args;
+		$last  = ! empty( $args['last'] ) ? $args['last'] : null;
+		$first = ! empty( $args['first'] ) ? $args['first'] : null;
 
 		/**
-		 * Set the graphql_cursor_offset
+		 * Set the default parent for TermObject Queries to be "0" to only get top level terms
 		 */
-		$query_args['graphql_cursor_offset'] = self::get_offset( $args );
+		$query_args['parent'] = 0;
 
 		/**
-		 * Set the cursor compare direction
+		 * Set hide_empty as false by default
 		 */
-		if ( ! empty( $args['before'] ) ) {
-			$query_args['graphql_cursor_compare'] = '<';
-		} elseif ( ! empty( $args['after'] ) ) {
-			$query_args['graphql_cursor_compare'] = '>';
-		}
+		$query_args['hide_empty'] = false;
+
+		/**
+		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 */
+		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
 
 		/**
 		 * Orderby Name by default
 		 */
-		$query_args['orderby'] = 'count';
+		$query_args['orderby'] = 'name';
 
 		/**
-		 * Set the order
-		 */
-		$order               = ! empty( $query_args['graphql_cursor_compare'] ) && '>' === $query_args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
-		$query_args['order'] = $order;
-
-		/**
-		 * Take any of the $args that were part of the GraphQL query and map their GraphQL names to
-		 * the WP_Term_Query names to be used in the WP_Term_Query
+		 * Take any of the $args that were part of the GraphQL query and map their
+		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
 		 *
 		 * @since 0.0.5
 		 */
@@ -91,12 +87,32 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * Merge the default $query_args with the $args that were entered in the query.
+		 * Merge the default $query_args with the $args that were entered
+		 * in the query.
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = array_merge( $query_args, $input_fields );
+		if ( ! empty( $input_fields ) ) {
+			$query_args = array_merge( $query_args, $input_fields );
+		}
 
+		/**
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( empty( $query_args['order'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
+		}
+
+		/**
+		 * Set the graphql_cursor_offset
+		 */
+		$query_args['graphql_cursor_offset']  = self::get_offset( $args );
+		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		/**
+		 * Pass the graphql $args to the WP_Query
+		 */
+		$query_args['graphql_args'] = $args;
 
 		/**
 		 * If the source of the Query is a Post object, adjust the query args to only query terms
@@ -104,15 +120,29 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
-		if ( $source instanceof \WP_Post ) {
-			$query_args['object_ids'] = $source->ID;
+		if ( true === is_object( $source ) ) {
+			switch ( true ) {
+				case $source instanceof \WP_Post:
+					$query_args['object_ids'] = $source->ID;
+					break;
+				default:
+					break;
+			}
 		}
 
 		/**
-		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
+		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 *
+		 * @param array       $query_args array of query_args being passed to the
+		 * @param mixed       $source     source passed down from the resolve tree
+		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+		 * @param AppContext  $context    object passed down the resolve tree
+		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 *
+		 * @since 0.0.6
 		 */
-		$pagination_increase  = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
-		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info ) + $pagination_increase;
+		$query_args = apply_filters( 'graphql_term_object_connection_query_args', $query_args, $source, $args, $context, $info );
 
 		return $query_args;
 
@@ -127,7 +157,6 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	 */
 	public static function get_query( $query_args ) {
 		$query = new \WP_Term_Query( $query_args );
-
 		return $query;
 	}
 
@@ -160,12 +189,11 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 * Slice the array to the amount of items that were requested
 		 */
 		$items = array_slice( $items, 0, self::get_amount_requested( $args ) );
-		$items = array_reverse( $items );
 
 		/**
 		 * Get the edges from the $items
 		 */
-		$edges = self::get_edges( $items );
+		$edges = self::get_edges( $items, $source, $args, $context, $info );
 
 		/**
 		 * Find the first_edge and last_edge
@@ -200,8 +228,17 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public static function get_edges( $items ) {
+	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
+
+		/**
+		 * If we're doing backward pagination we want to reverse the array before
+		 * returning it to the edges
+		 */
+		if ( ! empty( $args['last'] ) ) {
+			$items = array_reverse( $items );
+		}
+
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
 				$edges[] = [
@@ -240,7 +277,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 			'descriptionLike'     => 'description__like',
 			'padCounts'           => 'pad_counts',
 			'childOf'             => 'child_of',
-			'cacheDomain'         => 'cacheDomain',
+			'cacheDomain'         => 'cache_domain',
 			'updateTermMetaCache' => 'update_term_meta_cache',
 		];
 

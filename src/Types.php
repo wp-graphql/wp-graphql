@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL;
 
 use GraphQL\Type\Definition\ListOfType;
@@ -22,6 +23,7 @@ use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
 use WPGraphQL\Type\Union\PostObjectUnionType;
+use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
 
@@ -96,7 +98,7 @@ class Types {
 	 * Stores the post object union type config
 	 *
 	 * @var PostObjectUnionType object $post_object_union
-	 * @since 0.0.6
+	 * @since  0.0.6
 	 * @access private
 	 */
 	private static $post_object_union;
@@ -141,7 +143,7 @@ class Types {
 	 * Stores the root mutation type object
 	 *
 	 * @var RootMutationType object $root_mutation
-	 * @since 0.0.6
+	 * @since  0.0.6
 	 * @access private
 	 */
 	private static $root_mutation;
@@ -181,6 +183,14 @@ class Types {
 	 * @access private
 	 */
 	private static $term_object;
+
+	/**
+	 * Stores the term object union definition
+	 *
+	 * @var TermObjectUnionType object $term_object_union
+	 * @access private
+	 */
+	private static $term_object_union;
 
 	/**
 	 * Stores the term object query args type
@@ -266,6 +276,7 @@ class Types {
 	 * This returns the definition for the PostObjectType
 	 *
 	 * @param string $post_type Name of the post type you want to retrieve the PostObjectType for
+	 *
 	 * @return PostObjectType object
 	 * @since  0.0.5
 	 * @access public
@@ -288,7 +299,7 @@ class Types {
 	 * This returns the definition for the PostObjectUnionType
 	 *
 	 * @return PostObjectUnionType object
-	 * @since 0.0.5
+	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function post_object_union() {
@@ -399,6 +410,7 @@ class Types {
 	 * This returns the definition for the TermObjectType
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to get the TermObjectType for
+	 *
 	 * @return TermObjectType object
 	 * @since  0.0.5
 	 * @access public
@@ -426,6 +438,16 @@ class Types {
 	 */
 	public static function term_object_query_args() {
 		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectConnectionArgs() );
+	}
+
+	/**
+	 * This returns the definition for the termObjectUnionType
+	 *
+	 * @return TermObjectUnionType object
+	 * @access public
+	 */
+	public static function term_object_union() {
+		return self::$term_object_union ? : ( self::$term_object_union = new TermObjectUnionType() );
 	}
 
 	/**
@@ -521,6 +543,7 @@ class Types {
 	 *
 	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
+	 *
 	 * @return \GraphQL\Type\Definition\ListOfType
 	 * @since  0.0.5
 	 * @access public
@@ -534,6 +557,7 @@ class Types {
 	 *
 	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
+	 *
 	 * @return \GraphQL\Type\Definition\NonNull
 	 * @since  0.0.5
 	 * @access public
@@ -567,6 +591,7 @@ class Types {
 					if ( is_string( $value ) ) {
 						$value = sanitize_text_field( $value );
 					}
+
 					return $value;
 				}, $value );
 			} elseif ( is_string( $value ) ) {

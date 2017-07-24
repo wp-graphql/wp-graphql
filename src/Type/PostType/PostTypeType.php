@@ -231,11 +231,26 @@ class PostTypeType extends WPObjectType {
 					],
 					'connectedTaxonomyNames' => [
 						'type' => Types::list_of( Types::string() ),
+						'args' => [
+							'taxonomies' => [
+								'type' => Types::list_of( Types::taxonomy_enum() ),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'defaultValue' => null,
+							],
+						],
 						'description' => __( 'A list of Taxonomies associated with the post type', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type_object, array $args, $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
 							$object_taxonomies = get_object_taxonomies( $post_type_object->name );
+
 							$taxonomy_names = [];
+
+							/**
+							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+							 * otherwise use the default $allowed_taxonomies passed down
+							 */
+							$allowed_taxonomies = ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ? $args['taxonomies'] : $allowed_taxonomies;
+
 							if ( ! empty( $object_taxonomies ) && is_array( $object_taxonomies ) ) {
 								foreach ( $object_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
@@ -248,9 +263,24 @@ class PostTypeType extends WPObjectType {
 					],
 					'connectedTaxonomies' => [
 						'type' => Types::list_of( Types::taxonomy() ),
+						'args' => [
+							'taxonomies' => [
+								'type' => Types::list_of( Types::taxonomy_enum() ),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'defaultValue' => null,
+							],
+						],
 						'description' => __( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
 						'resolve' => function( \WP_Post_Type $post_type_object, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+
 							$tax_objects = [];
+
+							/**
+							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+							 * otherwise use the default $allowed_taxonomies passed down
+							 */
+							$allowed_taxonomies = ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ? $args['taxonomies'] : $allowed_taxonomies;
+
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
@@ -263,17 +293,6 @@ class PostTypeType extends WPObjectType {
 						},
 					],
 				];
-
-				/**
-				 * Add connections for post_types that are registered to the taxonomy
-				 * @since 0.0.5
-				 */
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
-						$tax_object = get_taxonomy( $taxonomy );
-						$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object );
-					}
-				}
 
 
 				/**
