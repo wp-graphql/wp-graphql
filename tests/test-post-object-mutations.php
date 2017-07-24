@@ -111,6 +111,42 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * This processes a mutation to create a media item (attachment)
+	 *
+	 * @return array
+	 */
+	public function createMediaItemMutation() {
+
+		$mutation = '
+		mutation {
+		  mediaItem { 
+		    create(
+		      input: {
+		        clientMutationId: string
+		        title: string
+		        content: string
+		      }
+		    ) {
+		      clientMutationId
+		      mediaItem
+		    }
+		  }
+		}
+		';
+
+		$variables = wp_json_encode( [
+			'clientMutationId' => $this->client_mutation_id,
+			'title'            => $this->title,
+			'content'          => $this->content,
+		] );
+
+		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
+
+		return $actual;
+
+	}
+
 	public function testUpdatePageMutation() {
 
 		/**
@@ -359,6 +395,44 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 				],
 			],
 		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * This tests a createMediaItem mutation by an admin, to verify that a user WITH proper
+	 * capabilities can create a page
+	 */
+	public function testCreateMediaItemObjectByAdmin() {
+
+		/**
+		 * Set the current user as the admin role so we
+		 * can test the mutation
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual = $this->createMediaItemMutation();
+
+		/**
+		 * We're expecting to have createPage returned with a nested clientMutationId matching the
+		 * clientMutationId we sent through, as well as the title and content we passed through in the mutation
+		 */
+		$expected = [
+			'data' => [
+				'createMediaItem' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'page'             => [
+						'title'   => $this->title,
+						'content' => apply_filters( 'the_content', $this->content ),
+					],
+				],
+			],
+		];
+		var_dump( $actual );
 
 		$this->assertEquals( $expected, $actual );
 
