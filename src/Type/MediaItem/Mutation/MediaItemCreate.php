@@ -75,35 +75,107 @@ class MediaItemCreate {
 					}
 
 					/**
-					 * insert the post object and get the ID
+					 * insert the media item object and get the ID
 					 */
-					$post_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name );
+					$media_item_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name );
+
+//					var_dump( $media_item_args );
 
 					/**
-					 * Insert the post and retrieve the ID
+					 * Set the file name, whether it's a local file or from a URL
 					 */
-					$post_id = wp_insert_attachment( wp_slash( (array) $post_args ), true );
+					$file_name = basename( $media_item_args['path'] );
+
 
 					/**
-					 * Throw an exception if the post failed to create
+					 * Check if the download_url method exists and include it if not
+					 * This file also includes the wp_handle_sideload method
 					 */
-					if ( is_wp_error( $post_id ) ) {
-						$error_message = $post_id->get_error_message();
-						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
-						} else {
-							throw new \Exception( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
-						}
+					if ( ! function_exists( 'download_url' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/file.php' );
 					}
 
 					/**
-					 * If the $post_id is empty, we should throw an exception
+					 * If the file is from a local server, use wp_upload_bits before saving it to the uploads folder
 					 */
-					if ( empty( $post_id ) ) {
-						throw new \Exception( __( 'The object failed to create', 'wp-graphql' ) );
+					if ( 'false' === filter_var( $media_item_args['path'], FILTER_VALIDATE_URL ) ) {
+						$uploaded_file = wp_upload_bits( $file_name, null, file_get_contents( $media_item_args['path'] ) );
+						$uploaded_file_url = $uploaded_file['url'];
+					} else {
+						$uploaded_file_url = $media_item_args['path'];
 					}
 
-					// @TODO: Add updates for attachment post meta
+//					var_dump( $uploaded_file_url );
+
+					/**
+					 * URL data for the media item
+					 */
+					$timeout_seconds = 60;
+					$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
+
+//					var_dump( $temp_file );
+
+					/**
+					 * Build the file args for side loading
+					 */
+					$file_data = [
+						'name'     => $file_name,
+						'type'     => $media_item_args['mime_type'],
+						'tmp_name' => $temp_file,
+						'error'    => 0,
+						'size'     => filesize( $temp_file ),
+					];
+
+					/**
+					 * Tells WordPress to not look for the POST form fields that would normally be present as
+					 * we downloaded the file from a remote server, so there will be no form fields
+					 * The default is true
+					 */
+					$overrides = [
+						'test_form' => false,
+					];
+
+					/**
+					 * Insert the media item and retrieve the it's data
+					 */
+					$file = wp_handle_sideload( $file_data, $overrides );
+
+					$attachment = [
+						'post_mime_type' => $file['type'],
+						'post_title'     => basename( $file['file'] ),
+						'post_content'   => '',
+						'post_status'    => 'inherit',
+					];
+
+					/**
+					 * Insert the new media item
+					 * IF there was a post parent we could associate it with the third param in wp_insert_attachment
+					 */
+					$attachment_id = wp_insert_attachment( $attachment, $file['file'] );
+
+					/**
+					 * Generate the metadata for the attachment, and update the database record
+					 */
+					if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/image.php' );
+					}
+
+					$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
+
+//					$post_data = get_post( $attachment_id );
+//
+//					var_dump( $attachment_id );
+//					var_dump( $attachment_data );
+//					var_dump( $post_data );
+
+					wp_update_attachment_metadata( $attachment_id, $attachment_data );
+
+					// @TODO: Update post meta for media item with all other input fields
+					// Alt Text post meta field _wp_attachment_image_alt
+
+					return [
+						'id' => $attachment_id,
+					];
 
 				},
 
@@ -111,6 +183,6 @@ class MediaItemCreate {
 
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 	}
 }

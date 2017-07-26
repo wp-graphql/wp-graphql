@@ -40,6 +40,14 @@ class MediaItemMutation {
 					'type'        => Types::string(),
 					'description' => __( 'The date of the media item', 'wp-graphql' ),
 				],
+				'filePath'      => [
+					'type'        => Types::string(),
+					'description' => __( 'The file name of the media item', 'wp-graphql' ),
+				],
+				'fileType'      => [
+					'type'        => Types::mime_type_enum(),
+					'description' => __( 'The file type of the media item', 'wp-graphql' ),
+				],
 				'dateGmt'       => [
 					'type'        => Types::string(),
 					'description' => __( 'The date (in GMT zone) of the media item', 'wp-graphql' ),
@@ -153,6 +161,14 @@ class MediaItemMutation {
 
 		if ( ! empty( $input['description'] ) ) {
 			$insert_post_args['description'] = $input['description'];
+		}
+
+		if ( ! empty( $input['filePath'] ) ) {
+			$insert_post_args['path'] = $input['filePath'];
+		}
+
+		if ( ! empty( $input['fileType'] ) ) {
+			$insert_post_args['mime_type'] = $input['fileType'];
 		}
 
 		$parent_id_parts = ! empty( $input['parentID'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
