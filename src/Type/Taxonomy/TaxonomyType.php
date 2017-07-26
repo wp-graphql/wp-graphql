@@ -102,49 +102,49 @@ class TaxonomyType extends WPObjectType {
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to generate and allow a UI for managing terms in this taxonomy in the admin', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_ui ) ? $taxonomy->show_ui : null;
+							return ( true === $taxonomy->show_ui ) ? true : false;
 						},
 					],
 					'showInMenu' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to show the taxonomy in the admin menu', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_in_menu ) ? $taxonomy->show_in_menu : null;
+							return ( true === $taxonomy->show_in_menu ) ? true : false;
 						},
 					],
 					'showInNavMenus' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether the taxonomy is available for selection in navigation menus.', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_in_nav_menus ) ? $taxonomy->show_in_nav_menus : null;
+							return ( true === $taxonomy->show_in_nav_menus ) ? true : false;
 						},
 					],
 					'showCloud' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_tagcloud ) ? $taxonomy->show_tagcloud : null;
+							return ( true === $taxonomy->show_tagcloud ) ? true : false;
 						},
 					],
 					'showInQuickEdit' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to show the taxonomy in the quick/bulk edit panel.', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_in_quick_edit ) ? $taxonomy->show_in_quick_edit : null;
+							return ( true === $taxonomy->show_in_quick_edit ) ? true : false;
 						},
 					],
 					'showInAdminColumn' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to display a column for the taxonomy on its post type listing screens.', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_admin_column ) ? $taxonomy->show_admin_column : null;
+							return ( true === $taxonomy->show_admin_column ) ? true : false;
 						},
 					],
 					'showInRest' => [
 						'type' => Types::boolean(),
 						'description' => __( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_in_rest ) ? $taxonomy->show_in_rest : null;
+							return ( true === $taxonomy->show_in_rest ) ? true : false;
 						},
 					],
 					'restBase' => [
@@ -162,10 +162,10 @@ class TaxonomyType extends WPObjectType {
 						},
 					],
 					'showInGraphql' => [
-						'type' => Types::string(),
+						'type' => Types::boolean(),
 						'description' => __( 'Whether to add the post type to the GraphQL Schema.', 'wp-graphql' ),
 						'resolve' => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $taxonomy->show_in_graphql ) ? $taxonomy->show_in_graphql : null;
+							return ( true === $taxonomy->show_in_graphql ) ? true : false;
 						},
 					],
 					'graphqlSingleName' => [
