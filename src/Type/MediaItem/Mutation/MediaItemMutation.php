@@ -36,9 +36,25 @@ class MediaItemMutation {
 					'type'        => Types::id(),
 					'description' => __( 'The userId to assign as the author of the media item', 'wp-graphql' ),
 				],
+				'caption'       => [
+					'type'        => Types::string(),
+					'description' => __( 'The caption for the resource', 'wp-graphql' ),
+				],
+				'commentStatus' => [
+					'type'        => Types::string(),
+					'description' => __( 'The comment status for the media item', 'wp-graphql' ),
+				],
 				'date'          => [
 					'type'        => Types::string(),
 					'description' => __( 'The date of the media item', 'wp-graphql' ),
+				],
+				'dateGmt'       => [
+					'type'        => Types::string(),
+					'description' => __( 'The date (in GMT zone) of the media item', 'wp-graphql' ),
+				],
+				'description'   => [
+					'type'        => Types::string(),
+					'description' => __( 'Description of the media item', 'wp-graphql' ),
 				],
 				'filePath'      => [
 					'type'        => Types::string(),
@@ -48,37 +64,21 @@ class MediaItemMutation {
 					'type'        => Types::mime_type_enum(),
 					'description' => __( 'The file type of the media item', 'wp-graphql' ),
 				],
-				'dateGmt'       => [
-					'type'        => Types::string(),
-					'description' => __( 'The date (in GMT zone) of the media item', 'wp-graphql' ),
-				],
 				'slug'          => [
 					'type'        => Types::string(),
 					'description' => __( 'The slug of the object', 'wp-graphql' ),
 				],
 				'status'        => [
-					'type'        => Types::post_status_enum(),
+					'type'        => Types::media_item_status_enum(),
 					'description' => __( 'The status of the media item', 'wp-graphql' ),
 				],
 				'title'         => [
 					'type'        => Types::string(),
 					'description' => __( 'The title of the media item', 'wp-graphql' ),
 				],
-				'commentStatus' => [
-					'type'        => Types::string(),
-					'description' => __( 'The comment status for the media item', 'wp-graphql' ),
-				],
 				'pingStatus'    => [
 					'type'        => Types::string(),
 					'description' => __( 'The ping status for the media item', 'wp-graphql' ),
-				],
-				'caption'       => [
-					'type'        => Types::string(),
-					'description' => __( 'The caption for the resource', 'wp-graphql' ),
-				],
-				'description'   => [
-					'type'        => Types::string(),
-					'description' => __( 'Description of the media item', 'wp-graphql' ),
 				],
 				'parentId'      => [
 					'type'        => Types::id(),
@@ -101,11 +101,13 @@ class MediaItemMutation {
 	}
 
 	/**
-	 * This handles inserting the media item
+	 * This prepares the media item for insertion
 	 *
 	 * @param array         $input            The input for the mutation from the GraphQL request
 	 * @param \WP_Post_Type $post_type_object The post_type_object for the attachment/media item
 	 * @param string        $mutation_name    The name of the mutation being performed (create, update, etc.)
+	 *
+	 * @return array $media_item_args
 	 */
 	public static function prepare_media_item( $input, $post_type_object, $mutation_name ) {
 
@@ -115,24 +117,15 @@ class MediaItemMutation {
 		$insert_post_args['post_type'] = $post_type_object->name;
 
 		/**
-		 * Prepare the data for inserting the attachment/media item
-		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_attachment/
+		 * Prepare the data for inserting the media item (attachment)
+		 * NOTE: These are organized in the same order as: http://v2.wp-api.org/reference/media/#schema-meta
 		 */
-		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
-			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
-		}
-
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
 			$insert_post_args['post_date'] = strtotime( $input['date'] );
 		}
 
 		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
 			$insert_post_args['post_date_gmt'] = strtotime( $input['dateGmt'] );
-		}
-
-		if ( ! empty( $input['altText'] ) ) {
-			$insert_post_args['alt_text'] = $input['altText'];
 		}
 
 		if ( ! empty( $input['slug'] ) ) {
@@ -147,6 +140,11 @@ class MediaItemMutation {
 			$insert_post_args['post_title'] = $input['title'];
 		}
 
+		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
+		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
+			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
+		}
+
 		if ( ! empty( $input['commentStatus'] ) ) {
 			$insert_post_args['comment_status'] = $input['commentStatus'];
 		}
@@ -155,12 +153,16 @@ class MediaItemMutation {
 			$insert_post_args['ping_status'] = $input['pingStatus'];
 		}
 
+		if ( ! empty( $input['altText'] ) ) {
+			$insert_post_args['alt_text'] = $input['altText'];
+		}
+
 		if ( ! empty( $input['caption'] ) ) {
-			$insert_post_args['caption'] = $input['caption'];
+			$insert_post_args['post_excerpt'] = $input['caption'];
 		}
 
 		if ( ! empty( $input['description'] ) ) {
-			$insert_post_args['description'] = $input['description'];
+			$insert_post_args['post_content'] = $input['description'];
 		}
 
 		if ( ! empty( $input['filePath'] ) ) {
@@ -168,7 +170,7 @@ class MediaItemMutation {
 		}
 
 		if ( ! empty( $input['fileType'] ) ) {
-			$insert_post_args['mime_type'] = $input['fileType'];
+			$insert_post_args['post_mime_type'] = $input['fileType'];
 		}
 
 		$parent_id_parts = ! empty( $input['parentID'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;

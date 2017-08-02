@@ -39,7 +39,7 @@ class MediaItemCreate {
 
 				'name' => esc_html( $mutation_name ),
 				'description' => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				'inputFields' => MediaItemMutation::input_fields( $post_type_object ),
+				'inputFields' => self::input_fields( $post_type_object ),
 				'outputFields' => [
 					$post_type_object->graphql_single_name => [
 						'type' => Types::post_object( $post_type_object->name ),
@@ -79,8 +79,6 @@ class MediaItemCreate {
 					 */
 					$media_item_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name );
 
-//					var_dump( $media_item_args );
-
 					/**
 					 * Set the file name, whether it's a local file or from a URL
 					 */
@@ -105,15 +103,13 @@ class MediaItemCreate {
 						$uploaded_file_url = $media_item_args['path'];
 					}
 
-//					var_dump( $uploaded_file_url );
-
 					/**
 					 * URL data for the media item
 					 */
 					$timeout_seconds = 60;
 					$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
 
-//					var_dump( $temp_file );
+					update_option( 'hd_temp_file', $temp_file );
 
 					/**
 					 * Build the file args for side loading
@@ -136,22 +132,24 @@ class MediaItemCreate {
 					];
 
 					/**
-					 * Insert the media item and retrieve the it's data
+					 * Insert the media item and retrieve it's data
 					 */
 					$file = wp_handle_sideload( $file_data, $overrides );
 
-					$attachment = [
-						'post_mime_type' => $file['type'],
-						'post_title'     => basename( $file['file'] ),
-						'post_content'   => '',
-						'post_status'    => 'inherit',
-					];
+					/**
+					 * Build out the attachment (new media item)
+					 */
+					$attachment = self::prepare_media_item_args( $file, $media_item_args );
 
 					/**
-					 * Insert the new media item
-					 * IF there was a post parent we could associate it with the third param in wp_insert_attachment
+					 * Get the post parent and if it's not set, leave it empty
 					 */
-					$attachment_id = wp_insert_attachment( $attachment, $file['file'] );
+					$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? $media_item_args['post_parent'] : false );
+
+					/**
+					 * Insert the attachment (new media item)
+					 */
+					$attachment_id = wp_insert_attachment( $attachment, $file['file'], $attachment_parent_id );
 
 					/**
 					 * Generate the metadata for the attachment, and update the database record
@@ -162,16 +160,10 @@ class MediaItemCreate {
 
 					$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
 
-//					$post_data = get_post( $attachment_id );
-//
-//					var_dump( $attachment_id );
-//					var_dump( $attachment_data );
-//					var_dump( $post_data );
-
 					wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
-					// @TODO: Update post meta for media item with all other input fields
-					// Alt Text post meta field _wp_attachment_image_alt
+					// Update alt text post meta for media item
+					update_post_meta( $attachment_id, '_wp_attachment_image_alt', $media_item_args['alt_text'] );
 
 					return [
 						'id' => $attachment_id,
@@ -184,5 +176,73 @@ class MediaItemCreate {
 		endif; // End if().
 
 		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
+	}
+
+	/**
+	 * Prepares all of the arguments for the media item insertion (wp_insert_attachment method)
+	 *
+	 * @param array $file
+	 * @param array $media_item_args
+	 *
+	 * @return array $insert_attachment_args
+	 */
+	private static function prepare_media_item_args( $file, $media_item_args ) {
+		if ( ! empty( $media_item_args['post_date'] ) ) {
+			$insert_attachment_args['post_date'] = date("Y-m-d H:i:s", $media_item_args['post_date'] );
+		}
+
+		if ( ! empty( $media_item_args['post_date_gmt'] ) ) {
+			$insert_attachment_args['post_date_gmt'] = date("Y-m-d H:i:s", $media_item_args['post_date_gmt'] );
+		}
+
+		if ( ! empty( $media_item_args['post_name'] ) ) {
+			$insert_attachment_args['post_name'] = $media_item_args['post_name'];
+		}
+
+		$insert_attachment_args['post_status'] = ( ! empty( $media_item_args['post_status'] ) ? $media_item_args['post_status'] : 'inherit' );
+
+		$insert_attachment_args['post_title'] = ( ! empty( $media_item_args['post_title']  ) ? $media_item_args['post_title'] : basename( $file['file'] ) );
+
+		$insert_attachment_args['post_author'] = $media_item_args['post_author'];
+
+		if ( ! empty( $media_item_args['comment_status'] ) ) {
+			$insert_attachment_args['comment_status'] = $media_item_args['comment_status'];
+		}
+
+		if ( ! empty( $media_item_args['ping_status'] ) ) {
+			$insert_attachment_args['ping_status'] = $media_item_args['ping_status'];
+		}
+
+		$insert_attachment_args['post_excerpt'] = ( ! empty( $media_item_args['post_excerpt'] ) ? $media_item_args['post_excerpt'] : '' );
+
+		$insert_attachment_args['post_content'] = ( ! empty( $media_item_args['post_content'] ) ? $media_item_args['post_content'] : '' );
+
+		$insert_attachment_args['post_mime_type'] = ( ! empty( $media_item_args['post_mime_type'] ) ? $media_item_args['post_mime_type'] : $file['type'] );
+
+		return $insert_attachment_args;
+	}
+
+	/**
+	 * Add the filePath as a nonNull field for create mutations
+	 *
+	 * @param \WP_Post_Type $post_type_object
+	 *
+	 * @return array
+	 */
+	private static function input_fields( $post_type_object ) {
+
+		/**
+		 * Update mutations require an filePath to be passed
+		 */
+		return array_merge(
+			[
+				'filePath'      => [
+					'type'        => Types::non_null( Types::string() ),
+					'description' => __( 'The file name of the media item', 'wp-graphql' ),
+				],
+			],
+			MediaItemMutation::input_fields( $post_type_object )
+		);
+
 	}
 }
