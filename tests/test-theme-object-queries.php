@@ -69,6 +69,9 @@ class WP_GraphQL_Test_Theme_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		$screenshot = $actual['data']['theme']['screenshot'];
+		$this->assertTrue( is_string( $screenshot ) || null === $screenshot );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -80,7 +83,7 @@ class WP_GraphQL_Test_Theme_Object_Queries extends WP_UnitTestCase {
 					'description' => null,
 					'id' => $global_id,
 					'name' => 'Twenty Seventeen',
-					'screenshot' => 'http://example.org/wp-content/themes/twentyseventeen/screenshot.png',
+					'screenshot' => $screenshot,
 					'slug' => 'twentyseventeen',
 					'tags' => null,
 					'themeUri' => 'https://wordpress.org/themes/twentyseventeen/',

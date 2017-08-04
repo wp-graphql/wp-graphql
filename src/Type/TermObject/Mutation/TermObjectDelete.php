@@ -61,12 +61,8 @@ class TermObjectDelete {
 				],
 				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
 
-					if ( empty( $taxonomy->name ) || empty( $input ) || ! is_array( $input ) ) {
-						// Translators: The placeholder is the name of the taxonomy for the term being deleted
-						throw new \Exception( sprintf( __( 'Mutation not processed. There was no input for the mutation or the %1$s was invalid', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
-					}
-
 					$id_parts = Relay::fromGlobalId( $input['id'] );
+
 					if ( ! empty( $id_parts['id'] ) && absint( $id_parts['id'] ) ) {
 						$term_id = absint( $id_parts['id'] );
 					} else {
@@ -123,11 +119,9 @@ class TermObjectDelete {
 				},
 			]);
 
-			return self::$mutation[ $taxonomy->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ? self::$mutation[ $taxonomy->graphql_single_name ] : null;
 
 	}
 }
