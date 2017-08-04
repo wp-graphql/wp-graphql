@@ -30,55 +30,55 @@ class MediaItemMutation {
 			$input_fields = [
 				'altText'       => [
 					'type'        => Types::string(),
-					'description' => __( 'Alternative text to display when media item is not displayed', 'wp-graphql' ),
+					'description' => __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' ),
 				],
 				'authorId'      => [
 					'type'        => Types::id(),
-					'description' => __( 'The userId to assign as the author of the media item', 'wp-graphql' ),
+					'description' => __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' ),
 				],
 				'caption'       => [
 					'type'        => Types::string(),
-					'description' => __( 'The caption for the resource', 'wp-graphql' ),
+					'description' => __( 'The caption for the mediaItem', 'wp-graphql' ),
 				],
 				'commentStatus' => [
 					'type'        => Types::string(),
-					'description' => __( 'The comment status for the media item', 'wp-graphql' ),
+					'description' => __( 'The comment status for the mediaItem', 'wp-graphql' ),
 				],
 				'date'          => [
 					'type'        => Types::string(),
-					'description' => __( 'The date of the media item', 'wp-graphql' ),
+					'description' => __( 'The date of the mediaItem', 'wp-graphql' ),
 				],
 				'dateGmt'       => [
 					'type'        => Types::string(),
-					'description' => __( 'The date (in GMT zone) of the media item', 'wp-graphql' ),
+					'description' => __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' ),
 				],
 				'description'   => [
 					'type'        => Types::string(),
-					'description' => __( 'Description of the media item', 'wp-graphql' ),
+					'description' => __( 'Description of the mediaItem', 'wp-graphql' ),
 				],
 				'filePath'      => [
 					'type'        => Types::string(),
-					'description' => __( 'The file name of the media item', 'wp-graphql' ),
+					'description' => __( 'The file name of the mediaItem', 'wp-graphql' ),
 				],
 				'fileType'      => [
 					'type'        => Types::mime_type_enum(),
-					'description' => __( 'The file type of the media item', 'wp-graphql' ),
+					'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
 				],
 				'slug'          => [
 					'type'        => Types::string(),
-					'description' => __( 'The slug of the object', 'wp-graphql' ),
+					'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
 				],
 				'status'        => [
 					'type'        => Types::media_item_status_enum(),
-					'description' => __( 'The status of the media item', 'wp-graphql' ),
+					'description' => __( 'The status of the mediaItem', 'wp-graphql' ),
 				],
 				'title'         => [
 					'type'        => Types::string(),
-					'description' => __( 'The title of the media item', 'wp-graphql' ),
+					'description' => __( 'The title of the mediaItem', 'wp-graphql' ),
 				],
 				'pingStatus'    => [
 					'type'        => Types::string(),
-					'description' => __( 'The ping status for the media item', 'wp-graphql' ),
+					'description' => __( 'The ping status for the mediaItem', 'wp-graphql' ),
 				],
 				'parentId'      => [
 					'type'        => Types::id(),
@@ -87,10 +87,10 @@ class MediaItemMutation {
 			];
 
 			/**
-			 * Filters the mutation input fields for the media item
+			 * Filters the mutation input fields for the mediaItem
 			 *
 			 * @param array         $input_fields     The array of input fields
-			 * @param \WP_Post_Type $post_type_object The post_type object for the media item
+			 * @param \WP_Post_Type $post_type_object The post_type object for the mediaItem
 			 */
 			self::$input_fields[ $post_type_object->graphql_single_name ] = apply_filters( 'graphql_media_item_mutation_input_fields', $input_fields, $post_type_object );
 
@@ -104,28 +104,29 @@ class MediaItemMutation {
 	 * This prepares the media item for insertion
 	 *
 	 * @param array         $input            The input for the mutation from the GraphQL request
-	 * @param \WP_Post_Type $post_type_object The post_type_object for the attachment/media item
+	 * @param \WP_Post_Type $post_type_object The post_type_object for the mediaItem (attachment)
 	 * @param string        $mutation_name    The name of the mutation being performed (create, update, etc.)
+	 * @param mixed         $file             The mediaItem (attachment) file
 	 *
 	 * @return array $media_item_args
 	 */
-	public static function prepare_media_item( $input, $post_type_object, $mutation_name ) {
+	public static function prepare_media_item( $input, $post_type_object, $mutation_name, $file ) {
 
 		/**
-		 * Set the post_type for the insert
+		 * Set the post_type (attachment) for the insert
 		 */
 		$insert_post_args['post_type'] = $post_type_object->name;
 
 		/**
-		 * Prepare the data for inserting the media item (attachment)
+		 * Prepare the data for inserting the mediaItem
 		 * NOTE: These are organized in the same order as: http://v2.wp-api.org/reference/media/#schema-meta
 		 */
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
-			$insert_post_args['post_date'] = strtotime( $input['date'] );
+			$insert_post_args['post_date'] = date("Y-m-d H:i:s", strtotime( $input['date'] ) );
 		}
 
 		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
-			$insert_post_args['post_date_gmt'] = strtotime( $input['dateGmt'] );
+			$insert_post_args['post_date_gmt'] = date("Y-m-d H:i:s", strtotime( $input['dateGmt'] ) );
 		}
 
 		if ( ! empty( $input['slug'] ) ) {
@@ -134,9 +135,13 @@ class MediaItemMutation {
 
 		if ( ! empty( $input['status'] ) ) {
 			$insert_post_args['post_status'] = $input['status'];
+		} else {
+			$insert_post_args['post_status'] = 'inherit';
 		}
 
-		if ( ! empty( $input['title'] ) ) {
+		if ( ! empty( $file['file'] ) ) {
+			$insert_post_args['post_title'] = basename( $file['file'] );
+		} else if ( ! empty( $input['title'] ) ) {
 			$insert_post_args['post_title'] = $input['title'];
 		}
 
@@ -153,10 +158,6 @@ class MediaItemMutation {
 			$insert_post_args['ping_status'] = $input['pingStatus'];
 		}
 
-		if ( ! empty( $input['altText'] ) ) {
-			$insert_post_args['alt_text'] = $input['altText'];
-		}
-
 		if ( ! empty( $input['caption'] ) ) {
 			$insert_post_args['post_excerpt'] = $input['caption'];
 		}
@@ -165,32 +166,58 @@ class MediaItemMutation {
 			$insert_post_args['post_content'] = $input['description'];
 		}
 
-		if ( ! empty( $input['filePath'] ) ) {
-			$insert_post_args['path'] = $input['filePath'];
-		}
-
-		if ( ! empty( $input['fileType'] ) ) {
+		if ( ! empty( $file['type'] ) ) {
+			$insert_post_args['post_mime_type'] = $file['type'];
+		} else if ( ! empty( $input['fileType'] ) ) {
 			$insert_post_args['post_mime_type'] = $input['fileType'];
 		}
 
-		$parent_id_parts = ! empty( $input['parentID'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
-		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && is_int( $parent_id_parts['id'] ) ) {
+		$parent_id_parts = ( ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null );
+
+		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) ) {
 			$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
 		}
 
 		/**
 		 * Filter the $insert_post_args
 		 *
-		 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_post
+		 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_attachment
 		 * @param array         $input            The data that was entered as input for the mutation
 		 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
-		 * @param string        $mutation_type    The type of mutation being performed (create, edit, etc)
+		 * @param string        $mutation_type    The type of mutation being performed (create, update, delete)
 		 */
-		$insert_post_args = apply_filters( 'graphql_media_item_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
+		$insert_post_args = apply_filters( 'graphql_media_item_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
 		return $insert_post_args;
 	}
 
-	// @TODO: Add Meta fields for updating meta fields and set them down here (Media_sizes, meta, details, etc
+	/**
+	 * This updates additional data related to a mediaItem, such as postmeta.
+	 *
+	 * @param int           $media_item_id
+	 * @param array         $input
+	 * @param \WP_Post_Type $post_type_object
+	 * @param string        $mutation_name
+	 */
+	public static function update_additional_media_item_data( $media_item_id, $input, $post_type_object, $mutation_name ) {
+
+		/**
+		 * Update alt text postmeta for the mediaItem
+		 */
+		update_post_meta( $media_item_id, '_wp_attachment_image_alt', $input['altText'] );
+
+		/**
+		 * Run an action after the additional data has been updated. This is a great spot to hook into to
+		 * update additional data related to mediaItems, such as updating additional postmeta,
+		 * or sending emails to Jason. . .whatever you need to do with the mediaItem.
+		 *
+		 * @param int           $media_item_id    The ID of the mediaItem being mutated
+		 * @param array         $input            The input for the mutation
+		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
+		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 */
+		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name );
+
+	}
 
 }
