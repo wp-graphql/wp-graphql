@@ -151,6 +151,13 @@ NOTE: You'll want the test database to be a true test database, not a database w
 the tests will create new data and clear out data, and you don't want to cause issues with a database you're actually 
 using for projects.
 
+After you have added your tests and you are ready to make a PR, run the following:
+
+`rm -rf composer.lock`
+`rm -rf vendor`
+
+`composer install --no-dev`
+
 ## Shout Outs
 This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
 
