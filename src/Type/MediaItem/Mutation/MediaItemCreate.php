@@ -185,7 +185,7 @@ class MediaItemCreate {
 			[
 				'filePath'      => [
 					'type'        => Types::non_null( Types::string() ),
-					'description' => __( 'The file name of the mediaItem', 'wp-graphql' ),
+					'description' => __( 'The URL or file path to the mediaItem', 'wp-graphql' ),
 				],
 			],
 			MediaItemMutation::input_fields( $post_type_object )

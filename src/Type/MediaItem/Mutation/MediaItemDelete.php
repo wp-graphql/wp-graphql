@@ -85,7 +85,6 @@ class MediaItemDelete {
 				 * Stop now if a user isn't allowed to delete a mediaItem
 				 */
 				if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
-					// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 					throw new \Exception( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 				}
 

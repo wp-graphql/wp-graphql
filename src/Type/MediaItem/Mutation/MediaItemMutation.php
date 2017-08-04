@@ -139,10 +139,10 @@ class MediaItemMutation {
 			$insert_post_args['post_status'] = 'inherit';
 		}
 
-		if ( ! empty( $file['file'] ) ) {
-			$insert_post_args['post_title'] = basename( $file['file'] );
-		} else if ( ! empty( $input['title'] ) ) {
+		if ( ! empty( $input['title'] ) ) {
 			$insert_post_args['post_title'] = $input['title'];
+		} else if ( ! empty( $file['file'] ) ) {
+			$insert_post_args['post_title'] = basename( $file['file'] );
 		}
 
 		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;

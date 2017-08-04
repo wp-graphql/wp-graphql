@@ -75,11 +75,20 @@ class MediaItemUpdate {
 				/**
 				 * If the mutation is setting the author to be someone other than the user making the request
 				 * make sure they have permission to edit others posts
+				 *
+				 * Set the Author ID
+				 *
+				 * Check to see if it matches the current user, if not they need to be able to edit others posts
 				 */
-				$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-				if ( ! empty( $author_id_parts['id'] ) && get_current_user_id() !== $author_id_parts['id'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-					// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-					throw new \Exception( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+				if ( ! empty( $input['authorId'] ) ) {
+					$author_id_parts = Relay::fromGlobalId( $input['authorId'] );
+					$author_id = $author_id_parts['id'];
+				} else {
+					$author_id = $existing_media_item->post_author;
+				}
+
+				if ( get_current_user_id() !== $author_id && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+					throw new \Exception( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 				}
 
 				/**
