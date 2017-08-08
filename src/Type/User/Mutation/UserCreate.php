@@ -1,0 +1,95 @@
+<?php
+
+namespace WPGraphQL\Type\User\Mutation;
+
+use GraphQLRelay\Relay;
+use WPGraphQL\Types;
+
+class UserCreate {
+
+	private static $mutation;
+
+	public static function mutate() {
+
+		if ( empty( self::$mutation ) ) {
+
+			self::$mutation = Relay::mutationWithClientMutationId( [
+				'name' => 'createUser',
+				'description' => __( 'Create new user object', 'wp-graphql' ),
+				'inputFields' => self::input_fields(),
+				'outputFields' => [
+					'user' => [
+						'type' => Types::user(),
+						'resolve' => function( $payload ) {
+							return get_user_by( 'ID', $payload['id'] );
+						}
+					]
+				],
+				'mutateAndGetPayload' => function( $input ) {
+
+					if ( empty( $input ) || ! is_array( $input ) ) {
+						throw new \Exception( __( 'Mutation not processed. There was no input for the mutation.', 'wp-graphql' ) );
+					}
+
+					if ( ! current_user_can( 'create_users' ) ) {
+						throw new \Exception( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
+					}
+
+					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
+
+					$user_id = wp_insert_user( $user_args );
+
+					/**
+					 * Throw an exception if the post failed to create
+					 */
+					if ( is_wp_error( $user_id ) ) {
+						$error_message = $user_id->get_error_message();
+						if ( ! empty( $error_message ) ) {
+							throw new \Exception( esc_html( $error_message ) );
+						} else {
+							throw new \Exception( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+						}
+					}
+
+					/**
+					 * If the $post_id is empty, we should throw an exception
+					 */
+					if ( empty( $user_id ) ) {
+						throw new \Exception( __( 'The object failed to create', 'wp-graphql' ) );
+					}
+
+					/**
+					 * Return the new user ID
+					 */
+					return [
+						'id' => $user_id,
+					];
+
+				}
+
+			] );
+		}
+
+		return ( ! empty( self::$mutation ) ) ? self::$mutation : null;
+
+	}
+
+	/**
+	 * Add the email as a nonNull field for update mutations
+	 *
+	 * @return array
+	 */
+	private static function input_fields() {
+
+		$user_fields = UserMutation::input_fields();
+
+		/**
+		 * Create mutations require a login to be passed
+		 */
+		$user_fields['login']['type'] = Types::non_null( Types::string() );
+
+		return $user_fields;
+
+	}
+
+}
