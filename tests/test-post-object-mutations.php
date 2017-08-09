@@ -34,6 +34,10 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 			'role' => 'author',
 		] );
 
+		$this->author = $this->factory->user->create( [
+			'role' => 'author',
+		] );
+
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );

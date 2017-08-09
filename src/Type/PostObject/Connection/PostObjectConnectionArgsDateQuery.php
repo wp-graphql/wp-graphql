@@ -102,13 +102,11 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 				],
 				'inclusive' => [
 					'type' => Types::boolean(),
-					'description' => __( 'For after/before, whether exact value should be
-												matched or not', 'wp-graphql' ),
+					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
 				],
 				'compare' => [
 					'type' => Types::string(),
-					'description' => __( 'For after/before, whether exact value should be
-												matched or not', 'wp-graphql' ),
+					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
 				],
 				'column' => [
 					'type' => self::column_enum(),

@@ -120,12 +120,19 @@ class TermObjectMutation {
 			$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
 
 			/**
-			 * If the term
+			 * Ensure that the ID passed in is a valid GlobalID
 			 */
-			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && is_int( $parent_id_parts['id'] ) ) {
+			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) ) {
+
+				/**
+				 * Get the Term ID from the global ID
+				 */
 				$parent_id = $parent_id_parts['id'];
 
-				$parent_term = get_term( absint( $parent_id, $taxonomy->name ) );
+				/**
+				 * Ensure there's actually a parent term to be associated with
+				 */
+				$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
 				if ( ! $parent_term || is_wp_error( $parent_term ) ) {
 					throw new \Exception( __( 'The parent does not exist', 'wp-graphql' ) );

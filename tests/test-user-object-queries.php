@@ -2,8 +2,9 @@
 /**
  * WPGraphQL Test User Object Queries
  * This tests user queries (singular and plural) checking to see if the available fields return the expected response
+ *
  * @package WPGraphQL
- * @since 0.0.5
+ * @since   0.0.5
  */
 
 /**
@@ -12,6 +13,7 @@
 class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 	/**
 	 * This function is run before each method
+	 *
 	 * @since 0.0.5
 	 */
 	public function setUp() {
@@ -23,6 +25,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 
 	/**
 	 * Runs after each method.
+	 *
 	 * @since 0.0.5
 	 */
 	public function tearDown() {
@@ -73,7 +76,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 				'user_email' => 'test@test.com',
 			]
 		);
-		$user = get_user_by( 'id', $user_id );
+		$user    = get_user_by( 'id', $user_id );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -148,38 +151,38 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'user' => [
-					'avatar' => [
+					'avatar'            => [
 						'size' => 96,
 					],
-					'capKey' => 'wptests_capabilities',
-					'capabilities' => [ 'read', 'level_0', 'subscriber' ],
-					'comments' => [
+					'capKey'            => 'wptests_capabilities',
+					'capabilities'      => [ 'read', 'level_0', 'subscriber' ],
+					'comments'          => [
 						'edges' => [],
 					],
-					'description' => null,
-					'email' => 'test@test.com',
+					'description'       => null,
+					'email'             => 'test@test.com',
 					'extraCapabilities' => [ 'read', 'level_0', 'subscriber' ],
-					'firstName' => null,
-					'id' => $global_id,
-					'last_name' => null,
-					'locale' => 'en_US',
-					'mediaItems' => [
+					'firstName'         => null,
+					'id'                => $global_id,
+					'last_name'         => null,
+					'locale'            => 'en_US',
+					'mediaItems'        => [
 						'edges' => [],
 					],
-					'name' => $user->data->display_name,
-					'nickname' => $user->nickname,
-					'pages' => [
+					'name'              => $user->data->display_name,
+					'nickname'          => $user->nickname,
+					'pages'             => [
 						'edges' => [],
 					],
-					'posts' => [
+					'posts'             => [
 						'edges' => [],
 					],
-					'registeredDate' => date( 'c', strtotime( $user->user_registered ) ),
-					'roles' => [ 'subscriber' ],
-					'slug' => $user->data->user_nicename,
-					'url' => null,
-					'userId' => $user_id,
-					'username' => $user->data->user_login,
+					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
+					'roles'             => [ 'subscriber' ],
+					'slug'              => $user->data->user_nicename,
+					'url'               => null,
+					'userId'            => $user_id,
+					'username'          => $user->data->user_login,
 				],
 			],
 		];
@@ -475,19 +478,19 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
+			'data'   => [
 				'user' => null,
 			],
 			'errors' => [
 				[
-					'message' => 'No user was found with ID doesNotExist',
+					'message'   => 'No user was found with ID doesNotExist',
 					'locations' => [
 						[
-							'line' => 3,
+							'line'   => 3,
 							'column' => 4,
 						],
 					],
-					'path' => [
+					'path'      => [
 						'user',
 					],
 				],
@@ -495,5 +498,127 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function testUsersQuery() {
+
+		/**
+		 * Create a user
+		 */
+		$user_id = $this->createUserObject(
+			[
+				'user_email' => 'test@test.com',
+			]
+		);
+
+		/**
+		 * Create the global ID based on the user_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = '
+		query {
+			users(first:1) {
+				edges{
+				  node{
+				    id
+				    userId
+				  }
+				}
+			}
+		}';
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'users' => [
+					'edges' => [
+						[
+							'node' => [
+								'id' => $global_id,
+								'userId' => $user_id,
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testPageInfoQuery() {
+
+		/**
+		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
+		 */
+		$this->factory->user->create([
+			'role' => 'administrator',
+		]);
+
+		$this->factory->user->create([
+			'role' => 'administrator',
+		]);
+
+		$this->factory->user->create([
+			'role' => 'subscriber',
+		]);
+
+		$query = '
+		query{
+		  users(first:2 where: {role:ADMINISTRATOR}){
+		    pageInfo{
+		      hasNextPage
+		    }
+		    edges{
+		      node{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+		$this->assertCount( 2, $actual['data']['users']['edges'] );
+
+		$query = '
+		query{
+		  users(first:2 where: {role:SUBSCRIBER}){
+		    pageInfo{
+		      hasNextPage
+		    }
+		    edges{
+		      node{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Now let's make sure the subscriber role query worked
+		 */
+		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+		$this->assertCount( 1, $actual['data']['users']['edges'] );
+
 	}
 }

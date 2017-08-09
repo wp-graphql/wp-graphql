@@ -71,14 +71,6 @@ class PostObjectDelete {
 				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
 
 					/**
-					 * Throw an exception if there's no input
-					 */
-					if ( ( empty( $post_type_object->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-						// Translators: The placeholder is the name of the post type for the object being deleted
-						throw new \Exception( sprintf( __( 'Mutation not processed. There was no input for the mutation or the %1$s was invalid', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
-					}
-
-					/**
 					 * Get the ID from the global ID
 					 */
 					$id_parts = Relay::fromGlobalId( $input['id'] );
@@ -91,7 +83,9 @@ class PostObjectDelete {
 						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
-					// Check if we should force delete or not
+					/**
+					 * Check if we should force delete or not
+					 */
 					$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
 
 					/**
@@ -103,28 +97,17 @@ class PostObjectDelete {
 					 * If the post is already in the trash, and the forceDelete input was not passed,
 					 * don't remove from the trash
 					 */
-					if ( true !== $force_delete && 'trash' === $post_before_delete->post_status ) {
-						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
-					}
-
-					/**
-					 * If there's no post with the input ID, or the post with that ID is of a different post_type
-					 */
-					if ( empty( $post_before_delete ) || $post_before_delete->post_type !== $post_type_object->name ) {
-						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'No %1$s with id %2$s exists', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
+					if ( 'trash' === $post_before_delete->post_status ) {
+						if ( true !== $force_delete ) {
+							// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+							throw new \Exception( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
+						}
 					}
 
 					/**
 					 * Delete the post
 					 */
 					$deleted = wp_delete_post( $id_parts['id'], $force_delete );
-
-					if ( empty( $deleted ) ) {
-						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'The %1$s with id %2$s was not deleted', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
-					}
 
 					/**
 					 * If the post was moved to the trash, spoof the object's status before returning it
@@ -141,11 +124,9 @@ class PostObjectDelete {
 				},
 			] );
 
-			return self::$mutation[ $post_type_object->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 
 	}
 

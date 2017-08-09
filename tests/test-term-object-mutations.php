@@ -150,6 +150,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		    }
 		  ) {
 		    clientMutationId
+		    deletedId
 		    tag {
 		        id
 		        name
@@ -291,6 +292,18 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		/**
 		 * Delete the tag
 		 */
+		wp_set_current_user( $this->subscriber );
+		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
+
+		/**
+		 * A subscriber shouldn't be able to delete, so we should get an error
+		 */
+		$this->assertArrayHasKey( 'errors', $deleted_category );
+
+		/**
+		 * Set the user back to admin and delete again
+		 */
+		wp_set_current_user( $this->admin );
 		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
 
 		/**
@@ -302,6 +315,134 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		$this->assertEquals( $id_parts['type'], 'category' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $deleted_category['data']['deleteCategory']['category']['name'], $this->category_name );
+	}
+
+	public function testCreateTagThatAlreadyExists() {
+
+		/**
+		 * Set the user as the admin
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual1 = $this->createCategoryMutation();
+		$actual2 = $this->createCategoryMutation();
+
+		/**
+		 * Create the term
+		 */
+		$this->assertNotEmpty( $actual1 );
+
+		/**
+		 * Make sure there were no errors
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual1 );
+		$this->assertArrayHasKey( 'data', $actual1 );
+
+		/**
+		 * Try to create the exact same term
+		 */
+		$this->assertNotEmpty( $actual2 );
+
+		/**
+		 * Now we should expect an error
+		 */
+		$this->assertArrayHasKey( 'errors', $actual2 );
+		$this->assertArrayHasKey( 'data', $actual2 );
+
+	}
+
+	public function testTermIdNotReturningAfterCreate() {
+
+		/**
+		 * Filter the term response to simulate a failure with the response of a term creation mutation
+		 */
+		add_filter( 'term_id_filter', '__return_false' );
+
+		/**
+		 * Set the user as the admin
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Run the mutation
+		 */
+		$actual = $this->createCategoryMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$actual = $this->deleteTagMutation( 'someInvalidId' );
+
+		/**
+		 * We should get an error because the ID is invalid
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		/**
+		 * Cleanup by removing the filter
+		 */
+		remove_filter( 'term_id_filter', '__return_false' );
+
+		/**
+		 * Now let's filter to mimick the response returning a WP_Error to make sure we also respond with an error
+		 */
+		add_filter( 'get_post_tag', function() {
+			return new \WP_Error( 'this is a test error' );
+		} );
+
+		/**
+		 * Create a term
+		 */
+		$term = $this->factory->term->create([
+			'taxonomy' => 'post_tag',
+			'name' => 'some random name',
+		]);
+
+		/**
+		 * Now try and delete it.
+		 */
+		$id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $term );
+		$actual = $this->deleteTagMutation( $id );
+
+		/**
+		 * Assert that we have an error because the response to the deletion responded with a WP_Error
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testCreateTagWithNoName() {
+
+		$mutation = '
+		mutation createTag( $clientMutationId:String!, $name:String!, $description:String ) {
+		  createTag(
+		    input: {
+			  clientMutationId: $clientMutationId
+			    name: $name
+				description: $description
+			}
+		  ) {
+			clientMutationId
+			tag {
+			  id
+			  name
+			  description
+			}
+		  }
+		}
+		';
+
+		$variables = wp_json_encode([
+			'clientMutationId' => $this->client_mutation_id,
+			'description' => $this->description,
+		]);
+
+		$actual = do_graphql_request( $mutation, 'createTag', $variables );
+
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+
 	}
 
 	/**
@@ -338,10 +479,20 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		$this->assertNotEmpty( $try_to_update_category['errors'] );
 
 		/**
+		 * Try to update the tag as a user with improper permissions
+		 */
+		wp_set_current_user( $this->subscriber );
+		$try_to_delete_category = $this->updateTagMutation( $actual['data']['createTag']['tag']['id'] );
+		$this->assertNotEmpty( $try_to_delete_category['errors'] );
+		wp_set_current_user( $this->admin );
+
+		/**
 		 * Try to update a Category using a Tag ID, which should return errors
 		 */
-		$try_to_delete_category = $this->deleteCategoryMutation( $actual['data']['createTag']['tag']['id'] );
+		$try_to_delete_category = $this->updateCategoryMutation( $actual['data']['createTag']['tag']['id'] );
 		$this->assertNotEmpty( $try_to_delete_category['errors'] );
+
+
 
 		/**
 		 * Run the update mutation with the ID of the created tag
@@ -369,6 +520,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		 */
 		$this->assertNotEmpty( $deleted_tag );
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['clientMutationId'], $this->client_mutation_id );
+		$this->assertNotEmpty( $deleted_tag['data']['deleteTag']['deletedId'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deleteTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'post_tag' );
 		$this->assertNotEmpty( $id_parts['id'] );
@@ -423,6 +575,44 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		 * subscriber
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testUpdateCategoryParent() {
+
+		wp_set_current_user( $this->admin );
+
+		$parent_term_id = $this->factory->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Parent Category',
+		]);
+
+		$query = '
+		mutation createChildCategory($input: createCategoryInput!) {
+		  createCategory(input: $input) {
+		    category {
+		      parent{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_term_id );
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'someId',
+				'name' => 'Child Category',
+				'parentId' => $parent_id,
+			],
+		];
+
+		$actual = do_graphql_request( $query, 'createChildCategory', $variables );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['id'] );
 
 	}
 

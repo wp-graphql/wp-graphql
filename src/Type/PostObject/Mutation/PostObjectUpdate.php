@@ -109,19 +109,7 @@ class PostObjectUpdate {
 					 * Throw an exception if the post failed to update
 					 */
 					if ( is_wp_error( $post_id ) ) {
-						$error_message = $post_id->get_error_message();
-						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
-						} else {
-							throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
-						}
-					}
-
-					/**
-					 * If the $post_id is empty, we should throw an exception
-					 */
-					if ( empty( $post_id ) ) {
-						throw new \Exception( __( 'The object failed to update', 'wp-graphql' ) );
+						throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
 					}
 
 					/**
@@ -153,11 +141,9 @@ class PostObjectUpdate {
 				},
 			]);
 
-			return self::$mutation[ $post_type_object->graphql_single_name ];
-
 		endif; // End if().
 
-		return self::$mutation;
+		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 
 	}
 

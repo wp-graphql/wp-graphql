@@ -53,7 +53,7 @@ class TaxonomyEnumType extends WPEnumType {
 			 */
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				self::$values[ $taxonomy ] = [
-					'name'  => strtoupper( $taxonomy ),
+					'name'  => strtoupper( get_taxonomy( $taxonomy )->graphql_single_name ),
 					'value' => $taxonomy,
 				];
 			}

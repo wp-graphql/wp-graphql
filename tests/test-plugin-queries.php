@@ -62,22 +62,15 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		$expected = [
-			'data' => [
-				'plugins' => [
-					'edges' => [
-						[
-							'node' => [
-								'id' => 'cGx1Z2luOkhlbGxvIERvbGx5',
-								'name' => 'Hello Dolly',
-							],
-						],
-					],
-				],
-			],
-		];
+		/**
+		 * We don't really care what the specifics are because the default plugins could change at any time
+		 * and we don't care to maintain the exact match, we just want to make sure we are
+		 * properly getting a theme back in the query
+		 */
+		$this->assertNotEmpty( $actual['data']['plugins']['edges'] );
+		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['id'] );
+		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['name'] );
 
-		$this->assertEquals( $expected, $actual );
 
 	}
 
@@ -92,22 +85,46 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 		  plugin(id: "cGx1Z2luOkhlbGxvIERvbGx5"){
 		    id
 		    name
+		    author
+		    authorUri
+		    description
+		    name
+		    pluginUri
+		    version
 		  }
 		}
 		';
 
 		$actual = do_graphql_request( $query );
 
-		$expected = [
-			'data' => [
-				'plugin' => [
-					'id' => 'cGx1Z2luOkhlbGxvIERvbGx5',
-					'name' => 'Hello Dolly',
-				],
-			],
-		];
+		/**
+		 * We don't really care what the specifics are because the default plugins could change at any time
+		 * and we don't care to maintain the exact match, we just want to make sure we are
+		 * properly getting a theme back in the query
+		 */
+		$this->assertNotEmpty( $actual['data']['plugin']['id'] );
+		$this->assertNotEmpty( $actual['data']['plugin']['name'] );
 
-		$this->assertEquals( $expected, $actual );
+		$plugin_id = $actual['data']['plugin']['id'];
+		$this->assertTrue( ( is_string( $plugin_id ) || null === $plugin_id ) );
+
+		$plugin_name = $actual['data']['plugin']['name'];
+		$this->assertTrue( ( is_string( $plugin_name ) || null === $plugin_name ) );
+
+		$plugin_author = $actual['data']['plugin']['author'];
+		$this->assertTrue( ( is_string( $plugin_author ) || null === $plugin_author ) );
+
+		$plugin_author_uri = $actual['data']['plugin']['authorUri'];
+		$this->assertTrue( ( is_string( $plugin_author_uri ) || null === $plugin_author_uri ) );
+
+		$plugin_description = $actual['data']['plugin']['description'];
+		$this->assertTrue( ( is_string( $plugin_description ) || null === $plugin_description ) );
+
+		$plugin_uri = $actual['data']['plugin']['pluginUri'];
+		$this->assertTrue( ( is_string( $plugin_uri ) || null === $plugin_uri ) );
+
+		$plugin_version = $actual['data']['plugin']['version'];
+		$this->assertTrue( ( is_float( $plugin_version ) || null === $plugin_version ) );
 
 	}
 
