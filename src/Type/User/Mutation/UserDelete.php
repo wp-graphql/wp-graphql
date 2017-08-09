@@ -12,6 +12,7 @@ class UserDelete {
 	public static function mutate() {
 
 		if ( empty( self::$mutation ) ) {
+
 			self::$mutation = Relay::mutationWithClientMutationId( [
 				'name' => 'deleteUser',
 				'description' => __( 'Delete a user object', 'wp-graphql' ),
@@ -35,7 +36,8 @@ class UserDelete {
 						}
 					],
 					'user' => [
-						'types' => Types::user(),
+						'type' => Types::user(),
+						'description' => __( 'The user object for the user you are trying to delete', 'wp-graphql' ),
 						'resolve' => function( $payload ) {
 							$deleted = (object) $payload['userObject'];
 							return ( ! empty( $deleted ) ) ? $deleted : null;
@@ -70,6 +72,16 @@ class UserDelete {
 					 */
 					$reassign_id_parts = ( ! empty( $input['reassignId'] ) ) ? Relay::fromGlobalId( $input['reassignId'] ) : null;
 					$reassign_id = ( ! empty( $reassign_id_parts ) ) ? absint( $reassign_id_parts['id'] ) : null;
+
+					/**
+					 * If the wp_delete_user doesn't exist yet, load the file in which it is
+					 * registered so it is available in this context. I think we need to
+					 * load this manually here because WordPress only uses this
+					 * function on the user edit screen normally.
+					 */
+					if ( ! function_exists( 'wp_delete_user' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/user.php' );
+					}
 
 					$deleted_user = wp_delete_user( absint( $id_parts['id'] ), $reassign_id );
 
