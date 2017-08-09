@@ -122,11 +122,11 @@ class MediaItemMutation {
 		 * NOTE: These are organized in the same order as: http://v2.wp-api.org/reference/media/#schema-meta
 		 */
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
-			$insert_post_args['post_date'] = date("Y-m-d H:i:s", strtotime( $input['date'] ) );
+			$insert_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
 		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
-			$insert_post_args['post_date_gmt'] = date("Y-m-d H:i:s", strtotime( $input['dateGmt'] ) );
+			$insert_post_args['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $input['dateGmt'] ) );
 		}
 
 		if ( ! empty( $input['slug'] ) ) {
@@ -141,7 +141,7 @@ class MediaItemMutation {
 
 		if ( ! empty( $input['title'] ) ) {
 			$insert_post_args['post_title'] = $input['title'];
-		} else if ( ! empty( $file['file'] ) ) {
+		} elseif ( ! empty( $file['file'] ) ) {
 			$insert_post_args['post_title'] = basename( $file['file'] );
 		}
 
@@ -168,7 +168,7 @@ class MediaItemMutation {
 
 		if ( ! empty( $file['type'] ) ) {
 			$insert_post_args['post_mime_type'] = $file['type'];
-		} else if ( ! empty( $input['fileType'] ) ) {
+		} elseif ( ! empty( $input['fileType'] ) ) {
 			$insert_post_args['post_mime_type'] = $input['fileType'];
 		}
 

@@ -35,12 +35,10 @@ class MediaItemDelete {
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name'                => esc_html( $mutation_name ),
-			// translators: The placeholder is the name of the object type
 			'description'         => __( 'Delete mediaItem objects. By default mediaItem objects will be moved to the trash unless the forceDelete is used', 'wp-graphql' ),
 			'inputFields'         => [
 				'id'          => [
 					'type'        => Types::non_null( Types::id() ),
-					// translators: The placeholder is the name of the post's post_type being deleted
 					'description' => __( 'The ID of the mediaItem to delete', 'wp-graphql' ),
 				],
 				'forceDelete' => [
@@ -113,6 +111,13 @@ class MediaItemDelete {
 				 * Delete the mediaItem
 				 */
 				$deleted = wp_delete_attachment( $id_parts['id'], $force_delete );
+				/**
+				 * Handle the error from wp_delete_attachment if it occurs
+				 */
+				if ( false === $deleted ) {
+					throw new \Exception( __( 'Sorry, the mediaItem failed to delete', 'wp-graphql' ) );
+				}
+
 
 				/**
 				 * If the post was moved to the trash, spoof the object's status before returning it
