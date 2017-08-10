@@ -5,10 +5,27 @@ namespace WPGraphQL\Type\User\Mutation;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
+/**
+ * Class UserCreate
+ *
+ * @package WPGraphQL\Type\User\Mutation
+ */
 class UserCreate {
 
+	/**
+	 * Stores the user create mutation
+	 *
+	 * @var array $mutation
+	 * @access private
+	 */
 	private static $mutation;
 
+	/**
+	 * Process the user creat mutation
+	 *
+	 * @return array|null
+	 * @access public
+	 */
 	public static function mutate() {
 
 		if ( empty( self::$mutation ) ) {
@@ -35,8 +52,14 @@ class UserCreate {
 						throw new \Exception( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
 					}
 
+					/**
+					 * Map all of the args from GQL to WP friendly
+					 */
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
 
+					/**
+					 * Create the new user
+					 */
 					$user_id = wp_insert_user( $user_args );
 
 					/**

@@ -4,10 +4,27 @@ namespace WPGraphQL\Type\User\Mutation;
 
 use WPGraphQL\Types;
 
+/**
+ * Class UserMutation
+ *
+ * @package WPGraphQL\Type\User\Mutation
+ */
 class UserMutation {
 
+	/**
+	 * Stores the input fields static definition
+	 *
+	 * @var array $input_fields
+	 * @access private
+	 */
 	private static $input_fields = [];
 
+	/**
+	 * Defines the accepted input arguments
+	 *
+	 * @return array|null
+	 * @access public
+	 */
 	public static function input_fields() {
 
 		if ( empty( self::$input_fields ) ) {
@@ -83,6 +100,11 @@ class UserMutation {
 				],
 			];
 
+			/**
+			 * Filters all of the fields available for input
+			 *
+			 * @var array $input_fields
+			 */
 			self::$input_fields = apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
 
 		}
@@ -91,6 +113,14 @@ class UserMutation {
 
 	}
 
+	/**
+	 * Maps the GraphQL input to a format that the WordPress functions can use
+	 *
+	 * @param array $input Data coming from the GraphQL mutation query input
+	 * @param string $mutation_name Name of the mutation being performed
+	 * @access public
+	 * @return array
+	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
 
 		$insert_user_args = [];
@@ -163,6 +193,13 @@ class UserMutation {
 			$insert_user_args['locale'] = $input['locale'];
 		}
 
+		/**
+		 * Filters the mappings for input to arguments
+		 *
+		 * @var array  $insert_user_args The arguments to ultimately be passed to the WordPress function
+		 * @var array  $input            Input data from the GraphQL mutation
+		 * @var string $mutation_name    What user mutation is being performed for context
+		 */
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
 		return $insert_user_args;

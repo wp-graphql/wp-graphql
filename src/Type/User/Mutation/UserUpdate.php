@@ -5,10 +5,26 @@ namespace WPGraphQL\Type\User\Mutation;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
+/**
+ * Class UserUpdate
+ *
+ * @package WPGraphQL\Type\User\Mutation
+ */
 class UserUpdate {
 
+	/**
+	 * Stores the user update mutation
+	 *
+	 * @var array $mutation
+	 */
 	private static $mutation;
 
+	/**
+	 * Process the user update mutation
+	 *
+	 * @return array|null
+	 * @access public
+	 */
 	public static function mutate() {
 
 		if ( empty( self::$mutation ) ) {
@@ -43,10 +59,16 @@ class UserUpdate {
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
 					$user_args['ID'] = absint( $id_parts['id'] );
 
+					/**
+					 * If the query is trying to modify the users role, but doesn't have permissions to do so, throw an exception
+					 */
 					if ( ! current_user_can( 'promote_users' ) && isset( $user_args['role'] ) ) {
 						throw new \Exception( __( 'You do not have the appropriate capabilities to change this users role.', 'wp-graphql' ) );
 					}
 
+					/**
+					 * Update the user
+					 */
 					$user_id = wp_update_user( $user_args );
 
 					/**

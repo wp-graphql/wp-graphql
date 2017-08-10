@@ -5,10 +5,27 @@ namespace WPGraphQL\Type\User\Mutation;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
+/**
+ * Class UserDelete
+ *
+ * @package WPGraphQL\Type\User\Mutation
+ */
 class UserDelete {
 
+	/**
+	 * Stores the user delete mutation
+	 *
+	 * @var array $mutation
+	 * @access private
+	 */
 	private static $mutation;
 
+	/**
+	 * Processes the user delete mutation
+	 *
+	 * @return array|null
+	 * @access public
+	 */
 	public static function mutate() {
 
 		if ( empty( self::$mutation ) ) {
