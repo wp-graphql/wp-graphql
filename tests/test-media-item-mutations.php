@@ -28,13 +28,28 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	public $pingStatus;
 	public $parentId;
 	public $clientMutationId;
+	public $updated_title;
+	public $updated_description;
+	public $updated_altText;
+	public $updated_caption;
+	public $updated_commentStatus;
+	public $updated_date;
+	public $updated_dateGmt;
+	public $updated_slug;
+	public $updated_status;
+	public $updated_pingStatus;
+	public $updated_clientMutationId;
 
-	/**
-	 * Declaration of the user roles
-	 */
+	public $create_variables;
+	public $update_variables;
+	public $delete_variables;
+
 	public $author;
 	public $subscriber;
 	public $admin;
+
+	public $attachment_id;
+	public $media_item_id;
 
 	/**
 	 * This function is run before each method
@@ -61,6 +76,21 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$this->clientMutationId = 'someUniqueId';
 
 		/**
+		 * Set up the updateMediaItem variables
+		 */
+		$this->updated_title = 'Updated - Magic Shia Gif';
+		$this->updated_description = 'This is an updated magic description.';
+		$this->updated_altText = 'Some updated alt text';
+		$this->updated_caption = 'Shia shows off some magic in this updated caption.';
+		$this->updated_commentStatus = 'open';
+		$this->updated_date = '2017-08-01 16:00:00';
+		$this->updated_dateGmt = '2017-08-01 22:00:00';
+		$this->updated_slug = 'updated-shia-magic';
+		$this->updated_status = 'INHERIT';
+		$this->updated_pingStatus = 'open';
+		$this->updated_clientMutationId = 'someUpdatedUniqueId';
+
+		/**
 		 * Set up different roles for permissions testing
 		 */
 		$this->subscriber = $this->factory->user->create( [
@@ -75,12 +105,75 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 			'role' => 'administrator',
 		] );
 
+		/**
+		 * Create a mediaItem to update and store it's WordPress post ID
+		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
+		 */
+		$this->attachment_id = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif'] );
+		$this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $this->attachment_id );
+
+		/**
+		 * Set the createMediaItem mutation input variables
+		 */
+		$this->create_variables = [
+			'input' => [
+				'filePath'         => $this->filePath,
+				'fileType'         => $this->fileType,
+				'clientMutationId' => $this->clientMutationId,
+				'title'            => $this->title,
+				'description'      => $this->description,
+				'altText'          => $this->altText,
+				'parentId'         => $this->parentId,
+				'caption'          => $this->caption,
+				'commentStatus'    => $this->commentStatus,
+				'date'             => $this->date,
+				'dateGmt'          => $this->dateGmt,
+				'slug'             => $this->slug,
+				'status'           => $this->status,
+				'pingStatus'       => $this->pingStatus,
+			],
+		];
+
+		/**
+		 * Set the updateMediaItem mutation input variables
+		 */
+		$this->update_variables = [
+			'input' => [
+				'id'               => $this->media_item_id,
+				'clientMutationId' => $this->updated_clientMutationId,
+				'title'            => $this->updated_title,
+				'description'      => $this->updated_description,
+				'altText'          => $this->updated_altText,
+				'caption'          => $this->updated_caption,
+				'commentStatus'    => $this->updated_commentStatus,
+				'date'             => $this->updated_date,
+				'dateGmt'          => $this->updated_dateGmt,
+				'slug'             => $this->updated_slug,
+				'status'           => $this->updated_status,
+				'pingStatus'       => $this->updated_pingStatus,
+			]
+		];
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$this->delete_variables = [
+			'input' => [
+				'id'               => $this->media_item_id,
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => true,
+			]
+		];
+
 		parent::setUp();
 
 	}
 
 	/**
 	 * This function is run after each method
+	 *
+	 * @access public
+	 * @return void
 	 */
 	public function tearDown() {
 		parent::tearDown();
@@ -92,7 +185,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCreateMediaItemMutation() {
+	public function createMediaItemMutation() {
 
 		/**
 		 * Set up the createMediaItem mutation
@@ -121,71 +214,6 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		';
 
 		/**
-		 * Set the createMediaItem mutation input variables
-		 */
-		$variables = [
-			'input' => [
-				'filePath'         => $this->filePath,
-				'fileType'         => $this->fileType,
-				'clientMutationId' => $this->clientMutationId,
-				'title'            => $this->title,
-				'description'      => $this->description,
-				'altText'          => $this->altText,
-				'parentId'         => $this->parentId,
-				'caption'          => $this->caption,
-				'commentStatus'    => $this->commentStatus,
-				'date'             => $this->date,
-				'dateGmt'          => $this->dateGmt,
-				'slug'             => $this->slug,
-				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
-			],
-		];
-
-		/**
-		 * Set the current user to subscriber (someone who can't create posts)
-		 * and test whether they can create posts
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
-		 */
-		wp_set_current_user( $this->subscriber );
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
-		$this->assertArrayHasKey( 'errors', $actual );
-
-		/**
-		 * Set the filePath to a URL that isn't valid to test whether the mediaItem will
-		 * still get created
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:105
-		 */
-		$variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
-		$this->assertArrayHasKey( 'errors', $actual );
-		$variables['input']['filePath'] = $this->filePath;
-
-		/**
-		 * Create a post as the admin and then try to upload a mediaItem
-		 * to that post as an author. It should error out since Authors can't
-		 * edit other users posts.
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:157
-		 */
-		$post = $this->factory()->post->create([
-			'post_author' => $this->admin,
-		] );
-		wp_set_current_user( $this->author );
-		$variables['input']['parentId'] = $post;
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
-		$this->assertArrayHasKey( 'errors', $actual );
-		$variables['input']['parentId'] = $this->parentId;
-
-		/**
-		 * Set the current user as the admin role so we
-		 * can properly test the mutation
-		 */
-		wp_set_current_user( $this->admin );
-
-		/**
 		 * Set the input variables to an empty array and then
 		 * make the request with those empty input variables. We should
 		 * get an error back from the source because they are required.
@@ -196,10 +224,79 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$actual = do_graphql_request( $mutation, 'createMediaItem', $empty_variables );
 		$this->assertArrayHasKey( 'errors', $actual );
 
+		$actual = do_graphql_request( $mutation, 'createMediaItem', $this->create_variables );
+
+		return $actual;
+	}
+
+	/**
+	 * Set the current user to subscriber (someone who can't create posts)
+	 * and test whether they can create posts
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiAsSubscriber() {
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * Set the filePath to a URL that isn't valid to test whether the mediaItem will
+	 * still get created
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:105
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiWithNoFile() {
+		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->create_variables['input']['filePath'] = $this->filePath;
+	}
+
+	/**
+	 * Create a post as the admin and then try to upload a mediaItem
+	 * to that post as an author. It should error out since Authors can't
+	 * edit other users posts.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:157
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiEditOthersPosts() {
+		$post = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+		] );
+		wp_set_current_user( $this->author );
+		$this->create_variables['input']['parentId'] = $post;
+		$actual                                      = $this->createMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->create_variables['input']['parentId'] = $this->parentId;
+	}
+
+	/**
+	 * This function tests the createMediaItem mutation
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
+	 * @access public
+	 * @return void
+	 */
+	public function testCreateMediaItemMutation() {
+
+		/**
+		 * Set the current user as the admin role so we
+		 * can properly test the mutation
+		 */
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create the createMediaItem
 		 */
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
+		$actual = $this->createMediaItemMutation();
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -232,78 +329,12 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
-	 * This function tests the updateMediaItem mutation
+	 * Update a media item using the updateMediaItem mutation
 	 *
 	 * @access public
-	 * @return void
+	 * @return array $actual
 	 */
-	public function testUpdateMediaItemMutation() {
-
-		/**
-		 * Set up the createMediaItem mutation so that
-		 * we can update it later
-		 */
-		$mutation = '
-		mutation createMediaItem( $input: createMediaItemInput! ){
-		  createMediaItem(input: $input){
-		    clientMutationId
-		    mediaItem{
-		      id
-		      mediaItemId
-		      date
-		      dateGmt
-		      slug
-		      status
-		      title
-		      commentStatus
-		      pingStatus
-		      altText
-		      caption
-		      description
-		      mimeType
-		    }
-		  }
-		}
-		';
-
-		/**
-		 * Set the createMediaItem mutation input variables
-		 */
-		$variables = [
-			'input' => [
-				'filePath'         => $this->filePath,
-				'fileType'         => $this->fileType,
-				'clientMutationId' => $this->clientMutationId,
-				'title'            => $this->title,
-				'description'      => $this->description,
-				'altText'          => $this->altText,
-				'parentId'         => $this->parentId,
-				'caption'          => $this->caption,
-				'commentStatus'    => $this->commentStatus,
-				'date'             => $this->date,
-				'dateGmt'          => $this->dateGmt,
-				'slug'             => $this->slug,
-				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
-			],
-		];
-
-		/**
-		 * Set the current user as the admin role so we
-		 * can test the mutation
-		 */
-		wp_set_current_user( $this->admin );
-
-		/**
-		 * Create a mediaItem to update and store it's WordPress post ID
-		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
-		 */
-		$media_item = do_graphql_request( $mutation, 'createMediaItem', $variables );
-		$media_item_id = $media_item["data"]["createMediaItem"]["mediaItem"]["id"];
-		$attachment_id = $media_item["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
-
-		$new_attachment = get_post( $attachment_id );
-		$this->assertObjectHasAttribute( 'ID', $new_attachment );
+	public function updateMediaItemMutation() {
 
 		/**
 		 * Prepare the updateMediaItem mutation
@@ -331,87 +362,76 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		}
 		';
 
-		/**
-		 * Set up the updateMediaItem variables
-		 */
-		$updated_title = 'Updated - Magic Shia Gif';
-		$updated_description = 'This is an updated magic description.';
-		$updated_altText = 'Some updated alt text';
-		$updated_caption = 'Shia shows off some magic in this updated caption.';
-		$updated_commentStatus = 'open';
-		$updated_date = '2017-08-01 16:00:00';
-		$updated_dateGmt = '2017-08-01 22:00:00';
-		$updated_slug = 'updated-shia-magic';
-		$updated_status = 'INHERIT';
-		$updated_pingStatus = 'open';
-		$updated_clientMutationId = 'someUpdatedUniqueId';
+		$actual = do_graphql_request( $mutation, 'updateMediaItem', $this->update_variables );
 
-		/**
-		 * Set the updateMediaItem input variables
-		 */
-		$variables = [
-			'input' => [
-				'id'               => $media_item_id,
-				'clientMutationId' => $updated_clientMutationId,
-				'title'            => $updated_title,
-				'description'      => $updated_description,
-				'altText'          => $updated_altText,
-				'caption'          => $updated_caption,
-				'commentStatus'    => $updated_commentStatus,
-				'date'             => $updated_date,
-				'dateGmt'          => $updated_dateGmt,
-				'slug'             => $updated_slug,
-				'status'           => $updated_status,
-				'pingStatus'       => $updated_pingStatus,
-			]
-		];
+		return $actual;
+	}
 
-		$variables['input']['id'] = 12345;
-
-
-		/**
-		 * Execute the request with a fake mediaItem id. An error
-		 * should occur because we didn't pass the id of the mediaItem we
-		 * wanted to update.
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:57
-		 */
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $variables );
+	/**
+	 * Execute the request with a fake mediaItem id. An error
+	 * should occur because we didn't pass the id of the mediaItem we
+	 * wanted to update.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:57
+	 * @access public
+	 * @return void
+	 */
+	public function testUmiInvalidId() {
+		$this->update_variables['input']['id'] = 12345;
+		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
-		$variables['input']['id'] = $media_item_id;
+		$variables['input']['id'] = $this->media_item_id;
+	}
 
-		/**
-		 * Set the current user to a subscriber (someone who can't create posts)
-		 * amd test whether they can create posts
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:72
-		 */
+	/**
+	 * Set the current user to a subscriber (someone who can't create posts)
+	 * amd test whether they can create posts
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:72
+	 * @access public
+	 * @return void
+	 */
+	public function testUmiAsSubscriber() {
 		wp_set_current_user( $this->subscriber );
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $variables );
+		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
 
-		/**
-		 * Create a post as the admin and then try to upload a mediaItem
-		 * to that post as an author. It should error out since Authors can't
-		 * edit other users posts.
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:83
-		 */
-		$post = $this->factory()->post->create([
+	/**
+	 * Create a post as the admin and then try to upload a mediaItem
+	 * to that post as an author. It should error out since Authors can't
+	 * edit other users posts.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:83
+	 * @access public
+	 * @return void
+	 */
+	public function testUmiEditOthersPosts() {
+		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
 		wp_set_current_user( $this->author );
 		$variables['input']['parentId'] = $post;
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $variables );
+		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$variables['input']['parentId'] = $this->parentId;
+	}
+
+	/**
+	 * This function tests the updateMediaItem mutation
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php
+	 * @access public
+	 * @return void
+	 */
+	public function testUpdateMediaItemMutation() {
 
 		/**
 		 * Set the current user as the admin role so we
 		 * successfully run the mutation
 		 */
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $variables );
+		$actual = $this->updateMediaItemMutation();
 
 		/**
 		 * Define the expected output.
@@ -419,20 +439,20 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'updateMediaItem' => [
-					'clientMutationId' => $updated_clientMutationId,
+					'clientMutationId' => $this->updated_clientMutationId,
 					'mediaItem'             => [
-						'id'               => $media_item_id,
-						'title'            => $updated_title,
-						'description'      => apply_filters( 'the_content', $updated_description ),
-						'mediaItemId'      => $attachment_id,
-						'altText'          => $updated_altText,
-						'caption'          => apply_filters( 'the_content', $updated_caption ),
-						'commentStatus'    => $updated_commentStatus,
-						'date'             => $updated_date,
-						'dateGmt'          => $updated_dateGmt,
-						'slug'             => $updated_slug,
-						'status'           => strtolower( $updated_status ),
-						'pingStatus'       => $updated_pingStatus,
+						'id'               => $this->media_item_id,
+						'title'            => $this->updated_title,
+						'description'      => apply_filters( 'the_content', $this->updated_description ),
+						'mediaItemId'      => $this->attachment_id,
+						'altText'          => $this->updated_altText,
+						'caption'          => apply_filters( 'the_content', $this->updated_caption ),
+						'commentStatus'    => $this->updated_commentStatus,
+						'date'             => $this->updated_date,
+						'dateGmt'          => $this->updated_dateGmt,
+						'slug'             => $this->updated_slug,
+						'status'           => strtolower( $this->updated_status ),
+						'pingStatus'       => $this->updated_pingStatus,
 						'mimeType'         => 'image/gif',
 					],
 				],
@@ -447,82 +467,12 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
-	 * This function tests the deleteMediaItem mutation
+	 * Delete mediaItems using the deleteMediaItem mutation
 	 *
 	 * @access public
-	 * @return void
+	 * @return array $actual
 	 */
-	public function testDeleteMediaItemMutation() {
-
-		/**
-		 * Set up the createMediaItem mutation so
-		 * we can delete it later
-		 */
-		$mutation = '
-		mutation createMediaItem( $input: createMediaItemInput! ){
-		  createMediaItem(input: $input){
-		    clientMutationId
-		    mediaItem{
-		      id
-		      mediaItemId
-		      date
-		      dateGmt
-		      slug
-		      status
-		      title
-		      commentStatus
-		      pingStatus
-		      altText
-		      caption
-		      description
-		      mimeType
-		    }
-		  }
-		}
-		';
-
-		/**
-		 * Set the createMediaItem mutation input variables
-		 */
-		$variables = [
-			'input' => [
-				'filePath'         => $this->filePath,
-				'fileType'         => $this->fileType,
-				'clientMutationId' => $this->clientMutationId,
-				'title'            => $this->title,
-				'description'      => $this->description,
-				'altText'          => $this->altText,
-				'parentId'         => $this->parentId,
-				'caption'          => $this->caption,
-				'commentStatus'    => $this->commentStatus,
-				'date'             => $this->date,
-				'dateGmt'          => $this->dateGmt,
-				'slug'             => $this->slug,
-				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
-			],
-		];
-
-		/**
-		 * Set the current user as the admin role so we
-		 * can test the mutation
-		 */
-		wp_set_current_user( $this->admin );
-
-		/**
-		 * Create a mediaItem to test against
-		 */
-		$media_item = do_graphql_request( $mutation, 'createMediaItem', $variables );
-		$media_item_id = $media_item["data"]["createMediaItem"]["mediaItem"]["id"];
-		$attachment_id = $media_item["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
-		$new_attachment = get_post( $attachment_id );
-
-		/**
-		 * Verify the mediaItem was created with the original content as expected
-		 */
-		$this->assertEquals( $new_attachment->post_type, 'attachment' );
-		$this->assertEquals( $new_attachment->post_title, $this->title );
-		$this->assertEquals( $new_attachment->post_content, $this->description );
+	public function deleteMediaItemMutation() {
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -533,49 +483,59 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		    clientMutationId
 		    mediaItem{
 		      id
-		      title
 		      mediaItemId
 		    }
 		  }
 		}
 		';
 
-		/**
-		 * Set the deleteMediaItem input variables
-		 */
-		$variables = [
-			'input' => [
-				'id'               => $media_item_id,
-				'clientMutationId' => $this->clientMutationId,
-				'forceDelete'      => true,
-			]
-		];
+		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $this->delete_variables );
 
-		/**
-		 * Set the mediaItem id to a fake id and the mutation should fail
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
-		 */
-		$variables['input']['id'] = 12345;
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $variables );
+		return $actual;
+	}
+
+	/**
+	 * Set the mediaItem id to a fake id and the mutation should fail
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
+	 * @access public
+	 * @return void
+	 */
+	public function testDmiInvalidId() {
+		$this->delete_variables['input']['id'] = 12345;
+		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
-		$variables['input']['id'] = $media_item_id;
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+	}
 
-		/**
-		 * Set the current user as the subscriber role and
-		 * the deletion should fail because we're a subscriber.
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:86
-		 */
+	/**
+	 * Set the current user as the subscriber role and
+	 * the deletion should fail because we're a subscriber.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:86
+	 * @access public
+	 * @return void
+	 */
+	public function testDmiAsSubscriber() {
 		wp_set_current_user( $this->subscriber );
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $variables );
+		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * This function tests the deleteMediaItem mutation
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php
+	 * @access public
+	 * @return void
+	 */
+	public function testDeleteMediaItemMutation() {
 
 		/**
 		 * Set the user to an admin and try again
 		 */
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $variables );
+		$actual = $this->deleteMediaItemMutation();
 
 		/**
 		 * Define the expected output.
@@ -585,9 +545,8 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 				'deleteMediaItem' => [
 					'clientMutationId' => $this->clientMutationId,
 					'mediaItem' => [
-						'id'               => $media_item_id,
-						'title'            => $this->title,
-						'mediaItemId'      => $attachment_id,
+						'id'               => $this->media_item_id,
+						'mediaItemId'      => $this->attachment_id,
 					],
 				],
 			],
@@ -601,7 +560,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		/**
 		 * Try to delete again but we should have errors, because there's nothing to be deleted
 		 */
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $variables );
+		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
