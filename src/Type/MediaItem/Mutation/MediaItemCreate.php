@@ -154,7 +154,7 @@ class MediaItemCreate {
 					$parent = get_post( $attachment_parent_id );
 					$post_parent_type = get_post_type_object( $parent->post_type );
 					if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
-						return new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
+						throw new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
 					}
 				}
 
