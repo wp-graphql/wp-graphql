@@ -213,20 +213,51 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		}
 		';
 
-		/**
-		 * Set the input variables to an empty array and then
-		 * make the request with those empty input variables. We should
-		 * get an error back from the source because they are required.
-		 *
-		 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:54
-		 */
-		$empty_variables = [];
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $empty_variables );
-		$this->assertArrayHasKey( 'errors', $actual );
-
 		$actual = do_graphql_request( $mutation, 'createMediaItem', $this->create_variables );
 
 		return $actual;
+	}
+
+	/**
+	 * Set the input variables to an empty array and then
+	 * make the request with those empty input variables. We should
+	 * get an error back from the source because they are required.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:54
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiNoInput() {
+
+		/**
+		 * Set up the createMediaItem mutation
+		 */
+		$mutation = '
+		mutation createMediaItem( $input: createMediaItemInput! ){
+		  createMediaItem(input: $input){
+		    clientMutationId
+		    mediaItem{
+		      id
+		      mediaItemId
+		      date
+		      dateGmt
+		      slug
+		      status
+		      title
+		      commentStatus
+		      pingStatus
+		      altText
+		      caption
+		      description
+		      mimeType
+		    }
+		  }
+		}
+		';
+
+		$empty_variables = [];
+		$actual = do_graphql_request( $mutation, 'createMediaItem', $empty_variables );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
@@ -273,7 +304,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		] );
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['parentId'] = $post;
-		$actual                                      = $this->createMediaItemMutation();
+		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 	}
