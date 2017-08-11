@@ -62,23 +62,6 @@ class MediaItemCreate {
 				}
 
 				/**
-				 * Get the post parent and if it's not set, set it to false
-				 */
-				$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? $media_item_args['post_parent'] : false );
-
-				/**
-				 * Stop now if a user isn't allowed to edit the parent post
-				 */
-				// Attaching media to a post requires ability to edit said post.
-				if ( ! empty( $attachment_parent_id ) ) {
-					$parent = get_post( $attachment_parent_id );
-					$post_parent_type = get_post_type_object( $parent->post_type );
-					if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
-						return new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
-					}
-				}
-
-				/**
 				 * If the mediaItem being created is being assigned to another user that's not the current user, make sure
 				 * the current user has permission to edit others mediaItems
 				 */
@@ -157,6 +140,23 @@ class MediaItemCreate {
 				 * Insert the mediaItem object and get the ID
 				 */
 				$media_item_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, $file );
+
+				/**
+				 * Get the post parent and if it's not set, set it to false
+				 */
+				$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? $media_item_args['post_parent'] : false );
+
+				/**
+				 * Stop now if a user isn't allowed to edit the parent post
+				 */
+				// Attaching media to a post requires ability to edit said post.
+				if ( ! empty( $attachment_parent_id ) ) {
+					$parent = get_post( $attachment_parent_id );
+					$post_parent_type = get_post_type_object( $parent->post_type );
+					if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
+						return new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
+					}
+				}
 
 				/**
 				 * Insert the mediaItem
