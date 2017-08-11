@@ -58,7 +58,7 @@ class MediaItemCreate {
 				 * Stop now if a user isn't allowed to upload a mediaItem
 				 */
 				if ( ! current_user_can( 'upload_files' ) ) {
-					return new \Exception( __( 'Sorry, you are not allowed to upload mediaItems', 'wp-graphql' ) );
+					throw new \Exception( __( 'Sorry, you are not allowed to upload mediaItems', 'wp-graphql' ) );
 				}
 
 				/**

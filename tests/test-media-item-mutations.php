@@ -102,6 +102,8 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		  createMediaItem(input: $input){
 		    clientMutationId
 		    mediaItem{
+		      id
+		      mediaItemId
 		      date
 		      dateGmt
 		      slug
@@ -199,11 +201,16 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
 
+		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
+		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
+
 		$expected = [
 			'data' => [
 				'createMediaItem' => [
 					'clientMutationId' => $this->clientMutationId,
 					'mediaItem' => [
+						'id'               => $media_item_id,
+						'mediaItemId'      => $attachment_id,
 						'title'            => $this->title,
 						'description'      => apply_filters( 'the_content', $this->description ),
 						'altText'          => $this->altText,
