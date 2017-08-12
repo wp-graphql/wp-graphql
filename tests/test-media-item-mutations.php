@@ -611,6 +611,48 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the force delete input to false and the
+	 *
+	 * @access public
+	 * @return array $actual
+	 */
+	public function testDmiAlreadyInTrash() {
+
+		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
+		$post = get_post( $deleted_media_item );
+
+		/**
+		 * Prepare the deleteMediaItem mutation
+		 */
+		$mutation = '
+		mutation deleteMediaItem( $input: deleteMediaItemInput! ){
+		  deleteMediaItem(input: $input) {
+		    clientMutationId
+		    mediaItem{
+		      id
+		      mediaItemId
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$delete_trash_variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'attachment', $deleted_media_item ),
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => false,
+			]
+		];
+
+		wp_set_current_user( $this->admin );
+		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
 	 * This function tests the deleteMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php
