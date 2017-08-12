@@ -223,7 +223,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * make the request with those empty input variables. We should
 	 * get an error back from the source because they are required.
 	 *
-	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:54
+	 * @source WPGraphql - createMediaItemInput!
 	 * @access public
 	 * @return void
 	 */
@@ -238,24 +238,12 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		    clientMutationId
 		    mediaItem{
 		      id
-		      mediaItemId
-		      date
-		      dateGmt
-		      slug
-		      status
-		      title
-		      commentStatus
-		      pingStatus
-		      altText
-		      caption
-		      description
-		      mimeType
 		    }
 		  }
 		}
 		';
 
-		$empty_variables = [];
+		$empty_variables = '';
 		$actual = do_graphql_request( $mutation, 'createMediaItem', $empty_variables );
 		$this->assertArrayHasKey( 'errors', $actual );
 	}
@@ -275,6 +263,74 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the current user to subscriber (someone who can't create posts)
+	 * and test whether they can create posts with someone else's id
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiOtherAuthor() {
+
+		/**
+		 * Set up the createMediaItem mutation
+		 */
+		$mutation = '
+		mutation createMediaItem( $input: createMediaItemInput! ){
+		  createMediaItem(input: $input){
+		    clientMutationId
+		    mediaItem{
+		      id
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the createMediaItem mutation input variables
+		 */
+		$variables = [
+			'input' => [
+				'filePath'         => $this->filePath,
+				'fileType'         => $this->fileType,
+				'clientMutationId' => $this->clientMutationId,
+				'title'            => $this->title,
+				'description'      => $this->description,
+				'altText'          => $this->altText,
+				'parentId'         => $this->parentId,
+				'caption'          => $this->caption,
+				'commentStatus'    => $this->commentStatus,
+				'date'             => $this->date,
+				'dateGmt'          => $this->dateGmt,
+				'slug'             => $this->slug,
+				'status'           => $this->status,
+				'pingStatus'       => $this->pingStatus,
+				'authorId'         => $this->admin,
+			],
+		];
+
+		wp_set_current_user( $this->author );
+		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
+		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * Set the filePath to a URL that isn't valid to test whether the mediaItem will
+	 * still get created
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:98
+	 * @access public
+	 * @return void
+	 */
+	public function testCmiWithInvalidUrl() {
+		wp_set_current_user( $this->author );
+		$this->create_variables['input']['filePath'] = 'htt://vice.co.um/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->create_variables['input']['filePath'] = $this->filePath;
+	}
+
+	/**
 	 * Set the filePath to a URL that isn't valid to test whether the mediaItem will
 	 * still get created
 	 *
@@ -283,6 +339,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function testCmiWithNoFile() {
+		wp_set_current_user( $this->author );
 		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
 		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );

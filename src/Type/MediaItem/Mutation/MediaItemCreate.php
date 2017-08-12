@@ -48,13 +48,6 @@ class MediaItemCreate {
 			'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
 
 				/**
-				 * Throw an exception if there's no input
-				 */
-				if ( ( empty( $post_type_object->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-					throw new \Exception( __( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
-				}
-
-				/**
 				 * Stop now if a user isn't allowed to upload a mediaItem
 				 */
 				if ( ! current_user_can( 'upload_files' ) ) {
@@ -102,7 +95,7 @@ class MediaItemCreate {
 				 * Handle the error from download_url if it occurs
 				 */
 				if ( is_wp_error( $temp_file ) ) {
-					throw new \Exception( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
+					throw new \Exception( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
 				}
 
 				/**
@@ -133,7 +126,7 @@ class MediaItemCreate {
 				 * Handle the error from wp_handle_sideload if it occurs
 				 */
 				if ( ! empty( $file['error'] ) ) {
-					throw new \Exception( __( 'Sorry, there was an error uploading the mediaItem', 'wp-graphql' ) );
+					throw new \Exception( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
 				}
 
 				/**
