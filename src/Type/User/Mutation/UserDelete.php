@@ -39,7 +39,7 @@ class UserDelete {
 						'description' => __( 'The ID of the user you want to delete', 'wp-graphql' ),
 					],
 					'reassignId' => [
-						'type' => Types::int(),
+						'type' => Types::id(),
 						'description' => __( 'Reassign posts and links to new User ID.', 'wp-graphql' ),
 					]
 				],

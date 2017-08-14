@@ -84,7 +84,7 @@ class UserUpdate {
 					}
 
 					/**
-					 * If the $post_id is empty, we should throw an exception
+					 * If the $user_id is empty, we should throw an exception
 					 */
 					if ( empty( $user_id ) ) {
 						throw new \Exception( __( 'The user failed to update', 'wp-graphql' ) );

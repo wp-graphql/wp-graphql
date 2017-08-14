@@ -104,14 +104,19 @@ class UserCreate {
 	 */
 	private static function input_fields() {
 
-		$user_fields = UserMutation::input_fields();
-
 		/**
-		 * Create mutations require a login to be passed
+		 * Update mutations require an ID to be passed
 		 */
-		$user_fields['login']['type'] = Types::non_null( Types::string() );
-
-		return $user_fields;
+		return array_merge(
+			[
+				'login' => [
+					'type'        => Types::non_null( Types::id() ),
+					// translators: the placeholder is the name of the type of post object being updated
+					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
+				],
+			],
+			UserMutation::input_fields()
+		);
 
 	}
 
