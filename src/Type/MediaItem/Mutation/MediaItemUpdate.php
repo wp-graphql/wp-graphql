@@ -53,7 +53,7 @@ class MediaItemUpdate {
 				/**
 				 * If there's no existing mediaItem, throw an exception
 				 */
-				if ( empty( $id_parts['id'] ) || false === $existing_media_item || $id_parts['type'] !== $post_type_object->name ) {
+				if ( empty( $id_parts['id'] ) || false === $existing_media_item ) {
 					throw new \Exception( __( 'No mediaItems could be found to update', 'wp-graphql' ) );
 				}
 
@@ -62,7 +62,7 @@ class MediaItemUpdate {
 				 */
 				if ( $post_type_object->name !== $existing_media_item->post_type ) {
 					// translators: The placeholder is the ID of the mediaItem being edited
-					throw new \Exception( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $id_parts['id'] );
+					throw new \Exception( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $id_parts['id'] ) );
 				}
 
 				/**

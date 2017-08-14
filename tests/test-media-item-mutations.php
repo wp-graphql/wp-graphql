@@ -219,6 +219,20 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test with a local file path. This is going to fail because the file
+	 * does not exist on the test server.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:81
+	 */
+	public function testCmiFilePath() {
+		wp_set_current_user( $this->admin );
+		$this->create_variables['input']['filePath'] = "file:///Users/hdevore/Desktop/Current/colorado_lake.jpeg";
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->create_variables['input']['filePath'] = $this->filePath;
+	}
+
+	/**
 	 * Set the input variables to an empty array and then
 	 * make the request with those empty input variables. We should
 	 * get an error back from the source because they are required.
@@ -466,6 +480,19 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 */
 	public function testUmiInvalidId() {
 		$this->update_variables['input']['id'] = 12345;
+		$actual = $this->updateMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$variables['input']['id'] = $this->media_item_id;
+	}
+
+	/**
+	 * Test whether the mediaItem we're updating is actually a mediaItem
+	 *
+	 * @souce wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:63
+	 */
+	public function testUmiUpdatePost() {
+		$test_post = $this->factory()->post->create();
+		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$variables['input']['id'] = $this->media_item_id;
