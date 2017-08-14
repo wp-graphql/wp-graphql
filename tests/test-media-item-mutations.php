@@ -467,7 +467,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		      description
 		      mimeType
 		      author {
-		        username
+		        id
 		      }
 		    }
 		  }
@@ -590,6 +590,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * successfully run the mutation
 		 */
 		wp_set_current_user( $this->admin );
+
 		$actual = $this->updateMediaItemMutation();
 
 		/**
@@ -613,7 +614,9 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 						'status'           => strtolower( $this->updated_status ),
 						'pingStatus'       => $this->updated_pingStatus,
 						'mimeType'         => 'image/gif',
-						'author'           => [ 'username' => 'User 196' ],
+						'author'           => [
+							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+						],
 					],
 				],
 			],
