@@ -63,9 +63,11 @@ class MediaItemCreate {
 				}
 
 				/**
-				 * Set the file name, whether it's a local file or from a URL
+				 * Set the file name, whether it's a local file or from a URL.
+				 * Then set the url for the uploaded file
 				 */
 				$file_name = basename( $input['filePath'] );
+				$uploaded_file_url = $input['filePath'];
 
 				/**
 				 * Check if the download_url method exists and include it if not
@@ -81,9 +83,6 @@ class MediaItemCreate {
 				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME) ) {
 					$uploaded_file = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
 					$uploaded_file_url = $uploaded_file['url'];
-				} else {
-					update_option('hd_local_file_invalid_url', $input['filePath'] );
-					$uploaded_file_url = $input['filePath'];
 				}
 
 				/**
@@ -144,8 +143,9 @@ class MediaItemCreate {
 				 * Stop now if a user isn't allowed to edit the parent post
 				 */
 				// Attaching media to a post requires ability to edit said post.
-				if ( ! empty( $attachment_parent_id ) ) {
-					$parent = get_post( $attachment_parent_id );
+				$parent = get_post( $attachment_parent_id );
+
+				if ( null !== get_post( $attachment_parent_id ) ) {
 					$post_parent_type = get_post_type_object( $parent->post_type );
 					if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
 						throw new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
