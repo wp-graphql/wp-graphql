@@ -533,6 +533,23 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a post as the admin and then try to upload a mediaItem
+	 * to that post as an author. It should error out since Authors can't
+	 * edit other users posts.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:83
+	 * @access public
+	 * @return void
+	 */
+	public function testUmiAddOtherAuthors() {
+		wp_set_current_user( $this->author );
+		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		$actual = $this->updateMediaItemMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$variables['input']['authorId'] = false;
+	}
+
+	/**
 	 * This function tests the updateMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php
