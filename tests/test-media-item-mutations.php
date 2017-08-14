@@ -44,9 +44,12 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	public $update_variables;
 	public $delete_variables;
 
-	public $author;
 	public $subscriber;
+	public $subscriber_name;
+	public $author;
+	public $author_name;
 	public $admin;
+	public $admin_name;
 
 	public $attachment_id;
 	public $media_item_id;
@@ -96,14 +99,17 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
 		] );
+		$this->subscriber_name = 'User ' . $this->subscriber;
 
 		$this->author = $this->factory->user->create( [
 			'role' => 'author',
 		] );
+		$this->author_name = 'User ' . $this->author;
 
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
+		$this->admin_name = 'User ' . $this->admin;
 
 		/**
 		 * Create a mediaItem to update and store it's WordPress post ID
@@ -151,6 +157,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 				'slug'             => $this->updated_slug,
 				'status'           => $this->updated_status,
 				'pingStatus'       => $this->updated_pingStatus,
+				'authorId'           => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 			]
 		];
 
@@ -459,6 +466,9 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		      caption
 		      description
 		      mimeType
+		      author {
+		        username
+		      }
 		    }
 		  }
 		}
@@ -541,11 +551,28 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiAddOtherAuthors() {
+	public function testUmiAddOtherAuthorsAsAuthor() {
 		wp_set_current_user( $this->author );
 		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
+		$variables['input']['authorId'] = false;
+	}
+
+	/**
+	 * Create a post as the admin and then try to upload a mediaItem
+	 * to that post as an admin. It should be created.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:83
+	 * @access public
+	 * @return void
+	 */
+	public function testUmiAddOtherAuthorsAsAdmin() {
+		wp_set_current_user( $this->admin );
+		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
+		$actual = $this->updateMediaItemMutation();
+		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
+		$this->assertArrayHasKey( 'id', $actual_created );
 		$variables['input']['authorId'] = false;
 	}
 
@@ -586,6 +613,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 						'status'           => strtolower( $this->updated_status ),
 						'pingStatus'       => $this->updated_pingStatus,
 						'mimeType'         => 'image/gif',
+						'author'           => [ 'username' => 'User 196' ],
 					],
 				],
 			],

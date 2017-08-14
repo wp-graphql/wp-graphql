@@ -96,6 +96,9 @@ class MediaItemUpdate {
 				 */
 				$post_args       = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
 				$post_args['ID'] = absint( $id_parts['id'] );
+				$post_args['post_author'] = $author_id;
+
+				update_option( 'hd_update_post', $post_args );
 
 				/**
 				 * Insert the post and retrieve the ID
