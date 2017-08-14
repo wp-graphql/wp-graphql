@@ -479,7 +479,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function testUmiInvalidId() {
-		$this->update_variables['input']['id'] = 12345;
+		$this->update_variables['input']['id'] = '12345';
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$variables['input']['id'] = $this->media_item_id;

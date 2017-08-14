@@ -53,7 +53,7 @@ class MediaItemUpdate {
 				/**
 				 * If there's no existing mediaItem, throw an exception
 				 */
-				if ( empty( $id_parts['id'] ) || false === $existing_media_item ) {
+				if ( empty( $id_parts['id'] ) || null === $existing_media_item ) {
 					throw new \Exception( __( 'No mediaItems could be found to update', 'wp-graphql' ) );
 				}
 
