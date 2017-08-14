@@ -70,14 +70,6 @@ class MediaItemCreate {
 				$uploaded_file_url = $input['filePath'];
 
 				/**
-				 * Check if the download_url method exists and include it if not
-				 * This file also includes the wp_handle_sideload method
-				 */
-				if ( ! function_exists( 'download_url' ) ) {
-					require_once( ABSPATH . 'wp-admin/includes/file.php' );
-				}
-
-				/**
 				 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 				 */
 				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME) ) {
