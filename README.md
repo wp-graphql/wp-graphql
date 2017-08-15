@@ -1,4 +1,4 @@
-![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-250x.png)
+![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-e1502819081849.png)
 
 # WPGraphQL 
 
