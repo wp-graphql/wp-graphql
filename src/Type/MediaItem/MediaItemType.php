@@ -108,9 +108,9 @@ class MediaItemType {
 				},
 			],
 			'mimeType' => [
-				'type' => Types::string(),
+				'type'        => Types::string(),
 				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
-				function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
+				'resolve'     =>function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
 				},
 			],

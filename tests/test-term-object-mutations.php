@@ -578,4 +578,42 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 
 	}
 
+	public function testUpdateCategoryParent() {
+
+		wp_set_current_user( $this->admin );
+
+		$parent_term_id = $this->factory->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Parent Category',
+		]);
+
+		$query = '
+		mutation createChildCategory($input: createCategoryInput!) {
+		  createCategory(input: $input) {
+		    category {
+		      parent{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_term_id );
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'someId',
+				'name' => 'Child Category',
+				'parentId' => $parent_id,
+			],
+		];
+
+		$actual = do_graphql_request( $query, 'createChildCategory', $variables );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['id'] );
+
+	}
+
 }
