@@ -98,8 +98,6 @@ class MediaItemUpdate {
 				$post_args['ID'] = absint( $id_parts['id'] );
 				$post_args['post_author'] = $author_id;
 
-				update_option( 'hd_update_post', $post_args );
-
 				/**
 				 * Insert the post and retrieve the ID
 				 */
