@@ -9,6 +9,7 @@ use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
+use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
@@ -111,6 +112,14 @@ class Types {
 	 * @access private
 	 */
 	private static $post_status_enum;
+
+	/**
+	 * Stores the media item (attachment) status enum type object
+	 *
+	 * @var MediaItemStatusEnumType object $media_item_status_enum
+	 * @access private
+	 */
+	private static $media_item_status_enum;
 
 	/**
 	 * Stores the post type enum type object
@@ -315,6 +324,16 @@ class Types {
 	 */
 	public static function post_status_enum() {
 		return self::$post_status_enum ? : ( self::$post_status_enum = new PostStatusEnumType() );
+	}
+
+	/**
+	 * This returns the definition for the MediaItemStatusEnumType
+	 *
+	 * @return MediaItemStatusEnumType object
+	 * @access public
+	 */
+	public static function media_item_status_enum() {
+		return self::$media_item_status_enum ? : ( self::$media_item_status_enum = new MediaItemStatusEnumType() );
 	}
 
 	/**

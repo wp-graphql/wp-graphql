@@ -8,6 +8,9 @@ use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemCreate;
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemUpdate;
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemDelete;
 
 /**
  * Class RootMutationType
@@ -78,14 +81,21 @@ class RootMutationType extends WPObjectType {
 					 */
 					$post_type_object = get_post_type_object( $post_type );
 
-					/**
-					 * Root mutation for single posts (of the specified post_type)
-					 *
-					 * @since 0.0.5
-					 */
-					$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectCreate::mutate( $post_type_object );
-					$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectUpdate::mutate( $post_type_object );
-					$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
+					if ( 'mediaItem' === $post_type_object->graphql_single_name ) {
+						$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = MediaItemCreate::mutate( $post_type_object );
+						$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = MediaItemUpdate::mutate( $post_type_object );
+						$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = MediaItemDelete::mutate( $post_type_object );
+
+					} else {
+						/**
+						 * Root mutation for single posts (of the specified post_type)
+						 *
+						 * @since 0.0.5
+						 */
+						$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectCreate::mutate( $post_type_object );
+						$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectUpdate::mutate( $post_type_object );
+						$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
+					}
 
 				} // End foreach().
 			} // End if().

@@ -1,4 +1,4 @@
-![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-250x.png)
+![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-e1502819081849.png)
 
 # WPGraphQL 
 
@@ -8,7 +8,7 @@ GraphQL API for WordPress.
 
 [![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql)
 [![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg?branch=master)](https://coveralls.io/github/wp-graphql/wp-graphql?branch=master)
-[![WPGraphQL on Slack](https://slackin-wpgraphql.herokuapp.com/badge.svg)](https://slackin-wpgraphql.herokuapp.com/)
+[![WPGraphQL on Slack](https://slackin-dsxwfpqeja.now.sh/badge.svg)](https://slackin-dsxwfpqeja.now.sh/)
 
 ------
 
