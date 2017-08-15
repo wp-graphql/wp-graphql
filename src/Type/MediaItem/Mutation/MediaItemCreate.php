@@ -70,6 +70,12 @@ class MediaItemCreate {
 				$uploaded_file_url = $input['filePath'];
 
 				/**
+				 * Require the file.php file from wp-admin. This file includes the
+				 * download_url and wp_handle_sideload methods
+				 */
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+				/**
 				 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 				 */
 				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME) ) {
@@ -158,9 +164,7 @@ class MediaItemCreate {
 				/**
 				 * Check if the wp_generate_attachment_metadata method exists and include it if not
 				 */
-				if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
-					require_once( ABSPATH . 'wp-admin/includes/image.php' );
-				}
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
 				/**
 				 * Generate and update the mediaItem's metadata

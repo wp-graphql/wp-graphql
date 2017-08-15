@@ -336,6 +336,36 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test whether we need to include the file.php file
+	 * from the wp-admin
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:76
+	 */
+	public function testCmiRequireFilePhp() {
+
+		/**
+		 * download_url_file will equal true if the file is already included
+		 */
+		$download_url_file = require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		$this->assertTrue( $download_url_file );
+	}
+
+	/**
+	 * Test whether we need to include the image.php file
+	 * from the wp-admin
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:167
+	 */
+	public function testCmiRequireImagePhp() {
+
+		/**
+		 * download_url_file will equal true if the file is already included
+		 */
+		$image_file = require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		$this->assertTrue( $image_file );
+	}
+
+	/**
 	 * Set the filePath to a URL that isn't valid to test whether the mediaItem will
 	 * still get created
 	 *
