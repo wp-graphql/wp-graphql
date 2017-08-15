@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit1e072e261675e0b8440f1da532408811
+class ComposerStaticInit887b5c91151565c6da8a550b1e088039
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -45,6 +45,7 @@ class ComposerStaticInit1e072e261675e0b8440f1da532408811
         'GraphQL\\Error\\FormattedError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/FormattedError.php',
         'GraphQL\\Error\\InvariantViolation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/InvariantViolation.php',
         'GraphQL\\Error\\SyntaxError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/SyntaxError.php',
+        'GraphQL\\Error\\UserError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/UserError.php',
         'GraphQL\\Executor\\ExecutionContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionContext.php',
         'GraphQL\\Executor\\ExecutionResult' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionResult.php',
         'GraphQL\\Executor\\Executor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Executor.php',
@@ -158,6 +159,7 @@ class ComposerStaticInit1e072e261675e0b8440f1da532408811
         'GraphQL\\Validator\\Rules\\AbstractQuerySecurity' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/AbstractQuerySecurity.php',
         'GraphQL\\Validator\\Rules\\ArgumentsOfCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ArgumentsOfCorrectType.php',
         'GraphQL\\Validator\\Rules\\DefaultValuesOfCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/DefaultValuesOfCorrectType.php',
+        'GraphQL\\Validator\\Rules\\DisableIntrospection' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/DisableIntrospection.php',
         'GraphQL\\Validator\\Rules\\FieldsOnCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FieldsOnCorrectType.php',
         'GraphQL\\Validator\\Rules\\FragmentsOnCompositeTypes' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FragmentsOnCompositeTypes.php',
         'GraphQL\\Validator\\Rules\\KnownArgumentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownArgumentNames.php',
@@ -196,12 +198,17 @@ class ComposerStaticInit1e072e261675e0b8440f1da532408811
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionArgs' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionArgs.php',
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionDefinition.php',
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionResolver.php',
+        'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnumType.php',
         'WPGraphQL\\Type\\Enum\\MimeTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MimeTypeEnumType.php',
         'WPGraphQL\\Type\\Enum\\PostStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostStatusEnumType.php',
         'WPGraphQL\\Type\\Enum\\PostTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostTypeEnumType.php',
         'WPGraphQL\\Type\\Enum\\RelationEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/RelationEnumType.php',
         'WPGraphQL\\Type\\Enum\\TaxonomyEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyEnumType.php',
         'WPGraphQL\\Type\\MediaItem\\MediaItemType' => __DIR__ . '/../..' . '/src/Type/MediaItem/MediaItemType.php',
+        'WPGraphQL\\Type\\MediaItem\\Mutation\\MediaItemCreate' => __DIR__ . '/../..' . '/src/Type/MediaItem/Mutation/MediaItemCreate.php',
+        'WPGraphQL\\Type\\MediaItem\\Mutation\\MediaItemDelete' => __DIR__ . '/../..' . '/src/Type/MediaItem/Mutation/MediaItemDelete.php',
+        'WPGraphQL\\Type\\MediaItem\\Mutation\\MediaItemMutation' => __DIR__ . '/../..' . '/src/Type/MediaItem/Mutation/MediaItemMutation.php',
+        'WPGraphQL\\Type\\MediaItem\\Mutation\\MediaItemUpdate' => __DIR__ . '/../..' . '/src/Type/MediaItem/Mutation/MediaItemUpdate.php',
         'WPGraphQL\\Type\\Plugin\\Connection\\PluginConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Plugin/Connection/PluginConnectionDefinition.php',
         'WPGraphQL\\Type\\Plugin\\Connection\\PluginConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Plugin/Connection/PluginConnectionResolver.php',
         'WPGraphQL\\Type\\Plugin\\PluginQuery' => __DIR__ . '/../..' . '/src/Type/Plugin/PluginQuery.php',
@@ -233,6 +240,7 @@ class ComposerStaticInit1e072e261675e0b8440f1da532408811
         'WPGraphQL\\Type\\Theme\\Connection\\ThemeConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Theme/Connection/ThemeConnectionResolver.php',
         'WPGraphQL\\Type\\Theme\\ThemeType' => __DIR__ . '/../..' . '/src/Type/Theme/ThemeType.php',
         'WPGraphQL\\Type\\Union\\PostObjectUnionType' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnionType.php',
+        'WPGraphQL\\Type\\Union\\TermObjectUnionType' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnionType.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionArgs' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionArgs.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionDefinition.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionResolver.php',
@@ -248,9 +256,9 @@ class ComposerStaticInit1e072e261675e0b8440f1da532408811
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit1e072e261675e0b8440f1da532408811::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit1e072e261675e0b8440f1da532408811::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit1e072e261675e0b8440f1da532408811::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit887b5c91151565c6da8a550b1e088039::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit887b5c91151565c6da8a550b1e088039::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit887b5c91151565c6da8a550b1e088039::$classMap;
 
         }, null, ClassLoader::class);
     }
