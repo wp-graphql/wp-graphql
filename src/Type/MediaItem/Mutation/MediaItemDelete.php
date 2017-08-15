@@ -117,8 +117,7 @@ class MediaItemDelete {
 				if ( false === $deleted ) {
 					throw new \Exception( __( 'Sorry, the mediaItem failed to delete', 'wp-graphql' ) );
 				}
-
-
+				
 				/**
 				 * If the post was moved to the trash, spoof the object's status before returning it
 				 */
