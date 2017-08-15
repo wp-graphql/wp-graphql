@@ -231,7 +231,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:81
 	 */
-	public function testCmiFilePath() {
+	public function testCreateMediaItemFilePath() {
 		wp_set_current_user( $this->admin );
 		$this->create_variables['input']['filePath'] = "file:///Users/hdevore/Desktop/Current/colorado_lake.jpeg";
 		$actual = $this->createMediaItemMutation();
@@ -248,7 +248,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiNoInput() {
+	public function testCreateMediaItemNoInput() {
 
 		/**
 		 * Set up the createMediaItem mutation
@@ -277,7 +277,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiAsSubscriber() {
+	public function testCreateMediaItemAsSubscriber() {
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -291,7 +291,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiOtherAuthor() {
+	public function testCreateMediaItemOtherAuthor() {
 
 		/**
 		 * Set up the createMediaItem mutation
@@ -341,13 +341,39 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:76
 	 */
-	public function testCmiRequireFilePhp() {
+	public function testCreateMediaItemRequireFilePhp() {
 
-		/**
-		 * download_url_file will equal true if the file is already included
-		 */
-		$download_url_file = require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		$this->assertTrue( $download_url_file );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		wp_set_current_user( $this->admin );
+		$actual = $this->createMediaItemMutation();
+
+		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
+		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
+
+		$expected = [
+			'data' => [
+				'createMediaItem' => [
+					'clientMutationId' => $this->clientMutationId,
+					'mediaItem' => [
+						'id'               => $media_item_id,
+						'mediaItemId'      => $attachment_id,
+						'title'            => $this->title,
+						'description'      => apply_filters( 'the_content', $this->description ),
+						'altText'          => $this->altText,
+						'caption'          => apply_filters( 'the_content', $this->caption ),
+						'commentStatus'    => $this->commentStatus,
+						'date'             => $this->date,
+						'dateGmt'          => $this->dateGmt,
+						'slug'             => $this->slug,
+						'status'           => strtolower( $this->status ),
+						'pingStatus'       => $this->pingStatus,
+						'mimeType'         => 'image/gif',
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
@@ -356,13 +382,39 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:167
 	 */
-	public function testCmiRequireImagePhp() {
+	public function testCreateMediaItemRequireImagePhp() {
 
-		/**
-		 * download_url_file will equal true if the file is already included
-		 */
-		$image_file = require_once( ABSPATH . 'wp-admin/includes/image.php' );
-		$this->assertTrue( $image_file );
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		wp_set_current_user( $this->admin );
+		$actual = $this->createMediaItemMutation();
+
+		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
+		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
+
+		$expected = [
+			'data' => [
+				'createMediaItem' => [
+					'clientMutationId' => $this->clientMutationId,
+					'mediaItem' => [
+						'id'               => $media_item_id,
+						'mediaItemId'      => $attachment_id,
+						'title'            => $this->title,
+						'description'      => apply_filters( 'the_content', $this->description ),
+						'altText'          => $this->altText,
+						'caption'          => apply_filters( 'the_content', $this->caption ),
+						'commentStatus'    => $this->commentStatus,
+						'date'             => $this->date,
+						'dateGmt'          => $this->dateGmt,
+						'slug'             => $this->slug,
+						'status'           => strtolower( $this->status ),
+						'pingStatus'       => $this->pingStatus,
+						'mimeType'         => 'image/gif',
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
@@ -373,7 +425,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiWithInvalidUrl() {
+	public function testCreateMediaItemWithInvalidUrl() {
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['filePath'] = 'htt://vice.co.um/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
 		$actual = $this->createMediaItemMutation();
@@ -389,7 +441,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiWithNoFile() {
+	public function testCreateMediaItemWithNoFile() {
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
 		$actual = $this->createMediaItemMutation();
@@ -406,7 +458,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testCmiEditOthersPosts() {
+	public function testCreateMediaItemEditOthersPosts() {
 		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
@@ -518,7 +570,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiInvalidId() {
+	public function testUpdateMediaItemInvalidId() {
 		$this->update_variables['input']['id'] = '12345';
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -530,7 +582,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 *
 	 * @souce wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:63
 	 */
-	public function testUmiUpdatePost() {
+	public function testUpdateMediaItemUpdatePost() {
 		$test_post = $this->factory()->post->create();
 		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 		$actual = $this->updateMediaItemMutation();
@@ -546,7 +598,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiAsSubscriber() {
+	public function testUpdateMediaItemAsSubscriber() {
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -561,7 +613,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiEditOthersPosts() {
+	public function testUpdateMediaItemEditOthersPosts() {
 		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
@@ -581,7 +633,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiAddOtherAuthorsAsAuthor() {
+	public function testUpdateMediaItemAddOtherAuthorsAsAuthor() {
 		wp_set_current_user( $this->author );
 		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 		$actual = $this->updateMediaItemMutation();
@@ -597,7 +649,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUmiAddOtherAuthorsAsAdmin() {
+	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
 		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
@@ -694,7 +746,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testDmiInvalidId() {
+	public function testDeleteMediaItemInvalidId() {
 		$this->delete_variables['input']['id'] = 12345;
 		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -709,7 +761,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testDmiAsSubscriber() {
+	public function testDeleteMediaItemAsSubscriber() {
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -721,7 +773,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return array $actual
 	 */
-	public function testDmiAlreadyInTrash() {
+	public function testDeleteMediaItemAlreadyInTrash() {
 
 		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
 		$post = get_post( $deleted_media_item );

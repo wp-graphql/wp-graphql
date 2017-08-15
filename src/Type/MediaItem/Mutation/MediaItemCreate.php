@@ -89,6 +89,7 @@ class MediaItemCreate {
 				 */
 				$timeout_seconds = 300;
 				$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
+
 				/**
 				 * Handle the error from download_url if it occurs
 				 */
@@ -120,6 +121,7 @@ class MediaItemCreate {
 				 * Insert the mediaItem and retrieve it's data
 				 */
 				$file = wp_handle_sideload( $file_data, $overrides );
+
 				/**
 				 * Handle the error from wp_handle_sideload if it occurs
 				 */
@@ -140,7 +142,6 @@ class MediaItemCreate {
 				/**
 				 * Stop now if a user isn't allowed to edit the parent post
 				 */
-				// Attaching media to a post requires ability to edit said post.
 				$parent = get_post( $attachment_parent_id );
 
 				if ( null !== get_post( $attachment_parent_id ) ) {
@@ -154,6 +155,7 @@ class MediaItemCreate {
 				 * Insert the mediaItem
 				 */
 				$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id );
+
 				/**
 				 * Handle the error from wp_insert_attachment if it occurs
 				 */
@@ -171,6 +173,7 @@ class MediaItemCreate {
 				 */
 				$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
 				$attachment_data_update = wp_update_attachment_metadata( $attachment_id, $attachment_data );
+
 				/**
 				 * Handle the error from wp_update_attachment_metadata if it occurs
 				 */

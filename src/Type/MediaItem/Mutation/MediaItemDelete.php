@@ -111,13 +111,14 @@ class MediaItemDelete {
 				 * Delete the mediaItem
 				 */
 				$deleted = wp_delete_attachment( $id_parts['id'], $force_delete );
+
 				/**
 				 * Handle the error from wp_delete_attachment if it occurs
 				 */
 				if ( false === $deleted ) {
 					throw new \Exception( __( 'Sorry, the mediaItem failed to delete', 'wp-graphql' ) );
 				}
-				
+
 				/**
 				 * If the post was moved to the trash, spoof the object's status before returning it
 				 */
