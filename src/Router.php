@@ -374,7 +374,7 @@ class Router {
 			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
 				$response['extensions']['exception'] = FormattedError::createFromException( $error );
 			} else {
-				if ( 10 == $error->getCode() ) {
+				if ( 10 === $error->getCode() ) {
 					$response['errors'] = [ FormattedError::create( $error->getMessage() ) ];
 				} else {
 					$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
