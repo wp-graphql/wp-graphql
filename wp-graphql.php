@@ -196,7 +196,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		private function actions() {
 			// @placeholder where actions can be added throughout. This will be useful for mutations
-			register_deactivation_hook( __FILE__, array($this, 'activate' ) );
+			register_deactivation_hook( __FILE__, array( $this, 'activate' ) );
 			register_activation_hook( __FILE__, array( $this, 'deactivate' ) );
 		}
 
@@ -214,18 +214,18 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		}
 
-		public function activate(){
+		public function activate() {
 			flush_rewrite_rules();
 			// Save the version of the plugin as an option in order to force actions
 			// on upgrade.
-			if ( false === get_option( 'wp_graphql_version', false ) ){
-				add_option('wp_graphql_version', WPGRAPHQL_VERSION, null, 'no' );
+			if ( false === get_option( 'wp_graphql_version', false ) ) {
+				add_option( 'wp_graphql_version', WPGRAPHQL_VERSION, null, 'no' );
 			} else {
 				update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
 			}
 		}
 
-		public function deactivate(){
+		public function deactivate() {
 			flush_rewrite_rules();
 			delete_option( 'wp_graphql_version' );
 		}
@@ -331,10 +331,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
 			 $taxonomies = get_taxonomies(
-				[
+				 [
 					'show_in_graphql' => true,
-				]
-			);
+				 ]
+			 );
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
