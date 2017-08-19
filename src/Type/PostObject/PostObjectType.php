@@ -190,7 +190,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_title ) ? $post->post_title : null;
+							return get_the_title( $post );
 						},
 					],
 					'excerpt'           => [
