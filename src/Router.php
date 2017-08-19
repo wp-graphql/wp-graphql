@@ -384,8 +384,8 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param $response array
-		 * @param $graphql_results array
+		 * @param array $response
+		 * @param array $graphql_results
 		 *
 		 * @since 0.0.5
 		 */
