@@ -214,6 +214,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		}
 
+		/**
+		 * Function to execute when the user activates the plugin.
+		 */
 		public function activate() {
 			flush_rewrite_rules();
 			// Save the version of the plugin as an option in order to force actions
@@ -225,6 +228,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			}
 		}
 
+		/**
+		 * Function to execute when the user deactivates the plugin.
+		 */
 		public function deactivate() {
 			flush_rewrite_rules();
 			delete_option( 'wp_graphql_version' );
