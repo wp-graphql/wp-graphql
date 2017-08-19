@@ -238,7 +238,7 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 * 
+	 *
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
@@ -302,7 +302,6 @@ class Router {
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
 
-
 			} else {
 				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
@@ -318,13 +317,13 @@ class Router {
 				 * @since 0.0.5
 				 */
 				$data = json_decode( self::get_raw_data(), true );
-			}
+			}// End if().
 
 			/**
 			 * If the $data is empty, catch an error.
 			 */
-			if ( empty( $data ) ) {
-				$response['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
+			if ( empty( $data ) || ( empty( $data['query'] ) && empty( $data['operationName'] ) && empty( $data['variables'] ) ) ) {
+				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
 			/**
@@ -375,7 +374,11 @@ class Router {
 			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
 				$response['extensions']['exception'] = FormattedError::createFromException( $error );
 			} else {
-				$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
+				if ( 10 == $error->getCode() ) {
+					$response['errors'] = [ FormattedError::create( $error->getMessage() ) ];
+				} else {
+					$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
+				}
 			}
 		} // End try().
 
