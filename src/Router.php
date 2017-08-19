@@ -405,6 +405,11 @@ class Router {
 			 * Send the JSON response
 			 */
 			wp_send_json( $response );
+		} else {
+			/**
+			 * Headers will already be set if this function is called within AJAX.
+			 */
+			wp_send_json( $response );
 		}
 
 	}
