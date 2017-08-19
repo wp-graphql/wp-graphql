@@ -216,6 +216,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Function to execute when the user activates the plugin.
+		 * @since  0.0.17
 		 */
 		public function activate() {
 			flush_rewrite_rules();
@@ -230,6 +231,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Function to execute when the user deactivates the plugin.
+		 * @since  0.0.17
 		 */
 		public function deactivate() {
 			flush_rewrite_rules();
