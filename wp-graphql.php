@@ -195,7 +195,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 		 */
 		private function actions() {
-			// @placeholder where actions can be added throughout. This will be useful for mutations
+			register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
+			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
 		}
 
 		/**
@@ -210,6 +211,28 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
+		}
+
+		/**
+		 * Function to execute when the user activates the plugin.
+		 *
+		 * @since  0.0.17
+		 */
+		public function activate() {
+			flush_rewrite_rules();
+			// Save the version of the plugin as an option in order to force actions
+			// on upgrade.
+			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION, 'no' );
+		}
+
+		/**
+		 * Function to execute when the user deactivates the plugin.
+		 *
+		 * @since  0.0.17
+		 */
+		public function deactivate() {
+			flush_rewrite_rules();
+			delete_option( 'wp_graphql_version' );
 		}
 
 		/**
@@ -313,10 +336,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
 			 $taxonomies = get_taxonomies(
-				[
+				 [
 					'show_in_graphql' => true,
-				]
-			);
+				 ]
+			 );
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
