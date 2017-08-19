@@ -195,7 +195,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 		 */
 		private function actions() {
-			// @placeholder where actions can be added throughout. This will be useful for mutations
 			register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
 			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
 		}
