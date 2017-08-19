@@ -430,6 +430,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$variables = (array) json_decode( $variables );
 			}
 
+			/**
+			 * Fires before schema is generated, allowing for potential blacklisting/whitelisting.
+			 *
+			 * @param $request string
+			 * @param $operation_name string
+			 * @param $variables string
+			 * @param $app_context WPGraphQL\AppContext
+			 */
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
