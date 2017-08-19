@@ -196,8 +196,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		private function actions() {
 			// @placeholder where actions can be added throughout. This will be useful for mutations
-			register_deactivation_hook( __FILE__, array( $this, 'activate' ) );
-			register_activation_hook( __FILE__, array( $this, 'deactivate' ) );
+			register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
+			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
 		}
 
 		/**
@@ -216,21 +216,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Function to execute when the user activates the plugin.
+		 *
 		 * @since  0.0.17
 		 */
 		public function activate() {
 			flush_rewrite_rules();
 			// Save the version of the plugin as an option in order to force actions
 			// on upgrade.
-			if ( false === get_option( 'wp_graphql_version', false ) ) {
-				add_option( 'wp_graphql_version', WPGRAPHQL_VERSION, null, 'no' );
-			} else {
-				update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
-			}
+			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION, 'no' );
 		}
 
 		/**
 		 * Function to execute when the user deactivates the plugin.
+		 *
 		 * @since  0.0.17
 		 */
 		public function deactivate() {
