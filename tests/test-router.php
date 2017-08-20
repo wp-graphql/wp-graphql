@@ -52,13 +52,13 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720
 	 * @runInSeparateProcess
 	 */
-	public function testSendHeader() {
-		$router = new \WPGraphQL\Router();
-		$router::send_header( 'some_key', 'some_value' );
-		if ( function_exists( 'xdebug_get_headers' ) ) {
-			$this->assertContains( 'some_key: some_value', xdebug_get_headers() );
-		}
-	}
+//	public function testSendHeader() {
+//		$router = new \WPGraphQL\Router();
+//		$router::send_header( 'some_key', 'some_value' );
+//		if ( function_exists( 'xdebug_get_headers' ) ) {
+//			$this->assertContains( 'some_key: some_value', xdebug_get_headers() );
+//		}
+//	}
 
 	public function testAddRewriteRule() {
 
@@ -73,37 +73,37 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 	/**
 	 * @runInSeparateProcess
 	 */
-	public function testSetHeadersNoCache() {
-
-		$router = new \WPGraphQL\Router();
-		$router::set_headers( '200' );
-
-		$headers = xdebug_get_headers();
-
-		$this->assertContains( 'Access-Control-Allow-Origin: *', $headers );
-		$this->assertContains( 'Content-Type: application/json ; charset=' . get_option( 'blog_charset' ), $headers );
-		$this->assertContains( 'X-Robots-Tag: noindex', $headers );
-		$this->assertContains( 'X-Content-Type-Options: nosniff', $headers );
-		$this->assertContains( 'Access-Control-Allow-Headers: Authorization, Content-Type', $headers );
-		$this->assertContains( 'X-hacker: If you\'re reading this, you should visit github.com/wp-graphql and contribute!', $headers );
-
-	}
+//	public function testSetHeadersNoCache() {
+//
+//		$router = new \WPGraphQL\Router();
+//		$router::set_headers( '200' );
+//
+//		$headers = xdebug_get_headers();
+//
+//		$this->assertContains( 'Access-Control-Allow-Origin: *', $headers );
+//		$this->assertContains( 'Content-Type: application/json ; charset=' . get_option( 'blog_charset' ), $headers );
+//		$this->assertContains( 'X-Robots-Tag: noindex', $headers );
+//		$this->assertContains( 'X-Content-Type-Options: nosniff', $headers );
+//		$this->assertContains( 'Access-Control-Allow-Headers: Authorization, Content-Type', $headers );
+//		$this->assertContains( 'X-hacker: If you\'re reading this, you should visit github.com/wp-graphql and contribute!', $headers );
+//
+//	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
-	public function testSetHeadersWithCache() {
-
-		add_filter( 'graphql_send_nocache_headers', function() {
-			return true;
-		} );
-
-		$router = new \WPGraphQL\Router();
-		$router::set_headers( '200' );
-		$headers = xdebug_get_headers();
-		$this->assertContains( 'Cache-Control: no-cache, must-revalidate, max-age=0', $headers );
-
-	}
+//	public function testSetHeadersWithCache() {
+//
+//		add_filter( 'graphql_send_nocache_headers', function() {
+//			return true;
+//		} );
+//
+//		$router = new \WPGraphQL\Router();
+//		$router::set_headers( '200' );
+//		$headers = xdebug_get_headers();
+//		$this->assertContains( 'Cache-Control: no-cache, must-revalidate, max-age=0', $headers );
+//
+//	}
 
 	/**
 	 * This tests the WPGraphQL Router resolving HTTP requests.
