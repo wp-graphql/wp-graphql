@@ -347,6 +347,14 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $link ) ? $link : null;
 						},
 					],
+					'uri' => [
+						'type' => Types::string(),
+						'description' => __( 'URI path for the resource', 'wp-graphql' ),
+						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$uri = get_page_uri( $post->ID );
+							return ! empty( $uri ) ? $uri : null;
+						},
+					],
 					'terms' => [
 						'type' => Types::list_of( Types::term_object_union() ),
 						'args' => [
