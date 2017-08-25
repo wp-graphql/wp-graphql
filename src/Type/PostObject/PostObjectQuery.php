@@ -88,7 +88,7 @@ class PostObjectQuery {
 					if ( ! empty( $args['id'] ) ) {
 						$id_components = Relay::fromGlobalId( $args['id'] );
 						if ( empty( $id_components['id'] ) || empty( $id_components[ 'type' ] ) ) {
-							throw new \Exception( 'The "id" is invalid', 'wp-graphql' );
+							throw new \Exception( __( 'The "id" is invalid', 'wp-graphql' ) );
 						}
 						$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
 					} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
