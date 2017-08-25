@@ -50,7 +50,7 @@
         },
         {
             "name": "webonyx/graphql-php",
-            "version": "v0.9.8",
+            "version": "v0.9.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webonyx/graphql-php.git",

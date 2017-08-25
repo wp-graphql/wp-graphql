@@ -59,7 +59,7 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 //			$this->assertContains( 'some_key: some_value', xdebug_get_headers() );
 //		}
 //	}
-
+//
 //	public function testAddRewriteRule() {
 //
 //		global $wp_rewrite;
@@ -269,38 +269,6 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 */
 		$this->assertNotFalse( did_action( 'graphql_process_http_request' ) );
 		$this->assertNotFalse( did_action( 'graphql_process_http_request_response' ) );
-
-	}
-
-	/**
-	 */
-	public function testResolveRequestWithNoData() {
-
-		/**
-		 * Filter the request data
-		 */
-		add_filter( 'graphql_request_data', function( $data ) {
-			return [];
-		} );
-
-		/**
-		 * Set the query var to "graphql" so we can mock like we're visiting the endpoint via
-		 */
-		set_query_var( 'graphql', true );
-		$GLOBALS['wp']->query_vars['graphql'] = true;
-
-		/**
-		 * Instantiate the router
-		 */
-		$router = new \WPGraphQL\Router();
-
-		/**
-		 * Process the request using our filtered data
-		 */
-		$response = $router::resolve_http_request();
-
-		$this->assertTrue( defined( 'GRAPHQL_HTTP_REQUEST' ) );
-		$this->assertEquals( true, GRAPHQL_HTTP_REQUEST );
 
 	}
 
