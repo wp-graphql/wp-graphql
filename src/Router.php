@@ -405,7 +405,7 @@ class Router {
 			 * Send the JSON response
 			 */
 			wp_send_json( $response );
-		} else {
+		} elseif (defined( 'DOING_AJAX' ) && DOING_AJAX) {
 			/**
 			 * Headers will already be set if this function is called within AJAX.
 			 */
