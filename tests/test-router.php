@@ -49,7 +49,6 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 
 	/**
 	 * Test the "send_header" method in the Router class
-	 *
 	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720
 	 * @runInSeparateProcess
 	 */
@@ -124,9 +123,7 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 */
 		add_filter( 'graphql_request_data', function( $data ) {
 			$data['query'] = 'query getPosts($first:Int){ posts(first:$first){ edges{ node{ id } } } }';
-			$data['variables'] = [
-				'first' => 1,
-			];
+			$data['variables'] = [ 'first' => 1 ];
 			$data['operationName'] = 'getPosts';
 			return $data;
 		} );
@@ -176,9 +173,7 @@ class WPGraphQL_Test_Router extends WP_UnitTestCase {
 		 */
 		add_filter( 'graphql_request_data', function( $data ) {
 			$data['query'] = 'query getPosts($first:Int){ posts(first:$first){ edges{ node{ id } } } }';
-			$data['variables'] = wp_json_encode( [
-				'first' => 1,
-			] );
+			$data['variables'] = wp_json_encode( [ 'first' => 1 ] );
 			$data['operationName'] = 'getPosts';
 			return $data;
 		} );
