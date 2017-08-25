@@ -532,7 +532,7 @@ class DataSource {
 	 *
 	 * This is a modified version of the cached function from WordPress.com VIP MU Plugins here.
 	 *
-	 * @param string $path
+	 * @param string $uri
 	 * @param string $output Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
 	 * @return WP_Post|null WP_Post on success or null on failure
