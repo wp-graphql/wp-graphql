@@ -749,4 +749,112 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $node, $byId );
 
 	}
+
+	/**
+	 * Query with an invalid ID, should return an error
+	 */
+	public function testPostByQueryWithInvalidId() {
+
+		$query = '{
+			postBy(id: "invalid ID") {
+				id
+				title
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query with an invalid ID
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Query for a post that was deleted
+	 */
+	public function testPostByQueryAfterPostWasDeleted() {
+
+		/**
+		 * Create the post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => 'Post that will be deleted',
+		] );
+
+		/**
+		 * Get the ID
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Delete the post, because we want to query for a post that's been deleted
+		 * and make sure it returns an error properly.
+		 */
+		wp_delete_post( $post_id, true );
+
+		/**
+		 * Query for the post
+		 */
+		$query = '{
+			postBy(id: "' . $global_id . '") {
+				id
+				title
+			}
+		}';
+
+		/**
+		 * Run the query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query for a deleted post
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Test querying for a post with an ID that belongs to a different type
+	 */
+	public function testPostByQueryWithIDForADifferentType() {
+
+		/**
+		 * Create the page
+		 */
+		$page_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'A Test Page',
+		] );
+
+		/**
+		 * Get the ID
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+
+		/**
+		 * Query for the post, using a global ID for a page
+		 */
+		$query = '{
+			postBy(id: "' . $global_id . '") {
+				id
+				title
+			}
+		}';
+
+		/**
+		 * Run the query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query for a post using a Page ID
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
 }
