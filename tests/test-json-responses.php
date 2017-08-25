@@ -13,7 +13,12 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 	}
-
+	/**
+	 * [testResolveHttpRequestWithEmptyQuery description]
+	 *
+	 * @runInSeparateProcess
+	 * @return [type] [description]
+	 */
 	public function testResolveHttpRequestWithEmptyQuery() {
 		/**
 		 * Filter the request data
