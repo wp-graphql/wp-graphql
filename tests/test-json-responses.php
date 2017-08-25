@@ -16,7 +16,7 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 	/**
 	 * [testResolveHttpRequestWithEmptyQuery description]
 	 *
-	 * @runInSeparateProcess
+	 * @group ajax
 	 * @return [type] [description]
 	 */
 	public function testResolveHttpRequestWithEmptyQuery() {
@@ -35,8 +35,6 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 		 */
 		set_query_var( 'graphql', true );
 		$GLOBALS['wp']->query_vars['graphql'] = true;
-
-		define( 'DOING_AJAX', true );
 
 		/**
 		 * Instantiate the router

@@ -20,16 +20,16 @@ matrix:
       env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 7.0
       env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
-    - php: 7.1.0
-      env: WP_VERSION=nightly WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3
     - php: 5.5
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 7.0
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
-    - php: 7.1.0
-      env: WP_VERSION=nightly WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
 # Composer package installation
@@ -50,6 +50,7 @@ before_script:
   - ls -al
 
 script:
+ - vendor/bin/phpunit --group ajax
  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_success:

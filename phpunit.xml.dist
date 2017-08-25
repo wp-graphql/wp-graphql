@@ -6,6 +6,17 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
+	<groups>
+		<exclude>
+			<group>ajax</group>
+		</exclude>
+		<exclude>
+			<group>external-http</group>
+		</exclude>
+		<exclude>
+			<group>ms-files</group>
+		</exclude>
+	</groups>
 	<testsuites>
 		<testsuite name="WPGraphQL Test Suite">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
