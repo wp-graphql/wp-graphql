@@ -4,7 +4,7 @@
  *
  * @group ajax
  */
-class WPGraphQL_Test_Router extends WP_Ajax_UnitTestCase {
+class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 
 	public function setUp() {
 		parent::setUp();
@@ -31,6 +31,8 @@ class WPGraphQL_Test_Router extends WP_Ajax_UnitTestCase {
 		set_query_var( 'graphql', true );
 		$GLOBALS['wp']->query_vars['graphql'] = true;
 
+		define( 'DOING_AJAX', true );
+
 		/**
 		 * Instantiate the router
 		 */
@@ -43,7 +45,6 @@ class WPGraphQL_Test_Router extends WP_Ajax_UnitTestCase {
 		try {
 			$this->_handleAjax( 'graphql_resolve_http_request' );
 		} catch ( WPAjaxDieContinueException $e ) {}
-		// $router::resolve_http_request();
 		/**
 		 * Make sure the constant gets defined when it's a GraphQL Request
 		 */
