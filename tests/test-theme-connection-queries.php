@@ -44,7 +44,7 @@ class WP_GraphQL_Test_Theme_Queries extends WP_UnitTestCase {
 
 		$query = '
 		{
-		  themes(last: 1){
+		  themes{
 		    edges{
 		      node{
 		        id

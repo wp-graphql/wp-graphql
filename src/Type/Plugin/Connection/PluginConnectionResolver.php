@@ -31,6 +31,12 @@ class PluginConnectionResolver {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		// This is missing must use and drop in plugins.
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
+		$plugins_array = [];
+		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
+			foreach ( $plugins as $plugin ) {
+				$plugins_array[] = $plugin;
+			}
+		}
 
 		return Relay::connectionFromArray( $plugins, $args );
 
