@@ -275,4 +275,56 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
 	}
 
+	public function testPageWithChildren() {
+
+		$parent_id = $this->factory->post->create([
+			'post_type' => 'page'
+		]);
+
+		$child_id = $this->factory->post->create([
+			'post_type' => 'page',
+			'post_parent' => $parent_id
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+
+		$query = '
+		{
+			page( id: "' . $global_id . '" ) {
+				id
+				pageId
+				childPages {
+					edges {
+						node {
+							id
+							pageId
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Make sure the query didn't return any errors
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$parent = $actual['data']['page'];
+		$child = $parent['childPages']['edges'][0]['node'];
+
+		/**
+		 * Make sure the child and parent data matches what we expect
+		 */
+		$this->assertEquals( $global_id, $parent['id'] );
+		$this->assertEquals( $parent_id, $parent['pageId'] );
+		$this->assertEquals( $global_child_id, $child['id'] );
+		$this->assertEquals( $child_id, $child['pageId'] );
+
+
+	}
+
 }

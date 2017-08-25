@@ -8,6 +8,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
@@ -424,6 +425,13 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
 						},
 					];
+				}
+
+				/**
+				 * If the post_type is Hierarchical, there should be a children field
+				 */
+				if ( true === $post_type_object->hierarchical ) {
+					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object );
 				}
 
 				/**

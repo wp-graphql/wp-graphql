@@ -81,6 +81,11 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		$query_args['posts_per_page'] = min( max( absint( $first ), absint( $last ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
 
 		/**
+		 * Set the default to only query posts with no post_parent set
+		 */
+		$query_args['post_parent'] = 0;
+
+		/**
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
@@ -99,6 +104,50 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		if ( ! empty( $args['where'] ) ) {
 			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
 		}
+
+		/**
+		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
+		 */
+		if ( 'attachment' === self::$post_type ) {
+			$query_args['post_status'] = 'inherit';
+
+			/**
+			 * Unset the "post_parent" for attachments, as we don't really care if they
+			 * have a post_parent set by default
+			 */
+			unset( $query_args['post_parent'] );
+		}
+
+		/**
+		 * Determine where we're at in the Graph and adjust the query context appropriately.
+		 *
+		 * For example, if we're querying for posts as a field of termObject query, this will automatically
+		 * set the query to pull posts that belong to that term.
+		 */
+		if ( true === is_object( $source ) ) :
+			switch ( true ) {
+				case $source instanceof \WP_Post:
+					$query_args['post_parent'] = $source->ID;
+					break;
+				case $source instanceof \WP_Post_Type:
+					$query_args['post_type'] = $source->name;
+					break;
+				case $source instanceof \WP_Term:
+					$query_args['tax_query'] = [
+						[
+							'taxonomy' => $source->taxonomy,
+							'terms'    => [ $source->term_id ],
+							'field'    => 'term_id',
+						],
+					];
+					break;
+				case $source instanceof \WP_User:
+					$query_args['author'] = $source->ID;
+					break;
+				default:
+					break;
+			}
+		endif;
 
 		/**
 		 * Merge the input_fields with the default query_args
@@ -126,41 +175,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		if ( empty( $query_args['orderby'] ) ) {
 			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
-		}
-
-		/**
-		 * Determine where we're at in the Graph and adjust the query context appropriately.
-		 *
-		 * For example, if we're querying for posts as a field of termObject query, this will automatically
-		 * set the query to pull posts that belong to that term.
-		 */
-		if ( true === is_object( $source ) ) :
-			switch ( true ) {
-				case $source instanceof \WP_Post:
-					$query_args['post_type'] = $source->name;
-					break;
-				case $source instanceof \WP_Term:
-					$query_args['tax_query'] = [
-						[
-							'taxonomy' => $source->taxonomy,
-							'terms'    => [ $source->term_id ],
-							'field'    => 'term_id',
-						],
-					];
-					break;
-				case $source instanceof \WP_User:
-					$query_args['author'] = $source->ID;
-					break;
-				default:
-					break;
-			}
-		endif;
-
-		/**
-		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
-		 */
-		if ( 'attachment' === self::$post_type ) {
-			$query_args['post_status'] = 'inherit';
 		}
 
 		/**
