@@ -117,7 +117,6 @@ class UserType extends WPObjectType {
 						},
 					],
 					'lastName' => [
-						'name' => 'last_name',
 						'type' => Types::string(),
 						'description' => __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
