@@ -91,6 +91,11 @@ class UserUpdate {
 					}
 
 					/**
+					 * Update additional user data
+					 */
+					UserMutation::update_additional_user_object_data( $user_id, $input, 'update' );
+
+					/**
 					 * Return the new user ID
 					 */
 					return [

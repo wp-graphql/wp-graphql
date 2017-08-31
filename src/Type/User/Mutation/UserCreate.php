@@ -57,6 +57,7 @@ class UserCreate {
 					 */
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
 
+					//print_r( $user_args );
 					/**
 					 * Create the new user
 					 */
@@ -80,6 +81,11 @@ class UserCreate {
 					if ( empty( $user_id ) ) {
 						throw new \Exception( __( 'The object failed to create', 'wp-graphql' ) );
 					}
+
+					/**
+					 * Update additional user data
+					 */
+					UserMutation::update_additional_user_object_data( $user_id, $input, 'create' );
 
 					/**
 					 * Return the new user ID
@@ -109,7 +115,7 @@ class UserCreate {
 		 */
 		return array_merge(
 			[
-				'login' => [
+				'username' => [
 					'type'        => Types::non_null( Types::id() ),
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),

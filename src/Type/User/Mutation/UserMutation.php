@@ -34,7 +34,7 @@ class UserMutation {
 					'type'        => Types::string(),
 					'description' => __( 'A string that contains the plain text password for the user.', 'wp-graphql' ),
 				],
-				'login'       => [
+				'username'       => [
 					'type'        => Types::string(),
 					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
 				],
@@ -78,9 +78,9 @@ class UserMutation {
 					'type'        => Types::string(),
 					'description' => __( 'The date the user registered. Format is Y-m-d H:i:s.', 'wp-graphql' ),
 				],
-				'role'        => [
-					'type'        => Types::string(),
-					'description' => __( 'A string used to set the user\'s role.', 'wp-graphql' ),
+				'roles'       => [
+					'type'        => Types::list_of( Types::string() ),
+					'description' => __( 'An array of roles to be assigned to the user.', 'wp-graphql' ),
 				],
 				'jabber'      => [
 					'type'        => Types::string(),
@@ -127,10 +127,12 @@ class UserMutation {
 
 		if ( ! empty( $input['password'] ) ) {
 			$insert_user_args['user_pass'] = $input['password'];
+		} else {
+			$insert_user_args['user_pass'] = null;
 		}
 
-		if ( ! empty( $input['login'] ) ) {
-			$insert_user_args['user_login'] = $input['login'];
+		if ( ! empty( $input['username'] ) ) {
+			$insert_user_args['user_login'] = $input['username'];
 		}
 
 		if ( ! empty( $input['nicename'] ) ) {
@@ -173,8 +175,13 @@ class UserMutation {
 			$insert_user_args['user_registered'] = $input['registered'];
 		}
 
-		if ( ! empty( $input['role'] ) ) {
-			$insert_user_args['role'] = $input['role'];
+		if ( ! empty( $input['roles'] ) ) {
+			/**
+			 * Pluck the first role out of the array since the insert and update functions only
+			 * allow one role to be set at a time. We will add all of the roles passed to the
+			 * mutation later on after the initial object has been created or updated.
+			 */
+			$insert_user_args['role'] = $input['roles'][0];
 		}
 
 		if ( ! empty( $input['jabber'] ) ) {
@@ -203,6 +210,82 @@ class UserMutation {
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
 		return $insert_user_args;
+
+	}
+
+	/**
+	 * This updates additional data related to the user object after the initial mutation has happened
+	 *
+	 * @param int $new_user_id The ID of the user that was just updated
+	 * @param array $input The input data from the GraphQL query
+	 * @param string $mutation_name Name of the mutation currently being run
+	 */
+	public static function update_additional_user_object_data( $new_user_id, $input, $mutation_name ) {
+
+		self::add_user_roles( $new_user_id, $input['roles'] );
+
+		/**
+		 * Run an action after the additional data has been updated. This is a great spot to hook into to
+		 * update additional data related to users, such as setting relationships, updating additional usermeta,
+		 * or sending emails to Kevin... whatever you need to do with the userObject.
+		 *
+		 * @param int           $new_post_id      The ID of the user being mutated
+		 * @param array         $input            The input for the mutation
+		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 */
+		do_action( 'graphql_user_object_mutation_update_additional_data', $new_user_id, $input, $mutation_name );
+
+	}
+
+	/**
+	 * Method to add user roles to a user object
+	 *
+	 * @param int $user_id The ID of the user
+	 * @param array $roles List of roles that need to get added to the user
+	 * @access private
+	 */
+	private static function add_user_roles( $user_id, $roles ) {
+
+		if ( empty( $roles ) || ! is_array( $roles ) ) {
+			return;
+		}
+
+		$user = get_user_by( 'ID', $user_id );
+
+		if ( false !== $user ) {
+			foreach ( $roles as $role ) {
+				self::verify_user_role( $role );
+				$user->add_role( $role );
+			}
+		}
+
+	}
+
+	/**
+	 * Method to check if the user role is valid, and if the current user has permission to add, or remove it from a user.
+	 *
+	 * @param string $role Name of the role trying to get added to a user object
+	 * @return bool
+	 * @throws \Exception
+	 * @access private
+	 */
+	private static function verify_user_role( $role ) {
+
+		/**
+		 * The function for this is only loaded on admin pages. See note: https://codex.wordpress.org/Function_Reference/get_editable_roles#Notes
+		 */
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/admin.php';
+		}
+
+		$editable_roles = get_editable_roles();
+
+		if ( empty( $editable_roles[ $role ] ) ) {
+			// Translators: %s is the name of the role that can't be added to the user.
+			throw new \Exception( sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
+		} else {
+			return true;
+		}
 
 	}
 
