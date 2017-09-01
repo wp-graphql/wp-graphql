@@ -44,10 +44,6 @@ class UserCreate {
 				],
 				'mutateAndGetPayload' => function( $input ) {
 
-					if ( empty( $input ) || ! is_array( $input ) ) {
-						throw new \Exception( __( 'Mutation not processed. There was no input for the mutation.', 'wp-graphql' ) );
-					}
-
 					if ( ! current_user_can( 'create_users' ) ) {
 						throw new \Exception( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
 					}
@@ -114,14 +110,14 @@ class UserCreate {
 		 * Update mutations require an ID to be passed
 		 */
 		return array_merge(
+			UserMutation::input_fields(),
 			[
 				'username' => [
 					'type'        => Types::non_null( Types::id() ),
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
 				],
-			],
-			UserMutation::input_fields()
+			]
 		);
 
 	}

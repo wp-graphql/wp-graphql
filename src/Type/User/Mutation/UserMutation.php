@@ -140,6 +140,9 @@ class UserMutation {
 		}
 
 		if ( ! empty( $input['email'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
+				throw new \Exception( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+			}
 			$insert_user_args['user_email'] = $input['email'];
 		}
 

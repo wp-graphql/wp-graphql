@@ -139,10 +139,8 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		$username = 'duplicateUsername';
 
-		//@TODO: replace with factory method
-		$first_user = $this->createUserMutation( [
-			'username' => $username,
-			'email' => 'firstUsername@test.com',
+		$this->factory->user->create( [
+			'user_login' => $username
 		] );
 
 		$second_user = $this->createUserMutation( [
@@ -160,10 +158,8 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		$email = 'duplicateEmailAddress@test.com';
 
-		//@TODO: replace with factory method
-		$first_user = $this->createUserMutation( [
-			'username' => 'testDuplicateEmail1',
-			'email' => $email,
+		$this->factory->user->create( [
+			'user_email' => $email,
 		] );
 
 		$second_user = $this->createUserMutation( [
@@ -172,6 +168,19 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 		] );
 
 		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that email address is already used!' );
+
+	}
+
+	public function testInvalidEmailAddress() {
+
+		wp_set_current_user( $this->admin );
+
+		$user = $this->createUserMutation( [
+			'username' => 'testInvalidEmail',
+			'email' => 'notanemail',
+		] );
+
+		$this->assertEquals( $user['errors'][0]['message'], 'The email address you are trying to use is invalid' );
 
 	}
 
