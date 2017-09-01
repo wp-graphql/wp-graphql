@@ -46,7 +46,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 		/**
 		 * Set the default comment_parent for Comment Queries to be "0" to only get top level comments
 		 */
-		$query_args['comment_parent'] = 0;
+		$query_args['parent'] = 0;
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
