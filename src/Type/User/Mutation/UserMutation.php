@@ -34,10 +34,6 @@ class UserMutation {
 					'type'        => Types::string(),
 					'description' => __( 'A string that contains the plain text password for the user.', 'wp-graphql' ),
 				],
-				'username'       => [
-					'type'        => Types::string(),
-					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
-				],
 				'nicename'    => [
 					'type'        => Types::string(),
 					'description' => __( 'A string that contains a URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' ),
