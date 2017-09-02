@@ -10,7 +10,48 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 	public $admin;
 	public $subscriber;
 
+	/**
+	 * This filters the capabilities so that our test user can create/edit/delete users in multisite.
+	 *
+	 * @param $caps
+	 * @param $cap
+	 * @param $user_id
+	 * @param $args
+	 *
+	 * @return mixed
+	 */
+	function filter_multisite_edit_user_capabilities( $caps, $cap, $user_id, $args ){
+
+		foreach( $caps as $key => $capability ){
+
+			if( $capability != 'do_not_allow' )
+				continue;
+
+			switch( $cap ) {
+				case 'edit_user':
+				case 'edit_users':
+					$caps[$key] = 'edit_users';
+					break;
+				case 'delete_user':
+				case 'delete_users':
+					$caps[$key] = 'delete_users';
+					break;
+				case 'create_users':
+					$caps[$key] = $cap;
+					break;
+			}
+		}
+
+		return $caps;
+	}
+
 	public function setUp() {
+
+		// Allow new users to be created for multisite tests
+		update_option( 'add_new_users', true );
+		add_filter( 'map_meta_cap', [ $this, 'filter_multisite_edit_user_capabilities' ], 1, 4 );
+		remove_all_filters( 'enable_edit_any_user_configuration' );
+		add_filter( 'enable_edit_any_user_configuration', '__return_true' );
 
 		$this->client_mutation_id = 'someUniqueId';
 		$this->first_name = 'Test';
@@ -104,8 +145,8 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$username = 'userCreatedByAdmin';
-		$email = 'userCreatedByAdmin@test.com';
+		$username = 'rusercreatedbyadmin';
+		$email = 'UserCreatedByAdmin@test.com';
 
 		$actual = $this->createUserMutation( [
 			'username' => $username,
@@ -188,7 +229,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$user_login = 'testUserUpdate';
+		$user_login = 'test_user_update';
 		$user_email = 'testUserUpdate@test.com';
 		$user_role = 'editor';
 		$first_name = 'Test';
@@ -277,10 +318,10 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$username = 'userToDelete';
+		$username = 'user_to_delete_with_capability';
 
 		$user_id = $this->factory->user->create( [
-			'role' => 'administrator',
+			'role' => 'subscriber',
 			'user_login' => $username,
 		] );
 
@@ -334,7 +375,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 	public function testDeleteUserWithoutCapability() {
 
-		$username = 'userToDelete';
+		$username = 'user_to_delete_without_capability';
 
 		$user_id = $this->factory->user->create( [
 			'role' => 'subscriber',

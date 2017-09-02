@@ -100,8 +100,12 @@ class UserDelete {
 						require_once( ABSPATH . 'wp-admin/includes/user.php' );
 					}
 
-					$deleted_user = wp_delete_user( absint( $id_parts['id'] ), $reassign_id );
-
+					if ( is_multisite() ) {
+						$deleted_user = wpmu_delete_user( absint( $id_parts['id'] ) );
+					} else {
+						$deleted_user = wp_delete_user( absint( $id_parts['id'] ), $reassign_id );
+					}
+					
 					if ( true !== $deleted_user ) {
 						throw new \Exception( __( 'Could not delete the user.', 'wp-grapgql' ) );
 					}
