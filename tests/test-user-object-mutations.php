@@ -419,7 +419,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 	public function testCreateUserWithExtraFields() {
 
-		$username = 'userWithExtraFields';
+		$username = 'userwithextrafields';
 		$email = 'userWithExtraFields@test.com';
 		$nicename = 'user NiceName';
 		$url = 'http://wpgraphql.com';
@@ -515,7 +515,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 			'input' => [
 				'firstName' => $this->first_name,
 				'lastName' => $this->last_name,
-				'username' => 'createUserWithoutRoles',
+				'username' => 'createuserwithoutroles',
 				'clientMutationId' => $this->client_mutation_id,
 			],
 		];
@@ -531,7 +531,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 					'user' => [
 						'firstName' => $this->first_name,
 						'lastName' => $this->last_name,
-						'username' => 'createUserWithoutRoles',
+						'username' => 'createuserwithoutroles',
 					],
 				],
 			],
