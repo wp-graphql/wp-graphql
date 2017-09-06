@@ -15,6 +15,9 @@ GraphQL API for WordPress.
 ## Installing
 Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
 
+- Requires PHP 5.5+
+- Requires WordPress 4.7+
+
 ## Overview
 This plugin brings the power of GraphQL to WordPress.
 
