@@ -179,6 +179,13 @@ class UserType extends WPObjectType {
 							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},
 					],
+					'nicename' => [
+						'type' => Types::string(),
+						'description' => __( 'The nicename for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
+						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
+						},
+					],
 					'locale' => [
 						'type' => Types::string(),
 						'description' => __( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),

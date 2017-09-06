@@ -417,4 +417,160 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 	}
 
+	public function testCreateUserWithExtraFields() {
+
+		$username = 'userWithExtraFields';
+		$email = 'userWithExtraFields@test.com';
+		$nicename = 'user NiceName';
+		$url = 'http://wpgraphql.com';
+		$date = date("Y-m-d H:i:s");
+		$displayName = 'User Display Name';
+		$nickname = 'User Nickname';
+		$description = 'User Description';
+		$locale = 'en';
+
+		wp_set_current_user( $this->admin );
+
+		$variables = [
+			'input' => [
+				'firstName' => $this->first_name,
+				'lastName' => $this->last_name,
+				'clientMutationId' => $this->client_mutation_id,
+				'username' => $username,
+				'email' => $email,
+				'password' => 'somePassword',
+				'websiteUrl' => $url,
+				'nicename' => $nicename,
+				'displayName' => $displayName,
+				'nickname' => $nickname,
+				'description' => $description,
+				'registered' => $date,
+				'locale' => $locale,
+				'roles' => [
+					'administrator',
+				],
+			],
+		];
+
+		$mutation = '
+		mutation createAndGetUser( $input:createUserInput! ) {
+			createUser( input: $input ) {
+				clientMutationId
+				user {
+					firstName
+					lastName
+					email
+					username
+					nicename
+					name
+					nickname
+					description
+					locale
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $mutation, 'createAndGetUser', $variables );
+
+		$expected = [
+			'data' => [
+				'createUser' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user' => [
+						'firstName' => $this->first_name,
+						'lastName' => $this->last_name,
+						'email' => $email,
+						'username' => $username,
+						'nicename' => strtolower( str_ireplace( ' ', '-', $nicename ) ),
+						'name' => $displayName,
+						'nickname' => $nickname,
+						'description' => $description,
+						'locale' => $locale
+					]
+				]
+			]
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testCreateUserWithoutRoles() {
+
+		$mutation = '
+		mutation createUserWithoutRoles( $input:createUserInput! ) {
+			createUser( input: $input ) {
+				clientMutationId
+				user {
+					firstName
+					lastName
+					username
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'firstName' => $this->first_name,
+				'lastName' => $this->last_name,
+				'username' => 'createUserWithoutRoles',
+				'clientMutationId' => $this->client_mutation_id,
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+
+		$actual = do_graphql_request( $mutation, 'createUserWithoutRoles', $variables );
+
+		$expected = [
+			'data' => [
+				'createUser' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user' => [
+						'firstName' => $this->first_name,
+						'lastName' => $this->last_name,
+						'username' => 'createUserWithoutRoles',
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $actual, $expected );
+
+	}
+
+	public function testUpdateUserWithInvalidRole() {
+
+		$mutation = '
+		mutation updateUserWithInvalidRole( $input:updateUserInput! ) {
+			updateUser( input: $input )	{
+				clientMutationId
+				user {
+					id
+					name
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->author ),
+				'roles' => [
+					'invalidRole'
+				],
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+
+		$actual = do_graphql_request( $mutation, 'updateUserWithInvalidRole', $variables );
+
+		$this->assertEquals( 'Sorry, you are not allowed to give this the following role: invalidRole.', $actual['errors'][0]['message'] );
+
+	}
+
 }

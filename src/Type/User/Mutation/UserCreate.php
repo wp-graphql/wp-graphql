@@ -53,7 +53,6 @@ class UserCreate {
 					 */
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
 
-					//print_r( $user_args );
 					/**
 					 * Create the new user
 					 */
@@ -113,7 +112,7 @@ class UserCreate {
 			UserMutation::input_fields(),
 			[
 				'username' => [
-					'type'        => Types::non_null( Types::id() ),
+					'type'        => Types::non_null( Types::string() ),
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
 				],

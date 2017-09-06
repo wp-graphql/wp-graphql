@@ -183,18 +183,6 @@ class UserMutation {
 			$insert_user_args['role'] = $input['roles'][0];
 		}
 
-		if ( ! empty( $input['jabber'] ) ) {
-			$insert_user_args['jabber'] = $input['jabber'];
-		}
-
-		if ( ! empty( $input['aim'] ) ) {
-			$insert_user_args['aim'] = $input['aim'];
-		}
-
-		if ( ! empty( $input['yim'] ) ) {
-			$insert_user_args['yim'] = $input['yim'];
-		}
-
 		if ( ! empty( $input['locale'] ) ) {
 			$insert_user_args['locale'] = $input['locale'];
 		}
@@ -221,7 +209,8 @@ class UserMutation {
 	 */
 	public static function update_additional_user_object_data( $new_user_id, $input, $mutation_name ) {
 
-		self::add_user_roles( $new_user_id, $input['roles'] );
+		$roles = ! empty( $input['roles'] ) ? $input['roles'] : [];
+		self::add_user_roles( $new_user_id, $roles );
 
 		/**
 		 * Run an action after the additional data has been updated. This is a great spot to hook into to
