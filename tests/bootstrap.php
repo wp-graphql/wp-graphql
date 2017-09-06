@@ -22,7 +22,7 @@ function _manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 /**
- * Require the autholoader
+ * Require the autoloader
  */
 require_once dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 require_once dirname( dirname( __FILE__ ) ) . '/access-functions.php';

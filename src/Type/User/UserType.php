@@ -117,7 +117,6 @@ class UserType extends WPObjectType {
 						},
 					],
 					'lastName' => [
-						'name' => 'last_name',
 						'type' => Types::string(),
 						'description' => __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
@@ -176,6 +175,13 @@ class UserType extends WPObjectType {
 					'slug' => [
 						'type' => Types::string(),
 						'description' => __( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
+						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
+						},
+					],
+					'nicename' => [
+						'type' => Types::string(),
+						'description' => __( 'The nicename for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $user->user_nicename ) ? $user->user_nicename : null;
 						},

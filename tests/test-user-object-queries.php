@@ -106,7 +106,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 				extraCapabilities
 				firstName
 				id
-				last_name
+				lastName
 				locale
 				mediaItems {
 					edges {
@@ -164,7 +164,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 					'extraCapabilities' => [ 'read', 'level_0', 'subscriber' ],
 					'firstName'         => null,
 					'id'                => $global_id,
-					'last_name'         => null,
+					'lastName'         => null,
 					'locale'            => 'en_US',
 					'mediaItems'        => [
 						'edges' => [],
