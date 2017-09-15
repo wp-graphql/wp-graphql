@@ -182,8 +182,12 @@ class PostObjectType extends WPObjectType {
 					],
 					'content'           => [
 						'type'        => Types::string(),
-						'description' => __( 'The content of the post. This is currently just the raw content. An amendment to support rendered content needs to be made.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'description' => __( 'The content of the post (currently with the_content filters applied). An amendment to support filterability needs to be made.', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $wp_post, $args, AppContext $context, ResolveInfo $info ) {
+							global $post;
+
+							$post = $wp_post;
+
 							return apply_filters( 'the_content', $post->post_content );
 						},
 					],
@@ -196,8 +200,11 @@ class PostObjectType extends WPObjectType {
 					],
 					'excerpt'           => [
 						'type'        => Types::string(),
-						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'description' => __( 'The excerpt of the post (currently with get_the_excerpt filters applied). An amendment to support to support filterability needs to be made.', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $wp_post, $args, AppContext $context, ResolveInfo $info ) {
+							global $post;
+
+							$post = $wp_post;
 							$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
 
 							return ! empty( $excerpt ) ? $excerpt : null;
