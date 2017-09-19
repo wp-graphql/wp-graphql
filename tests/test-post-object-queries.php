@@ -27,6 +27,10 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 			'role' => 'administrator',
 		] );
 
+		/**
+		 * Add post object field filter enums that will be used in tests below.
+		 */
+		$this->addPostObjectFieldFilterEnums();
 	}
 
 	/**
@@ -76,6 +80,27 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		 */
 		return $post_id;
 
+	}
+
+	/**
+	 * Register some post object field filters enums that we will use in tests.
+	 * This needs to be called in test setup (while tests are running is too late).
+	 */
+	private function addPostObjectFieldFilterEnums() {
+		$filters = [
+			'test_post_data_field_filter',
+		];
+
+		add_filter( 'graphql_postObjectFieldFilter_values', function( $values ) use ( $filters ) {
+			foreach( $filters as $filter ) {
+				$values[ $filter ] = [
+					'name'  => strtoupper( $filter ),
+					'value' => $filter,
+				];
+			}
+
+			return $values;
+		}, 10, 1 );
 	}
 
 	/**
@@ -192,7 +217,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 					'pinged' => null,
 					'modified' => get_post( $post_id )->post_modified,
 					'modifiedGmt' => get_post( $post_id )->post_modified_gmt,
-					'title' => 'Test Title',
+					'title' => apply_filters( 'the_title', 'Test Title' ),
 					'guid' => get_post( $post_id )->guid,
 					'featuredImage' => [
 						'mediaItemId' => $featured_image_id,
@@ -588,9 +613,9 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$slug = get_post( $post_id )->post_name;
 
 		/**
-		 * Create the query string to pass to the $query
+		 * Create the GraphQL query.
 		 */
-		$query = "
+		$graphql_query = "
 		query {
 			postBy(slug: \"{$slug}\") {
 				id
@@ -857,4 +882,184 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * testPostObjectInvalidFieldFilter
+	 *
+	 * This tests that we must register a PostObjectFieldFilterEnumType before
+	 * using them in filters.
+	 *
+	 * @since 0.0.18
+	 */
+	public function testPostObjectInvalidFieldFilter() {
+		$graphql_query = "
+		query {
+			posts {
+				edges {
+					node {
+						id
+						content(filters: [MY_UNREGISTERED_FILTER])
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$graphql_query_data = do_graphql_request( $graphql_query );
+
+		/**
+		 * Assert that an error was returned corresponding to an unregistered
+		 * post object field filter.
+		 */
+		$this->assertContains( 'Argument "filters" has invalid value [MY_UNREGISTERED_FILTER].', $graphql_query_data['errors'][0]['message'] );
+	}
+
+	/**
+	 * testPostObjectValidFieldFilter
+	 *
+	 * This tests that we can register a PostObjectFieldFilterEnumType and use it
+	 * to filter post object fields.
+	 *
+	 * @since 0.0.18
+	 */
+	public function testPostObjectValidFieldFilter() {
+		/**
+		 * Create a post that we can query via GraphQL.
+		 */
+		$graphql_query_post_id = $this->factory->post->create();
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
+
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				content(filters: [TEST_POST_DATA_FIELD_FILTER])
+			}
+		}";
+
+		/**
+		 * Add a filter that will be called when the content field from the query
+		 * above is resolved. Note that we defined this filter as an enum in the
+		 * test setup method.
+		 */
+		add_filter( 'test_post_data_field_filter', function() {
+			return 'Overridden for testPostObjectValidFieldFilter';
+		}, 20, 0 );
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$graphql_query_data = do_graphql_request( $graphql_query );
+
+		/**
+		 * Assert that the filter was called.
+		 */
+		$this->assertEquals( 'Overridden for testPostObjectValidFieldFilter', $graphql_query_data['data']['post']['content'] );
+	}
+
+	/**
+	 * testPostQueryPostDataSetup
+	 *
+	 * This tests that we correctly setup post data for field resolvers.
+	 *
+	 * @since 0.0.18
+	 */
+	public function testPostQueryPostDataSetup() {
+		/**
+		 * Create a post that we can query via GraphQL.
+		 */
+		$graphql_query_post_id = $this->factory->post->create();
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
+
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				content(filters: [TEST_POST_DATA_FIELD_FILTER])
+			}
+		}";
+
+		/**
+		 * Add a filter that will be called when the content field from the query
+		 * above is resolved. Note that we defined this filter as an enum in the
+		 * test setup method.
+		 */
+		add_filter( 'test_post_data_field_filter', function() use ( $graphql_query_post_id ) {
+			/**
+			 * Assert that post data was correctly set up.
+			 */
+			$this->assertEquals( $graphql_query_post_id, $GLOBALS['post']->ID );
+
+			return 'Overridden for testPostQueryPostDataSetup';
+		}, 10, 0 );
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$graphql_query_data = do_graphql_request( $graphql_query );
+
+		/**
+		 * Assert that the filter was called.
+		 */
+		$this->assertEquals( 'Overridden for testPostQueryPostDataSetup', $graphql_query_data['data']['post']['content'] );
+	}
+
+	/**
+	 * testPostQueryPostDataReset
+	 *
+	 * This tests that we correctly reset postdata without disturbing anything
+	 * external to WPGraphQL.
+	 *
+	 * @since 0.0.18
+	 */
+	public function testPostQueryPostDataReset() {
+		/**
+		 * Create a post and simulate being in the main query / loop. We want to
+		 * make sure that the query is properly reset after the GraphQL request is
+		 * completed.
+		 */
+		global $post;
+		$main_query_post_id = $this->factory->post->create();
+		$this->go_to( get_permalink( $main_query_post_id ) );
+		setup_postdata( $post );
+
+		/**
+		 * Create another post that we can query via GraphQL.
+		 */
+		$graphql_query_post_id = $this->factory->post->create();
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
+
+		/**
+		 * Create the GraphQL query.
+		 */
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		do_graphql_request( $graphql_query );
+
+		/**
+		 * Asset that the query has been reset to the main query.
+		 */
+		$this->assertEquals( $main_query_post_id, $post->ID );
+	}
 }
