@@ -615,7 +615,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			postBy(slug: \"{$slug}\") {
 				id
