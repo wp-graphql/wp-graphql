@@ -13,6 +13,13 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	public $current_date_gmt;
 	public $admin;
 
+	public function __construct() {
+		/**
+		 * Add post object field filter enums that will be used in tests below.
+		 */
+		$this->addPostObjectFieldFilterEnums();
+	}
+
 	/**
 	 * This function is run before each method
 	 * @since 0.0.5
@@ -26,11 +33,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
-
-		/**
-		 * Add post object field filter enums that will be used in tests below.
-		 */
-		$this->addPostObjectFieldFilterEnums();
 	}
 
 	/**
@@ -84,7 +86,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 	/**
 	 * Register some post object field filters enums that we will use in tests.
-	 * This needs to be called in test setup (while tests are running is too late).
+	 * This needs to be called in test constructor (setup is too late).
 	 */
 	private function addPostObjectFieldFilterEnums() {
 		$filters = [
@@ -945,7 +947,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Add a filter that will be called when the content field from the query
 		 * above is resolved. Note that we defined this filter as an enum in the
-		 * test setup method.
+		 * addPostObjectFieldFilterEnums method.
 		 */
 		add_filter( 'test_post_data_field_filter', function() {
 			return 'Overridden for testPostObjectValidFieldFilter';
@@ -991,7 +993,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Add a filter that will be called when the content field from the query
 		 * above is resolved. Note that we defined this filter as an enum in the
-		 * test setup method.
+		 * addPostObjectFieldFilterEnums method.
 		 */
 		add_filter( 'test_post_data_field_filter', function() use ( $graphql_query_post_id ) {
 			/**
