@@ -1,5 +1,4 @@
 <?php
-
 namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Type\WPEnumType;
