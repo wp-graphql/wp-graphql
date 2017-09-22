@@ -684,7 +684,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 					'clientMutationId' => $this->updated_clientMutationId,
 					'mediaItem'             => [
 						'id'               => $this->media_item_id,
-						'title'            => $this->updated_title,
+						'title'            => apply_filters( 'the_title', $this->updated_title ),
 						'description'      => apply_filters( 'the_content', $this->updated_description ),
 						'mediaItemId'      => $this->attachment_id,
 						'altText'          => $this->updated_altText,
