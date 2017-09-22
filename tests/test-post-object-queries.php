@@ -13,13 +13,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function __construct() {
-		/**
-		 * Add post object field filter enums that will be used in tests below.
-		 */
-		$this->addPostObjectFieldFilterEnums();
-	}
-
 	/**
 	 * This function is run before each method
 	 * @since 0.0.5
@@ -82,27 +75,6 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		 */
 		return $post_id;
 
-	}
-
-	/**
-	 * Register some post object field filters enums that we will use in tests.
-	 * This needs to be called in test constructor (setup is too late).
-	 */
-	private function addPostObjectFieldFilterEnums() {
-		$filters = [
-			'test_post_data_field_filter',
-		];
-
-		add_filter( 'graphql_postObjectFieldFilter_values', function( $values ) use ( $filters ) {
-			foreach( $filters as $filter ) {
-				$values[ $filter ] = [
-					'name'  => strtoupper( $filter ),
-					'value' => $filter,
-				];
-			}
-
-			return $values;
-		}, 10, 1 );
 	}
 
 	/**
@@ -885,73 +857,43 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * testPostObjectInvalidFieldFilter
+	 * testPostObjectFieldRawFormat
 	 *
-	 * This tests that we must register a PostObjectFieldFilterEnumType before
-	 * using them in filters.
-	 *
-	 * @since 0.0.18
-	 */
-	public function testPostObjectInvalidFieldFilter() {
-		$graphql_query = "
-		query {
-			posts {
-				edges {
-					node {
-						id
-						content(filters: [MY_UNREGISTERED_FILTER])
-					}
-				}
-			}
-		}";
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$graphql_query_data = do_graphql_request( $graphql_query );
-
-		/**
-		 * Assert that an error was returned corresponding to an unregistered
-		 * post object field filter.
-		 */
-		$this->assertContains( 'Argument "filters" has invalid value [MY_UNREGISTERED_FILTER].', $graphql_query_data['errors'][0]['message'] );
-	}
-
-	/**
-	 * testPostObjectValidFieldFilter
-	 *
-	 * This tests that we can register a PostObjectFieldFilterEnumType and use it
-	 * to filter post object fields.
+	 * This tests that we request the "raw" format from post object fields.
 	 *
 	 * @since 0.0.18
 	 */
-	public function testPostObjectValidFieldFilter() {
+	public function testPostObjectFieldRawFormat() {
 		/**
 		 * Create a post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->factory->post->create();
+		$graphql_query_post_id = $this->createPostObject( array() );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
 
+		/**
+		 * Add a filter that should be called when the content fields are
+		 * requested in "rendered" format (the default).
+		 */
+		function override_for_testPostObjectFieldRawFormat() {
+			return 'Overridden for testPostObjectFieldRawFormat';
+		}
+		add_filter( 'the_content', 'override_for_testPostObjectFieldRawFormat', 10, 0 );
+		add_filter( 'the_excerpt', 'override_for_testPostObjectFieldRawFormat', 10, 0 );
+		add_filter( 'the_title', 'override_for_testPostObjectFieldRawFormat', 10, 0 );
+
 		$graphql_query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
-				content(filters: [TEST_POST_DATA_FIELD_FILTER])
+				content
+				excerpt
+				title
 			}
 		}";
-
-		/**
-		 * Add a filter that will be called when the content field from the query
-		 * above is resolved. Note that we defined this filter as an enum in the
-		 * addPostObjectFieldFilterEnums method.
-		 */
-		add_filter( 'test_post_data_field_filter', function() {
-			return 'Overridden for testPostObjectValidFieldFilter';
-		}, 20, 0 );
 
 		/**
 		 * Run the GraphQL query
@@ -959,9 +901,36 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$graphql_query_data = do_graphql_request( $graphql_query );
 
 		/**
-		 * Assert that the filter was called.
+		 * Assert that the filters were called.
 		 */
-		$this->assertEquals( 'Overridden for testPostObjectValidFieldFilter', $graphql_query_data['data']['post']['content'] );
+		$this->assertEquals( 'Overridden for testPostObjectFieldRawFormat', $graphql_query_data['data']['post']['content'] );
+		$this->assertEquals( 'Overridden for testPostObjectFieldRawFormat', $graphql_query_data['data']['post']['excerpt'] );
+		$this->assertEquals( 'Overridden for testPostObjectFieldRawFormat', $graphql_query_data['data']['post']['title'] );
+
+		/**
+		 * Run the same query but request the fields in raw form.
+		 */
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				content(format: RAW)
+				excerpt(format: RAW)
+				title(format: RAW)
+			}
+		}";
+
+		/**
+		 * Rerun the GraphQL query
+		 */
+		$graphql_query_data = do_graphql_request( $graphql_query );
+
+		/**
+		 * Assert that the filters were not called.
+		 */
+		$this->assertEquals( 'Test page content', $graphql_query_data['data']['post']['content'] );
+		$this->assertEquals( 'Test excerpt', $graphql_query_data['data']['post']['excerpt'] );
+		$this->assertEquals( 'Test Title', $graphql_query_data['data']['post']['title'] );
 	}
 
 	/**
@@ -986,23 +955,22 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		query {
 			post(id: \"{$global_id}\") {
 				id
-				content(filters: [TEST_POST_DATA_FIELD_FILTER])
+				content
 			}
 		}";
 
 		/**
 		 * Add a filter that will be called when the content field from the query
-		 * above is resolved. Note that we defined this filter as an enum in the
-		 * addPostObjectFieldFilterEnums method.
+		 * above is resolved.
 		 */
-		add_filter( 'test_post_data_field_filter', function() use ( $graphql_query_post_id ) {
+		add_filter( 'the_content', function() use ( $graphql_query_post_id ) {
 			/**
 			 * Assert that post data was correctly set up.
 			 */
 			$this->assertEquals( $graphql_query_post_id, $GLOBALS['post']->ID );
 
 			return 'Overridden for testPostQueryPostDataSetup';
-		}, 10, 0 );
+		}, 99, 0 );
 
 		/**
 		 * Run the GraphQL query

@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
-use WPGraphQL\Type\Enum\PostObjectFieldFilterEnumType;
+use WPGraphQL\Type\Enum\PostObjectFieldFormatEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
 use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
@@ -106,13 +106,13 @@ class Types {
 	private static $post_object_union;
 
 	/**
-	 * Stores the post object field filter enum type object
+	 * Stores the post object field format enum type object
 	 *
-	 * @var PostObjectFieldFilterEnumType object $post_object_field_filter_enum
+	 * @var PostObjectFieldFormatEnumType object $post_object_field_format_enum
 	 * @since  0.0.18
 	 * @access private
 	 */
-	private static $post_object_field_filter_enum;
+	private static $post_object_field_format_enum;
 
 	/**
 	 * Stores the post status enum type object
@@ -326,14 +326,14 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the PostObjectFieldFilterEnumType
+	 * This returns the definition for the PostObjectFieldFormatEnumType
 	 *
-	 * @return PostObjectFieldFilterEnumType object
+	 * @return PostObjectFieldFormatEnumType object
 	 * @since  0.1.18
 	 * @access public
 	 */
-	public static function post_object_field_filter_enum() {
-		return self::$post_object_field_filter_enum ? : ( self::$post_object_field_filter_enum = new PostObjectFieldFilterEnumType() );
+	public static function post_object_field_format_enum() {
+		return self::$post_object_field_format_enum ? : ( self::$post_object_field_format_enum = new PostObjectFieldFormatEnumType() );
 	}
 
 	/**

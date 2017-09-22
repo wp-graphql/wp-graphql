@@ -182,70 +182,60 @@ class PostObjectType extends WPObjectType {
 					],
 					'content'           => [
 						'type'        => Types::string(),
-						'description' => __( 'The content of the post. This is currently just the raw content. An amendment to support rendered content needs to be made.', 'wp-graphql' ),
+						'description' => __( 'The content of the post.', 'wp-graphql' ),
 						'args' => [
-							'filters' => [
-								'type' => Types::list_of( Types::post_object_field_filter_enum() ),
-								'description' => __( 'Filters to apply to the content', 'wp-graphql' ),
-							],
+							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// By default, if no filters are passed, apply the_content filter.
-							if ( ! isset( $args['filters'] ) ) {
-								return apply_filters( 'the_content', $post->post_content );
+							if ( empty( $post->post_content ) ) {
+								return null;
 							}
 
-							// Apply all the filters provided in args, in order.
-							return array_reduce( $args['filters'], function( $content, $filter ) {
-								return apply_filters( $filter, $content );
-							}, $post->post_content );
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $post->post_content;
+							}
+
+							return apply_filters( 'the_content', $post->post_content );
 						},
 					],
 					'title'             => [
 						'type'        => Types::string(),
 						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
 						'args' => [
-							'filters' => [
-								'type' => Types::list_of( Types::string() ),
-								'description' => __( 'Filters to apply to the content', 'wp-graphql' ),
-							],
+							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							if ( empty( $post->post_title ) ) {
 								return null;
 							}
 
-							// By default, if no filters are passed, apply the_title filter.
-							if ( ! isset( $args['filters'] ) ) {
-								return apply_filters( 'the_title', $post->post_title );
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $post->post_title;
 							}
 
-							// Apply all the filters provided in args, in order.
-							return array_reduce( $args['filters'], function( $content, $filter ) {
-								return apply_filters( $filter, $content );
-							}, $post->post_title );
+							return apply_filters( 'the_title', $post->post_title );
 						},
 					],
 					'excerpt'           => [
 						'type'        => Types::string(),
 						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
 						'args' => [
-							'filters' => [
-								'type' => Types::list_of( Types::string() ),
-								'description' => __( 'Filters to apply to the content', 'wp-graphql' ),
-							],
+							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// By default, if no filters are passed, apply the_excerpt filter.
-							if ( ! isset( $args['filters'] ) ) {
-								$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
-								return ! empty( $excerpt ) ? $excerpt : null;
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
 							}
 
-							// Apply all the filters provided in args, in order.
-							return array_reduce( $args['filters'], function( $content, $filter ) {
-								return apply_filters( $filter, $content );
-							}, $post->post_excerpt );
+							$excerpt = apply_filters( 'get_the_excerpt', $post->post_excerpt, $post );
+							if ( empty( $excerpt ) ) {
+								return null;
+							}
+
+							return apply_filters( 'the_excerpt', $excerpt );
 						},
 					],
 					'status'            => [
@@ -528,4 +518,15 @@ class PostObjectType extends WPObjectType {
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
 	}
 
+	/**
+	 * Define the args to be used by post object fields.
+	 *
+	 * @return mixed
+	 */
+	public static function post_object_format_arg() {
+		return [
+			'type' => Types::post_object_field_format_enum(),
+			'description' => __( 'Format of ', 'wp-graphql' ),
+		];
+	}
 }

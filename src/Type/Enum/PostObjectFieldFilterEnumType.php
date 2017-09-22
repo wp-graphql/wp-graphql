@@ -5,15 +5,14 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 /**
- * Class PostObjectFieldFilterEnumType
+ * Class PostObjectFieldFormatEnumType
  *
- * This defines an EnumType with allowed WordPress filters that can be applied
- * to post field data.
+ * This defines an EnumType with allowed formats of post field data.
  *
  * @package WPGraphQL\Type\Enum
  * @since   0.0.18
  */
-class PostObjectFieldFilterEnumType extends WPEnumType {
+class PostObjectFieldFormatEnumType extends WPEnumType {
 
 	/**
 	 * This holds the enum values array.
@@ -24,15 +23,15 @@ class PostObjectFieldFilterEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'postObjectFieldFilter',
-			'description' => __( 'The allowed WordPress filters on post field data.', 'wp-graphql' ),
+			'name'        => 'postObjectFieldFormat',
+			'description' => __( 'The format of post field data.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Creates a list of filters that can be used to filter post field data.
+	 * Creates a list of formats of post field data.
 	 *
 	 * @return array
 	 */
@@ -41,30 +40,20 @@ class PostObjectFieldFilterEnumType extends WPEnumType {
 		if ( null === self::$values ) {
 
 			/**
-			 * Provide some default filters that are in WP Core.
+			 * Post object field formats.
 			 *
 			 * @since 0.0.18
 			 */
 			self::$values = [
-				'the_content' => [
-					'name'  => 'THE_CONTENT',
-					'description' => __( 'WordPress Core the_content filter', 'wp-graphql' ),
-					'value' => 'the_content',
+				'raw' => [
+					'name'  => 'RAW',
+					'description' => __( 'Provide the field value directly from database', 'wp-graphql' ),
+					'value' => 'raw',
 				],
-				'get_the_excerpt' => [
-					'name'  => 'GET_THE_EXCERPT',
-					'description' => __( 'WordPress Core get_the_excerpt filter', 'wp-graphql' ),
-					'value' => 'get_the_excerpt',
-				],
-				'the_excerpt' => [
-					'name'  => 'THE_EXCERPT',
-					'description' => __( 'WordPress Core the_excerpt filter', 'wp-graphql' ),
-					'value' => 'the_excerpt',
-				],
-				'the_title' => [
-					'name'  => 'THE_TITLE',
-					'description' => __( 'WordPress Core the_title filter', 'wp-graphql' ),
-					'value' => 'the_title',
+				'rendered' => [
+					'name'  => 'RENDERED',
+					'description' => __( 'Apply the default WordPress rendering', 'wp-graphql' ),
+					'value' => 'rendered',
 				],
 			];
 

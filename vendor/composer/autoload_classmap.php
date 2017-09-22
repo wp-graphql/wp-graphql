@@ -173,7 +173,7 @@ return array(
     'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionResolver' => $baseDir . '/src/Type/Comment/Connection/CommentConnectionResolver.php',
     'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => $baseDir . '/src/Type/Enum/MediaItemStatusEnumType.php',
     'WPGraphQL\\Type\\Enum\\MimeTypeEnumType' => $baseDir . '/src/Type/Enum/MimeTypeEnumType.php',
-    'WPGraphQL\\Type\\Enum\\PostObjectFieldFilterEnumType' => $baseDir . '/src/Type/Enum/PostObjectFieldFilterEnumType.php',
+    'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnumType' => $baseDir . '/src/Type/Enum/PostObjectFieldFormatEnumType.php',
     'WPGraphQL\\Type\\Enum\\PostStatusEnumType' => $baseDir . '/src/Type/Enum/PostStatusEnumType.php',
     'WPGraphQL\\Type\\Enum\\PostTypeEnumType' => $baseDir . '/src/Type/Enum/PostTypeEnumType.php',
     'WPGraphQL\\Type\\Enum\\RelationEnumType' => $baseDir . '/src/Type/Enum/RelationEnumType.php',
