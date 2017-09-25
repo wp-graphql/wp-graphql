@@ -85,7 +85,7 @@ class Config {
 							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 							$value = $cursor_post->{$by};
 							if ( ! empty( $by ) && ! empty( $value ) ) {
-								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} '%s'", $value );
+								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
 							}
 						}
 					} else {
