@@ -21,6 +21,13 @@ class Router {
 	public static $route = 'graphql';
 
 	/**
+	 * Set the default status code to 403 to represent unauthenticated requests. Authenticated requests
+	 * should set the status code to 200.
+	 * @var int
+	 */
+	public static $http_status_code = 403;
+
+	/**
 	 * Router constructor.
 	 *
 	 * @since  0.0.1
@@ -238,7 +245,7 @@ class Router {
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
-	 * 
+	 *
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
@@ -302,7 +309,6 @@ class Router {
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
 
-
 			} else {
 				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
@@ -318,13 +324,13 @@ class Router {
 				 * @since 0.0.5
 				 */
 				$data = json_decode( self::get_raw_data(), true );
-			}
+			}// End if().
 
 			/**
 			 * If the $data is empty, catch an error.
 			 */
-			if ( empty( $data ) ) {
-				$response['errors'] = __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' );
+			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
+				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
 			/**
@@ -359,9 +365,13 @@ class Router {
 			}
 
 			/**
-			 * Set the status code to 200
+			 * If the request is properly authenticated (a user has been set by some authentication mechanism),
+			 * set the status code to 200.
 			 */
-			$http_status_code = 200;
+			$user = wp_get_current_user();
+			if ( $user && 0 !== $user->ID ) {
+				self::$http_status_code = 200;
+			}
 
 		} catch ( \Exception $error ) {
 
@@ -371,11 +381,15 @@ class Router {
 			 *
 			 * @since 0.0.4
 			 */
-			$http_status_code = 500;
+			self::$http_status_code = 500;
 			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
 				$response['extensions']['exception'] = FormattedError::createFromException( $error );
 			} else {
-				$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
+				if ( 10 === $error->getCode() ) {
+					$response['errors'] = [ FormattedError::create( $error->getMessage() ) ];
+				} else {
+					$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
+				}
 			}
 		} // End try().
 
@@ -383,6 +397,9 @@ class Router {
 		 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
+		 *
+		 * @param array $response
+		 * @param array $graphql_results
 		 *
 		 * @since 0.0.5
 		 */
@@ -396,10 +413,15 @@ class Router {
 			/**
 			 * Set the response headers
 			 */
-			self::set_headers( $http_status_code );
+			self::set_headers( self::$http_status_code );
 
 			/**
 			 * Send the JSON response
+			 */
+			wp_send_json( $response );
+		} elseif (defined( 'DOING_AJAX' ) && DOING_AJAX) {
+			/**
+			 * Headers will already be set if this function is called within AJAX.
 			 */
 			wp_send_json( $response );
 		}

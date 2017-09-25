@@ -121,6 +121,7 @@ class RootQueryType extends ObjectType {
 				 * @since 0.0.5
 				 */
 				$fields[ $post_type_object->graphql_single_name ] = PostObjectQuery::root_query( $post_type_object );
+				$fields[ $post_type_object->graphql_single_name . 'By' ] = PostObjectQuery::post_object_by( $post_type_object );
 
 				/**
 				 * Root query for collections of posts (of the specified post_type)

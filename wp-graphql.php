@@ -10,6 +10,9 @@
  * Domain Path: /languages/
  * Requires at least: 4.7.0
  * Tested up to: 4.7.1
+ * Requires PHP: 5.5
+ * License: GPL-3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package  WPGraphQL
  * @category Core
@@ -335,11 +338,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies that have been registered to "show_in_graphql"
 			 */
-			 $taxonomies = get_taxonomies(
-				 [
+			$taxonomies = get_taxonomies(
+				[
 					'show_in_graphql' => true,
-				 ]
-			 );
+				]
+			);
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
@@ -430,6 +433,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$variables = (array) json_decode( $variables );
 			}
 
+			/**
+			 * Fires before schema is generated, allowing for potential blacklisting/whitelisting.
+			 *
+			 * @param $request        string
+			 * @param $operation_name string
+			 * @param $variables      string
+			 * @param $app_context    WPGraphQL\AppContext
+			 */
 			do_action( 'graphql_generate_schema', $request, $operation_name, $variables, $app_context );
 
 			$executable_schema = [
@@ -464,7 +475,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Executes the request and captures the result
 			 */
-			$result = \GraphQL\GraphQL::execute(
+			$result = \GraphQL\GraphQL::executeAndReturnResult(
 				$sanitized_schema,
 				$request,
 				null,
@@ -472,6 +483,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$variables,
 				$operation_name
 			);
+
+			/**
+			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
+			 *
+			 * @since 0.0.4
+			 *
+			 * @param array      $result         The result of your GraphQL request
+			 * @param            Schema          object $schema The schema object for the root request
+			 * @param string     $operation_name The name of the operation
+			 * @param string     $request        The request that GraphQL executed
+			 * @param array|null $variables      Variables to passed to your GraphQL query
+			 */
+			do_action( 'graphql_execute', $result, $schema, $operation_name, $request, $variables );
 
 			/**
 			 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
@@ -495,25 +519,25 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param string     $request        The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL request
 			 */
-			$result = apply_filters( 'graphql_request_results', $result, $schema, $operation_name, $request, $variables );
+			$filtered_result = apply_filters( 'graphql_request_results', $result, $schema, $operation_name, $request, $variables );
 
 			/**
-			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
+			 * Run an action after the result has been filtered, as the response is being returned.
+			 * This is a good place for debug tools to hook in to log things, etc.
 			 *
-			 * @since 0.0.4
-			 *
-			 * @param array      $result         The result of your GraphQL request
-			 * @param            Schema          object $schema The schema object for the root request
-			 * @param string     $operation_name The name of the operation
-			 * @param string     $request        The request that GraphQL executed
-			 * @param array|null $variables      Variables to passed to your GraphQL query
+			 * @param array      $filtered_result The filtered_result of the GraphQL request
+			 * @param array      $result          The result of your GraphQL request
+			 * @param            Schema           object $schema The schema object for the root request
+			 * @param string     $operation_name  The name of the operation
+			 * @param string     $request         The request that GraphQL executed
+			 * @param array|null $variables       Variables to passed to your GraphQL query
 			 */
-			do_action( 'graphql_execute', $result, $schema, $operation_name, $request, $variables );
+			do_action( 'graphql_return_response', $filtered_result, $result, $schema, $operation_name, $request, $variables );
 
 			/**
 			 * Return the result of the request
 			 */
-			return $result;
+			return $filtered_result->toArray();
 
 		}
 	}

@@ -12,8 +12,15 @@ GraphQL API for WordPress.
 
 ------
 
-## Installing
-Install and activate WPGraphQL like any WP Plugin, then <a href="https://lmgtfy.com/?q=wordpress+flush+permalinks" target="_blank">flush your permalinks</a>.
+## Quick Install
+Download and install like any WordPress plugin.
+
+## Doucmentation
+
+Documentation can be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
+
+- Requires PHP 5.5+
+- Requires WordPress 4.7+
 
 ## Overview
 This plugin brings the power of GraphQL to WordPress.
@@ -53,88 +60,8 @@ my recommendation is the _GraphiQL_ desktop app below:
     
     <img src="https://github.com/wp-graphql/wp-graphql/blob/master/img/graphql-docs.gif?raw=true" alt="GraphiQL API Explorer">
 
-## Example Queries
-Here's some example queries to get you going with experimenting. You can simply copy and paste these into the GraphiQL 
-query inspector and you'll receive a response of data in the same shape as the request. There's also a video walkthrough 
-of GraphQL queries using WPGraphQL here: 
-<a href="https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/">https://www.wpgraphql.com/2017/02/17/intro-to-wpgraphql-queries/</a>
-
-#### Get a list of posts:
-```
-{
-    posts{
-        edges{
-            node{
-                id
-                title
-                link
-                slug
-                date
-            }
-        }
-    }
-}
-```
-
-#### Get a list of category terms:
-```
-{
-  categories{
-    edges{
-      node{
-        id
-        name
-        link
-        slug
-      }
-    }
-  }
-}
-```
-
-#### Get a list of posts, with the categories it's attached to:
-
-
-```
-{
-  posts {
-    edges {
-      node {
-        id
-        title
-        link
-        slug
-        date
-        categories {
-          edges {
-            node {
-              id
-              link
-              slug
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-```
-
 ## POSSIBLE BREAKING CHANGES
 Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
-
-## Extensions and/or plugins with WPGraphQL support
-There are a few extensions available as well:
-- https://github.com/wp-graphql/wp-graphql-meta-query 
-Adds support for meta_query
-- https://github.com/wp-graphql/wp-graphql-tax-query
-Adds support for tax_query
-- https://github.com/roborourke/wp-graphql-meta
-Adds support for automatically exposing fields registered using the `register_meta` API to GraphQL calls
-- https://github.com/dfmedia/wp-term-timestamps
-Simple plugin that stores created and modified timestamps along with the user ID as term_meta when terms are created and updated. Adds `created` and `modified` fields to TermObject's if this plugin is active alongside WPGraphQL.
-
 
 ## Unit Testing
 To run unit tests during development, you'll first need a testing database that you'd like to use. 

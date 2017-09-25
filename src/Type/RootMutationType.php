@@ -2,15 +2,18 @@
 
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemCreate;
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemUpdate;
+use WPGraphQL\Type\MediaItem\Mutation\MediaItemDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
-use WPGraphQL\Type\MediaItem\Mutation\MediaItemCreate;
-use WPGraphQL\Type\MediaItem\Mutation\MediaItemUpdate;
-use WPGraphQL\Type\MediaItem\Mutation\MediaItemDelete;
+use WPGraphQL\Type\User\Mutation\UserCreate;
+use WPGraphQL\Type\User\Mutation\UserDelete;
+use WPGraphQL\Type\User\Mutation\UserUpdate;
 
 /**
  * Class RootMutationType
@@ -116,6 +119,13 @@ class RootMutationType extends WPObjectType {
 					$fields[ 'delete' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectDelete::mutate( $taxonomy_object );
 				}
 			} // End if().
+
+			/**
+			 * User Mutations
+			 */
+			$fields[ 'createUser' ] = UserCreate::mutate();
+			$fields[ 'updateUser' ] = UserUpdate::mutate();
+			$fields[ 'deleteUser' ] = UserDelete::mutate();
 
 			self::$fields = $fields;
 

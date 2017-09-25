@@ -516,4 +516,345 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
+
+	/**
+	 * Test querying a post using the postBy query
+	 */
+	public function testPostByIdQuery() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => 'This is a title, yo',
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			postBy(id: \"{$global_id}\") {
+				id
+				title
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'postBy' => [
+					'id' => $global_id,
+					'title' => 'This is a title, yo',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * Test querying a post using the postBy query and the URI arg
+	 */
+	public function testPostByUriQuery() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => 'This is a title, yo',
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		$slug = get_post( $post_id )->post_name;
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			postBy(slug: \"{$slug}\") {
+				id
+				title
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'postBy' => [
+					'id' => $global_id,
+					'title' => 'This is a title, yo',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * Test querying a page using the pageBy query and the URI arg
+	 */
+	public function testPageByUri() {
+
+		/**
+		 * Create a page
+		 */
+		$parent_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'Parent Page',
+			'post_name' => 'parent-page',
+		] );
+
+		$child_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'Child Page',
+			'post_name' => 'child-page',
+			'post_parent' => $parent_id,
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+
+		/**
+		 * Get the uri to the Child Page
+		 */
+		$uri = get_page_uri( $child_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			pageBy(uri: \"{$uri}\") {
+				id
+				title
+				uri
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'pageBy' => [
+					'id' => $global_child_id,
+					'title' => 'Child Page',
+					'uri' => $uri
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * Test querying the same node multiple ways and ensuring we get the same response each time
+	 */
+	public function testPageByQueries() {
+
+		$post_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'Page Dawg',
+		] );
+
+		$path = get_page_uri( $post_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+
+		/**
+		 * Let's query the same node 3 different ways, then assert it's the same node
+		 * each time
+		 */
+		$query = '
+		{
+		  pages(first:1){
+		    edges{
+		      node{
+		        ...pageData
+		      }
+		    }
+		  }
+		  byUri:pageBy(uri:"' . $path . '") {
+		    ...pageData
+		  }
+		  byPageId:pageBy(pageId:' . $post_id . '){
+		    ...pageData
+		  }
+		  byId:pageBy(id:"' . $global_id . '"){
+		    ...pageData
+		  }
+		}
+		
+		fragment pageData on page {
+		  __typename
+		  id
+		  pageId
+		  title
+		  uri
+		  link
+		  slug
+		  date
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$node = $actual['data']['pages']['edges'][0]['node'];
+		$byUri = $actual['data']['byUri'];
+		$byPageId = $actual['data']['byPageId'];
+		$byId = $actual['data']['byId'];
+
+		$this->assertNotEmpty( $node );
+		$this->assertEquals( 'page', $actual['data']['pages']['edges'][0]['node']['__typename'] );
+		$this->assertEquals( $node, $byUri );
+		$this->assertEquals( $node, $byPageId );
+		$this->assertEquals( $node, $byId );
+
+	}
+
+	/**
+	 * Query with an invalid ID, should return an error
+	 */
+	public function testPostByQueryWithInvalidId() {
+
+		$query = '{
+			postBy(id: "invalid ID") {
+				id
+				title
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query with an invalid ID
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Query for a post that was deleted
+	 */
+	public function testPostByQueryAfterPostWasDeleted() {
+
+		/**
+		 * Create the post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => 'Post that will be deleted',
+		] );
+
+		/**
+		 * Get the ID
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Delete the post, because we want to query for a post that's been deleted
+		 * and make sure it returns an error properly.
+		 */
+		wp_delete_post( $post_id, true );
+
+		/**
+		 * Query for the post
+		 */
+		$query = '{
+			postBy(id: "' . $global_id . '") {
+				id
+				title
+			}
+		}';
+
+		/**
+		 * Run the query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query for a deleted post
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Test querying for a post with an ID that belongs to a different type
+	 */
+	public function testPostByQueryWithIDForADifferentType() {
+
+		/**
+		 * Create the page
+		 */
+		$page_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'A Test Page',
+		] );
+
+		/**
+		 * Get the ID
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+
+		/**
+		 * Query for the post, using a global ID for a page
+		 */
+		$query = '{
+			postBy(id: "' . $global_id . '") {
+				id
+				title
+			}
+		}';
+
+		/**
+		 * Run the query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * This should return an error as we tried to query for a post using a Page ID
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
 }
