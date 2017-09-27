@@ -21,6 +21,13 @@ class Router {
 	public static $route = 'graphql';
 
 	/**
+	 * Set the default status code to 403 to represent unauthenticated requests. Authenticated requests
+	 * should set the status code to 200.
+	 * @var int
+	 */
+	public static $http_status_code = 403;
+
+	/**
 	 * Router constructor.
 	 *
 	 * @since  0.0.1
@@ -322,7 +329,7 @@ class Router {
 			/**
 			 * If the $data is empty, catch an error.
 			 */
-			if ( empty( $data ) || ( empty( $data['query'] ) && empty( $data['operationName'] ) && empty( $data['variables'] ) ) ) {
+			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
 				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
@@ -358,9 +365,13 @@ class Router {
 			}
 
 			/**
-			 * Set the status code to 200
+			 * If the request is properly authenticated (a user has been set by some authentication mechanism),
+			 * set the status code to 200.
 			 */
-			$http_status_code = 200;
+			$user = wp_get_current_user();
+			if ( $user && 0 !== $user->ID ) {
+				self::$http_status_code = 200;
+			}
 
 		} catch ( \Exception $error ) {
 
@@ -370,7 +381,7 @@ class Router {
 			 *
 			 * @since 0.0.4
 			 */
-			$http_status_code = 500;
+			self::$http_status_code = 500;
 			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
 				$response['extensions']['exception'] = FormattedError::createFromException( $error );
 			} else {
@@ -402,7 +413,7 @@ class Router {
 			/**
 			 * Set the response headers
 			 */
-			self::set_headers( $http_status_code );
+			self::set_headers( self::$http_status_code );
 
 			/**
 			 * Send the JSON response
