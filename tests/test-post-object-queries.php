@@ -26,6 +26,50 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
+
+		add_shortcode( 'wpgql_test_shortcode', function( $attrs, $content = null ) {
+			global $post;
+			if ( 'post' !== $post->post_type ) {
+				return $content;
+			}
+			return 'overridden content';
+		} );
+
+		add_shortcode( 'graphql_tests_basic_post_list', function( $atts ) {
+			$query = '
+			query basicPostList($first:Int){
+				posts(first:$first){
+					edges{
+						node{
+							id
+							title
+							date
+						}
+					}
+				}
+			}
+			';
+
+			$variables = [
+				'first' => ! empty( $atts['first'] ) ? absint( $atts['first'] ) : 5,
+			];
+
+			$data = do_graphql_request( $query, 'basicPostList', $variables );
+			$edges = ! empty( $data['data']['posts']['edges'] ) ? $data['data']['posts']['edges'] : [];
+
+			if ( ! empty( $edges ) && is_array( $edges ) ) {
+				$output = '<ul class="gql-test-shortcode-list">';
+				foreach ( $edges as $edge ) {
+					$node = ! empty( $edge['node'] ) ? $edge['node'] : '';
+					if ( ! empty( $node ) && is_array( $node ) ) {
+						$output .= '<li id="' . $node['id'] . '">' . $node['title'] . ' ' . $node['date'] . '</li>';
+					}
+				}
+				$output .= '</ul>';
+			}
+
+			return ! empty( $output ) ? $output : '';
+		});
 	}
 
 	/**
@@ -1032,4 +1076,176 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
 	}
+
+	/**
+	 *
+	 */
+	public function testPostQueryWithShortcodeInContent() {
+
+		/**
+		 * Create a post and simulate being in the main query / loop. We want to
+		 * make sure that the query is properly reset after the GraphQL request is
+		 * completed.
+		 */
+		global $post;
+		$main_query_post_id = $this->factory->post->create();
+		$this->go_to( get_permalink( $main_query_post_id ) );
+		setup_postdata( $post );
+
+		/**
+		 * Create another post that we can query via GraphQL.
+		 */
+		$graphql_query_post_id = $this->factory->post->create([
+			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>'
+		]);
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
+
+		/**
+		 * Create the GraphQL query.
+		 */
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				content
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$response = do_graphql_request( $graphql_query );
+
+		$this->assertNotFalse( strpos( $response['data']['post']['content'], 'Some content before the shortcode' ) );
+		$this->assertNotFalse( strpos( $response['data']['post']['content'], 'overridden content' ) );
+		$this->assertNotFalse( strpos( $response['data']['post']['content'], 'Some content after the shortcode' ) );
+
+		/**
+		 * Asset that the query has been reset to the main query.
+		 */
+		$this->assertEquals( $main_query_post_id, $post->ID );
+
+	}
+
+	public function testPostQueryPageWithShortcodeInContent() {
+
+		/**
+		 * Create a post and simulate being in the main query / loop. We want to
+		 * make sure that the query is properly reset after the GraphQL request is
+		 * completed.
+		 */
+		global $post;
+		$main_query_post_id = $this->factory->post->create();
+		$this->go_to( get_permalink( $main_query_post_id ) );
+		setup_postdata( $post );
+
+		/**
+		 * Create another post that we can query via GraphQL.
+		 */
+		$graphql_query_page_id = $this->factory->post->create([
+			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
+			'post_type' => 'page',
+		]);
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+
+		/**
+		 * Create the GraphQL query.
+		 */
+		$graphql_query = "
+		query {
+			page(id: \"{$global_id}\") {
+				id
+				content
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$response = do_graphql_request( $graphql_query );
+
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'Some content before the shortcode' ) );
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'some test content' ) );
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'Some content after the shortcode' ) );
+
+		/**
+		 * Asset that the query has been reset to the main query.
+		 */
+		$this->assertEquals( $main_query_post_id, $post->ID );
+
+	}
+
+	/**
+	 * This was a use case presented as something that _could_ break things.
+	 *
+	 * A WPGraphQL Query could be used within a shortcode to populate the shortcode content. If the global $post was
+	 * set and _not_ reset, the content after the query would be broken.
+	 *
+	 * This simply ensures that the content before and after the shortcode are working as expected and that the global $post
+	 * is reset properly after a gql query is performed.
+	 */
+	public function testGraphQLQueryShortcodeInContent() {
+
+		/**
+		 * Create a post and simulate being in the main query / loop. We want to
+		 * make sure that the query is properly reset after the GraphQL request is
+		 * completed.
+		 */
+		global $post;
+		$main_query_post_id = $this->factory->post->create();
+		$this->go_to( get_permalink( $main_query_post_id ) );
+		setup_postdata( $post );
+
+		/**
+		 * Create another post that we can query via GraphQL.
+		 */
+		$graphql_query_page_id = $this->factory->post->create([
+			'post_content' => '<p>Some content before the shortcode</p>[graphql_tests_basic_post_list]<p>Some content after the shortcode</p>',
+			'post_type' => 'page',
+		]);
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+
+		/**
+		 * Create the GraphQL query.
+		 */
+		$graphql_query = "
+		query {
+			page(id: \"{$global_id}\") {
+				id
+				content
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$response = do_graphql_request( $graphql_query );
+
+		/**
+		 * Here we're asserting that the shortcode is showing up (rendered) in the middle of the content, but that the content before and after
+		 * is in place as expected as well.
+		 */
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'Some content before the shortcode' ) );
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], '<ul class="gql-test-shortcode-list">' ) );
+		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'Some content after the shortcode' ) );
+
+		/**
+		 * Asset that the query has been reset to the main query.
+		 */
+		$this->assertEquals( $main_query_post_id, $post->ID );
+
+	}
+
 }
