@@ -15,7 +15,7 @@ GraphQL API for WordPress.
 ## Quick Install
 Download and install like any WordPress plugin.
 
-## Doucmentation
+## Documentation
 
 Documentation can be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
 
