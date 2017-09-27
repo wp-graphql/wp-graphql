@@ -182,25 +182,60 @@ class PostObjectType extends WPObjectType {
 					],
 					'content'           => [
 						'type'        => Types::string(),
-						'description' => __( 'The content of the post. This is currently just the raw content. An amendment to support rendered content needs to be made.', 'wp-graphql' ),
+						'description' => __( 'The content of the post.', 'wp-graphql' ),
+						'args' => [
+							'format' => self::post_object_format_arg(),
+						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							if ( empty( $post->post_content ) ) {
+								return null;
+							}
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $post->post_content;
+							}
+
 							return apply_filters( 'the_content', $post->post_content );
 						},
 					],
 					'title'             => [
 						'type'        => Types::string(),
 						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
+						'args' => [
+							'format' => self::post_object_format_arg(),
+						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_title ) ? $post->post_title : null;
+							if ( empty( $post->post_title ) ) {
+								return null;
+							}
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $post->post_title;
+							}
+
+							return apply_filters( 'the_title', $post->post_title );
 						},
 					],
 					'excerpt'           => [
 						'type'        => Types::string(),
 						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
+						'args' => [
+							'format' => self::post_object_format_arg(),
+						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							$excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
+							}
 
-							return ! empty( $excerpt ) ? $excerpt : null;
+							$excerpt = apply_filters( 'get_the_excerpt', $post->post_excerpt, $post );
+							if ( empty( $excerpt ) ) {
+								return null;
+							}
+
+							return apply_filters( 'the_excerpt', $excerpt );
 						},
 					],
 					'status'            => [
@@ -483,4 +518,15 @@ class PostObjectType extends WPObjectType {
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
 	}
 
+	/**
+	 * Define the args to be used by post object fields.
+	 *
+	 * @return mixed
+	 */
+	public static function post_object_format_arg() {
+		return [
+			'type' => Types::post_object_field_format_enum(),
+			'description' => __( 'Format of ', 'wp-graphql' ),
+		];
+	}
 }

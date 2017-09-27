@@ -357,7 +357,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 					'mediaItem' => [
 						'id'               => $media_item_id,
 						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
+						'title'            => apply_filters( 'the_title', $this->title ),
 						'description'      => apply_filters( 'the_content', $this->description ),
 						'altText'          => $this->altText,
 						'caption'          => apply_filters( 'the_content', $this->caption ),
@@ -398,7 +398,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 					'mediaItem' => [
 						'id'               => $media_item_id,
 						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
+						'title'            => apply_filters( 'the_title', $this->title ),
 						'description'      => apply_filters( 'the_content', $this->description ),
 						'altText'          => $this->altText,
 						'caption'          => apply_filters( 'the_content', $this->caption ),
@@ -499,7 +499,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 					'mediaItem' => [
 						'id'               => $media_item_id,
 						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
+						'title'            => apply_filters( 'the_title', $this->title ),
 						'description'      => apply_filters( 'the_content', $this->description ),
 						'altText'          => $this->altText,
 						'caption'          => apply_filters( 'the_content', $this->caption ),
@@ -684,7 +684,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 					'clientMutationId' => $this->updated_clientMutationId,
 					'mediaItem'             => [
 						'id'               => $this->media_item_id,
-						'title'            => $this->updated_title,
+						'title'            => apply_filters( 'the_title', $this->updated_title ),
 						'description'      => apply_filters( 'the_content', $this->updated_description ),
 						'mediaItemId'      => $this->attachment_id,
 						'altText'          => $this->updated_altText,

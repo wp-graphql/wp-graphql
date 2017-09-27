@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\ConnectionResolver;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -289,7 +290,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			foreach ( $items as $item ) {
 				$edges[] = [
 					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-					'node'   => $item,
+					'node'   => DataSource::resolve_post_object( $item->ID, $item->post_type ),
 				];
 			}
 		}
