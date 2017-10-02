@@ -726,6 +726,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		mutation deleteMediaItem( $input: deleteMediaItemInput! ){
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
+		    deletedId
 		    mediaItem{
 		      id
 		      mediaItemId
@@ -785,6 +786,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		mutation deleteMediaItem( $input: deleteMediaItemInput! ){
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
+		    deletedId
 		    mediaItem{
 		      id
 		      mediaItemId
@@ -810,6 +812,46 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * This funtion tests the deleteMediaItem mutation by trying to delete a post
+	 * instead of an attachment
+	 */
+	public function testDeleteMediaItemAsPost() {
+
+		/**
+		 * Set the user to an admin
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Create a post that we can try to delete with the deleteMediaItem mutaton
+		 */
+		$args = [
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title',
+			'post_content' => 'Original Content',
+		];
+
+		/**
+		 * Create a page to test against and set the post id in the mutation variables
+		 */
+		$post_to_delete = $this->factory->post->create( $args );
+		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $post_to_delete );
+
+		/**
+		 * Define the expected output
+		 */
+		$actual = $this->deleteMediaItemMutation();
+
+		/*
+		 * Compare it to the actual output and reset the id delete variable
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+	}
+
+	/**
 	 * This function tests the deleteMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php
@@ -831,6 +873,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 			'data' => [
 				'deleteMediaItem' => [
 					'clientMutationId' => $this->clientMutationId,
+					'deletedId' => $this->media_item_id,
 					'mediaItem' => [
 						'id'               => $this->media_item_id,
 						'mediaItemId'      => $this->attachment_id,
