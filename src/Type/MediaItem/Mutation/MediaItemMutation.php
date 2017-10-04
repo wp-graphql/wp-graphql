@@ -146,7 +146,7 @@ class MediaItemMutation {
 		}
 
 		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
+		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) ) {
 			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
 		}
 
@@ -164,6 +164,8 @@ class MediaItemMutation {
 
 		if ( ! empty( $input['description'] ) ) {
 			$insert_post_args['post_content'] = $input['description'];
+		} else {
+			$insert_post_args['post_content'] = '';
 		}
 
 		if ( ! empty( $file['type'] ) ) {
@@ -172,7 +174,7 @@ class MediaItemMutation {
 			$insert_post_args['post_mime_type'] = $input['fileType'];
 		}
 
-		if ( ! empty( $input['parentId'] ) && null !== get_post( $input['parentId'] ) ) {
+		if ( ! empty( $input['parentId'] ) ) {
 			$insert_post_args['post_parent'] = $input['parentId'];
 		}
 		$parent_id_parts = ( ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null );
@@ -207,7 +209,9 @@ class MediaItemMutation {
 		/**
 		 * Update alt text postmeta for the mediaItem
 		 */
-		update_post_meta( $media_item_id, '_wp_attachment_image_alt', $input['altText'] );
+		if ( ! empty( $input['altText'] ) ) {
+			update_post_meta( $media_item_id, '_wp_attachment_image_alt', $input['altText'] );
+		}
 
 		/**
 		 * Run an action after the additional data has been updated. This is a great spot to hook into to

@@ -55,14 +55,6 @@ class MediaItemCreate {
 				}
 
 				/**
-				 * If the mediaItem being created is being assigned to another user that's not the current user, make sure
-				 * the current user has permission to edit others mediaItems
-				 */
-				if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
-				}
-
-				/**
 				 * Set the file name, whether it's a local file or from a URL.
 				 * Then set the url for the uploaded file
 				 */
@@ -78,7 +70,7 @@ class MediaItemCreate {
 				/**
 				 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 				 */
-				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME) ) {
+				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
 					$uploaded_file = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
 					$uploaded_file_url = $uploaded_file['url'];
 				}
@@ -102,7 +94,7 @@ class MediaItemCreate {
 				 */
 				$file_data = [
 					'name'     => $file_name,
-					'type'     => $input['fileType'],
+					'type'     => ! empty ( $input['fileType'] ) ? $input['fileType'] : wp_check_filetype( $temp_file ),
 					'tmp_name' => $temp_file,
 					'error'    => 0,
 					'size'     => filesize( $temp_file ),
@@ -152,16 +144,24 @@ class MediaItemCreate {
 				}
 
 				/**
-				 * Insert the mediaItem
+				 * If the mediaItem being created is being assigned to another user that's not the current user, make sure
+				 * the current user has permission to edit others mediaItems
 				 */
-				$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id );
+				if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+					throw new \Exception( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
+				}
 
 				/**
-				 * Handle the error from wp_insert_attachment if it occurs
+				 * Insert the mediaItem
+				 *
+				 * Required Argument defaults are set in the main MediaItemMutation.php if they aren't set
+				 * by the user during input, they are:
+				 * post_title (pulled from file if not entered)
+				 * post_content (empty string if not entered)
+				 * post_status (inherit if not entered)
+				 * post_mime_type (pulled from the file if not entered in the mutation)
 				 */
-				if ( 0 === $attachment_id ) {
-					throw new \Exception( __( 'Sorry, the mediaItem failed to create', 'wp-graphql' ) );
-				}
+				$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id );
 
 				/**
 				 * Check if the wp_generate_attachment_metadata method exists and include it if not
@@ -169,17 +169,12 @@ class MediaItemCreate {
 				require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
 				/**
-				 * Generate and update the mediaItem's metadata
+				 * Generate and update the mediaItem's metadata.
+				 * If we make it this far the file and attachment
+				 * have been validated and we will not receive any errors
 				 */
 				$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
 				$attachment_data_update = wp_update_attachment_metadata( $attachment_id, $attachment_data );
-
-				/**
-				 * Handle the error from wp_update_attachment_metadata if it occurs
-				 */
-				if ( false === $attachment_data_update ) {
-					throw new \Exception( __( 'Sorry, the mediaItem metadata failed to update', 'wp-graphql' ) );
-				}
 
 				/**
 				 * Update alt text postmeta for mediaItem
@@ -208,7 +203,7 @@ class MediaItemCreate {
 	private static function input_fields( $post_type_object ) {
 
 		/**
-		 * Update mutations require an filePath to be passed
+		 * Creating mutations requires a filePath to be passed
 		 */
 		return array_merge(
 			[
