@@ -434,7 +434,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
 		$attachment_url = wp_get_attachment_url( $attachment_id );
-		$attachment_file = str_replace( '/tmp/wordpress//wp-content/uploads/', '', get_attached_file( $attachment_id ) );
+		$attachment_file = str_replace( ['/tmp/wordpress//wp-content/uploads/', '/tmp/wordpress/wp-content/uploads/'], '', get_attached_file( $attachment_id ) );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 
@@ -621,7 +621,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$attachment_data = get_post( $attachment_id );
 		$attachment_title = $attachment_data->post_title;
 		$attachment_url = wp_get_attachment_url( $attachment_id );
-		$attachment_file = str_replace( '/tmp/wordpress//wp-content/uploads/', '', get_attached_file( $attachment_id ) );
+		$attachment_file = str_replace( ['/tmp/wordpress//wp-content/uploads/', '/tmp/wordpress/wp-content/uploads/'], '', get_attached_file( $attachment_id ) );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
@@ -700,7 +700,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
 		$attachment_url = wp_get_attachment_url( $attachment_id );
-		$attachment_file = str_replace( '/tmp/wordpress//wp-content/uploads/', '', get_attached_file( $attachment_id ) );
+		$attachment_file = str_replace( ['/tmp/wordpress//wp-content/uploads/', '/tmp/wordpress/wp-content/uploads/'], '', get_attached_file( $attachment_id ) );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
