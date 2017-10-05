@@ -97,8 +97,10 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 			comment(id: \"{$global_id}\") {
 				agent
 				approved
-				author{
+				author {
 					userId
+					email
+					name
 				}
 				authorIp
 				children {
@@ -141,6 +143,8 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 					'approved'    => '1',
 					'author'      => [
 						'userId'  => $this->admin,
+						'email'   => 'user_109@example.org',
+						'name'    => 'User 109',
 					],
 					'authorIp'    => '',
 					'children'    => [
