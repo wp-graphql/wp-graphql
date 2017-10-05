@@ -72,10 +72,10 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		self::$first_arg = ! empty( $args['first'] ) ? $args['first'] : null;
 
 		self::set_default_query_args( $source, $args, $context, $info );
-		self::set_cache_query_args( $source, $args, $context, $info );
 		self::set_contextual_query_args( $source, $args, $context, $info );
 		self::set_input_query_args( $source, $args, $context, $info );
 		self::set_order_query_args( $source, $args, $context, $info );
+		self::set_cache_query_args( $source, $args, $context, $info );
 
 		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
@@ -86,9 +86,9 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * @param $context    The AppContext passed down the GraphQL tree
 		 * @param $info       The ResolveInfo passed down the GraphQL tree
 		 */
-		self::$query_args = apply_filters( 'graphql_post_object_connection_query_args', self::$query_args, $source, $args, $context, $info );
+		$query_args = apply_filters( 'graphql_post_object_connection_query_args', self::$query_args, $source, $args, $context, $info );
 
-		return self::$query_args;
+		return $query_args;
 
 	}
 
@@ -130,7 +130,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * Pass the graphql $args to the WP_Query
 		 */
 		self::$query_args['graphql_args'] = $args;
-
 
 	}
 
@@ -289,11 +288,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	public static function get_query( $query_args ) {
 
 		$query = new \WP_Query( $query_args );
-
-		if ( ! empty( $query_args['author'] ) ) {
-			var_dump( $query );
-		}
-
 		return $query;
 	}
 
