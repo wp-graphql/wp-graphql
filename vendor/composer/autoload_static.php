@@ -200,6 +200,7 @@ class ComposerStaticIniteb2745926fd3fad8e88a340a3f270fca
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionResolver.php',
         'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnumType.php',
         'WPGraphQL\\Type\\Enum\\MimeTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MimeTypeEnumType.php',
+        'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectFieldFormatEnumType.php',
         'WPGraphQL\\Type\\Enum\\PostStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostStatusEnumType.php',
         'WPGraphQL\\Type\\Enum\\PostTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostTypeEnumType.php',
         'WPGraphQL\\Type\\Enum\\RelationEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/RelationEnumType.php',

@@ -32,6 +32,16 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	public static $max_query_amount = 100;
 
 	/**
+	 * Holds the args that will be passed to the WP_Query
+	 *
+	 * @var array $query_args
+	 */
+	protected static $query_args = [];
+
+	protected static $last_arg;
+	protected static $first_arg;
+
+	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
 	 * @param $post_type
@@ -58,65 +68,138 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $args['last'] ) ? $args['last'] : null;
-		$first = ! empty( $args['first'] ) ? $args['first'] : null;
+		self::$last_arg  = ! empty( $args['last'] ) ? $args['last'] : null;
+		self::$first_arg = ! empty( $args['first'] ) ? $args['first'] : null;
+
+		self::set_default_query_args( $source, $args, $context, $info );
+		self::set_cache_query_args( $source, $args, $context, $info );
+		self::set_contextual_query_args( $source, $args, $context, $info );
+		self::set_input_query_args( $source, $args, $context, $info );
+		self::set_order_query_args( $source, $args, $context, $info );
+
+		/**
+		 * Filter the $query args to allow folks to customize queries programmatically
+		 *
+		 * @param $query_args The args that will be passed to the WP_Query
+		 * @param $source     The source that's passed down the GraphQL queries
+		 * @param $args       The inputArgs on the field
+		 * @param $context    The AppContext passed down the GraphQL tree
+		 * @param $info       The ResolveInfo passed down the GraphQL tree
+		 */
+		self::$query_args = apply_filters( 'graphql_post_object_connection_query_args', self::$query_args, $source, $args, $context, $info );
+
+		return self::$query_args;
+
+	}
+
+	protected static function set_default_query_args( $source, $args, $context, $info ) {
 
 		/**
 		 * Set the post_type for the query based on the type of post being queried
 		 */
-		$query_args['post_type'] = ! empty( self::$post_type ) ? self::$post_type : 'post';
+		self::$query_args['post_type'] = ! empty( self::$post_type ) ? self::$post_type : 'post';
 
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
 		 */
-		$query_args['no_found_rows'] = true;
+		self::$query_args['no_found_rows'] = true;
 
 		/**
 		 * Set the post_status to "publish" by default
 		 */
-		$query_args['post_status'] = 'publish';
+		self::$query_args['post_status'] = 'publish';
 
 		/**
 		 * Set posts_per_page the highest value of $first and $last, with a (filterable) max of 100
 		 */
-		$query_args['posts_per_page'] = min( max( absint( $first ), absint( $last ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
+		self::$query_args['posts_per_page'] = min( max( absint( self::$first_arg ), absint( self::$last_arg ), 10 ), self::get_query_amount( $source, $args, $context, $info ) ) + 1;
 
 		/**
 		 * Set the default to only query posts with no post_parent set
 		 */
-		$query_args['post_parent'] = 0;
+		self::$query_args['post_parent'] = 0;
 
 		/**
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$query_args['graphql_cursor_offset']  = self::get_offset( $args );
-		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+		self::$query_args['graphql_cursor_offset']  = self::get_offset( $args );
+		self::$query_args['graphql_cursor_compare'] = ( ! empty( self::$last_arg ) ) ? '>' : '<';
 
 		/**
 		 * Pass the graphql $args to the WP_Query
 		 */
-		$query_args['graphql_args'] = $args;
+		self::$query_args['graphql_args'] = $args;
+
+
+	}
+
+	protected static function set_cache_query_args( $source, $args, $context, $info ) {
 
 		/**
-		 * Collect the input_fields and sanitize them to prepare them for sending to the WP_Query
+		 * Don't update caches by default
 		 */
-		$input_fields = [];
-		if ( ! empty( $args['where'] ) ) {
-			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
+		$node_fields = ! empty( $info->getFieldSelection( 3 )['edges']['node'] ) ? $info->getFieldSelection( 3 )['edges']['node'] : [];
+
+		/**
+		 * Prime the caches if any fields are requested that are NOT post_object_fields.
+		 *
+		 * By defaulting to not prime the caches, we get slight performance gains when no terms
+		 * or meta are also queried, but when terms or meta are queried we get performance gains
+		 * if the caches are primed with the initial query
+		 */
+		if ( ! empty( $node_fields ) && is_array( $node_fields ) ) {
+
+			$post_object_fields = [
+				'id',
+				'title',
+				'date',
+				'dateGmt',
+				'content',
+				'excerpt',
+				'guid',
+				'link',
+				'menuOrder',
+				'modified',
+				'modifiedGmt',
+				'parent',
+				'pingStatus',
+				'pinged',
+				'slug',
+				'status',
+				'title',
+				'toPing',
+				self::$post_type . 'Id',
+			];
+
+			$prime_caches = array_filter( array_keys( $node_fields ), function( $field ) use ( $post_object_fields ) {
+				if ( in_array( $field, $post_object_fields, true ) ) {
+					return false;
+				} else {
+					return true;
+				}
+			} );
+
+			self::$query_args['update_post_meta_cache'] = ! empty( $prime_caches ) ? true : false;
+			self::$query_args['update_post_term_cache'] = ! empty( $prime_caches ) ? true : false;
+
 		}
+
+	}
+
+	protected static function set_contextual_query_args( $source, $args, $context, $info ) {
 
 		/**
 		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
 		 */
 		if ( 'attachment' === self::$post_type ) {
-			$query_args['post_status'] = 'inherit';
+			self::$query_args['post_status'] = 'inherit';
 
 			/**
 			 * Unset the "post_parent" for attachments, as we don't really care if they
 			 * have a post_parent set by default
 			 */
-			unset( $query_args['post_parent'] );
+			unset( self::$query_args['post_parent'] );
 		}
 
 		/**
@@ -128,13 +211,13 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		if ( true === is_object( $source ) ) :
 			switch ( true ) {
 				case $source instanceof \WP_Post:
-					$query_args['post_parent'] = $source->ID;
+					self::$query_args['post_parent'] = $source->ID;
 					break;
 				case $source instanceof \WP_Post_Type:
-					$query_args['post_type'] = $source->name;
+					self::$query_args['post_type'] = $source->name;
 					break;
 				case $source instanceof \WP_Term:
-					$query_args['tax_query'] = [
+					self::$query_args['tax_query'] = [
 						[
 							'taxonomy' => $source->taxonomy,
 							'terms'    => [ $source->term_id ],
@@ -143,28 +226,44 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 					];
 					break;
 				case $source instanceof \WP_User:
-					$query_args['author'] = $source->ID;
+					self::$query_args['author'] = absint( $source->ID );
 					break;
 				default:
 					break;
 			}
 		endif;
 
+	}
+
+	protected static function set_input_query_args( $source, $args, $context, $info ) {
+
+		/**
+		 * Collect the input_fields and sanitize them to prepare them for sending to the WP_Query
+		 */
+		$input_fields = [];
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
+		}
+
 		/**
 		 * Merge the input_fields with the default query_args
 		 */
 		if ( ! empty( $input_fields ) ) {
-			$query_args = array_merge( $query_args, $input_fields );
+			self::$query_args = array_merge( self::$query_args, $input_fields );
 		}
+
+	}
+
+	protected static function set_order_query_args( $source, $args, $context, $info ) {
 
 		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
 		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
+			self::$query_args['orderby'] = [];
 			foreach ( $args['where']['orderby'] as $orderby_input ) {
 				if ( ! empty( $orderby_input['field'] ) ) {
-					$query_args['orderby'] = [
+					self::$query_args['orderby'] = [
 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
 					];
 				}
@@ -174,22 +273,9 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
-		if ( empty( $query_args['orderby'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+		if ( empty( self::$query_args['orderby'] ) ) {
+			self::$query_args['order'] = ! empty( self::$last_arg ) ? 'ASC' : 'DESC';
 		}
-
-		/**
-		 * Filter the $query args to allow folks to customize queries programmatically
-		 *
-		 * @param $query_args The args that will be passed to the WP_Query
-		 * @param $source     The source that's passed down the GraphQL queries
-		 * @param $args       The inputArgs on the field
-		 * @param $context    The AppContext passed down the GraphQL tree
-		 * @param $info       The ResolveInfo passed down the GraphQL tree
-		 */
-		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $source, $args, $context, $info );
-
-		return $query_args;
 
 	}
 
@@ -201,7 +287,12 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 * @return \WP_Query
 	 */
 	public static function get_query( $query_args ) {
+
 		$query = new \WP_Query( $query_args );
+
+		if ( ! empty( $query_args['author'] ) ) {
+			var_dump( $query );
+		}
 
 		return $query;
 	}

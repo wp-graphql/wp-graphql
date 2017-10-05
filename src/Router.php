@@ -411,9 +411,22 @@ class Router {
 		if ( false === headers_sent() ) {
 
 			/**
+			 * Filter the $status_code before setting the headers
+			 *
+			 * @param int $status_code The status code to apply to the headers
+			 * @param array $response The response of the GraphQL Request
+			 * @param array $graphql_results The results of the GraphQL execution
+			 * @param string $request The GraphQL Request
+			 * @param string $operation_name The operation name of the GraphQL Request
+			 * @param array $variables The variables applied to the GraphQL Request
+			 * @param \WP_User $user The current user object
+			 */
+			$status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $request, $operation_name, $variables, $user );
+
+			/**
 			 * Set the response headers
 			 */
-			self::set_headers( self::$http_status_code );
+			self::set_headers( $status_code );
 
 			/**
 			 * Send the JSON response

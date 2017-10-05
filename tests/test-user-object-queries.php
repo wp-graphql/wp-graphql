@@ -11,6 +11,11 @@
  * Tests user object queries.
  */
 class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
+
+	public $admin;
+	public $current_time;
+	public $current_date;
+
 	/**
 	 * This function is run before each method
 	 *
@@ -21,6 +26,10 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
+
+		$this->admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
 	}
 
 	/**
@@ -266,14 +275,12 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a user
 		 */
-		$user_id = $this->createUserObject();
-
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id ] );
+		$post_id = $this->factory->post->create( [ 'post_author' => $this->admin ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -295,6 +302,8 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		print_r( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -330,14 +339,12 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a user
 		 */
-		$user_id = $this->createUserObject();
-
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id, 'post_type' => 'page' ] );
+		$post_id = $this->factory->post->create( [ 'post_author' => $this->admin, 'post_type' => 'page' ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -359,6 +366,8 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		print_r( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -394,14 +403,12 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create a user
 		 */
-		$user_id = $this->createUserObject();
-
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id, 'post_type' => 'attachment' ] );
+		$post_id = $this->factory->post->create( [ 'post_author' => $this->admin, 'post_type' => 'attachment' ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -423,6 +430,8 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		print_r( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
