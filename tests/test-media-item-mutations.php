@@ -287,6 +287,8 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		wp_set_current_user( $this->admin );
 		$this->create_variables['input']['filePath'] = "file:///Users/hdevore/Desktop/Current/colorado_lake.jpeg";
 		$actual = $this->createMediaItemMutation();
+//		var_dump( $actual );
+//		die();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
 	}
@@ -1059,6 +1061,12 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
 		$this->assertArrayHasKey( 'errors', $actual );
+
+		$delete_trash_variables['input']['forceDelete'] = true;
+		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+		$actual_deleted_item = $actual['data']['deleteMediaItem'];
+		$this->assertArrayHasKey( 'deletedId', $actual_deleted_item );
+
 	}
 
 	/**
