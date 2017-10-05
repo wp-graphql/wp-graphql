@@ -130,7 +130,6 @@ class MediaItemDelete {
 				 */
 				return [
 					'mediaItemObject' => $media_item_before_delete,
-
 				];
 
 			},
