@@ -91,6 +91,11 @@ class CommentType extends WPObjectType {
 								}
 								if ( ! empty( $comment->comment_author_email ) ) {
 									$author->__set( 'user_email', $comment->comment_author_email );
+									$comment_author_id = [ 'type' => 'comment_author', 'email' => $comment->comment_author_email, 'name' => $comment->comment_author ];
+									$author->_set( 'ID', $comment_author_id );
+								}
+								if ( ! empty( $comment->comment_author_url ) ) {
+									$author->__set( 'user_url', $comment->comment_author_url );
 								}
 							}
 
