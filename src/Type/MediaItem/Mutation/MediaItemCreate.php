@@ -72,7 +72,7 @@ class MediaItemCreate {
 				 */
 				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
 					$uploaded_file = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
-					$uploaded_file_url = $uploaded_file['url'];
+					$uploaded_file_url = ( empty ( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
 				}
 
 				/**
