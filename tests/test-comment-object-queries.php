@@ -97,8 +97,10 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 			comment(id: \"{$global_id}\") {
 				agent
 				approved
-				author{
+				author {
 					userId
+					email
+					name
 				}
 				authorIp
 				children {
@@ -141,6 +143,8 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 					'approved'    => '1',
 					'author'      => [
 						'userId'  => $this->admin,
+						'email'   => get_userdata( $this->admin )->user_email,
+						'name'    => get_userdata( $this->admin )->display_name,
 					],
 					'authorIp'    => '',
 					'children'    => [
@@ -163,7 +167,110 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * testCommentQuery
+	 * testNotUserCommentQuery
+	 *
+	 * This tests creating a single comment that is not associated to a user. With data and retrieving said comment via a
+	 * GraphQL query
+	 *
+	 * @since 0.0.5
+	 */
+	public function testNotUserCommentQuery() {
+
+		/**
+		 * Create a comment that is not associated to a user
+		 */
+		$comment_id = $this->createCommentObject( [
+			'user_id' => 0,
+			'comment_author_email' => 'test@example.org',
+			'comment_author_url'   => 'https://example.org',
+		] );
+
+		/**
+		 * Create the global ID based on the comment_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			comment(id: \"{$global_id}\") {
+				agent
+				approved
+				author {
+					userId
+					email
+					url
+				}
+				authorIp
+				children {
+					edges {
+						node {
+							id
+						}
+					}
+				}
+				commentId
+				commentedOn {
+					... on post {
+						id
+					}
+				}
+				content
+				date
+				dateGmt
+				id
+				karma
+				parent {
+					id
+				}
+				type
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'comment' => [
+					'agent'       => '',
+					'approved'    => '1',
+					'author'      => [
+						'userId'  => null,
+						'email'   => 'test@example.org',
+						//'name'    => get_userdata( $this->admin )->display_name,
+						//'name'    => 'Test Not a User',
+						'url'     => 'https://example.org',
+					],
+					'authorIp'    => '',
+					'children'    => [
+						'edges' => [],
+					],
+					'commentId'   => $comment_id,
+					'commentedOn' => null,
+					'content'     => 'Test comment content',
+					'date'        => $this->current_date,
+					'dateGmt'     => $this->current_date_gmt,
+					'id'          => $global_id,
+					'karma'       => 0,
+					'parent'      => null,
+					'type'        => '',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testCommentQueryWithChildrenAssignedPostAndParent
 	 *
 	 * This tests creating a single comment with data and retrieving said comment via a GraphQL query
 	 *
