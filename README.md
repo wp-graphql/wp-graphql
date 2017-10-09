@@ -67,7 +67,7 @@ Please note that as the plugin continues to take shape, there might be breaking 
 
 Before anything is merged into the WPGraphQL code base it must pass all tests and have 100% code coverage. Travis-CI and Coveralls will check this when you create a pull request to the WPGraphQL repo. However, before that happens, you should ensure all of these requirements are met locally. The following will help you set up both testing and code coverage in your local environment.
 
-###Prerequisites
+### Prerequisites
 To run unit tests and code coverage during development you'll need the following:
 
 * [Composer](https://getcomposer.org/doc/00-intro.md)
