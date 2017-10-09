@@ -98,8 +98,7 @@ Now that we have the prerequisites installed we can run the tests and check our 
 
 `phpunit --coverage-html ./coverage`
 
-The easiest way to check your code coverage is to drag, or right click and open, the `index.html` file from the coverage directory (`wp-graphql/coverage/index.html`) in your browser. This should render a dashboard 
-that will allow you to view the code coverage of all files in the WPGraphQL repo.
+The easiest way to check your code coverage is to drag, or right click and open, the `index.html` file from the coverage directory (`wp-graphql/coverage/index.html`) in your browser. This should render a dashboard that will allow you to view the code coverage of all files in the WPGraphQL repo.
 
 ### Running Individual Files 
 As you'll note, running all of the tests in the entire test suite can be time consuming. If you would like to run only one test file instead of all of them, simply pass the test file you're trying to test, like so:
