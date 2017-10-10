@@ -99,68 +99,69 @@ class DataSource {
 		 */
 		switch ( $name ) {
 			case 'adminEmail':
-				$name = 'admin_email';
+				$option_name = 'admin_email';
+				break;
 
 			case 'siteDescription':
-				$name = 'blogdescription';
+				$option_name = 'blogdescription';
+				break;
 
 			case 'siteName':
-				$name = 'blogname';
+				$option_name = 'blogname';
+				break;
 
 			case 'commentRegistration':
-				$name = 'comment_registration';
+				$option_name = 'comment_registration';
+				break;
 
 			case 'dateFormat':
-				$name = 'date_format';
+				$option_name = 'date_format';
+				break;
 
 			case 'defaultRole':
-				$name = 'default_role';
+				$option_name = 'default_role';
+				break;
 
 			case 'gmtOffset':
-				$name = 'gmt_offset';
+				$option_name = 'gmt_offset';
+				break;
 
 			case 'home':
-				$name = 'home';
+				$option_name = 'home';
+				break;
 
 			case 'siteUrl':
-				$name = 'siteurl';
+				$option_name = 'siteurl';
+				break;
 
 			case 'startOfWeek':
-				$name = 'start_of_week';
+				$option_name = 'start_of_week';
+				break;
 
 			case 'timeFormat':
-				$name = 'time_format';
+				$option_name = 'time_format';
+				break;
 
 			case 'timezoneString':
-				$name = 'timezone_string';
+				$option_name = 'timezone_string';
+				break;
 
 			case 'usersCanRegister':
-				$name = 'users_can_register';
+				$option_name = 'users_can_register';
+				break;
+
 		}
 
 		/**
 		 * Get the general setting option requested and store it's value
 		 * based on it's scalar type
 		 */
-		$setting_value = get_option( $name );
-		var_dump( $setting_value );
-		var_dump( $name );
-		$setting_value_type = gettype( $setting_value );
-		var_dump( $setting_value_type );
+		$setting_value = get_option( $option_name );
 
 		/**
-		 * Set the value field based on scalar type
+		 * Set the value field
 		 */
-		switch ( $setting_value_type ) {
-			case 'integer':
-				$general_setting['intValue'] = $setting_value;
-
-			case 'string':
-				$general_setting['stringValue'] = $setting_value;
-
-			case 'boolean':
-				$general_setting['boolValue'] = $setting_value;
-		}
+		$general_setting['value'] = $setting_value;
 
 		/**
 		 * Return the general setting, or throw an exception

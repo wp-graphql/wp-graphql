@@ -28,55 +28,55 @@ class GeneralSettingConnectionResolver {
 		$general_settings_array = [
 			[
 				'name' => __( 'adminEmail', 'wp-graphql' ),
-				'stringValue' => get_option( 'admin_email' ),
+				'value' => get_option( 'admin_email' ),
 			],
 			[
 				'name' => __( 'siteDescription', 'wp-graphql' ),
-				'stringValue' => get_option( 'blogdescription' ),
+				'value' => get_option( 'blogdescription' ),
 			],
 			[
 				'name' => __( 'siteName', 'wp-graphql' ),
-				'stringValue' => get_option( 'blogname' ),
+				'value' => get_option( 'blogname' ),
 			],
 			[
 				'name' => __( 'commentRegistration', 'wp-graphql' ),
-				'intValue' => get_option( 'comment_registration' ),
+				'value' => get_option( 'comment_registration' ),
 			],
 			[
 				'name' => __( 'dateFormat', 'wp-graphql' ),
-				'stringValue' => get_option( 'date_format' ),
+				'value' => get_option( 'date_format' ),
 			],
 			[
 				'name' => __( 'defaultRole', 'wp-graphql' ),
-				'stringValue' => get_option( 'default_role' ),
+				'value' => get_option( 'default_role' ),
 			],
 			[
 				'name' => __( 'gmtOffset', 'wp-graphql' ),
-				'intValue' => get_option( 'gmt_offset' ),
+				'value' => get_option( 'gmt_offset' ),
 			],
 			[
 				'name' => __( 'home', 'wp-graphql' ),
-				'stringValue' => get_option( 'home' ),
+				'value' => get_option( 'home' ),
 			],
 			[
 				'name' => __( 'siteUrl', 'wp-graphql' ),
-				'stringValue' => get_option( 'siteurl' ),
+				'value' => get_option( 'siteurl' ),
 			],
 			[
 				'name' => __( 'startOfWeek', 'wp-graphql' ),
-				'intValue' => get_option( 'start_of_week' ),
+				'value' => get_option( 'start_of_week' ),
 			],
 			[
 				'name' => __( 'timeFormat', 'wp-graphql' ),
-				'stringValue' => get_option( 'time_format' ),
+				'value' => get_option( 'time_format' ),
 			],
 			[
 				'name' => __( 'timezoneString', 'wp-graphql' ),
-				'stringValue' => get_option( 'timezone_string' ),
+				'value' => get_option( 'timezone_string' ),
 			],
 			[
 				'name' => __( 'usersCanRegister', 'wp-graphql' ),
-				'intValue' => get_option( 'users_can_register' ),
+				'value' => get_option( 'users_can_register' ),
 			],
 		];
 

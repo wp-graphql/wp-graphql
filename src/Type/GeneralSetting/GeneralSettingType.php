@@ -10,7 +10,7 @@ use WPGraphQL\Types;
 /**
  * Class GeneralSettingType
  *
- * This sets up the base GeneralSettingType.
+ * This sets up the base generalSetting type.
  *
  * @package WPGraphQL\Type
  */
@@ -25,7 +25,7 @@ class GeneralSettingType extends WPObjectType {
 	private static $type_name;
 
 	/**
-	 * Holds the $fields definition for the GeneralSettingType
+	 * Holds the $fields definition for the GeneralSetting type
 	 *
 	 * @var $fields
 	 * @access private
@@ -62,7 +62,7 @@ class GeneralSettingType extends WPObjectType {
 	/**
 	 * Fields
 	 *
-	 * This defines the fields for the GeneralSettingType. The fields are passed through a filter so the shape of the schema
+	 * This defines the fields for the generalSetting type. The fields are passed through a filter so the shape of the schema
 	 * can be modified
 	 *
 	 * @return array|\GraphQL\Type\Definition\FieldDefinition[]
@@ -85,25 +85,16 @@ class GeneralSettingType extends WPObjectType {
 							return ! empty( $general_setting['name'] ) ? $general_setting['name'] : null;
 						},
 					],
-					'intValue' => [
-						'type' => Types::int(),
-						'description' => __( 'The integer value of the setting.', 'wp-graphql' ),
-						'resolve' => function( array $general_setting, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $general_setting['intValue'] ) ? $general_setting['intValue'] : null;
-						},
-					],
-					'stringValue' => [
+					'value' => [
 						'type' => Types::string(),
-						'description' => __( 'The string value of the setting.', 'wp-graphql' ),
+						'description' => __( 'The value of the setting.', 'wp-graphql' ),
 						'resolve' => function( array $general_setting, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $general_setting['stringValue'] ) ? $general_setting['stringValue'] : null;
-						},
-					],
-					'boolValue' => [
-						'type' => Types::boolean(),
-						'description' => __( 'The boolean value of the setting.', 'wp-graphql' ),
-						'resolve' => function( array $general_setting, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $general_setting['boolValue'] ) ? $general_setting['boolValue'] : null;
+							/**
+							 * get_option returns all scalars as a string, the empty method treats "0" as
+							 * being empty so we must validate this field by checking if it's an empty string
+							 * rather than being "empty"
+							 */
+							return ( '' !== $general_setting['value'] ) ? $general_setting['value'] : null;
 						},
 					]
 				];
