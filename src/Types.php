@@ -14,6 +14,7 @@ use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
+use WPGraphQL\Type\GeneralSetting\GeneralSettingType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
@@ -59,6 +60,14 @@ class Types {
 	 * @access private
 	 */
 	private static $comment;
+
+	/**
+	 * Stores the general setting object type
+	 *
+	 * @var GeneralSettingType object $general_setting
+	 * @access private
+	 */
+	private static $general_setting;
 
 	/**
 	 * Stores the mime type enum object
@@ -278,6 +287,16 @@ class Types {
 	 */
 	public static function mime_type_enum() {
 		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
+	}
+
+	/**
+	 * This returns the definition for the GeneralSettingType
+	 *
+	 * @return GeneralSettingType object
+	 * @access public
+	 */
+	public static function general_setting() {
+		return self::$general_setting ? : ( self::$general_setting = new GeneralSettingType() );
 	}
 
 	/**

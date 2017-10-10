@@ -8,6 +8,8 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\GeneralSetting\GeneralSettingQuery;
+use WPGraphQL\Type\GeneralSetting\Connection\GeneralSettingConnectionDefinition;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -61,6 +63,12 @@ class RootQueryType extends ObjectType {
 		 */
 		$fields['comment'] = CommentQuery::root_query();
 		$fields['comments'] = CommentConnectionDefinition::connection();
+
+		/**
+		 * Creates the general setting root query field
+		 */
+		$fields['generalSetting'] = GeneralSettingQuery::root_query();
+		$fields['generalSettings'] = GeneralSettingConnectionDefinition::connection();
 
 		/**
 		 * Creates the plugin root query field

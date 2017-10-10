@@ -8,6 +8,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
+use WPGraphQL\Type\GeneralSetting\Connection\GeneralSettingConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
@@ -72,6 +73,113 @@ class DataSource {
 		$resolver = new CommentConnectionResolver();
 
 		return $resolver->resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * Returns a string or integer value from the options table
+	 *
+	 * @param string $name Name of the option you want info for
+	 *
+	 * @return null|array
+	 * @throws |Exception
+	 * @access public
+	 */
+	public static function resolve_general_setting( $name ) {
+
+		/**
+		 * Prepare the array to return for the type
+		 */
+		$general_setting = [];
+		$general_setting['name'] = $name;
+
+		/**
+		 * Switch statement for converting the graphql field name
+		 * to the WordPress option name
+		 */
+		switch ( $name ) {
+			case 'adminEmail':
+				$option_name = 'admin_email';
+				break;
+
+			case 'siteDescription':
+				$option_name = 'blogdescription';
+				break;
+
+			case 'siteName':
+				$option_name = 'blogname';
+				break;
+
+			case 'commentRegistration':
+				$option_name = 'comment_registration';
+				break;
+
+			case 'dateFormat':
+				$option_name = 'date_format';
+				break;
+
+			case 'defaultRole':
+				$option_name = 'default_role';
+				break;
+
+			case 'gmtOffset':
+				$option_name = 'gmt_offset';
+				break;
+
+			case 'home':
+				$option_name = 'home';
+				break;
+
+			case 'siteUrl':
+				$option_name = 'siteurl';
+				break;
+
+			case 'startOfWeek':
+				$option_name = 'start_of_week';
+				break;
+
+			case 'timeFormat':
+				$option_name = 'time_format';
+				break;
+
+			case 'timezoneString':
+				$option_name = 'timezone_string';
+				break;
+
+			case 'usersCanRegister':
+				$option_name = 'users_can_register';
+				break;
+
+		}
+
+		/**
+		 * Get the general setting option requested and store it's value
+		 */
+		$setting_value = get_option( $option_name );
+
+		/**
+		 * Set the value field
+		 */
+		$general_setting['value'] = $setting_value;
+
+		/**
+		 * Return the general setting, or throw an exception
+		 */
+		if ( ! empty( $general_setting ) ) {
+			return $general_setting;
+		} else {
+			throw new \Exception( sprintf( __( 'No general setting was found with the name %s', 'wp-graphql' ), $name ) );
+		}
+	}
+
+	/**
+	 * Returns an array of all general settings
+	 *
+	 * @return array
+	 * @access public
+	 *
+	 */
+	public static function resolve_general_settings_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		return GeneralSettingConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
