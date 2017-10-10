@@ -200,6 +200,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
 			],
+			'nodes' => $items,
 		];
 
 		return $connection;

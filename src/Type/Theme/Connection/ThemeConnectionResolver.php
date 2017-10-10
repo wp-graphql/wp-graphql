@@ -34,7 +34,10 @@ class ThemeConnectionResolver {
 			}
 		}
 
-		return ! empty( $themes_array ) ? Relay::connectionFromArray( $themes_array, $args ) : null;
+		$connection = Relay::connectionFromArray( $themes_array, $args );
+		$connection['nodes'] = ! empty( $themes_array ) ? $themes_array : null;
+
+		return ! empty( $themes_array ) ? $connection : null;
 	}
 
 }

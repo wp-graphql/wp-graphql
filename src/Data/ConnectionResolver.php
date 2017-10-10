@@ -78,6 +78,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 
 		$meta       = self::get_array_meta( $query, $args );
 		$connection = ArrayConnection::connectionFromArraySlice( $array, $args, $meta );
+		$connection['nodes'] = $array;
 
 		return $connection;
 
