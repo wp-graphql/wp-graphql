@@ -227,7 +227,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 					'clientMutationId' => 'someId',
 					'page'             => [
 						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-						'title'   => 'Some updated title',
+						'title'   => apply_filters( 'the_title', 'Some updated title' ),
 						'content' => apply_filters( 'the_content', 'Some updated content' ),
 						'pageId'  => $page_id,
 					],
@@ -334,7 +334,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
 					'page'             => [
 						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
-						'title'   => 'Original Title',
+						'title'   => apply_filters( 'the_title', 'Original Title' ),
 						'content' => apply_filters( 'the_content', 'Original Content' ),
 						'pageId'  => $page_id,
 					],
@@ -531,7 +531,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 				'createPage' => [
 					'clientMutationId' => $this->client_mutation_id,
 					'page'             => [
-						'title'   => $this->title,
+						'title'   => apply_filters( 'the_title', $this->title ),
 						'content' => apply_filters( 'the_content', $this->content ),
 					],
 				],

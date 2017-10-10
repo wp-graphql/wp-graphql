@@ -535,6 +535,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			do_action( 'graphql_return_response', $filtered_result, $result, $schema, $operation_name, $request, $variables );
 
 			/**
+			 * Make sure we reset the post data after the query is executed to avoid disrupting
+			 * other queries.
+			 *
+			 * @since 0.0.18
+			 */
+			wp_reset_postdata();
+
+			/**
 			 * Return the result of the request
 			 */
 			return $filtered_result->toArray();
