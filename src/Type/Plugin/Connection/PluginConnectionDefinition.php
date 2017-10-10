@@ -37,6 +37,17 @@ class PluginConnectionDefinition {
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::plugin(),
 				'name' => 'plugins',
+				'connectionFields' => function() {
+					return [
+						'nodes' => [
+							'type' => Types::list_of( Types::plugin() ),
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve' => function( $source, $args, $context, $info ) {
+								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+							},
+						],
+					];
+				},
 			] );
 
 			/**

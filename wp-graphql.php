@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.17
+ * Version: 0.0.19
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.17
+ * @version  0.0.19
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -156,7 +156,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.17' );
+				define( 'WPGRAPHQL_VERSION', '0.0.19' );
 			}
 
 			// Plugin Folder Path.
@@ -533,6 +533,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param array|null $variables       Variables to passed to your GraphQL query
 			 */
 			do_action( 'graphql_return_response', $filtered_result, $result, $schema, $operation_name, $request, $variables );
+
+			/**
+			 * Make sure we reset the post data after the query is executed to avoid disrupting
+			 * other queries.
+			 *
+			 * @since 0.0.18
+			 */
+			wp_reset_postdata();
 
 			/**
 			 * Return the result of the request

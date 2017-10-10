@@ -102,6 +102,9 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 						date
 					}
 				}
+				nodes {
+				  commentId
+				}
 			}
 		}';
 
@@ -133,6 +136,7 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['commentId'] );
 
 	}
 
