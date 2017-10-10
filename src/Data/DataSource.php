@@ -4,10 +4,12 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
+use PHPUnit\Runner\Exception;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
+use WPGraphQL\Type\GeneralSetting\Connection\GeneralSettingConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
@@ -72,6 +74,109 @@ class DataSource {
 		$resolver = new CommentConnectionResolver();
 
 		return $resolver->resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * Returns a string or integer value from the options table
+	 *
+	 * @param string $name Name of the option you want info for
+	 *
+	 * @return null|array
+	 * @throws |Exception
+	 * @access public
+	 */
+	public static function resolve_general_setting( $name ) {
+
+		/**
+		 * Prepare the array to return for the type
+		 */
+		$general_setting = [];
+		$general_setting['name'] = $name;
+
+		/**
+		 * Switch statement for converting the graphql field name
+		 * to the WordPress option name
+		 */
+		switch ( $name ) {
+			case 'adminEmail':
+				$name = 'admin_email';
+
+			case 'siteDescription':
+				$name = 'blogdescription';
+
+			case 'siteName':
+				$name = 'blogname';
+
+			case 'commentRegistration':
+				$name = 'comment_registration';
+
+			case 'dateFormat':
+				$name = 'date_format';
+
+			case 'defaultRole':
+				$name = 'default_role';
+
+			case 'gmtOffset':
+				$name = 'gmt_offset';
+
+			case 'home':
+				$name = 'home';
+
+			case 'siteUrl':
+				$name = 'siteurl';
+
+			case 'startOfWeek':
+				$name = 'start_of_week';
+
+			case 'timeFormat':
+				$name = 'time_format';
+
+			case 'timezoneString':
+				$name = 'timezone_string';
+
+			case 'usersCanRegister':
+				$name = 'users_can_register';
+		}
+
+		/**
+		 * Get the general setting option requested and store it's value
+		 * based on it's scalar type
+		 */
+		$setting_value = get_option( $name );
+		var_dump( $setting_value );
+		var_dump( $name );
+		$setting_value_type = gettype( $setting_value );
+		var_dump( $setting_value_type );
+
+		/**
+		 * Set the value field based on scalar type
+		 */
+		switch ( $setting_value_type ) {
+			case 'integer':
+				$general_setting['intValue'] = $setting_value;
+
+			case 'string':
+				$general_setting['stringValue'] = $setting_value;
+
+			case 'boolean':
+				$general_setting['boolValue'] = $setting_value;
+		}
+
+		/**
+		 * Return the general setting, or throw an exception
+		 */
+		if ( ! empty( $general_setting ) ) {
+			return $general_setting;
+		} else {
+			throw new \Exception( sprintf( __( 'No general setting was found with the name %s', 'wp-graphql' ), $name ) );
+		}
+	}
+
+	/**
+	 * Returns
+	 */
+	public static function resolve_general_settings_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		return GeneralSettingConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
