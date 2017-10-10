@@ -3,7 +3,7 @@
 /**
  * WPGraphQL Test generalSetting Queries
  *
- * Test the WPGraphQL generalSetting Queries for the proper user permissions and fields
+ * Test the WPGraphQL generalSetting and generalSettings Queries
  *
  * @package WPGraphQL
  *
@@ -12,11 +12,14 @@ class WP_GraphQL_Test_General_Setting_Queries extends WP_UnitTestCase {
 
 	/**
 	 * This function is run before each method
+	 *
+	 * @access public
+	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
 
-		$this->admin      = $this->factory->user->create( [
+		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
 		$this->admin_name = 'User ' . $this->admin;
@@ -39,6 +42,7 @@ class WP_GraphQL_Test_General_Setting_Queries extends WP_UnitTestCase {
 	 *
 	 * @param $general_setting
 	 * @access public
+	 * @return array $actual
 	 */
 	public function generalSettingQuery( $general_setting ) {
 		/**
@@ -64,7 +68,7 @@ class WP_GraphQL_Test_General_Setting_Queries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the adminEmail general setting query
+	 * Test the general setting query
 	 *
 	 * @access public
 	 * @return void

@@ -9,6 +9,7 @@ use WPGraphQL\Types;
 
 /**
  * Class GeneralSettingsConnectionDefinition
+ *
  * @package WPGraphQL\Type\GeneralSetting\Connection
  */
 class GeneralSettingConnectionDefinition {

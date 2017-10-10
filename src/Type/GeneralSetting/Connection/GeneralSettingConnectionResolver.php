@@ -23,7 +23,8 @@ class GeneralSettingConnectionResolver {
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
-		 * Create an array with all of the general settings to loop through and retrieve
+		 * Create an array with all of the general settings mapping
+		 * the actual WP option to the field name
 		 */
 		$general_settings_array = [
 			[

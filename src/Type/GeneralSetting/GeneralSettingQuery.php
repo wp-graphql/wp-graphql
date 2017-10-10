@@ -19,13 +19,16 @@ class GeneralSettingQuery {
 
 	/**
 	 * Holds the root_query field definition
+	 *
+	 * @access private
 	 * @var array $root_query
 	 */
 	private static $root_query;
 
 	/**
-	 * Method that returns the root query field definition for the general settings type
+	 * Method that returns the root query field definition for the general setting type
 	 *
+	 * @access public
 	 * @return array
 	 */
 	public static function root_query() {
@@ -33,7 +36,7 @@ class GeneralSettingQuery {
 		if ( null === self::$root_query ) :
 			self::$root_query = [
 				'type' => Types::general_setting(),
-				'description' => __( 'Returns general settings.', 'wp-graphql' ),
+				'description' => __( 'Returns a general setting.', 'wp-graphql' ),
 				'args' => [
 					'id' => Types::non_null( Types::id() ),
 				],

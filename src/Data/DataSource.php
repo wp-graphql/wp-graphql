@@ -153,7 +153,6 @@ class DataSource {
 
 		/**
 		 * Get the general setting option requested and store it's value
-		 * based on it's scalar type
 		 */
 		$setting_value = get_option( $option_name );
 
@@ -173,7 +172,11 @@ class DataSource {
 	}
 
 	/**
-	 * Returns
+	 * Returns an array of all general settings
+	 *
+	 * @return array
+	 * @access public
+	 *
 	 */
 	public static function resolve_general_settings_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return GeneralSettingConnectionResolver::resolve( $source, $args, $context, $info );
