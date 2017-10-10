@@ -4,7 +4,6 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
-use PHPUnit\Runner\Exception;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
