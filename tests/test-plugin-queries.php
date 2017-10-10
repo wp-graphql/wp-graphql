@@ -49,12 +49,15 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 
 		$query = '
 		{
-		  plugins(last: 1){
-		    edges{
-		      node{
+		  plugins {
+		    edges {
+		      node {
 		        id
 		        name
 		      }
+		    }
+		    nodes {
+		      id
 		    }
 		  }
 		}
@@ -70,7 +73,12 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 		$this->assertNotEmpty( $actual['data']['plugins']['edges'] );
 		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['id'] );
 		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['name'] );
+		$this->assertNotEmpty( $actual['data']['plugins']['nodes'][0]['id'] );
+		$this->assertEquals( $actual['data']['plugins']['nodes'][0]['id'], $actual['data']['plugins']['edges'][0]['node']['id'] );
 
+		foreach ( $actual['data']['plugins']['edges'] as $key => $edge ) {
+			$this->assertEquals( $actual['data']['plugins']['nodes'][ $key ]['id'], $edge['node']['id'] );
+		}
 
 	}
 

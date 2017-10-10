@@ -59,6 +59,13 @@ class PostObjectConnectionDefinition {
 								return $post_type_object;
 							},
 						],
+						'nodes' => [
+							'type' => Types::list_of( Types::post_object( $post_type_object->name ) ),
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve' => function( $source, $args, $context, $info ) {
+								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+							},
+						],
 					];
 				},
 			] );

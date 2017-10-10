@@ -39,6 +39,17 @@ class ThemeConnectionDefinition {
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::theme(),
 				'name' => 'themes',
+				'connectionFields' => function() {
+					return [
+						'nodes' => [
+							'type' => Types::list_of( Types::theme() ),
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve' => function( $source, $args, $context, $info ) {
+								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+							},
+						],
+					];
+				},
 			] );
 
 			/**
