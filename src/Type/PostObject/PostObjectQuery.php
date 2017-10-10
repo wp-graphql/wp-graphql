@@ -106,7 +106,7 @@ class PostObjectQuery {
 						throw new \Exception( __( 'No resource could by found', 'wp-graphql' ) );
 					}
 
-					if ( !$post_object instanceof \WP_Post ) {
+					if ( ! $post_object instanceof \WP_Post ) {
 						throw new \Exception( __( 'The queried resource is not valid', 'wp-graphql' ) );
 					}
 
