@@ -35,7 +35,15 @@ class ThemeConnectionResolver {
 		}
 
 		$connection = Relay::connectionFromArray( $themes_array, $args );
-		$connection['nodes'] = ! empty( $themes_array ) ? $themes_array : null;
+
+		$nodes = [];
+		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
+			foreach ( $connection['edges'] as $edge ) {
+				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
+			}
+		}
+
+		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
 		return ! empty( $themes_array ) ? $connection : null;
 	}

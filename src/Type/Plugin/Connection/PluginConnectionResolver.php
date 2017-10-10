@@ -39,7 +39,14 @@ class PluginConnectionResolver {
 		}
 
 		$connection = Relay::connectionFromArray( $plugins_array, $args );
-		$connection['nodes'] = ! empty( $plugins_array ) ? $plugins_array : null;
+
+		$nodes = [];
+		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
+			foreach ( $connection['edges'] as $edge ) {
+				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
+			}
+		}
+		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
 		return ! empty( $plugins_array ) ? $connection : null;
 
