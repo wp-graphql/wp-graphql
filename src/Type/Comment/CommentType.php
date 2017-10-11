@@ -77,9 +77,10 @@ class CommentType extends WPObjectType {
 							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
 						},
 					],
+					// TODO
 					'author' => [
-						'type' => Types::user(),
-						'description' => __( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
+						'type' => Types::comment_author(),
+						'description' => __( 'The comment author object.', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 							$author = new \WP_User( $comment->user_id );
 

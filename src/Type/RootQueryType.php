@@ -18,6 +18,7 @@ use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
 use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\User\UserQuery;
 use WPGraphQL\Types;
+use WPGraphQL\Type\CommentAuthor\CommentAuthorQuery;
 
 /**
  * Class RootQueryType
@@ -54,6 +55,12 @@ class RootQueryType extends ObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['node'] = $node_definition['nodeField'];
+
+		/**
+		 * Creates the comment author root query field
+		 * @since 0.0.5
+		 */
+		$fields['commentAuthor'] = CommentAuthorQuery::root_query();
 
 		/**
 		 * Creates the comment root query field

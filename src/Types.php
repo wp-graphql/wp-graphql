@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
+use WPGraphQL\Type\CommentAuthor\CommentAuthorType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostObjectFieldFormatEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
@@ -59,6 +60,15 @@ class Types {
 	 * @access private
 	 */
 	private static $comment;
+
+	/**
+	 * Stores the comment author type object
+	 *
+	 * @var CommentAuthorType object $comment_author
+	 * @since  0.5.0
+	 * @access private
+	 */
+	private static $comment_author;
 
 	/**
 	 * Stores the mime type enum object
@@ -267,6 +277,17 @@ class Types {
 	 */
 	public static function comment() {
 		return self::$comment ? : ( self::$comment = new CommentType() );
+	}
+
+	/**
+	 * This returns the definition for the CommentAuthorType
+	 *
+	 * @return CommentAuthorType object
+	 * @since  0.0.5
+	 * @access public
+	 */
+	public static function comment_author() {
+		return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
 	}
 
 	/**
