@@ -269,6 +269,14 @@ class Router {
 		$graphql_results = [];
 
 		try {
+			
+			/**
+			 * Apply filters for allowed HTTP request methods and set the status code to 200 if allowed.
+			 */
+			$allowed_http_methods = apply_filters('allowed_http_methods', ['POST']);
+			if ( in_array( $_SERVER['REQUEST_METHOD'], $allowed_http_methods ) ) {
+				self::$http_status_code = 200;
+			}
 
 			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
@@ -310,7 +318,12 @@ class Router {
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
 
 			} else {
-				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+				/**
+				 * Filter allowed HTTP request methods
+				 * uses an array of strings
+				 */
+
+				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || ! in_array( $_SERVER['REQUEST_METHOD'], $allowed_http_methods ) ) {
 					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
 				}
 
@@ -329,7 +342,7 @@ class Router {
 			/**
 			 * If the $data is empty, catch an error.
 			 */
-			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
+			if ( ( empty( $data ) || empty( $data['query'] ) ) && 'OPTIONS' !== $_SERVER['REQUEST_METHOD'] ) {
 				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
