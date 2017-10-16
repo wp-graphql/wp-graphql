@@ -8,7 +8,6 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
-use WPGraphQL\Type\GeneralSetting\Connection\GeneralSettingConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
