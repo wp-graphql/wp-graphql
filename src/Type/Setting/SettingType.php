@@ -124,7 +124,7 @@ class SettingType extends WPObjectType {
 				'resolve' => function( $option_name ) {
 
 					// This is returning null
-					var_dump( $option_name );
+					//var_dump( $option_name );
 					return get_option( $value['setting'] );
 				},
 			];
