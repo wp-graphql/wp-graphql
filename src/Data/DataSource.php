@@ -14,14 +14,6 @@ use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Types;
 
 /**
- * Instantiate the register_initial_settings so we can use
- * the get_registered_settings method
- *
- * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393
- */
-add_action( 'do_graphql_request', 'register_initial_settings',  10 );
-
-/**
  * Class DataSource
  *
  * This class serves as a factory for all the resolvers for queries and mutations. This layer of
@@ -402,6 +394,7 @@ class DataSource {
 		 * Get all of the registered settings
 		 */
 		$registered_settings = get_registered_settings();
+
 		$setting_type_array = [];
 
 		/**
@@ -421,7 +414,7 @@ class DataSource {
 	}
 
 	/**
-	 * Get all of the allowed settings types
+	 * Get all of the allowed settings types and filter them
 	 *
 	 * @access public
 	 * @return array $allowed_setting_types

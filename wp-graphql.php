@@ -199,6 +199,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		private function actions() {
 			register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
 			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
+
+			/**
+			 * Instantiate the register_initial_settings so we can use
+			 * the get_registered_settings method
+			 *
+			 * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393
+			 */
+			add_action( 'do_graphql_request', 'register_initial_settings',  10 );
 		}
 
 		/**

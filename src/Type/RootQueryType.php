@@ -89,6 +89,7 @@ class RootQueryType extends ObjectType {
 				$field_name = $setting_type . 'Settings';
 
 				$fields[ $field_name ] = SettingQuery::root_query( $setting_type );
+
 			}
 		}
 
@@ -202,8 +203,6 @@ class RootQueryType extends ObjectType {
 		 * (this makes the schema documentation much nicer to browse)
 		 */
 		ksort( $fields );
-
-		// var_dump( $fields );
 
 		/**
 		 * Configure the RootQuery

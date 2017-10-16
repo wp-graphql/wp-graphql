@@ -57,6 +57,9 @@ class SettingType extends WPObjectType {
 		 */
 		self::$setting_type_array = DataSource::get_setting_type_array( $setting_type );
 
+		// This will dump the array containing all of the keys for the $setting_type (general, discussion, etc.)
+		// var_dump( self::$setting_type_array );
+
 		$config = [
 			'name' => $setting_type,
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
@@ -90,6 +93,8 @@ class SettingType extends WPObjectType {
 		 */
 		foreach ( $setting_type_array as $key => $value ) {
 
+			$option_name = $value['setting'];
+
 			/**
 			 * Define the setting array for storing the setting data
 			 * we're going to expose
@@ -103,20 +108,25 @@ class SettingType extends WPObjectType {
 			 */
 			if ( ! empty( $value['show_in_rest']['name'] ) ) {
 				$setting['name'] = $value['show_in_rest']['name'];
-				$setting_type = $setting['name'];
+				$individual_setting_key = $setting['name'];
 			} else {
 				$setting['name'] = str_replace( '_', '', strtolower( $value['setting'] ) );
-				$setting_type = $setting['name'];
+				$individual_setting_key = $setting['name'];
 			}
 
 			/**
 			 * Dynamically build the individual setting and it's fields
 			 * then add it to the fields array
 			 */
-			self::$fields[ $setting_type ] = [
+			self::$fields[ $individual_setting_key ] = [
 				'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
 				'description' => $value['description'],
-				'resolve' => get_option( $value['setting'] ),
+				'resolve' => function( $option_name ) {
+
+					// This is returning null
+					var_dump( $option_name );
+					return get_option( $value['setting'] );
+				},
 			];
 
 		}

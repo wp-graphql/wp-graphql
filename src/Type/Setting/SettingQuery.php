@@ -26,19 +26,17 @@ class SettingQuery {
 	 *
 	 * @return array
 	 */
-	public static function root_query( $setting_type, $setting_type_array ) {
+	public static function root_query( $setting_type ) {
 
 		if ( null === self::$root_query ) {
 			self::$root_query = [];
 		}
 
 		if ( ! empty( $setting_type ) && empty( self::$root_query[ $setting_type ] ) ) {
-			self::$root_query[ $setting_type ] = [
+			self::$root_query = [
 				'type'        => Types::setting( $setting_type ),
-				'description' => sprintf( __( 'A %s setting type', 'wp-graphql' ), $setting_type ),
-				'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
-					return $setting_type_array;
+				'resolve'     => function () {
+					return true;
 				},
 			];
 
