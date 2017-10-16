@@ -225,6 +225,32 @@ class DataSource {
 	}
 
 	/**
+	 * Resolve the type on the individual setting field
+	 *
+	 * @param $type
+	 * @access private
+	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
+	 */
+	public static function resolve_setting_scalar_type( $type ) {
+
+		switch ( $type ) {
+			case 'integer':
+				$type = \WPGraphQL\Types::int();
+				break;
+			case 'number':
+				$type = \WPGraphQL\Types::float();
+				break;
+			case 'boolean':
+				$type = \WPGraphQL\Types::boolean();
+				break;
+			default:
+				$type = \WPGraphQL\Types::string();
+		}
+
+		return $type;
+	}
+
+	/**
 	 * Retrieves the taxonomy object for the name of the taxonomy passed
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for

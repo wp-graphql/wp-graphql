@@ -37,6 +37,7 @@ class SettingQuery {
 				'type'        => Types::setting( $setting_type ),
 				'description' => sprintf( __( 'A %s setting type', 'wp-graphql' ), $setting_type ),
 				'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
+
 					return $setting_type_array;
 				},
 			];

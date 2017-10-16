@@ -113,36 +113,16 @@ class SettingType extends WPObjectType {
 			 * Dynamically build the individual setting and it's fields
 			 * then add it to the fields array
 			 */
-			$fields[ $setting_type ] = [
-				'type' => self::resolve_setting_scalar_type( $value['type'] ),
+			self::$fields[ $setting_type ] = [
+				'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
 				'description' => $value['description'],
 				'resolve' => get_option( $value['setting'] ),
 			];
 
 		}
 
-		return ! empty( self::$fields[ self::$setting_type ] ) ? self::$fields[ self::$setting_type ] : null;
+		return ! empty( self::$fields ) ? self::$fields : null;
 
-	}
-
-
-	private static function resolve_setting_scalar_type( $type ) {
-
-		switch ( $type ) {
-			case 'integer':
-				$type = \WPGraphQL\Types::int();
-				break;
-			case 'number':
-				$type = \WPGraphQL\Types::float();
-				break;
-			case 'boolean':
-				$type = \WPGraphQL\Types::boolean();
-				break;
-			default:
-				$type = \WPGraphQL\Types::string();
-		}
-
-		return $type;
 	}
 
 }
