@@ -8,8 +8,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
-use WPGraphQL\Type\GeneralSetting\GeneralSettingQuery;
-use WPGraphQL\Type\GeneralSetting\Connection\GeneralSettingConnectionDefinition;
+use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -47,6 +46,7 @@ class RootQueryType extends ObjectType {
 		 */
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		$allowed_setting_types = DataSource::get_allowed_setting_types();
 		$node_definition = DataSource::get_node_definition();
 
 		/**
@@ -65,17 +65,34 @@ class RootQueryType extends ObjectType {
 		$fields['comments'] = CommentConnectionDefinition::connection();
 
 		/**
-		 * Creates the general setting root query field
-		 */
-		$fields['generalSetting'] = GeneralSettingQuery::root_query();
-		$fields['generalSettings'] = GeneralSettingConnectionDefinition::connection();
-
-		/**
 		 * Creates the plugin root query field
 		 * @since 0.0.5
 		 */
 		$fields['plugin'] = PluginQuery::root_query();
 		$fields['plugins'] = PluginConnectionDefinition::connection();
+
+		/**
+		 * This registers root fields for any type of setting in
+		 * the $allowed_setting_types
+		 *
+		 */
+
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+
+			foreach ( $allowed_setting_types as $setting_type ) {
+
+				$setting_type_array = DataSource::get_setting_type_array( $setting_type );
+
+				/**
+				 * Sanitize the setting type
+				 */
+				$setting_type = str_replace('_', '', strtolower( $setting_type ) );
+
+				$field_name = $setting_type . 'Settings';
+
+				$fields[ $field_name ] = SettingQuery::root_query( $setting_type, $setting_type_array );
+			}
+		}
 
 		/**
 		 * Creates the theme root query field

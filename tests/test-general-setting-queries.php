@@ -111,6 +111,9 @@ class WP_GraphQL_Test_General_Setting_Queries extends WP_UnitTestCase {
 		";
 		$actual = do_graphql_request( $query );
 
+		var_dump( $actual );
+		die();
+
 		$actual_general_settings = $actual['data']['generalSettings']['edges'];
 
 		$expected = [

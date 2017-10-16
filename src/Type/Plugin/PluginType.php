@@ -33,7 +33,7 @@ class PluginType extends WPObjectType {
 	 * PluginType constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct() {
+	public function __construct(  ) {
 
 		/**
 		 * Set the type_name

@@ -15,6 +15,14 @@ use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Types;
 
 /**
+ * Instantiate the register_initial_settings so we can use
+ * the get_registered_settings method
+ *
+ * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393
+ */
+add_action( 'do_graphql_request', 'register_initial_settings',  10 );
+
+/**
  * Class DataSource
  *
  * This class serves as a factory for all the resolvers for queries and mutations. This layer of
@@ -36,6 +44,15 @@ class DataSource {
 	 * @access protected
 	 */
 	protected static $node_definition;
+
+	/**
+	 * Stores an array of setting types that
+	 * exist in get_registered_settings
+	 *
+	 * @var array $allowed_setting_types
+	 * @access public
+	 */
+	public static $allowed_setting_types;
 
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
@@ -73,113 +90,6 @@ class DataSource {
 		$resolver = new CommentConnectionResolver();
 
 		return $resolver->resolve( $source, $args, $context, $info );
-	}
-
-	/**
-	 * Returns a string or integer value from the options table
-	 *
-	 * @param string $name Name of the option you want info for
-	 *
-	 * @return null|array
-	 * @throws |Exception
-	 * @access public
-	 */
-	public static function resolve_general_setting( $name ) {
-
-		/**
-		 * Prepare the array to return for the type
-		 */
-		$general_setting = [];
-		$general_setting['name'] = $name;
-
-		/**
-		 * Switch statement for converting the graphql field name
-		 * to the WordPress option name
-		 */
-		switch ( $name ) {
-			case 'adminEmail':
-				$option_name = 'admin_email';
-				break;
-
-			case 'siteDescription':
-				$option_name = 'blogdescription';
-				break;
-
-			case 'siteName':
-				$option_name = 'blogname';
-				break;
-
-			case 'commentRegistration':
-				$option_name = 'comment_registration';
-				break;
-
-			case 'dateFormat':
-				$option_name = 'date_format';
-				break;
-
-			case 'defaultRole':
-				$option_name = 'default_role';
-				break;
-
-			case 'gmtOffset':
-				$option_name = 'gmt_offset';
-				break;
-
-			case 'home':
-				$option_name = 'home';
-				break;
-
-			case 'siteUrl':
-				$option_name = 'siteurl';
-				break;
-
-			case 'startOfWeek':
-				$option_name = 'start_of_week';
-				break;
-
-			case 'timeFormat':
-				$option_name = 'time_format';
-				break;
-
-			case 'timezoneString':
-				$option_name = 'timezone_string';
-				break;
-
-			case 'usersCanRegister':
-				$option_name = 'users_can_register';
-				break;
-
-		}
-
-		/**
-		 * Get the general setting option requested and store it's value
-		 */
-		$setting_value = get_option( $option_name );
-
-		/**
-		 * Set the value field
-		 */
-		$general_setting['value'] = $setting_value;
-
-		/**
-		 * Return the general setting, or throw an exception
-		 */
-		if ( ! empty( $general_setting ) ) {
-			return $general_setting;
-		} else {
-			throw new \Exception( sprintf( __( 'No general setting was found with the name %s', 'wp-graphql' ), $name ) );
-		}
-	}
-
-	/**
-	 * Returns an array of all general settings
-	 *
-	 * @return array
-	 * @access public
-	 *
-	 */
-	public static function resolve_general_settings_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return GeneralSettingConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -452,6 +362,82 @@ class DataSource {
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
 		return UserConnectionResolver::resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * Get all of the registered settings for the
+	 * input setting type
+	 *
+	 * @param string $setting_type
+	 * @return array $setting_type_array
+	 */
+	public static function get_setting_type_array( $setting_type ) {
+
+		/**
+		 * Get all of the registered settings
+		 */
+		$registered_settings = get_registered_settings();
+		$setting_type_array = [];
+
+		/**
+		 * Add each of the individual $setting arrays to the
+		 * $setting_type_array
+		 */
+		foreach ( $registered_settings as $key => $value  ) {
+
+			if ( $setting_type === $value['group'] ) {
+				$value['setting'] = $key;
+				$setting_type_array[] = $value;
+			}
+		}
+
+		return $setting_type_array;
+
+	}
+
+	/**
+	 * Get all of the allowed settings types
+	 *
+	 * @access public
+	 * @return array $allowed_setting_types
+	 */
+	public static function get_allowed_setting_types() {
+
+		/**
+		 * Get all of the registered setting groups that exist
+		 */
+		$registered_settings = get_registered_settings();
+		$registered_setting_types = [];
+
+		/**
+		 * Loop through the $registered_settings array and add the setting
+		 * to the $allowed_setting_types array if 'show_in_rest` is true
+		 */
+		foreach ( $registered_settings as $setting ) {
+
+			if ( ! in_array( $setting['group'], $registered_setting_types ) ) {
+				$registered_setting_types[] = $setting['group'];
+			}
+
+		}
+
+		/**
+		 * Define the $allowed_setting_groups to be exposed by GraphQL Queries Pass through a filter
+		 * to allow the setting groups (general, discussion, media, etc.) to be modified (for example if a certain setting group should not
+		 * be exposed to the GraphQL API)
+		 *
+		 * @since 0.0.2
+		 * @return array
+		 *
+		 * @param array $taxonomies Array of taxonomy objects
+		 */
+		self::$allowed_setting_types = apply_filters( 'graphql_term_entities_allowed_setting_groups', $registered_setting_types );
+
+		/**
+		 * Returns the array of $allowed_taxonomies
+		 */
+		return self::$allowed_setting_types;
+
 	}
 
 	/**
