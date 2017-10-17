@@ -26,6 +26,8 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		] );
 		$this->admin_name = 'User ' . $this->admin;
 
+		$this->admin = grant_super_admin( $this->admin );
+
 	}
 
 	/**
