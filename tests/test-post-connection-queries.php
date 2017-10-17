@@ -332,4 +332,198 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 	}
 
+	public function testSanitizeInputFieldsAuthorArgs() {
+		$mock_args = [
+			'authorName' => 'testAuthorName',
+			'authorIn' => [1, 2, 3],
+			'authorNotIn' => [4, 5, 6],
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 'testAuthorName', $actual['author_name'] );
+		$this->assertEquals( [1, 2, 3], $actual['author__in'] );
+		$this->assertEquals( [4, 5, 6], $actual['author__not_in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'authorName', $actual );
+		$this->assertArrayNotHasKey( 'authorIn', $actual );
+		$this->assertArrayNotHasKey( 'authorNotIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsCategoryArgs() {
+		$mock_args = [
+			'categoryId' => 1,
+			'categoryName' => 'testCategory',
+			'categoryIn' => [4, 5, 6],
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 1, $actual['cat'] );
+		$this->assertEquals( 'testCategory', $actual['category_name'] );
+		$this->assertEquals( [4, 5, 6], $actual['category__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'categoryId', $actual );
+		$this->assertArrayNotHasKey( 'categoryName', $actual );
+		$this->assertArrayNotHasKey( 'categoryIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsTagArgs() {
+		$mock_args = [
+			'tagId' => 1,
+			'tagIds' => [1, 2, 3],
+			'tagSlugAnd' => [4, 5, 6],
+			'tagSlugIn' => [6, 7, 8],
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 1, $actual['tag_id'] );
+		$this->assertEquals( [1, 2, 3], $actual['tag__and'] );
+		$this->assertEquals( [4, 5, 6], $actual['tag_slug__and'] );
+		$this->assertEquals( [6, 7, 8], $actual['tag_slug__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'tagId', $actual );
+		$this->assertArrayNotHasKey( 'tagIds', $actual );
+		$this->assertArrayNotHasKey( 'tagSlugAnd', $actual );
+		$this->assertArrayNotHasKey( 'tagSlugIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsSearchArgs() {
+		$mock_args = [
+			'search' => 'testSearchString',
+			'id' => 1,
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 'testSearchString', $actual['s'] );
+		$this->assertEquals( 1, $actual['p'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'search', $actual );
+		$this->assertArrayNotHasKey( 'id', $actual );
+	}
+
+	public function testSanitizeInputFieldsParentArgs() {
+		$mock_args = [
+			'parent' => 2,
+			'parentIn' => [3, 4, 5],
+			'parentNotIn' => [6, 7, 8],
+			'in' => [9, 10, 11],
+			'notIn' => [12, 13, 14],
+			'nameIn' => ['testPost1', 'testPost2', 'testPost3'],
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 2, $actual['post_parent'] );
+		$this->assertEquals( [3, 4, 5], $actual['post_parent__in'] );
+		$this->assertEquals( [6, 7, 8], $actual['post_parent__not_in'] );
+		$this->assertEquals( [9, 10, 11], $actual['post__in'] );
+		$this->assertEquals( [12, 13, 14], $actual['post__not_in'] );
+		$this->assertEquals( ['testPost1', 'testPost2', 'testPost3'], $actual['post_name__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'parent', $actual );
+		$this->assertArrayNotHasKey( 'parentIn', $actual );
+		$this->assertArrayNotHasKey( 'parentNotIn', $actual );
+		$this->assertArrayNotHasKey( 'in', $actual );
+		$this->assertArrayNotHasKey( 'notIn', $actual );
+		$this->assertArrayNotHasKey( 'nameIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsMiscArgs() {
+		$mock_args = [
+			'hasPassword' => true,
+			'password' => 'myPostPassword123',
+			'status' => ['publish', 'private' ],
+			'dateQuery'=> array( 
+				array(
+					'year'  => 2012,
+					'month' => 12,
+					'day'   => 12,
+				),
+			),
+		];
+
+		$app_context = new \WPGraphQL\AppContext();
+		
+		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertTrue( $actual['has_password'] );
+		$this->assertEquals( 'myPostPassword123', $actual['post_password'] );
+		$this->assertEquals( ['publish', 'private' ], $actual['post_status'] );
+		$this->assertEquals( 
+			array( 
+				array(
+					'year'  => 2012,
+					'month' => 12,
+					'day'   => 12,
+				),
+			)
+		, $actual['date_query'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'hasPassword', $actual );
+		$this->assertArrayNotHasKey( 'password', $actual );
+		$this->assertArrayNotHasKey( 'status', $actual );
+		$this->assertArrayNotHasKey( 'dateQuery', $actual );
+	}
+
 }
