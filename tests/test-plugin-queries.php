@@ -132,7 +132,7 @@ class WP_GraphQL_Test_Plugin_Queries extends WP_UnitTestCase {
 		$this->assertTrue( ( is_string( $plugin_uri ) || null === $plugin_uri ) );
 
 		$plugin_version = $actual['data']['plugin']['version'];
-		$this->assertTrue( ( is_float( $plugin_version ) || null === $plugin_version ) );
+		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
 
 	}
 
