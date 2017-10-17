@@ -1,10 +1,11 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\UserError;
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class FloatType
@@ -31,7 +32,16 @@ values as specified by
      */
     public function serialize($value)
     {
-        return $this->coerceFloat($value);
+        if (is_numeric($value) || $value === true || $value === false) {
+            return (float) $value;
+        }
+
+        if ($value === '') {
+            $err = 'Float cannot represent non numeric value: (empty string)';
+        } else {
+            $err = sprintf('Float cannot represent non numeric value: %s', Utils::printSafe($value));
+        }
+        throw new InvariantViolation($err);
     }
 
     /**
@@ -40,24 +50,7 @@ values as specified by
      */
     public function parseValue($value)
     {
-        return $this->coerceFloat($value);
-    }
-
-    /**
-     * @param $value
-     * @return float|null
-     */
-    private function coerceFloat($value)
-    {
-        if ($value === '') {
-            throw new UserError(
-                'Float cannot represent non numeric value: (empty string)'
-            );
-        }
-        if (is_numeric($value) || $value === true || $value === false) {
-            return (float)$value;
-        }
-        throw new UserError(sprintf('Float cannot represent non numeric value: %s', Utils::printSafe($value)));
+        return (is_numeric($value) && !is_string($value)) ? (float) $value : null;
     }
 
     /**

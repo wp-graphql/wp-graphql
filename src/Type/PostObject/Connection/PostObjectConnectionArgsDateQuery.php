@@ -133,12 +133,10 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 			self::$column_enum = new WPEnumType([
 				'name' => 'dateColumn',
 				'values' => [
-					[
-						'name' => 'DATE',
+					'DATE' => [
 						'value' => 'post_date',
 					],
-					[
-						'name' => 'MODIFIED',
+					'MODIFIED' => [
 						'value' => 'post_modified',
 					],
 				],

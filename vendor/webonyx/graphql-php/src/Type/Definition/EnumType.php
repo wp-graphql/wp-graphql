@@ -1,8 +1,11 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\MixedStore;
+use GraphQL\Utils\Utils;
 
 /**
  * Class EnumType
@@ -11,12 +14,17 @@ use GraphQL\Utils;
 class EnumType extends Type implements InputType, OutputType, LeafType
 {
     /**
+     * @var EnumTypeDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
      * @var EnumValueDefinition[]
      */
     private $values;
 
     /**
-     * @var Utils\MixedStore<mixed, EnumValueDefinition>
+     * @var MixedStore<mixed, EnumValueDefinition>
      */
     private $valueLookup;
 
@@ -31,6 +39,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType
             $config['name'] = $this->tryInferName();
         }
 
+        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
+
         Config::validate($config, [
             'name' => Config::NAME | Config::REQUIRED,
             'values' => Config::arrayOf([
@@ -44,21 +54,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->values = [];
-
-        if (!empty($config['values'])) {
-            foreach ($config['values'] as $name => $value) {
-                if (!is_array($value)) {
-                    if (is_string($name)) {
-                        $value = ['name' => $name, 'value' => $value];
-                    } else if (is_int($name) && is_string($value)) {
-                        $value = ['name' => $value, 'value' => $value];
-                    }
-                }
-                // value will be equal to name only if 'value'  is not set in definition
-                $this->values[] = new EnumValueDefinition($value + ['name' => $name, 'value' => $name]);
-            }
-        }
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->config = $config;
     }
 
     /**
@@ -66,7 +63,42 @@ class EnumType extends Type implements InputType, OutputType, LeafType
      */
     public function getValues()
     {
+        if ($this->values === null) {
+            $this->values = [];
+            $config = $this->config;
+
+            if (isset($config['values'])) {
+                if (!is_array($config['values'])) {
+                    throw new InvariantViolation("{$this->name} values must be an array");
+                }
+                foreach ($config['values'] as $name => $value) {
+                    if (is_string($name)) {
+                        if (!is_array($value)) {
+                            $value = ['name' => $name, 'value' => $value];
+                        } else {
+                            $value += ['name' => $name, 'value' => $name];
+                        }
+                    } else if (is_int($name) && is_string($value)) {
+                        $value = ['name' => $value, 'value' => $value];
+                    } else {
+                        throw new InvariantViolation("{$this->name} values must be an array with value names as keys.");
+                    }
+                    $this->values[] = new EnumValueDefinition($value);
+                }
+            }
+        }
+
         return $this->values;
+    }
+
+    /**
+     * @param $name
+     * @return EnumValueDefinition|null
+     */
+    public function getValue($name)
+    {
+        $lookup = $this->getNameLookup();
+        return is_scalar($name) && isset($lookup[$name]) ? $lookup[$name] : null;
     }
 
     /**
@@ -77,6 +109,24 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     {
         $lookup = $this->getValueLookup();
         return isset($lookup[$value]) ? $lookup[$value]->name : null;
+    }
+
+    /**
+     * @param string $value
+     * @return bool
+     */
+    public function isValidValue($value)
+    {
+        return is_string($value) && $this->getNameLookup()->offsetExists($value);
+    }
+
+    /**
+     * @param $valueNode
+     * @return bool
+     */
+    public function isValidLiteral($valueNode)
+    {
+        return $valueNode instanceof EnumValueNode && $this->getNameLookup()->offsetExists($valueNode->value);
     }
 
     /**
@@ -108,12 +158,12 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
-     * @return Utils\MixedStore<mixed, EnumValueDefinition>
+     * @return MixedStore<mixed, EnumValueDefinition>
      */
     private function getValueLookup()
     {
         if (null === $this->valueLookup) {
-            $this->valueLookup = new Utils\MixedStore();
+            $this->valueLookup = new MixedStore();
 
             foreach ($this->getValues() as $valueName => $value) {
                 $this->valueLookup->offsetSet($value->value, $value);
@@ -136,5 +186,43 @@ class EnumType extends Type implements InputType, OutputType, LeafType
             $this->nameLookup = $lookup;
         }
         return $this->nameLookup;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        Utils::invariant(
+            isset($this->config['values']),
+            "{$this->name} values must be an array."
+        );
+
+        $values = $this->getValues();
+
+        Utils::invariant(
+            !empty($values),
+            "{$this->name} values must be not empty."
+        );
+        foreach ($values as $value) {
+            try {
+                Utils::assertValidName($value->name);
+            } catch (InvariantViolation $e) {
+                throw new InvariantViolation(
+                    "{$this->name} has value with invalid name: " .
+                    Utils::printSafe($value->name) . " ({$e->getMessage()})"
+                );
+            }
+            Utils::invariant(
+                !in_array($value->name, ['true', 'false', 'null']),
+                "{$this->name}: \"{$value->name}\" can not be used as an Enum value."
+            );
+            Utils::invariant(
+                !isset($value->config['isDeprecated']),
+                "{$this->name}.{$value->name} should provide \"deprecationReason\" instead of \"isDeprecated\"."
+            );
+        }
     }
 }

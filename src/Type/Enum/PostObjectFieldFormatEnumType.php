@@ -44,12 +44,12 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 			 * @since 0.0.18
 			 */
 			self::$values = [
-				'raw' => [
+				'RAW' => [
 					'name'  => 'RAW',
 					'description' => __( 'Provide the field value directly from database', 'wp-graphql' ),
 					'value' => 'raw',
 				],
-				'rendered' => [
+				'RENDERED' => [
 					'name'  => 'RENDERED',
 					'description' => __( 'Apply the default WordPress rendering', 'wp-graphql' ),
 					'value' => 'rendered',

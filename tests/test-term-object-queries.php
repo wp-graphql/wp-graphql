@@ -394,29 +394,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'category' => null,
-			],
-			'errors' => [
-				[
-					'message' => 'No category was found with the ID: doesNotExist',
-					'locations' => [
-						[
-							'line' => 3,
-							'column' => 4,
-						],
-					],
-					'path' => [
-						'category',
-					],
-				],
-			],
-		];
+		$this->assertArrayHasKey( 'errors', $actual );
 
-		$this->assertEquals( $expected, $actual );
 	}
 }

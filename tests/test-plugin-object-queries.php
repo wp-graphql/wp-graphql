@@ -114,29 +114,6 @@ class WP_GraphQL_Test_Plugin_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'plugin' => null,
-			],
-			'errors' => [
-				[
-					'message' => 'No plugin was found with the name doesNotExist',
-					'locations' => [
-						[
-							'line' => 3,
-							'column' => 4,
-						],
-					],
-					'path' => [
-						'plugin',
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 }

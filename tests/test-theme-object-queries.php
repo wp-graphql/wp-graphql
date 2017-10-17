@@ -123,29 +123,6 @@ class WP_GraphQL_Test_Theme_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'data' => [
-				'theme' => null,
-			],
-			'errors' => [
-				[
-					'message' => 'No theme was found with the stylesheet: doesNotExist',
-					'locations' => [
-						[
-							'line' => 3,
-							'column' => 4,
-						],
-					],
-					'path' => [
-						'theme',
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 }

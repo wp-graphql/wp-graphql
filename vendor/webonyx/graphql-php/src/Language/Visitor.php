@@ -3,6 +3,7 @@ namespace GraphQL\Language;
 
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 
 class VisitorOperation
@@ -14,40 +15,95 @@ class VisitorOperation
     public $removeNode;
 }
 
+/**
+ * Utility for efficient AST traversal and modification.
+ *
+ * `visit()` will walk through an AST using a depth first traversal, calling
+ * the visitor's enter function at each node in the traversal, and calling the
+ * leave function after visiting that node and all of it's child nodes.
+ *
+ * By returning different values from the enter and leave functions, the
+ * behavior of the visitor can be altered, including skipping over a sub-tree of
+ * the AST (by returning false), editing the AST by returning a value or null
+ * to remove the value, or to stop the whole traversal by returning BREAK.
+ *
+ * When using `visit()` to edit an AST, the original AST will not be modified, and
+ * a new version of the AST with the changes applied will be returned from the
+ * visit function.
+ *
+ *     $editedAST = Visitor::visit($ast, [
+ *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
+ *         // return
+ *         //   null: no action
+ *         //   Visitor::skipNode(): skip visiting this node
+ *         //   Visitor::stop(): stop visiting altogether
+ *         //   Visitor::removeNode(): delete this node
+ *         //   any value: replace this node with the returned value
+ *       },
+ *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
+ *         // return
+ *         //   null: no action
+ *         //   Visitor::stop(): stop visiting altogether
+ *         //   Visitor::removeNode(): delete this node
+ *         //   any value: replace this node with the returned value
+ *       }
+ *     ]);
+ *
+ * Alternatively to providing enter() and leave() functions, a visitor can
+ * instead provide functions named the same as the [kinds of AST nodes](reference.md#graphqllanguageastnodekind),
+ * or enter/leave visitors at a named key, leading to four permutations of
+ * visitor API:
+ *
+ * 1) Named visitors triggered when entering a node a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'Kind' => function ($node) {
+ *         // enter the "Kind" node
+ *       }
+ *     ]);
+ *
+ * 2) Named visitors that trigger upon entering and leaving a node of
+ *    a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'Kind' => [
+ *         'enter' => function ($node) {
+ *           // enter the "Kind" node
+ *         }
+ *         'leave' => function ($node) {
+ *           // leave the "Kind" node
+ *         }
+ *       ]
+ *     ]);
+ *
+ * 3) Generic visitors that trigger upon entering and leaving any node.
+ *
+ *     Visitor::visit($ast, [
+ *       'enter' => function ($node) {
+ *         // enter any node
+ *       },
+ *       'leave' => function ($node) {
+ *         // leave any node
+ *       }
+ *     ]);
+ *
+ * 4) Parallel visitors for entering and leaving nodes of a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'enter' => [
+ *         'Kind' => function($node) {
+ *           // enter the "Kind" node
+ *         }
+ *       },
+ *       'leave' => [
+ *         'Kind' => function ($node) {
+ *           // leave the "Kind" node
+ *         }
+ *       ]
+ *     ]);
+ */
 class Visitor
 {
-    /**
-     * Break visitor
-     *
-     * @return VisitorOperation
-     */
-    public static function stop()
-    {
-        $r = new VisitorOperation();
-        $r->doBreak = true;
-        return $r;
-    }
-
-    /**
-     * Skip current node
-     */
-    public static function skipNode()
-    {
-        $r = new VisitorOperation();
-        $r->doContinue = true;
-        return $r;
-    }
-
-    /**
-     * Remove current node
-     */
-    public static function removeNode()
-    {
-        $r = new VisitorOperation();
-        $r->removeNode = true;
-        return $r;
-    }
-
     public static $visitorKeys = [
         NodeKind::NAME => [],
         NodeKind::DOCUMENT => ['definitions'],
@@ -91,96 +147,21 @@ class Visitor
     ];
 
     /**
-     * visit() will walk through an AST using a depth first traversal, calling
-     * the visitor's enter function at each node in the traversal, and calling the
-     * leave function after visiting that node and all of it's child nodes.
+     * Visit the AST (see class description for details)
      *
-     * By returning different values from the enter and leave functions, the
-     * behavior of the visitor can be altered, including skipping over a sub-tree of
-     * the AST (by returning false), editing the AST by returning a value or null
-     * to remove the value, or to stop the whole traversal by returning BREAK.
-     *
-     * When using visit() to edit an AST, the original AST will not be modified, and
-     * a new version of the AST with the changes applied will be returned from the
-     * visit function.
-     *
-     *     var editedAST = visit(ast, {
-     *       enter(node, key, parent, path, ancestors) {
-     *         // @return
-     *         //   undefined: no action
-     *         //   false: skip visiting this node
-     *         //   visitor.BREAK: stop visiting altogether
-     *         //   null: delete this node
-     *         //   any value: replace this node with the returned value
-     *       },
-     *       leave(node, key, parent, path, ancestors) {
-     *         // @return
-     *         //   undefined: no action
-     *         //   visitor.BREAK: stop visiting altogether
-     *         //   null: delete this node
-     *         //   any value: replace this node with the returned value
-     *       }
-     *     });
-     *
-     * Alternatively to providing enter() and leave() functions, a visitor can
-     * instead provide functions named the same as the kinds of AST nodes, or
-     * enter/leave visitors at a named key, leading to four permutations of
-     * visitor API:
-     *
-     * 1) Named visitors triggered when entering a node a specific kind.
-     *
-     *     visit(ast, {
-     *       Kind(node) {
-     *         // enter the "Kind" node
-     *       }
-     *     })
-     *
-     * 2) Named visitors that trigger upon entering and leaving a node of
-     *    a specific kind.
-     *
-     *     visit(ast, {
-     *       Kind: {
-     *         enter(node) {
-     *           // enter the "Kind" node
-     *         }
-     *         leave(node) {
-     *           // leave the "Kind" node
-     *         }
-     *       }
-     *     })
-     *
-     * 3) Generic visitors that trigger upon entering and leaving any node.
-     *
-     *     visit(ast, {
-     *       enter(node) {
-     *         // enter any node
-     *       },
-     *       leave(node) {
-     *         // leave any node
-     *       }
-     *     })
-     *
-     * 4) Parallel visitors for entering and leaving nodes of a specific kind.
-     *
-     *     visit(ast, {
-     *       enter: {
-     *         Kind(node) {
-     *           // enter the "Kind" node
-     *         }
-     *       },
-     *       leave: {
-     *         Kind(node) {
-     *           // leave the "Kind" node
-     *         }
-     *       }
-     *     })
+     * @api
+     * @param Node $root
+     * @param array $visitor
+     * @param array $keyMap
+     * @return Node|mixed
+     * @throws \Exception
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
         $visitorKeys = $keyMap ?: self::$visitorKeys;
 
         $stack = null;
-        $inArray = is_array($root);
+        $inArray = $root instanceof NodeList || is_array($root);
         $keys = [$root];
         $index = -1;
         $edits = [];
@@ -206,6 +187,9 @@ class Visitor
                 if ($isEdited) {
                     if ($inArray) {
                         // $node = $node; // arrays are value types in PHP
+                        if ($node instanceof NodeList) {
+                            $node = clone $node;
+                        }
                     } else {
                         $node = clone $node;
                     }
@@ -218,10 +202,14 @@ class Visitor
                             $editKey -= $editOffset;
                         }
                         if ($inArray && $editValue === null) {
-                            array_splice($node, $editKey, 1);
+                            if ($node instanceof NodeList) {
+                                $node->splice($editKey, 1);
+                            } else {
+                                array_splice($node, $editKey, 1);
+                            }
                             $editOffset++;
                         } else {
-                            if (is_array($node)) {
+                            if ($node instanceof NodeList || is_array($node)) {
                                 $node[$editKey] = $editValue;
                             } else {
                                 $node->{$editKey} = $editValue;
@@ -236,7 +224,7 @@ class Visitor
                 $stack = $stack['prev'];
             } else {
                 $key = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $node = $parent ? (($parent instanceof NodeList || is_array($parent)) ? $parent[$key] : $parent->{$key}) : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
@@ -246,7 +234,7 @@ class Visitor
             }
 
             $result = null;
-            if (!is_array($node)) {
+            if (!$node instanceof NodeList && !is_array($node)) {
                 if (!($node instanceof Node)) {
                     throw new \Exception('Invalid AST Node: ' . json_encode($node));
                 }
@@ -297,7 +285,7 @@ class Visitor
                     'edits' => $edits,
                     'prev' => $stack
                 ];
-                $inArray = is_array($node);
+                $inArray = $node instanceof NodeList || is_array($node);
 
                 $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
                 $index = -1;
@@ -315,6 +303,45 @@ class Visitor
         }
 
         return $newRoot;
+    }
+
+    /**
+     * Returns marker for visitor break
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function stop()
+    {
+        $r = new VisitorOperation();
+        $r->doBreak = true;
+        return $r;
+    }
+
+    /**
+     * Returns marker for skipping current node
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function skipNode()
+    {
+        $r = new VisitorOperation();
+        $r->doContinue = true;
+        return $r;
+    }
+
+    /**
+     * Returns marker for removing a node
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function removeNode()
+    {
+        $r = new VisitorOperation();
+        $r->removeNode = true;
+        return $r;
     }
 
     /**
