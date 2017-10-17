@@ -483,7 +483,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$variables,
 				$operation_name
 			);
-			return $result->toArray();
 
 			/**
 			 * Run an action. This is a good place for debug tools to hook in to log things, etc.
@@ -546,7 +545,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Return the result of the request
 			 */
-			return $result->toArray( false );
+			return $result->toArray();
 
 		}
 	}

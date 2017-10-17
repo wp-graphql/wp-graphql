@@ -189,7 +189,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 			'email' => 'secondUsername@test.com',
 		] );
 
-		$this->assertNotEmpty( $second_user['errors'][0]['message'] );
+		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that username already exists!' );
 
 	}
 
@@ -208,7 +208,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 			'email' => $email,
 		] );
 
-		$this->assertNotEmpty( $second_user['errors'][0]['message'] );
+		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that email address is already used!' );
 
 	}
 
@@ -221,7 +221,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 			'email' => 'notanemail',
 		] );
 
-		$this->assertNotEmpty( $user['errors'][0]['message'] );
+		$this->assertEquals( $user['errors'][0]['message'], 'The email address you are trying to use is invalid' );
 
 	}
 
@@ -406,7 +406,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		$actual = do_graphql_request( $mutation, 'deleteUser', $variables );
 
-		$this->assertNotEmpty( $actual['errors'][0]['message'] );
+		$this->assertEquals( 'Sorry, you are not allowed to delete users.', $actual['errors'][0]['message'] );
 
 		$user_obj_after_delete = get_user_by( 'id', $user_id );
 
@@ -569,7 +569,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 
 		$actual = do_graphql_request( $mutation, 'updateUserWithInvalidRole', $variables );
 
-		$this->assertNotEmpty( $actual['errors'][0]['message'] );
+		$this->assertEquals( 'Sorry, you are not allowed to give this the following role: invalidRole.', $actual['errors'][0]['message'] );
 
 	}
 

@@ -4,7 +4,6 @@ namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
-use WPGraphQL\Error\RequestError;
 
 /**
  * Class Router
@@ -350,7 +349,7 @@ class Router {
 			 * If the $data is empty, catch an error.
 			 */
 			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
-				throw new RequestError( __( 'GraphQL requests must be a POST or GET Request with a valid query', 'wp-graphql' ), 10 );
+				throw new UserError( __( 'GraphQL requests must be a POST or GET Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
 			/**
