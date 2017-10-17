@@ -31,6 +31,10 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		] );
 		$this->created_post_ids = $this->create_posts();
 
+		$this->app_context = new \WPGraphQL\AppContext();
+		
+		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
 	}
 
 	/**
@@ -339,11 +343,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			'authorNotIn' => [4, 5, 6],
 		];
 
-		$app_context = new \WPGraphQL\AppContext();
-		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
@@ -367,11 +367,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			'categoryIn' => [4, 5, 6],
 		];
 
-		$app_context = new \WPGraphQL\AppContext();
-		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
@@ -395,12 +391,8 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			'tagSlugAnd' => [4, 5, 6],
 			'tagSlugIn' => [6, 7, 8],
 		];
-
-		$app_context = new \WPGraphQL\AppContext();
 		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
@@ -425,11 +417,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			'id' => 1,
 		];
 
-		$app_context = new \WPGraphQL\AppContext();
-		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
@@ -454,11 +442,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			'nameIn' => ['testPost1', 'testPost2', 'testPost3'],
 		];
 
-		$app_context = new \WPGraphQL\AppContext();
-		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
@@ -495,11 +479,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			),
 		];
 
-		$app_context = new \WPGraphQL\AppContext();
-		
-		$app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
-
-		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $app_context, $app_info );
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
 
 		/**
 		 * Make sure the returned values are equal to mock args
