@@ -37,8 +37,11 @@ class DataSource {
 	protected static $node_definition;
 
 	/**
-	 * Stores an array of setting types that
-	 * exist in get_registered_settings
+	 * Stores an array of setting types that exist in
+	 * get_registered_settings. In order to register a
+	 * setting with register_setting it must be categorized
+	 * under one of the whitelisted group names
+	 * See: https://developer.wordpress.org/reference/functions/register_setting/
 	 *
 	 * @var array $allowed_setting_types
 	 * @access public
@@ -218,9 +221,11 @@ class DataSource {
 
 	/**
 	 * Resolve the type on the individual setting field
+	 * for the settingsType
 	 *
 	 * @param $type
-	 * @access private
+	 * @access public
+	 *
 	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
 	 */
 	public static function resolve_setting_scalar_type( $type ) {
@@ -382,31 +387,40 @@ class DataSource {
 	}
 
 	/**
-	 * Get all of the registered settings for the
-	 * input setting type
+	 * Get all of the registered settings in a
+	 * WP site and return the ones that match the
+	 * name of the $setting_type
 	 *
+	 * @access public
 	 * @param string $setting_type
+	 *
 	 * @return array $setting_type_array
 	 */
 	public static function get_setting_type_array( $setting_type ) {
 
 		/**
-		 * Get all of the registered settings
+		 * Get all of the registered settings and define the setting_type_array
+		 * for storing the settings that match the given setting type (general, discussion, etc)
+		 * before we return them
 		 */
 		$registered_settings = get_registered_settings();
-
 		$setting_type_array = [];
 
 		/**
 		 * Add each of the individual $setting arrays to the
-		 * $setting_type_array
+		 * $setting_type_array if they match the desired $setting_type
+		 * so that we can return them in the $setting_type_array
+		 *
+		 * Add the setting option name to the setting array for later use
+		 * Set all of the settings to show in graphql by default
 		 */
 		foreach ( $registered_settings as $key => $value  ) {
-
 			if ( $setting_type === $value['group'] ) {
 				$value['setting'] = $key;
+				$value['show_in_graphql'] = true;
 				$setting_type_array[] = $value;
 			}
+
 		}
 
 		return $setting_type_array;
@@ -414,46 +428,35 @@ class DataSource {
 	}
 
 	/**
-	 * Get all of the allowed settings types and filter them
+	 * Get the $allowed_setting_types and filter them
+	 * so that they can be further whitelisted. This method is
+	 * used to build out the root query fields for the various
+	 * setting types
 	 *
 	 * @access public
 	 * @return array $allowed_setting_types
 	 */
 	public static function get_allowed_setting_types() {
 
-		/**
-		 * Get all of the registered setting groups that exist
-		 */
 		$registered_settings = get_registered_settings();
 		$registered_setting_types = [];
 
 		/**
-		 * Loop through the $registered_settings array and add the setting
-		 * to the $allowed_setting_types array if 'show_in_rest` is true
+		 * Loop through the $registered_settings array and build a list of
+		 * the setting_types ( general, reading, discussion, writing, reading, etc. )
+		 *
+		 * Setting types can only be removed from this list as the register_setting method
+		 * only allows for use of the whitelisted setting types
 		 */
 		foreach ( $registered_settings as $setting ) {
-
 			if ( ! in_array( $setting['group'], $registered_setting_types ) ) {
 				$registered_setting_types[] = $setting['group'];
 			}
 
 		}
 
-		/**
-		 * Define the $allowed_setting_groups to be exposed by GraphQL Queries Pass through a filter
-		 * to allow the setting groups (general, discussion, media, etc.) to be modified (for example if a certain setting group should not
-		 * be exposed to the GraphQL API)
-		 *
-		 * @since 0.0.2
-		 * @return array
-		 *
-		 * @param array $taxonomies Array of taxonomy objects
-		 */
 		self::$allowed_setting_types = apply_filters( 'graphql_term_entities_allowed_setting_groups', $registered_setting_types );
 
-		/**
-		 * Returns the array of $allowed_taxonomies
-		 */
 		return self::$allowed_setting_types;
 
 	}

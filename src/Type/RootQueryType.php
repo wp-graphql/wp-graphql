@@ -72,23 +72,17 @@ class RootQueryType extends ObjectType {
 		$fields['plugins'] = PluginConnectionDefinition::connection();
 
 		/**
-		 * This registers root fields for any type of setting in
-		 * the $allowed_setting_types
-		 *
+		 * Create the root query fields for any setting type in
+		 * the $allowed_setting_types array.
 		 */
-
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-
 			foreach ( $allowed_setting_types as $setting_type ) {
-
 				/**
-				 * Sanitize the setting type
+				 * Sanitize the setting type field name and
+				 * then build the query field
 				 */
 				$setting_type = str_replace('_', '', strtolower( $setting_type ) );
-
-				$field_name = $setting_type . 'Settings';
-
-				$fields[ $field_name ] = SettingQuery::root_query( $setting_type );
+				$fields[ "{$setting_type}Settings" ] = SettingQuery::root_query( $setting_type );
 
 			}
 		}

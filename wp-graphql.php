@@ -27,7 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
  *
- * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of Digital First Media (https://github.com/dfmedia), and Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign).
+ * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of Digital First Media (https://github.com/dfmedia), and
+ * Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign).
  *
  * The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes
  * use of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
@@ -201,7 +202,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
 
 			/**
-			 * Instantiate the register_initial_settings so we can use
+			 * Register default settings available in WordPress so we can use
 			 * the get_registered_settings method
 			 *
 			 * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393

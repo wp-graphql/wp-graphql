@@ -1,20 +1,13 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-
-use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPObjectType;
-use WPGraphQL\Types;
-
 
 /**
  * class SettingType
  *
- * This sets up the base SettingType. Custom settings that are set to "show_in_graphql" automatically
+ * This sets up the base settingType. Custom settings that are set to "show_in_graphql" automatically
  * use the SettingType and inherit the fields that are defined here. The fields get passed through a
  * filter unique to each type, so each setting can modify it's type schema via field filters.
  *
@@ -90,8 +83,8 @@ class SettingType extends WPObjectType {
 
 			/**
 			 * Determine if the individual setting already has a
-			 * REST API name, if not use the option name. Then,
-			 * set the setting_type for our field name
+			 * REST API name, if not use the option name (setting).
+			 * Sanitize the field name to be camelcase
 			 */
 			if ( ! empty( $value['show_in_rest']['name'] ) ) {
 				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $value['show_in_rest']['name'], '_' ) ) );
@@ -100,16 +93,23 @@ class SettingType extends WPObjectType {
 			}
 
 			/**
-			 * Dynamically build the individual setting and it's fields
-			 * then add it to the fields array
+			 * Only add the field to the root query field if show_in_graphql is true
+			 * and show_in_rest is true or an array of REST args exists
 			 */
-			$fields[ $individual_setting_key ] = [
-				'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
-				'description' => $value['description'],
-				'resolve' => function() use ( $value ) {
-					return get_option( $value['setting'] );
-				},
-			];
+			if ( is_array( $value['show_in_rest'] ) || true === $value['show_in_rest'] && true === $value['show_in_graphql'] ) {
+				/**
+				 * Dynamically build the individual setting and it's fields
+				 * then add it to the fields array
+				 */
+				$fields[ $individual_setting_key ] = [
+					'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
+					'description' => $value['description'],
+					'resolve' => function() use ( $value ) {
+						return get_option( $value['setting'] );
+					},
+				];
+
+			}
 
 		}
 

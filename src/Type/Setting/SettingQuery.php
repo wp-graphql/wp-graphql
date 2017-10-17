@@ -1,11 +1,6 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
 /**
@@ -17,14 +12,20 @@ class SettingQuery {
 
 	/**
 	 * Holds the root_query field definition
+	 *
 	 * @var array $root_query
+	 * @access private
 	 */
 	private static $root_query;
 
 	/**
-	 * Method that returns the root query field definition for setting type
+	 * Method that returns the root query field definition
+	 * for the requested setting type
 	 *
-	 * @return array
+	 * @access public
+	 * @param string $setting_type
+	 *
+	 * @return array $root_query
 	 */
 	public static function root_query( $setting_type ) {
 
