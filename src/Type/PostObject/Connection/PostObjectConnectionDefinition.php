@@ -95,7 +95,6 @@ class PostObjectConnectionDefinition {
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
 				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
-					throw new UserError('goooooo');
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_type_object->name );
 				},
 			];
