@@ -57,9 +57,6 @@ class SettingType extends WPObjectType {
 		 */
 		self::$setting_type_array = DataSource::get_setting_type_array( $setting_type );
 
-		// This will dump the array containing all of the keys for the $setting_type (general, discussion, etc.)
-		// var_dump( self::$setting_type_array );
-
 		$config = [
 			'name' => $setting_type,
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
@@ -80,12 +77,10 @@ class SettingType extends WPObjectType {
 	private static function fields( $setting_type_array ) {
 
 		/**
-		 * If no fields have been defined for this type already,
-		 * make sure the $fields var is an empty array
+		 * Set $fields to an empty array so that we aren't storing values
+		 * from another setting_type
 		 */
-		if ( null === self::$fields ) {
-			self::$fields = [];
-		}
+		$fields = [];
 
 		/**
 		 * Loop through the $setting_type_array and build the setting with
@@ -93,43 +88,36 @@ class SettingType extends WPObjectType {
 		 */
 		foreach ( $setting_type_array as $key => $value ) {
 
-			$option_name = $value['setting'];
-
-			/**
-			 * Define the setting array for storing the setting data
-			 * we're going to expose
-			 */
-			$setting = [];
-
 			/**
 			 * Determine if the individual setting already has a
 			 * REST API name, if not use the option name. Then,
 			 * set the setting_type for our field name
 			 */
 			if ( ! empty( $value['show_in_rest']['name'] ) ) {
-				$setting['name'] = $value['show_in_rest']['name'];
-				$individual_setting_key = $setting['name'];
+				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $value['show_in_rest']['name'], '_' ) ) );
 			} else {
-				$setting['name'] = str_replace( '_', '', strtolower( $value['setting'] ) );
-				$individual_setting_key = $setting['name'];
+				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $value['setting'], '_' ) ) );
 			}
 
 			/**
 			 * Dynamically build the individual setting and it's fields
 			 * then add it to the fields array
 			 */
-			self::$fields[ $individual_setting_key ] = [
+			$fields[ $individual_setting_key ] = [
 				'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
 				'description' => $value['description'],
-				'resolve' => function( $option_name ) {
-
-					// This is returning null
-					//var_dump( $option_name );
+				'resolve' => function() use ( $value ) {
 					return get_option( $value['setting'] );
 				},
 			];
 
 		}
+
+		/**
+		 * Pass the fields through a filter to allow for hooking in and adjusting the shape
+		 * of the type's schema
+		 */
+		self::$fields = self::prepare_fields( $fields, self::$setting_type );
 
 		return ! empty( self::$fields ) ? self::$fields : null;
 
