@@ -402,7 +402,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['extensions']['exception'] = [ FormattedError::createFromException( $error ) ];
+			$response['errors'] = [ FormattedError::createFromException( $error ) ];
 		} // End try().
 
 		/**
