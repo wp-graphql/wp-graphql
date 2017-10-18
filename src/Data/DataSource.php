@@ -455,7 +455,7 @@ class DataSource {
 
 		}
 
-		self::$allowed_setting_types = apply_filters( 'graphql_term_entities_allowed_setting_groups', $registered_setting_types );
+		self::$allowed_setting_types = apply_filters( 'graphql_allowed_setting_groups', $registered_setting_types );
 
 		return self::$allowed_setting_types;
 

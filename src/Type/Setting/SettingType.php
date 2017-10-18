@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPObjectType;
 
@@ -79,33 +81,42 @@ class SettingType extends WPObjectType {
 		 * Loop through the $setting_type_array and build the setting with
 		 * proper fields
 		 */
-		foreach ( $setting_type_array as $key => $value ) {
+		foreach ( $setting_type_array as $key => $setting ) {
 
 			/**
 			 * Determine if the individual setting already has a
 			 * REST API name, if not use the option name (setting).
 			 * Sanitize the field name to be camelcase
 			 */
-			if ( ! empty( $value['show_in_rest']['name'] ) ) {
-				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $value['show_in_rest']['name'], '_' ) ) );
+			if ( ! empty( $setting['show_in_rest']['name'] ) ) {
+				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
 			} else {
-				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $value['setting'], '_' ) ) );
+				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $setting['setting'], '_' ) ) );
 			}
 
 			/**
 			 * Only add the field to the root query field if show_in_graphql is true
 			 * and show_in_rest is true or an array of REST args exists
 			 */
-			if ( is_array( $value['show_in_rest'] ) || true === $value['show_in_rest'] && true === $value['show_in_graphql'] ) {
+			if ( is_array( $setting['show_in_rest'] ) || true === $setting['show_in_rest'] && true === $setting['show_in_graphql'] ) {
 				/**
 				 * Dynamically build the individual setting and it's fields
 				 * then add it to the fields array
 				 */
 				$fields[ $individual_setting_key ] = [
-					'type' => DataSource::resolve_setting_scalar_type( $value['type'] ),
-					'description' => $value['description'],
-					'resolve' => function() use ( $value ) {
-						return get_option( $value['setting'] );
+					'type' => DataSource::resolve_setting_scalar_type( $setting['type'] ),
+					'description' => $setting['description'],
+					'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) use ( $setting, $individual_setting_key ) {
+						/**
+						 * Check to see if the user querying the email field has the 'manage_options' capability
+						 */
+						if ( 'email' === $individual_setting_key ) {
+							if ( ! current_user_can( 'manage_options' ) ) {
+								throw new \Exception( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+							}
+						}
+
+						return get_option( $setting['setting'] );
 					},
 				];
 

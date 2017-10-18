@@ -59,7 +59,7 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		$query = "
 			query {
 				generalSettings {
-				    dateFormat
+				    email
 			    }
 		    }
 	    ";
