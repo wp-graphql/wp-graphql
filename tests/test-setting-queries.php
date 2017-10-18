@@ -25,9 +25,6 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 			'role' => 'administrator',
 		] );
 		$this->admin_name = 'User ' . $this->admin;
-
-		$this->admin = grant_super_admin( $this->admin );
-
 	}
 
 	/**
@@ -54,36 +51,58 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
-		$query = "
-			query {
-				generalSettings {
-				    dateFormat
-				    description
-				    email
-				    language
-				    startOfWeek
-				    timeFormat
-				    timezone
-				    title
-				    url
-				}
-			}
-		";
-		$actual = do_graphql_request( $query );
 
+
+		if ( true === is_multisite() ) {
+			$query = "
+				query {
+					generalSettings {
+					    dateFormat
+					    description
+					    language
+					    startOfWeek
+					    timeFormat
+					    timezone
+					    title
+					}
+				}
+			";
+		} else {
+			$query = "
+				query {
+					generalSettings {
+					    dateFormat
+					    description
+					    email
+					    language
+					    startOfWeek
+					    timeFormat
+					    timezone
+					    title
+					    url
+					}
+				}
+			";
+		}
+
+		$actual = do_graphql_request( $query );
 		$generalSettings = $actual['data']['generalSettings'];
+
 
 		$this->assertNotEmpty( $generalSettings );
 		$this->assertTrue( is_string( $generalSettings['dateFormat'] ) );
 		$this->assertTrue( is_string( $generalSettings['description'] ) );
-		$this->assertTrue( is_string( $generalSettings['email'] ) );
+		if ( false === is_multisite() ) {
+			$this->assertTrue( is_string( $generalSettings['email'] ) );
+		}
 		$this->assertTrue( is_string( $generalSettings['language'] ) );
 		$this->assertTrue( is_int( $generalSettings['startOfWeek'] ) );
 		$this->assertTrue( is_string( $generalSettings['timeFormat'] ) );
 		$this->assertTrue( is_string( $generalSettings['timezone'] ) );
 		$this->assertTrue( is_string( $generalSettings['title'] ) );
-		$this->assertTrue( is_string( $generalSettings['url'] ) );
-
+		if ( false === is_multisite() ) {
+			$this->assertTrue( is_string( $generalSettings['url'] ) );
+		}
 	}
 
 	/**
