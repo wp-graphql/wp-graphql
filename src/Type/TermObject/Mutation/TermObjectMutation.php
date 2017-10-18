@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\TermObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -135,14 +136,14 @@ class TermObjectMutation {
 				$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
 				if ( ! $parent_term || is_wp_error( $parent_term ) ) {
-					throw new \Exception( __( 'The parent does not exist', 'wp-graphql' ) );
+					throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
 				}
 
 				// Otherwise set the parent as the parent term's ID
 				$insert_args['parent'] = $parent_term->term_id;
 
 			} else {
-				throw new \Exception( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
+				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
 			} // End if().
 		}
 

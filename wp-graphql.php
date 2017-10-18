@@ -545,7 +545,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Return the result of the request
 			 */
-			return $filtered_result->toArray();
+			return $result->toArray();
 
 		}
 	}

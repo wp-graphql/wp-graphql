@@ -51,7 +51,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 

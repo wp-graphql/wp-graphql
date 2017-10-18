@@ -1,12 +1,16 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Utils\Utils;
+
 
 /**
  * Class FieldArgument
  *
  * @package GraphQL\Type\Definition
- * @todo Rename to ArgumentNode as it is also applicable to directives, not only fields
  */
 class FieldArgument
 {
@@ -26,19 +30,19 @@ class FieldArgument
     public $description;
 
     /**
+     * @var InputValueDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
      * @var array
      */
     public $config;
 
     /**
-     * @var InputType|callable
-     */
-    private $type;
-
-    /**
      * @var InputType
      */
-    private $resolvedType;
+    private $type;
 
     /**
      * @var bool
@@ -82,6 +86,9 @@ class FieldArgument
                 case 'description':
                     $this->description = $value;
                     break;
+                case 'astNode':
+                    $this->astNode = $value;
+                    break;
             }
         }
         $this->config = $def;
@@ -92,10 +99,7 @@ class FieldArgument
      */
     public function getType()
     {
-        if (null === $this->resolvedType) {
-            $this->resolvedType = Type::resolve($this->type);
-        }
-        return $this->resolvedType;
+        return $this->type;
     }
 
     /**
@@ -104,5 +108,30 @@ class FieldArgument
     public function defaultValueExists()
     {
         return $this->defaultValueExists;
+    }
+
+    public function assertValid(FieldDefinition $parentField, Type $parentType)
+    {
+        try {
+            Utils::assertValidName($this->name);
+        } catch (InvariantViolation $e) {
+            throw new InvariantViolation(
+                "{$parentType->name}.{$parentField->name}({$this->name}:) {$e->getMessage()}")
+            ;
+        }
+        $type = $this->type;
+        if ($type instanceof WrappingType) {
+            $type = $type->getWrappedType(true);
+        }
+        Utils::invariant(
+            $type instanceof InputType,
+            "{$parentType->name}.{$parentField->name}({$this->name}): argument type must be " .
+            "Input Type but got: " . Utils::printSafe($this->type)
+        );
+        Utils::invariant(
+            $this->description === null || is_string($this->description),
+            "{$parentType->name}.{$parentField->name}({$this->name}): argument description type must be " .
+            "string but got: " . Utils::printSafe($this->description)
+        );
     }
 }

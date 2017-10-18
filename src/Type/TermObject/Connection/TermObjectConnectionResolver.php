@@ -56,7 +56,8 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		$first = ! empty( $args['first'] ) ? $args['first'] : null;
 
 		/**
-		 * Set the default parent for TermObject Queries to be "0" to only get top level terms
+		 * Set the default parent for TermObject Queries to be "0" to only get top level terms, unless
+		 * includeChildren is set
 		 */
 		$query_args['parent'] = 0;
 
@@ -124,6 +125,9 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 			switch ( true ) {
 				case $source instanceof \WP_Post:
 					$query_args['object_ids'] = $source->ID;
+					break;
+				case $source instanceof \WP_Term:
+					$query_args['parent'] = ! empty( $source->term_id ) ? $source->term_id : 0;
 					break;
 				default:
 					break;

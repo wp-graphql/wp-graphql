@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
@@ -143,7 +144,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		 * work properly
 		 */
 		if ( ! empty( $args['first'] ) && ! empty( $args['last'] ) ) {
-			throw new \Exception( esc_html__( 'first and last cannot be used together. For forward pagination, use first & after. For backward pagination, use last & before.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'first and last cannot be used together. For forward pagination, use first & after. For backward pagination, use last & before.', 'wp-graphql' ) );
 		}
 
 		/**
@@ -152,7 +153,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		 */
 		if ( ! empty( $args['first'] ) && is_int( $args['first'] ) ) {
 			if ( 0 > $args['first'] ) {
-				throw new \Exception( esc_html__( 'first must be a positive integer.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'first must be a positive integer.', 'wp-graphql' ) );
 			} else {
 				$amount_requested = $args['first'];
 			}
@@ -164,7 +165,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 		 */
 		if ( ! empty( $args['last'] ) && is_int( $args['last'] ) ) {
 			if ( 0 > $args['last'] ) {
-				throw new \Exception( esc_html__( 'last must be a positive integer.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'last must be a positive integer.', 'wp-graphql' ) );
 			} else {
 				$amount_requested = $args['last'];
 			}

@@ -6,7 +6,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 /**
@@ -15,14 +15,14 @@ use GraphQL\Validator\ValidationContext;
  * A GraphQL document is only valid if when it contains an anonymous operation
  * (the query short-hand) that it contains only that one operation definition.
  */
-class LoneAnonymousOperation
+class LoneAnonymousOperation extends AbstractValidationRule
 {
     static function anonOperationNotAloneMessage()
     {
         return 'This anonymous operation must be the only defined operation.';
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $operationCount = 0;
         return [

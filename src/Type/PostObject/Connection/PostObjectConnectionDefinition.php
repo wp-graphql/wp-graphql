@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\PostObject\Connection;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
@@ -51,6 +52,7 @@ class PostObjectConnectionDefinition {
 				'nodeType'         => Types::post_object( $post_type_object->name ),
 				'name'             => $post_type_object->graphql_plural_name,
 				'connectionFields' => function() use ( $post_type_object ) {
+
 					return [
 						'postTypeInfo' => [
 							'type'        => Types::post_type(),

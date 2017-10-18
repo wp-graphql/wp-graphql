@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\Comment\Connection;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
@@ -85,7 +86,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 		 * Throw an exception if the query is attempted to be queried by
 		 */
 		if ( 'comment__in' === $query_args['orderby'] && empty( $query_args['comment__in'] ) ) {
-			throw new \Exception( __( 'In order to sort by comment__in, an array of IDs must be passed as the commentIn argument', 'wp-graphql' ) );
+			throw new UserError( __( 'In order to sort by comment__in, an array of IDs must be passed as the commentIn argument', 'wp-graphql' ) );
 		}
 
 		/**

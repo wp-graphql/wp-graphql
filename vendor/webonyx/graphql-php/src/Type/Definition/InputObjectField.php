@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 
 /**
  * Class InputObjectField
@@ -28,6 +29,16 @@ class InputObjectField
     public $type;
 
     /**
+     * @var InputValueDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
+     * @var array
+     */
+    public $config;
+
+    /**
      * Helps to differentiate when `defaultValue` is `null` and when it was not even set initially
      *
      * @var bool
@@ -52,6 +63,7 @@ class InputObjectField
                     $this->{$k} = $v;
             }
         }
+        $this->config = $opts;
     }
 
     /**
@@ -59,7 +71,7 @@ class InputObjectField
      */
     public function getType()
     {
-        return Type::resolve($this->type);
+        return $this->type;
     }
 
     /**

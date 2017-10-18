@@ -7,6 +7,8 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
+use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -218,6 +220,8 @@ class TermObjectType extends WPObjectType {
 							return ! empty( $ancestors ) ? $ancestors : null;
 						},
 					];
+
+					$fields['children'] = TermObjectConnectionDefinition::connection( $taxonomy_object );
 
 				}
 
