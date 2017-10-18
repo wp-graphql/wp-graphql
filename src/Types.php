@@ -25,6 +25,7 @@ use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
+use WPGraphQL\Type\Union\CommentAuthorUnionType;
 use WPGraphQL\Type\Union\PostObjectUnionType;
 use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
@@ -65,10 +66,19 @@ class Types {
 	 * Stores the comment author type object
 	 *
 	 * @var CommentAuthorType object $comment_author
-	 * @since  0.5.0
+	 * @since  0.0.21
 	 * @access private
 	 */
 	private static $comment_author;
+	
+	/**
+	 * Stores the comment author union type config
+	 *
+	 * @var CommentAuthorUnionType object $comment_author_union
+	 * @since  0.0.21
+	 * @access private
+	 */
+	private static $comment_author_union;
 
 	/**
 	 * Stores the mime type enum object
@@ -283,11 +293,22 @@ class Types {
 	 * This returns the definition for the CommentAuthorType
 	 *
 	 * @return CommentAuthorType object
-	 * @since  0.0.5
+	 * @since  0.0.21
 	 * @access public
 	 */
 	public static function comment_author() {
 		return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
+	}
+	
+	/**
+	 * This returns the definition for the PostObjectUnionType
+	 *
+	 * @return PostObjectUnionType object
+	 * @since  0.0.21
+	 * @access public
+	 */
+	public static function comment_author_union() {
+		return self::$comment_author_union ? : ( self::$comment_author_union = new CommentAuthorUnionType() );
 	}
 
 	/**

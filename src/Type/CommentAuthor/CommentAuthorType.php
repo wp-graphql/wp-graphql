@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\CommentAuthor;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\CommentAuthor\Connection\CommentAuthorConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -32,7 +31,7 @@ class CommentAuthorType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'comment_author';
+		self::$type_name = 'commentAuthor';
 
 		$config = [
 			'name' => self::$type_name,
@@ -60,7 +59,7 @@ class CommentAuthorType extends WPObjectType {
 						'type' => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique identifier for the Comment Author user', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_ID ) ? Relay::toGlobalId( 'comment', $comment->comment_ID ) : null;
+							return ! empty( $comment->comment_author_email ) ? Relay::toGlobalId( self::$type_name, $comment->comment_author_email ) : null;
 						},
 					],
 					'name' => [

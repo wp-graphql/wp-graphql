@@ -77,7 +77,17 @@ class CommentType extends WPObjectType {
 							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
 						},
 					],
+                                        'author' => [
+                                                'type' => Types::user(),
+                                                'description' => __( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
+                                                'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+                                                        $author = new \WP_User( $comment->user_id );
+
+                                                        return ! empty( $author ) ? $author : null;
+                                                },
+                                        ],
 					// TODO
+/*
 					'author' => [
 						'type' => Types::comment_author(),
 						'description' => __( 'The comment author object.', 'wp-graphql' ),
@@ -87,6 +97,7 @@ class CommentType extends WPObjectType {
 							return ! empty( $author ) ? $author : null;
 						},
 					],
+*/
 					'authorIp' => [
 						'type' => Types::string(),
 						'description' => __( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in SQL.', 'wp-graphql' ),
