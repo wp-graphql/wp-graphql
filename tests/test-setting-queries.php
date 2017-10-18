@@ -48,7 +48,7 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testSettingQueryAsSubscriber() {
+	public function testSettingQueryAsEditor() {
 		/**
 		 * Set the editor user
 		 * Set the query
