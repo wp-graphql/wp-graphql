@@ -5,15 +5,18 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -21,7 +24,9 @@ use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\AST;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 
 class Values
@@ -42,7 +47,7 @@ class Values
         $coercedValues = [];
         foreach ($definitionNodes as $definitionNode) {
             $varName = $definitionNode->variable->name->value;
-            $varType = Utils\TypeInfo::typeFromAST($schema, $definitionNode->type);
+            $varType = TypeInfo::typeFromAST($schema, $definitionNode->type);
 
             if (!Type::isInputType($varType)) {
                 throw new Error(
@@ -55,7 +60,7 @@ class Values
             if (!array_key_exists($varName, $inputs)) {
                 $defaultValue = $definitionNode->defaultValue;
                 if ($defaultValue) {
-                    $coercedValues[$varName] = Utils\AST::valueFromAST($defaultValue, $varType);
+                    $coercedValues[$varName] = AST::valueFromAST($defaultValue, $varType);
                 }
                 if ($varType instanceof NonNull) {
                     throw new Error(
@@ -146,7 +151,7 @@ class Values
                 }
             } else {
                 $valueNode = $argumentNode->value;
-                $coercedValue = Utils\AST::valueFromAST($valueNode, $argType, $variableValues);
+                $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
                 if ($coercedValue === $undefined) {
                     $errors = DocumentValidator::isValidLiteralValue($argType, $valueNode);
                     $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';
@@ -162,7 +167,34 @@ class Values
     }
 
     /**
-     * @deprecated as of 8.0 (Moved to Utils\AST::valueFromAST)
+     * Prepares an object map of argument values given a directive definition
+     * and a AST node which may contain directives. Optionally also accepts a map
+     * of variable values.
+     *
+     * If the directive does not exist on the node, returns undefined.
+     *
+     * @param Directive $directiveDef
+     * @param FragmentSpreadNode | FieldNode | InlineFragmentNode | EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @param array|null $variableValues
+     *
+     * @return array|null
+     */
+    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null)
+    {
+        if (isset($node->directives) && $node->directives instanceof NodeList) {
+            $directiveNode = Utils::find($node->directives, function(DirectiveNode $directive) use ($directiveDef) {
+                return $directive->name->value === $directiveDef->name;
+            });
+
+            if ($directiveNode) {
+                return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
      *
      * @param $valueNode
      * @param InputType $type
@@ -171,7 +203,7 @@ class Values
      */
     public static function valueFromAST($valueNode, InputType $type, $variables = null)
     {
-        return Utils\AST::valueFromAST($valueNode, $type, $variables);
+        return AST::valueFromAST($valueNode, $type, $variables);
     }
 
     /**
@@ -183,7 +215,7 @@ class Values
      * @param InputType $type
      * @return array
      */
-    private static function isValidPHPValue($value, InputType $type)
+    public static function isValidPHPValue($value, InputType $type)
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
@@ -243,16 +275,28 @@ class Values
         }
 
         if ($type instanceof LeafType) {
-            // Scalar/Enum input checks to ensure the type can parse the value to
-            // a non-null value.
-            $parseResult = $type->parseValue($value);
-            if (null === $parseResult) {
-                $v = json_encode($value);
+            try {
+                // Scalar/Enum input checks to ensure the type can parse the value to
+                // a non-null value.
+                $parseResult = $type->parseValue($value);
+                if (null === $parseResult && !$type->isValidValue($value)) {
+                    $v = Utils::printSafeJson($value);
+                    return [
+                        "Expected type \"{$type->name}\", found $v."
+                    ];
+                }
+                return [];
+            } catch (\Exception $e) {
                 return [
-                    "Expected type \"{$type->name}\", found $v."
+                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
+                    $e->getMessage()
+                ];
+            } catch (\Throwable $e) {
+                return [
+                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
+                    $e->getMessage()
                 ];
             }
-            return [];
         }
 
         throw new InvariantViolation('Must be input type');

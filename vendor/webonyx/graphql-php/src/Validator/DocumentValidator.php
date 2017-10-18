@@ -5,24 +5,20 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\FragmentSpreadNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Language\VisitorOperation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\TypeInfo;
+use GraphQL\Validator\Rules\AbstractValidationRule;
 use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
 use GraphQL\Validator\Rules\DisableIntrospection;
@@ -52,19 +48,71 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
+/**
+ * Implements the "Validation" section of the spec.
+ *
+ * Validation runs synchronously, returning an array of encountered errors, or
+ * an empty array if no errors were encountered and the document is valid.
+ *
+ * A list of specific validation rules may be provided. If not provided, the
+ * default list of rules defined by the GraphQL specification will be used.
+ *
+ * Each validation rule is an instance of GraphQL\Validator\Rules\AbstractValidationRule
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
+ *
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
+ * or array of such instances when invalid.
+ *
+ * Optionally a custom TypeInfo instance may be provided. If not provided, one
+ * will be created from the provided schema.
+ */
 class DocumentValidator
 {
     private static $rules = [];
 
     private static $defaultRules;
 
+    private static $securityRules;
+
     private static $initRules = false;
 
+    /**
+     * Primary method for query validation. See class description for details.
+     *
+     * @api
+     * @param Schema $schema
+     * @param DocumentNode $ast
+     * @param AbstractValidationRule[]|null $rules
+     * @param TypeInfo|null $typeInfo
+     * @return Error[]
+     */
+    public static function validate(
+        Schema $schema,
+        DocumentNode $ast,
+        array $rules = null,
+        TypeInfo $typeInfo = null
+    )
+    {
+        if (null === $rules) {
+            $rules = static::allRules();
+        }
+        $typeInfo = $typeInfo ?: new TypeInfo($schema);
+        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules);
+        return $errors;
+    }
+
+
+    /**
+     * Returns all global validation rules.
+     *
+     * @api
+     * @return AbstractValidationRule[]
+     */
     public static function allRules()
     {
         if (!self::$initRules) {
-            self::$rules = array_merge(static::defaultRules(), self::$rules);
-            self::$initRules = true;
+            static::$rules = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            static::$initRules = true;
         }
 
         return self::$rules;
@@ -74,66 +122,94 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
-                'UniqueOperationNames' => new UniqueOperationNames(),
-                'LoneAnonymousOperation' => new LoneAnonymousOperation(),
-                'KnownTypeNames' => new KnownTypeNames(),
-                'FragmentsOnCompositeTypes' => new FragmentsOnCompositeTypes(),
-                'VariablesAreInputTypes' => new VariablesAreInputTypes(),
-                'ScalarLeafs' => new ScalarLeafs(),
-                'FieldsOnCorrectType' => new FieldsOnCorrectType(),
-                'UniqueFragmentNames' => new UniqueFragmentNames(),
-                'KnownFragmentNames' => new KnownFragmentNames(),
-                'NoUnusedFragments' => new NoUnusedFragments(),
-                'PossibleFragmentSpreads' => new PossibleFragmentSpreads(),
-                'NoFragmentCycles' => new NoFragmentCycles(),
-                'UniqueVariableNames' => new UniqueVariableNames(),
-                'NoUndefinedVariables' => new NoUndefinedVariables(),
-                'NoUnusedVariables' => new NoUnusedVariables(),
-                'KnownDirectives' => new KnownDirectives(),
-                'UniqueDirectivesPerLocation' => new UniqueDirectivesPerLocation(),
-                'KnownArgumentNames' => new KnownArgumentNames(),
-                'UniqueArgumentNames' => new UniqueArgumentNames(),
-                'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
-                'ProvidedNonNullArguments' => new ProvidedNonNullArguments(),
-                'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
-                'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
-                'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
-                'UniqueInputFieldNames' => new UniqueInputFieldNames(),
-
-                // Query Security
-                'DisableIntrospection' => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
-                'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
-                'QueryComplexity' => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+                UniqueOperationNames::class => new UniqueOperationNames(),
+                LoneAnonymousOperation::class => new LoneAnonymousOperation(),
+                KnownTypeNames::class => new KnownTypeNames(),
+                FragmentsOnCompositeTypes::class => new FragmentsOnCompositeTypes(),
+                VariablesAreInputTypes::class => new VariablesAreInputTypes(),
+                ScalarLeafs::class => new ScalarLeafs(),
+                FieldsOnCorrectType::class => new FieldsOnCorrectType(),
+                UniqueFragmentNames::class => new UniqueFragmentNames(),
+                KnownFragmentNames::class => new KnownFragmentNames(),
+                NoUnusedFragments::class => new NoUnusedFragments(),
+                PossibleFragmentSpreads::class => new PossibleFragmentSpreads(),
+                NoFragmentCycles::class => new NoFragmentCycles(),
+                UniqueVariableNames::class => new UniqueVariableNames(),
+                NoUndefinedVariables::class => new NoUndefinedVariables(),
+                NoUnusedVariables::class => new NoUnusedVariables(),
+                KnownDirectives::class => new KnownDirectives(),
+                UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+                KnownArgumentNames::class => new KnownArgumentNames(),
+                UniqueArgumentNames::class => new UniqueArgumentNames(),
+                ArgumentsOfCorrectType::class => new ArgumentsOfCorrectType(),
+                ProvidedNonNullArguments::class => new ProvidedNonNullArguments(),
+                DefaultValuesOfCorrectType::class => new DefaultValuesOfCorrectType(),
+                VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
+                OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
+                UniqueInputFieldNames::class => new UniqueInputFieldNames(),
             ];
         }
 
         return self::$defaultRules;
     }
 
+    /**
+     * @return array
+     */
+    public static function securityRules()
+    {
+        // This way of defining rules is deprecated
+        // When custom security rule is required - it should be just added via DocumentValidator::addRule();
+        // TODO: deprecate this
+
+        if (null === self::$securityRules) {
+            self::$securityRules = [
+                DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
+                QueryDepth::class => new QueryDepth(QueryDepth::DISABLED), // default disabled
+                QueryComplexity::class => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+            ];
+        }
+        return self::$securityRules;
+    }
+
+    /**
+     * Returns global validation rule by name. Standard rules are named by class name, so
+     * example usage for such rules:
+     *
+     * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
+     *
+     * @api
+     * @param string $name
+     * @return AbstractValidationRule
+     */
     public static function getRule($name)
     {
         $rules = static::allRules();
 
+        if (isset($rules[$name])) {
+            return $rules[$name];
+        }
+
+        $name = "GraphQL\\Validator\\Rules\\$name";
         return isset($rules[$name]) ? $rules[$name] : null ;
     }
 
-    public static function addRule($name, callable $rule)
+    /**
+     * Add rule to list of global validation rules
+     *
+     * @api
+     * @param AbstractValidationRule $rule
+     */
+    public static function addRule(AbstractValidationRule $rule)
     {
-        self::$rules[$name] = $rule;
-    }
-
-    public static function validate(Schema $schema, DocumentNode $ast, array $rules = null)
-    {
-        $typeInfo = new TypeInfo($schema);
-        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules ?: static::allRules());
-        return $errors;
+        self::$rules[$rule->getName()] = $rule;
     }
 
     public static function isError($value)
     {
         return is_array($value)
-            ? count(array_filter($value, function($item) { return $item instanceof \Exception;})) === count($value)
-            : $value instanceof \Exception;
+            ? count(array_filter($value, function($item) { return $item instanceof \Exception || $item instanceof \Throwable;})) === count($value)
+            : ($value instanceof \Exception || $value instanceof \Throwable);
     }
 
     public static function append(&$arr, $items)
@@ -231,11 +307,8 @@ class DocumentValidator
         }
 
         if ($type instanceof LeafType) {
-            // Scalar/Enum input checks to ensure the type can parse the value to
-            // a non-null value.
-            $parseResult = $type->parseLiteral($valueNode);
-
-            if (null === $parseResult) {
+            // Scalars must parse to a non-null value
+            if (!$type->isValidLiteral($valueNode)) {
                 $printed = Printer::doPrint($valueNode);
                 return [ "Expected type \"{$type->name}\", found $printed." ];
             }
@@ -253,7 +326,7 @@ class DocumentValidator
      * @param Schema $schema
      * @param TypeInfo $typeInfo
      * @param DocumentNode $documentNode
-     * @param array $rules
+     * @param AbstractValidationRule[] $rules
      * @return array
      */
     public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
@@ -261,7 +334,7 @@ class DocumentValidator
         $context = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
         foreach ($rules as $rule) {
-            $visitors[] = $rule($context);
+            $visitors[] = $rule->getVisitor($context);
         }
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
         return $context->getErrors();

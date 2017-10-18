@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;

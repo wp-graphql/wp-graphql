@@ -95,12 +95,10 @@ class CommentConnectionArgs extends WPInputObjectType {
 					'type' => new WPEnumType([
 						'name' => 'commentsOrder',
 						'values' => [
-							[
-								'name' => 'ASC',
+							'ASC' => [
 								'value' => 'ASC',
 							],
-							[
-								'name' => 'DESC',
+							'DESC' => [
 								'value' => 'DESC',
 							],
 						],
@@ -210,68 +208,52 @@ class CommentConnectionArgs extends WPInputObjectType {
 			self::$comments_orderby_enum = new WPEnumType([
 				'name' => 'commentsOrderby',
 				'values' => [
-					[
-						'name' => 'COMMENT_AGENT',
+					'COMMENT_AGENT' => [
 						'value' => 'comment_agent',
 					],
-					[
-						'name' => 'COMMENT_APPROVED',
+					'COMMENT_APPROVED' => [
 						'value' => 'comment_approved',
 					],
-					[
-						'name' => 'COMMENT_AUTHOR',
+					'COMMENT_AUTHOR' => [
 						'value' => 'comment_author',
 					],
-					[
-						'name' => 'COMMENT_AUTHOR_EMAIL',
+					'COMMENT_AUTHOR_EMAIL' => [
 						'value' => 'comment_author_email',
 					],
-					[
-						'name' => 'COMMENT_AUTHOR_IP',
+					'COMMENT_AUTHOR_IP' => [
 						'value' => 'comment_author_IP',
 					],
-					[
-						'name' => 'COMMENT_AUTHOR_URL',
+					'COMMENT_AUTHOR_URL' => [
 						'value' => 'comment_author_url',
 					],
-					[
-						'name' => 'COMMENT_CONTENT',
+					'COMMENT_CONTENT' => [
 						'value' => 'comment_content',
 					],
-					[
-						'name' => 'COMMENT_DATE',
+					'COMMENT_DATE' => [
 						'value' => 'comment_date',
 					],
-					[
-						'name' => 'COMMENT_DATE_GMT',
+					'COMMENT_DATE_GMT' => [
 						'value' => 'comment_date_gmt',
 					],
-					[
-						'name' => 'COMMENT_ID',
+					'COMMENT_ID' => [
 						'value' => 'comment_ID',
 					],
-					[
-						'name' => 'COMMENT_KARMA',
+					'COMMENT_KARMA' => [
 						'value' => 'comment_karma',
 					],
-					[
-						'name' => 'COMMENT_PARENT',
+					'COMMENT_PARENT' => [
 						'value' => 'comment_parent',
 					],
-					[
-						'name' => 'COMMENT_POST_ID',
+					'COMMENT_POST_ID' => [
 						'value' => 'comment_post_ID',
 					],
-					[
-						'name' => 'COMMENT_TYPE',
+					'COMMENT_TYPE' => [
 						'value' => 'comment_type',
 					],
-					[
-						'name' => 'USER_ID',
+					'USER_ID' => [
 						'value' => 'user_id',
 					],
-					[
-						'name' => 'COMMENT_IN',
+					'COMMENT_IN' => [
 						'value' => 'comment__in',
 					],
 				],

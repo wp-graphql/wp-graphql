@@ -2,7 +2,8 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Language\Printer;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -11,14 +12,17 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Utils;
 
 /**
- * Class SchemaPrinter
- * @package GraphQL\Utils
+ * Given an instance of Schema, prints it in GraphQL type language.
  */
 class SchemaPrinter
 {
+    /**
+     * @api
+     * @param Schema $schema
+     * @return string
+     */
     public static function doPrint(Schema $schema)
     {
         return self::printFilteredSchema($schema, function($n) {
@@ -26,6 +30,11 @@ class SchemaPrinter
         }, 'self::isDefinedType');
     }
 
+    /**
+     * @api
+     * @param Schema $schema
+     * @return string
+     */
     public static function printIntrosepctionSchema(Schema $schema)
     {
         return self::printFilteredSchema($schema, [__CLASS__, 'isSpecDirective'], [__CLASS__, 'isIntrospectionType']);

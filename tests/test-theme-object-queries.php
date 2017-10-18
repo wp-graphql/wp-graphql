@@ -142,6 +142,7 @@ class WP_GraphQL_Test_Theme_Object_Queries extends WP_UnitTestCase {
 					'path' => [
 						'theme',
 					],
+					'category' => 'user',
 				],
 			],
 		];

@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Language;
 
-// language/parser.js
-
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -26,6 +24,7 @@ use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
@@ -44,9 +43,15 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Error\SyntaxError;
 
+/**
+ * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+ */
 class Parser
 {
     /**
+     * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
+     *
      * Available options:
      *
      * noLocation: boolean,
@@ -54,6 +59,7 @@ class Parser
      * in the source that they correspond to. This configuration flag
      * disables that behavior for performance or testing.)
      *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return DocumentNode
@@ -65,17 +71,17 @@ class Parser
         return $parser->parseDocument();
     }
 
-
     /**
      * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
      * that value.
-     * Throws GraphQLError if a syntax error is encountered.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Values directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: valueFromAST().
+     * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -93,12 +99,14 @@ class Parser
     /**
      * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
      * that type.
-     * Throws GraphQLError if a syntax error is encountered.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Types directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: typeFromAST().
+     * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
+     *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return ListTypeNode|NameNode|NonNullTypeNode
@@ -237,7 +245,7 @@ class Parser
      * @param int $openKind
      * @param callable $parseFn
      * @param int $closeKind
-     * @return array
+     * @return NodeList
      * @throws SyntaxError
      */
     function any($openKind, $parseFn, $closeKind)
@@ -248,7 +256,7 @@ class Parser
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
-        return $nodes;
+        return new NodeList($nodes);
     }
 
     /**
@@ -260,7 +268,7 @@ class Parser
      * @param $openKind
      * @param $parseFn
      * @param $closeKind
-     * @return array
+     * @return NodeList
      * @throws SyntaxError
      */
     function many($openKind, $parseFn, $closeKind)
@@ -271,7 +279,7 @@ class Parser
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
-        return $nodes;
+        return new NodeList($nodes);
     }
 
     /**
@@ -307,7 +315,7 @@ class Parser
         } while (!$this->skip(Token::EOF));
 
         return new DocumentNode([
-            'definitions' => $definitions,
+            'definitions' => new NodeList($definitions),
             'loc' => $this->loc($start)
         ]);
     }
@@ -363,7 +371,7 @@ class Parser
                 'operation' => 'query',
                 'name' => null,
                 'variableDefinitions' => null,
-                'directives' => [],
+                'directives' => new NodeList([]),
                 'selectionSet' => $this->parseSelectionSet(),
                 'loc' => $this->loc($start)
             ]);
@@ -404,17 +412,17 @@ class Parser
     }
 
     /**
-     * @return VariableDefinitionNode[]
+     * @return VariableDefinitionNode[]|NodeList
      */
     function parseVariableDefinitions()
     {
-      return $this->peek(Token::PAREN_L) ?
-        $this->many(
-          Token::PAREN_L,
-          [$this, 'parseVariableDefinition'],
-          Token::PAREN_R
-        ) :
-        [];
+        return $this->peek(Token::PAREN_L) ?
+            $this->many(
+                Token::PAREN_L,
+                [$this, 'parseVariableDefinition'],
+                Token::PAREN_R
+            ) :
+            new NodeList([]);
     }
 
     /**
@@ -507,13 +515,13 @@ class Parser
     }
 
     /**
-     * @return ArgumentNode[]
+     * @return ArgumentNode[]|NodeList
      */
     function parseArguments()
     {
         return $this->peek(Token::PAREN_L) ?
             $this->many(Token::PAREN_L, [$this, 'parseArgument'], Token::PAREN_R) :
-            [];
+            new NodeList([]);
     }
 
     /**
@@ -726,7 +734,7 @@ class Parser
             $fields[] = $this->parseObjectField($isConst);
         }
         return new ObjectValueNode([
-            'fields' => $fields,
+            'fields' => new NodeList($fields),
             'loc' => $this->loc($start)
         ]);
     }
@@ -752,7 +760,7 @@ class Parser
     // Implements the parsing rules in the Directives section.
 
     /**
-     * @return DirectiveNode[]
+     * @return DirectiveNode[]|NodeList
      */
     function parseDirectives()
     {
@@ -760,7 +768,7 @@ class Parser
         while ($this->peek(Token::AT)) {
             $directives[] = $this->parseDirective();
         }
-        return $directives;
+        return new NodeList($directives);
     }
 
     /**
@@ -991,7 +999,7 @@ class Parser
     }
 
     /**
-     * @return InputValueDefinitionNode[]
+     * @return InputValueDefinitionNode[]|NodeList
      */
     function parseArgumentDefs()
     {
@@ -1080,14 +1088,17 @@ class Parser
 
     /**
      * UnionMembers :
-     *   - NamedType
+     *   - `|`? NamedType
      *   - UnionMembers | NamedType
      *
      * @return NamedTypeNode[]
      */
     function parseUnionMembers()
     {
+        // Optional leading pipe
+        $this->skip(Token::PIPE);
         $members = [];
+
         do {
             $members[] = $this->parseNamedType();
         } while ($this->skip(Token::PIPE));
@@ -1213,6 +1224,8 @@ class Parser
      */
     function parseDirectiveLocations()
     {
+        // Optional leading pipe
+        $this->skip(Token::PIPE);
         $locations = [];
         do {
             $locations[] = $this->parseName();

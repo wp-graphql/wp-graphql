@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "422856a092474e8aa228815d0ccbf45d",
-    "content-hash": "ce9446e3e8e421868c73749de227921a",
+    "content-hash": "983628d7c24daaec969faada41b4398f",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -46,31 +45,33 @@
                 "api",
                 "graphql"
             ],
-            "time": "2016-10-29 23:29:29"
+            "time": "2016-10-29T23:29:29+00:00"
         },
         {
             "name": "webonyx/graphql-php",
-            "version": "v0.9.14",
+            "version": "v0.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webonyx/graphql-php.git",
-                "reference": "848f9c3edfbfbfa0903f4dd76ee2fec1cfb12224"
+                "reference": "b17b1c33366d07877feb4299f207a420fbfe53b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/848f9c3edfbfbfa0903f4dd76ee2fec1cfb12224",
-                "reference": "848f9c3edfbfbfa0903f4dd76ee2fec1cfb12224",
+                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/b17b1c33366d07877feb4299f207a420fbfe53b5",
+                "reference": "b17b1c33366d07877feb4299f207a420fbfe53b5",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=5.4,<8.0-DEV"
+                "php": ">=5.5,<8.0-DEV"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8"
+                "phpunit/phpunit": "^4.8",
+                "psr/http-message": "^1.0"
             },
             "suggest": {
-                "react/promise": "To use ReactPHP promise adapter"
+                "psr/http-message": "To use standard GraphQL server",
+                "react/promise": "To leverage async resolving on React PHP platform"
             },
             "type": "library",
             "autoload": {
@@ -91,7 +92,7 @@
                 "api",
                 "graphql"
             ],
-            "time": "2017-04-25 11:02:45"
+            "time": "2017-10-13T17:45:55+00:00"
         }
     ],
     "packages-dev": [],

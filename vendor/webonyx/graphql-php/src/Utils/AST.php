@@ -3,15 +3,23 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\Location;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
@@ -22,14 +30,83 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 
 /**
- * Class AST
- * @package GraphQL\Utils
+ * Various utilities dealing with AST
  */
 class AST
 {
+    /**
+     * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
+     *
+     * For example:
+     *
+     * ```php
+     * AST::fromArray([
+     *     'kind' => 'ListValue',
+     *     'values' => [
+     *         ['kind' => 'StringValue', 'value' => 'my str'],
+     *         ['kind' => 'StringValue', 'value' => 'my other str']
+     *     ],
+     *     'loc' => ['start' => 21, 'end' => 25]
+     * ]);
+     * ```
+     *
+     * Will produce instance of `ListValueNode` where `values` prop is a lazily-evaluated `NodeList`
+     * returning instances of `StringValueNode` on access.
+     *
+     * This is a reverse operation for AST::toArray($node)
+     *
+     * @api
+     * @param array $node
+     * @return Node
+     */
+    public static function fromArray(array $node)
+    {
+        if (!isset($node['kind']) || !isset(NodeKind::$classMap[$node['kind']])) {
+            throw new InvariantViolation("Unexpected node structure: " . Utils::printSafeJson($node));
+        }
+
+        $kind = isset($node['kind']) ? $node['kind'] : null;
+        $class = NodeKind::$classMap[$kind];
+        $instance = new $class([]);
+
+        if (isset($node['loc'], $node['loc']['start'], $node['loc']['end'])) {
+            $instance->loc = Location::create($node['loc']['start'], $node['loc']['end']);
+        }
+
+
+        foreach ($node as $key => $value) {
+            if ('loc' === $key || 'kind' === $key) {
+                continue ;
+            }
+            if (is_array($value)) {
+                if (isset($value[0]) || empty($value)) {
+                    $value = new NodeList($value);
+                } else {
+                    $value = self::fromArray($value);
+                }
+            }
+            $instance->{$key} = $value;
+        }
+        return $instance;
+    }
+
+    /**
+     * Convert AST node to serializable array
+     *
+     * @api
+     * @param Node $node
+     * @return array
+     */
+    public static function toArray(Node $node)
+    {
+        return $node->toArray(true);
+    }
+
     /**
      * Produces a GraphQL Value AST given a PHP value.
      *
@@ -48,6 +125,7 @@ class AST
      * | Mixed         | Enum Value           |
      * | null          | NullValue            |
      *
+     * @api
      * @param $value
      * @param InputType $type
      * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
@@ -191,8 +269,9 @@ class AST
      * | String               | String        |
      * | Int / Float          | Int / Float   |
      * | Enum Value           | Mixed         |
-     * | Null Value           | stdClass      | instance of NullValue::getNullValue()
+     * | Null Value           | null          |
      *
+     * @api
      * @param $valueNode
      * @param InputType $type
      * @param null $variables
@@ -307,9 +386,9 @@ class AST
         if ($type instanceof LeafType) {
             $parsed = $type->parseLiteral($valueNode);
 
-            if (null === $parsed) {
-                // null represent a failure to parse correctly,
-                // in which case no value is returned.
+            if (null === $parsed && !$type->isValidLiteral($valueNode)) {
+                // Invalid values represent a failure to parse correctly, in which case
+                // no value is returned.
                 return $undefined;
             }
 
@@ -319,6 +398,29 @@ class AST
         throw new InvariantViolation('Must be input type');
     }
 
+    /**
+     * Returns type definition for given AST Type node
+     *
+     * @api
+     * @param Schema $schema
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     * @return Type
+     * @throws InvariantViolation
+     */
+    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    {
+        if ($inputTypeNode instanceof ListTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            return $innerType ? new ListOfType($innerType) : null;
+        }
+        if ($inputTypeNode instanceof NonNullTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            return $innerType ? new NonNull($innerType) : null;
+        }
+
+        Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
+        return $schema->getType($inputTypeNode->name->value);
+    }
 
     /**
      * Returns true if the provided valueNode is a variable which is not defined
@@ -331,5 +433,27 @@ class AST
     {
         return $valueNode instanceof VariableNode &&
         (!$variables || !array_key_exists($valueNode->name->value, $variables));
+    }
+
+    /**
+     * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
+     *
+     * @api
+     * @param DocumentNode $document
+     * @param string $operationName
+     * @return bool
+     */
+    public static function getOperation(DocumentNode $document, $operationName = null)
+    {
+        if ($document->definitions) {
+            foreach ($document->definitions as $def) {
+                if ($def instanceof OperationDefinitionNode) {
+                    if (!$operationName || (isset($def->name->value) && $def->name->value === $operationName)) {
+                        return $def->operation;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

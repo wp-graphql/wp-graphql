@@ -1,7 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Utils\Utils;
 
 /**
  * Class FieldDefinition
@@ -49,6 +51,11 @@ class FieldDefinition
     public $deprecationReason;
 
     /**
+     * @var FieldDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
      * Original field definition config
      *
      * @var array
@@ -56,14 +63,9 @@ class FieldDefinition
     public $config;
 
     /**
-     * @var OutputType|callable
-     */
-    private $type;
-
-    /**
      * @var OutputType
      */
-    private $resolvedType;
+    private $type;
 
     private static $def;
 
@@ -89,28 +91,72 @@ class FieldDefinition
         ]);
     }
 
-    /**
-     * @param array|Config $fields
-     * @param string $parentTypeName
-     * @return array
-     */
-    public static function createMap(array $fields, $parentTypeName = null)
+    public static function defineFieldMap(Type $type, $fields)
     {
+        if (is_callable($fields)) {
+            $fields = $fields();
+        }
+        if (!is_array($fields)) {
+            throw new InvariantViolation(
+                "{$type->name} fields must be an array or a callable which returns such an array."
+            );
+        }
         $map = [];
         foreach ($fields as $name => $field) {
             if (is_array($field)) {
                 if (!isset($field['name']) && is_string($name)) {
                     $field['name'] = $name;
                 }
-                $fieldDef = self::create($field, $parentTypeName);
+                if (isset($field['args']) && !is_array($field['args'])) {
+                    throw new InvariantViolation(
+                        "{$type->name}.{$name} args must be an array."
+                    );
+                }
+                $fieldDef = self::create($field);
+            } else if ($field instanceof FieldDefinition) {
+                $fieldDef = $field;
+            } else {
+                if (is_string($name) && $field) {
+                    $fieldDef = self::create(['name' => $name, 'type' => $field]);
+                } else {
+                    throw new InvariantViolation(
+                        "{$type->name}.$name field config must be an array, but got: " . Utils::printSafe($field)
+                    );
+                }
+            }
+            $map[$fieldDef->name] = $fieldDef;
+        }
+        return $map;
+    }
+
+    /**
+     * @param array $fields
+     * @param string $parentTypeName
+     * @deprecated use defineFieldMap instead
+     * @return array
+     */
+    public static function createMap(array $fields, $parentTypeName = null)
+    {
+        trigger_error(
+            __METHOD__ . ' is deprecated, use ' . __CLASS__ . '::defineFieldMap() instead',
+            E_USER_DEPRECATED
+        );
+
+        $map = [];
+        foreach ($fields as $name => $field) {
+            if (is_array($field)) {
+                if (!isset($field['name']) && is_string($name)) {
+                    $field['name'] = $name;
+                }
+                $fieldDef = self::create($field);
             } else if ($field instanceof FieldDefinition) {
                 $fieldDef = $field;
             } else {
                 if (is_string($name)) {
-                    $fieldDef = self::create(['name' => $name, 'type' => $field], $parentTypeName);
+                    $fieldDef = self::create(['name' => $name, 'type' => $field]);
                 } else {
                     throw new InvariantViolation(
-                        "Unexpected field definition for type $parentTypeName at key $name: " . Utils::printSafe($field)
+                        "Unexpected field definition for type $parentTypeName at field $name: " . Utils::printSafe($field)
                     );
                 }
             }
@@ -146,6 +192,7 @@ class FieldDefinition
 
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
 
         $this->config = $config;
 
@@ -172,11 +219,7 @@ class FieldDefinition
      */
     public function getType()
     {
-        if (null === $this->resolvedType) {
-            // TODO: deprecate types as callbacks - instead just allow field definitions to be callbacks
-            $this->resolvedType = Type::resolve($this->type);
-        }
-        return $this->resolvedType;
+        return $this->type;
     }
 
     /**
@@ -193,6 +236,37 @@ class FieldDefinition
     public function getComplexityFn()
     {
         return $this->complexityFn;
+    }
+
+    /**
+     * @param Type $parentType
+     * @throws InvariantViolation
+     */
+    public function assertValid(Type $parentType)
+    {
+        try {
+            Utils::assertValidName($this->name);
+        } catch (InvariantViolation $e) {
+            throw new InvariantViolation("{$parentType->name}.{$this->name}: {$e->getMessage()}");
+        }
+        Utils::invariant(
+            !isset($this->config['isDeprecated']),
+            "{$parentType->name}.{$this->name} should provide \"deprecationReason\" instead of \"isDeprecated\"."
+        );
+
+        $type = $this->type;
+        if ($type instanceof WrappingType) {
+            $type = $type->getWrappedType(true);
+        }
+        Utils::invariant(
+            $type instanceof OutputType,
+            "{$parentType->name}.{$this->name} field type must be Output Type but got: " . Utils::printSafe($this->type)
+        );
+        Utils::invariant(
+            $this->resolveFn === null || is_callable($this->resolveFn),
+            "{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: %s",
+            Utils::printSafe($this->resolveFn)
+        );
     }
 
     /**

@@ -6,6 +6,8 @@ use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
@@ -15,8 +17,9 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
+use GraphQL\Language\Source;
 use GraphQL\Language\Token;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -28,11 +31,10 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils;
 
 /**
- * Class BuildSchema
- * @package GraphQL\Utils
+ * Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
+ * See [section in docs](type-system/type-language.md) for details.
  */
 class BuildSchema
 {
@@ -70,26 +72,32 @@ class BuildSchema
      * If no schema definition is provided, then it will look for types named Query
      * and Mutation.
      *
-     * Given that AST it constructs a GraphQLSchema. The resulting schema
+     * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
+     * @api
      * @param DocumentNode $ast
+     * @param callable $typeConfigDecorator
      * @return Schema
      * @throws Error
      */
-    public static function buildAST(DocumentNode $ast)
+    public static function buildAST(DocumentNode $ast, callable $typeConfigDecorator = null)
     {
-        $builder = new self($ast);
+        $builder = new self($ast, $typeConfigDecorator);
         return $builder->buildSchema();
     }
 
     private $ast;
     private $innerTypeMap;
     private $nodeMap;
+    private $typeConfigDecorator;
+    private $loadedTypeDefs;
 
-    public function __construct(DocumentNode $ast)
+    public function __construct(DocumentNode $ast, callable $typeConfigDecorator = null)
     {
         $this->ast = $ast;
+        $this->typeConfigDecorator = $typeConfigDecorator;
+        $this->loadedTypeDefs = [];
     }
     
     public function buildSchema()
@@ -112,8 +120,12 @@ class BuildSchema
                 case NodeKind::ENUM_TYPE_DEFINITION:
                 case NodeKind::UNION_TYPE_DEFINITION:
                 case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+                    $typeName = $d->name->value;
+                    if (!empty($this->nodeMap[$typeName])) {
+                        throw new Error("Type \"$typeName\" was defined more than once.");
+                    }
                     $typeDefs[] = $d;
-                    $this->nodeMap[$d->name->value] = $d;
+                    $this->nodeMap[$typeName] = $d;
                     break;
                 case NodeKind::DIRECTIVE_DEFINITION:
                     $directiveDefs[] = $d;
@@ -193,10 +205,6 @@ class BuildSchema
             '__TypeKind' => Introspection::_typeKind(),
         ];
 
-        $types = array_map(function($def) {
-            return $this->typeDefNamed($def->name->value);
-        }, $typeDefs);
-
         $directives = array_map([$this, 'getDirective'], $directiveDefs);
 
         // If specified directives were not explicitly declared, add them.
@@ -221,7 +229,7 @@ class BuildSchema
             $directives[] = Directive::deprecatedDirective();
         }
 
-        return new Schema([
+        $schema = new Schema([
             'query' => $this->getObjectType($this->nodeMap[$queryTypeName]),
             'mutation' => $mutationTypeName ?
                 $this->getObjectType($this->nodeMap[$mutationTypeName]) :
@@ -229,9 +237,23 @@ class BuildSchema
             'subscription' => $subscriptionTypeName ?
                 $this->getObjectType($this->nodeMap[$subscriptionTypeName]) :
                 null,
-            'types' => $types,
+            'typeLoader' => function($name) {
+                return $this->typeDefNamed($name);
+            },
             'directives' => $directives,
+            'astNode' => $schemaDef,
+            'types' => function() {
+                $types = [];
+                foreach ($this->nodeMap as $name => $def) {
+                    if (!isset($this->loadedTypeDefs[$name])) {
+                        $types[] = $this->typeDefNamed($def->name->value);
+                    }
+                }
+                return $types;
+            }
         ]);
+
+        return $schema;
     }
 
     private function getDirective(DirectiveDefinitionNode $directiveNode)
@@ -239,10 +261,11 @@ class BuildSchema
         return new Directive([
             'name' => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
-            'locations' => array_map(function($node) {
+            'locations' => Utils::map($directiveNode->locations, function($node) {
                 return $node->value;
-            }, $directiveNode->locations),
+            }),
             'args' => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'astNode' => $directiveNode
         ]);
     }
 
@@ -287,7 +310,7 @@ class BuildSchema
     private function produceInterfaceType(TypeNode $typeNode)
     {
         $type = $this->produceType($typeNode);
-        Utils::invariant($type instanceof InterfaceType, 'Expected Input type.');
+        Utils::invariant($type instanceof InterfaceType, 'Expected Interface type.');
         return $type;
     }
 
@@ -301,7 +324,45 @@ class BuildSchema
             throw new Error('Type "' . $typeName . '" not found in document.');
         }
 
-        $innerTypeDef = $this->makeSchemaDef($this->nodeMap[$typeName]);
+        $this->loadedTypeDefs[$typeName] = true;
+
+        $config = $this->makeSchemaDefConfig($this->nodeMap[$typeName]);
+
+        if ($this->typeConfigDecorator) {
+            $fn = $this->typeConfigDecorator;
+            try {
+                $config = $fn($config, $this->nodeMap[$typeName], $this->nodeMap);
+            } catch (\Exception $e) {
+                throw new Error(
+                    "Type config decorator passed to " . (static::class) . " threw an error ".
+                    "when building $typeName type: {$e->getMessage()}",
+                    null,
+                    null,
+                    null,
+                    null,
+                    $e
+                );
+            } catch (\Throwable $e) {
+                throw new Error(
+                    "Type config decorator passed to " . (static::class) . " threw an error ".
+                    "when building $typeName type: {$e->getMessage()}",
+                    null,
+                    null,
+                    null,
+                    null,
+                    $e
+                );
+            }
+            if (!is_array($config) || isset($config[0])) {
+                throw new Error(
+                    "Type config decorator passed to " . (static::class) . " is expected to return an array, but got ".
+                    Utils::getVariableType($config)
+                );
+            }
+        }
+
+        $innerTypeDef = $this->makeSchemaDef($this->nodeMap[$typeName], $config);
+
         if (!$innerTypeDef) {
             throw new Error("Nothing constructed for $typeName.");
         }
@@ -309,38 +370,69 @@ class BuildSchema
         return $innerTypeDef;
     }
 
-    private function makeSchemaDef($def)
+    private function makeSchemaDefConfig($def)
     {
         if (!$def) {
             throw new Error('def must be defined.');
         }
         switch ($def->kind) {
             case NodeKind::OBJECT_TYPE_DEFINITION:
-                return $this->makeTypeDef($def);
+                return $this->makeTypeDefConfig($def);
             case NodeKind::INTERFACE_TYPE_DEFINITION:
-                return $this->makeInterfaceDef($def);
+                return $this->makeInterfaceDefConfig($def);
             case NodeKind::ENUM_TYPE_DEFINITION:
-                return $this->makeEnumDef($def);
+                return $this->makeEnumDefConfig($def);
             case NodeKind::UNION_TYPE_DEFINITION:
-                return $this->makeUnionDef($def);
+                return $this->makeUnionDefConfig($def);
             case NodeKind::SCALAR_TYPE_DEFINITION:
-                return $this->makeScalarDef($def);
+                return $this->makeScalarDefConfig($def);
             case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
-                return $this->makeInputObjectDef($def);
+                return $this->makeInputObjectDefConfig($def);
             default:
                 throw new Error("Type kind of {$def->kind} not supported.");
         }
     }
 
-    private function makeTypeDef(ObjectTypeDefinitionNode $def)
+    private function makeSchemaDef($def, array $config = null)
+    {
+        if (!$def) {
+            throw new Error('def must be defined.');
+        }
+
+        $config = $config ?: $this->makeSchemaDefConfig($def);
+
+        switch ($def->kind) {
+            case NodeKind::OBJECT_TYPE_DEFINITION:
+                return new ObjectType($config);
+            case NodeKind::INTERFACE_TYPE_DEFINITION:
+                return new InterfaceType($config);
+            case NodeKind::ENUM_TYPE_DEFINITION:
+                return new EnumType($config);
+            case NodeKind::UNION_TYPE_DEFINITION:
+                return new UnionType($config);
+            case NodeKind::SCALAR_TYPE_DEFINITION:
+                return new CustomScalarType($config);
+            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+                return new InputObjectType($config);
+            default:
+                throw new Error("Type kind of {$def->kind} not supported.");
+        }
+    }
+
+    private function makeTypeDefConfig(ObjectTypeDefinitionNode $def)
     {
         $typeName = $def->name->value;
-        return new ObjectType([
+        return [
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
-            'interfaces' => function() use ($def) { return $this->makeImplementedInterfaces($def); }
-        ]);
+            'fields' => function() use ($def) {
+                return $this->makeFieldDefMap($def);
+            },
+            'interfaces' => function() use ($def) {
+                return $this->makeImplementedInterfaces($def);
+            },
+            'astNode' => $def
+        ];
     }
 
     private function makeFieldDefMap($def)
@@ -355,7 +447,8 @@ class BuildSchema
                     'type' => $this->produceOutputType($field->type),
                     'description' => $this->getDescription($field),
                     'args' => $this->makeInputValues($field->arguments),
-                    'deprecationReason' => $this->getDeprecationReason($field->directives)
+                    'deprecationReason' => $this->getDeprecationReason($field),
+                    'astNode' => $field
                 ];
             }
         );
@@ -363,7 +456,12 @@ class BuildSchema
 
     private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
     {
-        return isset($def->interfaces) ? array_map([$this, 'produceInterfaceType'], $def->interfaces) : null;
+        if (isset($def->interfaces)) {
+            return Utils::map($def->interfaces, function ($iface) {
+                return $this->produceInterfaceType($iface);
+            });
+        }
+        return null;
     }
 
     private function makeInputValues($values)
@@ -378,32 +476,39 @@ class BuildSchema
                 $config = [
                     'name' => $value->name->value,
                     'type' => $type,
-                    'description' => $this->getDescription($value)
+                    'description' => $this->getDescription($value),
+                    'astNode' => $value
                 ];
                 if (isset($value->defaultValue)) {
-                    $config['defaultValue'] = Utils\AST::valueFromAST($value->defaultValue, $type);
+                    $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
                 }
                 return $config;
             }
         );
     }
 
-    private function makeInterfaceDef(InterfaceTypeDefinitionNode $def)
+    private function makeInterfaceDefConfig(InterfaceTypeDefinitionNode $def)
     {
         $typeName = $def->name->value;
-        return new InterfaceType([
+        return [
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
-            'resolveType' => [$this, 'cannotExecuteSchema']
-        ]);
+            'fields' => function() use ($def) {
+                return $this->makeFieldDefMap($def);
+            },
+            'astNode' => $def,
+            'resolveType' => function() {
+                $this->cannotExecuteSchema();
+            }
+        ];
     }
 
-    private function makeEnumDef(EnumTypeDefinitionNode $def)
+    private function makeEnumDefConfig(EnumTypeDefinitionNode $def)
     {
-        return new EnumType([
+        return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
+            'astNode' => $def,
             'values' => Utils::keyValMap(
                 $def->values,
                 function($enumValue) {
@@ -412,62 +517,70 @@ class BuildSchema
                 function($enumValue) {
                     return [
                         'description' => $this->getDescription($enumValue),
-                        'deprecationReason' => $this->getDeprecationReason($enumValue->directives)
+                        'deprecationReason' => $this->getDeprecationReason($enumValue),
+                        'astNode' => $enumValue
                     ];
                 }
             )
-        ]);
+        ];
     }
 
-    private function makeUnionDef(UnionTypeDefinitionNode $def)
+    private function makeUnionDefConfig(UnionTypeDefinitionNode $def)
     {
-        return new UnionType([
+        return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'types' => array_map([$this, 'produceObjectType'], $def->types),
+            'types' => Utils::map($def->types, function($typeNode) {
+                return $this->produceObjectType($typeNode);
+            }),
+            'astNode' => $def,
             'resolveType' => [$this, 'cannotExecuteSchema']
-        ]);
+        ];
     }
 
-    private function makeScalarDef(ScalarTypeDefinitionNode $def)
+    private function makeScalarDefConfig(ScalarTypeDefinitionNode $def)
     {
-        return new CustomScalarType([
+        return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'serialize' => function() { return false; },
+            'astNode' => $def,
+            'serialize' => function() {
+                return false;
+            },
             // Note: validation calls the parse functions to determine if a
             // literal value is correct. Returning null would cause use of custom
             // scalars to always fail validation. Returning false causes them to
             // always pass validation.
-            'parseValue' => function() { return false; },
-            'parseLiteral' => function() { return false; }
-        ]);
+            'parseValue' => function() {
+                return false;
+            },
+            'parseLiteral' => function() {
+                return false;
+            }
+        ];
     }
 
-    private function makeInputObjectDef(InputObjectTypeDefinitionNode $def)
+    private function makeInputObjectDefConfig(InputObjectTypeDefinitionNode $def)
     {
-        return new InputObjectType([
+        return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); }
-        ]);
+            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); },
+            'astNode' => $def,
+        ];
     }
 
-    private function getDeprecationReason($directives)
+    /**
+     * Given a collection of directives, returns the string value for the
+     * deprecation reason.
+     *
+     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @return string
+     */
+    private function getDeprecationReason($node)
     {
-        $deprecatedAST = $directives ? Utils::find(
-            $directives,
-            function($directive) {
-                return $directive->name->value === Directive::deprecatedDirective()->name;
-            }
-        ) : null;
-        if (!$deprecatedAST) {
-            return;
-        }
-        return Values::getArgumentValues(
-            Directive::deprecatedDirective(),
-            $deprecatedAST
-        )['reason'];
+        $deprecated = Values::getDirectiveValues(Directive::deprecatedDirective(), $node);
+        return isset($deprecated['reason']) ? $deprecated['reason'] : null;
     }
 
     /**
@@ -477,8 +590,8 @@ class BuildSchema
     public function getDescription($node)
     {
         $loc = $node->loc;
-        if (!$loc) {
-            return;
+        if (!$loc || !$loc->startToken) {
+            return ;
         }
         $comments = [];
         $minSpaces = null;
@@ -507,12 +620,15 @@ class BuildSchema
      * A helper function to build a GraphQLSchema directly from a source
      * document.
      * 
-     * @param Source|string $source
-     * @return
+     * @api
+     * @param DocumentNode|Source|string $source
+     * @param callable $typeConfigDecorator
+     * @return Schema
      */
-    public static function build($source)
+    public static function build($source, callable $typeConfigDecorator = null)
     {
-        return self::buildAST(Parser::parse($source));
+        $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
+        return self::buildAST($doc, $typeConfigDecorator);
     }
 
     // Count the number of spaces on the starting side of a string.
@@ -521,7 +637,8 @@ class BuildSchema
         return strlen($str) - strlen(ltrim($str));
     }
 
-    public function cannotExecuteSchema() {
+    public function cannotExecuteSchema()
+    {
         throw new Error(
             'Generated Schema cannot use Interface or Union types for execution.'
         );

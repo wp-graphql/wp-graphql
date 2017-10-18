@@ -221,19 +221,15 @@ class UserType extends WPObjectType {
 									'description' => __( 'What rating to display avatars up to. Accepts \'G\', \'PG\', \'R\', \'X\', and are judged in that order. Default is the value of the \'avatar_rating\' option', 'wp-graphql' ),
 									'values' => [
 										'G' => [
-											'name' => 'G',
 											'value' => 'G',
 										],
 										'PG' => [
-											'name' => 'PG',
 											'value' => 'PG',
 										],
 										'R' => [
-											'name' => 'R',
 											'value' => 'R',
 										],
 										'X' => [
-											'name' => 'X',
 											'value' => 'X',
 										],
 									],

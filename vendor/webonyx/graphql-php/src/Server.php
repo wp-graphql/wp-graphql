@@ -13,6 +13,12 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Resolution;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Utils\Utils;
+
+trigger_error(
+    'GraphQL\Server is deprecated in favor of new implementation: GraphQL\Server\StandardServer and will be removed in next version',
+    E_USER_DEPRECATED
+);
 
 class Server
 {
@@ -552,7 +558,7 @@ class Server
             $httpStatus = $this->unexpectedErrorStatus;
             $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
             $httpStatus = $this->unexpectedErrorStatus;
             $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
@@ -561,7 +567,10 @@ class Server
         $this->produceOutput($result, $httpStatus);
     }
 
-    private function formatException(\Exception $e)
+    /**
+    * @param \Throwable $e
+    */
+    private function formatException($e)
     {
         $formatter = $this->exceptionFormatter;
         return $formatter($e);

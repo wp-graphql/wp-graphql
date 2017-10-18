@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
@@ -62,7 +63,7 @@ class DataSource {
 
 		$comment = \WP_Comment::get_instance( $id );
 		if ( empty( $comment ) ) {
-			throw new \Exception( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
+			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
 		}
 
 		return $comment;
@@ -130,7 +131,7 @@ class DataSource {
 		if ( ! empty( $plugin ) ) {
 			return $plugin;
 		} else {
-			throw new \Exception( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
+			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
 		}
 	}
 
@@ -165,7 +166,7 @@ class DataSource {
 
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
 		}
 
 		/**
@@ -224,7 +225,7 @@ class DataSource {
 		if ( in_array( $post_type, $allowed_post_types, true ) ) {
 			return get_post_type_object( $post_type );
 		} else {
-			throw new \Exception( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
+			throw new UserError( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
 		}
 
 	}
@@ -280,7 +281,7 @@ class DataSource {
 		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
 			return get_taxonomy( $taxonomy );
 		} else {
-			throw new \Exception( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
 
 	}
@@ -300,7 +301,7 @@ class DataSource {
 
 		$term_object = \WP_Term::get_instance( $id, $taxonomy );
 		if ( empty( $term_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
 		}
 
 		return $term_object;
@@ -341,7 +342,7 @@ class DataSource {
 		if ( $theme->exists() ) {
 			return $theme;
 		} else {
-			throw new \Exception( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
+			throw new UserError( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
 		}
 	}
 
@@ -374,7 +375,7 @@ class DataSource {
 	public static function resolve_user( $id ) {
 		$user = new \WP_User( $id );
 		if ( ! $user->exists() ) {
-			throw new \Exception( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
+			throw new UserError( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
 		}
 
 		return $user;
@@ -491,7 +492,7 @@ class DataSource {
 				function( $global_id ) {
 
 					if ( empty( $global_id ) ) {
-						throw new \Exception( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
+						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 					}
 
 					/**
@@ -563,7 +564,7 @@ class DataSource {
 						 * @since 0.0.6
 						 */
 						if ( null === $node ) {
-							throw new \Exception( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+							throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
 						}
 
 						/**
@@ -574,7 +575,7 @@ class DataSource {
 						return $node;
 
 					} else {
-						throw new \Exception( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
+						throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 					}
 				},
 
@@ -632,7 +633,7 @@ class DataSource {
 					 * @since 0.0.6
 					 */
 					if ( null === $type ) {
-						throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
+						throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
 					}
 
 					/**
