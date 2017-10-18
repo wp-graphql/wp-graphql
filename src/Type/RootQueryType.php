@@ -58,9 +58,10 @@ class RootQueryType extends ObjectType {
 
 		/**
 		 * Creates the comment author root query field
-		 * @since 0.0.5
+		 * @since 0.0.21
 		 */
-		$fields['commentAuthor'] = CommentAuthorQuery::root_query();
+// TODO
+//		$fields['commentAuthor'] = CommentAuthorQuery::root_query();
 
 		/**
 		 * Creates the comment root query field
