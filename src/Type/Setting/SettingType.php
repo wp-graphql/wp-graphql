@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
@@ -112,7 +113,7 @@ class SettingType extends WPObjectType {
 						 */
 						if ( 'email' === $individual_setting_key ) {
 							if ( ! current_user_can( 'manage_options' ) ) {
-								throw new \Exception( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 						}
 
