@@ -19,12 +19,16 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function setUp() {
+
 		parent::setUp();
 
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->admin_name = 'User ' . $this->admin;
+
+		$this->editor = $this->factory->user->create( [
+			'role' => 'editor',
+		] );
 	}
 
 	/**
@@ -35,6 +39,33 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		parent::tearDown();
+	}
+
+	/**
+	 * Method for testing whether a user can query settings
+	 * if they don't have the 'manage_options' capability
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function testSettingQueryAsSubscriber() {
+		/**
+		 * Set the editor user
+		 * Set the query
+		 * Make the request
+		 * Validate the request has errors
+		 */
+		wp_set_current_user( $this->editor );
+		$query = "
+			query {
+				generalSettings {
+				    dateFormat
+			    }
+		    }
+	    ";
+		$actual = do_graphql_request( $query );
+		$this->assertArrayHasKey( 'errors', $actual );
+
 	}
 
 	/**
@@ -51,7 +82,6 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
-
 
 		if ( true === is_multisite() ) {
 			$query = "

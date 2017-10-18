@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
+use PHPUnit\Exception;
 use WPGraphQL\Types;
 
 /**
@@ -37,6 +38,13 @@ class SettingQuery {
 			self::$root_query = [
 				'type'        => Types::setting( $setting_type ),
 				'resolve'     => function () {
+					/**
+					 * Ensure that the user performing the query has the 'manage_options' capability
+					 */
+					if ( ! current_user_can( 'manage_options' ) ) {
+						throw new \Exception( __( 'Sorry, you do not have the ability to access settings as this user.', 'wp-graphql' ) );
+					}
+
 					return true;
 				},
 			];
