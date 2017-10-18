@@ -53,8 +53,10 @@ class MediaItemUpdate {
 				/**
 				 * If there's no existing mediaItem, throw an exception
 				 */
-				if ( empty( $id_parts['id'] ) || null === $existing_media_item ) {
-					throw new \Exception( __( 'No mediaItems could be found to update', 'wp-graphql' ) );
+				if ( null === $existing_media_item ) {
+					throw new \Exception( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
+				} else {
+					$author_id = $existing_media_item->post_author;
 				}
 
 				/**
@@ -75,18 +77,16 @@ class MediaItemUpdate {
 				/**
 				 * If the mutation is setting the author to be someone other than the user making the request
 				 * make sure they have permission to edit others posts
-				 *
-				 * Set the Author ID
-				 *
-				 * Check to see if it matches the current user, if not they need to be able to edit others posts
-				 */
+				 **/
 				if ( ! empty( $input['authorId'] ) ) {
 					$author_id_parts = Relay::fromGlobalId( $input['authorId'] );
 					$author_id = $author_id_parts['id'];
-				} else {
-					$author_id = $existing_media_item->post_author;
 				}
 
+				/**
+				 * Check to see if the existing_media_item author matches the current user,
+				 * if not they need to be able to edit others posts to proceed
+				 */
 				if ( get_current_user_id() !== $author_id && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 					throw new \Exception( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 				}
@@ -94,21 +94,17 @@ class MediaItemUpdate {
 				/**
 				 * insert the post object and get the ID
 				 */
-				$post_args       = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
+				$post_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
 				$post_args['ID'] = absint( $id_parts['id'] );
 				$post_args['post_author'] = $author_id;
 
 				/**
 				 * Insert the post and retrieve the ID
+				 *
+				 * This will not fail as long as we have an ID in $post_args
+				 * Thanks to the validation above we will always have the ID
 				 */
 				$post_id = wp_update_post( wp_slash( (array) $post_args ), true );
-
-				/**
-				 * Throw an exception if the post failed to update
-				 */
-				if ( is_wp_error( $post_id ) ) {
-					throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
-				}
 
 				/**
 				 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)

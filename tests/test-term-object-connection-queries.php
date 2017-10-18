@@ -107,6 +107,9 @@ class WP_GraphQL_Test_Term_Object_Connection_Queries extends WP_UnitTestCase {
 				        slug
 					}
 				}
+				nodes {
+				  categoryId
+				}
 			}
 		}';
 
@@ -144,7 +147,7 @@ class WP_GraphQL_Test_Term_Object_Connection_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
-
+		$this->assertEquals( $first_term_id, $results['data']['categories']['nodes'][0]['categoryId'] );
 		$this->forwardPagination( $expected_cursor );
 
 	}

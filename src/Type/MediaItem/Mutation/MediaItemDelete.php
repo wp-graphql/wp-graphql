@@ -97,6 +97,13 @@ class MediaItemDelete {
 				$media_item_before_delete = get_post( absint( $id_parts['id'] ) );
 
 				/**
+				 * If the mediaItem isn't of the attachment post type, throw an error
+				 */
+				if ( 'attachment' !== $media_item_before_delete->post_type ) {
+					throw new \Exception( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $media_item_before_delete->post_type ) );
+				}
+
+				/**
 				 * If the mediaItem is already in the trash, and the forceDelete input was not passed,
 				 * don't remove from the trash
 				 */
@@ -108,16 +115,10 @@ class MediaItemDelete {
 				}
 
 				/**
-				 * Delete the mediaItem
+				 * Delete the mediaItem. This will not throw false thanks to
+				 * all of the above validation
 				 */
 				$deleted = wp_delete_attachment( $id_parts['id'], $force_delete );
-
-				/**
-				 * Handle the error from wp_delete_attachment if it occurs
-				 */
-				if ( false === $deleted ) {
-					throw new \Exception( __( 'Sorry, the mediaItem failed to delete', 'wp-graphql' ) );
-				}
 
 				/**
 				 * If the post was moved to the trash, spoof the object's status before returning it

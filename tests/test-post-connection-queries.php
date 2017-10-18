@@ -127,6 +127,10 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 						date
 					}
 				}
+				nodes {
+				  id
+				  postId
+				}
 			}
 		}';
 
@@ -158,6 +162,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( $first_post_id, $results['data']['posts']['nodes'][0]['postId'] );
 
 		$this->forwardPagination( $expected_cursor );
 

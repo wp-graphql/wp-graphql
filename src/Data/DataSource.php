@@ -168,6 +168,16 @@ class DataSource {
 			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
 		}
 
+		/**
+		 * Set the resolved post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 *
+		 * @since 0.0.18
+		 */
+		$GLOBALS['post'] = $post_object;
+		setup_postdata( $post_object );
+
 		return $post_object;
 
 	}

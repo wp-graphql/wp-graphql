@@ -53,6 +53,13 @@ class TermObjectConnectionDefinition {
 								return $taxonomy_object;
 							},
 						],
+						'nodes' => [
+							'type' => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve' => function( $source, $args, $context, $info ) {
+								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+							},
+						],
 					];
 				},
 			] );
