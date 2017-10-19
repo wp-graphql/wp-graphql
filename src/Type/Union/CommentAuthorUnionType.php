@@ -30,15 +30,15 @@ class CommentAuthorUnionType extends UnionType {
 			'types' => function() {
 				return self::getPossibleTypes();
 			},
-			'resolveType' => function( $value ) {
-			if ( ! empty( $value->user_id ) ) {
-				$type = Types::user();
-			} else if ( ! empty( $value->comment_author_email ) ) {
-				$type = Types::comment_author();
-			} else {
-				$type = null;
-			}
-			return $type;
+			'resolveType' => function( $source ) {
+				if ( $source instanceof \WP_User ) {
+					$type = Types::user();
+				} else if ( $source instanceof \WP_Comment ) {
+					$type = Types::comment_author();
+				} else {
+					$type = null;
+				}
+				return $type;
 			}
 		];
 
@@ -60,15 +60,6 @@ class CommentAuthorUnionType extends UnionType {
 			];
 		}
 
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
-				if ( empty( self::$possible_types[ $allowed_taxonomy ] ) ) {
-					self::$possible_types[ $allowed_taxonomy ] = Types::term_object( $allowed_taxonomy );
-				}
-			}
-		}
-
 		/**
 		 * Filter the possible_types as it's possible some systems might set things like "parent_id" to a different
 		 * object than a post_type, and might want to be able to hook in and add a non postObject type to the possible
@@ -77,7 +68,7 @@ class CommentAuthorUnionType extends UnionType {
 		 * @param array $possible_types  An array of possible types that can be resolved for the union
 		 * @since 0.0.6
 		 */
-		self::$possible_types = apply_filters( 'graphql_term_object_union_possible_types', self::$possible_types );
+		self::$possible_types = apply_filters( 'graphql_comment_author_union_possible_types', self::$possible_types );
 
 		return ! empty( self::$possible_types ) ? self::$possible_types : null;
 
