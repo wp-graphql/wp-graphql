@@ -59,7 +59,7 @@ class CommentAuthorType extends WPObjectType {
 						'type' => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique identifier for the Comment Author user', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_author_email ) ? Relay::toGlobalId( self::$type_name, $comment->comment_author_email ) : null;
+							return ! empty( $comment->comment_ID ) ? Relay::toGlobalId( 'comment', $comment->comment_ID ) : null;
 						},
 					],
 					'name' => [

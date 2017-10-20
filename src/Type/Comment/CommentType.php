@@ -77,21 +77,26 @@ class CommentType extends WPObjectType {
 							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
 						},
 					],
+/* *
+					'author' => [
+						'type' => Types::user(),
+						'description' => __( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
+						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+							$author = new \WP_User( $comment->user_id );
+							return ! empty( $author ) ? $author : null;
+						},
+					],
+/* */
+					// TODO
+/* */
 					'author' => [
 						'type' => Types::comment_author_union(),
 						'description' => __( 'The author of the comment', 'wp-graphql' ),
 						'resolve' => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							// Here we determine if the Author is a User or not so we know what to pass through to the Union for resolving
-							if ( ! empty( $comment->user_ID ) ) {
-								$author = new \WP_User( $comment->user_ID );
-							} else if ( ! empty( $comment ) ) {
-								$author = $comment;
-							} else {
-								$author = null;
-							}
-							return $author;
+							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
 						}
 					],
+/* */
 					'authorIp' => [
 						'type' => Types::string(),
 						'description' => __( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the `comment_author_IP` column in SQL.', 'wp-graphql' ),

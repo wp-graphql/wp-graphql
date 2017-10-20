@@ -39,7 +39,7 @@ class CommentAuthorUnionType extends UnionType {
 					$type = null;
 				}
 				return $type;
-			}
+			},
 		];
 
 		parent::__construct( $config );

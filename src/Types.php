@@ -297,7 +297,16 @@ class Types {
 	 * @access public
 	 */
 	public static function comment_author() {
-		return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
+		if ( null === self::$comment_author ) {
+			self::$comment_author = [];
+		}
+
+		if ( empty( self::$comment_author[ 'commentAuthor' ] ) ) {
+			self::$comment_author[ 'commentAuthor' ] = new CommentAuthorType();
+		}
+
+		return ! empty( self::$comment_author[ 'commentAuthor' ] ) ? self::$comment_author[ 'commentAuthor' ] : null;
+		//return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
 	}
 	
 	/**
