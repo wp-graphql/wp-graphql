@@ -70,7 +70,7 @@ class Types {
 	 * @access private
 	 */
 	private static $comment_author;
-	
+
 	/**
 	 * Stores the comment author union type config
 	 *
@@ -297,22 +297,13 @@ class Types {
 	 * @access public
 	 */
 	public static function comment_author() {
-		if ( null === self::$comment_author ) {
-			self::$comment_author = [];
-		}
-
-		if ( empty( self::$comment_author[ 'commentAuthor' ] ) ) {
-			self::$comment_author[ 'commentAuthor' ] = new CommentAuthorType();
-		}
-
-		return ! empty( self::$comment_author[ 'commentAuthor' ] ) ? self::$comment_author[ 'commentAuthor' ] : null;
-		//return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
+		return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
 	}
-	
+
 	/**
 	 * This returns the definition for the PostObjectUnionType
 	 *
-	 * @return PostObjectUnionType object
+	 * @return CommentAuthorUnionType object
 	 * @since  0.0.21
 	 * @access public
 	 */
