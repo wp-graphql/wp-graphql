@@ -4,13 +4,15 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 
 /**
  * Data that must be available at all points during query execution.
  *
  * Namely, schema of the type system that is currently executing,
  * and the fragments defined in the query document
+ *
+ * @internal
  */
 class ExecutionContext
 {
@@ -45,11 +47,26 @@ class ExecutionContext
     public $variableValues;
 
     /**
+     * @var callable
+     */
+    public $fieldResolver;
+
+    /**
      * @var array
      */
     public $errors;
 
-    public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors)
+    public function __construct(
+        $schema,
+        $fragments,
+        $root,
+        $contextValue,
+        $operation,
+        $variables,
+        $errors,
+        $fieldResolver,
+        $promiseAdapter
+    )
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -58,6 +75,8 @@ class ExecutionContext
         $this->operation = $operation;
         $this->variableValues = $variables;
         $this->errors = $errors ?: [];
+        $this->fieldResolver = $fieldResolver;
+        $this->promises = $promiseAdapter;
     }
 
     public function addError(Error $error)

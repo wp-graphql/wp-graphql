@@ -9,7 +9,7 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use \SplObjectStorage;
 use GraphQL\Error\Error;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;
@@ -131,13 +131,13 @@ class ValidationContext
     {
         $fragments = $this->fragments;
         if (!$fragments) {
-            $this->fragments = $fragments =
-                array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === NodeKind::FRAGMENT_DEFINITION) {
-                        $frags[$statement->name->value] = $statement;
-                    }
-                    return $frags;
-                }, []);
+            $fragments = [];
+            foreach ($this->getDocument()->definitions as $statement) {
+                if ($statement->kind === NodeKind::FRAGMENT_DEFINITION) {
+                    $fragments[$statement->name->value] = $statement;
+                }
+            }
+            $this->fragments = $fragments;
         }
         return isset($fragments[$name]) ? $fragments[$name] : null;
     }

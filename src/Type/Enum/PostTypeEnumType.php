@@ -55,8 +55,10 @@ class PostTypeEnumType extends EnumType {
 			 * of values for use in the enum type.
 			 */
 			foreach ( $allowed_post_types as $post_type ) {
-				self::$values[ $post_type ] = [
-					'name'  => strtoupper( get_post_type_object( $post_type )->graphql_single_name ),
+
+				$formatted_post_type = strtoupper( get_post_type_object( $post_type )->graphql_single_name );
+
+				self::$values[ $formatted_post_type ] = [
 					'value' => $post_type,
 				];
 			}

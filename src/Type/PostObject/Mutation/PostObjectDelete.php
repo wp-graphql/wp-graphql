@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\PostObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -80,7 +81,7 @@ class PostObjectDelete {
 					 */
 					if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
 						// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
 					/**
@@ -100,7 +101,7 @@ class PostObjectDelete {
 					if ( 'trash' === $post_before_delete->post_status ) {
 						if ( true !== $force_delete ) {
 							// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-							throw new \Exception( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
+							throw new UserError( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $input['id'] ) );
 						}
 					}
 

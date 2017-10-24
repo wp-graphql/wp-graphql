@@ -38,8 +38,8 @@ class Config {
 	}
 
 	/**
-	 * This filters the WPQuery 'where' $args, enforcing the query to return results before or after the
-	 * referenced cursor
+	 * This filters the WPQuery 'where' $args, enforcing the query to return results before or
+	 * after the referenced cursor
 	 *
 	 * @param string    $where The WHERE clause of the query.
 	 * @param \WP_Query $query The WP_Query instance (passed by reference).
@@ -115,6 +115,11 @@ class Config {
 	 */
 	public function graphql_wp_term_query_cursor_pagination_support( array $pieces, $taxonomies, $args ) {
 
+		/**
+		 * Access the global $wpdb object
+		 */
+		global $wpdb;
+
 		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST && ! empty( $args['graphql_cursor_offset'] ) ) {
 
 			$cursor_offset = $args['graphql_cursor_offset'];
@@ -125,7 +130,7 @@ class Config {
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
 				$compare = ! empty( $args['graphql_cursor_compare'] ) ? $args['graphql_cursor_compare'] : '>';
-				$compare          = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 				$order_by = ! empty( $args['orderby'] ) ? $args['orderby'] : 'comment_date';
 				$order = ! empty( $args['order'] ) ? $args['order'] : 'DESC';
@@ -135,9 +140,9 @@ class Config {
 				$cursor_term = get_term( $cursor_offset );
 
 				if ( ! empty( $cursor_term ) && ! empty( $cursor_term->name ) ) {
-					$pieces['where'] .= sprintf( " AND t.{$order_by} {$order_compare} '{$cursor_term->{$order_by}}'" );
+					$pieces['where'] .= $wpdb->prepare( " AND t.{$order_by} {$order_compare} %s", $cursor_term->{$order_by} );
 				} else {
-					$pieces['where'] .= sprintf( ' AND t.term_id %1$s %2$d', $compare, $cursor_offset );
+					$pieces['where'] .= $wpdb->prepare( ' AND t.term_id %1$s %2$d', $compare, $cursor_offset );
 				}
 			}
 		}
@@ -147,15 +152,20 @@ class Config {
 	}
 
 	/**
-	 * This returns a modified version of the $pieces of the comment query clauses if the request is a GRAPHQL_REQUEST
-	 * and the query has a graphql_cursor_offset defined
+	 * This returns a modified version of the $pieces of the comment query clauses if the request
+	 * is a GRAPHQL_REQUEST and the query has a graphql_cursor_offset defined
 	 *
-	 * @param array             $pieces        A compacted array of comment query clauses.
-	 * @param \WP_Comment_Query $query Current instance of WP_Comment_Query, passed by reference.
+	 * @param array             $pieces A compacted array of comment query clauses.
+	 * @param \WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
 	 *
 	 * @return array $pieces
 	 */
 	public function graphql_wp_comments_query_cursor_pagination_support( array $pieces, \WP_Comment_Query $query ) {
+
+		/**
+		 * Access the global $wpdb object
+		 */
+		global $wpdb;
 
 		if (
 			defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST &&
@@ -170,7 +180,7 @@ class Config {
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
 				$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-				$compare          = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 				$order_by = ! empty( $query->query_vars['order_by'] ) ? $query->query_vars['order_by'] : 'comment_date';
 				$order = ! empty( $query->query_vars['order'] ) ? $query->query_vars['order'] : 'DESC';
@@ -179,12 +189,13 @@ class Config {
 				// Get the $cursor_post
 				$cursor_comment = get_comment( $cursor_offset );
 				if ( ! empty( $cursor_comment ) ) {
-					$pieces['where'] .= sprintf( " AND {$order_by} {$order_compare} '{$cursor_comment->{$order_by}}'" );
+					$pieces['where'] .= $wpdb->prepare( " AND {$order_by} {$order_compare} %s", $cursor_comment->{$order_by} );
 				} else {
-					$pieces['where'] .= sprintf( ' AND comment_ID %1$s %2$d', $compare, $cursor_offset );
+					$pieces['where'] .= $wpdb->prepare( ' AND comment_ID %1$s %2$d', $compare, $cursor_offset );
 				}
 			}
 		}
+
 		return $pieces;
 
 	}

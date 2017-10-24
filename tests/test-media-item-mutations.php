@@ -93,7 +93,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$this->status           = 'INHERIT';
 		$this->title            = 'Magic Shia Gif';
 		$this->pingStatus       = 'closed';
-		$this->parentId         = false;
+		$this->parentId         = null;
 		$this->clientMutationId = 'someUniqueId';
 
 		/**

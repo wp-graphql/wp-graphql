@@ -51,7 +51,7 @@ class DataSource {
 
 		$comment = \WP_Comment::get_instance( $id );
 		if ( empty( $comment ) ) {
-			throw new UserError( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
+			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
 		}
 
 		return $comment;
@@ -545,7 +545,7 @@ class DataSource {
 					 * @since 0.0.6
 					 */
 					if ( null === $type ) {
-						throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
+						throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
 					}
 
 					/**

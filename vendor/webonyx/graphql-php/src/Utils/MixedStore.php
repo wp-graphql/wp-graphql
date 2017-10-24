@@ -1,6 +1,5 @@
 <?php
 namespace GraphQL\Utils;
-use GraphQL\Utils;
 
 /**
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars)

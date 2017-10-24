@@ -2,19 +2,14 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils;
+use GraphQL\Language\AST\TypeDefinitionNode;
 
-/*
-export type GraphQLType =
-GraphQLScalarType |
-GraphQLObjectType |
-GraphQLInterfaceType |
-GraphQLUnionType |
-GraphQLEnumType |
-GraphQLInputObjectType |
-GraphQLList |
-GraphQLNonNull;
-*/
+/**
+ * Registry of standard GraphQL types
+ * and a base class for all other types.
+ *
+ * @package GraphQL\Type\Definition
+ */
 abstract class Type implements \JsonSerializable
 {
     const STRING = 'String';
@@ -29,6 +24,7 @@ abstract class Type implements \JsonSerializable
     private static $internalTypes;
 
     /**
+     * @api
      * @return IDType
      */
     public static function id()
@@ -37,6 +33,7 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @api
      * @return StringType
      */
     public static function string()
@@ -45,6 +42,7 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @api
      * @return BooleanType
      */
     public static function boolean()
@@ -53,6 +51,7 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @api
      * @return IntType
      */
     public static function int()
@@ -61,6 +60,7 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @api
      * @return FloatType
      */
     public static function float()
@@ -69,7 +69,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $wrappedType
+     * @api
+     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
      * @return ListOfType
      */
     public static function listOf($wrappedType)
@@ -78,7 +79,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $wrappedType
+     * @api
+     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
      * @return NonNull
      */
     public static function nonNull($wrappedType)
@@ -113,7 +115,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $type
+     * @api
+     * @param Type $type
      * @return bool
      */
     public static function isInputType($type)
@@ -123,7 +126,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $type
+     * @api
+     * @param Type $type
      * @return bool
      */
     public static function isOutputType($type)
@@ -133,17 +137,18 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @api
      * @param $type
      * @return bool
      */
     public static function isLeafType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof LeafType;
+        return $type instanceof LeafType;
     }
 
     /**
-     * @param $type
+     * @api
+     * @param Type $type
      * @return bool
      */
     public static function isCompositeType($type)
@@ -152,7 +157,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $type
+     * @api
+     * @param Type $type
      * @return bool
      */
     public static function isAbstractType($type)
@@ -161,8 +167,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $type
-     * @return Type
+     * @api
+     * @param Type $type
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
      */
     public static function getNullableType($type)
     {
@@ -170,8 +177,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $type
-     * @return UnmodifiedType
+     * @api
+     * @param Type $type
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
      */
     public static function getNamedType($type)
     {
@@ -180,29 +188,6 @@ abstract class Type implements \JsonSerializable
         }
         while ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
-        }
-        return self::resolve($type);
-    }
-
-    /**
-     * @param $type
-     * @return mixed
-     */
-    public static function resolve($type)
-    {
-        if (is_callable($type)) {
-            trigger_error(
-                'Passing type as closure is deprecated (see https://github.com/webonyx/graphql-php/issues/35 for alternatives)',
-                E_USER_DEPRECATED
-            );
-            $type = $type();
-        }
-
-        if (!$type instanceof Type) {
-            throw new InvariantViolation(sprintf(
-                'Expecting instance of ' . __CLASS__ . ', got "%s"',
-                Utils::getVariableType($type)
-            ));
         }
         return $type;
     }
@@ -216,6 +201,16 @@ abstract class Type implements \JsonSerializable
      * @var string|null
      */
     public $description;
+
+    /**
+     * @var TypeDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
+     * @var array
+     */
+    public $config;
 
     /**
      * @return null|string
@@ -236,6 +231,13 @@ abstract class Type implements \JsonSerializable
             return preg_replace('~Type$~', '', $name);
         }
         return null;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
     }
 
     /**
@@ -262,6 +264,8 @@ abstract class Type implements \JsonSerializable
         try {
             return $this->toString();
         } catch (\Exception $e) {
+            echo $e;
+        } catch (\Throwable $e) {
             echo $e;
         }
     }

@@ -1,7 +1,9 @@
 <?php
+
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\UserError;
 
 /**
  * Class Router
@@ -23,6 +25,7 @@ class Router {
 	/**
 	 * Set the default status code to 403 to represent unauthenticated requests. Authenticated requests
 	 * should set the status code to 200.
+	 *
 	 * @var int
 	 */
 	public static $http_status_code = 403;
@@ -267,10 +270,26 @@ class Router {
 		 */
 		$response        = [];
 		$graphql_results = [];
+		$request         = '';
+		$operation_name  = '';
+		$variables       = [];
+		$user            = null;
 
 		try {
 
-			if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
+			/**
+			 * Respond to pre-flight requests.
+			 *
+			 * @see: https://apollographql.slack.com/archives/C10HTKHPC/p1507649812000123
+			 * @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
+			 */
+			if ( 'OPTIONS' === $_SERVER['REQUEST_METHOD'] ) {
+
+				self::$http_status_code = 200;
+				self::set_headers( self::$http_status_code );
+				exit;
+
+			} else if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
 					'query'         => isset( $_GET['query'] ) ? sanitize_text_field( $_GET['query'] ) : '',
@@ -288,8 +307,7 @@ class Router {
 				/**
 				 * If the variables are already formatted as an array use them.
 				 *
-				 * Ex:
-				 *
+				 * Example:
 				 * ?query=query getPosts($first:Int){posts(first:$first){edges{node{id}}}}&variables[first]=1
 				 */
 				if ( is_array( $data['variables'] ) ) {
@@ -310,12 +328,13 @@ class Router {
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
 
 			} else {
+
 				if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
 				}
 
 				if ( ! isset( $_SERVER['CONTENT_TYPE'] ) || false === strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) ) {
-					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
+					$response['errors'] = __( 'The Content-Type for the request must be set to "application/json"', 'wp-graphql' );
 				}
 
 				/**
@@ -330,7 +349,7 @@ class Router {
 			 * If the $data is empty, catch an error.
 			 */
 			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
-				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
+				throw new UserError( __( 'GraphQL requests must be a POST or GET Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
 			/**
@@ -382,15 +401,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
-				$response['extensions']['exception'] = FormattedError::createFromException( $error );
-			} else {
-				if ( 10 === $error->getCode() ) {
-					$response['errors'] = [ FormattedError::create( $error->getMessage() ) ];
-				} else {
-					$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
-				}
-			}
+			$response['errors'] = [ FormattedError::createFromException( $error ) ];
 		} // End try().
 
 		/**
@@ -411,15 +422,28 @@ class Router {
 		if ( false === headers_sent() ) {
 
 			/**
+			 * Filter the $status_code before setting the headers
+			 *
+			 * @param int      $status_code     The status code to apply to the headers
+			 * @param array    $response        The response of the GraphQL Request
+			 * @param array    $graphql_results The results of the GraphQL execution
+			 * @param string   $request         The GraphQL Request
+			 * @param string   $operation_name  The operation name of the GraphQL Request
+			 * @param array    $variables       The variables applied to the GraphQL Request
+			 * @param \WP_User $user            The current user object
+			 */
+			$status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $request, $operation_name, $variables, $user );
+
+			/**
 			 * Set the response headers
 			 */
-			self::set_headers( self::$http_status_code );
+			self::set_headers( $status_code );
 
 			/**
 			 * Send the JSON response
 			 */
 			wp_send_json( $response );
-		} elseif (defined( 'DOING_AJAX' ) && DOING_AJAX) {
+		} elseif ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			/**
 			 * Headers will already be set if this function is called within AJAX.
 			 */

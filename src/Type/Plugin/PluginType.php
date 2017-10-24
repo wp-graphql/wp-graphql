@@ -106,7 +106,7 @@ class PluginType extends WPObjectType {
 						},
 					],
 					'version' => [
-						'type' => Types::float(),
+						'type' => Types::string(),
 						'description' => __( 'Current version of the plugin.', 'wp-graphql' ),
 						'resolve' => function( array $plugin, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $plugin['Version'] ) ? $plugin['Version'] : '';

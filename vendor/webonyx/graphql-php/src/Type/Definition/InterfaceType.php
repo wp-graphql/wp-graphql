@@ -1,7 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Utils\Utils;
 
 /**
  * Class InterfaceType
@@ -15,14 +17,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     private $fields;
 
     /**
-     * @var mixed|null
+     * @var InterfaceTypeDefinitionNode|null
      */
-    public $description;
-
-    /**
-     * @var array
-     */
-    public $config;
+    public $astNode;
 
     /**
      * InterfaceType constructor.
@@ -33,6 +30,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         if (!isset($config['name'])) {
             $config['name'] = $this->tryInferName();
         }
+
+        Utils::assertValidName($config['name']);
 
         Config::validate($config, [
             'name' => Config::NAME,
@@ -46,6 +45,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
     }
 
@@ -55,10 +55,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public function getFields()
     {
         if (null === $this->fields) {
-            $this->fields = [];
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
-            $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->fields = FieldDefinition::createMap($fields, $this->name);
+            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
         }
         return $this->fields;
     }
@@ -92,5 +90,32 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             return $fn($objectValue, $context, $info);
         }
         return null;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        $fields = $this->getFields();
+
+        Utils::invariant(
+            !isset($this->config['resolveType']) || is_callable($this->config['resolveType']),
+            "{$this->name} must provide \"resolveType\" as a function."
+        );
+
+        Utils::invariant(
+            !empty($fields),
+            "{$this->name} fields must not be empty"
+        );
+
+        foreach ($fields as $field) {
+            $field->assertValid($this);
+            foreach ($field->args as $arg) {
+                $arg->assertValid($field, $this);
+            }
+        }
     }
 }
