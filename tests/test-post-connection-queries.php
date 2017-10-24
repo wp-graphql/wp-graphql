@@ -506,4 +506,152 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'dateQuery', $actual );
 	}
 
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgs() {
+		
+		$mock_args = array(
+			'orderby' => 'DESC',
+			'where' => array(
+				'orderby' => array(
+					array(
+						'field' => 'author',
+						'order' => 'ASC',
+					),
+				),
+			),
+		);
+
+		$test_post = $this->factory->post->create();
+
+		$source = get_post( $test_post );
+
+		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( 'page' );
+
+		$actual = $actual::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Expected result of actual call
+		 */
+		$expected = array(
+			'post_type' => 'page',
+			'no_found_rows' => true,
+			'post_status' => 'publish',
+			'posts_per_page' => 11,
+			'post_parent' => $test_post,
+			'graphql_cursor_offset' => 0,
+			'graphql_cursor_compare' => '<',
+			'graphql_args' => array(
+				'orderby' => 'DESC',
+				'where' => array(
+					'orderby' => array(
+						0 => array(
+							'field' => 'author',
+							'order' => 'ASC',
+						)
+					),
+				),
+			),
+			'orderby' => array(
+				'author' => 'ASC',
+			),
+		);
+
+		/**
+		 * Make sure the expected result is equal to the response of $actual
+		 */
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsAttachment() {
+		
+		$mock_args = array(
+			'post_status' => 'publish',
+		);
+
+		$child_id = $this->factory->post->create([
+			'post_type' => 'attachment',
+		]);
+
+		$post_type = 'attachment';
+
+		$source = get_post( $child_id );
+
+		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( $post_type );
+
+		$actual = $actual->get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure post_parent is not set and the post status is equal to inherit
+		 */
+		$this->assertEquals( 'inherit', $actual['post_status'] );
+
+		/**
+		 * Make sure get_query_args is setting the post id as post_parent
+		 */
+		$this->assertEquals( $child_id, $actual['post_parent'] );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsTerms() {
+		$term_id = $this->factory->term->create();
+
+		$source = get_term( $term_id );
+
+		$mock_args = array(
+			'taxonomy' => 'post_tag',
+			'terms' => array( 2 ),
+			'field' => 'term_id',
+		);
+
+		$actual_terms = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		$this->assertEquals( $mock_args, $actual_terms['tax_query'][0] );
+	}
+	
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsPostType() {
+
+		$source = get_post_type_object( 'post' );
+
+		$mock_args = array();
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		$this->assertEquals( 'post', $actual['post_type'] );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsUser() {
+		$user_id = $this->factory->user->create();
+
+		$source = get_user_by( 'ID', $user_id );
+
+		$mock_args = array();
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		$this->assertEquals( $user_id, $actual['author'] );
+
+	}
+
+	// public function testGetQueryArgsNullObject() {
+
+	// 	$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( null, array(), $this->app_context, $this->app_info );
+
+	// 	$this->assertArrayNotHasKey( 'author', $actual);
+	// 	$this->assertArrayNotHasKey( 'tax_query', $actual);
+	// }
+
+
 }
