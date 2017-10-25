@@ -510,7 +510,9 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 	 * @group get_query_args
 	 */
 	public function testGetQueryArgs() {
-		
+		/**
+		 * Mock args
+		 */
 		$mock_args = array(
 			'orderby' => 'DESC',
 			'where' => array(
@@ -523,16 +525,22 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 			),
 		);
 
+		/**
+		 * Create post
+		 */
 		$test_post = $this->factory->post->create();
 
 		$source = get_post( $test_post );
 
+		/**
+		 * New page
+		 */
 		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( 'page' );
 
 		$actual = $actual::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
 
 		/**
-		 * Expected result of actual call
+		 * Expected result
 		 */
 		$expected = array(
 			'post_type' => 'page',
@@ -569,10 +577,16 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 	 */
 	public function testGetQueryArgsAttachment() {
 		
+		/**
+		 * Mock args
+		 */
 		$mock_args = array(
 			'post_status' => 'publish',
 		);
 
+		/**
+		 * Create attachment
+		 */
 		$child_id = $this->factory->post->create([
 			'post_type' => 'attachment',
 		]);
@@ -581,12 +595,15 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 		$source = get_post( $child_id );
 
+		/**
+		 * New post type attachment
+		 */
 		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( $post_type );
 
 		$actual = $actual->get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
 
 		/**
-		 * Make sure post_parent is not set and the post status is equal to inherit
+		 * Make sure the post status is equal to inherit
 		 */
 		$this->assertEquals( 'inherit', $actual['post_status'] );
 
@@ -600,6 +617,9 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 	 * @group get_query_args
 	 */
 	public function testGetQueryArgsTerms() {
+		/**
+		 * Create a term
+		 */
 		$term_id = $this->factory->term->create();
 
 		$source = get_term( $term_id );
@@ -612,6 +632,9 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 		$actual_terms = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
 
+		/**
+		 * Make sure the function returned our mock_args in the tax_query key
+		 */
 		$this->assertEquals( $mock_args, $actual_terms['tax_query'][0] );
 	}
 	
@@ -620,12 +643,18 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 	 */
 	public function testGetQueryArgsPostType() {
 
+		/**
+		 * Get post type object
+		 */
 		$source = get_post_type_object( 'post' );
 
 		$mock_args = array();
 
 		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
 
+		/**
+		 * Make sure that post type is equals to post
+		 */
 		$this->assertEquals( 'post', $actual['post_type'] );
 	}
 
@@ -633,6 +662,9 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 	 * @group get_query_args
 	 */
 	public function testGetQueryArgsUser() {
+		/**
+		 * Create a user
+		 */
 		$user_id = $this->factory->user->create();
 
 		$source = get_user_by( 'ID', $user_id );
@@ -641,17 +673,11 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
 
+		/**
+		 * Make sure the author is equal to the user previously created
+		 */
 		$this->assertEquals( $user_id, $actual['author'] );
 
 	}
-
-	// public function testGetQueryArgsNullObject() {
-
-	// 	$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( null, array(), $this->app_context, $this->app_info );
-
-	// 	$this->assertArrayNotHasKey( 'author', $actual);
-	// 	$this->assertArrayNotHasKey( 'tax_query', $actual);
-	// }
-
 
 }
