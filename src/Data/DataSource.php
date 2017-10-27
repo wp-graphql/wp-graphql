@@ -49,6 +49,8 @@ class DataSource {
 	 */
 	public static $allowed_setting_types;
 
+	protected static $allowed_setting_groups;
+
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
@@ -231,34 +233,6 @@ class DataSource {
 	}
 
 	/**
-	 * Resolve the type on the individual setting field
-	 * for the settingsType
-	 *
-	 * @param $type
-	 * @access public
-	 *
-	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
-	 */
-	public static function resolve_setting_scalar_type( $type ) {
-
-		switch ( $type ) {
-			case 'integer':
-				$type = \WPGraphQL\Types::int();
-				break;
-			case 'number':
-				$type = \WPGraphQL\Types::float();
-				break;
-			case 'boolean':
-				$type = \WPGraphQL\Types::boolean();
-				break;
-			default:
-				$type = \WPGraphQL\Types::string();
-		}
-
-		return $type;
-	}
-
-	/**
 	 * Retrieves the taxonomy object for the name of the taxonomy passed
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
@@ -403,38 +377,20 @@ class DataSource {
 	 * name of the $setting_type
 	 *
 	 * @access public
-	 * @param string $setting_type
+	 * @param string $group
 	 *
-	 * @return array $setting_type_array
+	 * @return array $fields
 	 */
-	public static function get_setting_type_array( $setting_type ) {
+	public static function get_setting_group_fields( $group ) {
 
 		/**
 		 * Get all of the registered settings and define the setting_type_array
 		 * for storing the settings that match the given setting type (general, discussion, etc)
 		 * before we return them
 		 */
-		$registered_settings = get_registered_settings();
-		$setting_type_array = [];
+		$setting_groups = self::get_allowed_setting_types();
 
-		/**
-		 * Add each of the individual $setting arrays to the
-		 * $setting_type_array if they match the desired $setting_type
-		 * so that we can return them in the $setting_type_array
-		 *
-		 * Add the setting option name to the setting array for later use
-		 * Set all of the settings to show in graphql by default
-		 */
-		foreach ( $registered_settings as $key => $value  ) {
-			if ( $setting_type === $value['group'] ) {
-				$value['setting'] = $key;
-				$value['show_in_graphql'] = true;
-				$setting_type_array[] = $value;
-			}
-
-		}
-
-		return $setting_type_array;
+		return ! empty( $setting_groups[ $group ] ) ? $setting_groups[ $group ] : [];
 
 	}
 
@@ -449,24 +405,42 @@ class DataSource {
 	 */
 	public static function get_allowed_setting_types() {
 
+		/**
+		 * Get all registered settings
+		 */
 		$registered_settings = get_registered_settings();
-		$registered_setting_types = [];
 
 		/**
 		 * Loop through the $registered_settings array and build a list of
 		 * the setting_types ( general, reading, discussion, writing, reading, etc. )
-		 *
-		 * Setting types can only be removed from this list as the register_setting method
-		 * only allows for use of the whitelisted setting types
 		 */
-		foreach ( $registered_settings as $setting ) {
-			if ( ! in_array( $setting['group'], $registered_setting_types ) ) {
-				$registered_setting_types[] = $setting['group'];
+		foreach ( $registered_settings as $key => $setting ) {
+			if ( ! isset( $setting['show_in_graphql'] ) ) {
+				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
+					$setting['key'] = $key;
+					self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
+				}
+			} else if ( true === $setting['show_in_graphql'] ) {
+				$setting['key'] = $key;
+				self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
 			}
+		};
 
-		}
+		/**
+		 * Set the Setting Groups that are allowed
+		 */
+		self::$allowed_setting_groups = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? array_keys( self::$allowed_setting_types ) : [];
+		self::$allowed_setting_types = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? self::$allowed_setting_types : [];
 
-		self::$allowed_setting_types = apply_filters( 'graphql_allowed_setting_groups', $registered_setting_types );
+		/**
+		 * Filter the $registered_setting_types to allow some to be enabled or disabled from showing in
+		 * the GraphQL Schema.
+		 *
+		 * @param array $registered_setting_types
+		 *
+		 * @return array
+		 */
+		self::$allowed_setting_types = apply_filters( 'graphql_allowed_setting_groups', self::$allowed_setting_types, $registered_settings );
 
 		return self::$allowed_setting_types;
 

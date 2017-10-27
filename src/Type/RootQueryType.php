@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -77,14 +76,9 @@ class RootQueryType extends ObjectType {
 		 * the $allowed_setting_types array.
 		 */
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-			foreach ( $allowed_setting_types as $setting_type ) {
-				/**
-				 * Sanitize the setting type field name and
-				 * then build the query field
-				 */
-				$setting_type = str_replace('_', '', strtolower( $setting_type ) );
-				$fields[ "{$setting_type}Settings" ] = SettingQuery::root_query( $setting_type );
-
+			foreach ( $allowed_setting_types as $group => $setting_type ) {
+				$setting_type = str_replace('_', '', strtolower( $group ) );
+				$fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
 			}
 		}
 

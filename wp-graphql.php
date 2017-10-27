@@ -305,12 +305,28 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function get_allowed_post_types() {
 
 			/**
-			 * Get all post_types that have been registered to "show_in_graphql"
+			 * Get all post_types
 			 */
-			$post_types = get_post_types(
-				[
-					'show_in_graphql' => true,
-				]
+			$post_types = get_post_types();
+
+			/**
+			 * Compile a list of post_types that are set to
+			 * show_in_graphql. Use show_in_rest as a fallback for
+			 * post_types that have no explicit "show_in_graphql" setting
+			 */
+			array_values(
+				array_map(
+					function( $post_type ) {
+						$post_type_object = get_post_type_object( $post_type );
+						if ( ! isset( $post_type_object->show_in_graphql ) ) {
+							if ( isset( $post_type_object->show_in_rest ) && true === $post_type_object->show_in_rest ) {
+								self::$allowed_post_types[] = $post_type;
+							}
+						} else if ( isset( $post_type_object->show_in_graphql ) && true === $post_type_object->show_in_graphql ) {
+							self::$allowed_post_types[] = $post_type;
+						}
+					}, $post_types
+				)
 			);
 
 			/**
@@ -324,7 +340,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @return array
 			 */
-			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
+			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', self::$allowed_post_types );
 
 			/**
 			 * Returns the array of allowed_post_types
@@ -344,12 +360,28 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function get_allowed_taxonomies() {
 
 			/**
-			 * Get all taxonomies that have been registered to "show_in_graphql"
+			 * Get all taxonomies
 			 */
-			$taxonomies = get_taxonomies(
-				[
-					'show_in_graphql' => true,
-				]
+			$taxonomies = get_taxonomies();
+
+			/**
+			 * Compile a list of post_types that are set to
+			 * show_in_graphql. Use show_in_rest as a fallback for
+			 * post_types that have no explicit "show_in_graphql" setting
+			 */
+			array_values(
+				array_map(
+					function( $taxonomy ) {
+						$tax_object = get_taxonomy( $taxonomy );
+						if ( ! isset( $tax_object->show_in_graphql ) ) {
+							if ( isset( $tax_object->show_in_rest ) && true === $tax_object->show_in_rest ) {
+								self::$allowed_taxonomies[] = $taxonomy;
+							}
+						} else if ( true === $tax_object->show_in_graphql ) {
+							self::$allowed_taxonomies[] = $taxonomy;
+						}
+					}, $taxonomies
+				)
 			);
 
 			/**
@@ -362,7 +394,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @param array $taxonomies Array of taxonomy objects
 			 */
-			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
+			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', self::$allowed_taxonomies );
 
 			/**
 			 * Returns the array of $allowed_taxonomies

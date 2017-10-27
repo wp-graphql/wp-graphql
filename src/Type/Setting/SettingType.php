@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Setting;
 
 use GraphQL\Error\UserError;
@@ -6,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Types;
 
 /**
  * class SettingType
@@ -33,7 +35,7 @@ class SettingType extends WPObjectType {
 	 * Holds the $setting_type_array definition which contains
 	 * all of the settings for the given setting_type
 	 */
-	private static $setting_type_array;
+	private static $setting_fields;
 
 	/**
 	 * SettingType constructor.
@@ -51,12 +53,12 @@ class SettingType extends WPObjectType {
 		 * Retrieve all of the settings that are categorized under the $setting_type
 		 * and set them as the $setting_type_array for later use in building fields
 		 */
-		self::$setting_type_array = DataSource::get_setting_type_array( $setting_type );
+		self::$setting_fields = DataSource::get_setting_group_fields( $setting_type );
 
 		$config = [
-			'name' => $setting_type,
+			'name'        => $setting_type . 'Settings',
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
-			'fields' => self::fields( self::$setting_type_array ),
+			'fields'      => self::fields( self::$setting_fields, $setting_type ),
 		];
 
 		parent::__construct( $config );
@@ -66,11 +68,12 @@ class SettingType extends WPObjectType {
 	/**
 	 * This defines the fields (various settings) for a given setting type
 	 *
-	 * @param $setting_type_array
+	 * @param $setting_fields
+	 *
 	 * @access private
 	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
 	 */
-	private static function fields( $setting_type_array ) {
+	private static function fields( $setting_fields, $group ) {
 
 		/**
 		 * Set $fields to an empty array so that we aren't storing values
@@ -78,58 +81,64 @@ class SettingType extends WPObjectType {
 		 */
 		$fields = [];
 
-		/**
-		 * Loop through the $setting_type_array and build the setting with
-		 * proper fields
-		 */
-		foreach ( $setting_type_array as $key => $setting ) {
+		if ( ! empty( $setting_fields ) && is_array( $setting_fields ) ) {
 
 			/**
-			 * Determine if the individual setting already has a
-			 * REST API name, if not use the option name (setting).
-			 * Sanitize the field name to be camelcase
+			 * Loop through the $setting_type_array and build the setting with
+			 * proper fields
 			 */
-			if ( ! empty( $setting['show_in_rest']['name'] ) ) {
-				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
-			} else {
-				$individual_setting_key = lcfirst( str_replace( '_', '', ucwords( $setting['setting'], '_' ) ) );
-			}
+			foreach ( $setting_fields as $key => $setting_field ) {
 
-			/**
-			 * Only add the field to the root query field if show_in_graphql is true
-			 * and show_in_rest is true or an array of REST args exists
-			 */
-			if ( is_array( $setting['show_in_rest'] ) || true === $setting['show_in_rest'] && true === $setting['show_in_graphql'] ) {
 				/**
-				 * Dynamically build the individual setting and it's fields
-				 * then add it to the fields array
+				 * Determine if the individual setting already has a
+				 * REST API name, if not use the option name (setting).
+				 * Sanitize the field name to be camelcase
 				 */
-				$fields[ $individual_setting_key ] = [
-					'type' => DataSource::resolve_setting_scalar_type( $setting['type'] ),
-					'description' => $setting['description'],
-					'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) use ( $setting, $individual_setting_key ) {
-						/**
-						 * Check to see if the user querying the email field has the 'manage_options' capability
-						 */
-						if ( 'email' === $individual_setting_key ) {
-							if ( ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
-							}
-						}
+				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
+					$field_key = $setting_field['show_in_rest']['name'];
+				} else if ( ! empty( $setting_field['setting'] ) ) {
+					$field_key = $setting_field['setting'];
+				} else {
+					$field_key = $key;
+				}
 
-						return get_option( $setting['setting'] );
-					},
-				];
+				$field_key = lcfirst( str_replace( '_', '', ucwords( $field_key, '_' ) ) );
+
+				if ( ! empty( $key ) && ! empty( $field_key ) ) {
+
+					/**
+					 * Dynamically build the individual setting and it's fields
+					 * then add it to the fields array
+					 */
+					$fields[ $field_key ] = [
+						'type'        => Types::get_type( $setting_field['type'] ),
+						'description' => $setting_field['description'],
+						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) use ( $setting_field, $field_key, $key ) {
+							/**
+							 * Check to see if the user querying the email field has the 'manage_options' capability
+							 * All other options should be public by default
+							 */
+							if ( 'email' === $setting_field['setting'] ) {
+								if ( ! current_user_can( 'manage_options' ) ) {
+									throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								}
+							}
+							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
+							return ! empty( $option ) ? $option : null;
+						},
+					];
+
+				}
 
 			}
 
+			/**
+			 * Pass the fields through a filter to allow for hooking in and adjusting the shape
+			 * of the type's schema
+			 */
+			self::$fields = self::prepare_fields( $fields, self::$setting_type );
+			
 		}
-
-		/**
-		 * Pass the fields through a filter to allow for hooking in and adjusting the shape
-		 * of the type's schema
-		 */
-		self::$fields = self::prepare_fields( $fields, self::$setting_type );
 
 		return ! empty( self::$fields ) ? self::$fields : null;
 

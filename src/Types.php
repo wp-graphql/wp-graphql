@@ -636,6 +636,34 @@ class Types {
 	}
 
 	/**
+	 * Resolve the type on the individual setting field
+	 * for the settingsType
+	 *
+	 * @param $type
+	 * @access public
+	 *
+	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
+	 */
+	public static function get_type( $type ) {
+
+		switch ( $type ) {
+			case 'integer':
+				$type = self::int();
+				break;
+			case 'number':
+				$type = self::float();
+				break;
+			case 'boolean':
+				$type = self::boolean();
+				break;
+			default:
+				$type = self::string();
+		}
+
+		return $type;
+	}
+
+	/**
 	 * Maps new input query args and sanitizes the input
 	 *
 	 * @param array $args The raw query args from the GraphQL query
