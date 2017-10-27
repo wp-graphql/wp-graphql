@@ -1,5 +1,4 @@
 <?php
-
 /**
  * WPGraphQL Test generalSetting Queries
  *
@@ -237,7 +236,7 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
-	
+
 		update_option( 'default_comment_status', 'test_value' );
 		update_option( 'default_ping_status', 'test_value' );
 

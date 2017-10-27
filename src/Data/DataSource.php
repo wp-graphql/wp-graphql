@@ -45,10 +45,16 @@ class DataSource {
 	 * See: https://developer.wordpress.org/reference/functions/register_setting/
 	 *
 	 * @var array $allowed_setting_types
-	 * @access public
+	 * @access protected
 	 */
-	public static $allowed_setting_types;
+	protected static $allowed_setting_types;
 
+	/**
+	 * Stores an array of allowed setting groups.
+	 *
+	 * @var array $allowed_setting_groups
+	 * @access protected
+	 */
 	protected static $allowed_setting_groups;
 
 	/**

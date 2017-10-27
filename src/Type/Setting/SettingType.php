@@ -22,18 +22,25 @@ class SettingType extends WPObjectType {
 	/**
 	 * Holds the $fields definition for the SettingType
 	 *
-	 * @var $fields
+	 * @var array $fields
+	 * @access private
 	 */
 	private static $fields;
 
 	/**
 	 * Holds the $setting_type definition
+	 *
+	 * @var string $setting_type
+	 * @access private
 	 */
 	private static $setting_type;
 
 	/**
 	 * Holds the $setting_type_array definition which contains
 	 * all of the settings for the given setting_type
+	 *
+	 * @var array $setting_fields
+	 * @access private
 	 */
 	private static $setting_fields;
 
@@ -41,6 +48,7 @@ class SettingType extends WPObjectType {
 	 * SettingType constructor.
 	 *
 	 * @param string $setting_type The setting group name
+	 * @access public
 	 */
 	public function __construct( $setting_type ) {
 
@@ -114,6 +122,7 @@ class SettingType extends WPObjectType {
 						'type'        => Types::get_type( $setting_field['type'] ),
 						'description' => $setting_field['description'],
 						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) use ( $setting_field, $field_key, $key ) {
+
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
@@ -125,6 +134,7 @@ class SettingType extends WPObjectType {
 							}
 
 							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
+
 							switch ( $setting_field['type'] ) {
 								case 'integer':
 									$option = absint( $option );
