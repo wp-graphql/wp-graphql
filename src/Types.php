@@ -15,6 +15,7 @@ use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
+use WPGraphQL\Type\Setting\SettingType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
@@ -197,6 +198,14 @@ class Types {
 	private static $root_query;
 
 	/**
+	 * Stores the setting object type
+	 *
+	 * @var SettingType object $setting
+	 * @access private
+	 */
+	private static $setting;
+	
+	/**
 	 * Stores the taxonomy type object
 	 *
 	 * @var TaxonomyType object $taxonomy
@@ -320,6 +329,26 @@ class Types {
 	 */
 	public static function mime_type_enum() {
 		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
+	}
+
+	/**
+	 * This returns the definition for the SettingType
+	 *
+	 * @return SettingType object
+	 * @access public
+	 */
+	public static function setting( $setting_type ) {
+
+		if ( null === self::$setting ) {
+			self::$setting = [];
+		}
+
+		if ( empty( self::$setting[ $setting_type ] ) ) {
+			self::$setting[ $setting_type ] = new SettingType( $setting_type );
+		}
+
+		return ! empty( self::$setting[ $setting_type ] ) ? self::$setting[ $setting_type ] : null;
+
 	}
 
 	/**
@@ -646,6 +675,36 @@ class Types {
 	 */
 	public static function non_null( $type ) {
 		return new NonNull( $type );
+	}
+
+	/**
+	 * Resolve the type on the individual setting field
+	 * for the settingsType
+	 *
+	 * @param $type
+	 * @access public
+	 *
+	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
+	 */
+	public static function get_type( $type ) {
+
+		switch ( $type ) {
+			case 'integer':
+				$type = self::int();
+				break;
+			case 'float':
+			case 'number':
+				$type = self::float();
+				break;
+			case 'boolean':
+				$type = self::boolean();
+				break;
+			case 'string':
+			default:
+				$type = self::string();
+		}
+
+		return $type;
 	}
 
 	/**

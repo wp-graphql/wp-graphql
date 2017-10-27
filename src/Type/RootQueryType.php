@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -9,6 +8,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -46,6 +46,7 @@ class RootQueryType extends ObjectType {
 		 */
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		$allowed_setting_types = DataSource::get_allowed_setting_types();
 		$node_definition = DataSource::get_node_definition();
 
 		/**
@@ -69,6 +70,17 @@ class RootQueryType extends ObjectType {
 		 */
 		$fields['plugin'] = PluginQuery::root_query();
 		$fields['plugins'] = PluginConnectionDefinition::connection();
+
+		/**
+		 * Create the root query fields for any setting type in
+		 * the $allowed_setting_types array.
+		 */
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+			foreach ( $allowed_setting_types as $group => $setting_type ) {
+				$setting_type = str_replace('_', '', strtolower( $group ) );
+				$fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
+			}
+		}
 
 		/**
 		 * Creates the theme root query field
