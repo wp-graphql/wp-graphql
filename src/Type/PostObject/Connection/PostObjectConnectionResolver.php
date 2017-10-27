@@ -144,8 +144,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				case $source instanceof \WP_User:
 					$query_args['author'] = $source->ID;
 					break;
-				default:
-					break;
 			}
 		endif;
 

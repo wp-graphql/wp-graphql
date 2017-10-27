@@ -57,7 +57,7 @@ class DataSource {
 	 * @param int $id ID of the comment we want to get the object for
 	 *
 	 * @return \WP_Comment object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -70,6 +70,22 @@ class DataSource {
 
 		return $comment;
 
+	}
+
+	/**
+	 * Retrieves a WP_Comment object for the ID that gets passed
+	 *
+	 * @param string $author_email The ID of the comment the comment author is associated with.
+	 *
+	 * @return array
+	 * @throws
+	 */
+	public static function resolve_comment_author( $author_email ) {
+		global $wpdb;
+		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
+		$comment_author = ! empty( $comment_author ) ? ( array ) $comment_author : [];
+		$comment_author['is_comment_author'] = true;
+		return $comment_author;
 	}
 
 	/**
@@ -159,7 +175,7 @@ class DataSource {
 	 * @param int    $id        ID of the post you are trying to retrieve
 	 * @param string $post_type Post type the post is attached to
 	 *
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @return \WP_Post
 	 * @access public
@@ -210,7 +226,7 @@ class DataSource {
 	 * @param string $post_type Name of the post type you want to retrieve the object for
 	 *
 	 * @return \WP_Post_Type object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -238,7 +254,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return \WP_Taxonomy object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -267,7 +283,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy the term is in
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -307,7 +323,7 @@ class DataSource {
 	 * @param string $stylesheet Directory name for the theme.
 	 *
 	 * @return \WP_Theme object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -342,7 +358,7 @@ class DataSource {
 	 * @param int $id ID of the user you want the object for
 	 *
 	 * @return bool|\WP_User
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -453,7 +469,7 @@ class DataSource {
 	 * an object that implements node to its type.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws UserError
 	 * @access public
 	 */
 	public static function get_node_definition() {
@@ -492,7 +508,6 @@ class DataSource {
 						$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 						switch ( $id_components['type'] ) {
-
 							case in_array( $id_components['type'], $allowed_post_types, true ):
 								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
 								break;
@@ -502,10 +517,13 @@ class DataSource {
 							case 'comment':
 								$node = self::resolve_comment( $id_components['id'] );
 								break;
+							case 'commentAuthor':
+								$node = self::resolve_comment_author( $id_components['id'] );
+								break;
 							case 'plugin':
 								$node = self::resolve_plugin( $id_components['id'] );
 								break;
-							case 'post_type':
+							case 'postType':
 								$node = self::resolve_post_type( $id_components['id'] );
 								break;
 							case 'taxonomy':
@@ -566,7 +584,7 @@ class DataSource {
 								$type = Types::term_object( $node->taxonomy );
 								break;
 							case $node instanceof \WP_Comment:
-								$type = Types::comment();;
+								$type = Types::comment();
 								break;
 							case $node instanceof \WP_Post_Type:
 								$type = Types::post_type();
@@ -582,12 +600,21 @@ class DataSource {
 								break;
 							default:
 								$type = null;
-								break;
 						}
 
 						// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node ) && array_key_exists( 'PluginURI', $node ) ) {
-						$type = Types::plugin();
+					} elseif ( is_array( $node )  ) {
+
+						switch ( $node ) {
+							case array_key_exists( 'PluginURI', $node ):
+								$type = Types::plugin();
+								break;
+							case array_key_exists( 'is_comment_author', $node ):
+								$type = Types::comment_author();
+								break;
+							default:
+								$type = null;
+						}
 					}
 
 					/**

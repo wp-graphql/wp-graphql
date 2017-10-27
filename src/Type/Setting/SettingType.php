@@ -137,7 +137,7 @@ class SettingType extends WPObjectType {
 			 * of the type's schema
 			 */
 			self::$fields = self::prepare_fields( $fields, self::$setting_type );
-			
+
 		}
 
 		return ! empty( self::$fields ) ? self::$fields : null;
