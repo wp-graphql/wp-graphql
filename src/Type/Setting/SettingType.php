@@ -146,6 +146,7 @@ class SettingType extends WPObjectType {
 									$option = (boolean) $option;
 									break;
 								case 'float':
+								case 'number':
 									$option = (float) $option;
 									break;
 								default:

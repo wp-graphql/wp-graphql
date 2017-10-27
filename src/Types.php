@@ -692,12 +692,14 @@ class Types {
 			case 'integer':
 				$type = self::int();
 				break;
+			case 'float':
 			case 'number':
 				$type = self::float();
 				break;
 			case 'boolean':
 				$type = self::boolean();
 				break;
+			case 'string':
 			default:
 				$type = self::string();
 		}
