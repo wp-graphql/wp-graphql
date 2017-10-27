@@ -64,6 +64,7 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		    }
 	    ";
 		$actual = do_graphql_request( $query );
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -82,6 +83,26 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
+
+		$mock_options = [
+			'date_format' => 'test date format',
+			'blogdescription' => 'test description',
+			'admin_email' => 'test@test.com',
+			'language' => 'test language',
+			'start_of_week' => 0,
+			'time_format' => 'test_time_format',
+			'timezone_string' => 'UTC',
+			'blogname' => 'test_title',
+			'siteurl' => 'http://test.com'
+		];
+
+		foreach ( $mock_options as $mock_option_key => $mock_value ) {
+			update_option( $mock_option_key, $mock_value );
+		}
+
+		if ( is_multisite() ) {
+			update_network_option( 1, 'admin_email', 'test email' );
+		}
 
 		if ( true === is_multisite() ) {
 			$query = "
@@ -116,22 +137,22 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		}
 
 		$actual = do_graphql_request( $query );
+
 		$generalSettings = $actual['data']['generalSettings'];
 
 
 		$this->assertNotEmpty( $generalSettings );
-		$this->assertTrue( is_string( $generalSettings['dateFormat'] ) );
-		$this->assertTrue( is_string( $generalSettings['description'] ) );
-		if ( false === is_multisite() ) {
-			$this->assertTrue( is_string( $generalSettings['email'] ) );
+		$this->assertEquals( $mock_options['date_format'], $generalSettings['dateFormat'] );
+		$this->assertEquals( $mock_options['blogdescription'], $generalSettings['description'] );
+		if ( ! is_multisite() ) {
+			$this->assertEquals( $mock_options['admin_email'], $generalSettings['email'] );
 		}
-		$this->assertTrue( is_string( $generalSettings['language'] ) );
-		$this->assertTrue( is_int( $generalSettings['startOfWeek'] ) );
-		$this->assertTrue( is_string( $generalSettings['timeFormat'] ) );
-		$this->assertTrue( is_string( $generalSettings['timezone'] ) );
-		$this->assertTrue( is_string( $generalSettings['title'] ) );
-		if ( false === is_multisite() ) {
-			$this->assertTrue( is_string( $generalSettings['url'] ) );
+		$this->assertEquals( $mock_options['start_of_week'], $generalSettings['startOfWeek'] );
+		$this->assertEquals( $mock_options['time_format'], $generalSettings['timeFormat'] );
+		$this->assertEquals( $mock_options['timezone_string'], $generalSettings['timezone'] );
+		$this->assertEquals( $mock_options['blogname'], $generalSettings['title'] );
+		if ( ! is_multisite() ) {
+			$this->assertEquals( $mock_options['siteurl'], $generalSettings['url'] );
 		}
 	}
 
@@ -183,6 +204,9 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
+
+		update_option( 'posts_per_page', 12 );
+
 		$query = "
 			query {
 				readingSettings {
@@ -195,7 +219,7 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		$readingSettings = $actual['data']['readingSettings'];
 
 		$this->assertNotEmpty( $readingSettings );
-		$this->assertTrue( is_int( $readingSettings['postsPerPage'] ) );
+		$this->assertEquals( 12, $readingSettings['postsPerPage'] );
 
 	}
 
@@ -213,6 +237,10 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
+	
+		update_option( 'default_comment_status', 'test_value' );
+		update_option( 'default_ping_status', 'test_value' );
+
 		$query = "
 			query {
 				discussionSettings {
@@ -226,8 +254,8 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 		$discussionSettings = $actual['data']['discussionSettings'];
 
 		$this->assertNotEmpty( $discussionSettings );
-		$this->assertTrue( is_string( $discussionSettings['defaultCommentStatus'] ) );
-		$this->assertTrue( is_string( $discussionSettings['defaultPingStatus'] ) );
+		$this->assertEquals( 'test_value', $discussionSettings['defaultCommentStatus'] );
+		$this->assertEquals( 'test_value', $discussionSettings['defaultPingStatus'] );
 
 	}
 

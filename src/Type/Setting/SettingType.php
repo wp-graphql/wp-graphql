@@ -118,13 +118,31 @@ class SettingType extends WPObjectType {
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
-							if ( 'email' === $setting_field['setting'] ) {
+							if ( 'admin_email' === $setting_field['key'] ) {
 								if ( ! current_user_can( 'manage_options' ) ) {
 									throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 								}
 							}
+
 							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
-							return ! empty( $option ) ? $option : null;
+							switch ( $setting_field['type'] ) {
+								case 'integer':
+									$option = absint( $option );
+									break;
+								case 'string':
+									$option = (string) $option;
+									break;
+								case 'boolean':
+									$option = (boolean) $option;
+									break;
+								case 'float':
+									$option = (float) $option;
+									break;
+								default:
+									$option = (string) $option;
+							}
+
+							return $option;
 						},
 					];
 
