@@ -87,7 +87,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$this->date             = '2017-08-01 15:00:00';
 		$this->dateGmt          = '2017-08-01 21:00:00';
 		$this->description      = 'This is a magic description.';
-		$this->filePath         = dirname( dirname( __FILE__ ) ) . '/img/wp-example-web.php';
+		$this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
 		$this->fileType         = 'IMAGE_GIF';
 		$this->slug             = 'magic-shia';
 		$this->status           = 'INHERIT';
@@ -285,7 +285,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	 */
 	public function testCreateMediaItemFilePath() {
 		wp_set_current_user( $this->admin );
-		$this->create_variables['input']['filePath'] = dirname( dirname( __FILE__ ) ) . '/img/wp-example-web.php';
+		$this->create_variables['input']['filePath'] = 'file:///Users/hdevore/Desktop/Current/colorado_lake.jpeg';
 		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
