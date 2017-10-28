@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
@@ -26,7 +25,7 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Type
  * @since 0.0.4
  */
-class RootQueryType extends ObjectType {
+class RootQueryType extends WPObjectType {
 
 	/**
 	 * RootQueryType constructor.
@@ -39,6 +38,25 @@ class RootQueryType extends ObjectType {
 		 * @since 0.0.5
 		 */
 		do_action( 'graphql_root_query' );
+
+		/**
+		 * Configure the RootQuery
+		 * @since 0.0.5
+		 */
+		$config = [
+			'name' => 'rootQuery',
+			'fields' => self::fields(),
+		];
+
+		/**
+		 * Pass the config to the parent construct
+		 * @since 0.0.5
+		 */
+		parent::__construct( $config );
+
+	}
+
+	public static function fields() {
 
 		/**
 		 * Setup data
@@ -193,20 +211,7 @@ class RootQueryType extends ObjectType {
 		 */
 		ksort( $fields );
 
-		/**
-		 * Configure the RootQuery
-		 * @since 0.0.5
-		 */
-		$config = [
-			'name' => 'rootQuery',
-			'fields' => $fields,
-		];
-
-		/**
-		 * Pass the config to the parent construct
-		 * @since 0.0.5
-		 */
-		parent::__construct( $config );
+		return $fields;
 
 	}
 

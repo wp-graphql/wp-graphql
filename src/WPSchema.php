@@ -66,7 +66,7 @@ class WPSchema extends Schema {
 				 * esc the values
 				 */
 				$sanitized_types[ $type_name ] = $type_object;
-				$sanitized_types[ $type_name ]->name = esc_html( $type_object->name );
+				$sanitized_types[ $type_name ]->name = ucfirst( esc_html( $type_object->name ) );
 				$sanitized_types[ $type_name ]->description = esc_html( $type_object->description );
 				$sanitized_types[ $type_name ]->deprecationReason = esc_html( $type_object->description );
 			}

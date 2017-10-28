@@ -32,7 +32,7 @@ class MediaItemDelete {
 		/**
 		 * Set the name of the media item mutation being performed
 		 */
-		$mutation_name = 'deleteMediaItem';
+		$mutation_name = 'DeleteMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name'                => esc_html( $mutation_name ),

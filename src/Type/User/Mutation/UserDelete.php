@@ -32,7 +32,7 @@ class UserDelete {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'deleteUser',
+				'name' => 'DeleteUser',
 				'description' => __( 'Delete a user object', 'wp-graphql' ),
 				'inputFields' => [
 					'id' => [

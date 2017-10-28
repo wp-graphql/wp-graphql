@@ -28,7 +28,7 @@ class CommentAuthorUnionType extends UnionType {
 	public function __construct() {
 
 		$config = [
-			'name'        => 'commentAuthorUnion',
+			'name'        => 'CommentAuthorUnion',
 			'types'       => function() {
 				return self::getPossibleTypes();
 			},

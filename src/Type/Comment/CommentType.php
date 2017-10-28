@@ -38,7 +38,7 @@ class CommentType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'comment';
+		self::$type_name = 'Comment';
 
 		$config = [
 			'name'        => self::$type_name,

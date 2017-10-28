@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\Setting;
 
-use PHPUnit\Exception;
 use WPGraphQL\Types;
 
 /**

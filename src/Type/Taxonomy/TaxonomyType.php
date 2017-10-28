@@ -38,7 +38,7 @@ class TaxonomyType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'taxonomy';
+		self::$type_name = 'Taxonomy';
 
 		$config = [
 			'name' => self::$type_name,
@@ -74,7 +74,7 @@ class TaxonomyType extends WPObjectType {
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
 						'resolve' => function( $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
-							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( $info->parentType, $taxonomy->name ) : null;
+							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( 'taxonomy', $taxonomy->name ) : null;
 						},
 					],
 					'name' => [

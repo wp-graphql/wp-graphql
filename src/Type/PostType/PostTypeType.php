@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\PostType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -45,7 +44,7 @@ class PostTypeType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'postType';
+		self::$type_name = 'PostType';
 
 		$config = [
 			'name' => self::$type_name,

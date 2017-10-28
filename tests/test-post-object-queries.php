@@ -356,12 +356,12 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 			page(id: \"{$global_id}\") {
 				id
 				parent {
-					... on page {
+					... on Page {
 						pageId
 					}
 				}
 				ancestors {
-					... on page {
+					... on Page {
 						pageId
 					}
 				}
@@ -441,7 +441,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 				}
 				tagNames:termNames(taxonomy:TAG)
 				terms{
-				  ...on tag{
+				  ...on Tag{
 				    name
 				  }
 				}
@@ -764,7 +764,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		  }
 		}
 		
-		fragment pageData on page {
+		fragment pageData on Page {
 		  __typename
 		  id
 		  pageId
@@ -786,7 +786,7 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 		$byId = $actual['data']['byId'];
 
 		$this->assertNotEmpty( $node );
-		$this->assertEquals( 'page', $actual['data']['pages']['edges'][0]['node']['__typename'] );
+		$this->assertEquals( 'Page', $actual['data']['pages']['edges'][0]['node']['__typename'] );
 		$this->assertEquals( $node, $byUri );
 		$this->assertEquals( $node, $byPageId );
 		$this->assertEquals( $node, $byId );

@@ -278,7 +278,7 @@ class WP_GraphQL_Test_Post_Object_Mutations extends WP_UnitTestCase {
 		 * Prepare the mutation
 		 */
 		$mutation = '
-		mutation deletePageTest($input:deletePageInput!){
+		mutation deletePageTest($input:DeletePageInput!){
 		  deletePage(input:$input){
 		    clientMutationId
 		    deletedId

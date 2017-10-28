@@ -32,7 +32,7 @@ class UserCreate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'createUser',
+				'name' => 'CreateUser',
 				'description' => __( 'Create new user object', 'wp-graphql' ),
 				'inputFields' => self::input_fields(),
 				'outputFields' => [

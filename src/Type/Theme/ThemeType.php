@@ -37,7 +37,7 @@ class ThemeType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'theme';
+		self::$type_name = 'Theme';
 
 		$config = [
 			'name' => self::$type_name,
@@ -69,7 +69,7 @@ class ThemeType extends WPObjectType {
 						'resolve' => function( \WP_Theme $theme, $args, AppContext $context, ResolveInfo $info ) {
 							$stylesheet = $theme->get_stylesheet();
 
-							return ( ! empty( $info->parentType ) && ! empty( $stylesheet ) ) ? Relay::toGlobalId( $info->parentType, $stylesheet ) : null;
+							return ( ! empty( $info->parentType ) && ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
 						},
 					],
 					'slug' => [

@@ -36,7 +36,7 @@ class CommentAuthorType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'commentAuthor';
+		self::$type_name = 'CommentAuthor';
 
 		$config = [
 			'name'        => self::$type_name,

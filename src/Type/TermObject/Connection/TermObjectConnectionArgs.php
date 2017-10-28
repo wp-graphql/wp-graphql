@@ -28,7 +28,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'termArgs';
+		$config['name'] = 'TermArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -51,7 +51,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 				],
 				'orderby' => [
 					'type' => new WPEnumType( [
-						'name' => 'termsOrderby',
+						'name' => 'TermsOrderby',
 						'values' => [
 							'NAME' => [
 								'value' => 'name',

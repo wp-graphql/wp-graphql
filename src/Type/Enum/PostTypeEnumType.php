@@ -23,7 +23,7 @@ class PostTypeEnumType extends EnumType {
 	public function __construct() {
 
 		$config = [
-			'name'        => 'postTypeEnum',
+			'name'        => 'PostTypeEnum',
 			'description' => __( 'Allowed Post Types', 'wp-graphql' ),
 			'values'      => self::values(),
 		];

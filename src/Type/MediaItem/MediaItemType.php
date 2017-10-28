@@ -138,7 +138,7 @@ class MediaItemType {
 
 		if ( null === self::$media_details ) {
 			self::$media_details = new WPObjectType( [
-				'name'   => 'mediaDetails',
+				'name'   => 'MediaDetails',
 				'fields' => function() {
 					$fields = [
 						'width'  => [
@@ -192,7 +192,7 @@ class MediaItemType {
 	private static function media_item_meta() {
 		if ( null === self::$media_item_meta ) {
 			self::$media_item_meta = new WPObjectType( [
-				'name'   => 'meta',
+				'name'   => 'MediaItemMeta',
 				'fields' => [
 					'aperture'         => [
 						'type' => Types::float(),
@@ -256,7 +256,7 @@ class MediaItemType {
 
 		if ( null === self::$media_sizes ) {
 			self::$media_sizes = new WPObjectType( [
-				'name'   => 'sizes',
+				'name'   => 'MediaSizes',
 				'fields' => [
 					'name'      => [
 						'type'        => Types::string(),

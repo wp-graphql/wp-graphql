@@ -32,7 +32,7 @@ class MediaItemCreate {
 		/**
 		 * Set the name of the mutation being performed
 		 */
-		$mutation_name = 'createMediaItem';
+		$mutation_name = 'CreateMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name' => esc_html( $mutation_name ),

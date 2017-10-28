@@ -49,7 +49,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'dateQuery';
+		$config['name'] = 'DateQuery';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -131,7 +131,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 
 		if ( null === self::$column_enum ) :
 			self::$column_enum = new WPEnumType([
-				'name' => 'dateColumn',
+				'name' => 'DateColumn',
 				'values' => [
 					'DATE' => [
 						'value' => 'post_date',
@@ -155,7 +155,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	private static function date_after() {
 		if ( null === self::$date_after ) :
 			self::$date_after = new WPInputObjectType( [
-				'name' => 'dateAfter',
+				'name' => 'DateAfter',
 				'fields' => self::prepare_fields( [
 					'year' => [
 						'type' => Types::int(),
@@ -169,7 +169,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				], 'dateAfter' ),
+				], 'DateAfter' ),
 			] );
 		endif;
 		return self::$date_after;
@@ -186,7 +186,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 
 		if ( null === self::$date_before ) :
 			self::$date_before = new WPInputObjectType( [
-				'name' => 'dateBefore',
+				'name' => 'DateBefore',
 				'fields' => self::prepare_fields( [
 					'year' => [
 						'type' => Types::int(),
@@ -200,7 +200,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 						'type' => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
-				], 'dateBefore' ),
+				], 'DateBefore' ),
 			] );
 		endif;
 		return self::$date_before;

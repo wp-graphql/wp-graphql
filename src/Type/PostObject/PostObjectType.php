@@ -61,7 +61,7 @@ class PostObjectType extends WPObjectType {
 		self::$post_type_object = get_post_type_object( $post_type );
 
 		$config = [
-			'name'        => self::$post_type_object->graphql_single_name,
+			'name'        => ucfirst( self::$post_type_object->graphql_single_name ),
 			// translators: the placeholder is the post_type of the object
 			'description' => sprintf( __( 'The %s object type', 'wp-graphql' ), self::$post_type_object->graphql_single_name ),
 			'fields'      => self::fields( self::$post_type_object ),
@@ -311,8 +311,8 @@ class PostObjectType extends WPObjectType {
 						},
 					],
 					'editLock'          => [
-						'type'        => new ObjectType( [
-							'name'   => $single_name . 'editLock',
+						'type'        => new WPObjectType( [
+							'name'   => ucfirst( $single_name ) . 'editLock',
 							'fields' => [
 								'editTime' => [
 									'type'        => Types::string(),

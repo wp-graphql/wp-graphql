@@ -29,16 +29,18 @@ class TermObjectCreate {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'create' . ucwords( $taxonomy->graphql_single_name );
+			$mutation_name = 'Create' . ucwords( $taxonomy->graphql_single_name );
 
 			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),
 				// translators: The placeholder is the name of the object type
-				'description'         => sprintf( esc_html__( 'Create %1$s objects', 'wp-graphql' ), $taxonomy->name ),
+				'description'         => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $taxonomy->name ),
 				'inputFields'         => self::input_fields( $taxonomy ),
 				'outputFields'        => [
 					$taxonomy->graphql_single_name => [
 						'type'    => Types::term_object( $taxonomy->name ),
+						// translators: Placeholder is the name of the taxonomy
+						'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
 						'resolve' => function( $payload ) use ( $taxonomy ) {
 							return get_term( $payload['id'], $taxonomy->name );
 						},

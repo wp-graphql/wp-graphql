@@ -37,7 +37,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'commentArgs';
+		$config['name'] = 'CommentArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -93,7 +93,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'order' => [
 					'type' => new WPEnumType([
-						'name' => 'commentsOrder',
+						'name' => 'CommentsOrder',
 						'values' => [
 							'ASC' => [
 								'value' => 'ASC',
@@ -206,7 +206,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 
 		if ( null === self::$comments_orderby_enum ) :
 			self::$comments_orderby_enum = new WPEnumType([
-				'name' => 'commentsOrderby',
+				'name' => 'CommentsOrderby',
 				'values' => [
 					'COMMENT_AGENT' => [
 						'value' => 'comment_agent',

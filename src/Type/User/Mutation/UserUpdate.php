@@ -31,12 +31,13 @@ class UserUpdate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'updateUser',
+				'name' => 'UpdateUser',
 				'description' => 'Updates a user object',
 				'inputFields' => self::input_fields(),
 				'outputFields' => [
 					'user' => [
 						'type' => Types::user(),
+						'description' => __( 'The updated user', 'wp-graphql' ),
 						'resolve' => function( $payload ) {
 							return get_user_by( 'ID', $payload['userId'] );
 						}

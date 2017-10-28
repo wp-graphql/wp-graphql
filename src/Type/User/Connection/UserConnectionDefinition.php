@@ -34,6 +34,7 @@ class UserConnectionDefinition {
 		if ( null === self::$connection ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::user(),
+				'name' => 'Users',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [

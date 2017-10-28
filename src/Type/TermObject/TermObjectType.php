@@ -59,7 +59,7 @@ class TermObjectType extends WPObjectType {
 		self::$taxonomy_object = get_taxonomy( $taxonomy );
 
 		$config = [
-			'name'        => self::$taxonomy_object->graphql_single_name,
+			'name'        => ucfirst( self::$taxonomy_object->graphql_single_name ),
 			'description' => sprintf( __( 'The % object type', 'wp-graphql' ), self::$taxonomy_object->graphql_single_name ),
 			'fields'      => self::fields( self::$taxonomy_object ),
 			'interfaces'  => [ self::node_interface() ],
@@ -121,6 +121,8 @@ class TermObjectType extends WPObjectType {
 				$fields = [
 					'id'                => [
 						'type'    => Types::non_null( Types::id() ),
+						# Placeholder is the name of the taxonomy
+						'description' => __( 'The global ID for the ' . $taxonomy_object->name, 'wp-graphql' ),
 						'resolve' => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $term->taxonomy ) && ! empty( $term->term_id ) ) ? Relay::toGlobalId( $term->taxonomy, $term->term_id ) : null;
 						},

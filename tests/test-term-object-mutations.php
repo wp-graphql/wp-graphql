@@ -588,7 +588,7 @@ class Test_Term_Object_Mutations extends WP_UnitTestCase {
 		]);
 
 		$query = '
-		mutation createChildCategory($input: createCategoryInput!) {
+		mutation createChildCategory($input: CreateCategoryInput!) {
 		  createCategory(input: $input) {
 		    category {
 		      parent{

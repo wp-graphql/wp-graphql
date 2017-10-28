@@ -50,7 +50,7 @@ class PostObjectConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType'         => Types::post_object( $post_type_object->name ),
-				'name'             => $post_type_object->graphql_plural_name,
+				'name'             => ucfirst( $post_type_object->graphql_plural_name ),
 				'connectionFields' => function() use ( $post_type_object ) {
 
 					return [
