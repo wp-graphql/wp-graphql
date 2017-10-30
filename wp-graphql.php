@@ -198,8 +198,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 		 */
 		private function actions() {
-			register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
-			register_activation_hook( __FILE__, [ $this, 'deactivate' ] );
+			register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
+			register_activation_hook( __FILE__, [ $this, 'activate' ] );
 
 			/**
 			 * Register default settings available in WordPress so we can use

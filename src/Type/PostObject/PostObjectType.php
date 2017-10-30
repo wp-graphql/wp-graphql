@@ -1,7 +1,7 @@
 <?php
+
 namespace WPGraphQL\Type\PostObject;
 
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
@@ -122,9 +122,9 @@ class PostObjectType extends WPObjectType {
 			self::$fields[ $single_name ] = function() use ( $single_name, $post_type_object, $allowed_taxonomies ) {
 				$fields = [
 					'id'                => [
-						'type'    => Types::non_null( Types::id() ),
+						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $post->post_type ) && ! empty( $post->ID ) ) ? Relay::toGlobalId( $post->post_type, $post->ID ) : null;
 						},
 					],
@@ -135,18 +135,18 @@ class PostObjectType extends WPObjectType {
 							return absint( $post->ID );
 						},
 					],
-					'ancestors' => [
-						'type' => Types::list_of( Types::post_object_union() ),
+					'ancestors'         => [
+						'type'        => Types::list_of( Types::post_object_union() ),
 						'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
-						'args' => [
+						'args'        => [
 							'types' => [
-								'type' => Types::list_of( Types::post_type_enum() ),
+								'type'        => Types::list_of( Types::post_type_enum() ),
 								'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							$ancestors = [];
-							$types = ! empty( $args['types'] ) ? $args['types'] : [ $post->post_type ];
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$ancestors    = [];
+							$types        = ! empty( $args['types'] ) ? $args['types'] : [ $post->post_type ];
 							$ancestor_ids = get_ancestors( $post->ID, $post->post_type );
 							if ( ! empty( $ancestor_ids ) ) {
 								foreach ( $ancestor_ids as $ancestor_id ) {
@@ -156,6 +156,7 @@ class PostObjectType extends WPObjectType {
 									}
 								}
 							}
+
 							return ! empty( $ancestors ) ? $ancestors : null;
 						},
 					],
@@ -183,7 +184,7 @@ class PostObjectType extends WPObjectType {
 					'content'           => [
 						'type'        => Types::string(),
 						'description' => __( 'The content of the post.', 'wp-graphql' ),
-						'args' => [
+						'args'        => [
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
@@ -202,7 +203,7 @@ class PostObjectType extends WPObjectType {
 					'title'             => [
 						'type'        => Types::string(),
 						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-						'args' => [
+						'args'        => [
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
@@ -221,7 +222,7 @@ class PostObjectType extends WPObjectType {
 					'excerpt'           => [
 						'type'        => Types::string(),
 						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
-						'args' => [
+						'args'        => [
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
@@ -365,8 +366,8 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->menu_order ) ? absint( $post->menu_order ) : null;
 						},
 					],
-					'desiredSlug' => [
-						'type' => Types::string(),
+					'desiredSlug'       => [
+						'type'        => Types::string(),
 						'description' => __( 'The desired slug of the post', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$desired_slug = get_post_meta( $post->ID, '_wp_desired_post_slug', true );
@@ -383,26 +384,27 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $link ) ? $link : null;
 						},
 					],
-					'uri' => [
-						'type' => Types::string(),
+					'uri'               => [
+						'type'        => Types::string(),
 						'description' => __( 'URI path for the resource', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$uri = get_page_uri( $post->ID );
+
 							return ! empty( $uri ) ? $uri : null;
 						},
 					],
-					'terms' => [
-						'type' => Types::list_of( Types::term_object_union() ),
-						'args' => [
+					'terms'             => [
+						'type'        => Types::list_of( Types::term_object_union() ),
+						'args'        => [
 							'taxonomy' => [
-								'type' => Types::list_of( Types::taxonomy_enum() ),
-								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'type'         => Types::list_of( Types::taxonomy_enum() ),
+								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 								'defaultValue' => null,
 							],
 						],
 						// Translators: placeholder is the name of the post_type
 						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
 							$terms = [];
 							/**
@@ -418,21 +420,22 @@ class PostObjectType extends WPObjectType {
 									}
 								}
 							}
+
 							return ! empty( $terms ) ? $terms : null;
 						},
 					],
-					'termNames' => [
-						'type' => Types::list_of( Types::string() ),
-						'args' => [
+					'termNames'         => [
+						'type'        => Types::list_of( Types::string() ),
+						'args'        => [
 							'taxonomy' => [
-								'type' => Types::taxonomy_enum(),
-								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'type'         => Types::taxonomy_enum(),
+								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 								'defaultValue' => null,
 							],
 						],
 						// Translators: placeholder is the name of the post_type
 						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
 							$terms = [];
 							/**
@@ -449,6 +452,7 @@ class PostObjectType extends WPObjectType {
 								}
 							}
 							$term_names = wp_list_pluck( $terms, 'name' );
+
 							return ! empty( $term_names ) ? $term_names : null;
 						},
 					],
@@ -495,10 +499,11 @@ class PostObjectType extends WPObjectType {
 
 				if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
 					$fields['featuredImage'] = [
-						'type' => Types::post_object( 'attachment' ),
+						'type'        => Types::post_object( 'attachment' ),
 						'description' => __( 'The featured image for the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$thumbnail_id = get_post_thumbnail_id( $post->ID );
+
 							return ! empty( $thumbnail_id ) ? get_post( absint( $thumbnail_id ) ) : null;
 						},
 					];
@@ -515,6 +520,7 @@ class PostObjectType extends WPObjectType {
 				return self::prepare_fields( $fields, $single_name );
 			};
 		endif;
+
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
 	}
 
@@ -525,8 +531,8 @@ class PostObjectType extends WPObjectType {
 	 */
 	public static function post_object_format_arg() {
 		return [
-			'type' => Types::post_object_field_format_enum(),
-			'description' => __( 'Format of ', 'wp-graphql' ),
+			'type'        => Types::post_object_field_format_enum(),
+			'description' => __( 'Format of the field output', 'wp-graphql' ),
 		];
 	}
 }
