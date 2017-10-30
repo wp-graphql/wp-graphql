@@ -44,8 +44,7 @@ class TermObjectConnectionDefinition {
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::term_object( $taxonomy_object->name ),
 				'name' => ucfirst( $taxonomy_object->graphql_plural_name ),
-				'connectionFields' => function() use ( $taxonomy_object ) {
-					return [
+				'connectionFields' => [
 						'taxonomyInfo' => [
 							'type' => Types::taxonomy(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
@@ -60,8 +59,7 @@ class TermObjectConnectionDefinition {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
-					];
-				},
+					]
 			] );
 
 			/**

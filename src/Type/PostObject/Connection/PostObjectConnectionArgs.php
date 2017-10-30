@@ -257,7 +257,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = self::prepare_fields( $fields, 'queryArgs' );
+			self::$fields = $fields;
 		endif;
 		return self::$fields;
 
@@ -285,7 +285,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 
 			self::$orderby_field = new WPInputObjectType( [
 				'name' => 'orderbyOptions',
-				'fields' => self::prepare_fields( [
+				'fields' => [
 					'field' => Types::non_null( self::orderby_enum() ),
 					'order' => new WPEnumType( [
 						'name'   => 'order',
@@ -294,7 +294,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 							'DESC' => [ 'value' => 'DESC' ],
 						],
 					] ),
-				], 'orderbyOptions' ),
+				],
 			] );
 		}
 

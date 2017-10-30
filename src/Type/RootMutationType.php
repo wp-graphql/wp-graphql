@@ -45,13 +45,14 @@ class RootMutationType extends WPObjectType {
 
 		self::$type_name = 'rootMutation';
 
+		self::prepare_fields( self::fields(), self::$type_name );
+
 		/**
 		 * Configure the rootMutation
 		 */
 		$config = [
 			'name'        => self::$type_name,
-			'description' => __( 'The root mutation', 'wp-graphql' ),
-			'fields'      => self::fields(),
+			'description' => __( 'The root mutation entry point for the API', 'wp-graphql' ),
 		];
 
 		/**
@@ -67,7 +68,7 @@ class RootMutationType extends WPObjectType {
 	 *
 	 * @return array|\GraphQL\Type\Definition\FieldDefinition[]
 	 */
-	private static function fields() {
+	protected static function fields() {
 
 		if ( null === self::$fields ) {
 
@@ -135,7 +136,7 @@ class RootMutationType extends WPObjectType {
 		 * Pass the fields through a filter to allow for hooking in and adjusting the shape
 		 * of the type's schema
 		 */
-		return self::prepare_fields( self::$fields, self::$type_name );
+		return self::$fields;
 
 	}
 

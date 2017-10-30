@@ -2,14 +2,14 @@
 
 namespace WPGraphQL\Type\Enum;
 
-use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 
 /**
  * Class PostTypeEnumType
  *
  * @package WPGraphQL\Type\Enum
  */
-class PostTypeEnumType extends EnumType {
+class PostTypeEnumType extends WPEnumType {
 
 	/**
 	 * Holds the values to be used for the Enum
@@ -25,7 +25,9 @@ class PostTypeEnumType extends EnumType {
 		$config = [
 			'name'        => 'PostTypeEnum',
 			'description' => __( 'Allowed Post Types', 'wp-graphql' ),
-			'values'      => self::values(),
+			'values'      => function() {
+				return self::prepare_values( self::values(), 'PostTypeEnum' );
+			},
 		];
 
 		parent::__construct( $config );

@@ -26,7 +26,9 @@ class MediaItemStatusEnumType extends WPEnumType {
 		$config = [
 			'name'        => 'MediaItemStatus',
 			'description' => __( 'The status of the media item object.', 'wp-graphql' ),
-			'values'      => self::values(),
+			'values'      => function() {
+				return self::prepare_values( self::values(), 'MediaItemStatus' );
+			},
 		];
 		parent::__construct( $config );
 	}

@@ -107,10 +107,10 @@ class MediaItemType {
 					return wp_get_attachment_url( $post->ID );
 				},
 			],
-			'mimeType' => [
+			'mimeType'     => [
 				'type'        => Types::string(),
 				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
-				'resolve'     =>function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
+				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
 				},
 			],
@@ -139,6 +139,7 @@ class MediaItemType {
 		if ( null === self::$media_details ) {
 			self::$media_details = new WPObjectType( [
 				'name'   => 'MediaDetails',
+				'description' => __( 'Details about the Media Item', 'wp-graphql' ),
 				'fields' => function() {
 					$fields = [
 						'width'  => [
@@ -159,10 +160,11 @@ class MediaItemType {
 							'resolve'     => function( $media_details, $args, $context, ResolveInfo $info ) {
 								if ( ! empty( $media_details['sizes'] ) ) {
 									foreach ( $media_details['sizes'] as $size_name => $size ) {
-										$size['name']   = $size_name;
-										$sizes[]        = $size;
+										$size['name'] = $size_name;
+										$sizes[]      = $size;
 									}
 								}
+
 								return ! empty( $sizes ) ? $sizes : null;
 							},
 						],
@@ -174,7 +176,7 @@ class MediaItemType {
 						],
 					];
 
-					return WPObjectType::prepare_fields( $fields, 'mediaDetails' );
+					return $fields;
 				},
 			] );
 		} // End if().
@@ -193,6 +195,7 @@ class MediaItemType {
 		if ( null === self::$media_item_meta ) {
 			self::$media_item_meta = new WPObjectType( [
 				'name'   => 'MediaItemMeta',
+				'description' => __( 'Meta Data for the media item', 'wp-graphql' ),
 				'fields' => [
 					'aperture'         => [
 						'type' => Types::float(),
@@ -257,6 +260,7 @@ class MediaItemType {
 		if ( null === self::$media_sizes ) {
 			self::$media_sizes = new WPObjectType( [
 				'name'   => 'MediaSizes',
+				'description' => __( 'Size information for the mediaItem', 'wp-graphql' ),
 				'fields' => [
 					'name'      => [
 						'type'        => Types::string(),

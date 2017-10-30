@@ -41,7 +41,9 @@ class CommentAuthorType extends WPObjectType {
 		$config = [
 			'name'        => self::$type_name,
 			'description' => __( 'A Comment Author object', 'wp-graphql' ),
-			'fields'      => self::fields(),
+			'fields' => function() {
+				return self::fields();
+			},
 			'interfaces'  => [ self::node_interface() ],
 		];
 
@@ -55,50 +57,39 @@ class CommentAuthorType extends WPObjectType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	private static function fields() {
+	protected static function fields() {
 
 		if ( null === self::$fields ) :
-			self::$fields = function() {
-				$fields = [
-					'id'    => [
-						'type'        => Types::non_null( Types::id() ),
-						'description' => __( 'The globally unique identifier for the Comment Author user', 'wp-graphql' ),
-						'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment_author['comment_author_email'] ) ? Relay::toGlobalId( 'commentAuthor', $comment_author['comment_author_email'] ) : null;
-						},
-					],
-					'name'  => [
-						'type'        => Types::string(),
-						'description' => __( 'The name for the comment author.', 'wp-graphql' ),
-						'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment_author['comment_author'] ) ? $comment_author['comment_author'] : '';
-						},
-					],
-					'email' => [
-						'type'        => Types::string(),
-						'description' => __( 'The email for the comment author', 'wp-graphql' ),
-						'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment_author['comment_author_email'] ) ? $comment_author['comment_author_email'] : '';
-						},
-					],
-					'url'   => [
-						'type'        => Types::string(),
-						'description' => __( 'The url the comment author.', 'wp-graphql' ),
-						'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment_author['comment_author_url'] ) ? $comment_author['comment_author_url'] : '';
-						},
-					],
-				];
-
-				/**
-				 * This prepares the fields by sorting them and applying a filter for adjusting the schema.
-				 * Because these fields are implemented via a closure the prepare_fields needs to be applied
-				 * to the fields directly instead of being applied to all objects extending
-				 * the WPObjectType class.
-				 */
-				return self::prepare_fields( $fields, self::$type_name );
-
-			};
+			self::$fields = [
+				'id'    => [
+					'type'        => Types::non_null( Types::id() ),
+					'description' => __( 'The globally unique identifier for the Comment Author user', 'wp-graphql' ),
+					'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
+						return ! empty( $comment_author['comment_author_email'] ) ? Relay::toGlobalId( 'commentAuthor', $comment_author['comment_author_email'] ) : null;
+					},
+				],
+				'name'  => [
+					'type'        => Types::string(),
+					'description' => __( 'The name for the comment author.', 'wp-graphql' ),
+					'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
+						return ! empty( $comment_author['comment_author'] ) ? $comment_author['comment_author'] : '';
+					},
+				],
+				'email' => [
+					'type'        => Types::string(),
+					'description' => __( 'The email for the comment author', 'wp-graphql' ),
+					'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
+						return ! empty( $comment_author['comment_author_email'] ) ? $comment_author['comment_author_email'] : '';
+					},
+				],
+				'url'   => [
+					'type'        => Types::string(),
+					'description' => __( 'The url the comment author.', 'wp-graphql' ),
+					'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
+						return ! empty( $comment_author['comment_author_url'] ) ? $comment_author['comment_author_url'] : '';
+					},
+				],
+			];
 		endif;
 
 		return self::$fields;

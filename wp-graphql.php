@@ -220,7 +220,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * than postObjects out of the box, so this filter adjusts the core mediaItem
 			 * shape of data
 			 */
-			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
+			add_filter( 'graphql_MediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
 		}
 
@@ -427,7 +427,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			$executable_schema = [
 				'query'    => \WPGraphQL\Types::root_query(),
-				'mutation' => \WPGraphQL\Types::root_mutation(),
+//				'mutation' => \WPGraphQL\Types::root_mutation(),
 			];
 
 			/**

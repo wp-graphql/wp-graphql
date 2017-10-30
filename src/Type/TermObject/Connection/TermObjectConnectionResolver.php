@@ -116,6 +116,11 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		$query_args['graphql_args'] = $args;
 
 		/**
+		 * Suppress filter by default
+		 */
+		$query_args['suppress_filter'] = true;
+
+		/**
 		 * If the source of the Query is a Post object, adjust the query args to only query terms
 		 * connected to the post object
 		 *

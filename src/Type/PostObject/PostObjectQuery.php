@@ -159,7 +159,7 @@ class PostObjectQuery {
 				];
 			}
 
-			self::$post_object_by_args[ $post_type_object->name . 'ByArgs' ] = WPInputObjectType::prepare_fields( $args, $post_type_object->name . 'ByArgs' );
+			self::$post_object_by_args[ $post_type_object->name . 'ByArgs' ] = $args;
 
 		}
 
