@@ -399,7 +399,6 @@ class PostObjectType extends WPObjectType {
 							'taxonomy' => [
 								'type'         => Types::list_of( Types::taxonomy_enum() ),
 								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						// Translators: placeholder is the name of the post_type
@@ -430,7 +429,6 @@ class PostObjectType extends WPObjectType {
 							'taxonomy' => [
 								'type'         => Types::taxonomy_enum(),
 								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						// Translators: placeholder is the name of the post_type

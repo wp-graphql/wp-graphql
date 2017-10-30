@@ -234,7 +234,6 @@ class PostTypeType extends WPObjectType {
 							'taxonomies' => [
 								'type' => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'A list of Taxonomies associated with the post type', 'wp-graphql' ),
@@ -266,7 +265,6 @@ class PostTypeType extends WPObjectType {
 							'taxonomies' => [
 								'type' => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
