@@ -118,7 +118,7 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 				],
 			];
-			self::$fields = $fields;
+			self::$fields = self::prepare_fields( $fields, 'userArgs' );
 		endif;
 		return self::$fields;
 

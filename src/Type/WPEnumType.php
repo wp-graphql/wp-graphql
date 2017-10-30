@@ -33,30 +33,22 @@ class WPEnumType extends EnumType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	protected static function prepare_values( $values, $type_name ) {
+	private static function prepare_values( $values, $type_name ) {
 
 		/**
-		 * Ensure the values are a populated array, then filter them
+		 * Pass the values through a filter
+		 *
+		 * @param array $values
+		 *
+		 * @since 0.0.5
 		 */
-		if ( ! empty( $values ) && is_array( $values ) ) {
+		$values = apply_filters( 'graphql_' . $type_name . '_values', $values );
 
-				/**
-			 * Pass the values through a filter
-			 *
-			 * @param array $values
-			 *
-			 * @since 0.0.5
-			 */
-			$values = apply_filters( 'graphql_' . $type_name . '_values', $values );
-
-			/**
-			 * Sort the values alphabetically by key. This makes reading through docs much easier
-			 *
-			 * @since 0.0.5
-			 */
-			ksort( $values );
-
-		}
+		/**
+		 * Sort the values alphabetically by key. This makes reading through docs much easier
+		 * @since 0.0.5
+		 */
+		ksort( $values );
 
 		/**
 		 * Return the filtered, sorted $fields

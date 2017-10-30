@@ -28,16 +28,6 @@ use WPGraphQL\Types;
 class RootQueryType extends WPObjectType {
 
 	/**
-	 * Holds the Type name
-	 *
-	 * @var string
-	 * @access private
-	 */
-	private static $type_name;
-
-	private static $fields;
-
-	/**
 	 * RootQueryType constructor.
 	 * @since 0.0.5
 	 */
@@ -50,17 +40,11 @@ class RootQueryType extends WPObjectType {
 		do_action( 'graphql_root_query' );
 
 		/**
-		 * Set the Type Name
-		 */
-		self::$type_name = 'RootQuery';
-
-		/**
 		 * Configure the RootQuery
 		 * @since 0.0.5
 		 */
 		$config = [
-			'name' => self::$type_name,
-			'description' => __( 'The root query entry point for the API', 'wp-graphql' ),
+			'name' => 'rootQuery',
 			'fields' => self::fields(),
 		];
 
@@ -72,10 +56,7 @@ class RootQueryType extends WPObjectType {
 
 	}
 
-	/**
-	 * @return array|\GraphQL\Type\Definition\FieldDefinition[]
-	 */
-	protected static function fields() {
+	public static function fields() {
 
 		/**
 		 * Setup data
@@ -223,6 +204,12 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.5
 		 */
 		$fields = apply_filters( 'graphql_root_queries', $fields );
+
+		/**
+		 * Sort the fields alphabetically by keys
+		 * (this makes the schema documentation much nicer to browse)
+		 */
+		ksort( $fields );
 
 		return $fields;
 

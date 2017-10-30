@@ -1,5 +1,4 @@
 <?php
-
 namespace WPGraphQL\Type\PostObject\Connection;
 
 use GraphQL\Error\UserError;
@@ -52,22 +51,25 @@ class PostObjectConnectionDefinition {
 			$connection = Relay::connectionDefinitions( [
 				'nodeType'         => Types::post_object( $post_type_object->name ),
 				'name'             => ucfirst( $post_type_object->graphql_plural_name ),
-				'connectionFields' => [
-					'postTypeInfo' => [
-						'type'        => Types::post_type(),
-						'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
-							return $post_type_object;
-						},
-					],
-					'nodes'        => [
-						'type'        => Types::list_of( Types::post_object( $post_type_object->name ) ),
-						'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-						'resolve'     => function( $source, $args, $context, $info ) {
-							return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
-						},
-					],
-				],
+				'connectionFields' => function() use ( $post_type_object ) {
+
+					return [
+						'postTypeInfo' => [
+							'type'        => Types::post_type(),
+							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
+							'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+								return $post_type_object;
+							},
+						],
+						'nodes' => [
+							'type' => Types::list_of( Types::post_object( $post_type_object->name ) ),
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve' => function( $source, $args, $context, $info ) {
+								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+							},
+						],
+					];
+				},
 			] );
 
 			/**

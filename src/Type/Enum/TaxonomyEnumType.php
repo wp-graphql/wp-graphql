@@ -22,9 +22,7 @@ class TaxonomyEnumType extends WPEnumType {
 		$config = [
 			'name'        => 'TaxonomyEnum',
 			'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
-			'values'      => function() {
-				return self::prepare_values( self::values(), 'TaxonomyEnum' );
-			},
+			'values'      => self::values(),
 		];
 		parent::__construct( $config );
 	}

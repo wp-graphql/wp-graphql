@@ -188,7 +188,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = $fields;
+			self::$fields = self::prepare_fields( $fields, 'commentArgs' );
 		endif;
 		return self::$fields;
 

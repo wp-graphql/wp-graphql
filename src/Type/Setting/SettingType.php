@@ -45,14 +45,6 @@ class SettingType extends WPObjectType {
 	private static $setting_fields;
 
 	/**
-	 * Holds the type name
-	 *
-	 * @var string
-	 * @access private
-	 */
-	private static $type_name;
-
-	/**
 	 * SettingType constructor.
 	 *
 	 * @param string $setting_type The setting group name
@@ -71,17 +63,10 @@ class SettingType extends WPObjectType {
 		 */
 		self::$setting_fields = DataSource::get_setting_group_fields( $setting_type );
 
-		/**
-		 * Holds the name of the Type
-		 */
-		self::$type_name = ucfirst( $setting_type ) . 'Settings';
-
 		$config = [
-			'name'        => self::$type_name,
+			'name'        => ucfirst( $setting_type ) . 'Settings',
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
-			'fields' => function() {
-				return self::fields();
-			},
+			'fields'      => self::fields( self::$setting_fields, $setting_type ),
 		];
 
 		parent::__construct( $config );
@@ -91,10 +76,12 @@ class SettingType extends WPObjectType {
 	/**
 	 * This defines the fields (various settings) for a given setting type
 	 *
+	 * @param $setting_fields
+	 *
 	 * @access private
 	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
 	 */
-	protected static function fields() {
+	private static function fields( $setting_fields, $group ) {
 
 		/**
 		 * Set $fields to an empty array so that we aren't storing values
@@ -102,13 +89,13 @@ class SettingType extends WPObjectType {
 		 */
 		$fields = [];
 
-		if ( ! empty( self::$setting_fields ) && is_array( self::$setting_fields ) ) {
+		if ( ! empty( $setting_fields ) && is_array( $setting_fields ) ) {
 
 			/**
 			 * Loop through the $setting_type_array and build the setting with
 			 * proper fields
 			 */
-			foreach ( self::$setting_fields as $key => $setting_field ) {
+			foreach ( $setting_fields as $key => $setting_field ) {
 
 				/**
 				 * Determine if the individual setting already has a
@@ -174,7 +161,11 @@ class SettingType extends WPObjectType {
 
 			}
 
-			self::$fields = $fields;
+			/**
+			 * Pass the fields through a filter to allow for hooking in and adjusting the shape
+			 * of the type's schema
+			 */
+			self::$fields = self::prepare_fields( $fields, self::$setting_type );
 
 		}
 

@@ -24,6 +24,41 @@ class WPInputObjectType extends InputObjectType {
 	}
 
 	/**
+	 * prepare_fields
+	 *
+	 * This function sorts the fields and applies a filter to allow for easily
+	 * extending/modifying the shape of the Schema for the type.
+	 *
+	 * @param array $fields
+	 * @param string $type_name
+	 * @return mixed
+	 * @since 0.0.5
+	 */
+	public static function prepare_fields( array $fields, $type_name ) {
+
+		/**
+		 * Pass the fields through a filter
+		 *
+		 * @param array $fields
+		 *
+		 * @since 0.0.5
+		 */
+		$fields = apply_filters( "graphql_{$type_name}_fields", $fields );
+
+		/**
+		 * Sort the fields alphabetically by key. This makes reading through docs much easier
+		 * @since 0.0.2
+		 */
+		ksort( $fields );
+
+		/**
+		 * Return the filtered, sorted $fields
+		 * @since 0.0.5
+		 */
+		return $fields;
+	}
+
+	/**
 	 * format_enum_name
 	 *
 	 * This formats enum_names to be all caps with underscores for spaces/word-breaks
