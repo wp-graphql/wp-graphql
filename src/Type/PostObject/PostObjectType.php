@@ -2,9 +2,11 @@
 
 namespace WPGraphQL\Type\PostObject;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
+use WebSocket\Exception;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
@@ -312,29 +314,7 @@ class PostObjectType extends WPObjectType {
 						},
 					],
 					'editLock'          => [
-						'type'        => new WPObjectType( [
-							'name'   => ucfirst( $single_name ) . 'editLock',
-							'fields' => [
-								'editTime' => [
-									'type'        => Types::string(),
-									'description' => __( 'The time when the object was last edited', 'wp-graphql' ),
-									'resolve'     => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
-										$time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
-
-										return ! empty( $time ) ? date( 'Y-m-d H:i:s', $time ) : null;
-									},
-								],
-								'user'     => [
-									'type'        => Types::user(),
-									'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-									'resolve'     => function( $edit_lock, array $args, AppContext $context, ResolveInfo $info ) {
-										$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
-
-										return ! empty( $user_id ) ? DataSource::resolve_user( $user_id ) : null;
-									},
-								],
-							],
-						] ),
+						'type'        => Types::edit_lock(),
 						'description' => __( 'If a user has edited the object within the past 15 seconds, this will return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
 							$edit_lock       = get_post_meta( $post->ID, '_edit_lock', true );

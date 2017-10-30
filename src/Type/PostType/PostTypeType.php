@@ -313,7 +313,7 @@ class PostTypeType extends WPObjectType {
 	private static function labels_details() {
 		if ( null === self::$labels_details ) {
 			self::$labels_details = new WPObjectType( [
-				'name'   => 'labelsDetails',
+				'name'   => 'LabelsDetails',
 				'fields' => function() {
 					$fields = [
 						'name' => [

@@ -148,7 +148,7 @@ class WPSchema extends Schema {
 						 * @param ResolveInfo $info      The ResolveInfo for this spot in the resolve tree
 						 * @param string      $type_name The name of the Type def
 						 * @param string      $field_key The name of the Field
-						 * @param object      $field     The Field def
+						 * @param object      $field     The Field definition
 						 */
 						do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $type_name, $field_key, $field );
 
@@ -172,6 +172,9 @@ class WPSchema extends Schema {
 						 * @param string      $type_name The name of the Type def
 						 * @param string      $field_key The name of the Field
 						 * @param object      $field     The Field def
+						 *
+						 * @return mixed
+						 * @throws UserError
 						 */
 						$filtered_resolver = apply_filters( 'graphql_field_resolver', $resolver, $source, $args, $context, $info, $type_name, $type_object, $field_key, $field );
 
@@ -195,11 +198,26 @@ class WPSchema extends Schema {
 						return $filtered_resolver;
 					};
 
+					/**
+					 * Filter the field definition
+					 *
+					 * @param FieldDefinition $field       The Field definition
+					 * @param array           $fields      Array of fields for the given type
+					 * @param string          $type_name   The name of the Type
+					 * @param object          $type_object The Type definition
+					 *
+					 * @return FieldDefinition
+					 */
+					$fields[ $field_key ] = apply_filters( 'graphql_field_definition', $field, $type_object, $type_name, $fields );
+
 				}
 			}
 
 		}
 
+		/**
+		 * Return the wrapped fields
+		 */
 		return $fields;
 
 	}
@@ -233,7 +251,7 @@ class WPSchema extends Schema {
 				/**
 				 * Set the default auth error message
 				 */
-				$default_auth_error_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
+				$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
 
 				/**
 				 * Filter the error that should be returned if the user doesn't have permissions to get the field
@@ -246,12 +264,12 @@ class WPSchema extends Schema {
 				 * @param string          $type_name The name of the Type def
 				 * @param string          $field_key The name of the Field
 				 */
-				$auth_error = apply_filters( $default_auth_error_error_message, $field, $source, $args, $context, $info, $type_name, $type_object );
+				$auth_error = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field, $source, $args, $context, $info, $type_name, $type_object );
 
 				/**
 				 * If the auth config is a callback,
 				 */
-				if ( is_callable( $field->config['auth'] ) ) {
+				if ( isset( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
 
 					/**
 					 * Execute the auth callback
@@ -267,31 +285,27 @@ class WPSchema extends Schema {
 					 * @return mixed
 					 * @throws UserError
 					 */
-					call_user_func( $field->config['auth'], $field, $source, $args, $context, $info, $type_name, $type_object );
+					return call_user_func( $field->config['auth']['callback'], $resolver, $field, $source, $args, $context, $info, $type_name, $type_object );
 
-				} else if ( is_array( $field->config['auth'] ) ) {
+				} else if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
 
 					/**
-					 * Loop through each auth capability and check if a user has the capability. If a user does not,
-					 * throw a UserError
+					 * If the user DOESN'T have any of the allowedCaps throw the error
 					 */
-					foreach ( $field->config['auth'] as $capability ) {
-						if ( ! current_user_can( $capability ) ) {
-							throw new UserError( $auth_error );
-						}
-					};
+					if ( empty( array_intersect( array_keys( wp_get_current_user()->allcaps ), array_values( $field->config['auth']['allowedCaps'] ) ) ) ) {
+						throw new UserError( $auth_error );
+					}
 
 					/**
 					 * If the field auth config is set as a string, treat it as a capability
 					 * and check to make sure the current user has the capability
 					 */
-				} else if ( is_string( $field->config['auth'] ) ) {
+				} else if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
 
 					/**
-					 * If the current user doesn't have the specified capability,
-					 * throw a UserError
+					 * If the user DOESN'T have any of the allowedCaps throw the error
 					 */
-					if ( ! current_user_can( $field->config['auth'] ) ) {
+					if ( empty( array_intersect( array_values( wp_get_current_user()->roles ), array_values( $field->config['auth']['allowedRoles'] ) ) ) ) {
 						throw new UserError( $auth_error );
 					}
 

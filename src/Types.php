@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
 use WPGraphQL\Type\CommentAuthor\CommentAuthorType;
+use WPGraphQL\Type\EditLock\EditLockType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostObjectFieldFormatEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
@@ -80,6 +81,14 @@ class Types {
 	 * @access private
 	 */
 	private static $comment_author_union;
+
+	/**
+	 * Stores the EditLock definition
+	 *
+	 * @var EditLockType object $edit_lock
+	 * @access private
+	 */
+	private static $edit_lock;
 
 	/**
 	 * Stores the mime type enum object
@@ -318,6 +327,16 @@ class Types {
 	 */
 	public static function comment_author_union() {
 		return self::$comment_author_union ? : ( self::$comment_author_union = new CommentAuthorUnionType() );
+	}
+
+	/**
+	 * This returns the definition for the EditLock type
+	 *
+	 * @return EditLockType object
+	 * @access public
+	 */
+	public static function edit_lock() {
+		return self::$edit_lock ? : ( self::$edit_lock = new EditLockType() );
 	}
 
 	/**
