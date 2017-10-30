@@ -22,10 +22,33 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 	 */
 	public function generate_static_schema( $args, $assoc_args ) {
 
+		/**
+		 * Set the file path for where to save the static schema
+		 */
+		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
+
+		/**
+		 * Generate the Schema
+		 */
+		WP_CLI::line( __( 'Getting the Schema...', 'wp-graphql' ) );
 		$schema = WPGraphQL::get_sanitized_schema();
+
+		/**
+		 * Format the Schema
+		 */
+		WP_CLI::line( __( 'Formatting the Schema...', 'wp-graphql' ) );
 		$printed = \GraphQL\Utils\SchemaPrinter::doPrint( $schema );
-		file_put_contents( WPGRAPHQL_PLUGIN_DIR . '/schema.graphql', $printed );
-		return $printed;
+
+		/**
+		 * Save the Schema to the file
+		 */
+		WP_CLI::line( __( 'Saving the Schema...', 'wp-graphql' ) );
+		file_put_contents( $file_path, $printed );
+
+		/**
+		 * All done!
+		 */
+		WP_CLI::success( __( 'All done. Schema output to ' . $file_path, 'wp-graphql' ) );
 
 	}
 
