@@ -28,72 +28,70 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 		$this->global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->post );
 
-		parent::setUp();
+		/**
+		 * Filter the post fields to add a fields for testing
+		 */
+		add_filter( 'graphql_post_fields', function( $fields ) {
+
+			$fields['testIsPrivate'] = [
+				'type' => \WPGraphQL\Types::string(),
+				'isPrivate' => true,
+				'resolve' => function() {
+					return 'isPrivateValue';
+				}
+			];
+
+			$fields['authCallback'] = [
+				'type' => \WPGraphQL\Types::string(),
+				'auth' => [
+					'callback' => function( $resolver ) {
+						/**
+						 * If the current user doesn't have user meta "authCallbackTest" with value "secret"
+						 * throw an error (do not resolve the field)
+						 */
+						if ( 'secret' !== get_user_meta( wp_get_current_user()->ID, 'authCallbackTest', true ) ) {
+							throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
+						}
+						return $resolver;
+					}
+				],
+				'resolve' => function() {
+					return 'authCallbackValue';
+				}
+			];
+
+			$fields['authRoles'] = [
+				'type' => \WPGraphQL\Types::string(),
+				'auth' => [
+					'allowedRoles' => [ 'administrator', 'editor' ],
+				],
+				'resolve' => function() {
+					return 'allowedRolesValue';
+				}
+			];
+
+			$fields['authCaps'] = [
+				'type' => \WPGraphQL\Types::string(),
+				'auth' => [
+					'allowedCaps' => [ 'manage_options', 'graphql_rocks' ],
+				],
+				'resolve' => function() {
+					return 'allowedCapsValue';
+				}
+			];
+
+			return $fields;
+		} );
 	}
 
 	public function tearDown() {
 		parent::tearDown();
 	}
 
-	public function _add_fields( $fields ) {
-
-		$fields['testIsPrivate'] = [
-			'type' => \WPGraphQL\Types::string(),
-			'isPrivate' => true,
-			'resolve' => function() {
-				return 'isPrivateValue';
-			}
-		];
-
-		$fields['authCallback'] = [
-			'type' => \WPGraphQL\Types::string(),
-			'auth' => [
-				'callback' => function( $resolver ) {
-					/**
-					 * If the current user doesn't have user meta "authCallbackTest" with value "secret"
-					 * throw an error (do not resolve the field)
-					 */
-					if ( 'secret' !== get_user_meta( wp_get_current_user()->ID, 'authCallbackTest', true ) ) {
-						throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
-					}
-					return $resolver;
-				}
-			],
-			'resolve' => function() {
-				return 'authCallbackValue';
-			}
-		];
-
-		$fields['authRoles'] = [
-			'type' => \WPGraphQL\Types::string(),
-			'auth' => [
-				'allowedRoles' => [ 'administrator', 'editor' ],
-			],
-			'resolve' => function() {
-				return 'allowedRolesValue';
-			}
-		];
-
-		$fields['authCaps'] = [
-			'type' => \WPGraphQL\Types::string(),
-			'auth' => [
-				'allowedCaps' => [ 'manage_options', 'graphql_rocks' ],
-			],
-			'resolve' => function() {
-				return 'allowedCapsValue';
-			}
-		];
-
-		return $fields;
-
-	}
-
 	/**
 	 * This tests to make sure a field marked isPrivate will return a null value for the resolver
 	 */
 	public function testIsPrivate() {
-
-		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
@@ -149,8 +147,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public function testAuthCallback() {
 
-		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
-
 		/**
 		 * Set the current user to nobody
 		 */
@@ -204,8 +200,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 	}
 
 	public function testAuthRoles() {
-
-		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
@@ -265,8 +259,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 	}
 
 	public function testAuthCaps() {
-
-		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
