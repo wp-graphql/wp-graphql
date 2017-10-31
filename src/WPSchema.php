@@ -43,7 +43,7 @@ class WPSchema extends Schema {
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
-
+		$this->check_field_permissions();
 		parent::__construct( $this->filterable_config );
 	}
 
@@ -59,7 +59,8 @@ class WPSchema extends Schema {
 		/**
 		 * Get the prepared TypeMap
 		 */
-		$types = $schema->getTypeMap();
+		$sanitized_types = [];
+		$types           = $schema->getTypeMap();
 
 		/**
 		 * Ensure there are types
@@ -75,11 +76,12 @@ class WPSchema extends Schema {
 					/**
 					 * esc the values
 					 */
-					$sanitized_types[ $type_name ]                   = $type_object;
-					$sanitized_types[ $type_name ]->name             = ucfirst( esc_html( $type_object->name ) );
-					$sanitized_types[ $type_name ]->description      = esc_html( $type_object->description );
-//					$sanitized_fields                                = self::sanitize_fields( $type_object->getFields(), $type_name, $type_object );
-//					$sanitized_types[ $type_name ]->config['fields'] = $sanitized_fields;
+					$sanitized_type                   = $type_object;
+					$sanitized_type->name             = ucfirst( esc_html( $type_object->name ) );
+					$sanitized_type->description      = esc_html( $type_object->description );
+					$sanitized_fields                 = self::sanitize_fields( $type_object->getFields(), $type_name, $type_object );
+					$sanitized_type->config['fields'] = $sanitized_fields;
+					$sanitized_types[ $type_name ]    = $sanitized_type;
 				}
 			}
 		}
@@ -103,9 +105,8 @@ class WPSchema extends Schema {
 	 *
 	 * This sanitizes field output and provides default hooks and filters for the resolvers
 	 *
-	 * @param array  $fields      Array of fields for the given type
-	 * @param string $type_name   The name of the Type
-	 * @param object $type_object The Type definition
+	 * @param array  $fields    Array of fields for the given type
+	 * @param string $type_name The name of the Type
 	 *
 	 * @return mixed
 	 */
