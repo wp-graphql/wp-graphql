@@ -43,7 +43,7 @@ class WPSchema extends Schema {
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
-		$this->check_field_permissions();
+//		$this->check_field_permissions();
 
 		parent::__construct( $this->filterable_config );
 	}
