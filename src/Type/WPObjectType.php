@@ -109,6 +109,12 @@ class WPObjectType extends ObjectType {
 			$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
 
 			/**
+			 * Filter once with lowercase, once with uppercase for Back Compat.
+			 */
+			$lc_type_name = lcfirst( $type_name );
+			$uc_type_name = ucfirst( $type_name );
+
+			/**
 			 * Filter the fields with the typename explicitly in the filter name
 			 *
 			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
@@ -116,7 +122,17 @@ class WPObjectType extends ObjectType {
 			 *
 			 * @param array $fields The array of fields for the object config
 			 */
-			$fields = apply_filters( "graphql_{$type_name}_fields", $fields );
+			$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields );
+
+			/**
+			 * Filter the fields with the typename explicitly in the filter name
+			 *
+			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+			 * more specific overrides
+			 *
+			 * @param array $fields The array of fields for the object config
+			 */
+			$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
 
 			/**
 			 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
