@@ -3,7 +3,6 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\Language\AST\Field;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -119,7 +118,7 @@ class Auth {
 			( ! empty( $field->config['auth'] ) && is_array( $field->config['auth'] ) ) )
 		) {
 
-			if ( empty( wp_get_current_user()->ID ) ) {
+			if ( empty( get_current_user_id() ) ) {
 				throw new UserError( $auth_error );
 			}
 
@@ -127,61 +126,24 @@ class Auth {
 				return call_user_func( $field->config['auth']['callback'], $field, $field_key,  $source, $args, $context, $info, $field_resolver );
 			}
 
-			if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_callable( $field->config['auth']['allowedCaps'] ) ) {
-				if ( empty( array_intersect( array_keys( wp_get_current_user()->allcaps ), array_values( $field['auth']['allowedCaps'] ) ) ) ) {
+			if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
+				$caps = ! empty( wp_get_current_user()->allcaps ) ? wp_get_current_user()->allcaps : [];
+				if ( empty( array_intersect( array_keys( $caps ), array_values( $field->config['auth']['allowedCaps'] ) ) ) ) {
 					throw new UserError( $auth_error );
 				}
 			}
 
-			if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_callable( $field->config['auth']['allowedRoles'] ) ) {
-				if ( empty( array_intersect( array_values( wp_get_current_user()->roles ), array_values( $field['auth']['allowedRoles'] ) ) ) ) {
+			if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
+				$roles = ! empty( wp_get_current_user()->roles ) ? wp_get_current_user()->roles : [];
+				$allowed_roles = array_values( $field->config['auth']['allowedRoles'] );
+				if ( empty( array_intersect( array_values( $roles ), array_values( $allowed_roles ) ) ) ) {
 					throw new UserError( $auth_error );
 				}
 			}
 
 		}
 
-
-
-//		/**
-//		 * If the auth config is a callback,
-//		 */
-//		if ( ! empty( $field['auth']['callback'] ) && is_callable( $field['auth']['callback'] ) ) {
-//			return call_user_func( $field['auth']['callback'], $field, $type_name );
-//		} else if ( ! empty( $field['auth']['allowedCaps'] ) && is_array( $field['auth']['allowedCaps'] ) ) {
-//			return function() use ( $auth_error, $field ) {
-//				if ( empty( array_intersect( array_keys( wp_get_current_user()->allcaps ), array_values( $field['auth']['allowedCaps'] ) ) ) ) {
-//					throw new UserError( $auth_error );
-//				}
-//			};
-//		} else if ( ! empty( $field['auth']['allowedRoles'] ) && is_array( $field['auth']['allowedRoles'] ) ) {
-//
-//			/**
-//			 * If the user DOESN'T have any of the allowedCaps throw the error
-//			 */
-//			return function() use ( $auth_error, $field ) {
-//				if ( empty( array_intersect( array_values( wp_get_current_user()->roles ), array_values( $field['auth']['allowedRoles'] ) ) ) ) {
-//					throw new UserError( $auth_error );
-//				}
-//			};
-//
-//			/**
-//			 * If the field is marked as "isPrivate" make sure the request is authenticated, else throw a UserError
-//			 */
-//		} else if ( true === $field['isPrivate'] ) {
-//
-//			/**
-//			 * If the field is marked as private, but no specific auth check was configured,
-//			 * make sure a user is authenticated, or throw an error
-//			 */
-//
-//			return function() use ( $auth_error ) {
-//				if ( 0 === wp_get_current_user()->ID ) {
-//					throw new UserError( $auth_error );
-//				}
-//			};
-//		}
-
+		return true;
 
 	}
 

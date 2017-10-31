@@ -209,10 +209,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		/**
 		 * Set the current user to nobody
 		 */
-		$user = new WP_User( $this->admin );
-		$user->add_cap( 'manage_options' );
-		$user->add_cap( 'graphql_rocks' );
-		wp_set_current_user( $user->ID );
+		wp_set_current_user( $this->subscriber );
 
 		$request = '
 		query getPost( $id:ID! ) {
@@ -233,32 +230,27 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		/**
 		 * The query should execute, but should contain errors
 		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
-		$this->assertEquals( 'allowedCapsValue', $actual['data']['post']['authCaps'] );
+		$this->assertNull( $actual['data']['post']['authCaps'] );
 		$this->assertEquals( $this->post, $actual['data']['post']['postId'] );
-
 
 		/**
 		 * Remove the caps from the user
 		 */
-		$user = new WP_User( $this->editor );
-		$user->remove_cap( 'manage_options' );
-		$user->remove_cap( 'graphql_rocks' );
-		wp_set_current_user( $user );
+		wp_set_current_user( $this->admin );
 
 		/**
 		 * Run the request, this time the value should be null and there should be an error
 		 */
 		$actual = do_graphql_request( $request, 'getPost', $variables );
 
-
 		/**
 		 * The query should execute, but should contain errors
 		 */
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
-		$this->assertNull( $actual['data']['post']['authCaps'] );
+		$this->assertEquals( 'allowedCapsValue', $actual['data']['post']['authCaps'] );
 		$this->assertEquals( $this->post, $actual['data']['post']['postId'] );
 
 	}

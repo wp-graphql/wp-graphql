@@ -36,14 +36,14 @@ function _add_fields( $fields ) {
 	$fields['authCallback'] = [
 		'type' => \WPGraphQL\Types::string(),
 		'auth' => [
-			'callback' => function( $resolver, $field, $source, $args, $context, $info, $type_name, $type_object ) {
+			'callback' => function( $field, $field_key,  $source, $args, $context, $info, $field_resolver ) {
 				/**
 				 * If the current user isn't the user with the login "admin" throw an error
 				 */
 				if ( 'schemaAdmin' !== wp_get_current_user()->user_login ) {
 					throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
 				}
-				return $resolver;
+				return $field_resolver;
 			}
 		],
 		'resolve' => function() {
