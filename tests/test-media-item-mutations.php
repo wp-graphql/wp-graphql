@@ -896,7 +896,6 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
-		$input = $this->update_variables['input'];
 		$actual = $this->updateMediaItemMutation();
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
