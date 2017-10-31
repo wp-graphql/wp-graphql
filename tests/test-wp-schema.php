@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * Class WP_GraphQL_Test_WPSchema
+ */
 class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public $post;
@@ -9,16 +13,21 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public function setUp() {
 
+		parent::setUp();
+
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
+			'user_login' => 'schemaAdmin',
 		] );
 
 		$this->editor = $this->factory->user->create( [
 			'role' => 'editor',
+			'user_login' => 'schemaEditor',
 		] );
 
 		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
+			'user_login' => 'schemaSubscriber',
 		] );
 
 		$this->post = $this->factory->post->create( [
@@ -28,60 +37,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 		$this->global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->post );
 
-		/**
-		 * Filter the post fields to add a fields for testing
-		 */
-		add_filter( 'graphql_post_fields', function( $fields ) {
-
-			$fields['testIsPrivate'] = [
-				'type' => \WPGraphQL\Types::string(),
-				'isPrivate' => true,
-				'resolve' => function() {
-					return 'isPrivateValue';
-				}
-			];
-
-			$fields['authCallback'] = [
-				'type' => \WPGraphQL\Types::string(),
-				'auth' => [
-					'callback' => function( $resolver ) {
-						/**
-						 * If the current user doesn't have user meta "authCallbackTest" with value "secret"
-						 * throw an error (do not resolve the field)
-						 */
-						if ( 'secret' !== get_user_meta( wp_get_current_user()->ID, 'authCallbackTest', true ) ) {
-							throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
-						}
-						return $resolver;
-					}
-				],
-				'resolve' => function() {
-					return 'authCallbackValue';
-				}
-			];
-
-			$fields['authRoles'] = [
-				'type' => \WPGraphQL\Types::string(),
-				'auth' => [
-					'allowedRoles' => [ 'administrator', 'editor' ],
-				],
-				'resolve' => function() {
-					return 'allowedRolesValue';
-				}
-			];
-
-			$fields['authCaps'] = [
-				'type' => \WPGraphQL\Types::string(),
-				'auth' => [
-					'allowedCaps' => [ 'manage_options', 'graphql_rocks' ],
-				],
-				'resolve' => function() {
-					return 'allowedCapsValue';
-				}
-			];
-
-			return $fields;
-		} );
 	}
 
 	public function tearDown() {
@@ -113,8 +68,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		 */
 		$variables = wp_json_encode( [ 'id' => $this->global_id ] );
 		$actual = do_graphql_request( $request, 'getPost', $variables );
-
-		var_dump( $actual );
 
 		/**
 		 * The query should execute, but should contain errors
@@ -150,7 +103,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		/**
 		 * Set the current user to nobody
 		 */
-		wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->subscriber );
 
 		$request = '
 		query getPost( $id:ID! ) {
@@ -168,8 +121,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		$variables = wp_json_encode( [ 'id' => $this->global_id ] );
 		$actual = do_graphql_request( $request, 'getPost', $variables );
 
-		var_dump( $actual );
-
 		/**
 		 * The query should execute, but should contain errors
 		 */
@@ -178,10 +129,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		$this->assertNull( $actual['data']['post']['authCallback'] );
 		$this->assertEquals( $this->post, $actual['data']['post']['postId'] );
 
-		/**
-		 * Add the "authCallbackTest" value to the user so the authCallback will not throw an error
-		 */
-		update_user_meta( $this->admin, 'authCallbackTest', 'secret' );
+		wp_set_current_user( $this->admin );
 
 		/**
 		 * Run the request
@@ -234,8 +182,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 		$actual = do_graphql_request( $request, 'getPost', $variables );
 
-		var_dump( $actual );
-
 		/**
 		 * The query should execute, but should contain errors
 		 */
@@ -263,11 +209,10 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		/**
 		 * Set the current user to nobody
 		 */
-		wp_set_current_user( $this->admin );
-
 		$user = new WP_User( $this->admin );
 		$user->add_cap( 'manage_options' );
 		$user->add_cap( 'graphql_rocks' );
+		wp_set_current_user( $user->ID );
 
 		$request = '
 		query getPost( $id:ID! ) {
@@ -285,8 +230,6 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		$variables = wp_json_encode( [ 'id' => $this->global_id ] );
 		$actual = do_graphql_request( $request, 'getPost', $variables );
 
-		var_dump( $actual );
-
 		/**
 		 * The query should execute, but should contain errors
 		 */
@@ -302,7 +245,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		$user = new WP_User( $this->editor );
 		$user->remove_cap( 'manage_options' );
 		$user->remove_cap( 'graphql_rocks' );
-		wp_set_current_user( $user->ID );
+		wp_set_current_user( $user );
 
 		/**
 		 * Run the request, this time the value should be null and there should be an error

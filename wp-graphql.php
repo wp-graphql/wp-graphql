@@ -214,6 +214,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393
 			 */
 			add_action( 'do_graphql_request', 'register_initial_settings', 10 );
+
+			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Data\Auth', 'check_field_permissions' ], 10, 8 );
+
 		}
 
 		/**
@@ -228,8 +231,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
-			add_filter( 'graphql_schema', [ '\WPGraphQL\WPSchema', 'sanitize_schema' ] );
-
+			add_filter( 'graphql_schema', [ '\WPGraphQL\Data\Auth', 'instrument_schema' ], 10, 1 );
 		}
 
 		/**

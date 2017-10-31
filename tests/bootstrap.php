@@ -23,6 +23,60 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+function _add_fields( $fields ) {
+
+	$fields['testIsPrivate'] = [
+		'type' => \WPGraphQL\Types::string(),
+		'isPrivate' => true,
+		'resolve' => function() {
+			return 'isPrivateValue';
+		}
+	];
+
+	$fields['authCallback'] = [
+		'type' => \WPGraphQL\Types::string(),
+		'auth' => [
+			'callback' => function( $resolver, $field, $source, $args, $context, $info, $type_name, $type_object ) {
+				/**
+				 * If the current user isn't the user with the login "admin" throw an error
+				 */
+				if ( 'schemaAdmin' !== wp_get_current_user()->user_login ) {
+					throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
+				}
+				return $resolver;
+			}
+		],
+		'resolve' => function() {
+			return 'authCallbackValue';
+		}
+	];
+
+	$fields['authRoles'] = [
+		'type' => \WPGraphQL\Types::string(),
+		'auth' => [
+			'allowedRoles' => [ 'administrator', 'editor' ],
+		],
+		'resolve' => function() {
+			return 'allowedRolesValue';
+		}
+	];
+
+	$fields['authCaps'] = [
+		'type' => \WPGraphQL\Types::string(),
+		'auth' => [
+			'allowedCaps' => [ 'manage_options', 'graphql_rocks' ],
+		],
+		'resolve' => function() {
+			return 'allowedCapsValue';
+		}
+	];
+
+	return $fields;
+}
+
+tests_add_filter( 'graphql_post_fields', '_add_fields' );
+
+
 /**
  * Require the autoloader
  */
