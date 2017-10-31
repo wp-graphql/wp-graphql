@@ -43,7 +43,6 @@ class WPSchema extends Schema {
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
-		// $this->check_field_permissions();
 
 		parent::__construct( $this->filterable_config );
 	}
@@ -79,8 +78,8 @@ class WPSchema extends Schema {
 					$sanitized_types[ $type_name ]                   = $type_object;
 					$sanitized_types[ $type_name ]->name             = ucfirst( esc_html( $type_object->name ) );
 					$sanitized_types[ $type_name ]->description      = esc_html( $type_object->description );
-					$sanitized_fields                                = self::sanitize_fields( $type_object->getFields(), $type_name, $type_object );
-					$sanitized_types[ $type_name ]->config['fields'] = $sanitized_fields;
+//					$sanitized_fields                                = self::sanitize_fields( $type_object->getFields(), $type_name, $type_object );
+//					$sanitized_types[ $type_name ]->config['fields'] = $sanitized_fields;
 				}
 			}
 		}
