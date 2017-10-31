@@ -33,7 +33,9 @@ class EditLockType extends WPObjectType {
 		$config = [
 			'name' => self::$type_name,
 			'description' => __( 'Info on whether the object is locked by another user editing it', 'wp-graphql' ),
-			'fields' => self::fields(),
+			'fields' => function() {
+				return self::fields();
+			},
 		];
 
 		parent::__construct( $config );

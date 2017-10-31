@@ -157,9 +157,28 @@ class WPSchema extends Schema {
 						 */
 						if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
 							$resolver = Executor::defaultFieldResolver( $source, $args, $context, $info );
-						} else {
+						} else if ( is_callable( $field_resolver ) ) {
 							$resolver = call_user_func( $field_resolver, $source, $args, $context, $info );
+						} else {
+							$resolver = null;
 						}
+
+						/**
+						 * Filter the resolver execution
+						 *
+						 * @param callable    $resolver  The resolve function to execute and fulfill the field's contract
+						 * @param mixed       $source    The source being passed down the resolve tree
+						 * @param array       $args      The Input args for the field
+						 * @param AppContext  $context   The Context passed down the Resolve tree
+						 * @param ResolveInfo $info      The ResolveInfo for this spot in the resolve tree
+						 * @param string      $type_name The name of the Type def
+						 * @param string      $field_key The name of the Field
+						 * @param object      $field     The Field def
+						 *
+						 * @return mixed
+						 * @throws UserError
+						 */
+						$filtered_resolver = apply_filters( 'graphql_field_resolver', $resolver, $source, $args, $context, $info, $type_name, $type_object, $field_key, $field );
 
 						/**
 						 * Run an action AFTER resolving the field. This can be useful for
@@ -178,7 +197,7 @@ class WPSchema extends Schema {
 						/**
 						 * Return the
 						 */
-						return $resolver;
+						return $filtered_resolver;
 					};
 
 					/**
