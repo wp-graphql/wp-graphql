@@ -35,7 +35,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	public static function _add_fields( $fields ) {
+	public function _add_fields( $fields ) {
 
 		$fields['testIsPrivate'] = [
 			'type' => \WPGraphQL\Types::string(),
@@ -93,7 +93,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 	 */
 	public function testIsPrivate() {
 
-		add_filter( 'graphql_post_fields', [ 'WP_GraphQL_Test_WPSchema', '_add_fields' ], 10, 1 );
+		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
@@ -149,7 +149,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public function testAuthCallback() {
 
-		add_filter( 'graphql_post_fields', [ 'WP_GraphQL_Test_WPSchema', '_add_fields' ], 10, 1 );
+		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
@@ -205,7 +205,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public function testAuthRoles() {
 
-		add_filter( 'graphql_post_fields', [ 'WP_GraphQL_Test_WPSchema', '_add_fields' ], 10, 1 );
+		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
@@ -266,7 +266,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 	public function testAuthCaps() {
 
-		add_filter( 'graphql_post_fields', [ 'WP_GraphQL_Test_WPSchema', '_add_fields' ], 10, 1 );
+		add_filter( 'graphql_Post_fields', [ $this, '_add_fields' ], 10, 1 );
 
 		/**
 		 * Set the current user to nobody
