@@ -43,7 +43,7 @@ class WPSchema extends Schema {
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
-//		$this->check_field_permissions();
+		$this->check_field_permissions();
 
 		parent::__construct( $this->filterable_config );
 	}
@@ -159,26 +159,7 @@ class WPSchema extends Schema {
 							$resolver = Executor::defaultFieldResolver( $source, $args, $context, $info );
 						} else if ( is_callable( $field_resolver ) ) {
 							$resolver = call_user_func( $field_resolver, $source, $args, $context, $info );
-						} else {
-							$resolver = null;
 						}
-
-						/**
-						 * Filter the resolver execution
-						 *
-						 * @param callable    $resolver  The resolve function to execute and fulfill the field's contract
-						 * @param mixed       $source    The source being passed down the resolve tree
-						 * @param array       $args      The Input args for the field
-						 * @param AppContext  $context   The Context passed down the Resolve tree
-						 * @param ResolveInfo $info      The ResolveInfo for this spot in the resolve tree
-						 * @param string      $type_name The name of the Type def
-						 * @param string      $field_key The name of the Field
-						 * @param object      $field     The Field def
-						 *
-						 * @return mixed
-						 * @throws UserError
-						 */
-						$filtered_resolver = apply_filters( 'graphql_field_resolver', $resolver, $source, $args, $context, $info, $type_name, $type_object, $field_key, $field );
 
 						/**
 						 * Run an action AFTER resolving the field. This can be useful for
@@ -197,7 +178,7 @@ class WPSchema extends Schema {
 						/**
 						 * Return the
 						 */
-						return $filtered_resolver;
+						return $resolver;
 					};
 
 					/**
@@ -232,49 +213,31 @@ class WPSchema extends Schema {
 		/**
 		 * Filter the field resolver to respect permissions on the field
 		 *
-		 * @param mixed       $resolver  The resolve function for the field
-		 * @param mixed       $source    The source of the field being passed down the resolve tree
-		 * @param array       $args      The Input args for the field
-		 * @param AppContext  $context   The Context passed down the Resolve tree
-		 * @param ResolveInfo $info      The ResolveInfo for this spot in the resolve tree
-		 * @param string      $type_name The name of the Type def
-		 * @param string      $field_key The name of the Field
+		 * @param FieldDefinition $field       The Field definition
+		 * @param WPObjectType    $type_object The Type object
+		 * @param string          $type_name   The name of the Type def
+		 * @param array           $fields      Array of all fields on the Type
 		 *
 		 * @return  mixed
 		 * @throws UserError
 		 */
-		add_filter( 'graphql_field_resolver', function( $resolver, $source, array $args, AppContext $context, ResolveInfo $info, $type_name, $type_object, $field_key, FieldDefinition $field ) {
+		add_filter( 'graphql_field_definition', function( $field, $type_object, $type_name, $fields ) {
 
 			/**
 			 * If the field has "auth" config set, try and fulfill it
 			 */
 			if ( isset( $field->config['auth'] ) || isset( $field->config['isPrivate'] ) ) {
 
-				/**
-				 * Set the default auth error message
-				 */
-				$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
-
-				/**
-				 * Filter the error that should be returned if the user doesn't have permissions to get the field
-				 *
-				 * @param FieldDefinition $field     The field definition to check auth for
-				 * @param mixed           $source    The source of the field being passed down the resolve tree
-				 * @param array           $args      The Input args for the field
-				 * @param AppContext      $context   The Context passed down the Resolve tree
-				 * @param ResolveInfo     $info      The ResolveInfo for this spot in the resolve tree
-				 * @param string          $type_name The name of the Type def
-				 * @param string          $field_key The name of the Field
-				 */
-				$auth_error = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field, $source, $args, $context, $info, $type_name, $type_object );
-
-				/**
-				 * If the auth config is a callback,
-				 */
-				if ( isset( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
+				$field_resolver   = ! empty( $field->resolveFn ) ? $field->resolveFn : null;
+				$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $type_object, $field_key, $field ) {
 
 					/**
-					 * Execute the auth callback
+					 * Set the default auth error message
+					 */
+					$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
+
+					/**
+					 * Filter the error that should be returned if the user doesn't have permissions to get the field
 					 *
 					 * @param FieldDefinition $field     The field definition to check auth for
 					 * @param mixed           $source    The source of the field being passed down the resolve tree
@@ -283,57 +246,77 @@ class WPSchema extends Schema {
 					 * @param ResolveInfo     $info      The ResolveInfo for this spot in the resolve tree
 					 * @param string          $type_name The name of the Type def
 					 * @param string          $field_key The name of the Field
-					 *
-					 * @return mixed
-					 * @throws UserError
 					 */
-					return call_user_func( $field->config['auth']['callback'], $resolver, $field, $source, $args, $context, $info, $type_name, $type_object );
-
-				} else if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
+					$auth_error = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field, $source, $args, $context, $info, $type_name, $type_object );
 
 					/**
-					 * If the user DOESN'T have any of the allowedCaps throw the error
+					 * If the auth config is a callback,
 					 */
-					if ( empty( array_intersect( array_keys( wp_get_current_user()->allcaps ), array_values( $field->config['auth']['allowedCaps'] ) ) ) ) {
-						throw new UserError( $auth_error );
+					if ( isset( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
+
+						/**
+						 * Execute the auth callback
+						 *
+						 * @param FieldDefinition $field     The field definition to check auth for
+						 * @param mixed           $source    The source of the field being passed down the resolve tree
+						 * @param array           $args      The Input args for the field
+						 * @param AppContext      $context   The Context passed down the Resolve tree
+						 * @param ResolveInfo     $info      The ResolveInfo for this spot in the resolve tree
+						 * @param string          $type_name The name of the Type def
+						 * @param string          $field_key The name of the Field
+						 *
+						 * @return mixed
+						 * @throws UserError
+						 */
+						return call_user_func( $field->config['auth']['callback'], $field, $source, $args, $context, $info, $type_name, $type_object );
+
+					} else if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
+
+						/**
+						 * If the user DOESN'T have any of the allowedCaps throw the error
+						 */
+						if ( empty( array_intersect( array_keys( wp_get_current_user()->allcaps ), array_values( $field->config['auth']['allowedCaps'] ) ) ) ) {
+							throw new UserError( $auth_error );
+						}
+
+						/**
+						 * If the field auth config is set as a string, treat it as a capability
+						 * and check to make sure the current user has the capability
+						 */
+					} else if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
+
+						/**
+						 * If the user DOESN'T have any of the allowedCaps throw the error
+						 */
+						if ( empty( array_intersect( array_values( wp_get_current_user()->roles ), array_values( $field->config['auth']['allowedRoles'] ) ) ) ) {
+							throw new UserError( $auth_error );
+						}
+
+						/**
+						 * If the field is marked as "isPrivate" make sure the request is authenticated, else throw a UserError
+						 */
+					} else if ( true === $field->config['isPrivate'] ) {
+
+						/**
+						 * If the field is marked as private, but no specific auth check was configured,
+						 * make sure a user is authenticated, or throw an error
+						 */
+						if ( 0 === wp_get_current_user()->ID ) {
+							throw new UserError( $auth_error );
+						}
+
 					}
 
-					/**
-					 * If the field auth config is set as a string, treat it as a capability
-					 * and check to make sure the current user has the capability
-					 */
-				} else if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
-
-					/**
-					 * If the user DOESN'T have any of the allowedCaps throw the error
-					 */
-					if ( empty( array_intersect( array_values( wp_get_current_user()->roles ), array_values( $field->config['auth']['allowedRoles'] ) ) ) ) {
-						throw new UserError( $auth_error );
-					}
-
-					/**
-					 * If the field is marked as "isPrivate" make sure the request is authenticated, else throw a UserError
-					 */
-				} else if ( true === $field->config['isPrivate'] ) {
-
-					/**
-					 * If the field is marked as private, but no specific auth check was configured,
-					 * make sure a user is authenticated, or throw an error
-					 */
-					if ( 0 === wp_get_current_user()->ID ) {
-						throw new UserError( $auth_error );
-					}
-
-				}
+				};
 
 			}
 
 			/**
 			 * Return the resolver
 			 */
-			return $resolver;
+			return $field;
 
-		}, 10, 9 );
+		}, 10, 4 );
 	}
 
 }
