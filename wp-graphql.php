@@ -65,6 +65,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		private static $instance;
 
 		/**
+		 * Holds the Schema def
+		 * @var \WPGraphQL\WPSchema
+		 */
+		protected static $schema;
+
+		/**
 		 * Stores an array of allowed post types
 		 *
 		 * @var array allowed_post_types
@@ -221,6 +227,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * shape of data
 			 */
 			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
+
+			add_filter( 'graphql_schema', [ '\WPGraphQL\WPSchema', 'sanitize_schema' ] );
 
 		}
 
@@ -412,55 +420,49 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		protected static function get_schema() {
 
-			/**
-			 * Get the Schema Dependencies
-			 *
-			 * @since 0.0.5
-			 */
-			\WPGraphQL::show_in_graphql();
-			\WPGraphQL::get_allowed_post_types();
-			\WPGraphQL::get_allowed_taxonomies();
+			if ( null === self::$schema ) {
 
-			/**
-			 * Create an executable Schema from the registered
-			 * root_Query and root_mutation
-			 */
-			$executable_schema = [
-				'query'    => \WPGraphQL\Types::root_query(),
-				'mutation' => \WPGraphQL\Types::root_mutation(),
-			];
+				/**
+				 * Get the Schema Dependencies
+				 *
+				 * @since 0.0.5
+				 */
+				\WPGraphQL::show_in_graphql();
+				\WPGraphQL::get_allowed_post_types();
+				\WPGraphQL::get_allowed_taxonomies();
 
-			/**
-			 * Generate the Schema
-			 */
-			$schema = new \WPGraphQL\WPSchema( $executable_schema );
+				/**
+				 * Create an executable Schema from the registered
+				 * root_Query and root_mutation
+				 */
+				$executable_schema = [
+					'query'    => \WPGraphQL\Types::root_query(),
+					'mutation' => \WPGraphQL\Types::root_mutation(),
+				];
 
-			/**
-			 * Generate & Filter the schema.
-			 *
-			 * @since 0.0.5
-			 *
-			 * @param array                 $schema      The executable Schema that GraphQL executes against
-			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
-			 *                                           information about the context we know at this point
-			 */
-			$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+				/**
+				 * Generate the Schema
+				 */
+				$schema = new \WPGraphQL\WPSchema( $executable_schema );
+
+				/**
+				 * Generate & Filter the schema.
+				 *
+				 * @since 0.0.5
+				 *
+				 * @param array                 $schema      The executable Schema that GraphQL executes against
+				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+				 *                                           information about the context we know at this point
+				 */
+				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+
+			}
 
 			/**
 			 * Return the Schema after applying filters
 			 */
-			return $schema;
+			return ! empty( self::$schema ) ? self::$schema : null;
 
-		}
-
-		/**
-		 * Returns a sanitized Schema with descriptions, etc safe for output
-		 *
-		 * @return \WPGraphQL\WPSchema
-		 * @access public
-		 */
-		public static function get_sanitized_schema() {
-			return \WPGraphQL\WPSchema::sanitize_schema( self::get_schema() );
 		}
 
 		/**
@@ -554,7 +556,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Executes the request and captures the result
 			 */
 			$result = \GraphQL\GraphQL::executeAndReturnResult(
-				self::get_sanitized_schema(),
+				self::get_schema(),
 				$request,
 				null,
 				self::get_app_context(),
@@ -573,7 +575,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param string     $request        The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL query
 			 */
-			do_action( 'graphql_execute', $result, self::get_sanitized_schema(), $operation_name, $request, $variables );
+			do_action( 'graphql_execute', $result, self::get_schema(), $operation_name, $request, $variables );
 
 			/**
 			 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
@@ -597,7 +599,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param string     $request        The request that GraphQL executed
 			 * @param array|null $variables      Variables to passed to your GraphQL request
 			 */
-			$filtered_result = apply_filters( 'graphql_request_results', $result, self::get_sanitized_schema(), $operation_name, $request, $variables );
+			$filtered_result = apply_filters( 'graphql_request_results', $result, self::get_schema(), $operation_name, $request, $variables );
 
 			/**
 			 * Run an action after the result has been filtered, as the response is being returned.
@@ -610,7 +612,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * @param string     $request         The request that GraphQL executed
 			 * @param array|null $variables       Variables to passed to your GraphQL query
 			 */
-			do_action( 'graphql_return_response', $filtered_result, $result, self::get_sanitized_schema(), $operation_name, $request, $variables );
+			do_action( 'graphql_return_response', $filtered_result, $result, self::get_schema(), $operation_name, $request, $variables );
 
 			/**
 			 * Make sure we reset the post data after the query is executed to avoid disrupting

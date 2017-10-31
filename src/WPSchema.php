@@ -43,7 +43,6 @@ class WPSchema extends Schema {
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
-		$this->check_field_permissions();
 		parent::__construct( $this->filterable_config );
 	}
 
@@ -55,6 +54,8 @@ class WPSchema extends Schema {
 	 * @return mixed
 	 */
 	public static function sanitize_schema( \WPGraphQL\WPSchema $schema ) {
+
+		self::check_field_permissions();
 
 		/**
 		 * Get the prepared TypeMap
@@ -213,7 +214,7 @@ class WPSchema extends Schema {
 	/**
 	 * Check permissions on fields that are configured with specific permissions
 	 */
-	protected function check_field_permissions() {
+	protected static function check_field_permissions() {
 
 		/**
 		 * Filter the field resolver to respect permissions on the field
