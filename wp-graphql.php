@@ -215,7 +215,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'do_graphql_request', 'register_initial_settings', 10 );
 
-			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Data\Auth', 'check_field_permissions' ], 10, 8 );
+			/**
+			 * Hook in before fields resolve to check field permissions
+			 */
+			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
 
 		}
 
@@ -231,7 +234,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
 
-			add_filter( 'graphql_schema', [ '\WPGraphQL\Data\Auth', 'instrument_schema' ], 10, 1 );
+			/**
+			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
+			 */
+			add_filter( 'graphql_schema', [ '\WPGraphQL\Utils\InstrumentSchema', 'instrument_schema' ], 10, 1 );
 		}
 
 		/**

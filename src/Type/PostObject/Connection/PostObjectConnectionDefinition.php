@@ -24,6 +24,11 @@ class PostObjectConnectionDefinition {
 	 */
 	private static $connection;
 
+	/**
+	 * Stores the added_args for the connection (in addition to the standard Relay args)
+	 *
+	 * @var array $added_args
+	 */
 	protected static $added_args;
 
 	/**

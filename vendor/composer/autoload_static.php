@@ -215,7 +215,7 @@ class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionArgs' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionArgs.php',
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionDefinition.php',
         'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Comment/Connection/CommentConnectionResolver.php',
-        'WPGraphQL\\Type\\EditLockType' => __DIR__ . '/../..' . '/src/Type/EditLock/EditLockType.php',
+        'WPGraphQL\\Type\\EditLock\\EditLockType' => __DIR__ . '/../..' . '/src/Type/EditLock/EditLockType.php',
         'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnumType.php',
         'WPGraphQL\\Type\\Enum\\MimeTypeEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MimeTypeEnumType.php',
         'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectFieldFormatEnumType.php',
@@ -276,6 +276,7 @@ class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
         'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php',
         'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php',
         'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php',
+        'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php',
         'WPGraphQL\\WPSchema' => __DIR__ . '/../..' . '/src/WPSchema.php',
     );
 

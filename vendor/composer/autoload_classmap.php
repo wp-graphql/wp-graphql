@@ -188,7 +188,7 @@ return array(
     'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionArgs' => $baseDir . '/src/Type/Comment/Connection/CommentConnectionArgs.php',
     'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionDefinition' => $baseDir . '/src/Type/Comment/Connection/CommentConnectionDefinition.php',
     'WPGraphQL\\Type\\Comment\\Connection\\CommentConnectionResolver' => $baseDir . '/src/Type/Comment/Connection/CommentConnectionResolver.php',
-    'WPGraphQL\\Type\\EditLockType' => $baseDir . '/src/Type/EditLock/EditLockType.php',
+    'WPGraphQL\\Type\\EditLock\\EditLockType' => $baseDir . '/src/Type/EditLock/EditLockType.php',
     'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => $baseDir . '/src/Type/Enum/MediaItemStatusEnumType.php',
     'WPGraphQL\\Type\\Enum\\MimeTypeEnumType' => $baseDir . '/src/Type/Enum/MimeTypeEnumType.php',
     'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnumType' => $baseDir . '/src/Type/Enum/PostObjectFieldFormatEnumType.php',
@@ -249,5 +249,6 @@ return array(
     'WPGraphQL\\Type\\WPInputObjectType' => $baseDir . '/src/Type/WPInputObjectType.php',
     'WPGraphQL\\Type\\WPObjectType' => $baseDir . '/src/Type/WPObjectType.php',
     'WPGraphQL\\Types' => $baseDir . '/src/Types.php',
+    'WPGraphQL\\Utils\\InstrumentSchema' => $baseDir . '/src/Utils/InstrumentSchema.php',
     'WPGraphQL\\WPSchema' => $baseDir . '/src/WPSchema.php',
 );
