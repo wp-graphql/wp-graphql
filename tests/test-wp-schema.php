@@ -17,7 +17,7 @@ class WP_GraphQL_Test_WPSchema extends WP_UnitTestCase {
 
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
-			'user_login' => 'schemaAdmin',
+			'user_email' => 'schema_admin_test@example.com',
 		] );
 
 		$this->editor = $this->factory->user->create( [

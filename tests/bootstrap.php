@@ -40,7 +40,7 @@ function _add_fields( $fields ) {
 				/**
 				 * If the current user isn't the user with the login "admin" throw an error
 				 */
-				if ( 'schemaAdmin' !== wp_get_current_user()->user_login ) {
+				if ( 'schema_admin_test@example.com' !== wp_get_current_user()->user_email ) {
 					throw new \GraphQL\Error\UserError( __( 'You need the secret!', 'wp-graphql' ) );
 				}
 				return $field_resolver;
