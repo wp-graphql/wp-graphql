@@ -33,6 +33,8 @@ class InstrumentSchema {
 					$fields                            = $type_object->getFields();
 					$new_fields                        = self::wrap_fields( $fields, $type_name );
 					$new_type_object                   = $type_object;
+					$new_type_object->name             = ucfirst( esc_html( $type_object->name ) );
+					$new_type_object->description      = esc_html( $type_object->description );
 					$new_type_object->config['fields'] = $new_fields;
 					$new_types[ $type_name ]           = $new_type_object;
 				}
@@ -181,13 +183,16 @@ class InstrumentSchema {
 	 *
 	 * @return bool|mixed
 	 */
-	public static function check_field_permissions( $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
+	public static function check_field_permissions( $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field ) {
 
 		/**
 		 * Set the default auth error message
 		 */
 		$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
 
+		/**
+		 * Filter the $auth_error
+		 */
 		$auth_error = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
 
 		/**
