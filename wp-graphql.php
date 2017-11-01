@@ -426,7 +426,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * @access protected
 		 * @return \WPGraphQL\WPSchema
 		 */
-		protected static function get_schema() {
+		public static function get_schema() {
 
 			if ( null === self::$schema ) {
 
@@ -479,7 +479,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * @return null|string
 		 * @access public
 		 */
-		public function get_static_schema() {
+		public static function get_static_schema() {
 			$schema = null;
 			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) && ! empty( file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) ) ) {
 				$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );

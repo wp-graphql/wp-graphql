@@ -31,7 +31,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 * Generate the Schema
 		 */
 		WP_CLI::line( __( 'Getting the Schema...', 'wp-graphql' ) );
-		$schema = WPGraphQL::get_sanitized_schema();
+		$schema = WPGraphQL::get_schema();
 
 		/**
 		 * Format the Schema
