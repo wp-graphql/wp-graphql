@@ -34,7 +34,7 @@ class PostObjectCreate {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'create' . ucwords( $post_type_object->graphql_single_name );
+			$mutation_name = 'Create' . ucwords( $post_type_object->graphql_single_name );
 
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),

@@ -43,7 +43,7 @@ class TermObjectConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::term_object( $taxonomy_object->name ),
-				'name' => $taxonomy_object->graphql_plural_name,
+				'name' => ucfirst( $taxonomy_object->graphql_plural_name ),
 				'connectionFields' => function() use ( $taxonomy_object ) {
 					return [
 						'taxonomyInfo' => [

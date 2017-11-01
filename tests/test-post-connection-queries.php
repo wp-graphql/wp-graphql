@@ -114,7 +114,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 	public function postsQuery( $variables ) {
 
-		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:queryArgs){
+		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:QueryArgs){
 			posts( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage

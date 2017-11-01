@@ -178,11 +178,11 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
-		 * @param $query_args The args that will be passed to the WP_Query
-		 * @param $source     The source that's passed down the GraphQL queries
-		 * @param $args       The inputArgs on the field
-		 * @param $context    The AppContext passed down the GraphQL tree
-		 * @param $info       The ResolveInfo passed down the GraphQL tree
+		 * @param array       $query_args The args that will be passed to the WP_Query
+		 * @param mixed       $source     The source that's passed down the GraphQL queries
+		 * @param array       $args       The inputArgs on the field
+		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
+		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
 		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $source, $args, $context, $info );
 
@@ -259,7 +259,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
 			],
-			'nodes' => $items,
+			'nodes'    => $items,
 		];
 
 		return $connection;

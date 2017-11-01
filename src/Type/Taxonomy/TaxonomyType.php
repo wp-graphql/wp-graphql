@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\Taxonomy;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -38,7 +37,7 @@ class TaxonomyType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'taxonomy';
+		self::$type_name = 'Taxonomy';
 
 		$config = [
 			'name' => self::$type_name,
@@ -74,7 +73,7 @@ class TaxonomyType extends WPObjectType {
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
 						'resolve' => function( $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
-							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( $info->parentType, $taxonomy->name ) : null;
+							return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( 'taxonomy', $taxonomy->name ) : null;
 						},
 					],
 					'name' => [
@@ -188,7 +187,6 @@ class TaxonomyType extends WPObjectType {
 							'types' => [
 								'type' => Types::list_of( Types::post_type_enum() ),
 								'description' => __( 'Select which post types to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'A list of Post Types associated with the taxonomy', 'wp-graphql' ),
@@ -218,7 +216,6 @@ class TaxonomyType extends WPObjectType {
 							'types' => [
 								'type' => Types::list_of( Types::post_type_enum() ),
 								'description' => __( 'Select which post types to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'List of Post Types connected to the Taxonomy', 'wp-graphql' ),

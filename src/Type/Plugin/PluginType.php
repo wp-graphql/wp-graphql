@@ -39,7 +39,7 @@ class PluginType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'plugin';
+		self::$type_name = 'Plugin';
 
 		$config = [
 			'name' => self::$type_name,

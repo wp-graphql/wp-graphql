@@ -29,7 +29,7 @@ class MimeTypeEnumType extends WPEnumType {
 	public function __construct() {
 
 		$config = [
-			'name'        => 'mimeType',
+			'name'        => 'MimeType',
 			'description' => __( 'The MimeType of the object', 'wp-graphql' ),
 			'values'      => self::values(),
 		];

@@ -55,7 +55,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'queryArgs';
+		$config['name'] = 'QueryArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}

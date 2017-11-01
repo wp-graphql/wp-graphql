@@ -216,7 +216,7 @@ class WP_GraphQL_Test_Media_Item_Queries extends WP_UnitTestCase {
 				modified
 				modifiedGmt
 				parent{
-				  ...on post{
+				  ...on Post{
 				    id
 				  }
 				}

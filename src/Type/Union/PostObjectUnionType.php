@@ -36,7 +36,7 @@ class PostObjectUnionType extends UnionType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'postObjectUnion',
+			'name' => 'PostObjectUnion',
 			'types' => function() {
 				return self::getPossibleTypes();
 			},

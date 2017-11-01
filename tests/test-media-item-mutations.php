@@ -201,7 +201,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Set up the createMediaItem mutation
 		 */
 		$mutation = '
-			mutation createMediaItem( $input: createMediaItemInput! ){
+			mutation createMediaItem( $input: CreateMediaItemInput! ){
 			  createMediaItem(input: $input){
 			    clientMutationId
 			    mediaItem{
@@ -220,7 +220,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 			      description
 			      mimeType
 			      parent {
-			        ... on post {
+			        ... on Post {
 			          id
 			        }
 			      }
@@ -306,7 +306,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Set up the createMediaItem mutation
 		 */
 		$mutation = '
-		mutation createMediaItem( $input: createMediaItemInput! ){
+		mutation createMediaItem( $input: CreateMediaItemInput! ){
 		  createMediaItem(input: $input){
 		    clientMutationId
 		    mediaItem{
@@ -335,7 +335,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Set up the createMediaItem mutation
 		 */
 		$mutation = '
-		mutation createMediaItem( $input: createMediaItemInput! ){
+		mutation createMediaItem( $input: CreateMediaItemInput! ){
 		  createMediaItem(input: $input){
 		    clientMutationId
 		    mediaItem{
@@ -550,7 +550,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Set up the createMediaItem mutation
 		 */
 		$default_mutation = '
-		mutation createMediaItem( $input: createMediaItemInput! ){
+		mutation createMediaItem( $input: CreateMediaItemInput! ){
 		  createMediaItem(input: $input){
 		    clientMutationId
 		    mediaItem{
@@ -564,7 +564,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		      description
 		      mimeType
 		      parent {
-		        ... on post {
+		        ... on Post {
 		          id
 		        }
 		      }
@@ -773,7 +773,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Prepare the updateMediaItem mutation
 		 */
 		$mutation = '
-		mutation updateMediaItem( $input: updateMediaItemInput! ){
+		mutation updateMediaItem( $input: UpdateMediaItemInput! ){
 		  updateMediaItem (input: $input){
 		    clientMutationId
 		    mediaItem {
@@ -896,7 +896,6 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
-		$input = $this->update_variables['input'];
 		$actual = $this->updateMediaItemMutation();
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
@@ -971,7 +970,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Prepare the deleteMediaItem mutation
 		 */
 		$mutation = '
-		mutation deleteMediaItem( $input: deleteMediaItemInput! ){
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
 		    deletedId
@@ -1032,7 +1031,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		 * Prepare the deleteMediaItem mutation
 		 */
 		$mutation = '
-		mutation deleteMediaItem( $input: deleteMediaItemInput! ){
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
 		    deletedId

@@ -23,7 +23,7 @@ class PostStatusEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'status',
+			'name'        => 'PostStatusEnum',
 			'description' => __( 'The status of the object.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];

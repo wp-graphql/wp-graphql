@@ -98,7 +98,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				agent
 				approved
 				author{
-					...on user {
+					...on User {
 					  userId
 					}
 				}
@@ -112,7 +112,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				}
 				commentId
 				commentedOn {
-					... on post {
+					... on Post {
 						id
 					}
 				}
@@ -196,7 +196,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				agent
 				approved
 				author{
-					...on commentAuthor {
+					...on CommentAuthor {
 					  id
 					  name
 					  email
@@ -297,7 +297,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				}
 				commentId
 				commentedOn {
-					... on post {
+					... on Post {
 						content
 					}
 				}

@@ -26,7 +26,7 @@ class TermObjectUnionType extends UnionType {
 	public function __construct() {
 
 		$config = [
-			'name' => 'termObjectUnion',
+			'name' => 'TermObjectUnion',
 			'types' => function() {
 				return self::getPossibleTypes();
 			},

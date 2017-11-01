@@ -42,7 +42,7 @@ class AvatarType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'avatar';
+		self::$type_name = 'Avatar';
 
 		$config = [
 			'name'        => self::$type_name,

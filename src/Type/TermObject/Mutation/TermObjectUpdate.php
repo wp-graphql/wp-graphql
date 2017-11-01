@@ -26,7 +26,7 @@ class TermObjectUpdate {
 
 		if ( ! empty( $taxonomy->graphql_single_name ) && empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ) :
 
-			$mutation_name = 'update' . ucwords( $taxonomy->graphql_single_name );
+			$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );
 
 			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),

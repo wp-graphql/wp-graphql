@@ -64,7 +64,7 @@ class SettingType extends WPObjectType {
 		self::$setting_fields = DataSource::get_setting_group_fields( $setting_type );
 
 		$config = [
-			'name'        => $setting_type . 'Settings',
+			'name'        => ucfirst( $setting_type ) . 'Settings',
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
 			'fields'      => self::fields( self::$setting_fields, $setting_type ),
 		];

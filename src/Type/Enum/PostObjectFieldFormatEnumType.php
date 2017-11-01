@@ -22,7 +22,7 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'postObjectFieldFormat',
+			'name'        => 'PostObjectFieldFormat',
 			'description' => __( 'The format of post field data.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];

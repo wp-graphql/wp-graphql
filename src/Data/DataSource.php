@@ -369,7 +369,9 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_user( $id ) {
+
 		$user = new \WP_User( $id );
+
 		if ( ! $user->exists() ) {
 			throw new UserError( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
 		}
