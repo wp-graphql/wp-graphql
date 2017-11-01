@@ -54,12 +54,14 @@ class Test_WPGraphQL extends WP_UnitTestCase {
 
 	/**
 	 * @covers WPGraphQL::get_static_schema()
+	 * @runInSeparateProcess
 	 */
 	public function testGetStaticSchema() {
 
 		/**
 		 * Set the file path for where to save the static schema
 		 */
+		graphql_init();
 		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
 		$schema = WPGraphQL::get_schema();
 		$printed = \GraphQL\Utils\SchemaPrinter::doPrint( $schema );
