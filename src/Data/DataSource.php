@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data;
 
+use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -194,14 +195,11 @@ class DataSource {
 		}
 
 		/**
-		 * Set the resolved post to the global $post. That way any filters that
+		 * Set the resolving post to the global $post. That way any filters that
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
-		 *
-		 * @since 0.0.18
 		 */
 		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
 
 		return $post_object;
 
@@ -363,20 +361,18 @@ class DataSource {
 	 *
 	 * @param int $id ID of the user you want the object for
 	 *
-	 * @return bool|\WP_User
-	 * @throws UserError
+	 * @return Deferred
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function resolve_user( $id ) {
 
-		$user = new \WP_User( $id );
-
-		if ( ! $user->exists() ) {
-			throw new UserError( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
-		}
-
-		return $user;
+		Loader::addOne( 'user', $id );
+		$loader = function() use ( $id ) {
+			Loader::loadBuffered( 'user' );
+			return Loader::loadOne( 'user', $id );
+		};
+		return new Deferred( $loader );
 	}
 
 	/**

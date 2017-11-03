@@ -2,13 +2,13 @@
 
 namespace WPGraphQL\Type\PostObject;
 
-use GraphQL\Error\UserError;
+use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
-use WebSocket\Exception;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Data\Loader;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
@@ -166,7 +166,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::user(),
 						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_author ) ? new \WP_User( $post->post_author ) : null;
+							return DataSource::resolve_user( $post->post_author );
 						},
 					],
 					'date'              => [
