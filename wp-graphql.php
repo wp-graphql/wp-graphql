@@ -535,6 +535,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			}
 
 			/**
+			 * Store the global post so it can be reset after GraphQL execution
+			 *
+			 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
+			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
+			 * the same.
+			 */
+			$global_post = $GLOBALS['post'];
+
+			/**
 			 * Run an action as soon when do_graphql_request begins.
 			 *
 			 * @param string $request        The GraphQL request to be run
@@ -623,17 +632,18 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			do_action( 'graphql_return_response', $filtered_result, $result, self::get_schema(), $operation_name, $request, $variables );
 
 			/**
-			 * Make sure we reset the post data after the query is executed to avoid disrupting
-			 * other queries.
+			 * Reset the global post after execution
 			 *
-			 * @since 0.0.18
+			 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
+			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
+			 * the same.
 			 */
-			wp_reset_postdata();
+			$GLOBALS['post'] = $global_post;
 
 			/**
 			 * Return the result of the request
 			 */
-			return $result->toArray();
+			return $result->toArray( true );
 
 		}
 	}
