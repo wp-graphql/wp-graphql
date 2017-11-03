@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Data;
 
+use GraphQL\Error\UserError;
+
 /**
  * Class Loader
  *
@@ -74,7 +76,13 @@ class Loader {
 	 * @access public
 	 */
 	public static function loadOne( $type, $id ) {
-		return ! empty( self::$loaded[ $type ][ $id ] ) ? self::$loaded[ $type ][ $id ] : null;
+		$loaded = ! empty( self::$loaded[ $type ][ $id ] ) ? self::$loaded[ $type ][ $id ] : null;
+
+		if ( ! empty( $loaded ) ) {
+			return $loaded;
+		} else {
+			throw new UserError( sprintf( __( 'No %1$s was found with the provided ID', 'wp-graphql' ), $type, $id ) );
+		}
 	}
 
 	/**
@@ -131,9 +139,11 @@ class Loader {
 				'count_total' => false,
 				'fields'      => 'all_with_meta'
 			] );
-			foreach ( $query->get_results() as $user ) {
-				if ( $user instanceof \WP_User ) {
-					self::$loaded[ $type ][ $user->ID ] = $user;
+			if ( ! empty( $query->get_results() ) && is_array( $query->get_results() ) ) {
+				foreach ( $query->get_results() as $user ) {
+					if ( $user instanceof \WP_User ) {
+						self::$loaded[ $type ][ $user->ID ] = $user;
+					}
 				}
 			}
 		}

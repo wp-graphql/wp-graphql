@@ -541,7 +541,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
 			 * the same.
 			 */
-			$global_post = $GLOBALS['post'];
+			$global_post = ! empty( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 
 			/**
 			 * Run an action as soon when do_graphql_request begins.
@@ -638,7 +638,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
 			 * the same.
 			 */
-			$GLOBALS['post'] = $global_post;
+			if ( ! empty( $global_post ) ) {
+				$GLOBALS['post'] = $global_post;
+			}
 
 			/**
 			 * Return the result of the request

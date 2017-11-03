@@ -166,16 +166,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::user(),
 						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-							// return ! empty( $post->post_author ) ? new \WP_User( $post->post_author ) : null;
-
-							$author_id = $post->post_author;
-							Loader::addOne( 'user', $author_id );
-							$load = function() use ( $author_id ) {
-								Loader::loadBuffered( 'user' );
-								return Loader::loadOne( 'user', $author_id );
-							};
-							return new Deferred($load);
+							return DataSource::resolve_user( $post->post_author );
 						},
 					],
 					'date'              => [
