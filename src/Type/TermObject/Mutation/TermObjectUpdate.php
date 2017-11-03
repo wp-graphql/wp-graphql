@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\TermObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -25,7 +26,7 @@ class TermObjectUpdate {
 
 		if ( ! empty( $taxonomy->graphql_single_name ) && empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ) :
 
-			$mutation_name = 'update' . ucwords( $taxonomy->graphql_single_name );
+			$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );
 
 			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),
@@ -52,7 +53,7 @@ class TermObjectUpdate {
 					 */
 					if ( empty( $id_parts['type'] ) || $taxonomy->name !== $id_parts['type'] ) {
 						// Translators: The placeholder is the name of the taxonomy for the term being edited
-						throw new \Exception( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+						throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
 					}
 
 					/**
@@ -66,10 +67,10 @@ class TermObjectUpdate {
 					if ( is_wp_error( $existing_term ) ) {
 						$error_message = $existing_term->get_error_message();
 						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
+							throw new UserError( esc_html( $error_message ) );
 						} else {
 							// Translators: The placeholder is the name of the taxonomy for the term being deleted
-							throw new \Exception( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
+							throw new UserError( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
 						}
 					}
 
@@ -78,7 +79,7 @@ class TermObjectUpdate {
 					 */
 					if ( ! current_user_can( 'edit_term', $existing_term->term_id ) ) {
 						// Translators: The placeholder is the name of the taxonomy for the term being deleted
-						throw new \Exception( sprintf( __( 'You do not have permission to update %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'You do not have permission to update %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
 					}
 
 					/**
@@ -98,7 +99,7 @@ class TermObjectUpdate {
 						 */
 						if ( is_wp_error( $update ) ) {
 							// Translators: the placeholder is the name of the taxonomy
-							throw new \Exception( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
+							throw new UserError( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
 						}
 					}
 

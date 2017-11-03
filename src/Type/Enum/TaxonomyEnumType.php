@@ -20,7 +20,7 @@ class TaxonomyEnumType extends WPEnumType {
 	 */
 	public function __construct() {
 		$config = [
-			'name'        => 'taxonomyEnum',
+			'name'        => 'TaxonomyEnum',
 			'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
@@ -52,8 +52,10 @@ class TaxonomyEnumType extends WPEnumType {
 			 * of values for use in the enum type.
 			 */
 			foreach ( $allowed_taxonomies as $taxonomy ) {
-				self::$values[ $taxonomy ] = [
-					'name'  => strtoupper( get_taxonomy( $taxonomy )->graphql_single_name ),
+
+				$formatted_taxonomy = strtoupper( get_taxonomy( $taxonomy )->graphql_single_name );
+
+				self::$values[ $formatted_taxonomy ] = [
 					'value' => $taxonomy,
 				];
 			}

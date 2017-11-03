@@ -29,7 +29,7 @@ class MimeTypeEnumType extends WPEnumType {
 	public function __construct() {
 
 		$config = [
-			'name'        => 'mimeType',
+			'name'        => 'MimeType',
 			'description' => __( 'The MimeType of the object', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
@@ -54,8 +54,9 @@ class MimeTypeEnumType extends WPEnumType {
 			 * @since 0.0.5
 			 */
 			self::$values = [
-				'name'  => 'IMAGE_JPEG',
-				'value' => 'image/jpeg',
+				'IMAGE_JPEG' => [
+					'value' => 'image/jpeg',
+				],
 			];
 
 			$allowed_mime_types = get_allowed_mime_types();
@@ -63,8 +64,10 @@ class MimeTypeEnumType extends WPEnumType {
 			if ( ! empty( $allowed_mime_types ) ) {
 				self::$values = [];
 				foreach ( $allowed_mime_types as $mime_type ) {
-					self::$values[ $mime_type ] = [
-						'name'  => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) ),
+
+					$formatted_mime_type = strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $mime_type ) );
+
+					self::$values[ $formatted_mime_type ] = [
 						'value' => $mime_type,
 					];
 				}

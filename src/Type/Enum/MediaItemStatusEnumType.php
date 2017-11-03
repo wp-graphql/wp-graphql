@@ -24,7 +24,7 @@ class MediaItemStatusEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'mediaItemStatus',
+			'name'        => 'MediaItemStatus',
 			'description' => __( 'The status of the media item object.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
@@ -44,8 +44,9 @@ class MediaItemStatusEnumType extends WPEnumType {
 		 *
 		 */
 		self::$values = [
-			'name'  => 'inherit',
-			'value' => 'inherit',
+			'INHERIT' => [
+				'value' => 'inherit',
+			],
 		];
 
 		/**
@@ -70,8 +71,11 @@ class MediaItemStatusEnumType extends WPEnumType {
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {
-				self::$values[ $status ] = [
-					'name'        => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
+
+				$formatted_status = strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) );
+
+				self::$values[ $formatted_status ] = [
+					'name'        => $formatted_status,
 					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
 					'value'       => $status,
 				];

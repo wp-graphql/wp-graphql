@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\PostObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -33,7 +34,7 @@ class PostObjectUpdate {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
+			$mutation_name = 'Update' . ucwords( $post_type_object->graphql_single_name );
 
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId([
 				'name'                => esc_html( $mutation_name ),
@@ -58,12 +59,12 @@ class PostObjectUpdate {
 					 */
 					if ( empty( $id_parts['id'] ) || false === $existing_post || $id_parts['type'] !== $post_type_object->name ) {
 						// translators: the placeholder is the name of the type of post being updated
-						throw new \Exception( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
+						throw new UserError( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 					}
 
 					if ( $post_type_object->name !== $existing_post->post_type ) {
 						// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-						throw new \Exception( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $post_type_object->name ) );
+						throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $post_type_object->name ) );
 					}
 
 					/**
@@ -71,7 +72,7 @@ class PostObjectUpdate {
 					 */
 					if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 						// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to update a %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
+						throw new UserError( sprintf( __( 'Sorry, you are not allowed to update a %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 					}
 
 					/**
@@ -81,7 +82,7 @@ class PostObjectUpdate {
 					$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
 					if ( ! empty( $author_id_parts['id'] ) && get_current_user_id() !== $author_id_parts['id'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 						// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
 					/**
@@ -109,7 +110,7 @@ class PostObjectUpdate {
 					 * Throw an exception if the post failed to update
 					 */
 					if ( is_wp_error( $post_id ) ) {
-						throw new \Exception( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
+						throw new UserError( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
 					}
 
 					/**

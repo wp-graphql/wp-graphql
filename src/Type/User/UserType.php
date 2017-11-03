@@ -40,7 +40,7 @@ class UserType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'user';
+		self::$type_name = 'User';
 
 		$config = [
 			'name' => self::$type_name,
@@ -71,7 +71,7 @@ class UserType extends WPObjectType {
 						'type' => Types::non_null( Types::id() ),
 						'description' => __( 'The globally unique identifier for the user', 'wp-graphql' ),
 						'resolve' => function( \WP_User $user, $args, AppContext $context, ResolveInfo $info ) {
-							return ( ! empty( $info->parentType ) && ! empty( $user->ID ) ) ? Relay::toGlobalId( $info->parentType, $user->ID ) : null;
+							return ( ! empty( $info->parentType ) && ! empty( $user->ID ) ) ? Relay::toGlobalId( 'user', $user->ID ) : null;
 						},
 					],
 					'capabilities' => [
@@ -221,19 +221,15 @@ class UserType extends WPObjectType {
 									'description' => __( 'What rating to display avatars up to. Accepts \'G\', \'PG\', \'R\', \'X\', and are judged in that order. Default is the value of the \'avatar_rating\' option', 'wp-graphql' ),
 									'values' => [
 										'G' => [
-											'name' => 'G',
 											'value' => 'G',
 										],
 										'PG' => [
-											'name' => 'PG',
 											'value' => 'PG',
 										],
 										'R' => [
-											'name' => 'R',
 											'value' => 'R',
 										],
 										'X' => [
-											'name' => 'X',
 											'value' => 'X',
 										],
 									],

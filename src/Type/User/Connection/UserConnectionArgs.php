@@ -43,7 +43,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'userArgs';
+		$config['name'] = 'UserArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -136,26 +136,21 @@ class UserConnectionArgs extends WPInputObjectType {
 
 		if ( null === self::$search_columns_enum ) :
 			self::$search_columns_enum = new WPEnumType([
-				'name' => 'searchColumnsEnum',
+				'name' => 'SearchColumnsEnum',
 				'values' => [
-					[
-						'name' => 'ID',
+					'ID' => [
 						'value' => 'ID',
 					],
-					[
-						'name' => 'LOGIN',
+					'LOGIN' => [
 						'value' => 'login',
 					],
-					[
-						'name' => 'NICENAME',
+					'NICENAME' => [
 						'value' => 'nicename',
 					],
-					[
-						'name' => 'EMAIL',
+					'EMAIL' => [
 						'value' => 'email',
 					],
-					[
-						'name' => 'URL',
+					'URL' => [
 						'value' => 'url',
 					],
 				],
@@ -182,8 +177,10 @@ class UserConnectionArgs extends WPInputObjectType {
 
 			if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
 				foreach ( $editable_roles as $key => $role ) {
-					$roles[] = [
-						'name' => ! empty( $role['name'] ) ? self::format_enum_name( $role['name'] ) : $key,
+
+					$formatted_role = self::format_enum_name( $role['name'] );
+
+					$roles[ $formatted_role ] = [
 						'value' => $key,
 					];
 				}
@@ -191,7 +188,7 @@ class UserConnectionArgs extends WPInputObjectType {
 
 			if ( ! empty( $roles ) ) {
 				self::$roles_enum = new WPEnumType( [
-					'name' => 'userRoleEnum',
+					'name' => 'UserRoleEnum',
 					'values' => $roles,
 				] );
 			}

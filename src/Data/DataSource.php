@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Data;
 
+use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
@@ -37,12 +39,32 @@ class DataSource {
 	protected static $node_definition;
 
 	/**
+	 * Stores an array of setting types that exist in
+	 * get_registered_settings. In order to register a
+	 * setting with register_setting it must be categorized
+	 * under one of the whitelisted group names
+	 * See: https://developer.wordpress.org/reference/functions/register_setting/
+	 *
+	 * @var array $allowed_setting_types
+	 * @access protected
+	 */
+	protected static $allowed_setting_types;
+
+	/**
+	 * Stores an array of allowed setting groups.
+	 *
+	 * @var array $allowed_setting_groups
+	 * @access protected
+	 */
+	protected static $allowed_setting_groups;
+
+	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
 	 * @param int $id ID of the comment we want to get the object for
 	 *
 	 * @return \WP_Comment object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -50,11 +72,27 @@ class DataSource {
 
 		$comment = \WP_Comment::get_instance( $id );
 		if ( empty( $comment ) ) {
-			throw new \Exception( sprintf( __( 'No comment was found with ID %s', 'wp-graphql' ), absint( $id ) ) );
+			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
 		}
 
 		return $comment;
 
+	}
+
+	/**
+	 * Retrieves a WP_Comment object for the ID that gets passed
+	 *
+	 * @param string $author_email The ID of the comment the comment author is associated with.
+	 *
+	 * @return array
+	 * @throws
+	 */
+	public static function resolve_comment_author( $author_email ) {
+		global $wpdb;
+		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
+		$comment_author = ! empty( $comment_author ) ? ( array ) $comment_author : [];
+		$comment_author['is_comment_author'] = true;
+		return $comment_author;
 	}
 
 	/**
@@ -118,7 +156,7 @@ class DataSource {
 		if ( ! empty( $plugin ) ) {
 			return $plugin;
 		} else {
-			throw new \Exception( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
+			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
 		}
 	}
 
@@ -144,7 +182,7 @@ class DataSource {
 	 * @param int    $id        ID of the post you are trying to retrieve
 	 * @param string $post_type Post type the post is attached to
 	 *
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @return \WP_Post
 	 * @access public
@@ -153,18 +191,15 @@ class DataSource {
 
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
 		}
 
 		/**
-		 * Set the resolved post to the global $post. That way any filters that
+		 * Set the resolving post to the global $post. That way any filters that
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
-		 *
-		 * @since 0.0.18
 		 */
 		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
 
 		return $post_object;
 
@@ -195,7 +230,7 @@ class DataSource {
 	 * @param string $post_type Name of the post type you want to retrieve the object for
 	 *
 	 * @return \WP_Post_Type object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -212,7 +247,7 @@ class DataSource {
 		if ( in_array( $post_type, $allowed_post_types, true ) ) {
 			return get_post_type_object( $post_type );
 		} else {
-			throw new \Exception( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
+			throw new UserError( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
 		}
 
 	}
@@ -223,7 +258,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return \WP_Taxonomy object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -240,7 +275,7 @@ class DataSource {
 		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
 			return get_taxonomy( $taxonomy );
 		} else {
-			throw new \Exception( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
 
 	}
@@ -252,7 +287,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy the term is in
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -260,7 +295,7 @@ class DataSource {
 
 		$term_object = \WP_Term::get_instance( $id, $taxonomy );
 		if ( empty( $term_object ) ) {
-			throw new \Exception( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
 		}
 
 		return $term_object;
@@ -292,7 +327,7 @@ class DataSource {
 	 * @param string $stylesheet Directory name for the theme.
 	 *
 	 * @return \WP_Theme object
-	 * @throws \Exception
+	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -301,7 +336,7 @@ class DataSource {
 		if ( $theme->exists() ) {
 			return $theme;
 		} else {
-			throw new \Exception( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
+			throw new UserError( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
 		}
 	}
 
@@ -326,18 +361,18 @@ class DataSource {
 	 *
 	 * @param int $id ID of the user you want the object for
 	 *
-	 * @return bool|\WP_User
-	 * @throws \Exception
+	 * @return Deferred
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function resolve_user( $id ) {
-		$user = new \WP_User( $id );
-		if ( ! $user->exists() ) {
-			throw new \Exception( sprintf( __( 'No user was found with ID %s', 'wp-graphql' ), $id ) );
-		}
 
-		return $user;
+		Loader::addOne( 'user', $id );
+		$loader = function() use ( $id ) {
+			Loader::loadBuffered( 'user' );
+			return Loader::loadOne( 'user', $id );
+		};
+		return new Deferred( $loader );
 	}
 
 	/**
@@ -357,13 +392,88 @@ class DataSource {
 	}
 
 	/**
+	 * Get all of the registered settings in a
+	 * WP site and return the ones that match the
+	 * name of the $setting_type
+	 *
+	 * @access public
+	 * @param string $group
+	 *
+	 * @return array $fields
+	 */
+	public static function get_setting_group_fields( $group ) {
+
+		/**
+		 * Get all of the registered settings and define the setting_type_array
+		 * for storing the settings that match the given setting type (general, discussion, etc)
+		 * before we return them
+		 */
+		$setting_groups = self::get_allowed_setting_types();
+
+		return ! empty( $setting_groups[ $group ] ) ? $setting_groups[ $group ] : [];
+
+	}
+
+	/**
+	 * Get the $allowed_setting_types and filter them
+	 * so that they can be further whitelisted. This method is
+	 * used to build out the root query fields for the various
+	 * setting types
+	 *
+	 * @access public
+	 * @return array $allowed_setting_types
+	 */
+	public static function get_allowed_setting_types() {
+
+		/**
+		 * Get all registered settings
+		 */
+		$registered_settings = get_registered_settings();
+
+		/**
+		 * Loop through the $registered_settings array and build a list of
+		 * the setting_types ( general, reading, discussion, writing, reading, etc. )
+		 */
+		foreach ( $registered_settings as $key => $setting ) {
+			if ( ! isset( $setting['show_in_graphql'] ) ) {
+				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
+					$setting['key'] = $key;
+					self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
+				}
+			} else if ( true === $setting['show_in_graphql'] ) {
+				$setting['key'] = $key;
+				self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
+			}
+		};
+
+		/**
+		 * Set the Setting Groups that are allowed
+		 */
+		self::$allowed_setting_groups = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? array_keys( self::$allowed_setting_types ) : [];
+		self::$allowed_setting_types = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? self::$allowed_setting_types : [];
+
+		/**
+		 * Filter the $registered_setting_types to allow some to be enabled or disabled from showing in
+		 * the GraphQL Schema.
+		 *
+		 * @param array $registered_setting_types
+		 *
+		 * @return array
+		 */
+		self::$allowed_setting_types = apply_filters( 'graphql_allowed_setting_groups', self::$allowed_setting_types, $registered_settings );
+
+		return self::$allowed_setting_types;
+
+	}
+
+	/**
 	 * We get the node interface and field from the relay library.
 	 *
 	 * The first method is the way we resolve an ID to its object. The second is the way we resolve
 	 * an object that implements node to its type.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws UserError
 	 * @access public
 	 */
 	public static function get_node_definition() {
@@ -376,7 +486,7 @@ class DataSource {
 				function( $global_id ) {
 
 					if ( empty( $global_id ) ) {
-						throw new \Exception( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
+						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 					}
 
 					/**
@@ -402,7 +512,6 @@ class DataSource {
 						$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 						switch ( $id_components['type'] ) {
-
 							case in_array( $id_components['type'], $allowed_post_types, true ):
 								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
 								break;
@@ -412,10 +521,13 @@ class DataSource {
 							case 'comment':
 								$node = self::resolve_comment( $id_components['id'] );
 								break;
+							case 'commentAuthor':
+								$node = self::resolve_comment_author( $id_components['id'] );
+								break;
 							case 'plugin':
 								$node = self::resolve_plugin( $id_components['id'] );
 								break;
-							case 'post_type':
+							case 'postType':
 								$node = self::resolve_post_type( $id_components['id'] );
 								break;
 							case 'taxonomy':
@@ -448,7 +560,7 @@ class DataSource {
 						 * @since 0.0.6
 						 */
 						if ( null === $node ) {
-							throw new \Exception( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+							throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
 						}
 
 						/**
@@ -459,7 +571,7 @@ class DataSource {
 						return $node;
 
 					} else {
-						throw new \Exception( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
+						throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 					}
 				},
 
@@ -476,7 +588,7 @@ class DataSource {
 								$type = Types::term_object( $node->taxonomy );
 								break;
 							case $node instanceof \WP_Comment:
-								$type = Types::comment();;
+								$type = Types::comment();
 								break;
 							case $node instanceof \WP_Post_Type:
 								$type = Types::post_type();
@@ -492,12 +604,21 @@ class DataSource {
 								break;
 							default:
 								$type = null;
-								break;
 						}
 
 						// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node ) && array_key_exists( 'PluginURI', $node ) ) {
-						$type = Types::plugin();
+					} elseif ( is_array( $node )  ) {
+
+						switch ( $node ) {
+							case array_key_exists( 'PluginURI', $node ):
+								$type = Types::plugin();
+								break;
+							case array_key_exists( 'is_comment_author', $node ):
+								$type = Types::comment_author();
+								break;
+							default:
+								$type = null;
+						}
 					}
 
 					/**
@@ -517,7 +638,7 @@ class DataSource {
 					 * @since 0.0.6
 					 */
 					if ( null === $type ) {
-						throw new \Exception( __( 'No type was found matching the node', 'wp-graphql' ) );
+						throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
 					}
 
 					/**

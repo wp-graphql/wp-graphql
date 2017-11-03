@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -31,7 +32,7 @@ class MediaItemDelete {
 		/**
 		 * Set the name of the media item mutation being performed
 		 */
-		$mutation_name = 'deleteMediaItem';
+		$mutation_name = 'DeleteMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name'                => esc_html( $mutation_name ),
@@ -76,14 +77,14 @@ class MediaItemDelete {
 				 * If there's no existing mediaItem, throw an exception
 				 */
 				if ( empty( $existing_media_item ) ) {
-					throw new \Exception( __( 'No mediaItem could be found to delete', 'wp-graphql' ) );
+					throw new UserError( __( 'No mediaItem could be found to delete', 'wp-graphql' ) );
 				}
 
 				/**
 				 * Stop now if a user isn't allowed to delete a mediaItem
 				 */
 				if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 				}
 
 				/**
@@ -100,7 +101,7 @@ class MediaItemDelete {
 				 * If the mediaItem isn't of the attachment post type, throw an error
 				 */
 				if ( 'attachment' !== $media_item_before_delete->post_type ) {
-					throw new \Exception( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $media_item_before_delete->post_type ) );
+					throw new UserError( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $media_item_before_delete->post_type ) );
 				}
 
 				/**
@@ -110,7 +111,7 @@ class MediaItemDelete {
 				if ( 'trash' === $media_item_before_delete->post_status ) {
 					if ( true !== $force_delete ) {
 						// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-						throw new \Exception( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) );
+						throw new UserError( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) );
 					}
 				}
 

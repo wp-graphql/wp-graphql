@@ -3,6 +3,7 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\UserError;
 
 /**
  * Class Router
@@ -306,8 +307,7 @@ class Router {
 				/**
 				 * If the variables are already formatted as an array use them.
 				 *
-				 * Ex:
-				 *
+				 * Example:
 				 * ?query=query getPosts($first:Int){posts(first:$first){edges{node{id}}}}&variables[first]=1
 				 */
 				if ( is_array( $data['variables'] ) ) {
@@ -334,7 +334,7 @@ class Router {
 				}
 
 				if ( ! isset( $_SERVER['CONTENT_TYPE'] ) || false === strpos( $_SERVER['CONTENT_TYPE'], 'application/json' ) ) {
-					$response['errors'] = __( 'WPGraphQL requires POST requests', 'wp-graphql' );
+					$response['errors'] = __( 'The Content-Type for the request must be set to "application/json"', 'wp-graphql' );
 				}
 
 				/**
@@ -349,7 +349,7 @@ class Router {
 			 * If the $data is empty, catch an error.
 			 */
 			if ( empty( $data ) || ( empty( $data['query'] ) ) ) {
-				throw new \Exception( __( 'GraphQL Queries must be a POST Request with a valid query', 'wp-graphql' ), 10 );
+				throw new UserError( __( 'GraphQL requests must be a POST or GET Request with a valid query', 'wp-graphql' ), 10 );
 			}
 
 			/**
@@ -401,15 +401,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			if ( defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ) {
-				$response['extensions']['exception'] = FormattedError::createFromException( $error );
-			} else {
-				if ( 10 === $error->getCode() ) {
-					$response['errors'] = [ FormattedError::create( $error->getMessage() ) ];
-				} else {
-					$response['errors'] = [ FormattedError::create( 'Unexpected error' ) ];
-				}
-			}
+			$response['errors'] = [ FormattedError::createFromException( $error ) ];
 		} // End try().
 
 		/**

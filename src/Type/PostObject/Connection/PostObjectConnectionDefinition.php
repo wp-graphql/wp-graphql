@@ -5,7 +5,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
 /**
@@ -24,6 +23,13 @@ class PostObjectConnectionDefinition {
 	 * @access private
 	 */
 	private static $connection;
+
+	/**
+	 * Stores the added_args for the connection (in addition to the standard Relay args)
+	 *
+	 * @var array $added_args
+	 */
+	protected static $added_args;
 
 	/**
 	 * Method that sets up the relay connection for post objects
@@ -49,8 +55,9 @@ class PostObjectConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType'         => Types::post_object( $post_type_object->name ),
-				'name'             => $post_type_object->graphql_plural_name,
+				'name'             => ucfirst( $post_type_object->graphql_plural_name ),
 				'connectionFields' => function() use ( $post_type_object ) {
+
 					return [
 						'postTypeInfo' => [
 							'type'        => Types::post_type(),
@@ -71,18 +78,6 @@ class PostObjectConnectionDefinition {
 			] );
 
 			/**
-			 * Add the "where" args to the postObjectConnections
-			 *
-			 * @since 0.0.5
-			 */
-			$args = [
-				'where' => [
-					'name' => 'where',
-					'type' => Types::post_object_query_args(),
-				],
-			];
-
-			/**
 			 * Add the connection to the post_objects_connection object
 			 *
 			 * @since 0.0.5
@@ -91,7 +86,7 @@ class PostObjectConnectionDefinition {
 				'type'        => $connection['connectionType'],
 				// Translators: the placeholder is the name of the post_type
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
-				'args'        => array_merge( Relay::connectionArgs(), $args ),
+				'args'        => array_merge( Relay::connectionArgs(), self::added_args() ),
 				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_type_object->name );
 				},
@@ -104,6 +99,28 @@ class PostObjectConnectionDefinition {
 		 * @since 0.0.5
 		 */
 		return self::$connection[ $post_type_object->name ];
+
+	}
+
+	/**
+	 * Returns the $args that should be added to the connection args
+	 * @return array
+	 */
+	protected static function added_args() {
+
+		if ( null === self::$added_args ) {
+
+			self::$added_args = [
+				'where' => [
+					'name' => 'where',
+					'description' => __( '', 'wp-graphql' ),
+					'type' => Types::post_object_query_args(),
+				],
+			];
+
+		}
+
+		return self::$added_args;
 
 	}
 

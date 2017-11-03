@@ -23,7 +23,7 @@ class PostStatusEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'status',
+			'name'        => 'PostStatusEnum',
 			'description' => __( 'The status of the object.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
@@ -65,8 +65,10 @@ class PostStatusEnumType extends WPEnumType {
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {
-				self::$values[ $status ] = [
-					'name'        => strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) ),
+
+				$formatted_status = strtoupper( preg_replace( '/[^A-Za-z0-9]/i', '_', $status ) );
+
+				self::$values[ $formatted_status ] = [
 					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
 					'value'       => $status,
 				];

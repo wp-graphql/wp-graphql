@@ -36,7 +36,7 @@ class PluginConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::plugin(),
-				'name' => 'plugins',
+				'name' => 'Plugins',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [

@@ -66,7 +66,7 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 		 */
 		$this->assertTrue( isset( $this->_last_response ) );
 		$result = $this->_last_response;
-		$expected = '{"errors":[{"message":"GraphQL Queries must be a POST Request with a valid query"}]}';
+		$expected = '{"errors":[{"message":"GraphQL requests must be a POST or GET Request with a valid query","category":"user"}]}';
 		$this->assertSame( $expected, $result );
 
 	}

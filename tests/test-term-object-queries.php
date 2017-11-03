@@ -88,7 +88,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 			      name
 			    }
 			  }
-			}  
+			}
 		}
 		';
 
@@ -125,7 +125,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 			      name
 			    }
 			  }
-			}  
+			}
 		}
 		';
 
@@ -413,6 +413,7 @@ class WP_GraphQL_Test_Term_Object_Queries extends WP_UnitTestCase {
 					'path' => [
 						'category',
 					],
+					'category' => 'user',
 				],
 			],
 		];

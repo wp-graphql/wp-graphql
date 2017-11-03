@@ -83,7 +83,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 	public function createUserMutation( $args ) {
 
 		$mutation = '
-		mutation createUser($input:createUserInput!) {
+		mutation createUser($input:CreateUserInput!) {
 		  createUser(input:$input){
 			clientMutationId
 			user{
@@ -256,7 +256,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 		$this->assertEquals( $user_object->last_name, $last_name );
 
 		$mutation = '
-		mutation updateUser($input:updateUserInput!) {
+		mutation updateUser($input:UpdateUserInput!) {
 		  updateUser(input:$input){
 			clientMutationId
 			user{
@@ -328,7 +328,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 		$guid =  \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
 		$mutation = '
-		mutation deleteUser($input:deleteUserInput!) {
+		mutation deleteUser($input:DeleteUserInput!) {
 		  deleteUser(input:$input){
 			clientMutationId
 			user{
@@ -385,7 +385,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
 		$mutation = '
-		mutation deleteUser($input:deleteUserInput!) {
+		mutation deleteUser($input:DeleteUserInput!) {
 		  deleteUser(input:$input){
 			clientMutationId
 			user{
@@ -453,7 +453,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 		];
 
 		$mutation = '
-		mutation createAndGetUser( $input:createUserInput! ) {
+		mutation createAndGetUser( $input:CreateUserInput! ) {
 			createUser( input: $input ) {
 				clientMutationId
 				user {
@@ -499,7 +499,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 	public function testCreateUserWithoutRoles() {
 
 		$mutation = '
-		mutation createUserWithoutRoles( $input:createUserInput! ) {
+		mutation createUserWithoutRoles( $input:CreateUserInput! ) {
 			createUser( input: $input ) {
 				clientMutationId
 				user {
@@ -544,7 +544,7 @@ class WP_GraphQL_Test_User_Object_Mutations extends WP_UnitTestCase {
 	public function testUpdateUserWithInvalidRole() {
 
 		$mutation = '
-		mutation updateUserWithInvalidRole( $input:updateUserInput! ) {
+		mutation updateUserWithInvalidRole( $input:UpdateUserInput! ) {
 			updateUser( input: $input )	{
 				clientMutationId
 				user {

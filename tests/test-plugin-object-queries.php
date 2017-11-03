@@ -133,6 +133,7 @@ class WP_GraphQL_Test_Plugin_Object_Queries extends WP_UnitTestCase {
 					'path' => [
 						'plugin',
 					],
+					'category' => 'user',
 				],
 			],
 		];

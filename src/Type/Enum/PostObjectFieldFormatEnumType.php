@@ -22,7 +22,7 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 
 	public function __construct() {
 		$config = [
-			'name'        => 'postObjectFieldFormat',
+			'name'        => 'PostObjectFieldFormat',
 			'description' => __( 'The format of post field data.', 'wp-graphql' ),
 			'values'      => self::values(),
 		];
@@ -44,12 +44,12 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 			 * @since 0.0.18
 			 */
 			self::$values = [
-				'raw' => [
+				'RAW' => [
 					'name'  => 'RAW',
 					'description' => __( 'Provide the field value directly from database', 'wp-graphql' ),
 					'value' => 'raw',
 				],
-				'rendered' => [
+				'RENDERED' => [
 					'name'  => 'RENDERED',
 					'description' => __( 'Apply the default WordPress rendering', 'wp-graphql' ),
 					'value' => 'rendered',

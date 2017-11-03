@@ -145,6 +145,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -483,7 +484,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 			],
 			'errors' => [
 				[
-					'message'   => 'No user was found with ID doesNotExist',
+					'message'   => 'No user was found with the provided ID',
 					'locations' => [
 						[
 							'line'   => 3,
@@ -493,6 +494,7 @@ class WP_GraphQL_Test_User_Object_Queries extends WP_UnitTestCase {
 					'path'      => [
 						'user',
 					],
+					'category' => 'user',
 				],
 			],
 		];

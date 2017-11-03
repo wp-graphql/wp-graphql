@@ -85,7 +85,7 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 	}
 
 	public function commentsQuery( $variables ) {
-		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:commentArgs){
+		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:CommentArgs){
 			comments( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -123,7 +123,6 @@ class WP_GraphQL_Test_Comment_Connection_Queries extends WP_UnitTestCase {
 			'comment_status' => 'approved',
 			'number'         => 1,
 			'order'          => 'DESC',
-			'comment_status' => 'approved',
 			'orderby'        => 'comment_date',
 			'comment_parent' => 0,
 		] );

@@ -31,6 +31,10 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		] );
 		$this->created_post_ids = $this->create_posts();
 
+		$this->app_context = new \WPGraphQL\AppContext();
+		
+		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
+
 	}
 
 	/**
@@ -110,7 +114,7 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 
 	public function postsQuery( $variables ) {
 
-		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:queryArgs){
+		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:QueryArgs){
 			posts( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -329,6 +333,350 @@ class WP_GraphQL_Test_Post_Connection_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $global_child_id, $child['id'] );
 		$this->assertEquals( $child_id, $child['pageId'] );
 
+
+	}
+
+	public function testSanitizeInputFieldsAuthorArgs() {
+		$mock_args = [
+			'authorName' => 'testAuthorName',
+			'authorIn' => [1, 2, 3],
+			'authorNotIn' => [4, 5, 6],
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 'testAuthorName', $actual['author_name'] );
+		$this->assertEquals( [1, 2, 3], $actual['author__in'] );
+		$this->assertEquals( [4, 5, 6], $actual['author__not_in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'authorName', $actual );
+		$this->assertArrayNotHasKey( 'authorIn', $actual );
+		$this->assertArrayNotHasKey( 'authorNotIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsCategoryArgs() {
+		$mock_args = [
+			'categoryId' => 1,
+			'categoryName' => 'testCategory',
+			'categoryIn' => [4, 5, 6],
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 1, $actual['cat'] );
+		$this->assertEquals( 'testCategory', $actual['category_name'] );
+		$this->assertEquals( [4, 5, 6], $actual['category__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'categoryId', $actual );
+		$this->assertArrayNotHasKey( 'categoryName', $actual );
+		$this->assertArrayNotHasKey( 'categoryIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsTagArgs() {
+		$mock_args = [
+			'tagId' => 1,
+			'tagIds' => [1, 2, 3],
+			'tagSlugAnd' => [4, 5, 6],
+			'tagSlugIn' => [6, 7, 8],
+		];
+		
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 1, $actual['tag_id'] );
+		$this->assertEquals( [1, 2, 3], $actual['tag__and'] );
+		$this->assertEquals( [4, 5, 6], $actual['tag_slug__and'] );
+		$this->assertEquals( [6, 7, 8], $actual['tag_slug__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'tagId', $actual );
+		$this->assertArrayNotHasKey( 'tagIds', $actual );
+		$this->assertArrayNotHasKey( 'tagSlugAnd', $actual );
+		$this->assertArrayNotHasKey( 'tagSlugIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsSearchArgs() {
+		$mock_args = [
+			'search' => 'testSearchString',
+			'id' => 1,
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 'testSearchString', $actual['s'] );
+		$this->assertEquals( 1, $actual['p'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'search', $actual );
+		$this->assertArrayNotHasKey( 'id', $actual );
+	}
+
+	public function testSanitizeInputFieldsParentArgs() {
+		$mock_args = [
+			'parent' => 2,
+			'parentIn' => [3, 4, 5],
+			'parentNotIn' => [6, 7, 8],
+			'in' => [9, 10, 11],
+			'notIn' => [12, 13, 14],
+			'nameIn' => ['testPost1', 'testPost2', 'testPost3'],
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( 2, $actual['post_parent'] );
+		$this->assertEquals( [3, 4, 5], $actual['post_parent__in'] );
+		$this->assertEquals( [6, 7, 8], $actual['post_parent__not_in'] );
+		$this->assertEquals( [9, 10, 11], $actual['post__in'] );
+		$this->assertEquals( [12, 13, 14], $actual['post__not_in'] );
+		$this->assertEquals( ['testPost1', 'testPost2', 'testPost3'], $actual['post_name__in'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'parent', $actual );
+		$this->assertArrayNotHasKey( 'parentIn', $actual );
+		$this->assertArrayNotHasKey( 'parentNotIn', $actual );
+		$this->assertArrayNotHasKey( 'in', $actual );
+		$this->assertArrayNotHasKey( 'notIn', $actual );
+		$this->assertArrayNotHasKey( 'nameIn', $actual );
+	}
+
+	public function testSanitizeInputFieldsMiscArgs() {
+		$mock_args = [
+			'hasPassword' => true,
+			'password' => 'myPostPassword123',
+			'status' => ['publish', 'private' ],
+			'dateQuery'=> array( 
+				array(
+					'year'  => 2012,
+					'month' => 12,
+					'day'   => 12,
+				),
+			),
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertTrue( $actual['has_password'] );
+		$this->assertEquals( 'myPostPassword123', $actual['post_password'] );
+		$this->assertEquals( ['publish', 'private' ], $actual['post_status'] );
+		$this->assertEquals( 
+			array( 
+				array(
+					'year'  => 2012,
+					'month' => 12,
+					'day'   => 12,
+				),
+			)
+		, $actual['date_query'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'hasPassword', $actual );
+		$this->assertArrayNotHasKey( 'password', $actual );
+		$this->assertArrayNotHasKey( 'status', $actual );
+		$this->assertArrayNotHasKey( 'dateQuery', $actual );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgs() {
+		/**
+		 * Mock args
+		 */
+		$mock_args = array(
+			'orderby' => 'DESC',
+			'where' => array(
+				'orderby' => array(
+					array(
+						'field' => 'author',
+						'order' => 'ASC',
+					),
+				),
+			),
+		);
+
+		/**
+		 * Create post
+		 */
+		$test_post = $this->factory->post->create();
+
+		$source = get_post( $test_post );
+
+		/**
+		 * New page
+		 */
+		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( 'page' );
+
+		$actual = $actual::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Expected result
+		 */
+		$expected = array(
+			'post_type' => 'page',
+			'no_found_rows' => true,
+			'post_status' => 'publish',
+			'posts_per_page' => 11,
+			'post_parent' => $test_post,
+			'graphql_cursor_offset' => 0,
+			'graphql_cursor_compare' => '<',
+			'graphql_args' => array(
+				'orderby' => 'DESC',
+				'where' => array(
+					'orderby' => array(
+						0 => array(
+							'field' => 'author',
+							'order' => 'ASC',
+						)
+					),
+				),
+			),
+			'orderby' => array(
+				'author' => 'ASC',
+			),
+		);
+
+		/**
+		 * Make sure the expected result is equal to the response of $actual
+		 */
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsAttachment() {
+		
+		/**
+		 * Mock args
+		 */
+		$mock_args = array(
+			'post_status' => 'publish',
+		);
+
+		/**
+		 * Create attachment
+		 */
+		$child_id = $this->factory->post->create([
+			'post_type' => 'attachment',
+		]);
+
+		$post_type = 'attachment';
+
+		$source = get_post( $child_id );
+
+		/**
+		 * New post type attachment
+		 */
+		$actual = new \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver( $post_type );
+
+		$actual = $actual->get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the post status is equal to inherit
+		 */
+		$this->assertEquals( 'inherit', $actual['post_status'] );
+
+		/**
+		 * Make sure get_query_args is setting the post id as post_parent
+		 */
+		$this->assertEquals( $child_id, $actual['post_parent'] );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsTerms() {
+		/**
+		 * Create a term
+		 */
+		$term_id = $this->factory->term->create();
+
+		$source = get_term( $term_id );
+
+		$mock_args = array(
+			'taxonomy' => 'post_tag',
+			'terms' => array( 2 ),
+			'field' => 'term_id',
+		);
+
+		$actual_terms = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the function returned our mock_args in the tax_query key
+		 */
+		$this->assertEquals( $mock_args, $actual_terms['tax_query'][0] );
+	}
+	
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsPostType() {
+
+		/**
+		 * Get post type object
+		 */
+		$source = get_post_type_object( 'post' );
+
+		$mock_args = array();
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure that post type is equals to post
+		 */
+		$this->assertEquals( 'post', $actual['post_type'] );
+	}
+
+	/**
+	 * @group get_query_args
+	 */
+	public function testGetQueryArgsUser() {
+		/**
+		 * Create a user
+		 */
+		$user_id = $this->factory->user->create();
+
+		$source = get_user_by( 'ID', $user_id );
+
+		$mock_args = array();
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the author is equal to the user previously created
+		 */
+		$this->assertEquals( $user_id, $actual['author'] );
 
 	}
 

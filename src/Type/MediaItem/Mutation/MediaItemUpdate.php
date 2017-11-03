@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -31,7 +32,7 @@ class MediaItemUpdate {
 		/**
 		 * Set the name of the mutation being performed
 		 */
-		$mutation_name = 'updateMediaItem';
+		$mutation_name = 'UpdateMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId([
 			'name'                => esc_html( $mutation_name ),
@@ -54,7 +55,7 @@ class MediaItemUpdate {
 				 * If there's no existing mediaItem, throw an exception
 				 */
 				if ( null === $existing_media_item ) {
-					throw new \Exception( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
+					throw new UserError( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
 				} else {
 					$author_id = $existing_media_item->post_author;
 				}
@@ -64,14 +65,14 @@ class MediaItemUpdate {
 				 */
 				if ( $post_type_object->name !== $existing_media_item->post_type ) {
 					// translators: The placeholder is the ID of the mediaItem being edited
-					throw new \Exception( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $id_parts['id'] ) );
+					throw new UserError( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $id_parts['id'] ) );
 				}
 
 				/**
 				 * Stop now if a user isn't allowed to edit mediaItems
 				 */
 				if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 				}
 
 				/**
@@ -88,7 +89,7 @@ class MediaItemUpdate {
 				 * if not they need to be able to edit others posts to proceed
 				 */
 				if ( get_current_user_id() !== $author_id && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 				}
 
 				/**

@@ -89,7 +89,7 @@ class WP_GraphQL_Test_Term_Object_Connection_Queries extends WP_UnitTestCase {
 
 	public function categoriesQuery( $variables ) {
 
-		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:termArgs){
+		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:TermArgs){
 			categories( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage

@@ -55,7 +55,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'queryArgs';
+		$config['name'] = 'QueryArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -287,11 +287,11 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				'name' => 'orderbyOptions',
 				'fields' => self::prepare_fields( [
 					'field' => Types::non_null( self::orderby_enum() ),
-					'order' => new EnumType( [
+					'order' => new WPEnumType( [
 						'name'   => 'order',
 						'values' => [
-							'ASC'  => 'ASC',
-							'DESC' => 'DESC',
+							'ASC'  => [ 'value' => 'ASC' ],
+							'DESC' => [ 'value' => 'DESC' ],
 						],
 					] ),
 				], 'orderbyOptions' ),
@@ -314,43 +314,35 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 			self::$orderby_enum = new WPEnumType([
 				'name' => 'orderby',
 				'values' => [
-					[
-						'name'        => 'AUTHOR',
+					'AUTHOR' => [
 						'value'       => 'post_author',
 						'description' => __( 'Order by author', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'TITLE',
+					'TITLE' => [
 						'value'       => 'post_title',
 						'description' => __( 'Order by title', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'SLUG',
+					'SLUG' => [
 						'value'       => 'post_name',
 						'description' => __( 'Order by slug', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'MODIFIED',
+					'MODIFIED' => [
 						'value'       => 'post_modified',
 						'description' => __( 'Order by last modified date', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'DATE',
+					'DATE' => [
 						'value'       => 'post_date',
 						'description' => __( 'Order by publish date', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'PARENT',
+					'PARENT' => [
 						'value'       => 'post_parent',
 						'description' => __( 'Order by parent ID', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'IN',
+					'IN' => [
 						'value'       => 'post__in',
 						'description' => __( 'Preserve the ID order given in the IN array', 'wp-graphql' ),
 					],
-					[
-						'name'        => 'NAME_IN',
+					'NAME_IN' => [
 						'value'       => 'post_name__in',
 						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
 					],

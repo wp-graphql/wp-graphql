@@ -3,7 +3,7 @@
   "description": "GraphQL API for WordPress",
   "type": "wordpress-plugin",
   "license": "GPLv3",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "authors": [
     {
       "name": "Jason Bahl",
@@ -20,7 +20,7 @@
     }
   ],
   "require": {
-    "webonyx/graphql-php": "^0.9.14",
+    "webonyx/graphql-php": "^0.11.2",
     "ivome/graphql-relay-php": "^0.3.1"
   },
   "require-dev": {

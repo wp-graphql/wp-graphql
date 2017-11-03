@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\PostObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -28,7 +29,7 @@ class TermObjectDelete {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'delete' . ucwords( $taxonomy->graphql_single_name );
+			$mutation_name = 'Delete' . ucwords( $taxonomy->graphql_single_name );
 
 			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId([
 				'name' => esc_html( $mutation_name ),
@@ -67,7 +68,7 @@ class TermObjectDelete {
 						$term_id = absint( $id_parts['id'] );
 					} else {
 						// Translators: The placeholder is the name of the taxonomy for the term being deleted
-						throw new \Exception( sprintf( __( 'The ID for the %1$s was not valid', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+						throw new UserError( sprintf( __( 'The ID for the %1$s was not valid', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
 					}
 
 					/**
@@ -75,7 +76,7 @@ class TermObjectDelete {
 					 */
 					if ( empty( $id_parts['type'] ) || $taxonomy->name !== $id_parts['type'] ) {
 						// Translators: The placeholder is the name of the taxonomy for the term being edited
-						throw new \Exception( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+						throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
 					}
 
 					/**
@@ -88,7 +89,7 @@ class TermObjectDelete {
 					 */
 					if ( ! current_user_can( 'delete_term', $term_object->term_id ) ) {
 						// Translators: The placeholder is the name of the taxonomy for the term being deleted
-						throw new \Exception( sprintf( __( 'You do not have permission to delete %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'You do not have permission to delete %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
 					}
 
 					/**
@@ -102,10 +103,10 @@ class TermObjectDelete {
 					if ( is_wp_error( $deleted ) ) {
 						$error_message = $deleted->get_error_message();
 						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
+							throw new UserError( esc_html( $error_message ) );
 						} else {
 							// Translators: The placeholder is the name of the taxonomy for the term being deleted
-							throw new \Exception( sprintf( __( 'The %1$s failed to delete but no error was provided', 'wp-graphql' ), $taxonomy->name ) );
+							throw new UserError( sprintf( __( 'The %1$s failed to delete but no error was provided', 'wp-graphql' ), $taxonomy->name ) );
 						}
 					}
 

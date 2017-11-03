@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\User\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -31,7 +32,7 @@ class UserCreate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'createUser',
+				'name' => 'CreateUser',
 				'description' => __( 'Create new user object', 'wp-graphql' ),
 				'inputFields' => self::input_fields(),
 				'outputFields' => [
@@ -45,7 +46,7 @@ class UserCreate {
 				'mutateAndGetPayload' => function( $input ) {
 
 					if ( ! current_user_can( 'create_users' ) ) {
-						throw new \Exception( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
+						throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
 					}
 
 					/**
@@ -64,9 +65,9 @@ class UserCreate {
 					if ( is_wp_error( $user_id ) ) {
 						$error_message = $user_id->get_error_message();
 						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
+							throw new UserError( esc_html( $error_message ) );
 						} else {
-							throw new \Exception( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+							throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 						}
 					}
 
@@ -74,7 +75,7 @@ class UserCreate {
 					 * If the $post_id is empty, we should throw an exception
 					 */
 					if ( empty( $user_id ) ) {
-						throw new \Exception( __( 'The object failed to create', 'wp-graphql' ) );
+						throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
 					}
 
 					/**

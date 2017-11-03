@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\User\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -31,7 +32,7 @@ class UserDelete {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'deleteUser',
+				'name' => 'DeleteUser',
 				'description' => __( 'Delete a user object', 'wp-graphql' ),
 				'inputFields' => [
 					'id' => [
@@ -69,7 +70,7 @@ class UserDelete {
 					$id_parts = Relay::fromGlobalId( $input['id'] );
 
 					if ( ! current_user_can( 'delete_users' ) ) {
-						throw new \Exception( __( 'Sorry, you are not allowed to delete users.', 'wp-graphql' ) );
+						throw new UserError( __( 'Sorry, you are not allowed to delete users.', 'wp-graphql' ) );
 					}
 
 					/**
@@ -81,7 +82,7 @@ class UserDelete {
 					 * Throw an error if the user we are trying to delete doesn't exist
 					 */
 					if ( false === $user_before_delete ) {
-						throw new \Exception( __( 'Could not find an existing user to delete', 'wp-graphql' ) );
+						throw new UserError( __( 'Could not find an existing user to delete', 'wp-graphql' ) );
 					}
 
 					/**
@@ -107,7 +108,7 @@ class UserDelete {
 					}
 					
 					if ( true !== $deleted_user ) {
-						throw new \Exception( __( 'Could not delete the user.', 'wp-grapgql' ) );
+						throw new UserError( __( 'Could not delete the user.', 'wp-grapgql' ) );
 					}
 
 					return [

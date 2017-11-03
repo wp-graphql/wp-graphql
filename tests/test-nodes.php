@@ -60,7 +60,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query getPageByNode( $id:ID! ) { 
 			node( id:$id ) { 
 				__typename 
-				...on page {
+				...on Page {
 					pageId
 				}
 			} 
@@ -81,7 +81,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'page',
+					'__typename' => 'Page',
 					'pageId' => $page_id,
 				],
 			],
@@ -125,7 +125,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename 
-				...on page {
+				...on Page {
 					pageId
 				}
 			} 
@@ -142,7 +142,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'page',
+					'__typename' => 'Page',
 					'pageId' => $page_id,
 				],
 			],
@@ -173,7 +173,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename
-				... on post {
+				... on Post {
 					postId
 				}
 			} 
@@ -183,7 +183,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'post',
+					'__typename' => 'Post',
 					'postId' => $post_id,
 				],
 			],
@@ -212,7 +212,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename
-				...on mediaItem {
+				...on MediaItem {
 					mediaItemId
 				}
 			} 
@@ -222,7 +222,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'mediaItem',
+					'__typename' => 'MediaItem',
 					'mediaItemId' => $attachment_id,
 				],
 			],
@@ -243,7 +243,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename
-				... on plugin {
+				... on Plugin {
 					name
 				}
 			} 
@@ -254,7 +254,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'plugin',
+					'__typename' => 'Plugin',
 					'name' => $plugin_name,
 				],
 			],
@@ -275,7 +275,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename 
-				...on theme{ 
+				...on Theme{ 
 					slug 
 				} 
 			} 
@@ -285,7 +285,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'theme',
+					'__typename' => 'Theme',
 					'slug' => $theme_slug,
 				],
 			],
@@ -312,7 +312,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename 
-				...on user{ 
+				...on User{ 
 					userId 
 				} 
 			} 
@@ -323,7 +323,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'user',
+					'__typename' => 'User',
 					'userId' => $user_id,
 				],
 			],
@@ -356,7 +356,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		query { 
 			node(id: \"{$global_id}\") {
 				__typename 
-				...on comment{ 
+				...on Comment{ 
 					commentId 
 				} 
 			} 
@@ -367,7 +367,7 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 		$expected = [
 			'data' => [
 				'node' => [
-					'__typename' => 'comment',
+					'__typename' => 'Comment',
 					'commentId' => $comment_id,
 				],
 			],

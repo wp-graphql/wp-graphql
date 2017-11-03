@@ -1,7 +1,7 @@
 <?php
 namespace WPGraphQL\Type\TermObject\Connection;
 
-use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -28,7 +28,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [] ) {
-		$config['name'] = 'termArgs';
+		$config['name'] = 'TermArgs';
 		$config['fields'] = self::fields();
 		parent::__construct( $config );
 	}
@@ -50,31 +50,25 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 				],
 				'orderby' => [
-					'type' => new EnumType( [
-						'name' => 'termsOrderby',
+					'type' => new WPEnumType( [
+						'name' => 'TermsOrderby',
 						'values' => [
-							[
-								'name' => 'NAME',
+							'NAME' => [
 								'value' => 'name',
 							],
-							[
-								'name' => 'SLUG',
+							'SLUG' => [
 								'value' => 'slug',
 							],
-							[
-								'name' => 'TERM_GROUP',
+							'TERM_GROUP' => [
 								'value' => 'term_group',
 							],
-							[
-								'name' => 'TERM_ID',
+							'TERM_ID' => [
 								'value' => 'term_id',
 							],
-							[
-								'name' => 'DESCRIPTION',
+							'DESCRIPTION' => [
 								'value' => 'description',
 							],
-							[
-								'name' => 'COUNT',
+							'COUNT' => [
 								'value' => 'count',
 							],
 						],

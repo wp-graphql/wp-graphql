@@ -38,7 +38,7 @@ class ThemeConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::theme(),
-				'name' => 'themes',
+				'name' => 'Themes',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [

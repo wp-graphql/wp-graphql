@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\PostObject\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -33,7 +34,7 @@ class PostObjectCreate {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'create' . ucwords( $post_type_object->graphql_single_name );
+			$mutation_name = 'Create' . ucwords( $post_type_object->graphql_single_name );
 
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => esc_html( $mutation_name ),
@@ -54,7 +55,7 @@ class PostObjectCreate {
 					 * Throw an exception if there's no input
 					 */
 					if ( ( empty( $post_type_object->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-						throw new \Exception( __( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
+						throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
 					}
 
 					/**
@@ -62,7 +63,7 @@ class PostObjectCreate {
 					 */
 					if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
 						// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
 					/**
@@ -71,7 +72,7 @@ class PostObjectCreate {
 					 */
 					if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 						// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-						throw new \Exception( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+						throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 					}
 
 					/**
@@ -96,9 +97,9 @@ class PostObjectCreate {
 					if ( is_wp_error( $post_id ) ) {
 						$error_message = $post_id->get_error_message();
 						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
+							throw new UserError( esc_html( $error_message ) );
 						} else {
-							throw new \Exception( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+							throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 						}
 					}
 
@@ -106,7 +107,7 @@ class PostObjectCreate {
 					 * If the $post_id is empty, we should throw an exception
 					 */
 					if ( empty( $post_id ) ) {
-						throw new \Exception( __( 'The object failed to create', 'wp-graphql' ) );
+						throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
 					}
 
 					/**

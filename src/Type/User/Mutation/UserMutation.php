@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\User\Mutation;
 
+use GraphQL\Error\UserError;
 use WPGraphQL\Types;
 
 /**
@@ -141,7 +142,7 @@ class UserMutation {
 
 		if ( ! empty( $input['email'] ) ) {
 			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
-				throw new \Exception( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+				throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
 			}
 			$insert_user_args['user_email'] = $input['email'];
 		}
@@ -270,7 +271,7 @@ class UserMutation {
 
 		if ( empty( $editable_roles[ $role ] ) ) {
 			// Translators: %s is the name of the role that can't be added to the user.
-			throw new \Exception( sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
+			throw new UserError( sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
 		} else {
 			return true;
 		}

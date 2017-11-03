@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\PostType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -45,7 +44,7 @@ class PostTypeType extends WPObjectType {
 		 * Set the type_name
 		 * @since 0.0.5
 		 */
-		self::$type_name = 'postType';
+		self::$type_name = 'PostType';
 
 		$config = [
 			'name' => self::$type_name,
@@ -235,7 +234,6 @@ class PostTypeType extends WPObjectType {
 							'taxonomies' => [
 								'type' => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'A list of Taxonomies associated with the post type', 'wp-graphql' ),
@@ -267,7 +265,6 @@ class PostTypeType extends WPObjectType {
 							'taxonomies' => [
 								'type' => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-								'defaultValue' => null,
 							],
 						],
 						'description' => __( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
@@ -316,7 +313,7 @@ class PostTypeType extends WPObjectType {
 	private static function labels_details() {
 		if ( null === self::$labels_details ) {
 			self::$labels_details = new WPObjectType( [
-				'name'   => 'labelsDetails',
+				'name'   => 'LabelsDetails',
 				'fields' => function() {
 					$fields = [
 						'name' => [

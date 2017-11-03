@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\User\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -30,12 +31,13 @@ class UserUpdate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'updateUser',
+				'name' => 'UpdateUser',
 				'description' => 'Updates a user object',
 				'inputFields' => self::input_fields(),
 				'outputFields' => [
 					'user' => [
 						'type' => Types::user(),
+						'description' => __( 'The updated user', 'wp-graphql' ),
 						'resolve' => function( $payload ) {
 							return get_user_by( 'ID', $payload['userId'] );
 						}
@@ -49,11 +51,11 @@ class UserUpdate {
 					 * If there's no existing user, throw an exception
 					 */
 					if ( empty( $id_parts['id'] )  || false === $existing_user ) {
-						throw new \Exception( $id_parts['id'] );
+						throw new UserError( $id_parts['id'] );
 					}
 
 					if ( ! current_user_can( 'edit_users' ) ) {
-						throw new \Exception( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
+						throw new UserError( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 					}
 
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
@@ -63,7 +65,7 @@ class UserUpdate {
 					 * If the query is trying to modify the users role, but doesn't have permissions to do so, throw an exception
 					 */
 					if ( ! current_user_can( 'promote_users' ) && isset( $user_args['role'] ) ) {
-						throw new \Exception( __( 'You do not have the appropriate capabilities to change this users role.', 'wp-graphql' ) );
+						throw new UserError( __( 'You do not have the appropriate capabilities to change this users role.', 'wp-graphql' ) );
 					}
 
 					/**
@@ -77,9 +79,9 @@ class UserUpdate {
 					if ( is_wp_error( $user_id ) ) {
 						$error_message = $user_id->get_error_message();
 						if ( ! empty( $error_message ) ) {
-							throw new \Exception( esc_html( $error_message ) );
+							throw new UserError( esc_html( $error_message ) );
 						} else {
-							throw new \Exception( __( 'The user failed to update but no error was provided', 'wp-graphql' ) );
+							throw new UserError( __( 'The user failed to update but no error was provided', 'wp-graphql' ) );
 						}
 					}
 
@@ -87,7 +89,7 @@ class UserUpdate {
 					 * If the $user_id is empty, we should throw an exception
 					 */
 					if ( empty( $user_id ) ) {
-						throw new \Exception( __( 'The user failed to update', 'wp-graphql' ) );
+						throw new UserError( __( 'The user failed to update', 'wp-graphql' ) );
 					}
 
 					/**

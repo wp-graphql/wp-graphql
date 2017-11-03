@@ -38,7 +38,7 @@ class CommentConnectionDefinition {
 		if ( null === self::$connection ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::comment(),
-				'name' => 'comments',
+				'name' => 'Comments',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
 
@@ -31,7 +32,7 @@ class MediaItemCreate {
 		/**
 		 * Set the name of the mutation being performed
 		 */
-		$mutation_name = 'createMediaItem';
+		$mutation_name = 'CreateMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name' => esc_html( $mutation_name ),
@@ -51,7 +52,7 @@ class MediaItemCreate {
 				 * Stop now if a user isn't allowed to upload a mediaItem
 				 */
 				if ( ! current_user_can( 'upload_files' ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to upload mediaItems', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems', 'wp-graphql' ) );
 				}
 
 				/**
@@ -86,7 +87,7 @@ class MediaItemCreate {
 				 * Handle the error from download_url if it occurs
 				 */
 				if ( is_wp_error( $temp_file ) ) {
-					throw new \Exception( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
 				}
 
 				/**
@@ -118,7 +119,7 @@ class MediaItemCreate {
 				 * Handle the error from wp_handle_sideload if it occurs
 				 */
 				if ( ! empty( $file['error'] ) ) {
-					throw new \Exception( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
 				}
 
 				/**
@@ -139,7 +140,7 @@ class MediaItemCreate {
 				if ( null !== get_post( $attachment_parent_id ) ) {
 					$post_parent_type = get_post_type_object( $parent->post_type );
 					if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
-						throw new \Exception( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
+						throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
 					}
 				}
 
@@ -148,7 +149,7 @@ class MediaItemCreate {
 				 * the current user has permission to edit others mediaItems
 				 */
 				if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-					throw new \Exception( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
+					throw new UserError( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
 				}
 
 				/**

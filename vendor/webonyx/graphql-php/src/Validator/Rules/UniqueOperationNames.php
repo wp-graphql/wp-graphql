@@ -8,16 +8,16 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
-class UniqueOperationNames
+class UniqueOperationNames extends AbstractValidationRule
 {
     static function duplicateOperationNameMessage($operationName)
     {
-      return "There can only be one operation named \"$operationName\".";
+      return "There can be only one operation named \"$operationName\".";
     }
 
     public $knownOperationNames;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $this->knownOperationNames = [];
 

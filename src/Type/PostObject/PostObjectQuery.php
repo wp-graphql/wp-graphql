@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\PostObject;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
@@ -88,7 +89,7 @@ class PostObjectQuery {
 					if ( ! empty( $args['id'] ) ) {
 						$id_components = Relay::fromGlobalId( $args['id'] );
 						if ( empty( $id_components['id'] ) || empty( $id_components[ 'type' ] ) ) {
-							throw new \Exception( __( 'The "id" is invalid', 'wp-graphql' ) );
+							throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 						}
 						$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
 					} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
@@ -103,15 +104,15 @@ class PostObjectQuery {
 					}
 
 					if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
-						throw new \Exception( __( 'No resource could by found', 'wp-graphql' ) );
+						throw new UserError( __( 'No resource could by found', 'wp-graphql' ) );
 					}
 
 					if ( ! $post_object instanceof \WP_Post ) {
-						throw new \Exception( __( 'The queried resource is not valid', 'wp-graphql' ) );
+						throw new UserError( __( 'The queried resource is not valid', 'wp-graphql' ) );
 					}
 
 					if ( $post_type_object->name !== $post_object->post_type ) {
-						throw new \Exception( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
+						throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
 					}
 
 					return $post_object;

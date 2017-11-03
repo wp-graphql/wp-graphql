@@ -98,7 +98,9 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				agent
 				approved
 				author{
-					userId
+					...on User {
+					  userId
+					}
 				}
 				authorIp
 				children {
@@ -110,7 +112,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				}
 				commentId
 				commentedOn {
-					... on post {
+					... on Post {
 						id
 					}
 				}
@@ -155,6 +157,74 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 					'karma'       => 0,
 					'parent'      => null,
 					'type'        => null,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testCommentQuery
+	 *
+	 * This tests creating a single comment with data and retrieving said comment via a GraphQL query
+	 *
+	 * @since 0.0.5
+	 */
+	public function testCommentWithCommentAuthor() {
+
+		/**
+		 * Create a comment
+		 */
+		$comment_id = $this->createCommentObject( [
+			'comment_author' => 'Author Name',
+			'comment_author_email' => 'test@test.com',
+			'comment_author_url' => 'http://example.com',
+		] );
+
+		/**
+		 * Create the global ID based on the comment_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			comment(id: \"{$global_id}\") {
+				agent
+				approved
+				author{
+					...on CommentAuthor {
+					  id
+					  name
+					  email
+					  url
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'comment' => [
+					'agent'       => '',
+					'approved'    => '1',
+					'author'      => [
+						'id'  => \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', get_comment_author_email( $comment_id ) ),
+						'name' => get_comment_author( $comment_id ),
+						'email' => get_comment_author_email( $comment_id ),
+						'url' => get_comment_author_url( $comment_id ),
+					],
 				],
 			],
 		];
@@ -227,7 +297,7 @@ class WP_GraphQL_Test_Comment_Object_Queries extends WP_UnitTestCase {
 				}
 				commentId
 				commentedOn {
-					... on post {
+					... on Post {
 						content
 					}
 				}
