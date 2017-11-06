@@ -174,7 +174,7 @@ class MediaItemType {
 						],
 					];
 
-					return WPObjectType::prepare_fields( $fields, 'mediaDetails' );
+					return WPObjectType::prepare_fields( $fields, 'MediaDetails' );
 				},
 			] );
 		} // End if().

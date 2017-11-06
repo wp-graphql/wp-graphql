@@ -483,7 +483,7 @@ class PostTypeType extends WPObjectType {
 							},
 						],
 					];
-					return self::prepare_fields( $fields, 'labelsDetails' );
+					return self::prepare_fields( $fields, 'LabelsDetails' );
 				},
 			] );
 		} // End if().
