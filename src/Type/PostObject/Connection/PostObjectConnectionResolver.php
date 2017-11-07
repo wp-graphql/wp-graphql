@@ -185,7 +185,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
 		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $source, $args, $context, $info );
-
 		return $query_args;
 
 	}

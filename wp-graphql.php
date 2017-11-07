@@ -307,6 +307,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
 				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
 			}
+
 		}
 
 		/**
@@ -323,27 +324,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all post_types
 			 */
-			$post_types = get_post_types();
+			$post_types = get_post_types([
+				'show_in_graphql' => true,
+			]);
 
 			/**
-			 * Compile a list of post_types that are set to
-			 * show_in_graphql. Use show_in_rest as a fallback for
-			 * post_types that have no explicit "show_in_graphql" setting
+			 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 			 */
-			array_values(
-				array_map(
-					function( $post_type ) {
-						$post_type_object = get_post_type_object( $post_type );
-						if ( ! isset( $post_type_object->show_in_graphql ) ) {
-							if ( isset( $post_type_object->show_in_rest ) && true === $post_type_object->show_in_rest ) {
-								self::$allowed_post_types[] = $post_type;
-							}
-						} else if ( isset( $post_type_object->show_in_graphql ) && true === $post_type_object->show_in_graphql ) {
-							self::$allowed_post_types[] = $post_type;
-						}
-					}, $post_types
-				)
-			);
+			array_map( function( $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+				if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
+					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $post_type_object->name ) );
+				}
+			}, $post_types );
 
 			/**
 			 * Define the $allowed_post_types to be exposed by GraphQL Queries Pass through a filter
@@ -356,7 +349,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @return array
 			 */
-			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', self::$allowed_post_types );
+			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
 
 			/**
 			 * Returns the array of allowed_post_types
@@ -378,27 +371,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies
 			 */
-			$taxonomies = get_taxonomies();
+			$taxonomies = get_taxonomies([
+				'show_in_graphql' => true,
+			]);
 
 			/**
-			 * Compile a list of post_types that are set to
-			 * show_in_graphql. Use show_in_rest as a fallback for
-			 * post_types that have no explicit "show_in_graphql" setting
+			 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 			 */
-			array_values(
-				array_map(
-					function( $taxonomy ) {
-						$tax_object = get_taxonomy( $taxonomy );
-						if ( ! isset( $tax_object->show_in_graphql ) ) {
-							if ( isset( $tax_object->show_in_rest ) && true === $tax_object->show_in_rest ) {
-								self::$allowed_taxonomies[] = $taxonomy;
-							}
-						} else if ( true === $tax_object->show_in_graphql ) {
-							self::$allowed_taxonomies[] = $taxonomy;
-						}
-					}, $taxonomies
-				)
-			);
+			array_map( function( $taxonomy ) {
+				$tax_object = get_taxonomy( $taxonomy );
+				if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
+					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $tax_object->name ) );
+				}
+			}, $taxonomies );
 
 			/**
 			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
@@ -410,7 +395,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @param array $taxonomies Array of taxonomy objects
 			 */
-			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', self::$allowed_taxonomies );
+			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
 
 			/**
 			 * Returns the array of $allowed_taxonomies
@@ -645,7 +630,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Return the result of the request
 			 */
-			return $result->toArray( true );
+			return $result->toArray();
 
 		}
 	}
