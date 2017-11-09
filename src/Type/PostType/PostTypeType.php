@@ -79,7 +79,7 @@ class PostTypeType extends WPObjectType {
 					'id' => [
 						'type' => Types::non_null( Types::id() ),
 						'resolve' => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
-							return ( ! empty( $post_type->name ) && ! empty( $post_type->name ) ) ? Relay::toGlobalId( 'post_type', $post_type->name ) : null;
+							return ( ! empty( $post_type->name ) && ! empty( $post_type->name ) ) ? Relay::toGlobalId( 'postType', $post_type->name ) : null;
 						},
 					],
 					'name' => [
