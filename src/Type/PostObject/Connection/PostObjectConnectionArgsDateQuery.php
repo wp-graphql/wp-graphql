@@ -118,7 +118,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 				],
 			];
 		endif;
-		return self::prepare_fields( self::$fields, 'dateQuery' );
+		return self::prepare_fields( self::$fields, 'DateQuery' );
 	}
 
 	/**

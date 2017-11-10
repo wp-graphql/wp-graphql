@@ -43,6 +43,7 @@ class WPInputObjectType extends InputObjectType {
 		 *
 		 * @since 0.0.5
 		 */
+		$fields = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_fields', $fields );
 		$fields = apply_filters( "graphql_{$type_name}_fields", $fields );
 
 		/**

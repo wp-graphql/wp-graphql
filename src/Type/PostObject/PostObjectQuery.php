@@ -135,7 +135,7 @@ class PostObjectQuery {
 			self::$post_object_by_args = [];
 		}
 
-		if ( empty( self::$post_object_by_args[ $post_type_object->name . 'ByArgs' ] ) ) {
+		if ( empty( self::$post_object_by_args[ ucfirst( $post_type_object->name ) . 'ByArgs' ] ) ) {
 
 			$args = [
 				'id' => [
@@ -159,7 +159,7 @@ class PostObjectQuery {
 				];
 			}
 
-			self::$post_object_by_args[ $post_type_object->name . 'ByArgs' ] = WPInputObjectType::prepare_fields( $args, $post_type_object->name . 'ByArgs' );
+			self::$post_object_by_args[ $post_type_object->name . 'ByArgs' ] = WPInputObjectType::prepare_fields( $args, ucfirst( $post_type_object->name . 'ByArgs' ) );
 
 		}
 
