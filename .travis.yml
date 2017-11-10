@@ -72,7 +72,7 @@ before_install:
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-  - composer install --no-interaction
+  - composer install --prefer-dist
 
   # Install WordPress
   - cd $WP_FOLDER
@@ -142,7 +142,6 @@ after_success:
   - travis_retry php coveralls.phar -v
 
 cache:
-  apt: true
   directories:
-    - vendor
-    - $HOME/.composer/cache/files
+  - vendor
+  - $HOME/.composer/cache
