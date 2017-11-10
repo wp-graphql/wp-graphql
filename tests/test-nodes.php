@@ -375,4 +375,126 @@ class WP_GraphQL_Test_Node_Queries extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
+
+	/**
+	 * Tests querying for a single post node
+	 */
+	public function testSuccessfulPostTypeResolver() {
+
+		$query = "
+		{
+		  node(id:\"cG9zdFR5cGU6cG9zdA==\"){
+			...on PostType {
+			  name
+			}
+		  }
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'node' => [
+					'name' => 'post',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * Tests querying for a single post node where the post id doesn't exist
+	 */
+	public function testUnsuccessfulPostTypeResolver() {
+
+		$query = "
+		{
+		  node(id:\"cG9zdFR5cGU6dGVzdA==\"){
+			...on PostType {
+			  name
+			}
+		  }
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Tests querying for a single taxonomy node
+	 */
+	public function testSuccessfulTaxonomyResolver() {
+
+		$query = "
+		{
+		  node(id:\"dGF4b25vbXk6Y2F0ZWdvcnk=\"){
+			...on Taxonomy {
+			  name
+			}
+		  }
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'node' => [
+					'name' => 'category',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * Tests querying for a single taxonomy node where the ID doesn't exist
+	 */
+	public function testUnsuccessfulTaxonomyResolver() {
+
+		$query = "
+		{
+		  node(id:\"dGF4b25vbXk6dGVzdA==\"){
+			...on Taxonomy {
+			  name
+			}
+		  }
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Tests querying for a single comment node where the comment ID doesn't exist
+	 */
+	public function testUnsuccessfulCommentResolver() {
+
+		$query = "
+		{
+		  node(id:\"Y29tbWVudDo5OTk5\"){
+			...on Comment {
+			  id
+			}
+		  }
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
 }
