@@ -57,12 +57,15 @@ before_script:
 
 script:
  - vendor/bin/phpunit --group ajax
-
+  - wp --info
+  - cd $WP_CORE_DIR_DIR
+  - pwd
+  - ls $WP_CORE_DIR_DIR
+  - wp graphql generate-static-schema --path=$WP_CORE_DIR_DIR
+  - graphql-schema-linter $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql/schema.graphql
 
 after_success:
   - travis_retry php coveralls.phar -v
-  - wp graphql generate-static-schema --path=$WP_CORE_DIR_DIR
-  - graphql-schema-linter $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql/schema.graphql
 
 cache:
   directories:
