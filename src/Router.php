@@ -388,7 +388,7 @@ class Router {
 			 * set the status code to 200.
 			 */
 			$user = wp_get_current_user();
-			if ( $user && 0 !== $user->ID ) {
+			if ( apply_filters('graphql_http_request_require_authentication', $user && 0 !== $user->ID) ) {
 				self::$http_status_code = 200;
 			}
 
