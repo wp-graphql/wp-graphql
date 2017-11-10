@@ -35,31 +35,75 @@ matrix:
 addons:
   apt:
     packages:
+     - libjpeg-dev
+     - libpng12-dev
      - php5-fpm
      - php5-mysql
      - nginx
   hosts:
-   - site.localhost
+   - wpgraphql.localhost
 
 env:
   global:
-    - SITE_URL="http://site.localhost"
-    - SITE_DOMAIN="site.localhost"
-    - DB_NAME=wordpress_test
+    - WP_FOLDER="/tmp/wordpress"
+    - WP_URL="http://wpgraphql.localhost"
+    - WP_DOMAIN="wpgraphql.localhost"
+    - DB_NAME="test"
+    - TEST_DB_NAME="wploader"
+    - WP_TABLE_PREFIX="wp_"
+    - WP_ADMIN_USERNAME="admin"
+    - WP_ADMIN_PASSWORD="admin"
 
 before_install:
+  # create the databases that will be used in the tests
   - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
-
+  - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
+  # set up folders
+  - mkdir -p $WP_FOLDER
+  - mkdir tools
+  # install wp-cli in the `tools` folder
+  - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
+  - chmod +x tools/wp-cli.phar && mv tools/wp-cli.phar tools/wp
+  # append the `tools` folder to the PATH
+  - export PATH=$PATH:$(pwd)/tools
+  # prepend the `vendor/bin` folder the PATH
+  - export PATH=vendor/bin:$PATH
 
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-  - composer install
+  - composer install --prefer-dist
+
+  # Install WordPress
+  - cd $WP_FOLDER
+  - wp core download --version=$WP_VERSION
+  - wp config create --dbname="$DB_NAME" --dbuser="root" --dbpass="" --dbhost="127.0.0.1" --dbprefix="$WP_TABLE_PREFIX"
+  - wp core multisite-install --url="$WP_URL" --base="/" --subdomains --title="Test" --admin_user="$WP_ADMIN_USERNAME" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="admin@$WP_DOMAIN" --skip-email
+
+  # flush rewrite rules to use pretty permalinks
+  - wp rewrite structure '/%postname%/' --hard
+
+  # update WordPress database to avoid prompts
+  - wp core update-db --network
+
+  # export a dump of the just installed database to the _data folder
+  - wp db export $TRAVIS_BUILD_DIR/tests/_data/dump.sql
+
+  # get back to the build folder
+  - cd $TRAVIS_BUILD_DIR
+
+  # copy the Nginx configuration file to the default site and replace the path and domain
+  - sudo cp build/travis-nginx-conf /etc/nginx/sites-available/$WP_DOMAIN
+  - sudo sed -e "s?%WP_FOLDER%?$WP_FOLDER?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
+  - sudo sed -e "s?%WP_DOMAIN%?$WP_DOMAIN?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
+
+  # enable the WordPress installation
+  - sudo ln -s /etc/nginx/sites-available/$WP_DOMAIN /etc/nginx/sites-enabled/
 
   # copy the Nginx configuration file for the site among the available ones from
   # the `bin/build` folder; the content of the Nginx configuration file I'm using is
   # specific to WordPress (see below) so use whatever you need to use.
-  # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/site.localhost`
+  # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/wpgraphql.localhost`
   - sudo cp bin/conf/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
 
   # using sed replace the placeholder text in the Nginx configuration file to use the
@@ -75,21 +119,22 @@ install:
   - chmod +x coveralls.phar
   - php coveralls.phar --version
 
+
+  # Install WordPress Unit Test Environment
+#  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION true
+#  - composer self-update
+#  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+#  - composer install --no-interaction
+#  - mkdir -p build/logs
+#  - ls -al
+
 before_script:
   # restart Nginx and PHP-FPM services to make sure the new site is loaded
   - sudo service php5-fpm restart
   - sudo service nginx restart
 
-  # Install WordPress Unit Test Environment
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION true
-  - composer self-update
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  - composer install --no-interaction
-  - mkdir -p build/logs
-  - ls -al
-
 script:
- - curl http://site.localhost
+ - curl http://wpgraphql.localhost
 # - vendor/bin/phpunit --group ajax
 # - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
