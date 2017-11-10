@@ -32,18 +32,55 @@ matrix:
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
+addons:
+  apt:
+    packages:
+     - php5-fpm
+     - php5-mysql
+     - nginx
+  hosts:
+   - site.localhost
+
+env:
+  global:
+    - SITE_URL="http://site.localhost"
+    - SITE_DOMAIN="site.localhost"
+    - DB_NAME=wordpress_test
+
+before_install:
+  - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
+
+
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
   - composer install
-  # Install Apache Setup to serve WP from Travis
-  - git clone https://github.com/lucatume/travis-apache-setup.git setup
+
+  # copy the Nginx configuration file for the site among the available ones from
+    # the `bin/build` folder; the content of the Nginx configuration file I'm using is
+    # specific to WordPress (see below) so use whatever you need to use.
+    # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/site.localhost`
+  - sudo cp bin/build/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
+
+  # using sed replace the placeholder text in the Nginx configuration file to use the
+  # correct site folder path and domain
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$TRAVIS_BUILD_DIR?g" --in-place /etc/nginx/sites-available/$SITE_DOMAIN
+  - sudo sed -e "s?%SITE_DOMAIN%?$SITE_DOMAIN?g" --in-place /etc/nginx/sites-available/$SITE_DOMAIN
+
+  # enable the site by creating a symbolic link in the `sites-enabled` folder
+  - sudo ln -s /etc/nginx/sites-available/$SITE_DOMAIN /etc/nginx/sites-enabled/
+
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
   - php coveralls.phar --version
 
 before_script:
+  # restart Nginx and PHP-FPM services to make sure the new site is loaded
+  - sudo service php5-fpm restart
+  - sudo service nginx restart
+
+  # Install WordPress Unit Test Environment
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
   - composer self-update
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
@@ -52,15 +89,9 @@ before_script:
   - ls -al
 
 script:
- #- vendor/bin/phpunit --group ajax
- #- vendor/bin/phpunit --coverage-clover build/logs/clover.xml
- - bash setup/wp-install --dir=/tmp/wordpress \
-       --dbname="wordpress_test" --dbuser="root" \
-       --dbpass="" --dbprefix=wp_ --domain="wordpress.dev" \
-       --title="Test" --admin_user=admin --admin_password=admin \
-       --admin_email=admin@wordpress.dev --theme=twentysixteen --empty
- - sudo bash setup/apache-setup -h="127.0.0.1" -u="http://wp.local" -f"/tmp/wordpress"
- - wget http://wp.local
+ - curl http://site.localhost
+# - vendor/bin/phpunit --group ajax
+# - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
   - travis_retry php coveralls.phar -v
