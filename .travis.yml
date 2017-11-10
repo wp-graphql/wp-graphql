@@ -52,14 +52,14 @@ before_script:
   - ls -al
 
 script:
- - vendor/bin/phpunit --group ajax
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
- - sh ./setup/wp-install --dir=/tmp/wordpress \
+ #- vendor/bin/phpunit --group ajax
+ #- vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - bash ./setup/wp-install --dir=/tmp/wordpress \
        --dbname="wordpress_test" --dbuser="root" \
        --dbpass="" --dbprefix=wp_ --domain="wordpress.dev" \
        --title="Test" --admin_user=admin --admin_password=admin \
        --admin_email=admin@wordpress.dev --theme=twentysixteen --empty
- - sudo sh ./setup/apache-setup -h="127.0.0.1" -u="http://wp.local" -f"/tmp/wordpress"
+ - sudo bash ./setup/apache-setup -h="127.0.0.1" -u="http://wp.local" -f"/tmp/wordpress"
  - wget http://wp.local
 
 after_success:
