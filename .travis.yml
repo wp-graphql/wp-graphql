@@ -53,14 +53,13 @@ before_script:
 
 script:
  - vendor/bin/phpunit --group ajax
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 
 after_success:
   - travis_retry php coveralls.phar -v
-  - wp graphql generate-static-schema
-  - graphql-schema-linter schema.graphql
-   
+  - mv $WP_CORE_DIR_DIR wp graphql generate-static-schema
+  - mv $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql graphql-schema-linter schema.graphql
+
 cache:
   directories:
   - vendor
