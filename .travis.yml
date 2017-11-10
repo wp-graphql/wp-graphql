@@ -60,7 +60,7 @@ install:
     # the `bin/build` folder; the content of the Nginx configuration file I'm using is
     # specific to WordPress (see below) so use whatever you need to use.
     # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/site.localhost`
-  - sudo cp bin/build/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
+  - sudo cp bin/conf/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
 
   # using sed replace the placeholder text in the Nginx configuration file to use the
   # correct site folder path and domain
