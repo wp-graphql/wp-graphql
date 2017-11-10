@@ -57,8 +57,10 @@ script:
 
 after_success:
   - travis_retry php coveralls.phar -v
-  - mv $WP_CORE_DIR_DIR wp graphql generate-static-schema
-  - mv $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql graphql-schema-linter schema.graphql
+  - mv $WP_CORE_DIR_DIR
+  - wp graphql generate-static-schema
+  - mv $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql
+  - graphql-schema-linter schema.graphql
 
 cache:
   directories:
