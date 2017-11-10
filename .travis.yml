@@ -57,9 +57,9 @@ install:
   - composer install
 
   # copy the Nginx configuration file for the site among the available ones from
-    # the `bin/build` folder; the content of the Nginx configuration file I'm using is
-    # specific to WordPress (see below) so use whatever you need to use.
-    # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/site.localhost`
+  # the `bin/build` folder; the content of the Nginx configuration file I'm using is
+  # specific to WordPress (see below) so use whatever you need to use.
+  # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/site.localhost`
   - sudo cp bin/conf/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
 
   # using sed replace the placeholder text in the Nginx configuration file to use the
@@ -81,7 +81,7 @@ before_script:
   - sudo service nginx restart
 
   # Install WordPress Unit Test Environment
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION true
   - composer self-update
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
