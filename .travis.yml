@@ -142,6 +142,7 @@ after_success:
   - travis_retry php coveralls.phar -v
 
 cache:
+  apt: true
   directories:
-  - vendor
-  - $HOME/.composer/cache
+    - vendor
+    - $HOME/.composer/cache/files
