@@ -72,7 +72,7 @@ before_install:
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-  - composer install --prefer-dist
+  - composer install
 
   # Install WordPress
   - cd $WP_FOLDER
