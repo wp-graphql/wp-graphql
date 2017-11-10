@@ -60,7 +60,7 @@ script:
   - wp --info
   - cd $WP_CORE_DIR_DIR
   - pwd
-  - ls $WP_CORE_DIR_DIR
+  - ls
   - wp graphql generate-static-schema --path=$WP_CORE_DIR_DIR
   - graphql-schema-linter $WP_CORE_DIR_DIR/wp-content/plugins/wp-graphql/schema.graphql
 
