@@ -37,9 +37,5 @@
     "classmap": [
       "src/"
     ]
-  },
-  "bin": [
-    "bin/install-nginx",
-    "bin/install-wordpress"
-  ]
+  }
 }
