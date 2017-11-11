@@ -75,7 +75,9 @@ before_install:
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-  - composer install
+  - composer self-update
+  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  - composer install --no-interaction
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
@@ -84,10 +86,7 @@ install:
   - npm install -g graphql-schema-linter
 
 before_script:
-  - bash bin/install-wp-tests.sh $TEST_DB_NAME $WP_ADMIN_USERNAME $WP_ADMIN_PASSWORD localhost $WP_VERSION
-  - composer self-update
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  - composer install --no-interaction
+  - bash bin/install-wp-tests.sh $TEST_DB_NAME root '' localhost $WP_VERSION true
   - mkdir -p build/logs
   - ls -al
 
