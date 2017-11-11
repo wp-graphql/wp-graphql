@@ -14,22 +14,22 @@ branches:
 
 matrix:
   include:
-#    - php: 5.5
-#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-#    - php: 5.6
-#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-#    - php: 7.0
-#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+    - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+    - php: 5.6
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3
-#    - php: 5.5
-#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-#    - php: 5.6
-#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-#    - php: 7.0
-#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
-#    - php: 7.1
-#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
+    - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+    - php: 5.6
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
 services:
@@ -71,6 +71,9 @@ before_install:
   - export PATH=$PATH:$(pwd)/tools
   # prepend the `vendor/bin` folder the PATH
   - export PATH=vendor/bin:$PATH
+  # Install GraphQL Schema Linter
+  - npm install -g graphql-schema-linter
+
 
 # Composer package installation
 install:
@@ -116,6 +119,7 @@ install:
   - mkdir -p build/logs
 
 script:
+  # Make sure the GraphQL endpoint is working
   - curl http://wp.localhost/graphql
   - vendor/bin/phpunit --group ajax
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
@@ -127,8 +131,16 @@ before_script:
 
 after_success:
   - travis_retry php coveralls.phar -v
+  # Move to the WordPress directory
+  - cd $WP_FOLDER
+  # Generate the static GraphQL Schema
   - wp graphql generate-static-schema
+  # Move to the plugin directory
+  - cd $WP_FOLDER/wp-content/plugins/wp-graphql
+  # Run the linter against the static schema
   - graphql-schema-linter schema.graphql
+  # get back to the build folder
+  - cd $TRAVIS_BUILD_DIR
 
 cache:
   directories:
