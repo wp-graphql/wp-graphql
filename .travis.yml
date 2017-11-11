@@ -32,6 +32,46 @@ matrix:
 #      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
+services:
+  - mysql
+
+addons:
+  apt:
+    packages:
+      - libjpeg-dev
+      - libpng12-dev
+      - php5-fpm
+      - php5-mysql
+      - nginx
+  hosts:
+    - wp.localhost
+
+env:
+  global:
+    - WP_FOLDER="/tmp/wordpress"
+    - WP_URL="http://wp.localhost"
+    - WP_DOMAIN="wp.localhost"
+    - DB_NAME="test"
+    - TEST_DB_NAME="wploader"
+    - WP_TABLE_PREFIX="wp_"
+    - WP_ADMIN_USERNAME="admin"
+    - WP_ADMIN_PASSWORD="admin"
+
+before_install:
+  # create the databases that will be used in the tests
+  - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
+  - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
+  # set up folders
+  - mkdir -p $WP_FOLDER
+  - mkdir tools
+  # install wp-cli in the `tools` folder
+  - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
+  - chmod +x tools/wp-cli.phar && mv tools/wp-cli.phar tools/wp
+  # append the `tools` folder to the PATH
+  - export PATH=$PATH:$(pwd)/tools
+  # prepend the `vendor/bin` folder the PATH
+  - export PATH=vendor/bin:$PATH
+
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
