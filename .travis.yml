@@ -68,22 +68,26 @@ before_install:
   # create the databases that will be used in the tests
   - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
   - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
+
   # set up folders
   - mkdir -p $WP_FOLDER
   - mkdir tools
+
   # install wp-cli in the `tools` folder
   - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
   - chmod +x tools/wp-cli.phar && mv tools/wp-cli.phar tools/wp
+
   # append the `tools` folder to the PATH
   - export PATH=$PATH:$(pwd)/tools
+
   # prepend the `vendor/bin` folder the PATH
   - export PATH=vendor/bin:$PATH
 
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-  - composer self-update
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+#  - composer self-update
+#  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
 
   # Install WordPress
@@ -109,8 +113,6 @@ install:
 
   # make sure the plugin is active on the site
   - wp plugin list --status=active
-
-
 
   # export a dump of the just installed database to the _data folder
   - wp db export $TRAVIS_BUILD_DIR/tests/_data/dump.sql
