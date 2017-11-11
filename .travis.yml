@@ -48,7 +48,7 @@ addons:
 
 env:
   global:
-    - WP_FOLDER="/tmp/wordpress"
+    - WP_FOLDER="/tmp/wp-localhost"
     - WP_URL="http://wp.localhost"
     - WP_DOMAIN="wp.localhost"
     - DB_NAME="test"
@@ -114,6 +114,7 @@ install:
   - mkdir -p build/logs
 
 script:
+  - curl http://wp.localhost/graphql
   - vendor/bin/phpunit --group ajax
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
