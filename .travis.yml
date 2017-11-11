@@ -96,8 +96,6 @@ install:
   - wp plugin activate wp-graphql
   # make sure the plugin is active on the site
   - wp plugin list --status=active
-  # export a dump of the just installed database to the _data folder
-  - wp db export $TRAVIS_BUILD_DIR/tests/_data/dump.sql
   # get back to the build folder
   - cd $TRAVIS_BUILD_DIR
   # open up the site folder to allow the PHP application to read/write/execute on it
