@@ -84,7 +84,7 @@ install:
   - npm install -g graphql-schema-linter
 
 before_script:
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - bash bin/install-wp-tests.sh $TEST_DB_NAME $WP_ADMIN_USERNAME $WP_ADMIN_PASSWORD localhost $WP_VERSION
   - composer self-update
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
