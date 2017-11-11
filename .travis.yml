@@ -1,6 +1,6 @@
 language: php
 
-sudo: required
+sudo: false
 
 notifications:
   email:
@@ -12,158 +12,56 @@ branches:
     - master
     - develop
 
-
 matrix:
   include:
-    - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+#    - php: 5.5
+#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+#    - php: 5.6
+#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+#    - php: 7.0
+#      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3
-    - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
-    - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
+#    - php: 5.5
+#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+#    - php: 5.6
+#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+#    - php: 7.0
+#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
+#    - php: 7.1
+#      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
-
-services:
-  - mysql
-
-cache:
-  apt: true
-  directories:
-  - vendor
-  - $HOME/.composer/cache
-
-addons:
-  apt:
-    packages:
-     - libjpeg-dev
-     - libpng12-dev
-     - php5-fpm
-     - php5-mysql
-     - nginx
-  hosts:
-   - wpgraphql.localhost
-
-env:
-  global:
-    - WP_FOLDER="/tmp/wordpress"
-    - WP_URL="http://wpgraphql.localhost"
-    - WP_DOMAIN="wpgraphql.localhost"
-    - DB_NAME="test"
-    - TEST_DB_NAME="wploader"
-    - WP_TABLE_PREFIX="wp_"
-    - WP_ADMIN_USERNAME="admin"
-    - WP_ADMIN_PASSWORD="admin"
-
-before_install:
-  # create the databases that will be used in the tests
-  - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
-  - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
-
-  # set up folders
-  - mkdir -p $WP_FOLDER
-  - mkdir tools
-
-  # install wp-cli in the `tools` folder
-  - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
-  - chmod +x tools/wp-cli.phar && mv tools/wp-cli.phar tools/wp
-
-  # append the `tools` folder to the PATH
-  - export PATH=$PATH:$(pwd)/tools
-
-  # prepend the `vendor/bin` folder the PATH
-  - export PATH=vendor/bin:$PATH
 
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
-#  - composer self-update
-#  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  - composer install --no-interaction
-
-  # Install WordPress
-  - cd $WP_FOLDER
-  - wp core download --version=$WP_VERSION
-  - wp config create --dbname="$DB_NAME" --dbuser="root" --dbpass="" --dbhost="127.0.0.1" --dbprefix="$WP_TABLE_PREFIX"
-  - wp core install --url="$WP_URL" --title="Test" --admin_user="$WP_ADMIN_USERNAME" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="admin@$WP_DOMAIN" --skip-email
-
-  # Set the permalink structure
-  - wp rewrite structure '/%postname%/' --hard
-
-  # update WordPress database to avoid prompts
-  - wp core update-db
-
-  # copy the plugin in the WordPress plugin folder
-  - cp -r $TRAVIS_BUILD_DIR $WP_FOLDER/wp-content/plugins/wp-graphql
-
-  # show the plugins folder contents to make sure the plugin folder is there
-  - ls $WP_FOLDER/wp-content/plugins
-
-  # activate the plugin
-  - wp plugin activate wp-graphql
-
-  # make sure the plugin is active on the site
-  - wp plugin list --status=active
-
-  # export a dump of the just installed database to the _data folder
-  - wp db export $TRAVIS_BUILD_DIR/tests/_data/dump.sql
-
-  # get back to the build folder
-  - cd $TRAVIS_BUILD_DIR
-
-  # open up the site folder to allow the PHP application to read/write/execute on it
-  - sudo chmod -R 777 $WP_FOLDER
-
-  # copy the Nginx configuration file to the default site and replace the path and domain
-  - sudo cp build/travis-nginx-conf /etc/nginx/sites-available/$WP_DOMAIN
-  - sudo sed -e "s?%WP_FOLDER%?$WP_FOLDER?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
-  - sudo sed -e "s?%WP_DOMAIN%?$WP_DOMAIN?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
-
-  # enable the WordPress installation
-  - sudo ln -s /etc/nginx/sites-available/$WP_DOMAIN /etc/nginx/sites-enabled/
-
-  # copy the Nginx configuration file for the site among the available ones from
-  # the `bin/build` folder; the content of the Nginx configuration file I'm using is
-  # specific to WordPress (see below) so use whatever you need to use.
-  # Given the current environment configuration it will be copied to `/etc/nginx/sites-available/wpgraphql.localhost`
-  - sudo cp bin/conf/travis-nginx-conf /etc/nginx/sites-available/$SITE_DOMAIN
-
-  # using sed replace the placeholder text in the Nginx configuration file to use the
-  # correct site folder path and domain
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$TRAVIS_BUILD_DIR?g" --in-place /etc/nginx/sites-available/$SITE_DOMAIN
-  - sudo sed -e "s?%SITE_DOMAIN%?$SITE_DOMAIN?g" --in-place /etc/nginx/sites-available/$SITE_DOMAIN
-
-  # enable the site by creating a symbolic link in the `sites-enabled` folder
-  - sudo ln -s /etc/nginx/sites-available/$SITE_DOMAIN /etc/nginx/sites-enabled/
-
+  - composer install
   # Install coveralls.phar
-#  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-#  - chmod +x coveralls.phar
-#  - php coveralls.phar --version
-
-
-  # Install WordPress Unit Test Environment
-#  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION true
-#  - mkdir -p build/logs
+  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+  - chmod +x coveralls.phar
+  - php coveralls.phar --version
+  # Install GraphQL Schema Linter
+  - npm install -g graphql-schema-linter
 
 before_script:
-  # restart Nginx and PHP-FPM services to make sure the new site is loaded
-  - sudo service php5-fpm restart
-  - sudo service nginx restart
+  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - composer self-update
+  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  - composer install --no-interaction
+  - mkdir -p build/logs
+  - ls -al
 
 script:
- - curl http://wpgraphql.localhost/graphql
-# - vendor/bin/phpunit --group ajax
-# - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - vendor/bin/phpunit --group ajax
+ - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
 
 after_success:
   - travis_retry php coveralls.phar -v
+  - wp graphql generate-static-schema
+  - graphql-schema-linter schema.graphql
+
+cache:
+  directories:
+  - vendor
+  - $HOME/.composer/cache
