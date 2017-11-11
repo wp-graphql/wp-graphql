@@ -74,6 +74,9 @@ before_install:
 
 # Composer package installation
 install:
+  # Install composer packages, will also trigger dump-autoload
+  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  - composer install --no-interaction
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
@@ -111,10 +114,6 @@ install:
   - mkdir -p build/logs
 
 script:
-  # Install composer packages, will also trigger dump-autoload
-  - composer self-update
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  - composer install --no-interaction
   - vendor/bin/phpunit --group ajax
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
