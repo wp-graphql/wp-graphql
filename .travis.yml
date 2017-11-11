@@ -99,6 +99,8 @@ install:
   - wp plugin activate wp-graphql
   # make sure the plugin is active on the site
   - wp plugin list --status=active
+  # Flush the rewrites
+  - wp rewrite flush
   # get back to the build folder
   - cd $TRAVIS_BUILD_DIR
   # open up the site folder to allow the PHP application to read/write/execute on it
