@@ -48,7 +48,7 @@ addons:
 
 env:
   global:
-    - WP_FOLDER="/tmp/wp-localhost"
+    - WP_FOLDER="/tmp/wordpress"
     - WP_URL="http://wp.localhost"
     - WP_DOMAIN="wp.localhost"
     - DB_NAME="test"
