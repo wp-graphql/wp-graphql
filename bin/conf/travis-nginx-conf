@@ -1,0 +1,66 @@
+map $http_host $blogid {
+    default       -999;
+    #Ref: http://wordpress.org/extend/plugins/nginx-helper/
+    #include %WP_FOLDER%/wp-content/plugins/nginx-helper/map.conf;
+}
+
+server {
+    listen 80;
+
+    server_name %WP_DOMAIN% *.%WP_DOMAIN%;
+
+    root %WP_FOLDER%;
+    index index.php;
+
+    client_body_in_file_only clean;
+    client_body_buffer_size 32K;
+
+    client_max_body_size 300M;
+
+    sendfile on;
+    send_timeout 300s;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args ;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    #WPMU Files
+    location ~ ^/files/(.*)$ {
+            try_files /wp-content/blogs.dir/$blogid/$uri /wp-includes/ms-files.php?file=$1 ;
+            access_log off;
+            log_not_found off;
+            expires max;
+    }
+
+    #WPMU x-sendfile to avoid php readfile()
+    location ^~ /blogs.dir {
+        internal;
+        alias %WP_FOLDER%/wp-content/blogs.dir;
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+
+    # Expire images, icons, video, audio, HTC in 1 hour, *pretty* ok in development
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+      expires 1h;
+      access_log off;
+      add_header Cache-Control "public";
+    }
+
+    # Do not cache CSS and Javascript files at all
+    location ~* \.(?:css|js)$ {
+      # set this to `off` to avoid issues with the virtual machine
+      sendfile off;
+      expires -1;
+      access_log off;
+      add_header Cache-Control "public";
+    }
+}

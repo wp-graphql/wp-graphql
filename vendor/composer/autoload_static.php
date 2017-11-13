@@ -206,6 +206,7 @@ class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
         'WPGraphQL\\Data\\ConnectionResolver' => __DIR__ . '/../..' . '/src/Data/ConnectionResolver.php',
         'WPGraphQL\\Data\\ConnectionResolverInterface' => __DIR__ . '/../..' . '/src/Data/ConnectionResolverInterface.php',
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
+        'WPGraphQL\\Data\\Loader' => __DIR__ . '/../..' . '/src/Data/Loader.php',
         'WPGraphQL\\Router' => __DIR__ . '/../..' . '/src/Router.php',
         'WPGraphQL\\Type\\Avatar\\AvatarType' => __DIR__ . '/../..' . '/src/Type/Avatar/AvatarType.php',
         'WPGraphQL\\Type\\CommentAuthor\\CommentAuthorQuery' => __DIR__ . '/../..' . '/src/Type/CommentAuthor/CommentAuthorQuery.php',
