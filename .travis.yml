@@ -48,7 +48,7 @@ addons:
 
 env:
   global:
-    - WP_CORE_DIR="/tmp/wordpress"
+    - WP_FOLDER="/tmp/wp-localhost"
     - WP_URL="http://wp.localhost"
     - WP_DOMAIN="wp.localhost"
     - DB_NAME="test"
@@ -59,10 +59,10 @@ env:
 
 before_install:
   # create the databases that will be used in the tests
-#  - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
-#  - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
+  - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
+  - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
   # set up folders
-#  - mkdir -p $WP_FOLDER
+  - mkdir -p $WP_FOLDER
   - mkdir tools
   # install wp-cli in the `tools` folder
   - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
@@ -80,9 +80,6 @@ install:
   # Install composer packages, will also trigger dump-autoload
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
-  # Install Unit Test Suite
-  - bash bin/install-wp-tests.sh $TEST_DB_NAME root '' localhost $WP_VERSION true
-  - mkdir -p build/logs
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
@@ -90,10 +87,10 @@ install:
   # Install GraphQL Schema Linter
   - npm install -g graphql-schema-linter
   # Install WordPress
-  - cd $WP_CORE_DIR
-#  - wp core download --version=$WP_VERSION
-#  - wp config create --dbname="$DB_NAME" --dbuser="root" --dbpass="" --dbhost="127.0.0.1" --dbprefix="$WP_TABLE_PREFIX"
-#  - wp core install --url="$WP_URL" --title="Test" --admin_user="$WP_ADMIN_USERNAME" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="admin@$WP_DOMAIN" --skip-email
+  - cd $WP_FOLDER
+  - wp core download --version=$WP_VERSION
+  - wp config create --dbname="$DB_NAME" --dbuser="root" --dbpass="" --dbhost="127.0.0.1" --dbprefix="$WP_TABLE_PREFIX"
+  - wp core install --url="$WP_URL" --title="Test" --admin_user="$WP_ADMIN_USERNAME" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="admin@$WP_DOMAIN" --skip-email
   - wp rewrite structure '/%postname%/' --hard
   # update WordPress database to avoid prompts
   - wp core update-db
@@ -113,7 +110,7 @@ install:
   - sudo chmod -R 777 $WP_FOLDER
   # copy the Nginx configuration file to the available sites
   - sudo cp bin/conf/travis-nginx-conf /etc/nginx/sites-available/$WP_DOMAIN
-  - sudo sed -e "s?%WP_CORE_DIR%?WP_CORE_DIR?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
+  - sudo sed -e "s?%WP_FOLDER%?$WP_FOLDER?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
   - sudo sed -e "s?%WP_DOMAIN%?$WP_DOMAIN?g" --in-place /etc/nginx/sites-available/$WP_DOMAIN
   # enable the site
   - sudo ln -s /etc/nginx/sites-available/$WP_DOMAIN /etc/nginx/sites-enabled/
@@ -121,6 +118,9 @@ install:
 script:
   # Make sure the GraphQL endpoint is working
   - curl http://wp.localhost/graphql
+  # Install Unit Test Suite
+  - bash bin/install-wp-tests.sh $TEST_DB_NAME root '' localhost $WP_VERSION true
+  - mkdir -p build/logs
   - vendor/bin/phpunit --group ajax
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
@@ -132,11 +132,11 @@ before_script:
 after_success:
   - travis_retry php coveralls.phar -v
   # Move to the WordPress directory
-  - cd $WP_CORE_DIR
+  - cd $WP_FOLDER
   # Generate the static GraphQL Schema
   - wp graphql generate-static-schema
   # Move to the plugin directory
-  - cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
+  - cd $WP_FOLDER/wp-content/plugins/wp-graphql
   # Run the linter against the static schema
   - graphql-schema-linter schema.graphql
   # get back to the build folder
