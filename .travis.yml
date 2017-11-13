@@ -84,7 +84,6 @@ install:
   - npm install -g graphql-schema-linter
   # Install composer packages, will also trigger dump-autoload
   - rm -r composer.lock
-  - composer self-update
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
   - mkdir -p build/logs
