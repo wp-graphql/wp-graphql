@@ -62,7 +62,6 @@ before_install:
   - mysql -e "create database IF NOT EXISTS $DB_NAME;" -uroot
   - mysql -e "create database IF NOT EXISTS $TEST_DB_NAME;" -uroot
   # set up folders
-  - mkdir -p $WP_FOLDER
   - mkdir tools
   # install wp-cli in the `tools` folder
   - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
@@ -77,21 +76,15 @@ before_install:
 
 # Composer package installation
 install:
-  # Install composer packages, will also trigger dump-autoload
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  - composer install --no-interaction
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
   - php coveralls.phar --version
   # Install GraphQL Schema Linter
   - npm install -g graphql-schema-linter
-  # Install WordPress
+  # Install Unit Test Suite
+  - bash bin/install-wp-tests.sh $TEST_DB_NAME root '' localhost $WP_VERSION true $WP_FOLDER
   - cd $WP_FOLDER
-  - wp core download --version=$WP_VERSION
-  - wp config create --dbname="$DB_NAME" --dbuser="root" --dbpass="" --dbhost="127.0.0.1" --dbprefix="$WP_TABLE_PREFIX"
-  - wp core install --url="$WP_URL" --title="Test" --admin_user="$WP_ADMIN_USERNAME" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="admin@$WP_DOMAIN" --skip-email
-  - wp rewrite structure '/%postname%/' --hard
   # update WordPress database to avoid prompts
   - wp core update-db
   # copy the plugin in the WordPress plugin folder
@@ -115,19 +108,21 @@ install:
   # enable the site
   - sudo ln -s /etc/nginx/sites-available/$WP_DOMAIN /etc/nginx/sites-enabled/
 
-script:
-  # Make sure the GraphQL endpoint is working
-  - curl http://wp.localhost/graphql
-  # Install Unit Test Suite
-  - bash bin/install-wp-tests.sh $TEST_DB_NAME root '' localhost $WP_VERSION true
-  - mkdir -p build/logs
-  - vendor/bin/phpunit --group ajax
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-
 before_script:
   # restart Nnginx and PHP-FPM services
   - sudo service php5-fpm restart
   - sudo service nginx restart
+  # Install composer packages, will also trigger dump-autoload
+  - composer self-update
+  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  - composer install --no-interaction
+  - mkdir -p build/logs
+
+script:
+  # Make sure the GraphQL endpoint is working
+  - curl http://wp.localhost/graphql
+  - vendor/bin/phpunit --group ajax
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
   - travis_retry php coveralls.phar -v
