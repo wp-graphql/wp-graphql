@@ -53,7 +53,7 @@ script:
 # - vendor/bin/phpunit --group ajax
 # - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
   # Run codeception tests
-  - codecept run --coverage --coverage-xml --coverage-html
+  - vendor/bin/codeception/codecept run --coverage --coverage-xml --coverage-html
 
 after_success:
   - travis_retry php coveralls.phar -v
