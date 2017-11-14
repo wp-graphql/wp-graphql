@@ -12,24 +12,36 @@ branches:
     - master
     - develop
 
+env:
+  global:
+    - WP_ROOT="/tmp/wp-graphql/wordpress"
+    - WP_DOMAIN="wp.localhost"
+    - WP_URL="http://wp.localhost"
+    - DB_NAME="wpgraphql.local"
+    - DB_HOST="localhost"
+    - DB_USER="root"
+    - DB_PASSWORD=""
+    - TEST_DB_NAME="wptests"
+    - COVERAGE="false"
+
 matrix:
   include:
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3 COVERAGE=false
+      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3 COVERAGE=true
   fast_finish: true
 
 # Composer package installation
@@ -42,7 +54,7 @@ install:
   - php coveralls.phar --version
 
 before_script:
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - bash bin/install-wordpress.sh wordpress_test root '' localhost $WP_VERSION
   - composer self-update
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
