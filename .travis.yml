@@ -14,7 +14,7 @@ branches:
 
 env:
   global:
-    - WP_ROOT="/tmp/wp-graphql/wordpress"
+    - WP_ROOT="/tmp/wp-graphql-wordpress"
     - WP_DOMAIN="wp.localhost"
     - WP_URL="http://wp.localhost"
     - DB_NAME="wpgraphql.local"
