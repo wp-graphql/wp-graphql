@@ -8,7 +8,7 @@ modules:
         - WPLoader
     config:
         WPLoader:
-            wpRootFolder: "%WP_ROOT%"
+            wpRootFolder: %WP_ROOT%
             dbName: %TEST_DB_NAME%
             dbHost: %DB_HOST%
             dbUser: %DB_USER%
