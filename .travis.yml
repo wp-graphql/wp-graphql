@@ -52,6 +52,7 @@ before_script:
 script:
  - vendor/bin/phpunit --group ajax
  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - wget http://localhost:8080/graphql
 
 after_success:
   - travis_retry php coveralls.phar -v

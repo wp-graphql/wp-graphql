@@ -12,6 +12,7 @@ DB_HOST=${4-localhost}
 WP_VERSION=${5-latest}
 SKIP_DB_CREATE=${6-false}
 
+PLUGIN_DIR=$(pwd)
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
@@ -120,8 +121,41 @@ install_db() {
 
 	# create database
 	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	mysqladmin create wpgraphql --user="$DB_USER" --password="$DB_PASS"$EXTRA
+}
+
+configure_wordpress() {
+
+    cd $WP_CORE_DIR
+    wp config create --dbname=wpgraphql --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
+    wp core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test
+}
+
+activate_plugin() {
+
+    # Add this repo as a plugin to the repo
+    ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
+
+    cd $WP_CORE_DIR
+
+    # activate the plugin
+    wp plugin activate wp-graphql
+
+    # List active plugins
+    wp plugin list
+
+    # Flush the permalinks
+    wp rewrite flush
+}
+
+serve_site() {
+    cd $WP_CORE_DIR
+    wp server
 }
 
 install_wp
 install_test_suite
 install_db
+configure_wordpress
+activate_plugin
+serve_site
