@@ -1,7 +1,6 @@
 language: php
-
-sudo: false
-
+sudo: required
+dist: trusty
 notifications:
   email:
     on_success: never
@@ -11,6 +10,14 @@ branches:
   only:
     - master
     - develop
+
+services:
+  - mysql
+
+addons:
+  apt:
+    packages:
+      - nginx
 
 matrix:
   include:
@@ -76,8 +83,12 @@ script:
 
 after_success:
   - travis_retry php coveralls.phar -v
+  - cd $WP_CORE_DIR
+  - wp graphql generate-static-schema
+  - graphql-schema-linter $WP_CORE_DIR/wp-content/plugins/wp-graphql/schema.graphql
 
 cache:
+  apt: true
   directories:
   - vendor
   - $HOME/.composer/cache
