@@ -49,17 +49,26 @@ install:
 
 
 before_script:
+  # Install WordPress and the Test Suite
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  # Serve the site
+  - bash bin/serve-site.sh
+  # Check to see if the site is being served
+  - curl http://localhost:9999/graphql
+  # Update composer
   - composer self-update
+  # Install PHPUnit, using the specified version for the PHP version we're running
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
+  # Make a directory for storing logs
   - mkdir -p build/logs
   - ls -al
 
 script:
+ # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
+ # Execute the "rest" of the unit tests
  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
- - wget http://localhost:8080/graphql
 
 after_success:
   - travis_retry php coveralls.phar -v

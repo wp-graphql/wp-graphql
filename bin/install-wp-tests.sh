@@ -129,6 +129,8 @@ configure_wordpress() {
     cd $WP_CORE_DIR
     wp config create --dbname=wpgraphql --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
     wp core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test
+    wp rewrite structure '/%year%/%monthnum%/%postname%/'
+
 }
 
 activate_plugin() {
@@ -148,14 +150,8 @@ activate_plugin() {
     wp rewrite flush
 }
 
-serve_site() {
-    cd $WP_CORE_DIR
-    wp server
-}
-
 install_wp
 install_test_suite
 install_db
 configure_wordpress
 activate_plugin
-serve_site
