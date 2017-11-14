@@ -56,6 +56,7 @@ install:
 before_script:
   - bash bin/install-wordpress.sh wordpress_test root '' localhost $WP_VERSION
   - composer self-update
+  - composer require lucatume/wp-browser:1.2.1
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
 #  - mkdir -p build/logs
