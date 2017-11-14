@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
+apt-get install nginx
+apt-get install php5-fpm
+cp .travis_nginx.conf /etc/nginx/nginx.conf
+/etc/init.d/nginx restart
 
 serve_site() {
     cd $WP_CORE_DIR

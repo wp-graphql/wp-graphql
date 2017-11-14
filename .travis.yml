@@ -32,6 +32,11 @@ matrix:
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
+before_install:
+  - composer global require -n --prefer-dist "typisttech/travis-nginx-wordpress:^1.0.0"
+  - export PATH=$HOME/.composer/vendor/bin:$PATH
+  - tnw-install-nginx
+
 # Composer package installation
 install:
   # Install composer packages, will also trigger dump-autoload
@@ -61,10 +66,8 @@ before_script:
   - ls -al
 
 script:
- # Serve the site
- - bash bin/serve-site.sh
  # Check to see if the site is being served
- - curl http://localhost:9999/graphql
+ - curl http://localhost:9000/graphql
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
  # Execute the "rest" of the unit tests
