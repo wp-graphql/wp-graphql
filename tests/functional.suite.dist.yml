@@ -1,0 +1,49 @@
+# Codeception Test Suite Configuration
+
+# suite for WordPress functional tests.
+# Emulate web requests and make application process them.
+class_name: FunctionalTester
+modules:
+    enabled:
+        - WPDb
+        - WordPress
+        - \Helper\Functional
+    config:
+        WPDb:
+            dsn: 'mysql:host=%DB_HOST%;dbname=%DB_NAME%'
+            user: %DB_USER%
+            password: %DB_PASSWORD%
+            dump: tests/_data/dump.sql
+            populate: true
+            cleanup: true
+            url: '%WP_URL%'
+            tablePrefix: wp_
+        WordPress:
+            depends: WPDb
+            wpRootFolder: "%WP_ROOT%"
+            adminUsername: 'admin'
+            adminPassword: 'admin'# Codeception Test Suite Configuration
+
+                                  # suite for WordPress functional tests.
+                                  # Emulate web requests and make application process them.
+                                  class_name: FunctionalTester
+                                  modules:
+                                      enabled:
+                                          - WPDb
+                                          - WordPress
+                                          - \Helper\Functional
+                                      config:
+                                          WPDb:
+                                              dsn: 'mysql:host=%DB_HOST%;dbname=%DB_NAME%'
+                                              user: %DB_USER%
+                                              password: %DB_PASSWORD%
+                                              dump: tests/_data/dump.sql
+                                              populate: true
+                                              cleanup: true
+                                              url: '%WP_URL%'
+                                              tablePrefix: wp_
+                                          WordPress:
+                                              depends: WPDb
+                                              wpRootFolder: "%WP_ROOT%"
+                                              adminUsername: 'admin'
+                                              adminPassword: 'admin'
