@@ -1,6 +1,7 @@
 language: php
-sudo: required
-dist: trusty
+
+sudo: false
+
 notifications:
   email:
     on_success: never
@@ -10,14 +11,6 @@ branches:
   only:
     - master
     - develop
-
-services:
-  - mysql
-
-addons:
-  apt:
-    packages:
-      - nginx
 
 matrix:
   include:
@@ -38,11 +31,6 @@ matrix:
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
-
-before_install:
-  - travis_retry composer global require --prefer-dist --no-suggest typisttech/travis-nginx-wordpress
-  - export PATH=$HOME/.composer/vendor/bin:$PATH
-  - tnw-install-nginx
 
 # Composer package installation
 install:
@@ -85,7 +73,7 @@ after_success:
   - travis_retry php coveralls.phar -v
   - cd $WP_CORE_DIR
   - wp graphql generate-static-schema
-  - graphql-schema-linter $WP_CORE_DIR/wp-content/plugins/wp-graphql/schema.graphql
+  - graphql-schema-linter $WP_CORE_DIR/wp-content/plugins/wp-graphql
 
 cache:
   apt: true
