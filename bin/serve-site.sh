@@ -8,3 +8,4 @@ serve_site() {
 }
 
 serve_site
+exit 1
