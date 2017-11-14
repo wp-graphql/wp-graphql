@@ -4,20 +4,20 @@
 
 actor: WpunitTester
 modules:
-    enabled:
-        - WPLoader
-    config:
-        WPLoader:
-            wpRootFolder: '/tmp/wp-graphql-wordpress'
-            dbName: 'wptests'
-            dbHost: 127.0.0.1
-            dbUser: root
-            dbPassword: jbutt#123
-            wpDebug: true
-            tablePrefix: wp_
-            domain: wp.localhost
-            adminEmail: admin@wp.localhost
-            title: 'WP Tests'
-            plugins: ["wp-graphql/wp-graphql.php"]
-            activatePlugins: ["wp-graphql/wp-graphql.php"]
-            configFile: "tests/test-config.php"
+  enabled:
+    - WPLoader
+  config:
+    WPLoader:
+      wpRootFolder: '/tmp/wp-graphql-wordpress'
+      dbName: 'wptests'
+      dbHost: 127.0.0.1
+      dbUser: root
+      dbPassword: jbutt#123
+      wpDebug: true
+      tablePrefix: wp_
+      domain: wp.localhost
+      adminEmail: admin@wp.localhost
+      title: 'WP Tests'
+      plugins: [ wp-graphql/wp-graphql.php ]
+      activatePlugins: [ wp-graphql/wp-graphql.php ]
+      configFile: tests/test-config.php
