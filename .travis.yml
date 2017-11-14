@@ -33,7 +33,8 @@ matrix:
   fast_finish: true
 
 before_install:
-  - composer global require -n --prefer-dist "typisttech/travis-nginx-wordpress:2.1.0"
+  - travis_retry composer global require --prefer-dist --no-suggest typisttech/travis-nginx-wordpress
+  - export PATH=$HOME/.composer/vendor/bin:$PATH
   - tnw-install-nginx
 
 # Composer package installation
