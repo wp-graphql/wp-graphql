@@ -25,7 +25,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "5.6",
-    "satooshi/php-coveralls": "~1.0"
+    "satooshi/php-coveralls": "~1.0",
+    "lucatume/wp-browser": "^1.21"
   },
   "config": {
     "optimize-autoloader": true

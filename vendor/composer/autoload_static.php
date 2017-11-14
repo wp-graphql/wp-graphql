@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
+class ComposerStaticInitb10551d6a72fce6f6e524f4e599630e9
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -206,6 +206,7 @@ class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
         'WPGraphQL\\Data\\ConnectionResolver' => __DIR__ . '/../..' . '/src/Data/ConnectionResolver.php',
         'WPGraphQL\\Data\\ConnectionResolverInterface' => __DIR__ . '/../..' . '/src/Data/ConnectionResolverInterface.php',
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
+        'WPGraphQL\\Data\\Loader' => __DIR__ . '/../..' . '/src/Data/Loader.php',
         'WPGraphQL\\Router' => __DIR__ . '/../..' . '/src/Router.php',
         'WPGraphQL\\Type\\Avatar\\AvatarType' => __DIR__ . '/../..' . '/src/Type/Avatar/AvatarType.php',
         'WPGraphQL\\Type\\CommentAuthor\\CommentAuthorQuery' => __DIR__ . '/../..' . '/src/Type/CommentAuthor/CommentAuthorQuery.php',
@@ -283,9 +284,9 @@ class ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitcd196b4876ecb14f0489e167b91fc8ba::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb10551d6a72fce6f6e524f4e599630e9::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb10551d6a72fce6f6e524f4e599630e9::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb10551d6a72fce6f6e524f4e599630e9::$classMap;
 
         }, null, ClassLoader::class);
     }

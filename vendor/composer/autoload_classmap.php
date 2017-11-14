@@ -179,6 +179,7 @@ return array(
     'WPGraphQL\\Data\\ConnectionResolver' => $baseDir . '/src/Data/ConnectionResolver.php',
     'WPGraphQL\\Data\\ConnectionResolverInterface' => $baseDir . '/src/Data/ConnectionResolverInterface.php',
     'WPGraphQL\\Data\\DataSource' => $baseDir . '/src/Data/DataSource.php',
+    'WPGraphQL\\Data\\Loader' => $baseDir . '/src/Data/Loader.php',
     'WPGraphQL\\Router' => $baseDir . '/src/Router.php',
     'WPGraphQL\\Type\\Avatar\\AvatarType' => $baseDir . '/src/Type/Avatar/AvatarType.php',
     'WPGraphQL\\Type\\CommentAuthor\\CommentAuthorQuery' => $baseDir . '/src/Type/CommentAuthor/CommentAuthorQuery.php',
