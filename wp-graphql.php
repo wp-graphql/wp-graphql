@@ -180,6 +180,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				define( 'WPGRAPHQL_PLUGIN_FILE', __FILE__ );
 			}
 
+			// Whether to autoload the files or not
+			if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+				define( 'WPGRAPHQL_AUTOLOAD', true );
+			}
+
 		}
 
 		/**
@@ -192,8 +197,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		private function includes() {
 
-			// Autoload Required Classes
-			require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+			/**
+			 * WPGRAPHQL_AUTOLOAD can be set to "false" to prevent the autoloader from running.
+			 * In most cases, this is not something that should be disabled, but some environments
+			 * may bootstrap their dependencies in a global autoloader that will autoload files
+			 * before we get to this point, and requiring the autoloader again can trigger fatal errors.
+			 *
+			 * The codeception tests are an example of an environment where adding the autoloader again causes issues
+			 * so this is set to false for tests.
+			 */
+			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+				// Autoload Required Classes
+				require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+			}
 
 			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );

@@ -1,0 +1,23 @@
+# Codeception Test Suite Configuration
+#
+# Suite for unit or integration tests that require WordPress functions and classes.
+
+actor: WpunitTester
+modules:
+    enabled:
+        - WPLoader
+    config:
+        WPLoader:
+            wpRootFolder: /tmp/wp-graphql-wordpress
+            dbName: '%TEST_DB_NAME%'
+            dbHost: '%DB_HOST%'
+            dbUser: '%DB_USER%'
+            dbPassword: '%DB_PASSWORD%'
+            wpDebug: true
+            tablePrefix: wp_
+            domain: '%WP_DOMAIN%'
+            adminEmail: "admin@%WP_DOMAIN%"
+            title: 'WP Tests'
+            plugins: [ wp-graphql/wp-graphql.php ]
+            activatePlugins: [ wp-graphql/wp-graphql.php ]
+            configFile: tests/test-config.php

@@ -12,8 +12,11 @@ vendor/ivome/*
 vendor/ivome/graphql-relay-php/*
 !vendor/ivome/graphql-relay-php/src/
 !vendor/autoload.php
-!vendor/composer
-vendor/composer/installed.json
+vendor/composer
+!vendor/composer/autoload*
+!vendor/composer/ClassLoader.php
+# Don't ignore EVERYTHING from tests, just some things
 !/tests
+/tests/_output
 build/
 coverage/*
