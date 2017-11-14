@@ -62,8 +62,6 @@ before_script:
   - ls -al
 
 script:
- # Check to see if the site is being served
- - curl http://localhost:9000/graphql
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
  # Execute the "rest" of the unit tests
