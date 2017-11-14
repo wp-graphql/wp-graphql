@@ -36,10 +36,17 @@ matrix:
 install:
   # Install composer packages, will also trigger dump-autoload
   - composer install
+  # Install WP CLI
+  - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  - chmod +x wp-cli.phar
+  - sudo mv wp-cli.phar /usr/local/bin/wp
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
   - php coveralls.phar --version
+  # Install GraphQL Schema Linter
+  - npm install -g graphql-schema-linter
+
 
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
