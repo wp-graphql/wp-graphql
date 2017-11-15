@@ -9,12 +9,13 @@ use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
-use WPGraphQL\Type\Setting\Mutation\SettingUpdate;
+use WPGraphQL\Type\Settings\Mutation\SettingsUpdate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 use WPGraphQL\Type\User\Mutation\UserCreate;
 use WPGraphQL\Type\User\Mutation\UserDelete;
 use WPGraphQL\Type\User\Mutation\UserUpdate;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class RootMutationType
@@ -75,7 +76,6 @@ class RootMutationType extends WPObjectType {
 			$fields             = [];
 			$allowed_post_types = \WPGraphQL::$allowed_post_types;
 			$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-			$allowed_setting_types = DataSource::get_allowed_setting_types();
 
 			if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 				foreach ( $allowed_post_types as $post_type ) {
@@ -106,20 +106,9 @@ class RootMutationType extends WPObjectType {
 			} // End if().
 
 			/**
-			 * Create the root mutation fields for any setting type in
-			 * the $allowed_setting_types array.
+			 * Create the root mutation field for all settings
 			 */
-			if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-				foreach ( $allowed_setting_types as $setting_type ) {
-					/**
-					 * Sanitize the setting type field name and
-					 * then build the mutation field
-					 */
-					$setting_type = str_replace('_', '', strtolower( $setting_type ) );
-					$fields[ 'update' . $setting_type . 'Settings' ] = SettingUpdate::mutate( $setting_type );
-
-				}
-			}
+			$fields[ 'updateSettings' ] = SettingsUpdate::mutate();
 
 			if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 				foreach ( $allowed_taxonomies as $taxonomy ) {

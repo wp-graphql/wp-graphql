@@ -153,7 +153,8 @@ class SettingType extends WPObjectType {
 									$option = (string) $option;
 							}
 
-							return $option;
+
+							return ! empty( $option ) ? $option : '';
 						},
 					];
 

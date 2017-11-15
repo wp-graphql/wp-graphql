@@ -8,6 +8,7 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\Setting\SettingQuery;
+use WPGraphQL\Type\Settings\SettingsQuery;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
@@ -64,7 +65,7 @@ class RootQueryType extends WPObjectType {
 		 */
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-		$allowed_setting_types = DataSource::get_allowed_setting_types();
+		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
 		$node_definition = DataSource::get_node_definition();
 
 		/**
@@ -99,6 +100,8 @@ class RootQueryType extends WPObjectType {
 				$fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
 			}
 		}
+
+		$fields['allSettings'] = SettingsQuery::root_query();
 
 		/**
 		 * Creates the theme root query field

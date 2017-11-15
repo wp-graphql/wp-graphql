@@ -45,10 +45,10 @@ class DataSource {
 	 * under one of the whitelisted group names
 	 * See: https://developer.wordpress.org/reference/functions/register_setting/
 	 *
-	 * @var array $allowed_setting_types
+	 * @var array $allowed_settings_by_group
 	 * @access protected
 	 */
-	protected static $allowed_setting_types;
+	protected static $allowed_settings_by_group;
 
 	/**
 	 * Stores an array of allowed setting groups.
@@ -57,6 +57,15 @@ class DataSource {
 	 * @access protected
 	 */
 	protected static $allowed_setting_groups;
+
+	/**
+	 * Stores an array of allowed settings for the
+	 * Settings type
+	 *
+	 * @var array $allowed_settings
+	 * @access protected
+	 */
+	protected static $allowed_settings;
 
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
@@ -392,9 +401,8 @@ class DataSource {
 	}
 
 	/**
-	 * Get all of the registered settings in a
-	 * WP site and return the ones that match the
-	 * name of the $setting_type
+	 * Get all of the allowed registered settings and return the
+	 * settings that match the desired group
 	 *
 	 * @access public
 	 * @param string $group
@@ -404,26 +412,24 @@ class DataSource {
 	public static function get_setting_group_fields( $group ) {
 
 		/**
-		 * Get all of the registered settings and define the setting_type_array
-		 * for storing the settings that match the given setting type (general, discussion, etc)
-		 * before we return them
+		 * Get all of the settings, sorted by group
 		 */
-		$setting_groups = self::get_allowed_setting_types();
+		$setting_groups = self::get_allowed_settings_by_group();
 
 		return ! empty( $setting_groups[ $group ] ) ? $setting_groups[ $group ] : [];
 
 	}
 
 	/**
-	 * Get the $allowed_setting_types and filter them
-	 * so that they can be further whitelisted. This method is
-	 * used to build out the root query fields for the various
-	 * setting types
+	 * Get the registered settings and filter them by setting group.
+	 * Build the $allowed_setting_groups array which contains all of the allowed groups.
+	 * Build the $allowed_settings_by_group array which contains all of the settings
+	 * in their corresponding setting groups
 	 *
 	 * @access public
-	 * @return array $allowed_setting_types
+	 * @return array $allowed_settings_by_group
 	 */
-	public static function get_allowed_setting_types() {
+	public static function get_allowed_settings_by_group() {
 
 		/**
 		 * Get all registered settings
@@ -438,19 +444,19 @@ class DataSource {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
 					$setting['key'] = $key;
-					self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
+					self::$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} else if ( true === $setting['show_in_graphql'] ) {
 				$setting['key'] = $key;
-				self::$allowed_setting_types[ $setting['group'] ][ $key ] = $setting;
+				self::$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
 
 		/**
 		 * Set the Setting Groups that are allowed
 		 */
-		self::$allowed_setting_groups = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? array_keys( self::$allowed_setting_types ) : [];
-		self::$allowed_setting_types = ! empty( self::$allowed_setting_types ) && is_array( self::$allowed_setting_types ) ? self::$allowed_setting_types : [];
+		self::$allowed_setting_groups = ! empty( self::$allowed_settings_by_group ) && is_array( self::$allowed_settings_by_group ) ? array_keys( self::$allowed_settings_by_group ) : [];
+		self::$allowed_settings_by_group = ! empty( self::$allowed_settings_by_group ) && is_array( self::$allowed_settings_by_group ) ? self::$allowed_settings_by_group : [];
 
 		/**
 		 * Filter the $registered_setting_types to allow some to be enabled or disabled from showing in
@@ -460,9 +466,60 @@ class DataSource {
 		 *
 		 * @return array
 		 */
-		self::$allowed_setting_types = apply_filters( 'graphql_allowed_setting_groups', self::$allowed_setting_types, $registered_settings );
+		self::$allowed_settings_by_group = apply_filters( 'graphql_allowed_settings_by_group', self::$allowed_settings_by_group, $registered_settings );
 
-		return self::$allowed_setting_types;
+		return self::$allowed_settings_by_group;
+
+	}
+
+	/**
+	 * Get the $allowed_settings and filter them
+	 * so that they can be further whitelisted. This method is
+	 * used to build out the root query fields for the
+	 * settings type
+	 *
+	 * @access public
+	 * @return array $allowed_settings
+	 */
+	public static function get_allowed_settings() {
+
+		/**
+		 * Get all registered settings
+		 */
+		$registered_settings = get_registered_settings();
+
+		/**
+		 * Loop through the $registered_settings and build arrays of
+		 * the settings keyed off of the group name ( general, reading, discussion, writing, reading, etc. )
+		 */
+		foreach ( $registered_settings as $key => $setting ) {
+			if ( ! isset( $setting['show_in_graphql'] ) ) {
+				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
+					$setting['key'] = $key;
+					self::$allowed_settings[ $key ] = $setting;
+				}
+			} else if ( true === $setting['show_in_graphql'] ) {
+				$setting['key'] = $key;
+				self::$allowed_settings[ $key ] = $setting;
+			}
+		};
+
+		/**
+		 * Verify that there are allowed settings
+		 */
+		self::$allowed_settings = ! empty( self::$allowed_settings ) && is_array( self::$allowed_settings ) ? self::$allowed_settings : [];
+
+		/**
+		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
+		 * the GraphQL Schema.
+		 *
+		 * @param array $allowed_settings
+		 *
+		 * @return array
+		 */
+		self::$allowed_settings = apply_filters( 'graphql_allowed_setting_groups', self::$allowed_settings, $registered_settings );
+
+		return self::$allowed_settings;
 
 	}
 
