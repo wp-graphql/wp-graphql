@@ -15,7 +15,6 @@ use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 use WPGraphQL\Type\User\Mutation\UserCreate;
 use WPGraphQL\Type\User\Mutation\UserDelete;
 use WPGraphQL\Type\User\Mutation\UserUpdate;
-use WPGraphQL\Data\DataSource;
 
 /**
  * Class RootMutationType

@@ -659,4 +659,3 @@ add_action( 'after_setup_theme', 'graphql_init', 10 );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( 'cli/wp-cli.php' );
 }
-
