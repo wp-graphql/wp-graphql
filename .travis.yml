@@ -97,7 +97,8 @@ after_success:
       npm install -g graphql-schema-linter
       cd $WP_CORE_DIR
       wp graphql generate-static-schema
-      graphql-schema-linter $TRAVIS_BUILD_DIR/wp-graphql/wp-graphql/schema.graphql
+      cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
+      graphql-schema-linter ./schema.graphql
     fi
   # Generate the APIGen Docs
   - |
