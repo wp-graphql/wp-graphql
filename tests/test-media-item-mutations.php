@@ -418,7 +418,7 @@ class WP_GraphQL_Test_Media_Item_Mutations extends WP_UnitTestCase {
 		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
-		$this->create_variables['input']['parentId'] = $post;
+		$this->create_variables['input']['parentId'] = \GraphQLRelay\Relay::toGlobalId( 'post', $post );
 
 		/**
 		 * Test the mutation as someone who can't edit the parent post,

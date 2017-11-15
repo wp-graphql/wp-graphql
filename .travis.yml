@@ -120,3 +120,5 @@ deploy:
     on:
       # Probably switch this to master?
       all_branches: develop
+      # Only deploy when APIGEN_DOCS are generated
+      condition: $APIGEN_DOCS == true
