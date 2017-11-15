@@ -62,6 +62,8 @@ before_script:
   - composer self-update
   # Install PHPUnit, using the specified version for the PHP version we're running
   - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  # Install APIGen for generating docs for the codebase
+  - composer require apigen/apigen
   - composer install --no-interaction
   # Make a directory for storing logs
   - mkdir -p build/logs
@@ -87,3 +89,15 @@ after_success:
   - wp graphql generate-static-schema
   # Lint the Schema
   - graphql-schema-linter $TRAVIS_BUILD_DIR/wp-graphql/wp-graphql/schema.graphql
+  # Generate the APIGen Docs
+  - vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen --template-theme bootstrap
+
+deploy:
+  - provider: pages
+    github_token: $APIGEN_GITHUB_TOKEN
+    local_dir: $TRAVIS_BUILD_DIR/apigen
+    repo: wp-graphql/wp-graphql-api-docs
+    target_branch: master
+    skip_cleanup: true
+    on:
+      branch: develop
