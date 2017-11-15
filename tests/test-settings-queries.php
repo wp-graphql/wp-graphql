@@ -21,22 +21,6 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 
 		parent::setUp();
 
-		/**
-		 * Register a setting as a number to see if it gets the correct type
-		 */
-		register_setting( 'Zed', 'hughie', array(
-			'type'         => 'number',
-			'description'  => __( 'Site hughie' ),
-			'show_in_rest' => array(
-				'name'    => 'hughie',
-				'schema'  => array(
-					'format' => 'uri',
-				),
-			),
-			'show_in_graphql' => true,
-			'default' => 4.5,
-		) );
-
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
@@ -118,7 +102,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 			'default_category' => 2,
 			'default_post_format' => 'quote',
 			'use_smilies' => 0,
-			'hughie' => 5.5,
+			'points' => 5.5,
 		];
 
 		foreach ( $mock_options as $mock_option_key => $mock_value ) {
@@ -147,7 +131,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
-					    zedSettingsHughie
+					    zoolSettingsPoints
 					}
 				}
 			";
@@ -170,7 +154,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
-					    zedSettingsHughie
+					    zoolSettingsPoints
 					}
 				}
 			";
@@ -200,7 +184,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $mock_options['default_category'], $allSettings['writingSettingsDefaultCategory'] );
 		$this->assertEquals( $mock_options['default_post_format'], $allSettings['writingSettingsDefaultPostFormat'] );
 		$this->assertEquals( $mock_options['use_smilies'], $allSettings['writingSettingsUseSmilies'] );
-		$this->assertEquals( $mock_options['hughie'], $allSettings['zedSettingsHughie'] );
+		$this->assertEquals( $mock_options['points'], $allSettings['zoolSettingsPoints'] );
 	}
 
 }

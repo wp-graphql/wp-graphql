@@ -23,6 +23,25 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+/**
+ * Manually Register a setting for testing
+ *
+ * This registers a setting as a number to see if it gets the correct type
+ * associated with it and returned through GraphQL
+ *
+ * @source wp-content/plugins/wp-graphql/tests/test-setting-queries.php
+ * @return void
+ */
+function _manually_register_setting() {
+	register_setting( 'Zool', 'points', array(
+		'type'         => 'number',
+		'description'  => __( 'Test how many points we have in Zool.' ),
+		'show_in_graphql' => true,
+		'default' => 4.5,
+	) );
+}
+tests_add_filter( 'init', '_manually_register_setting' );
+
 function _add_fields( $fields ) {
 
 	$fields['testIsPrivate'] = [
@@ -75,7 +94,6 @@ function _add_fields( $fields ) {
 }
 
 tests_add_filter( 'graphql_post_fields', '_add_fields' );
-
 
 /**
  * Require the autoloader
