@@ -21,6 +21,22 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 
 		parent::setUp();
 
+		/**
+		 * Register a setting as a number to see if it gets the correct type
+		 */
+		register_setting( 'Zed', 'hughie', array(
+			'type'         => 'number',
+			'description'  => __( 'Site hughie' ),
+			'show_in_rest' => array(
+				'name'    => 'hughie',
+				'schema'  => array(
+					'format' => 'uri',
+				),
+			),
+			'show_in_graphql' => true,
+			'default' => 4.5,
+		) );
+
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
@@ -87,18 +103,6 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 		 */
 		wp_set_current_user( $this->admin );
 
-		/**
-		 * Register a setting as a number to see if it gets the correct type
-		 */
-		register_setting( 'discussion', 'numbertype', array(
-			'show_in_rest' => true,
-			'type' => 'string',
-			'description' => 'Test setting field.',
-		) );
-
-		$registered_settings = get_registered_settings();
-		var_dump( $registered_settings['numbertype'] );
-
 		$mock_options = [
 			'default_comment_status' => 'closed',
 			'default_ping_status' => 'closed',
@@ -114,7 +118,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 			'default_category' => 2,
 			'default_post_format' => 'quote',
 			'use_smilies' => 0,
-			'numbertype' => 'hughie',
+			'hughie' => 5.5,
 		];
 
 		foreach ( $mock_options as $mock_option_key => $mock_value ) {
@@ -143,6 +147,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
+					    zedSettingsHughie
 					}
 				}
 			";
@@ -165,33 +170,15 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
+					    zedSettingsHughie
 					}
 				}
 			";
 		}
 
-		$schemaQuery = "
-			query {
-				__type(name:\"Settings\") {
-				    name
-				    fields {
-				      name
-				    }
-			    }
-			}
-		";
-
-		$schema = do_graphql_request($schemaQuery);
-		var_dump( $schema['data']['__type']['fields'] );
-
 		$actual = do_graphql_request( $query );
-//
-//		var_dump( $actual );
-//		die();
 
 		$allSettings = $actual['data']['allSettings'];
-
-//		var_dump( $allSettings );
 
 		$this->assertNotEmpty( $allSettings );
 		$this->assertEquals( $mock_options['default_comment_status'], $allSettings['discussionSettingsDefaultCommentStatus'] );
@@ -213,6 +200,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 		$this->assertEquals( $mock_options['default_category'], $allSettings['writingSettingsDefaultCategory'] );
 		$this->assertEquals( $mock_options['default_post_format'], $allSettings['writingSettingsDefaultPostFormat'] );
 		$this->assertEquals( $mock_options['use_smilies'], $allSettings['writingSettingsUseSmilies'] );
+		$this->assertEquals( $mock_options['hughie'], $allSettings['zedSettingsHughie'] );
 	}
 
 }

@@ -51,7 +51,47 @@ class SettingsUpdate {
 						throw new UserError( __( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
 					}
 
-					$setting_options = SettingsMutation::prepare_settings( $input );
+					$insert_options_array = [];
+
+					$settings_array = DataSource::get_allowed_settings();
+
+					/**
+					 * Loop through the $settings_array and build the insert options array
+					 */
+					foreach ( $settings_array as $key => $setting ) {
+
+						/**
+						 * Determine if the individual setting already has a
+						 * REST API name, if not use the option name (setting).
+						 * Sanitize the field name to be camelcase
+						 */
+						if ( ! empty( $setting['show_in_rest']['name'] ) ) {
+							$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
+						} else {
+							$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
+						}
+
+						/**
+						 * Dynamically build the individual setting and it's fields
+						 * then add it to the fields array
+						 */
+						$insert_options_array[ $individual_setting_key ] = [
+							'option' => $key,
+							'group' => $setting['group'],
+						];
+
+					}
+
+					/**
+					 * Filter the $insert_options_rgs
+					 *
+					 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_attachment
+					 * @param array         $input            The data that was entered as input for the mutation
+					 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
+					 * @param string        $mutation_type    The type of mutation being performed (create, update, delete)
+					 */
+					$setting_options = apply_filters( 'graphql_media_item_insert_settings_args', $insert_options_array );
+
 
 					foreach ( $input as $key => $value ) {
 						/**

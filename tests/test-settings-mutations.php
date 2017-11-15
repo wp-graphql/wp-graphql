@@ -189,7 +189,7 @@ class WP_GraphQL_Test_Settings_Mutations extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testUpdateSettingAsAuthor() {
+	public function testUpdateSettingsAsAuthor() {
 		/**
 		 * Set the current user as the author role so we
 		 * receive an auth error back

@@ -130,12 +130,9 @@ class SettingsType extends WPObjectType {
 								case 'boolean':
 									$option = (boolean) $option;
 									break;
-								case 'float':
 								case 'number':
 									$option = (float) $option;
 									break;
-								default:
-									$option = (string) $option;
 							}
 
 							return $option;
