@@ -35,7 +35,7 @@ matrix:
     - php: 7.0
       env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true APIGEN_DOCS=true LINT_SCHEMA=true
     - php: 5.5
       env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
@@ -72,25 +72,36 @@ before_script:
 script:
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - |
+    if [ $COVERAGE == true ]; then
+      vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+    else
+      vendor/bin/phpunit --no-coverage
+    fi
 
 after_success:
   # Install coveralls.phar
   - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
   - chmod +x coveralls.phar
   - php coveralls.phar --version
-  # Install GraphQL Schema Linter
-  - npm install -g graphql-schema-linter
   # Upload coverage to coveralls
   - travis_retry php coveralls.phar -v
+  # Install GraphQL Schema Linter
   # Move to the WordPress Install
-  - cd $WP_CORE_DIR
   # Generate the Static Schema
-  - wp graphql generate-static-schema
   # Lint the Schema
-  - graphql-schema-linter $TRAVIS_BUILD_DIR/wp-graphql/wp-graphql/schema.graphql
+  - |
+    if [ $LINT_SCHEMA == true ]; then
+      npm install -g graphql-schema-linter
+      cd $WP_CORE_DIR
+      wp graphql generate-static-schema
+      graphql-schema-linter $TRAVIS_BUILD_DIR/wp-graphql/wp-graphql/schema.graphql
+    fi
   # Generate the APIGen Docs
-  - vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen --template-theme bootstrap
+  - |
+    if [ $APIGEN_DOCS == true ]; then
+      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen --template-theme bootstrap
+    fi
 
 deploy:
   - provider: pages
