@@ -28,22 +28,22 @@ env:
 # Set the various variables for the environments to test
 matrix:
   include:
-    - php: 5.5
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+#    - php: 5.5
+#      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+#    - php: 5.6
+#      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+#    - php: 7.0
+#      env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
       env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true APIGEN_DOCS=true LINT_SCHEMA=true
-    - php: 5.5
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
-    - php: 7.1
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
+#    - php: 5.5
+#      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+#    - php: 5.6
+#      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+#    - php: 7.0
+#      env: WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
+#    - php: 7.1
+#      env: WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
 install:
@@ -70,12 +70,12 @@ before_script:
 script:
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
- - |
-    if [ $COVERAGE == true ]; then
-      vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-    else
-      vendor/bin/phpunit --no-coverage
-    fi
+# - |
+#    if [ $COVERAGE == true ]; then
+#      vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+#    else
+#      vendor/bin/phpunit --no-coverage
+#    fi
 
 after_success:
   # Install coveralls.phar
@@ -98,6 +98,7 @@ after_success:
   # Generate the APIGen Docs
   - |
     if [ $APIGEN_DOCS == true ]; then
+      cd $TRAVIS_BUILD_DIR
       vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen --template-theme bootstrap
     fi
 
