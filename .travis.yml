@@ -68,22 +68,26 @@ before_script:
   - ls -al
 
 script:
- # Execute unit tests for AJAX
- - vendor/bin/phpunit --group ajax
-# - |
-#    if [ $COVERAGE == true ]; then
-#      vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-#    else
-#      vendor/bin/phpunit --no-coverage
-#    fi
+ # Execute unit tests with coverage if specified, otherwise without coverage
+ - |
+    if [ $COVERAGE == true ]; then
+      vendor/bin/phpunit --group ajax
+      vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+    else
+      vendor/bin/phpunit --group ajax --no-coverage
+      vendor/bin/phpunit --no-coverage
+    fi
 
 after_success:
   # Install coveralls.phar
-  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-  - chmod +x coveralls.phar
-  - php coveralls.phar --version
   # Upload coverage to coveralls
-  - travis_retry php coveralls.phar -v
+  - |
+    if [ $COVERAGE == true ]; then
+      wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+      chmod +x coveralls.phar
+      php coveralls.phar --version
+      travis_retry php coveralls.phar -v
+    fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
   # Generate the Static Schema
@@ -110,4 +114,4 @@ deploy:
     target_branch: master
     skip_cleanup: true
     on:
-      branch: develop
+      all_branches: develop
