@@ -27,7 +27,7 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
  * Manually Register a setting for testing
  *
  * This registers a setting as a number to see if it gets the correct type
- * associated with it and returned through GraphQL
+ * associated with it and returned through WPGraphQL
  *
  * @source wp-content/plugins/wp-graphql/tests/test-setting-queries.php
  * @return void

@@ -12,10 +12,9 @@ use WPGraphQL\Types;
 /**
  * class SettingType
  *
- * This sets up the base settingType. Custom settings that are set to "show_in_graphql" automatically
- * use the SettingType and inherit the fields that are defined here. The fields get passed through a
- * filter unique to each type, so each setting can modify it's type schema via field filters.
+ * This sets up the base setting type for settings queries and mutations
  *
+ * @package WPGraphQL\Type\Setting
  */
 class SettingType extends WPObjectType {
 

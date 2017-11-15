@@ -6,7 +6,7 @@ use WPGraphQL\Types;
 /**
  * Class SettingsQuery
  *
- * @package WPGraphQL\Type\Setting
+ * @package WPGraphQL\Type\Settings
  */
 class SettingsQuery {
 

@@ -12,9 +12,9 @@ use WPGraphQL\Types;
 /**
  * Class SettingsType
  *
- * This sets up the base settingsType for settings mutations.
+ * This sets up the base settings Type for settings queries and mutations
  *
- * @package WPGraphQL\Type
+ * @package WPGraphQL\Type\Settings
  */
 class SettingsType extends WPObjectType {
 

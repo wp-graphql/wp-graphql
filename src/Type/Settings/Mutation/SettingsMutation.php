@@ -6,9 +6,9 @@ use WPGraphQL\Types;
 use WPGraphQL\Data\DataSource;
 
 /**
- * Class SettingMutation
+ * Class SettingsMutation
  *
- * @package WPGraphQL\Type\Setting
+ * @package WPGraphQL\Type\Settings
  */
 class SettingsMutation {
 

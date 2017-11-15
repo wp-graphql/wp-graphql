@@ -11,9 +11,9 @@ use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Settings\SettingsQuery;
 
 /**
- * Class SettingUpdate
+ * Class SettingsUpdate
  *
- * @package WPGraphQL\Type\Setting\Mutation
+ * @package WPGraphQL\Type\Settings\Mutation
  */
 class SettingsUpdate {
 
