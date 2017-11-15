@@ -60,10 +60,8 @@ before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
   # Update composer
   - composer self-update
-  # Install PHPUnit, using the specified version for the PHP version we're running
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
-  # Install APIGen for generating docs for the codebase
-  - composer require apigen/apigen --dev
+  # Install APIGen and PHPUnit, using the specified version for the PHP version we're running
+  - composer require apigen/apigen:^4.1 phpunit/phpunit:$PHP_UNIT_VERSION
   - composer install --no-interaction
   # Make a directory for storing logs
   - mkdir -p build/logs
