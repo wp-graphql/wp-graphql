@@ -12,27 +12,40 @@ branches:
     - master
     - develop
 
+cache:
+  apt: true
+  directories:
+  - vendor
+  - $HOME/.composer/cache
+
+# Set the global environment variables
+env:
+  global:
+    - WP_CORE_DIR: /tmp/wordpress
+    - WP_VERSION: latest
+    - COVERAGE: false
+
+# Set the various variables for the environments to test
 matrix:
   include:
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
-# Composer package installation
 install:
   - cd $TRAVIS_BUILD_DIR
   # Install composer packages, will also trigger dump-autoload
@@ -41,13 +54,6 @@ install:
   - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
   - chmod +x wp-cli.phar
   - sudo mv wp-cli.phar /usr/local/bin/wp
-  # Install coveralls.phar
-  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-  - chmod +x coveralls.phar
-  - php coveralls.phar --version
-  # Install GraphQL Schema Linter
-  - npm install -g graphql-schema-linter
-
 
 before_script:
   # Install WordPress and the Test Suite
@@ -65,16 +71,23 @@ script:
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
  # Execute the "rest" of the unit tests
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - if [ true == $COVERAGE ];
+      then vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+      else vendor/bin/phpunit
+   fi
 
 after_success:
+  # Install coveralls.phar
+  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+  - chmod +x coveralls.phar
+  - php coveralls.phar --version
+  # Install GraphQL Schema Linter
+  - npm install -g graphql-schema-linter
+  # Upload coverage to coveralls
   - travis_retry php coveralls.phar -v
+  # Move to the WordPress Install
   - cd $WP_CORE_DIR
+  # Generate the Static Schema
   - wp graphql generate-static-schema
-  - graphql-schema-linter $WP_CORE_DIR/wp-content/plugins/wp-graphql
-
-cache:
-  apt: true
-  directories:
-  - vendor
-  - $HOME/.composer/cache
+  # Lint the Schema
+  - graphql-schema-linter $WP_ROOT/wp-content/plugins/wp-graphql
