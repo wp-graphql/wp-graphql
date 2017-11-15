@@ -86,4 +86,4 @@ after_success:
   # Generate the Static Schema
   - wp graphql generate-static-schema
   # Lint the Schema
-  - graphql-schema-linter $WP_ROOT/wp-content/plugins/wp-graphql
+  - graphql-schema-linter $TRAVIS_BUILD_DIR/wp-graphql/wp-graphql/schema.graphql
