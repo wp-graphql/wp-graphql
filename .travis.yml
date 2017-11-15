@@ -71,9 +71,9 @@ script:
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
  # Execute the "rest" of the unit tests
- - if [ true == $COVERAGE ];
-      then vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-      else vendor/bin/phpunit
+ - if [ $COVERAGE == "true" ];
+   then vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+   else vendor/bin/phpunit
    fi
 
 after_success:
