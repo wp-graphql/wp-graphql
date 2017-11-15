@@ -36,15 +36,6 @@ class SettingType extends WPObjectType {
 	private static $setting_type;
 
 	/**
-	 * Holds the $setting_type_array definition which contains
-	 * all of the settings for the given setting_type
-	 *
-	 * @var array $setting_fields
-	 * @access private
-	 */
-	private static $setting_fields;
-
-	/**
 	 * SettingType constructor.
 	 *
 	 * @param string $setting_type The setting group name
@@ -59,14 +50,14 @@ class SettingType extends WPObjectType {
 
 		/**
 		 * Retrieve all of the settings that are categorized under the $setting_type
-		 * and set them as the $setting_type_array for later use in building fields
+		 * and set them as the $setting_fields for later use in building fields
 		 */
-		self::$setting_fields = DataSource::get_setting_group_fields( $setting_type );
+		$setting_fields = DataSource::get_setting_group_fields( $setting_type );
 
 		$config = [
 			'name'        => ucfirst( $setting_type ) . 'Settings',
 			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
-			'fields'      => self::fields( self::$setting_fields, $setting_type ),
+			'fields'      => self::fields( $setting_fields, $setting_type ),
 		];
 
 		parent::__construct( $config );
@@ -99,17 +90,14 @@ class SettingType extends WPObjectType {
 
 				/**
 				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name (setting).
-				 * Sanitize the field name to be camelcase
+				 * REST API name, if not use the option name.
+				 * Then, sanitize the field name to be camelcase
 				 */
 				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
 					$field_key = $setting_field['show_in_rest']['name'];
-				} else if ( ! empty( $setting_field['setting'] ) ) {
-					$field_key = $setting_field['setting'];
 				} else {
 					$field_key = $key;
 				}
-
 				$field_key = lcfirst( str_replace( '_', '', ucwords( $field_key, '_' ) ) );
 
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {

@@ -258,4 +258,37 @@ class WP_GraphQL_Test_Setting_Queries extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * Method for testing the zoolSettings
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function testZoolSettingQuery() {
+		/**
+		 * Set the admin user
+		 * Set the query
+		 * Make the request
+		 * Validate the request
+		 */
+		wp_set_current_user( $this->admin );
+
+		update_option( 'points', 6.5 );
+
+		$query = "
+			query {
+				zoolSettings {
+				    points
+				}
+			}
+		";
+		$actual = do_graphql_request( $query );
+
+		$zoolSettings = $actual['data']['zoolSettings'];
+
+		$this->assertNotEmpty( $zoolSettings );
+		$this->assertEquals( 6.5, $zoolSettings['points'] );
+
+	}
+
 }

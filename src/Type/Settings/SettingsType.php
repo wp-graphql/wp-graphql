@@ -88,16 +88,15 @@ class SettingsType extends WPObjectType {
 
 				/**
 				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name (setting).
-				 * Sanitize the field name to be camelcase
+				 * REST API name, if not use the option name.
+				 * Then, sanitize the field name to be camelcase
 				 */
 				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
-					$field_key = lcfirst( $setting_field['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting_field['show_in_rest']['name'], '_' ) ) );
+					$field_key = $setting_field['show_in_rest']['name'];
 				} else {
-					$field_key = lcfirst( $setting_field['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
+					$field_key = $key;
 				}
-
-				$field_key = lcfirst( str_replace( '_', '', ucwords( $field_key, '_' ) ) );
+				$field_key = lcfirst( $setting_field['group'] . 'Settings' . str_replace( '_', '', ucwords( $field_key, '_' ) ) );
 
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
