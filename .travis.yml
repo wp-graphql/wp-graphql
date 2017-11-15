@@ -70,11 +70,7 @@ before_script:
 script:
  # Execute unit tests for AJAX
  - vendor/bin/phpunit --group ajax
- # Execute the "rest" of the unit tests
- - if [ $COVERAGE == "true" ];
-   then vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-   else vendor/bin/phpunit
-   fi
+ - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
   # Install coveralls.phar
