@@ -101,6 +101,9 @@ class RootQueryType extends WPObjectType {
 			}
 		}
 
+		/**
+		 * Creates the all settings root query field
+		 */
 		$fields['allSettings'] = SettingsQuery::root_query();
 
 		/**

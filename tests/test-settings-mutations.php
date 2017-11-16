@@ -439,7 +439,7 @@ class WP_GraphQL_Test_Settings_Mutations extends WP_UnitTestCase {
 				],
 			];
 		}
-		
+
 		/**
 		 * Compare the actual output vs the expected output
 		 */

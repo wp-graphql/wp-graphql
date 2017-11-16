@@ -18,14 +18,16 @@ use WPGraphQL\Type\Settings\SettingsQuery;
 class SettingsUpdate {
 
 	/**
-	 * Stores the setting mutation field definition
+	 * Stores the UpdateSettings mutation field definition
 	 *
 	 * @var array $mutation
 	 */
 	private static $mutation;
 
 	/**
-	 * Define the update mutation for various setting types
+	 * Define the UpdateSettings mutation
+	 *
+	 * @access public
 	 *
 	 * @return array|mixed
 	 */
@@ -51,18 +53,22 @@ class SettingsUpdate {
 						throw new UserError( __( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
 					}
 
-					$insert_options_array = [];
+					/**
+					 * The $updatable_settings_options will store all of the allowed
+					 * settings in a WP ready format
+					 */
+					$updatable_settings_options = [];
 
-					$settings_array = DataSource::get_allowed_settings();
+					$allowed_settings = DataSource::get_allowed_settings();
 
 					/**
-					 * Loop through the $settings_array and build the insert options array
+					 * Loop through the $allowed_settings and build the insert options array
 					 */
-					foreach ( $settings_array as $key => $setting ) {
+					foreach ( $allowed_settings as $key => $setting ) {
 
 						/**
 						 * Determine if the individual setting already has a
-						 * REST API name, if not use the option name (setting).
+						 * REST API name, if not use the option name.
 						 * Sanitize the field name to be camelcase
 						 */
 						if ( ! empty( $setting['show_in_rest']['name'] ) ) {
@@ -72,26 +78,15 @@ class SettingsUpdate {
 						}
 
 						/**
-						 * Dynamically build the individual setting and it's fields
-						 * then add it to the fields array
+						 * Dynamically build the individual setting,
+						 * then add it to $updatable_settings_options
 						 */
-						$insert_options_array[ $individual_setting_key ] = [
+						$updatable_settings_options[ $individual_setting_key ] = [
 							'option' => $key,
 							'group' => $setting['group'],
 						];
 
 					}
-
-					/**
-					 * Filter the $insert_options_rgs
-					 *
-					 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_attachment
-					 * @param array         $input            The data that was entered as input for the mutation
-					 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
-					 * @param string        $mutation_type    The type of mutation being performed (create, update, delete)
-					 */
-					$setting_options = apply_filters( 'graphql_media_item_insert_settings_args', $insert_options_array );
-
 
 					foreach ( $input as $key => $value ) {
 						/**
@@ -107,8 +102,8 @@ class SettingsUpdate {
 						 * Check to see that the input field exists in settings, if so grab the option
 						 * name and update the option
 						 */
-						if ( array_key_exists( $key, $setting_options ) ) {
-							update_option( $setting_options[ $key ]['option'], $value );
+						if ( array_key_exists( $key, $updatable_settings_options ) ) {
+							update_option( $updatable_settings_options[ $key ]['option'], $value );
 						}
 
 					}
@@ -138,9 +133,9 @@ class SettingsUpdate {
 		/**
 		 * Get the allowed setting groups and their fields
 		 */
-		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
-		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
+		$allowed_setting_groups = DataSource::get_allowed_settings_by_group();
+		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
+			foreach ( $allowed_setting_groups as $group => $setting_type ) {
 				$setting_type = str_replace('_', '', strtolower( $group ) );
 				$output_fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
 			}

@@ -73,15 +73,14 @@ class SettingsType extends WPObjectType {
 	private static function fields( $settings_array ) {
 
 		/**
-		 * Set $fields to an empty array so that we aren't storing values
-		 * from another setting_type
+		 * Define $fields
 		 */
 		$fields = [];
 
 		if ( ! empty( $settings_array ) && is_array( $settings_array ) ) {
 
 			/**
-			 * Loop through the $setting_type_array and build the setting with
+			 * Loop through the $settings_array and build the setting with
 			 * proper fields
 			 */
 			foreach ( $settings_array as $key => $setting_field ) {
@@ -102,7 +101,7 @@ class SettingsType extends WPObjectType {
 
 					/**
 					 * Dynamically build the individual setting and it's fields
-					 * then add it to the fields array
+					 * then add it to $fields
 					 */
 					$fields[ $field_key ] = [
 						'type'        => Types::get_type( $setting_field['type'] ),

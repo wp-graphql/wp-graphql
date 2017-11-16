@@ -20,8 +20,6 @@ class SettingsMutation {
 	/**
 	 * The input fields for the settings mutation
 	 *
-	 * @param array $settings_array
-	 *
 	 * @return mixed|array|null $input_fields
 	 */
 	public static function input_fields() {
@@ -29,21 +27,21 @@ class SettingsMutation {
 		/**
 		 * Retrieve all of the allowed settings
 		 */
-		$settings_array = DataSource::get_allowed_settings();
+		$allowed_settings = DataSource::get_allowed_settings();
 
 		$input_fields = [];
 
-		if ( ! empty( $settings_array ) && empty( self::$input_fields ) ) {
+		if ( ! empty( $allowed_settings ) && empty( self::$input_fields ) ) {
 
 			/**
-			 * Loop through the $setting_type_array and build the setting with
-			 * proper fields
+			 * Loop through the $allowed_settings and build fields
+			 * for the individual settings
 			 */
-			foreach ( $settings_array as $key => $setting ) {
+			foreach ( $allowed_settings as $key => $setting ) {
 
 				/**
 				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name (setting).
+				 * REST API name, if not use the option name.
 				 * Sanitize the field name to be camelcase
 				 */
 				if ( ! empty( $setting['show_in_rest']['name'] ) ) {
@@ -53,8 +51,8 @@ class SettingsMutation {
 				}
 
 				/**
-				 * Dynamically build the individual setting and it's fields
-				 * then add it to the fields array
+				 * Dynamically build the individual setting,
+				 * then add it to the $input_fields
 				 */
 				$input_fields[ $individual_setting_key ] = [
 					'type' => Types::get_type( $setting['type'] ),

@@ -4,7 +4,8 @@
  *
  * Test the WPGraphQL settings queries. These tests address all
  * of the default settings returned by the "get_registered_settings" method
- * in a vanilla WP core install
+ * in a vanilla WP core install, as well as, a manually registered setting
+ * in the bootstrap.php file
  *
  * @package WPGraphQL
  *

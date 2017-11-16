@@ -105,7 +105,7 @@ class RootMutationType extends WPObjectType {
 			} // End if().
 
 			/**
-			 * Create the root mutation field for all settings
+			 * Root mutation field for updating settings
 			 */
 			$fields[ 'updateSettings' ] = SettingsUpdate::mutate();
 
