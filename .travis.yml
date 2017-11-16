@@ -67,13 +67,14 @@ before_script:
 
 script:
  # Execute unit tests with coverage if specified, otherwise without coverage
- - vendor/bin/codecept run wpunit
  - |
     if [ $COVERAGE == true ]; then
       vendor/bin/phpunit --group ajax
+      vendor/bin/codecept run wpunit
       vendor/bin/phpunit --coverage-clover build/logs/clover.xml
     else
       vendor/bin/phpunit --group ajax --no-coverage
+      vendor/bin/codecept run wpunit
       vendor/bin/phpunit --no-coverage
     fi
 
