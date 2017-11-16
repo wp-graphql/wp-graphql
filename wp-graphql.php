@@ -416,14 +416,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( null === self::$schema ) {
 
 				/**
-				 * Get the Schema Dependencies
-				 *
-				 * @since 0.0.5
-				 */
-				\WPGraphQL::get_allowed_post_types();
-				\WPGraphQL::get_allowed_taxonomies();
-
-				/**
 				 * Create an executable Schema from the registered
 				 * root_Query and root_mutation
 				 */
@@ -522,6 +514,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Setup the post_types and taxonomies to show_in_graphql
 			 */
 			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
@@ -663,10 +657,3 @@ add_action( 'after_setup_theme', 'graphql_init', 10 );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( 'cli/wp-cli.php' );
 }
-
-//add_action( 'init', function(  ) {
-//
-//	var_dump( $_FILES );
-//	die();
-//
-//} );

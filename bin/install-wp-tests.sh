@@ -131,17 +131,6 @@ install_db() {
         mysqladmin create $DB_SERVE_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
 
-
-#	# create database
-#	DB_1=`mysqlshow --user="$DB_USER" --password="$DB_PASS" $DB_NAME| grep -v Wildcard | grep -o $DB_NAME`
-#	if [ "$DB_1" != $DB_NAME ]; then
-#	    mysqladmin create if not exists $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
-#    fi
-#    DB_2=`mysqlshow --user="$DB_USER" --password="$DB_PASS" $DB_SERVE_NAME| grep -v Wildcard | grep -o $DB_SERVE_NAME`
-#	if [ "$DB_1" != $DB_SERVE_NAME ]; then
-#
-#  mysqladmin create if not exists wpgraphql_serve --user="$DB_USER" --password="$DB_PASS"$EXTRA
-#	fi
 }
 
 configure_wordpress() {
