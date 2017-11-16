@@ -1248,4 +1248,5 @@ class WP_GraphQL_Test_Post_Object_Queries extends WP_UnitTestCase {
 
 	}
 
+
 }

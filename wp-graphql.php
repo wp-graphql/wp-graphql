@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.21
+ * Version: 0.0.22
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.21
+ * @version  0.0.22
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -162,7 +162,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.21' );
+				define( 'WPGRAPHQL_VERSION', '0.0.22' );
 			}
 
 			// Plugin Folder Path.
@@ -416,15 +416,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( null === self::$schema ) {
 
 				/**
-				 * Get the Schema Dependencies
-				 *
-				 * @since 0.0.5
-				 */
-				\WPGraphQL::show_in_graphql();
-				\WPGraphQL::get_allowed_post_types();
-				\WPGraphQL::get_allowed_taxonomies();
-
-				/**
 				 * Create an executable Schema from the registered
 				 * root_Query and root_mutation
 				 */
@@ -518,6 +509,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 				define( 'GRAPHQL_REQUEST', true );
 			}
+
+			/**
+			 * Setup the post_types and taxonomies to show_in_graphql
+			 */
+			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution

@@ -48,7 +48,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'post' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'postType', 'post' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -205,7 +205,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'page' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'postType', 'page' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -301,7 +301,7 @@ class WP_GraphQL_Test_PostType_Object_Queries extends WP_UnitTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'attachment' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'postType', 'attachment' );
 
 		/**
 		 * Create the query string to pass to the $query

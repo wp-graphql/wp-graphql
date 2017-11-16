@@ -248,7 +248,7 @@ class DataSource {
 		/**
 		 * Get the allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 		/**
 		 * If the $post_type is one of the allowed_post_types
@@ -565,8 +565,8 @@ class DataSource {
 						 *
 						 * @since 0.0.5
 						 */
-						$allowed_post_types = \WPGraphQL::$allowed_post_types;
-						$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+						$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+						$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 						switch ( $id_components['type'] ) {
 							case in_array( $id_components['type'], $allowed_post_types, true ):
