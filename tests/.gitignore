@@ -1,0 +1,5 @@
+# These are the local files that will be loaded to specify unique local config settings
+acceptance.suite.yml
+functional.suite.yml
+unit.suite.yml
+wpunit.suite.yml
