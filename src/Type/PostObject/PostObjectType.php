@@ -190,16 +190,15 @@ class PostObjectType extends WPObjectType {
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							if ( empty( $post->post_content ) ) {
-								return null;
-							}
+
+							$content = ! empty( $post->post_content ) ? $post->post_content : null;
 
 							// If the raw format is requested, don't apply any filters.
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $post->post_content;
+								return $content;
 							}
 
-							return apply_filters( 'the_content', $post->post_content );
+							return apply_filters( 'the_content', $content );
 						},
 					],
 					'title'             => [
@@ -209,16 +208,15 @@ class PostObjectType extends WPObjectType {
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							if ( empty( $post->post_title ) ) {
-								return null;
-							}
+
+							$title = ! empty( $post->post_title ) ? $post->post_title : null;
 
 							// If the raw format is requested, don't apply any filters.
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $post->post_title;
+								return $title;
 							}
 
-							return apply_filters( 'the_title', $post->post_title );
+							return apply_filters( 'the_title', $title );
 						},
 					],
 					'excerpt'           => [
@@ -228,16 +226,15 @@ class PostObjectType extends WPObjectType {
 							'format' => self::post_object_format_arg(),
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+							$excerpt = ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
+
 							// If the raw format is requested, don't apply any filters.
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
+								return $excerpt;
 							}
 
-							$excerpt = apply_filters( 'get_the_excerpt', $post->post_excerpt, $post );
-							if ( empty( $excerpt ) ) {
-								return null;
-							}
-
+							$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $post );
 							return apply_filters( 'the_excerpt', $excerpt );
 						},
 					],

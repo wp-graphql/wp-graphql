@@ -66,6 +66,8 @@ class Test_WPGraphQL extends WP_UnitTestCase {
 		$this->assertFileExists( $file_path );
 		$static_schema = WPGraphQL::get_static_schema();
 		$this->assertEquals( $contents, $static_schema );
+		// Delete the file when we're done
+		unlink( $file_path );
 
 	}
 
