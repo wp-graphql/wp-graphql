@@ -60,12 +60,14 @@ class Test_WPGraphQL extends WP_UnitTestCase {
 		/**
 		 * Set the file path for where to save the static schema
 		 */
-		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
+		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema-test.graphql';
 		$contents = 'test';
 		file_put_contents( $file_path, $contents );
 		$this->assertFileExists( $file_path );
 		$static_schema = WPGraphQL::get_static_schema();
 		$this->assertEquals( $contents, $static_schema );
+		// Delete the file when we're done
+		unlink( $file_path );
 
 	}
 

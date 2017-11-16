@@ -420,7 +420,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 *
 				 * @since 0.0.5
 				 */
-				\WPGraphQL::show_in_graphql();
 				\WPGraphQL::get_allowed_post_types();
 				\WPGraphQL::get_allowed_taxonomies();
 
@@ -518,6 +517,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 				define( 'GRAPHQL_REQUEST', true );
 			}
+
+			/**
+			 * Setup the post_types and taxonomies to show_in_graphql
+			 */
+			\WPGraphQL::show_in_graphql();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
@@ -659,3 +663,10 @@ add_action( 'after_setup_theme', 'graphql_init', 10 );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( 'cli/wp-cli.php' );
 }
+
+//add_action( 'init', function(  ) {
+//
+//	var_dump( $_FILES );
+//	die();
+//
+//} );
