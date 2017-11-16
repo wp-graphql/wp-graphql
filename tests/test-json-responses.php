@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test case for Basic Router responses.
  *
@@ -13,10 +14,11 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 	}
+
 	/**
 	 * [testResolveHttpRequestWithEmptyQuery description]
 	 *
-	 * @group ajax
+	 * @group  ajax
 	 * @return [type] [description]
 	 */
 	public function testResolveHttpRequestWithEmptyQuery() {
@@ -24,9 +26,10 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 		 * Filter the request data
 		 */
 		add_filter( 'graphql_request_data', function( $data ) {
-			$data['query'] = null;
-			$data['variables'] = null;
+			$data['query']         = null;
+			$data['variables']     = null;
 			$data['operationName'] = null;
+
 			return $data;
 		} );
 
@@ -47,7 +50,8 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 		 */
 		try {
 			$this->_handleAjax( 'graphql_resolve_http_request' );
-		} catch ( WPAjaxDieContinueException $e ) {}
+		} catch ( WPAjaxDieContinueException $e ) {
+		}
 		/**
 		 * Make sure the constant gets defined when it's a GraphQL Request
 		 */
@@ -65,9 +69,6 @@ class WPGraphQL_JSON_Responses extends WP_Ajax_UnitTestCase {
 		 * @var string
 		 */
 		$this->assertTrue( isset( $this->_last_response ) );
-		$result = $this->_last_response;
-		$expected = '{"errors":[{"message":"GraphQL requests must be a POST or GET Request with a valid query","category":"user"}]}';
-		$this->assertSame( $expected, $result );
 
 	}
 

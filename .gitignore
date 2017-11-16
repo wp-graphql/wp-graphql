@@ -14,6 +14,7 @@ vendor/ivome/graphql-relay-php/*
 !vendor/autoload.php
 !vendor/composer
 vendor/composer/installed.json
+vendor/composer/*/
 !/tests
 build/
 coverage/*
