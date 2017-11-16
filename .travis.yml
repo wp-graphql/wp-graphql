@@ -48,8 +48,6 @@ matrix:
 
 install:
   - cd $TRAVIS_BUILD_DIR
-  # Install composer packages, will also trigger dump-autoload
-  - composer install
   # Install WP CLI
   - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
   - chmod +x wp-cli.phar
@@ -57,11 +55,11 @@ install:
 
 before_script:
   # Install WordPress and the Test Suite
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - bash bin/install-wp-tests.sh wpgraphql_test root '' 127.0.0.1 $WP_VERSION
   # Update composer
   - composer self-update
   # Install APIGen and PHPUnit, using the specified version for the PHP version we're running
-  - composer require apigen/apigen:^4.1 phpunit/phpunit:$PHP_UNIT_VERSION
+  - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
   - composer install --no-interaction
   # Make a directory for storing logs
   - mkdir -p build/logs
@@ -72,9 +70,11 @@ script:
  - |
     if [ $COVERAGE == true ]; then
       vendor/bin/phpunit --group ajax
+      vendor/bin/codecept run wpunit
       vendor/bin/phpunit --coverage-clover build/logs/clover.xml
     else
       vendor/bin/phpunit --group ajax --no-coverage
+      vendor/bin/codecept run wpunit
       vendor/bin/phpunit --no-coverage
     fi
 
