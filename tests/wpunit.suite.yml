@@ -10,7 +10,7 @@ modules:
     config:
         WPLoader:
             wpRootFolder: "/tmp/wordpress"
-            dbName: "wptests"
+            dbName: "wpgraphql_test"
             dbHost: "127.0.0.1"
             dbUser: "root"
             dbPassword: "jbutt#123"
