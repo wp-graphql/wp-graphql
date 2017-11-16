@@ -69,6 +69,7 @@ before_script:
 
 script:
  # Execute unit tests with coverage if specified, otherwise without coverage
+ - vendor/bin/codecept run wpunit
  - |
     if [ $COVERAGE == true ]; then
       vendor/bin/phpunit --group ajax

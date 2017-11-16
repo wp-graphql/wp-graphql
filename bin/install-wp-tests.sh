@@ -126,7 +126,7 @@ install_db() {
         mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
 
-     RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"`
+    RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"`
     if [ "$RESULT_2" != $DB_SERVE_NAME ]; then
         mysqladmin create $DB_SERVE_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
@@ -139,7 +139,6 @@ configure_wordpress() {
     wp config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
     wp core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test
     wp rewrite structure '/%year%/%monthnum%/%postname%/'
-
 }
 
 activate_plugin() {
@@ -152,11 +151,11 @@ activate_plugin() {
     # activate the plugin
     wp plugin activate wp-graphql
 
-    # List active plugins
-    wp plugin list
-
     # Flush the permalinks
     wp rewrite flush
+
+    # Export the db for codeception to use
+    wp db export $PLUGIN_DIR/tests/_data/dump.sql
 }
 
 install_wp
