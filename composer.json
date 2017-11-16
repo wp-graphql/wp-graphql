@@ -33,5 +33,7 @@
     "classmap": [
       "src/"
     ]
+  },
+  "require-dev": {
   }
 }

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb6d09466dfe30fb99f81204bc3bbcfd3
+class ComposerStaticInitabbe5da1a7835dcf07f4ae168394fa84
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -283,9 +283,9 @@ class ComposerStaticInitb6d09466dfe30fb99f81204bc3bbcfd3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb6d09466dfe30fb99f81204bc3bbcfd3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb6d09466dfe30fb99f81204bc3bbcfd3::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitb6d09466dfe30fb99f81204bc3bbcfd3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitabbe5da1a7835dcf07f4ae168394fa84::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitabbe5da1a7835dcf07f4ae168394fa84::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitabbe5da1a7835dcf07f4ae168394fa84::$classMap;
 
         }, null, ClassLoader::class);
     }

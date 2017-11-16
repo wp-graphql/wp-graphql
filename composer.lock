@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "7add817dc9da3011ae89a9b19073f0b3",
+    "content-hash": "8e7a342683b6d9e6863b0d98c5337e6d",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
