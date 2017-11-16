@@ -50,7 +50,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testSettingsQueryAsEditor() {
+	public function testAllSettingsQueryAsEditor() {
 		/**
 		 * Set the editor user
 		 * Set the query
@@ -77,7 +77,7 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 	 * @access public
 	 * @return void
 	 */
-	public function testGeneralSettingQuery() {
+	public function testAllSettingsQuery() {
 
 		/**
 		 * Set the admin user
@@ -109,10 +109,6 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 			update_option( $mock_option_key, $mock_value );
 		}
 
-		if ( is_multisite() ) {
-			update_network_option( 1, 'admin_email', 'test email' );
-		}
-
 		if ( true === is_multisite() ) {
 			$query = "
 				query {
@@ -126,7 +122,6 @@ class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
 					    generalSettingsTimeFormat
 					    generalSettingsTimezone
 					    generalSettingsTitle
-					    generalSettingsUrl
 					    readingSettingsPostsPerPage
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
