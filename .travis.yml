@@ -102,7 +102,7 @@ after_success:
   - |
     if [ $APIGEN_DOCS == true ]; then
       cd $TRAVIS_BUILD_DIR
-      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen --template-theme bootstrap
+      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
     fi
 
 deploy:

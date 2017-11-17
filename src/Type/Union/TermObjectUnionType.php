@@ -25,11 +25,11 @@ class TermObjectUnionType extends UnionType {
 	 */
 	public function __construct() {
 
+		self::getPossibleTypes();
+
 		$config = [
 			'name' => 'TermObjectUnion',
-			'types' => function() {
-				return self::getPossibleTypes();
-			},
+			'types' => self::$possible_types,
 			'resolveType' => function( $value ) {
 				return ! empty( $value->taxonomy ) ? Types::term_object( $value->taxonomy ) : null;
 			},

@@ -18,3 +18,4 @@ vendor/composer/*/
 !/tests
 build/
 coverage/*
+schema.graphql

@@ -27,11 +27,11 @@ class CommentAuthorUnionType extends UnionType {
 	 */
 	public function __construct() {
 
+		self::getPossibleTypes();
+
 		$config = [
 			'name'        => 'CommentAuthorUnion',
-			'types'       => function() {
-				return self::getPossibleTypes();
-			},
+			'types'       => self::$possible_types,
 			'resolveType' => function( $source ) {
 				if ( $source instanceof \WP_User ) {
 					$type = Types::user();
