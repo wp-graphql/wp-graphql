@@ -136,18 +136,6 @@ You can generate code coverage for tests by passing `--coverage`, `--coverage-xm
 - `--coverage-html` will save the coverage report in an HTML file that you can browse. 
 
 The coverage details will be output to `/tests/_output`
-        
-#### Local Environment Config for Codeception Tests
-
-You may have different local environment configuration than what Travis CI has to run the tests, such as database username/password.
-
-In the `/tests` directory you will find `*.suite.dist.yml` config files for each of the codeception test suites. 
-
-You can copy those files and remove the `.dist` from the filename, and that file will be loaded locally _before_ the `.dist` file.
-
-For example, if you wanted to update the `dbPassword` for your local tests, you could copy `wpunit.suite.dist.yml` to `wpunit.suite.yml` and update the `dbPassword` value to what your local password is.
-
-This file is .gitignored, so it will remain in your local environment but will not be added to the repo when you submit pull requests.
 
 ### Running Individual Files 
 As you'll note, running all of the tests in the entire test suite can be time consuming. If you would like to run only one test file instead of all of them, simply pass the test file you're trying to test, like so:
