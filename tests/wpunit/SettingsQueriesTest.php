@@ -1,6 +1,6 @@
 <?php
 
-class WP_GraphQL_Test_Settings_Queries extends WP_UnitTestCase {
+class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 
