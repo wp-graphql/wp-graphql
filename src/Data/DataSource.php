@@ -39,32 +39,6 @@ class DataSource {
 	protected static $node_definition;
 
 	/**
-	 * An array that stores all of the allowed settings
-	 *
-	 * @var array $allowed_settings
-	 * @access protected
-	 */
-	protected static $allowed_settings;
-
-	/**
-	 * An array that stores an array of settings
-	 * for each of the setting groups
-	 *
-	 * @var array $allowed_settings_by_group
-	 * @access protected
-	 */
-	protected static $allowed_settings_by_group;
-
-	/**
-	 * An array that stores all of the
-	 * allowed setting groups by name
-	 *
-	 * @var array $allowed_setting_groups
-	 * @access protected
-	 */
-	protected static $allowed_setting_groups;
-
-	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
 	 * @param int $id ID of the comment we want to get the object for
@@ -439,28 +413,27 @@ class DataSource {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
 					$setting['key'] = $key;
-					self::$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
+					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} else if ( true === $setting['show_in_graphql'] ) {
 				$setting['key'] = $key;
-				self::$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
+				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
 
 		/**
 		 * Set the setting groups that are allowed
 		 */
-		self::$allowed_setting_groups = ! empty( self::$allowed_settings_by_group ) && is_array( self::$allowed_settings_by_group ) ? array_keys( self::$allowed_settings_by_group ) : [];
-		self::$allowed_settings_by_group = ! empty( self::$allowed_settings_by_group ) && is_array( self::$allowed_settings_by_group ) ? self::$allowed_settings_by_group : [];
+		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) && is_array( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
 
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
 		 * @param array $allowed_settings_by_group
 		 */
-		self::$allowed_settings_by_group = apply_filters( 'graphql_allowed_settings_by_group', self::$allowed_settings_by_group );
+		$allowed_settings_by_group = apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
 
-		return self::$allowed_settings_by_group;
+		return $allowed_settings_by_group;
 
 	}
 
@@ -485,18 +458,18 @@ class DataSource {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
 					$setting['key'] = $key;
-					self::$allowed_settings[ $key ] = $setting;
+					$allowed_settings[ $key ] = $setting;
 				}
 			} else if ( true === $setting['show_in_graphql'] ) {
 				$setting['key'] = $key;
-				self::$allowed_settings[ $key ] = $setting;
+				$allowed_settings[ $key ] = $setting;
 			}
 		};
 
 		/**
 		 * Verify that we have the allowed settings
 		 */
-		self::$allowed_settings = ! empty( self::$allowed_settings ) && is_array( self::$allowed_settings ) ? self::$allowed_settings : [];
+		$allowed_settings = ! empty( $allowed_settings ) && is_array( $allowed_settings ) ? $allowed_settings : [];
 
 		/**
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
@@ -506,9 +479,9 @@ class DataSource {
 		 *
 		 * @return array
 		 */
-		self::$allowed_settings = apply_filters( 'graphql_allowed_setting_groups', self::$allowed_settings );
+		$allowed_settings = apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
 
-		return self::$allowed_settings;
+		return $allowed_settings;
 
 	}
 
