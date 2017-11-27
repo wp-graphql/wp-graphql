@@ -119,7 +119,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
-					    zoolSettingsPoints
 					}
 				}
 			";
@@ -142,7 +141,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 					    writingSettingsDefaultCategory
 					    writingSettingsDefaultPostFormat
 					    writingSettingsUseSmilies
-					    zoolSettingsPoints
 					}
 				}
 			";
@@ -172,7 +170,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		$this->assertEquals( $mock_options['default_category'], $allSettings['writingSettingsDefaultCategory'] );
 		$this->assertEquals( $mock_options['default_post_format'], $allSettings['writingSettingsDefaultPostFormat'] );
 		$this->assertEquals( $mock_options['use_smilies'], $allSettings['writingSettingsUseSmilies'] );
-		$this->assertEquals( $mock_options['points'], $allSettings['zoolSettingsPoints'] );
 	}
 
 }
