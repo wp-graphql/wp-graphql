@@ -1,6 +1,6 @@
-## Contribute To WP-GraphQL
+## Contribute to WPGraphQL
 
-WP-GraphQL welcomes community contributions, bug reports and other constructive feedback.
+WPGraphQL welcomes community contributions, bug reports and other constructive feedback.
 
 When contributing please ensure you follow the guidelines below so that we can keep on top of things.
 
@@ -32,4 +32,4 @@ When contributing please ensure you follow the guidelines below so that we can k
 
 At this point you're waiting on us to merge your pull request. We'll review all pull requests, and make suggestions and changes if necessary.
 
-###### [Forked from Easy Digital Downloads](https://github.com/easydigitaldownloads/easy-digital-downloads/blob/master/CONTRIBUTING.md)
+> **NOTE:** This CONTRIBUTING.md file was forked from [Easy Digital Downloads](https://github.com/easydigitaldownloads/easy-digital-downloads/blob/master/CONTRIBUTING.md)
