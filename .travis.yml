@@ -68,10 +68,6 @@ before_script:
   - ls -al
 
 script:
-  # Generate the mkdocs files
-  - |
-    cd $TRAVIS_BUILD_DIR
-    mkdocs build --clean
  # Execute unit tests with coverage if specified, otherwise without coverage
  - |
     if [ $COVERAGE == true ]; then
@@ -113,15 +109,6 @@ after_success:
     fi
 
 deploy:
-  - provider: pages
-    github_token: $WPGRAPHQL_GITHUB_TOKEN
-    local_dir: $TRAVIS_BUILD_DIR/site
-    skip_cleanup: true
-    on:
-      # Probably switch this to master?
-      all_branches: develop
-      # Only deploy when APIGEN_DOCS are generated
-      condition: $APIGEN_DOCS == true
   # Deploy the Generated API docs to the wp-graphql-api-docs repo
   - provider: pages
     # This is set in the Travis CI dashboard
