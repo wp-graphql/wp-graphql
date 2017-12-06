@@ -20,3 +20,4 @@ vendor/composer/*/
 build/
 coverage/*
 schema.graphql
+!examples/*
