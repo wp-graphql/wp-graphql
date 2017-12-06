@@ -15,5 +15,8 @@
     "postinstall": "npm install --prefix examples/01-demo"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "apollo-link-context": "^1.0.2"
+  }
 }

@@ -22,3 +22,4 @@ coverage/*
 schema.graphql
 !example-apps/01-demo
 !examples/01-demo
+node_modules
