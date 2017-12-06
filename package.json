@@ -10,6 +10,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run start --prefix examples/01-demo",
+    "build": "npm run build --prefix examples/01-demo",
     "postinstall": "npm install --prefix examples/01-demo"
   },
   "author": "",
