@@ -10,8 +10,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd examples/01-demo npm && npm start",
-    "build": "cd examples/01-demo npm install && npm run build"
+    "start": "cd examples/01-demo yarn && yarn start",
+    "build": "cd examples/01-demo yarn && yarn build"
   },
   "author": "",
   "license": "ISC"
