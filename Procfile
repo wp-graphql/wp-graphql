@@ -1,0 +1,1 @@
+web: npm start --prefix examples/01-demo
