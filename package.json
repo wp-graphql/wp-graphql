@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd examples/01-demo yarn && yarn start"
+    "start": "cd examples/01-demo yarn && yarn start",
+    "build": "cd examples/01-demo yarn && yarn build"
   },
   "author": "",
   "license": "ISC"
