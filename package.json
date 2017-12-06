@@ -11,7 +11,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cd examples/01-demo npm && npm start",
-    "build": "cd examples/01-demo npm && npm build"
+    "build": "cd examples/01-demo npm install && npm run build"
   },
   "author": "",
   "license": "ISC"
