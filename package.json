@@ -1,0 +1,17 @@
+{
+  "name": "wp-graphql",
+  "version": "1.0.0",
+  "description": "![Logo](https://www.wpgraphql.com/wp-content/uploads/2017/06/wpgraphql-logo-e1502819081849.png)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd examples/01-demo yarn && yarn start"
+  },
+  "author": "",
+  "license": "ISC"
+}
