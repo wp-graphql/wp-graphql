@@ -20,4 +20,5 @@ vendor/composer/*/
 build/
 coverage/*
 schema.graphql
-!examples/*
+!example-apps/01-demo
+!examples/01-demo
