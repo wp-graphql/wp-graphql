@@ -1,0 +1,9 @@
+.md-header-nav__button {
+    padding: 0;
+    margin: 5px -10px 5px 15px;
+}
+
+.md-header-nav__button.md-logo img {
+    width: 40px;
+    height: 40px;
+}

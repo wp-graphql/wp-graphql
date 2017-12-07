@@ -1,0 +1,74 @@
+# Project Info
+site_name: 'WPGraphQL'
+site_description: 'GraphQL API for your WordPress site'
+site_author: 'Jason Bahl'
+site_url: 'https://wp-graphql.github.io/wp-graphql/'
+
+# Repository
+repo_name: 'wp-graphql/wp-graphql'
+repo_url: 'https://github.com/wp-graphql/wp-graphql'
+
+# Copyright
+copyright: 'Copyright &copy; 2017 WPGraphQL'
+
+# Configuration
+theme:
+  name: 'material'
+  logo: 'assets/images/logo.png'
+  language: 'en'
+  palette:
+    primary: 'blue'
+    accent: 'orange'
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+
+extra_css:
+  - 'assets/css/extra.css'
+
+# Customization
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/wp-graphql'
+    - type: 'twitter'
+      link: 'https://twitter.com/wpgraphql'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: true
+  - toc:
+      permalink: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.snippets:
+      base_path: docs
+
+# Define the page navigation
+pages:
+- About: index.md
+- Plugin Install & Activation: install-and-activate.md
+- Quickstart:
+  - Frontend: quickstart/frontend.md
+  - Backend: quickstart/backend.md
+- Tutorials:
+  - Exploring WPGraphQL: tutorials/exploring-graphql.md
+  - Custom Post Types & Taxonomies: tutorials/custom-post-types-and-taxonomies.md
+  - Adding Fields to the Schema: tutorials/add-fields-to-schema.md
+  - Using WPGraphQL in PHP without HTTP requests: tutorials/use-graphql-in-php-without-http-request.md
+  - Overriding Field Resolvers: tutorials/override-field-resolvers.md
+  - Unit Testing WPGraphQL: tutorials/unit-testing-wpgraphql.md
+  - Unit Testing your code that extends WPGraphQL: tutorials/unit-testing-extensions.md
+- Reference:
+  - GraphQL Types & Schema: reference/types-and-schema.md
+  - Actions & Filters: reference/actions-filters.md
+  - Deferred Resolvers: reference/deferred-resolvers.md
+  - Auth: reference/auth.md
+  - Extensions: reference/extensions.md
+  - Tooling: reference/tooling.md
+  - Unit Tests: reference/unit-tests.md
+- FAQs: faq.md
+- Community & Support: community-and-support.md
+- Contributing: contributing.md
