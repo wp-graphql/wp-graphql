@@ -583,8 +583,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertCount( 2, $actual['data']['users']['edges'] );
 
 		$query = '
-		query{
-		  users(first:2 where: {role:SUBSCRIBER}){
+		query{   
+		  users(first:1 where: {role:SUBSCRIBER}){
 		    pageInfo{
 		      hasNextPage
 		    }

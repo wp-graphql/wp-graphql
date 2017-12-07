@@ -17,6 +17,7 @@ use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\Setting\SettingType;
+use WPGraphQL\Type\Settings\SettingsType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
@@ -213,6 +214,14 @@ class Types {
 	 * @access private
 	 */
 	private static $setting;
+
+	/**
+	 * Stores the settings object type
+	 *
+	 * @var SettingsType object $settings
+	 * @access private
+	 */
+	private static $settings;
 	
 	/**
 	 * Stores the taxonomy type object
@@ -368,6 +377,21 @@ class Types {
 
 		return ! empty( self::$setting[ $setting_type ] ) ? self::$setting[ $setting_type ] : null;
 
+	}
+
+	/**
+	 * This returns the definition for the SettingsType
+	 *
+	 * @return SettingsType object
+	 * @access public
+	 */
+	public static function settings() {
+
+		if ( empty( self::$settings ) ) {
+			self::$settings = new SettingsType();
+		}
+
+		return ! empty( self::$settings ) ? self::$settings : null;
 	}
 
 	/**

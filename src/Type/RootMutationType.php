@@ -9,6 +9,7 @@ use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
 use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
 use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
+use WPGraphQL\Type\Settings\Mutation\SettingsUpdate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 use WPGraphQL\Type\User\Mutation\UserCreate;
@@ -102,6 +103,11 @@ class RootMutationType extends WPObjectType {
 
 				} // End foreach().
 			} // End if().
+
+			/**
+			 * Root mutation field for updating settings
+			 */
+			$fields[ 'updateSettings' ] = SettingsUpdate::mutate();
 
 			if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 				foreach ( $allowed_taxonomies as $taxonomy ) {

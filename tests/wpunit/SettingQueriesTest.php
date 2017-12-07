@@ -240,4 +240,86 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Method for testing the testGetAllowedSettingsByGroup
+	 * and then checking that zoolSettings gets added and removed
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function testGetAllowedSettingsByGroup() {
+
+		/**
+		 * Set the admin user
+		 * Set the query
+		 * Make the request
+		 * Validate the request
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Manually Register a setting for testing
+		 *
+		 * This registers a setting as a number to see if it gets the correct type
+		 * associated with it and returned through WPGraphQL
+		 */
+		register_setting( 'zool', 'points', array(
+			'type'         => 'number',
+			'description'  => __( 'Test how many points we have in Zool.' ),
+			'show_in_graphql' => true,
+			'default' => 4.5,
+		) );
+
+
+		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
+		$this->assertArrayHasKey( 'zool', $actual );
+
+		unregister_setting( 'zool', 'points' );
+
+		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
+		$this->assertArrayNotHasKey( 'zool', $actual );
+
+	}
+
+	/**
+	 * Method for testing the testGetAllowedSettings
+	 * and then checking that zoolSettings gets added and removed
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function testGetAllowedSettings() {
+
+		/**
+		 * Set the admin user
+		 * Set the query
+		 * Make the request
+		 * Validate the request
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Manually Register a setting for testing
+		 *
+		 * This registers a setting as a number to see if it gets the correct type
+		 * associated with it and returned through WPGraphQL
+		 */
+		register_setting( 'zool', 'points', array(
+			'type'         => 'number',
+			'description'  => __( 'Test how many points we have in Zool.' ),
+			'show_in_graphql' => true,
+			'default' => 4.5,
+		) );
+
+
+		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings();
+		$this->assertArrayHasKey( 'points', $actual );
+
+		unregister_setting( 'zool', 'points' );
+
+		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings();
+		$this->assertArrayNotHasKey( 'points', $actual );
+
+	}
+
 }
