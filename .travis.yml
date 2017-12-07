@@ -48,8 +48,6 @@ matrix:
 
 install:
   - cd $TRAVIS_BUILD_DIR
-  # Install mkdocs
-  - sudo pip install -r mkdocs>=0.15.3
   # Install WP CLI
   - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
   - chmod +x wp-cli.phar
@@ -101,7 +99,6 @@ after_success:
       graphql-schema-linter ./schema.graphql
     fi
   # Generate the APIGen Docs
-  # Generate and Deploy the mkdocs for GithubPages
   - |
     if [ $APIGEN_DOCS == true ]; then
       cd $TRAVIS_BUILD_DIR
