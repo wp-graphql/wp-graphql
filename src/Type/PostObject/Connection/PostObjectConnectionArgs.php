@@ -346,6 +346,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 						'value'       => 'post_name__in',
 						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
 					],
+					'MENU_ORDER' => [
+						'value'       => 'menu_order',
+						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
+					],					
 				],
 			]);
 		endif;
