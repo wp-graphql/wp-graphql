@@ -10,10 +10,10 @@ import logo from './logo.svg';
 import './App.css';
 
 const httpLink = new HttpLink({
-  uri: 'http://denverpost.com/graphql'
+  uri: 'https://siliconvalley.com/graphql'
 });
 
-localStorage.setItem( 'authToken', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC93d3cuZGVudmVycG9zdC5jb20iLCJpYXQiOjE1MTI1OTA3MDksIm5iZiI6MTUxMjU5MDcwOSwiZXhwIjoxNTEzMTk1NTA5LCJkYXRhIjp7InVzZXIiOnsiaWQiOiI2In19fQ.uGmwmEyj1TPPQUm6ytgkdZFxTJNRrliUZl1DshijYNw' );
+localStorage.setItem( 'authToken', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvd3d3LnNpbGljb252YWxsZXkuY29tIiwiaWF0IjoxNTEyNjEyNzg1LCJuYmYiOjE1MTI2MTI3ODUsImV4cCI6MTUxMzIxNzU4NSwiZGF0YSI6eyJ1c2VyIjp7ImlkIjoiMyJ9fX0.mkDk4X6QJdRQuwvZJdo0oy5r8vtbuyKEuisHD9lHzTM' );
 
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
