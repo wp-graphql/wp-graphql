@@ -141,6 +141,13 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'mime-type' => 'image/jpeg',
 					'source_url' => 'example-thumbnail.jpg',
 				],
+				'full' => [
+					'file' => 'example-full.jpg',
+					'width' => 1500,
+					'height' => 1500,
+					'mime-type' => 'image/jpeg',
+					'source_url' => 'example-full.jpg',
+				],
 			],
 			'image_meta' => array_merge( $default_image_meta, $image_meta ),
 		];
