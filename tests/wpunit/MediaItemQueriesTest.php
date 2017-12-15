@@ -72,9 +72,13 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function provideImageMeta() {
 		return [
-			[],
 			[
-				'caption' => '',
+				[],
+			],
+			[
+				[
+					'caption' => '',
+				],
 			],
 		];
 	}
