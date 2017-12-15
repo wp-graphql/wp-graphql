@@ -104,9 +104,11 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create an attachment with a post set as it's parent
 		 */
+		$image_description = 'some description'
 		$attachment_id = $this->createPostObject( [
 			'post_type'   => 'attachment',
 			'post_parent' => $post_id,
+			'post_content' => $image_description,
 		] );
 
 		$default_image_meta = [
@@ -280,6 +282,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			$mediaItem['parent']
 		);
+
+		$this->assertNotEmpty( $mediaItem['description'] );
+		$this->assertEquals( apply_filters( 'the_content', $image_description ), $mediaItem['description'] );
 
 		$this->assertNotEmpty( $mediaItem['mediaDetails'] );
 		$mediaDetails = $mediaItem['mediaDetails'];
