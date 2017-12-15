@@ -68,13 +68,27 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Data provider for testMediaItemQuery.
+	 */
+	public function provideImageMeta() {
+		return [
+			[],
+			[
+				'caption' => '',
+			],
+		];
+	}
+
+	/**
 	 * testPostQuery
 	 *
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
+	 * @dataProvider provideImageMeta
+	 * @param array $image_meta Image meta to merge into defaults.
 	 * @since 0.0.5
 	 */
-	public function testMediaItemQuery() {
+	public function testMediaItemQuery( $image_meta = [] ) {
 
 		/**
 		 * Create a post to set as the attachment's parent
@@ -91,6 +105,24 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_parent' => $post_id,
 		] );
 
+		$default_image_meta = [
+			'aperture' => 0,
+			'credit' => 'some photographer',
+			'camera' => 'some camera',
+			'caption' => 'some caption',
+			'created_timestamp' => strtotime( $this->current_date ),
+			'copyright' => 'Copyright WPGraphQL',
+			'focal_length' => 0,
+			'iso' => 0,
+			'shutter_speed' => 0,
+			'title' => 'some title',
+			'orientation' => 'some orientation',
+			'keywords' => [
+				'keyword1',
+				'keyword2',
+			],
+		];
+
 		$meta_data = [
 			'width' => 300,
 			'height' => 300,
@@ -104,23 +136,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'source_url' => 'example-thumbnail.jpg',
 				],
 			],
-			'image_meta' => [
-				'aperture' => 0,
-				'credit' => 'some photographer',
-				'camera' => 'some camera',
-				'caption' => 'some caption',
-				'created_timestamp' => strtotime( $this->current_date ),
-				'copyright' => 'Copyright WPGraphQL',
-				'focal_length' => 0,
-				'iso' => 0,
-				'shutter_speed' => 0,
-				'title' => 'some title',
-				'orientation' => 'some orientation',
-				'keywords' => [
-					'keyword1',
-					'keyword2',
-				],
-			],
+			'image_meta' => array_merge( $default_image_meta, $image_meta ),
 		];
 
 		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
