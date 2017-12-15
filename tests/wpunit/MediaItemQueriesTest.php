@@ -104,7 +104,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create an attachment with a post set as it's parent
 		 */
-		$image_description = 'some description'
+		$image_description = 'some description';
 		$attachment_id = $this->createPostObject( [
 			'post_type'   => 'attachment',
 			'post_parent' => $post_id,
