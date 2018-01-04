@@ -74,7 +74,7 @@ class MediaItemType {
 				'type'        => Types::string(),
 				'description' => __( 'The caption for the resource', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
+					$caption = apply_filters( 'the_excerpt', $post->post_excerpt );
 
 					return ! empty( $caption ) ? $caption : null;
 				},
