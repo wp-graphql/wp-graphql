@@ -27,7 +27,7 @@ class Router {
 	 *
 	 * @var int
 	 */
-	public static $http_status_code = 403;
+	public static $http_status_code = 200;
 
 	/**
 	 * Router constructor.
@@ -185,17 +185,18 @@ class Router {
 
 	/**
 	 * Returns an array of headers to send with the HTTP response
+	 *
 	 * @return array
 	 */
 	protected static function get_response_headers() {
 
 		$headers = [
-			'Access-Control-Allow-Origin' => '*',
+			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => 'Authorization, Content-Type',
-			'Content-Type' => 'application/json ; charset=' . get_option( 'blog_charset' ),
-			'X-Robots-Tag' => 'noindex',
-			'X-Content-Type-Options' => 'nosniff',
-			'X-hacker', __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ),
+			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
+			'X-Robots-Tag'                 => 'noindex',
+			'X-Content-Type-Options'       => 'nosniff',
+			'X-hacker' 										 => __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ),
 		];
 
 		/**
@@ -440,7 +441,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors'] = [ FormattedError::createFromException( $error ) ];
+			$response['errors']     = [ FormattedError::createFromException( $error ) ];
 		} // End try().
 
 		/**

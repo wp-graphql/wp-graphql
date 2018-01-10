@@ -68,13 +68,31 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Data provider for testMediaItemQuery.
+	 */
+	public function provideImageMeta() {
+		return [
+			[
+				[],
+			],
+			[
+				[
+					'caption' => '',
+				],
+			],
+		];
+	}
+
+	/**
 	 * testPostQuery
 	 *
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
+	 * @dataProvider provideImageMeta
+	 * @param array $image_meta Image meta to merge into defaults.
 	 * @since 0.0.5
 	 */
-	public function testMediaItemQuery() {
+	public function testMediaItemQuery( $image_meta = [] ) {
 
 		/**
 		 * Create a post to set as the attachment's parent
@@ -86,10 +104,30 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create an attachment with a post set as it's parent
 		 */
+		$image_description = 'some description';
 		$attachment_id = $this->createPostObject( [
 			'post_type'   => 'attachment',
 			'post_parent' => $post_id,
+			'post_content' => $image_description,
 		] );
+
+		$default_image_meta = [
+			'aperture' => 0,
+			'credit' => 'some photographer',
+			'camera' => 'some camera',
+			'caption' => 'some caption',
+			'created_timestamp' => strtotime( $this->current_date ),
+			'copyright' => 'Copyright WPGraphQL',
+			'focal_length' => 0,
+			'iso' => 0,
+			'shutter_speed' => 0,
+			'title' => 'some title',
+			'orientation' => 'some orientation',
+			'keywords' => [
+				'keyword1',
+				'keyword2',
+			],
+		];
 
 		$meta_data = [
 			'width' => 300,
@@ -103,24 +141,15 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'mime-type' => 'image/jpeg',
 					'source_url' => 'example-thumbnail.jpg',
 				],
-			],
-			'image_meta' => [
-				'aperture' => 0,
-				'credit' => 'some photographer',
-				'camera' => 'some camera',
-				'caption' => 'some caption',
-				'created_timestamp' => strtotime( $this->current_date ),
-				'copyright' => 'Copyright WPGraphQL',
-				'focal_length' => 0,
-				'iso' => 0,
-				'shutter_speed' => 0,
-				'title' => 'some title',
-				'orientation' => 'some orientation',
-				'keywords' => [
-					'keyword1',
-					'keyword2',
+				'full' => [
+					'file' => 'example-full.jpg',
+					'width' => 1500,
+					'height' => 1500,
+					'mime-type' => 'image/jpeg',
+					'source_url' => 'example-full.jpg',
 				],
 			],
+			'image_meta' => array_merge( $default_image_meta, $image_meta ),
 		];
 
 		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
@@ -260,6 +289,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			$mediaItem['parent']
 		);
+
+		$this->assertNotEmpty( $mediaItem['description'] );
+		$this->assertEquals( apply_filters( 'the_content', $image_description ), $mediaItem['description'] );
 
 		$this->assertNotEmpty( $mediaItem['mediaDetails'] );
 		$mediaDetails = $mediaItem['mediaDetails'];
