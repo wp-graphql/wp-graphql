@@ -94,7 +94,7 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
 				],
 				'nicename' => [
-					'type' => Types::int(),
+					'type' => Types::string(),
 					'description' => __( 'The user nicename.', 'wp-graphql' ),
 				],
 				'nicenameIn' => [
