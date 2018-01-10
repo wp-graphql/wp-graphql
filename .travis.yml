@@ -12,51 +12,110 @@ branches:
     - master
     - develop
 
+cache:
+  apt: true
+  directories:
+  - $HOME/.composer/cache
+
+# Set the global environment variables
+env:
+  global:
+    - WP_CORE_DIR: /tmp/wordpress
+    - WP_VERSION: latest
+    - COVERAGE: false
+
+# Set the various variables for the environments to test
 matrix:
   include:
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 PHP_UNIT_VERSION=6.3
+      env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true APIGEN_DOCS=true LINT_SCHEMA=true
     - php: 5.5
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
+      env: WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
   fast_finish: true
 
-# Composer package installation
 install:
-  # Install composer packages, will also trigger dump-autoload
-  - composer install
-  # Install coveralls.phar
-  - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-  - chmod +x coveralls.phar
-  - php coveralls.phar --version
+  - cd $TRAVIS_BUILD_DIR
+  # Install WP CLI
+  - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  - chmod +x wp-cli.phar
+  - sudo mv wp-cli.phar /usr/local/bin/wp
 
 before_script:
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  # Install WordPress and the Test Suite
+  - bash bin/install-wp-tests.sh wpgraphql_test root '' 127.0.0.1 $WP_VERSION
+  # Update composer
   - composer self-update
-  - composer require phpunit/phpunit:$PHP_UNIT_VERSION
+  # Install APIGen and PHPUnit, using the specified version for the PHP version we're running
+  - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
   - composer install --no-interaction
+  # Make a directory for storing logs
   - mkdir -p build/logs
   - ls -al
 
 script:
- - vendor/bin/phpunit --group ajax
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ # Execute unit tests with coverage if specified, otherwise without coverage
+ - |
+    if [ $COVERAGE == true ]; then
+      vendor/bin/phpunit --group ajax
+      vendor/bin/codecept run wpunit --coverage --coverage-xml
+    else
+      vendor/bin/phpunit --group ajax --no-coverage
+      vendor/bin/codecept run wpunit
+    fi
 
 after_success:
-  - travis_retry php coveralls.phar -v
+  # Install coveralls.phar
+  # Upload coverage to coveralls
+  - |
+    if [ $COVERAGE == true ]; then
+      wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+      chmod +x coveralls.phar
+      php coveralls.phar --version
+      travis_retry php coveralls.phar -v
+    fi
+  # Install GraphQL Schema Linter
+  # Move to the WordPress Install
+  # Generate the Static Schema
+  # Lint the Schema
+  - |
+    if [ $LINT_SCHEMA == true ]; then
+      npm install -g graphql-schema-linter
+      cd $WP_CORE_DIR
+      wp graphql generate-static-schema
+      cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
+      graphql-schema-linter ./schema.graphql
+    fi
+  # Generate the APIGen Docs
+  - |
+    if [ $APIGEN_DOCS == true ]; then
+      cd $TRAVIS_BUILD_DIR
+      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
+    fi
 
-cache:
-  directories:
-  - vendor
-  - $HOME/.composer/cache
+deploy:
+  # Deploy the Generated API docs to the wp-graphql-api-docs repo
+  - provider: pages
+    # This is set in the Travis CI dashboard
+    github_token: $APIGEN_GITHUB_TOKEN
+    local_dir: $TRAVIS_BUILD_DIR/apigen
+    repo: wp-graphql/wp-graphql-api-docs
+    target_branch: master
+    # Make sure this is true to ensure the files that were built in the previous step are not cleaned up before deploy
+    skip_cleanup: true
+    on:
+      # Probably switch this to master?
+      all_branches: develop
+      # Only deploy when APIGEN_DOCS are generated
+      condition: $APIGEN_DOCS == true

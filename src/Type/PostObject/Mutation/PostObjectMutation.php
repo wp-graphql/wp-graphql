@@ -47,7 +47,7 @@ class PostObjectMutation {
 				],
 				'date'          => [
 					'type'        => Types::string(),
-					'description' => __( 'The date of the object', 'wp-graphql' ),
+					'description' => __( 'The date of the object.', 'wp-graphql' ),
 				],
 				'dateGmt'       => [
 					'type'        => Types::string(),
@@ -149,7 +149,7 @@ class PostObjectMutation {
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
-			$insert_post_args['post_date'] = strtotime( $input['date'] );
+			$insert_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
 		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {

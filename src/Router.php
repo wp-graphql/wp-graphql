@@ -23,12 +23,11 @@ class Router {
 	public static $route = 'graphql';
 
 	/**
-	 * Set the default status code to 403 to represent unauthenticated requests. Authenticated requests
-	 * should set the status code to 200.
+	 * Set the default status code to 200.
 	 *
 	 * @var int
 	 */
-	public static $http_status_code = 403;
+	public static $http_status_code = 200;
 
 	/**
 	 * Router constructor.
@@ -185,6 +184,42 @@ class Router {
 	}
 
 	/**
+	 * Returns an array of headers to send with the HTTP response
+	 *
+	 * @return array
+	 */
+	protected static function get_response_headers() {
+
+		$headers = [
+			'Access-Control-Allow-Origin'  => '*',
+			'Access-Control-Allow-Headers' => 'Authorization, Content-Type',
+			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
+			'X-Robots-Tag'                 => 'noindex',
+			'X-Content-Type-Options'       => 'nosniff',
+			'X-hacker' 										 => __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ),
+		];
+
+		/**
+		 * Send nocache headers on authenticated requests.
+		 *
+		 * @since 0.0.5
+		 *
+		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
+		 */
+		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
+		if ( $send_no_cache_headers ) {
+			foreach ( wp_get_nocache_headers() as $no_cache_header_key => $no_cache_header_value ) {
+				$headers[ $no_cache_header_key ] = $no_cache_header_value;
+			}
+		}
+
+		/**
+		 * Filter the $headers to send
+		 */
+		return apply_filters( 'graphql_response_headers_to_send', $headers );
+	}
+
+	/**
 	 * Set the response headers
 	 *
 	 * @param int $http_status The status code to send as a header
@@ -197,28 +232,33 @@ class Router {
 
 		if ( false === headers_sent() ) {
 
+			/**
+			 * Set the HTTP response status
+			 */
 			self::set_status( $http_status );
-			self::send_header( 'Access-Control-Allow-Origin', '*' );
-			self::send_header( 'Access-Control-Allow-Headers', 'content-type' );
-			self::send_header( 'Content-Type', 'application/json ; charset=' . get_option( 'blog_charset' ) );
-			self::send_header( 'X-Robots-Tag', 'noindex' );
-			self::send_header( 'X-Content-Type-Options', 'nosniff' );
-			self::send_header( 'Access-Control-Allow-Headers', 'Authorization, Content-Type' );
-			self::send_header( 'X-hacker', __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ) );
 
 			/**
-			 * Send nocache headers on authenticated requests.
-			 *
-			 * @since 0.0.5
-			 *
-			 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
+			 * Get the response headers
 			 */
-			$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
-			if ( $send_no_cache_headers ) {
-				foreach ( wp_get_nocache_headers() as $header => $header_value ) {
-					self::send_header( $header, $header_value );
+			$headers = self::get_response_headers();
+
+			/**
+			 * If there are headers, set them for the response
+			 */
+			if ( ! empty( $headers ) && is_array( $headers ) ) {
+
+				foreach ( $headers as $key => $value ) {
+					self::send_header( $key, $value );
 				}
 			}
+
+			/**
+			 * Fire an action when the headers are set
+			 *
+			 * @param array $headers The headers sent in the response
+			 */
+			do_action( 'graphql_response_set_headers', $headers );
+
 		}
 	}
 
@@ -401,7 +441,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors'] = [ FormattedError::createFromException( $error ) ];
+			$response['errors']     = [ FormattedError::createFromException( $error ) ];
 		} // End try().
 
 		/**

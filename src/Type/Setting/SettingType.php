@@ -12,15 +12,14 @@ use WPGraphQL\Types;
 /**
  * class SettingType
  *
- * This sets up the base settingType. Custom settings that are set to "show_in_graphql" automatically
- * use the SettingType and inherit the fields that are defined here. The fields get passed through a
- * filter unique to each type, so each setting can modify it's type schema via field filters.
+ * This sets up the base setting type for setting queries
  *
+ * @package WPGraphQL\Type\Setting
  */
 class SettingType extends WPObjectType {
 
 	/**
-	 * Holds the $fields definition for the SettingType
+	 * Holds the $fields definition
 	 *
 	 * @var array $fields
 	 * @access private
@@ -28,45 +27,36 @@ class SettingType extends WPObjectType {
 	private static $fields;
 
 	/**
-	 * Holds the $setting_type definition
+	 * Holds the $setting_group definition
 	 *
-	 * @var string $setting_type
+	 * @var string $setting_group
 	 * @access private
 	 */
-	private static $setting_type;
-
-	/**
-	 * Holds the $setting_type_array definition which contains
-	 * all of the settings for the given setting_type
-	 *
-	 * @var array $setting_fields
-	 * @access private
-	 */
-	private static $setting_fields;
+	private static $setting_group;
 
 	/**
 	 * SettingType constructor.
 	 *
-	 * @param string $setting_type The setting group name
+	 * @param string $setting_group The setting group name
 	 * @access public
 	 */
-	public function __construct( $setting_type ) {
+	public function __construct( $setting_group ) {
 
 		/**
 		 * Set the setting_type so we can use it in $fields
 		 */
-		self::$setting_type = $setting_type;
+		self::$setting_group = $setting_group;
 
 		/**
 		 * Retrieve all of the settings that are categorized under the $setting_type
-		 * and set them as the $setting_type_array for later use in building fields
+		 * and set them as the $setting_fields for later use in building fields
 		 */
-		self::$setting_fields = DataSource::get_setting_group_fields( $setting_type );
+		$setting_fields = DataSource::get_setting_group_fields( $setting_group );
 
 		$config = [
-			'name'        => ucfirst( $setting_type ) . 'Settings',
-			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_type ),
-			'fields'      => self::fields( self::$setting_fields, $setting_type ),
+			'name'        => ucfirst( $setting_group ) . 'Settings',
+			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $setting_group ),
+			'fields'      => self::fields( $setting_fields ),
 		];
 
 		parent::__construct( $config );
@@ -74,14 +64,14 @@ class SettingType extends WPObjectType {
 	}
 
 	/**
-	 * This defines the fields (various settings) for a given setting type
+	 * This defines the fields (various settings) for a given setting group
 	 *
 	 * @param $setting_fields
 	 *
 	 * @access private
 	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
 	 */
-	private static function fields( $setting_fields, $group ) {
+	private static function fields( $setting_fields ) {
 
 		/**
 		 * Set $fields to an empty array so that we aren't storing values
@@ -91,25 +81,18 @@ class SettingType extends WPObjectType {
 
 		if ( ! empty( $setting_fields ) && is_array( $setting_fields ) ) {
 
-			/**
-			 * Loop through the $setting_type_array and build the setting with
-			 * proper fields
-			 */
 			foreach ( $setting_fields as $key => $setting_field ) {
 
 				/**
 				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name (setting).
-				 * Sanitize the field name to be camelcase
+				 * REST API name, if not use the option name.
+				 * Then, sanitize the field name to be camelcase
 				 */
 				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
 					$field_key = $setting_field['show_in_rest']['name'];
-				} else if ( ! empty( $setting_field['setting'] ) ) {
-					$field_key = $setting_field['setting'];
 				} else {
 					$field_key = $key;
 				}
-
 				$field_key = lcfirst( str_replace( '_', '', ucwords( $field_key, '_' ) ) );
 
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
@@ -145,15 +128,12 @@ class SettingType extends WPObjectType {
 								case 'boolean':
 									$option = (boolean) $option;
 									break;
-								case 'float':
 								case 'number':
 									$option = (float) $option;
 									break;
-								default:
-									$option = (string) $option;
 							}
 
-							return $option;
+							return ! empty( $option ) ? $option : '';
 						},
 					];
 
@@ -165,7 +145,7 @@ class SettingType extends WPObjectType {
 			 * Pass the fields through a filter to allow for hooking in and adjusting the shape
 			 * of the type's schema
 			 */
-			self::$fields = self::prepare_fields( $fields, self::$setting_type );
+			self::$fields = self::prepare_fields( $fields, self::$setting_group );
 
 		}
 

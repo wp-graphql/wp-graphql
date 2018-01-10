@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.22
+ * Version: 0.0.23
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.22
+ * @version  0.0.23
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -162,7 +162,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.22' );
+				define( 'WPGRAPHQL_VERSION', '0.0.23' );
 			}
 
 			// Plugin Folder Path.
@@ -180,6 +180,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				define( 'WPGRAPHQL_PLUGIN_FILE', __FILE__ );
 			}
 
+			// Whether to autoload the files or not
+			if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+				define( 'WPGRAPHQL_AUTOLOAD', true );
+			}
+
 		}
 
 		/**
@@ -192,8 +197,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		private function includes() {
 
-			// Autoload Required Classes
-			require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+			/**
+			 * WPGRAPHQL_AUTOLOAD can be set to "false" to prevent the autoloader from running.
+			 * In most cases, this is not something that should be disabled, but some environments
+			 * may bootstrap their dependencies in a global autoloader that will autoload files
+			 * before we get to this point, and requiring the autoloader again can trigger fatal errors.
+			 *
+			 * The codeception tests are an example of an environment where adding the autoloader again causes issues
+			 * so this is set to false for tests.
+			 */
+			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+				// Autoload Required Classes
+				require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+			}
+
 
 			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
@@ -416,15 +433,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( null === self::$schema ) {
 
 				/**
-				 * Get the Schema Dependencies
-				 *
-				 * @since 0.0.5
-				 */
-				\WPGraphQL::show_in_graphql();
-				\WPGraphQL::get_allowed_post_types();
-				\WPGraphQL::get_allowed_taxonomies();
-
-				/**
 				 * Create an executable Schema from the registered
 				 * root_Query and root_mutation
 				 */
@@ -518,6 +526,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 				define( 'GRAPHQL_REQUEST', true );
 			}
+
+			/**
+			 * Setup the post_types and taxonomies to show_in_graphql
+			 */
+			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
@@ -630,7 +645,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Return the result of the request
 			 */
-			return $result->toArray();
+			return $result->toArray( true );
 
 		}
 	}

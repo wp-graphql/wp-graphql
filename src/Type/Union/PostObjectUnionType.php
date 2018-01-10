@@ -35,11 +35,11 @@ class PostObjectUnionType extends UnionType {
 	 */
 	public function __construct() {
 
+		self::getPossibleTypes();
+
 		$config = [
 			'name' => 'PostObjectUnion',
-			'types' => function() {
-				return self::getPossibleTypes();
-			},
+			'types' => self::$possible_types,
 			'resolveType' => function( $value ) {
 				return ! empty( $value->post_type ) ? Types::post_object( $value->post_type ) : null;
 			},
@@ -52,7 +52,7 @@ class PostObjectUnionType extends UnionType {
 	/**
 	 * This defines the possible types that can be resolved by this union
 	 *
-	 * @return array|null An array of possible types that can be resolved by the union
+	 * @return array An array of possible types that can be resolved by the union
 	 * @since 0.0.5
 	 */
 	public function getPossibleTypes() {
