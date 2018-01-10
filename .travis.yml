@@ -15,7 +15,6 @@ branches:
 cache:
   apt: true
   directories:
-  - vendor
   - $HOME/.composer/cache
 
 # Set the global environment variables
