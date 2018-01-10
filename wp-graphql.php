@@ -185,6 +185,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				define( 'WPGRAPHQL_AUTOLOAD', true );
 			}
 
+			// Whether to run the plugin in debug mode. Default is false.
+			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
+				define( 'GRAPHQL_DEBUG', false );
+			}
+
 		}
 
 		/**
@@ -645,7 +650,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Return the result of the request
 			 */
-			return $result->toArray( true );
+			return $result->toArray( GRAPHQL_DEBUG );
 
 		}
 	}
