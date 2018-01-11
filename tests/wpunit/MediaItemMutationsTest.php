@@ -7,6 +7,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $authorId;
 	public $caption;
 	public $commentStatus;
+    public $current_date_gmt;
 	public $date;
 	public $dateGmt;
 	public $description;
@@ -78,7 +79,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->caption          = 'Shia shows off some magic in this caption.';
 	    $this->commentStatus    = 'closed';
 	    $this->date             = '2017-08-01 15:00:00';
-	    $this->dateGmt          = '2017-08-01 21:00:00';
+	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
 	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
 	    $this->fileType         = 'IMAGE_GIF';
@@ -98,7 +99,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_caption = 'Shia shows off some magic in this updated caption.';
 	    $this->updated_commentStatus = 'open';
 	    $this->updated_date = '2017-08-01 16:00:00';
-	    $this->updated_dateGmt = '2017-08-01 22:00:00';
+	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';
 	    $this->updated_pingStatus = 'open';

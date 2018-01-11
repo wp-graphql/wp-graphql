@@ -47,11 +47,7 @@ class PostObjectMutation {
 				],
 				'date'          => [
 					'type'        => Types::string(),
-					'description' => __( 'The date of the object.', 'wp-graphql' ),
-				],
-				'dateGmt'       => [
-					'type'        => Types::string(),
-					'description' => __( 'The date (in GMT zone) of the object', 'wp-graphql' ),
+					'description' => __( 'The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17 ', 'wp-graphql' ),
 				],
 				'excerpt'       => [
 					'type'        => Types::string(),
@@ -64,14 +60,6 @@ class PostObjectMutation {
 				'mimeType'      => [
 					'type'        => Types::mime_type_enum(),
 					'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
-				],
-				'modified'      => [
-					'type'        => Types::string(),
-					'description' => __( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
-				],
-				'modifiedGmt'   => [
-					'type'        => Types::string(),
-					'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 				],
 				'parentId'      => [
 					'type'        => Types::id(),
@@ -152,10 +140,6 @@ class PostObjectMutation {
 			$insert_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
-		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
-			$insert_post_args['post_date_gmt'] = strtotime( $input['dateGmt'] );
-		}
-
 		if ( ! empty( $input['content'] ) ) {
 			$insert_post_args['post_content'] = $input['content'];
 		}
@@ -194,14 +178,6 @@ class PostObjectMutation {
 
 		if ( ! empty( $input['pinged'] ) ) {
 			$insert_post_args['pinged'] = $input['pinged'];
-		}
-
-		if ( ! empty( $input['postModified'] ) && false !== strtotime( $input['postModified'] ) ) {
-			$insert_post_args['modified'] = strtotime( $input['postModified'] );
-		}
-
-		if ( ! empty( $input['postModifiedGmt'] ) && false !== strtotime( $input['postModifiedGmt'] ) ) {
-			$insert_post_args['post_modified_gmt'] = strtotime( $input['postModifiedGmt'] );
 		}
 
 		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
