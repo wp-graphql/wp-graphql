@@ -793,4 +793,27 @@ class Types {
 
 	}
 
+    /**
+     * Checks the post_date_gmt or modified_gmt and prepare any post or
+     * modified date for single post output.
+     *
+     * @since 4.7.0
+     *
+     * @param string      $date_gmt GMT publication time.
+     * @param string|null $date     Optional. Local publication time. Default null.
+     * @return string|null ISO8601/RFC3339 formatted datetime.
+     */
+    public static function prepare_date_response( $date_gmt, $date = null ) {
+        // Use the date if passed.
+        if ( isset( $date ) ) {
+            return mysql_to_rfc3339( $date );
+        }
+        // Return null if $date_gmt is empty/zeros.
+        if ( '0000-00-00 00:00:00' === $date_gmt ) {
+            return null;
+        }
+        // Return the formatted datetime.
+        return mysql_to_rfc3339( $date_gmt );
+    }
+
 }
