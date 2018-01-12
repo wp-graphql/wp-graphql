@@ -206,7 +206,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentStatus' => 'open',
 					'content'       => apply_filters( 'the_content', 'Test page content' ),
 					'date'          => $this->current_date,
-					'dateGmt'       => $this->current_date_gmt,
+					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
 					'desiredSlug'   => null,
 					'editLast'      => [
 						'userId' => $this->admin,
@@ -227,7 +227,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'toPing'        => null,
 					'pinged'        => null,
 					'modified'      => get_post( $post_id )->post_modified,
-					'modifiedGmt'   => get_post( $post_id )->post_modified_gmt,
+					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
 					'title'         => apply_filters( 'the_title', 'Test Title' ),
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [

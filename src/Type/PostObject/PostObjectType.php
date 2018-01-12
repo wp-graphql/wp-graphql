@@ -180,7 +180,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_date_gmt ) ? $post->post_date_gmt : null;
+							return ! empty( $post->post_date_gmt ) ? Types::prepare_date_response( $post->post_date_gmt ): null;
 						},
 					],
 					'content'           => [
@@ -291,7 +291,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_modified_gmt ) ? $post->post_modified_gmt : null;
+							return ! empty( $post->post_modified_gmt ) ? Types::prepare_date_response( $post->post_modified_gmt ): null;
 						},
 					],
 					'parent'            => [
