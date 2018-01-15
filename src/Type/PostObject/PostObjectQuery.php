@@ -104,7 +104,7 @@ class PostObjectQuery {
 					}
 
 					if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
-						throw new UserError( __( 'No resource could by found', 'wp-graphql' ) );
+						throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
 					}
 
 					if ( ! $post_object instanceof \WP_Post ) {
