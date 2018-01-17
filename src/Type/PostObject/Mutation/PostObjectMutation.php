@@ -447,7 +447,7 @@ class PostObjectMutation {
 								 * during a post object mutation, create the term to connect based on the
 								 * input
 								 */
-								if ( false === $term_exists && true === $allow_term_creation ) {
+								if ( ! $term_exists && true === $allow_term_creation ) {
 
 									/**
 									 * If the current user cannot edit terms, don't create terms to connect
@@ -527,10 +527,14 @@ class PostObjectMutation {
 			$created_term = wp_insert_term( $term_to_create['name'], $taxonomy, $term_args );
 		}
 
+		if ( is_wp_error( $created_term ) && isset( $created_term->error_data['term_exists'] ) ) {
+			return $created_term->error_data['term_exists'];
+		}
+
 		/**
 		 * Return the created term, or 0
 		 */
-		return ! is_wp_error( $created_term ) && ! empty( $created_term['term_id'] ) ? $created_term['term_id'] : 0;
+		return ! empty( $created_term['term_id'] ) ? $created_term['term_id'] : 0;
 
 	}
 
