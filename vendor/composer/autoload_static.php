@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf44736b79e500a0e701576b24146edca
+class ComposerStaticInitb12d7b6eb37db05747250f296537e172
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -162,6 +162,7 @@ class ComposerStaticInitf44736b79e500a0e701576b24146edca
         'GraphQL\\Utils' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils.php',
         'GraphQL\\Utils\\AST' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/AST.php',
         'GraphQL\\Utils\\BuildSchema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BuildSchema.php',
+        'GraphQL\\Utils\\FindBreakingChanges' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/FindBreakingChanges.php',
         'GraphQL\\Utils\\MixedStore' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/MixedStore.php',
         'GraphQL\\Utils\\PairSet' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/PairSet.php',
         'GraphQL\\Utils\\SchemaPrinter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/SchemaPrinter.php',
@@ -248,6 +249,10 @@ class ComposerStaticInitf44736b79e500a0e701576b24146edca
         'WPGraphQL\\Type\\RootQueryType' => __DIR__ . '/../..' . '/src/Type/RootQueryType.php',
         'WPGraphQL\\Type\\Setting\\SettingQuery' => __DIR__ . '/../..' . '/src/Type/Setting/SettingQuery.php',
         'WPGraphQL\\Type\\Setting\\SettingType' => __DIR__ . '/../..' . '/src/Type/Setting/SettingType.php',
+        'WPGraphQL\\Type\\Settings\\Mutation\\SettingsMutation' => __DIR__ . '/../..' . '/src/Type/Settings/Mutation/SettingsMutation.php',
+        'WPGraphQL\\Type\\Settings\\Mutation\\SettingsUpdate' => __DIR__ . '/../..' . '/src/Type/Settings/Mutation/SettingsUpdate.php',
+        'WPGraphQL\\Type\\Settings\\SettingsQuery' => __DIR__ . '/../..' . '/src/Type/Settings/SettingsQuery.php',
+        'WPGraphQL\\Type\\Settings\\SettingsType' => __DIR__ . '/../..' . '/src/Type/Settings/SettingsType.php',
         'WPGraphQL\\Type\\Taxonomy\\TaxonomyType' => __DIR__ . '/../..' . '/src/Type/Taxonomy/TaxonomyType.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionArgs' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionArgs.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionDefinition.php',
@@ -283,9 +288,9 @@ class ComposerStaticInitf44736b79e500a0e701576b24146edca
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf44736b79e500a0e701576b24146edca::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf44736b79e500a0e701576b24146edca::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf44736b79e500a0e701576b24146edca::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb12d7b6eb37db05747250f296537e172::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb12d7b6eb37db05747250f296537e172::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb12d7b6eb37db05747250f296537e172::$classMap;
 
         }, null, ClassLoader::class);
     }

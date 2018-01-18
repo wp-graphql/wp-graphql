@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
 /**
@@ -37,10 +38,10 @@ class PostObjectCreate {
 			$mutation_name = 'Create' . ucwords( $post_type_object->graphql_single_name );
 
 			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
-				'name'                => esc_html( $mutation_name ),
+				'name'                => $mutation_name,
 				// translators: The placeholder is the name of the object type
 				'description'         => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				'inputFields'         => PostObjectMutation::input_fields( $post_type_object ),
+				'inputFields'         => WPInputObjectType::prepare_fields( PostObjectMutation::input_fields( $post_type_object ), $mutation_name ),
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),

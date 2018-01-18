@@ -20,6 +20,9 @@ class WPInputObjectType extends InputObjectType {
 	 * @param array $config The configuration for the InputObjectType
 	 */
 	public function __construct( $config = [] ) {
+		if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
+			$config['fields'] = self::prepare_fields( $config['fields'], $config['name'] );
+		}
 		parent::__construct( $config );
 	}
 
