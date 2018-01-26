@@ -123,7 +123,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testfirstPost() {
+	public function testFirstPost() {
 
 		/**
 		 * Here we're querying the first post in our dataset
