@@ -40,6 +40,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'   => 'Test Title',
 			'post_type'    => 'post',
 			'post_date'    => $this->current_date,
+			'has_password' => false,
+			'post_password'=> null,
 		];
 
 		/**
@@ -263,6 +265,38 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertCount( 20, $results['data']['posts']['edges'] );
 		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
+	}
+
+	public function testPostHasPassword() {
+		// Create a test post with a password
+		$this->createPostObject( [
+			'post_title'    => 'Password protected',
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
+			'has_password'  => true,
+			'post_password' => 'password',
+		] );
+
+		/**
+		 * WP_Query posts with a password
+		 */
+		$wp_query_posts_with_password = new WP_Query( [
+			'has_password' => true,
+		] );
+
+		/**
+		 * GraphQL query posts that have a password
+		 */
+		$variables = [
+			'hasPassword' => true,
+		];
+		$graphql_query_posts_with_password = $this->postsQuery( $variables );
+
+		$this->assertNotEmpty( $graphql_query_posts_with_password );
+		$this->assertEquals(
+			$wp_query_posts_with_password->posts[0]->ID,
+			$graphql_query_posts_with_password['data']['posts']['edges'][0]['node']['postId']
+		);
 	}
 
 	public function testPageWithChildren() {
