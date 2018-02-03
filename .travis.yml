@@ -58,7 +58,7 @@ before_script:
   # Update composer
   - composer self-update
   # Install APIGen and PHPUnit, using the specified version for the PHP version we're running
-  - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
+  - composer require apigen/apigen:4.1.2
   - composer install --no-interaction
   # Make a directory for storing logs
   - mkdir -p build/logs
