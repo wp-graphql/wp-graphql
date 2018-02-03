@@ -105,16 +105,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				self::$instance->filters();
 			}
 
-			new \WPGraphQL\Data\Config();
-			new \WPGraphQL\Router();
-
-			/**
-			 * Fire off init action
-			 *
-			 * @param WPGraphQL $instance The instance of the WPGraphQL class
-			 */
-			do_action( 'graphql_init', self::$instance );
-
 			/**
 			 * Return the WPGraphQL Instance
 			 */
@@ -226,8 +216,30 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 		 */
 		private function actions() {
-			register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
-			register_activation_hook( __FILE__, [ $this, 'activate' ] );
+
+			/**
+			 * Init WPGraphQL after themes have been setup,
+			 * allowing for both plugins and themes to register
+			 * things before graphql_init
+			 */
+			add_action( 'after_setup_theme', function() {
+
+				new \WPGraphQL\Data\Config();
+				new \WPGraphQL\Router();
+
+				/**
+				 * Fire off init action
+				 *
+				 * @param WPGraphQL $instance The instance of the WPGraphQL class
+				 */
+				do_action( 'graphql_init', self::$instance );
+
+			} );
+
+			/**
+			 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
+			 */
+			add_action( 'wp_loaded', [ $this, 'maybe_flush_permalinks' ] );
 
 			/**
 			 * Register default settings available in WordPress so we can use
@@ -242,6 +254,16 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
 
+		}
+
+		/**
+		 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
+		 */
+		public function maybe_flush_permalinks() {
+			$rules = get_option( 'rewrite_rules' );
+			if ( ! isset( $rules[ \WPGraphQL\Router::$route . '/?$' ] ) ) {
+				flush_rewrite_rules();
+			}
 		}
 
 		/**
@@ -668,13 +690,7 @@ function graphql_init() {
 	 */
 	return \WPGraphQL::instance();
 }
-
-/**
- * Instantiate the plugin
- *
- * @since 0.0.2
- */
-add_action( 'after_setup_theme', 'graphql_init', 10 );
+graphql_init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( 'cli/wp-cli.php' );
