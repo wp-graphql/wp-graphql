@@ -33,8 +33,5 @@
     "classmap": [
       "src/"
     ]
-  },
-  "require-dev": {
-    "lucatume/wp-browser": "^1.22"
   }
 }

@@ -58,7 +58,7 @@ before_script:
   # Update composer
   - composer self-update
   # Install APIGen
-  # - composer require apigen/apigen:4.1.1
+  - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
   - composer install --no-interaction
   # Make a directory for storing logs
   - mkdir -p build/logs
