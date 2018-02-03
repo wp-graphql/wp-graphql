@@ -273,7 +273,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'    => 'Password protected',
 			'post_type'     => 'post',
 			'post_status'   => 'publish',
-			'has_password'  => true,
 			'post_password' => 'password',
 		] );
 
@@ -288,15 +287,33 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * GraphQL query posts that have a password
 		 */
 		$variables = [
-			'hasPassword' => true,
+			'where' => [
+				'hasPassword' => true,
+			],
 		];
-		$graphql_query_posts_with_password = $this->postsQuery( $variables );
 
-		$this->assertNotEmpty( $graphql_query_posts_with_password );
-		$this->assertEquals(
-			$wp_query_posts_with_password->posts[0]->ID,
-			$graphql_query_posts_with_password['data']['posts']['edges'][0]['node']['postId']
-		);
+		$request = $this->postsQuery( $variables );
+
+		$this->assertNotEmpty( $request );
+		$this->assertArrayNotHasKey( 'errors', $request );
+
+		$edges = $request['data']['posts']['edges'];
+		$this->assertNotEmpty( $edges );
+
+		/**
+		 * Loop through all the returned posts
+		 */
+		foreach ( $edges as $edge ) {
+
+			/**
+			 * Assert that all posts returned have a password, since we queried for
+			 * posts using "has_password => true"
+			 */
+			$password = get_post( $edge['node']['postId'] )->post_password;
+			$this->assertNotEmpty( $password );
+
+		}
+
 	}
 
 	public function testPageWithChildren() {
