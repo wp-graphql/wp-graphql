@@ -407,7 +407,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
-		$this->create_variables['input']['parentId'] = $post;
+		$this->create_variables['input']['parentId'] = absint( $post );
 
 		/**
 		 * Test the mutation as someone who can't edit the parent post,
@@ -481,7 +481,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 
 	}
