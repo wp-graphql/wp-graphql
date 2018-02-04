@@ -472,7 +472,6 @@ class Router {
 				/**
 				 * Send the JSON response
 				 */
-				//			wp_send_json( $response );
 				$server = \WPGraphQL::server();
 				$result = $server->executeRequest();
 
