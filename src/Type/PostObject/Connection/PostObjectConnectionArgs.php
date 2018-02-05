@@ -212,7 +212,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				 * @since 0.0.2
 				 */
 				'hasPassword'  => [
-					'type'        => Types::string(),
+					'type'        => Types::boolean(),
 					'description' => __( 'True for objects with passwords; False for objects without passwords; 
 							null for all objects with or without passwords', 'wp-graphql' ),
 				],

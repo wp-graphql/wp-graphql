@@ -30,6 +30,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
+
 	public function tearDown() {
 		// your tear down methods here
 
@@ -552,5 +553,244 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
+
+	public function createPostWithDatesMutation( $input ) {
+
+        wp_set_current_user( $this->admin );
+
+        $mutation = 'mutation createPost( $input:CreatePostInput! ) {
+          createPost(input: $input) {
+            post {
+              id
+              postId
+              title
+              date
+              dateGmt
+              modified
+              modifiedGmt
+            }
+          }
+		}
+        ';
+
+        $defaults = [
+            'clientMutationId' => uniqid(),
+            'title' => 'New Post',
+            'status' => 'PUBLISH',
+        ];
+
+        $input = array_merge( $defaults, $input );
+
+        $variables = [
+            'input' => $input,
+        ];
+
+        /**
+         * Run the mutation.
+         */
+
+        $results = do_graphql_request( $mutation, 'createPost', $variables );
+
+	    return $results;
+	}
+
+    public function testDateInputsForCreatePost() {
+
+        /**
+         * Set the current user as the admin role so we
+         * can test the mutation
+         */
+
+        wp_set_current_user( $this->admin );
+
+        /**
+         * Set the expected date outcome
+         */
+
+        $dateExpected = '2017-01-03 00:00:00';
+        $dateGmtExpected = '2017-01-03T00:00:00';
+
+        $results = $this->createPostWithDatesMutation([
+            'date' => '1/3/2017',
+            'status' => 'PUBLISH'
+        ]);
+
+        /**
+         * Make sure there are no errors
+         */
+        $this->assertArrayNotHasKey( 'errors', $results );
+
+        /**
+         * We're expecting the date variable to match the date entry regardless of the way user enters it
+         */
+
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+
+    }
+
+    public function testDateInputsWithSlashFormattingForCreatePost() {
+
+        /**
+         * Set the current user as the admin role so we
+         * can test the mutation
+         */
+
+        wp_set_current_user( $this->admin );
+
+        /**
+         * Set the input and expected date outcome
+         */
+
+        $dateExpected = '2017-01-03 00:00:00';
+        $dateGmtExpected = '2017-01-03T00:00:00';
+
+        $results = $this->createPostWithDatesMutation([
+            'date' => '2017/01/03',
+        ]);
+
+        /**
+         * Make sure there are no errors
+         */
+
+        $this->assertArrayNotHasKey( 'errors', $results );
+
+        /**
+         * We're expecting the date variable to match the date entry regardless of the way user enters it
+         */
+
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+
+    }
+
+    public function testDateInputsWithStatusPendingAndDashesCreatePost() {
+
+        /**
+         * Set the current user as the admin role so we
+         * can test the mutation
+         */
+
+        wp_set_current_user( $this->admin );
+
+        /**
+         * Set the input and expected date outcome
+         */
+
+        $dateExpected = '2017-01-03 00:00:00';
+        $dateGmtExpected = null;
+
+        $results = $this->createPostWithDatesMutation([
+            'date' => '3-1-2017',
+            'status' => 'PENDING'
+        ]);
+
+        /**
+         * Make sure there are no errors
+         */
+
+        $this->assertArrayNotHasKey( 'errors', $results );
+
+        /**
+         * We're expecting the date variable to match the date entry regardless of the way user enters it
+         */
+
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
+        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+
+    }
+
+    public function testDateInputsWithDraftAndPublishUpdatePost() {
+
+        /**
+         * Set the current user as the admin role so we
+         * can test the mutation
+         */
+        wp_set_current_user( $this->admin );
+
+        /**
+         * Create a post to test against and set global ID
+         */
+        $test_post = $this->factory()->post->create( [
+            'post_title' => 'My Test Post',
+            'post_status' => 'draft',
+        ] );
+
+        $global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+
+        /**
+         * Prepare mutation for GQL request
+         */
+        $request = '
+        {
+            post( id: "'. $global_id . '" ) {
+              id
+              postId
+              title
+              date
+              dateGmt
+              modified
+              modifiedGmt
+            }
+        }
+        ';
+
+        /**
+         * Run GQl request
+         */
+        $results = do_graphql_request( $request );
+
+        /**
+         * Set the expected dateGmt outcome
+         */
+        $dateGmtExpected = null;
+
+        /**
+         * Assert results dateGmt equals the expected outcome
+         */
+        $this->assertEquals( $dateGmtExpected, $results['data']['post']['dateGmt'] );
+
+        /**
+         * Update post to test against status: published
+         */
+        wp_update_post( [
+            'ID'          => $test_post,
+            'post_status' => 'publish',
+        ] );
+
+        /**
+         * Run GQl request
+         */
+        $results = do_graphql_request( $request );
+
+        /**
+         * Assert timestamp is not null
+         */
+        $this->assertNotNull( $results['data']['post']['dateGmt'] );
+
+        /**
+         * Update post back to draft
+         */
+        wp_update_post( [
+            'ID' => $test_post,
+            'post_status' => 'draft'
+        ] );
+
+        /**
+         * Run GQl request
+         */
+        $results = do_graphql_request( $request );
+
+        /**
+         * Assert timestamp is STILL not null
+         */
+        $this->assertNotNull( $results['data']['post']['dateGmt'] );
+    }
 
 }
