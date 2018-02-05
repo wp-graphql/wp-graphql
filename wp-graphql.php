@@ -706,6 +706,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$query = $helper->parseHttpRequest()->query;
 			$operation = $helper->parseHttpRequest()->operation;
 			$variables = $helper->parseHttpRequest()->variables;
+
+			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 *
+			 * @param string $request        The GraphQL request to be run
+			 * @param string $operation_name The name of the operation
+			 * @param string $variables      Variables to be passed to your GraphQL request
+			 */
 			do_action( 'do_graphql_request', $query, $operation, $variables );
 
 			$config = new \GraphQL\Server\ServerConfig();
