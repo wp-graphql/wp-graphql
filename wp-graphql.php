@@ -457,6 +457,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function get_schema() {
 
+			/**
+			 * Fire an action when the Schema is returned
+			 */
+			do_action( 'graphql_get_schema', self::$schema );
+
 			if ( null === self::$schema ) {
 
 				/**
@@ -675,6 +680,54 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			return $result->toArray( GRAPHQL_DEBUG );
 
 		}
+
+		public static function server( $request = null ) {
+
+			/**
+			 * Whether it's a GraphQL Request (http or internal)
+			 *
+			 * @since 0.0.5
+			 */
+			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
+				define( 'GRAPHQL_REQUEST', true );
+			}
+
+			/**
+			 * Setup the post_types and taxonomies to show_in_graphql
+			 */
+			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
+
+			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 */
+			$helper = new \GraphQL\Server\Helper();
+			$query = $helper->parseHttpRequest()->query;
+			$operation = $helper->parseHttpRequest()->operation;
+			$variables = $helper->parseHttpRequest()->variables;
+
+			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 *
+			 * @param string $request        The GraphQL request to be run
+			 * @param string $operation_name The name of the operation
+			 * @param string $variables      Variables to be passed to your GraphQL request
+			 */
+			do_action( 'do_graphql_request', $query, $operation, $variables );
+
+			$config = new \GraphQL\Server\ServerConfig();
+			$config
+				->setDebug( GRAPHQL_DEBUG )
+				->setSchema( self::get_schema() )
+				->setContext( self::get_app_context() )
+				->setQueryBatching(true);
+
+			$server = new \GraphQL\Server\StandardServer( $config );
+
+			return $server;
+		}
+
 	}
 endif;
 

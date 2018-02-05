@@ -648,31 +648,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @group get_query_args
 	 */
-	public function testGetQueryArgsTerms() {
-		/**
-		 * Create a term
-		 */
-		$term_id = $this->factory->term->create();
-
-		$source = get_term( $term_id );
-
-		$mock_args = array(
-			'taxonomy' => 'post_tag',
-			'terms'    => array( 2 ),
-			'field'    => 'term_id',
-		);
-
-		$actual_terms = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the function returned our mock_args in the tax_query key
-		 */
-		$this->assertEquals( $mock_args, $actual_terms['tax_query'][0] );
-	}
-
-	/**
-	 * @group get_query_args
-	 */
 	public function testGetQueryArgsPostType() {
 
 		/**
