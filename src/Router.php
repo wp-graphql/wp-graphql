@@ -393,6 +393,11 @@ class Router {
 				$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : '';
 				$variables      = isset( $data['variables'] ) ? $data['variables'] : '';
 
+
+				if ( false === headers_sent() ) {
+					self::prepare_headers();
+				}
+
 				/**
 				 * Process the GraphQL request
 				 *
@@ -410,102 +415,9 @@ class Router {
 					$response['errors'] = __( 'The GraphQL request returned an invalid response', 'wp-graphql' );
 				}
 
-				if ( false === headers_sent() ) {
+				self::after_execute( $response, $operation_name, $request, $variables );
 
-					/**
-					 * Filter the $status_code before setting the headers
-					 *
-					 * @param int      $status_code     The status code to apply to the headers
-					 * @param array    $response        The response of the GraphQL Request
-					 * @param array    $graphql_results The results of the GraphQL execution
-					 * @param string   $request         The GraphQL Request
-					 * @param string   $operation_name  The operation name of the GraphQL Request
-					 * @param array    $variables       The variables applied to the GraphQL Request
-					 * @param \WP_User $user            The current user object
-					 */
-					$status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $request, $operation_name, $variables, $user );
-
-					/**
-					 * Set the response headers
-					 */
-					self::set_headers( $status_code );
-
-					wp_send_json( $response );
-
-					/**
-					 * Run an action. This is a good place for debug tools to hook in to log things, etc.
-					 *
-					 * @since 0.0.4
-					 *
-					 * @param array      $result         The result of your GraphQL request
-					 * @param            Schema          object $schema The schema object for the root request
-					 * @param string     $operation_name The name of the operation
-					 * @param string     $request        The request that GraphQL executed
-					 * @param array|null $variables      Variables to passed to your GraphQL query
-					 */
-					do_action( 'graphql_execute', $response, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
-					 * it's returned, allowing granular control over the response at the latest point.
-					 *
-					 * POSSIBLE USAGE EXAMPLES:
-					 * This could be used to ensure that certain fields never make it to the response if they match
-					 * certain criteria, etc. For example, this filter could be used to check if a current user is
-					 * allowed to see certain things, and if they are not, the $result could be filtered to remove
-					 * the data they should not be allowed to see.
-					 *
-					 * Or, perhaps some systems want the result to always include some additional piece of data in
-					 * every response, regardless of the request that was sent to it, this could allow for that
-					 * to be hooked in and included in the $result
-					 *
-					 * @since 0.0.5
-					 *
-					 * @param array      $result         The result of your GraphQL query
-					 * @param            Schema          object $schema The schema object for the root query
-					 * @param string     $operation_name The name of the operation
-					 * @param string     $request        The request that GraphQL executed
-					 * @param array|null $variables      Variables to passed to your GraphQL request
-					 */
-					$filtered_result = apply_filters( 'graphql_request_results', $response, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Run an action after the result has been filtered, as the response is being returned.
-					 * This is a good place for debug tools to hook in to log things, etc.
-					 *
-					 * @param array      $filtered_result The filtered_result of the GraphQL request
-					 * @param array      $result          The result of your GraphQL request
-					 * @param            Schema           object $schema The schema object for the root request
-					 * @param string     $operation_name  The name of the operation
-					 * @param string     $request         The request that GraphQL executed
-					 * @param array|null $variables       Variables to passed to your GraphQL query
-					 */
-					do_action( 'graphql_return_response', $filtered_result, $response, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Reset the global post after execution
-					 *
-					 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
-					 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
-					 * the same.
-					 */
-					if ( ! empty( $global_post ) ) {
-						$GLOBALS['post'] = $global_post;
-					}
-
-					/**
-					 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools
-					 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
-					 * to here, etc.
-					 *
-					 * @param array $response
-					 * @param array $graphql_results
-					 *
-					 * @since 0.0.5
-					 */
-					do_action( 'graphql_process_http_request_response', $response, $graphql_results );
-
-				}
+				wp_send_json( $response );
 
 
 			} else {
@@ -515,23 +427,7 @@ class Router {
 				 */
 				if ( false === headers_sent() ) {
 
-					/**
-					 * Filter the $status_code before setting the headers
-					 *
-					 * @param int      $status_code     The status code to apply to the headers
-					 * @param array    $response        The response of the GraphQL Request
-					 * @param array    $graphql_results The results of the GraphQL execution
-					 * @param string   $request         The GraphQL Request
-					 * @param string   $operation_name  The operation name of the GraphQL Request
-					 * @param array    $variables       The variables applied to the GraphQL Request
-					 * @param \WP_User $user            The current user object
-					 */
-					$status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $request, $operation_name, $variables, $user );
-
-					/**
-					 * Set the response headers
-					 */
-					self::set_headers( $status_code );
+					self::prepare_headers();
 
 					/**
 					 * Send the JSON response
@@ -539,78 +435,7 @@ class Router {
 					$server = \WPGraphQL::server();
 					$result = $server->executeRequest();
 
-					/**
-					 * Run an action. This is a good place for debug tools to hook in to log things, etc.
-					 *
-					 * @since 0.0.4
-					 *
-					 * @param array      $result         The result of your GraphQL request
-					 * @param            Schema          object $schema The schema object for the root request
-					 * @param string     $operation_name The name of the operation
-					 * @param string     $request        The request that GraphQL executed
-					 * @param array|null $variables      Variables to passed to your GraphQL query
-					 */
-					do_action( 'graphql_execute', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
-					 * it's returned, allowing granular control over the response at the latest point.
-					 *
-					 * POSSIBLE USAGE EXAMPLES:
-					 * This could be used to ensure that certain fields never make it to the response if they match
-					 * certain criteria, etc. For example, this filter could be used to check if a current user is
-					 * allowed to see certain things, and if they are not, the $result could be filtered to remove
-					 * the data they should not be allowed to see.
-					 *
-					 * Or, perhaps some systems want the result to always include some additional piece of data in
-					 * every response, regardless of the request that was sent to it, this could allow for that
-					 * to be hooked in and included in the $result
-					 *
-					 * @since 0.0.5
-					 *
-					 * @param array      $result         The result of your GraphQL query
-					 * @param            Schema          object $schema The schema object for the root query
-					 * @param string     $operation_name The name of the operation
-					 * @param string     $request        The request that GraphQL executed
-					 * @param array|null $variables      Variables to passed to your GraphQL request
-					 */
-					$filtered_result = apply_filters( 'graphql_request_results', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Run an action after the result has been filtered, as the response is being returned.
-					 * This is a good place for debug tools to hook in to log things, etc.
-					 *
-					 * @param array      $filtered_result The filtered_result of the GraphQL request
-					 * @param array      $result          The result of your GraphQL request
-					 * @param            Schema           object $schema The schema object for the root request
-					 * @param string     $operation_name  The name of the operation
-					 * @param string     $request         The request that GraphQL executed
-					 * @param array|null $variables       Variables to passed to your GraphQL query
-					 */
-					do_action( 'graphql_return_response', $filtered_result, $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
-
-					/**
-					 * Reset the global post after execution
-					 *
-					 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
-					 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
-					 * the same.
-					 */
-					if ( ! empty( $global_post ) ) {
-						$GLOBALS['post'] = $global_post;
-					}
-
-					/**
-					 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools
-					 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
-					 * to here, etc.
-					 *
-					 * @param array $response
-					 * @param array $graphql_results
-					 *
-					 * @since 0.0.5
-					 */
-					do_action( 'graphql_process_http_request_response', $result, $graphql_results );
+					self::after_execute( $result, $operation_name, $request, $variables );
 
 					/**
 					 * Send the response
@@ -637,6 +462,105 @@ class Router {
 			self::$http_status_code = 500;
 			$response['errors']     = [ FormattedError::createFromException( $error ) ];
 		} // End try().
+
+	}
+
+	protected static function prepare_headers() {
+
+		/**
+		 * Filter the $status_code before setting the headers
+		 *
+		 * @param int      $status_code     The status code to apply to the headers
+		 * @param array    $response        The response of the GraphQL Request
+		 * @param array    $graphql_results The results of the GraphQL execution
+		 * @param string   $request         The GraphQL Request
+		 * @param string   $operation_name  The operation name of the GraphQL Request
+		 * @param array    $variables       The variables applied to the GraphQL Request
+		 * @param \WP_User $user            The current user object
+		 */
+		$status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $request, $operation_name, $variables, $user );
+
+		/**
+		 * Set the response headers
+		 */
+		self::set_headers( $status_code );
+
+	}
+
+	protected static function after_execute( $result, $operation_name, $request, $variables ) {
+
+		/**
+		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
+		 *
+		 * @since 0.0.4
+		 *
+		 * @param array      $result         The result of your GraphQL request
+		 * @param            Schema          object $schema The schema object for the root request
+		 * @param string     $operation_name The name of the operation
+		 * @param string     $request        The request that GraphQL executed
+		 * @param array|null $variables      Variables to passed to your GraphQL query
+		 */
+		do_action( 'graphql_execute', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
+
+		/**
+		 * Filter the $result of the GraphQL execution. This allows for the response to be filtered before
+		 * it's returned, allowing granular control over the response at the latest point.
+		 *
+		 * POSSIBLE USAGE EXAMPLES:
+		 * This could be used to ensure that certain fields never make it to the response if they match
+		 * certain criteria, etc. For example, this filter could be used to check if a current user is
+		 * allowed to see certain things, and if they are not, the $result could be filtered to remove
+		 * the data they should not be allowed to see.
+		 *
+		 * Or, perhaps some systems want the result to always include some additional piece of data in
+		 * every response, regardless of the request that was sent to it, this could allow for that
+		 * to be hooked in and included in the $result
+		 *
+		 * @since 0.0.5
+		 *
+		 * @param array      $result         The result of your GraphQL query
+		 * @param            Schema          object $schema The schema object for the root query
+		 * @param string     $operation_name The name of the operation
+		 * @param string     $request        The request that GraphQL executed
+		 * @param array|null $variables      Variables to passed to your GraphQL request
+		 */
+		$filtered_result = apply_filters( 'graphql_request_results', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
+
+		/**
+		 * Run an action after the result has been filtered, as the response is being returned.
+		 * This is a good place for debug tools to hook in to log things, etc.
+		 *
+		 * @param array      $filtered_result The filtered_result of the GraphQL request
+		 * @param array      $result          The result of your GraphQL request
+		 * @param            Schema           object $schema The schema object for the root request
+		 * @param string     $operation_name  The name of the operation
+		 * @param string     $request         The request that GraphQL executed
+		 * @param array|null $variables       Variables to passed to your GraphQL query
+		 */
+		do_action( 'graphql_return_response', $filtered_result, $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
+
+		/**
+		 * Reset the global post after execution
+		 *
+		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
+		 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
+		 * the same.
+		 */
+		if ( ! empty( $global_post ) ) {
+			$GLOBALS['post'] = $global_post;
+		}
+
+		/**
+		 * Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools
+		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
+		 * to here, etc.
+		 *
+		 * @param array $response
+		 * @param array $graphql_results
+		 *
+		 * @since 0.0.5
+		 */
+		do_action( 'graphql_process_http_request_response', $result, $graphql_results );
 
 	}
 
