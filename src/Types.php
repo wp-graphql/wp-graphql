@@ -629,12 +629,22 @@ class Types {
 	/**
 	 * This returns the definition for the UserConnectionArgs
 	 *
+	 * @param string $connection The connection the args are for
 	 * @return UserConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function user_connection_query_args() {
-		return self::$user_connection_query_args ? : ( self::$user_connection_query_args = new UserConnectionArgs() );
+	public static function user_connection_query_args( $connection ) {
+
+		if ( null === self::$user_connection_query_args ) {
+			self::$user_connection_query_args = [];
+		}
+
+		if ( empty( self::$user_connection_query_args ) ) {
+			self::$user_connection_query_args[ $connection ] = new UserConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$user_connection_query_args[ $connection ] ) ? self::$user_connection_query_args[ $connection ] : null;
 	}
 
 	/**

@@ -26,15 +26,20 @@ class UserConnectionDefinition {
 	/**
 	 * Method that sets up the relay connection for term objects
 	 *
+	 * @param string $from_type The name of the type the connection is coming from
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function connection() {
+	public static function connection( $from_type = '' ) {
 
-		if ( null === self::$connection ) :
+		if ( null === self::$connection ) {
+			self::$connection = [];
+		}
+
+		if ( empty( self::$connection[ $from_type ] ) ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::user(),
-				'name' => 'Users',
+				'name' => ucfirst( $from_type ) . 'Users',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
@@ -55,11 +60,11 @@ class UserConnectionDefinition {
 			$args = [
 				'where' => [
 					'name' => 'where',
-					'type' => Types::user_connection_query_args(),
+					'type' => Types::user_connection_query_args( ucfirst( $from_type ) . 'Users' ),
 				],
 			];
 
-			self::$connection = [
+			self::$connection[ $from_type ] = [
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of user objects', 'wp-graphql' ),
 				'args' => array_merge( Relay::connectionArgs(), $args ),
@@ -68,7 +73,7 @@ class UserConnectionDefinition {
 				},
 			];
 		endif;
-		return self::$connection;
+		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 	}
 
 }
