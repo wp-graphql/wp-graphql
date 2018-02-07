@@ -121,17 +121,37 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
+		global $post;
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
 				case $source instanceof \WP_Post:
+					$post = $source;
+					$post->shouldOnlyIncludeConnectedItems = isset( $input_fields['shouldOnlyIncludeConnectedItems'] ) ? $input_fields['shouldOnlyIncludeConnectedItems'] : true;
 					$query_args['object_ids'] = $source->ID;
 					break;
 				case $source instanceof \WP_Term:
+					$query_args['object_ids'] = $GLOBALS['post']->ID;
 					$query_args['parent'] = ! empty( $source->term_id ) ? $source->term_id : 0;
 					break;
 				default:
 					break;
 			}
+		}
+
+		/**
+		 * IF the connection is set to NOT ONLY include connected items (default behavior), unset the $object_ids arg
+		 */
+		if ( isset( $post->shouldOnlyIncludeConnectedItems ) && false === $post->shouldOnlyIncludeConnectedItems ) {
+			unset( $query_args['object_ids'] );
+		}
+
+		/**
+		 * If the connection is set to output in a flat list, unset the parent
+		 */
+		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ){
+			unset( $query_args['parent'] );
+			$connected = wp_get_object_terms( $source->ID, self::$taxonomy, ['fields' => 'ids'] );
+			$query_args['include'] = ! empty( $connected ) ? $connected : [];
 		}
 
 		/**

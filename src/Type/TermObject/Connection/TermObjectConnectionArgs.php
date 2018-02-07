@@ -137,7 +137,23 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Whether to prime meta caches for matched terms. Default true.', 'wp-graphql' ),
 				],
 			];
+
+			/**
+			 * Add these fields to non-root connections
+			 * @todo: possibly consider other ways to add this
+			 */
+			self::$fields[ $connection ]['shouldOnlyIncludeConnectedItems'] = [
+				'type' => Types::boolean(),
+				'description' => __( 'Default false. If true, only the items connected to the source item will be returned. If false, all items will be returned regardless of connection to the source', 'wp-graphql' ),
+			];
+
+			self::$fields[ $connection ]['shouldOutputInFlatList'] = [
+				'type' => Types::boolean(),
+				'description' => __( 'Default false. If true, the connection will be output in a flat list instead of the hierarchical list. So child terms will be output in the same level as the parent terms', 'wp-graphql' ),
+			];
+
 		endif;
+
 		return ! empty( self::$fields[ $connection ] ) ? self::prepare_fields( self::$fields[ $connection ], ucfirst( $connection ) . 'TermArgs' ) : null;
 	}
 
