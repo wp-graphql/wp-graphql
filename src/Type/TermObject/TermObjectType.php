@@ -223,7 +223,7 @@ class TermObjectType extends WPObjectType {
 						},
 					];
 
-					$fields['children'] = TermObjectConnectionDefinition::connection( $taxonomy_object );
+					$fields['children'] = TermObjectConnectionDefinition::connection( $taxonomy_object, 'Children' );
 
 				}
 
@@ -236,7 +236,7 @@ class TermObjectType extends WPObjectType {
 					foreach ( $allowed_post_types as $post_type ) {
 						if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
 							$post_type_object                                 = get_post_type_object( $post_type );
-							$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
+							$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object, $taxonomy_object->graphql_single_name );
 						}
 					}
 				}

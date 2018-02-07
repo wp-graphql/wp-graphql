@@ -484,13 +484,23 @@ class Types {
 
 	/**
 	 * This returns the definition for the PostObjectConnectionArgs
-	 *
+	 * @param string $connection The connection the args belong to
 	 * @return PostObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function post_object_query_args() {
-		return self::$post_object_query_args ? : ( self::$post_object_query_args = new PostObjectConnectionArgs() );
+	public static function post_object_query_args( $connection ) {
+
+		if ( null === self::$post_object_query_args ) {
+			self::$post_object_query_args = [];
+		}
+
+		if ( empty( self::$post_object_query_args[ $connection ] ) ) {
+			self::$post_object_query_args[ $connection ] = new PostObjectConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$post_object_query_args[ $connection ] ) ? self::$post_object_query_args[ $connection ] : null;
+
 	}
 
 	/**
@@ -716,7 +726,7 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\ListOfType
@@ -730,7 +740,7 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\NonNull

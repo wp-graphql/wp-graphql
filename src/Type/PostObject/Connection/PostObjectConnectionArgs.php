@@ -51,12 +51,12 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 
 	/**
 	 * PostObjectConnectionArgs constructor.
-	 *
+	 * @param string $connection
 	 * @since 0.0.5
 	 */
-	public function __construct( $config = [] ) {
-		$config['name'] = 'QueryArgs';
-		$config['fields'] = self::fields();
+	public function __construct( $config = [], $connection ) {
+		$config['name'] = ucfirst( $connection ) . 'QueryArgs';
+		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
 
@@ -68,9 +68,13 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @return array
 	 * @since 0.0.5
 	 */
-	private static function fields() {
+	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
+			self::$fields = [];
+		}
+
+		if ( empty( self::$fields[ $connection ] ) ) :
 			$fields = [
 
 				/**
@@ -257,10 +261,9 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = self::prepare_fields( $fields, 'QueryArgs' );
+			self::$fields[ $connection ] = self::prepare_fields( $fields, ucfirst( $connection ) . 'QueryArgs' );
 		endif;
-		return self::$fields;
-
+		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ] : null;
 	}
 
 	/**

@@ -80,7 +80,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function categoriesQuery( $variables ) {
 
-		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:TermArgs){
+		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:RootCategoriesTermArgs){
 			categories( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage

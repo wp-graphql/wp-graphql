@@ -279,7 +279,7 @@ class UserType extends WPObjectType {
 					foreach ( $allowed_post_types as $post_type ) {
 						// @todo: maybe look into narrowing this based on permissions?
 						$post_type_object = get_post_type_object( $post_type );
-						$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
+						$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object, 'User' );
 					}
 				}
 

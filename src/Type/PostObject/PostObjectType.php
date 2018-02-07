@@ -453,7 +453,7 @@ class PostObjectType extends WPObjectType {
 				 * If the post_type is Hierarchical, there should be a children field
 				 */
 				if ( true === $post_type_object->hierarchical ) {
-					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object );
+					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
 				}
 
 				/**

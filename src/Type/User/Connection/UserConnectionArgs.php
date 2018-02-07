@@ -45,8 +45,8 @@ class UserConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [], $connection = '' ) {
-		$config['name'] = 'UserArgs';
-		$config['fields'] = self::fields();
+		$config['name'] = ucfirst( $connection ) . 'UserArgs';
+		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
 
@@ -55,12 +55,17 @@ class UserConnectionArgs extends WPInputObjectType {
 	 *
 	 * This defines the fields that make up the UserConnectionArgs
 	 *
+	 * @param string $connection
 	 * @return array
 	 * @since 0.0.5
 	 */
-	private static function fields() {
+	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
+			self::$fields = [];
+		}
+
+		if ( empty( self::$fields ) ) :
 
 			$fields = [
 				'role' => [
@@ -120,9 +125,9 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 				],
 			];
-			self::$fields = self::prepare_fields( $fields, 'UserArgs' );
+			self::$fields[ $connection ] = self::prepare_fields( $fields, ucfirst( $connection ) . 'UserArgs' );
 		endif;
-		return self::$fields;
+		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ]: null;
 
 	}
 

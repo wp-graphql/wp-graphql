@@ -97,7 +97,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function postsQuery( $variables ) {
 
-		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:QueryArgs){
+		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:RootPostsQueryArgs){
 			posts( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage

@@ -35,19 +35,19 @@ class PostObjectConnectionDefinition {
 	 * Method that sets up the relay connection for post objects
 	 *
 	 * @param object $post_type_object
-	 *
+	 * @param string $from_type
 	 * @return mixed
 	 * @since 0.0.5
 	 *
 	 * @return mixed
 	 */
-	public static function connection( $post_type_object ) {
+	public static function connection( $post_type_object, $from_type = 'Root' ) {
 
 		if ( null === self::$connection ) {
 			self::$connection = [];
 		}
 
-		if ( empty( self::$connection[ $post_type_object->name ] ) ) :
+		if ( empty( self::$connection[ $from_type ][ $post_type_object->name ] ) ) :
 			/**
 			 * Setup the connectionDefinition
 			 *
@@ -55,7 +55,7 @@ class PostObjectConnectionDefinition {
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType'         => Types::post_object( $post_type_object->name ),
-				'name'             => ucfirst( $post_type_object->graphql_plural_name ),
+				'name'             => ucfirst( $from_type ) . ucfirst( $post_type_object->graphql_plural_name ),
 				'connectionFields' => function() use ( $post_type_object ) {
 
 					return [
@@ -82,11 +82,12 @@ class PostObjectConnectionDefinition {
 			 *
 			 * @since 0.0.5
 			 */
-			self::$connection[ $post_type_object->name ] = [
+			$connection_name = ucfirst( $from_type ) . ucfirst( $post_type_object->graphql_plural_name );
+			self::$connection[ $from_type ][ $post_type_object->name ] = [
 				'type'        => $connection['connectionType'],
 				// Translators: the placeholder is the name of the post_type
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $post_type_object->graphql_plural_name ),
-				'args'        => array_merge( Relay::connectionArgs(), self::added_args() ),
+				'args'        => array_merge( Relay::connectionArgs(), self::added_args( $connection_name ) ),
 				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_type_object->name );
 				},
@@ -98,29 +99,33 @@ class PostObjectConnectionDefinition {
 		 *
 		 * @since 0.0.5
 		 */
-		return self::$connection[ $post_type_object->name ];
+		return self::$connection[ $from_type ][ $post_type_object->name ];
 
 	}
 
 	/**
 	 * Returns the $args that should be added to the connection args
+	 * @param string $connection
 	 * @return array
 	 */
-	protected static function added_args() {
+	protected static function added_args( $connection ) {
 
 		if ( null === self::$added_args ) {
+			self::$added_args = [];
+		}
 
-			self::$added_args = [
+		if ( empty( self::$added_args[ $connection ] ) ) {
+			self::$added_args[ $connection ] = [
 				'where' => [
 					'name' => 'where',
 					'description' => __( '', 'wp-graphql' ),
-					'type' => Types::post_object_query_args(),
+					'type' => Types::post_object_query_args( $connection ),
 				],
 			];
 
 		}
 
-		return self::$added_args;
+		return ! empty( self::$added_args[ $connection ] ) ? self::$added_args[ $connection ] : null;
 
 	}
 
