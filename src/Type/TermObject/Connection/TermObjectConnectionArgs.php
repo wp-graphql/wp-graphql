@@ -24,12 +24,22 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	public static $fields;
 
 	/**
+	 * Holds the orderby enum definition
+	 * @var
+	 */
+	protected static $orderby_enum;
+
+	/**
 	 * TermObjectConnectionArgs constructor.
+	 *
+	 * @param array $config
+	 * @param string $connection
+	 *
 	 * @since 0.0.5
 	 */
-	public function __construct( $config = [] ) {
-		$config['name'] = 'TermArgs';
-		$config['fields'] = self::fields();
+	public function __construct( $config = [], $connection ) {
+		$config['name'] = ucfirst( $connection ) . 'TermArgs';
+		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
 
@@ -38,44 +48,24 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 *
 	 * This defines the fields that make up the TermObjectConnectionArgs
 	 *
+	 * @param string $connection
 	 * @return array
 	 * @since 0.0.5
 	 */
-	private static function fields() {
+	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) :
-			self::$fields = [
+		if ( null === self::$fields ) {
+			self::$fields = [];
+		}
+
+		if ( empty( self::$fields[ $connection ] ) ) :
+			self::$fields[ $connection ] = [
 				'objectIds' => [
 					'type' => Types::list_of( Types::int() ),
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 				],
 				'orderby' => [
-					'type' => new WPEnumType( [
-						'name' => 'TermsOrderby',
-						'values' => [
-							'NAME' => [
-								'value' => 'name',
-							],
-							'SLUG' => [
-								'value' => 'slug',
-							],
-							'TERM_GROUP' => [
-								'value' => 'term_group',
-							],
-							'TERM_ID' => [
-								'value' => 'term_id',
-							],
-							'TERM_ORDER' => [
-								'value' => 'term_order',
-							],
-							'DESCRIPTION' => [
-								'value' => 'description',
-							],
-							'COUNT' => [
-								'value' => 'count',
-							],
-						],
-					] ),
+					'type' => self::orderby_enum(),
 					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
 				],
 				'hideEmpty' => [
@@ -148,7 +138,47 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 				],
 			];
 		endif;
-		return self::prepare_fields( self::$fields, 'TermArgs' );
+		return ! empty( self::$fields[ $connection ] ) ? self::prepare_fields( self::$fields[ $connection ], ucfirst( $connection ) . 'TermArgs' ) : null;
+	}
+
+	/**
+	 * Sets up the definition of the TermsOrderby enum
+	 * @return null|WPEnumType
+	 */
+	protected static function orderby_enum() {
+
+		if ( null === self::$orderby_enum ) {
+
+			self::$orderby_enum = new WPEnumType( [
+				'name'   => 'TermsOrderby',
+				'values' => [
+					'NAME'        => [
+						'value' => 'name',
+					],
+					'SLUG'        => [
+						'value' => 'slug',
+					],
+					'TERM_GROUP'  => [
+						'value' => 'term_group',
+					],
+					'TERM_ID'     => [
+						'value' => 'term_id',
+					],
+					'TERM_ORDER'  => [
+						'value' => 'term_order',
+					],
+					'DESCRIPTION' => [
+						'value' => 'description',
+					],
+					'COUNT'       => [
+						'value' => 'count',
+					],
+				],
+			] );
+
+		}
+
+		return ! empty( self::$orderby_enum ) ? self::$orderby_enum : null;
 	}
 
 }

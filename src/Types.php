@@ -586,12 +586,23 @@ class Types {
 	/**
 	 * This returns the definition for the TermObjectConnectionArgs
 	 *
+	 * @param string $connection
 	 * @return TermObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function term_object_query_args() {
-		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectConnectionArgs() );
+	public static function term_object_query_args( $connection ) {
+
+		if ( null === self::$term_object_query_args ) {
+			self::$term_object_query_args = [];
+		}
+
+		if ( empty( self::$term_object_query_args[ $connection ] ) ) {
+			self::$term_object_query_args[ $connection ] = new TermObjectConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$term_object_query_args[ $connection ] ) ? self::$term_object_query_args[ $connection ] : null;
+
 	}
 
 	/**

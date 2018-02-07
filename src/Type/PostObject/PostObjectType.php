@@ -467,7 +467,7 @@ class PostObjectType extends WPObjectType {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							$tax_object                                 = get_taxonomy( $taxonomy );
-							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object );
+							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object, $post_type_object->graphql_single_name );
 						}
 					}
 				}
