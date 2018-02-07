@@ -32,13 +32,20 @@ class CommentConnectionArgs extends WPInputObjectType {
 	private static $comments_orderby_enum;
 
 	/**
+	 * Holds the order Enum definition
+	 * @var EnumType
+	 */
+	private static $comments_order;
+
+	/**
 	 * CommentConnectionArgs constructor.
-	 *
+	 * @param array $config
+	 * @param string $connection
 	 * @since 0.0.5
 	 */
-	public function __construct( $config = [] ) {
-		$config['name'] = 'CommentArgs';
-		$config['fields'] = self::fields();
+	public function __construct( $config = [], $connection ) {
+		$config['name'] = ucfirst( $connection ) . 'CommentArgs';
+		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
 
@@ -50,9 +57,13 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 * @return array
 	 * @since 0.0.5
 	 */
-	private static function fields() {
+	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
+			self::$fields = [];
+		}
+
+		if ( empty( self::$fields[ $connection ] ) ) :
 			$fields = [
 				'authorEmail' => [
 					'type' => Types::string(),
@@ -92,18 +103,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 				],
 				'order' => [
-					'type' => new WPEnumType([
-						'name' => 'CommentsOrder',
-						'values' => [
-							'ASC' => [
-								'value' => 'ASC',
-							],
-							'DESC' => [
-								'value' => 'DESC',
-							],
-						],
-						'defaultValue' => 'DESC',
-					]),
+					'type' => self::comment_order(),
 				],
 				'parent' => [
 					'type' => Types::int(),
@@ -188,9 +188,9 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 			];
 
-			self::$fields = self::prepare_fields( $fields, 'CommentArgs' );
+			self::$fields[ $connection ] = self::prepare_fields( $fields, ucfirst( $connection ) . 'CommentArgs' );
 		endif;
-		return self::$fields;
+		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ] : null;
 
 	}
 
@@ -260,6 +260,27 @@ class CommentConnectionArgs extends WPInputObjectType {
 			]);
 		endif;
 		return self::$comments_orderby_enum;
+	}
+
+	private static function comment_order() {
+
+		if ( null === self::$comments_order ) :
+			self::$comments_order = new WPEnumType( [
+				'name'         => 'CommentsOrder',
+				'values'       => [
+					'ASC'  => [
+						'value' => 'ASC',
+					],
+					'DESC' => [
+						'value' => 'DESC',
+					],
+				],
+				'defaultValue' => 'DESC',
+			] );
+		endif;
+
+		return self::$comments_order;
+
 	}
 
 }

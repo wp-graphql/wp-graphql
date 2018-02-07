@@ -439,7 +439,7 @@ class PostObjectType extends WPObjectType {
 				 * @since 0.0.5
 				 */
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					$fields['comments']     = CommentConnectionDefinition::connection();
+					$fields['comments']     = CommentConnectionDefinition::connection( $post_type_object->graphql_single_name );
 					$fields['commentCount'] = [
 						'type'        => Types::int(),
 						'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),

@@ -30,15 +30,20 @@ class CommentConnectionDefinition {
 	/**
 	 * connection
 	 * This sets up a connection of comments
+	 * @param string $from_type
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function connection() {
+	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) :
+		if ( null === self::$connection ) {
+			self::$connection = [];
+		}
+
+		if ( empty( self::$connection[ $from_type ] ) ) :
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::comment(),
-				'name' => 'Comments',
+				'name' => ucfirst( $from_type ) . 'Comments',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
@@ -56,34 +61,47 @@ class CommentConnectionDefinition {
 			 * Add the "where" args to the commentConnection
 			 * @since 0.0.5
 			 */
-			$args = [
+			$args[ $from_type ] = [
 				'where' => [
 					'name' => 'where',
-					'type' => self::args(),
+					'type' => self::args( ucfirst( $from_type ) . 'Comments' ),
 				],
 			];
 
-			self::$connection = [
+			self::$connection[ $from_type ] = [
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
-				'args' => array_merge( Relay::connectionArgs(), $args ),
+				'args' => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
 				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
 				},
 			];
 		endif;
-		return self::$connection;
+		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
+
 	}
 
 
 	/**
 	 * Return the $args to use for the connection
 	 *
+	 * @param string $connection
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	private static function args() {
-		return self::$args ? : ( self::$args = new CommentConnectionArgs() );
+	private static function args( $connection ) {
+
+		if ( null === self::$args ) {
+			self::$args = [];
+		}
+
+		if ( empty( self::$args[ $connection ] ) ) {
+			self::$args[ $connection ] = new CommentConnectionArgs( [], $connection );
+		}
+
+		return self::$args[ $connection ];
+
+
 	}
 
 }

@@ -30,7 +30,7 @@ class UserConnectionDefinition {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function connection( $from_type = '' ) {
+	public static function connection( $from_type = 'Root' ) {
 
 		if ( null === self::$connection ) {
 			self::$connection = [];

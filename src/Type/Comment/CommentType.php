@@ -168,7 +168,7 @@ class CommentType extends WPObjectType {
 				 *
 				 * @since 0.0.5
 				 */
-				$fields['children'] = CommentConnectionDefinition::connection();
+				$fields['children'] = CommentConnectionDefinition::connection( 'Children' );
 
 				/**
 				 * This prepares the fields by sorting them and applying a filter for adjusting the schema.

@@ -260,7 +260,7 @@ class UserType extends WPObjectType {
 							return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
 						},
 					],
-					'comments' => CommentConnectionDefinition::connection(),
+					'comments' => CommentConnectionDefinition::connection( 'User' ),
 				];
 
 				/**
