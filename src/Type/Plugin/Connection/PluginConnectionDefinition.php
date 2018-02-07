@@ -26,9 +26,13 @@ class PluginConnectionDefinition {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function connection() {
+	public static function connection( $from_type = 'Root' ) {
 
 		if ( null === self::$connection ) {
+			self::$connection = [];
+		}
+
+		if ( empty( self::$connection[ $from_type ] ) ) :
 
 			/**
 			 * Setup the connectionDefinition
@@ -54,7 +58,7 @@ class PluginConnectionDefinition {
 			 * Add the connection to the post_objects_connection object
 			 * @since 0.0.5
 			 */
-			self::$connection = [
+			self::$connection[ $from_type ] = [
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of plugins', 'wp-graphql' ),
 				'args' => Relay::connectionArgs(),
@@ -63,9 +67,8 @@ class PluginConnectionDefinition {
 				},
 			];
 
-		}
-
-		return self::$connection;
+		endif;
+		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 
 	}
 

@@ -25,20 +25,24 @@ class ThemeConnectionDefinition {
 
 	/**
 	 * Method that sets up the relay connection for term objects
-	 *
+	 * @param string $from_type
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function connection() {
+	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) :
+		if ( null === self::$connection ) {
+			self::$connection = [];
+		}
+
+		if ( empty( self::$connection[ $from_type ] ) ) :
 			/**
 			 * Setup the connectionDefinition
 			 * @since 0.0.5
 			 */
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::theme(),
-				'name' => 'Themes',
+				'name' => ucfirst( $from_type ) . 'Themes',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
@@ -56,7 +60,7 @@ class ThemeConnectionDefinition {
 			 * Add the connection to the themes_connection object
 			 * @since 0.0.5
 			 */
-			self::$connection = [
+			self::$connection[ $from_type ] = [
 				'type' => $connection['connectionType'],
 				'description' => __( 'A collection of theme objects', 'wp-graphql' ),
 				'args' => Relay::connectionArgs(),
@@ -65,7 +69,7 @@ class ThemeConnectionDefinition {
 				},
 			];
 		endif;
-		return self::$connection;
+		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 	}
 
 }
