@@ -88,7 +88,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'authorName'   => [
 					'type'        => Types::string(),
-					'description' => __( 'Find objects connected to the author by the author\'s "nicename"', 'wp-graphql' ),
+					'description' => __( 'Find objects connected to the author by the author\'s nicename', 'wp-graphql' ),
 				],
 				'authorIn'     => [
 					'type'        => Types::list_of( Types::id() ),
