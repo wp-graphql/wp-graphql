@@ -40,8 +40,8 @@ class UserConnectionArgs extends WPInputObjectType {
 
 	/**
 	 * UserConnectionArgs constructor.
-	 * @param array $config
-	 * @param string $connection
+	 * @param array $config Array of config for the Input Type
+	 * @param string $connection The name of the connection the args belong to
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [], $connection = '' ) {
@@ -55,7 +55,7 @@ class UserConnectionArgs extends WPInputObjectType {
 	 *
 	 * This defines the fields that make up the UserConnectionArgs
 	 *
-	 * @param string $connection
+	 * @param string $connection The name of the connection the Args belong to
 	 * @return array
 	 * @since 0.0.5
 	 */

@@ -25,15 +25,15 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 
 	/**
 	 * Holds the orderby enum definition
-	 * @var
+	 * @var $orderby_enum
 	 */
 	protected static $orderby_enum;
 
 	/**
 	 * TermObjectConnectionArgs constructor.
 	 *
-	 * @param array $config
-	 * @param string $connection
+	 * @param array $config Array of config details for the Input Object Type
+	 * @param string $connection The name of the connection the args belong to
 	 *
 	 * @since 0.0.5
 	 */

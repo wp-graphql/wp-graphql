@@ -25,7 +25,7 @@ class ThemeConnectionDefinition {
 
 	/**
 	 * Method that sets up the relay connection for term objects
-	 * @param string $from_type
+	 * @param string $from_type The name of the Type the connection is coming from
 	 * @return mixed
 	 * @since 0.0.5
 	 */
