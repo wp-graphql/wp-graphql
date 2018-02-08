@@ -35,20 +35,21 @@ class ThemeConnectionDefinition {
 			self::$connection = [];
 		}
 
-		if ( empty( self::$connection[ $from_type ] ) ) :
+		if ( empty( self::$connection[ $from_type ] ) ) {
 			/**
 			 * Setup the connectionDefinition
+			 *
 			 * @since 0.0.5
 			 */
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::theme(),
-				'name' => ucfirst( $from_type ) . 'Themes',
+				'nodeType'         => Types::theme(),
+				'name'             => ucfirst( $from_type ) . 'Themes',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
-							'type' => Types::list_of( Types::theme() ),
+							'type'        => Types::list_of( Types::theme() ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve' => function( $source, $args, $context, $info ) {
+							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
@@ -58,17 +59,18 @@ class ThemeConnectionDefinition {
 
 			/**
 			 * Add the connection to the themes_connection object
+			 *
 			 * @since 0.0.5
 			 */
 			self::$connection[ $from_type ] = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of theme objects', 'wp-graphql' ),
-				'args' => Relay::connectionArgs(),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				'args'        => Relay::connectionArgs(),
+				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_themes_connection( $source, $args, $context, $info );
 				},
 			];
-		endif;
+		}
 		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 	}
 

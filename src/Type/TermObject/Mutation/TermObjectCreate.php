@@ -24,7 +24,10 @@ class TermObjectCreate {
 	 */
 	public static function mutate( \WP_Taxonomy $taxonomy ) {
 
-		if ( ! empty( $taxonomy->graphql_single_name ) && empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ) :
+		if (
+			! empty( $taxonomy->graphql_single_name ) &&
+			empty( self::$mutation[ $taxonomy->graphql_single_name ] )
+		) {
 
 			/**
 			 * Set the name of the mutation being performed
@@ -38,10 +41,10 @@ class TermObjectCreate {
 				'inputFields'         => self::input_fields( $taxonomy ),
 				'outputFields'        => [
 					$taxonomy->graphql_single_name => [
-						'type'    => Types::term_object( $taxonomy->name ),
+						'type'        => Types::term_object( $taxonomy->name ),
 						// translators: Placeholder is the name of the taxonomy
 						'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-						'resolve' => function( $payload ) use ( $taxonomy ) {
+						'resolve'     => function( $payload ) use ( $taxonomy ) {
 							return get_term( $payload['id'], $taxonomy->name );
 						},
 					],
@@ -111,7 +114,7 @@ class TermObjectCreate {
 				},
 			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ? self::$mutation[ $taxonomy->graphql_single_name ] : null;
 	}

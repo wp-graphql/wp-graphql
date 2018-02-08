@@ -64,60 +64,60 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
 			self::$fields = [
-				'year' => [
-					'type' => Types::int(),
+				'year'      => [
+					'type'        => Types::int(),
 					'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
 				],
-				'month' => [
-					'type' => Types::int(),
+				'month'     => [
+					'type'        => Types::int(),
 					'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
 				],
-				'week' => [
-					'type' => Types::int(),
+				'week'      => [
+					'type'        => Types::int(),
 					'description' => __( 'Week of the year (from 0 to 53)', 'wp-graphql' ),
 				],
-				'day' => [
-					'type' => Types::int(),
+				'day'       => [
+					'type'        => Types::int(),
 					'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 				],
-				'hour' => [
-					'type' => Types::int(),
+				'hour'      => [
+					'type'        => Types::int(),
 					'description' => __( 'Hour (from 0 to 23)', 'wp-graphql' ),
 				],
-				'minute' => [
-					'type' => Types::int(),
+				'minute'    => [
+					'type'        => Types::int(),
 					'description' => __( 'Minute (from 0 to 59)', 'wp-graphql' ),
 				],
-				'second' => [
-					'type' => Types::int(),
+				'second'    => [
+					'type'        => Types::int(),
 					'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
 				],
-				'after' => [
+				'after'     => [
 					'type' => self::date_after(),
 				],
-				'before' => [
+				'before'    => [
 					'type' => self::date_before(),
 				],
 				'inclusive' => [
-					'type' => Types::boolean(),
+					'type'        => Types::boolean(),
 					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
 				],
-				'compare' => [
-					'type' => Types::string(),
+				'compare'   => [
+					'type'        => Types::string(),
 					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
 				],
-				'column' => [
-					'type' => self::column_enum(),
+				'column'    => [
+					'type'        => self::column_enum(),
 					'description' => __( 'Column to query against', 'wp-graphql' ),
 				],
-				'relation' => [
-					'type' => Types::relation_enum(),
+				'relation'  => [
+					'type'        => Types::relation_enum(),
 					'description' => __( 'OR or AND, how the sub-arrays should be compared', 'wp-graphql' ),
 				],
 			];
-		endif;
+		}
 		return self::prepare_fields( self::$fields, 'DateQuery' );
 	}
 
@@ -129,19 +129,19 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function column_enum() {
 
-		if ( null === self::$column_enum ) :
-			self::$column_enum = new WPEnumType([
-				'name' => 'DateColumn',
+		if ( null === self::$column_enum ) {
+			self::$column_enum = new WPEnumType( [
+				'name'   => 'DateColumn',
 				'values' => [
-					'DATE' => [
+					'DATE'     => [
 						'value' => 'post_date',
 					],
 					'MODIFIED' => [
 						'value' => 'post_modified',
 					],
 				],
-			]);
-		endif;
+			] );
+		}
 		return self::$column_enum;
 	}
 
@@ -153,25 +153,25 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	private static function date_after() {
-		if ( null === self::$date_after ) :
+		if ( null === self::$date_after ) {
 			self::$date_after = new WPInputObjectType( [
-				'name' => 'DateAfter',
+				'name'   => 'DateAfter',
 				'fields' => self::prepare_fields( [
-					'year' => [
-						'type' => Types::int(),
+					'year'  => [
+						'type'        => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
 					],
 					'month' => [
-						'type' => Types::int(),
+						'type'        => Types::int(),
 						'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
 					],
-					'day' => [
-						'type' => Types::int(),
+					'day'   => [
+						'type'        => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
 				], 'DateAfter' ),
 			] );
-		endif;
+		}
 		return self::$date_after;
 	}
 
@@ -184,25 +184,25 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 */
 	private static function date_before() {
 
-		if ( null === self::$date_before ) :
+		if ( null === self::$date_before ) {
 			self::$date_before = new WPInputObjectType( [
-				'name' => 'DateBefore',
+				'name'   => 'DateBefore',
 				'fields' => self::prepare_fields( [
-					'year' => [
-						'type' => Types::int(),
+					'year'  => [
+						'type'        => Types::int(),
 						'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
 					],
 					'month' => [
-						'type' => Types::int(),
+						'type'        => Types::int(),
 						'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
 					],
-					'day' => [
-						'type' => Types::int(),
+					'day'   => [
+						'type'        => Types::int(),
 						'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
 					],
 				], 'DateBefore' ),
 			] );
-		endif;
+		}
 		return self::$date_before;
 	}
 

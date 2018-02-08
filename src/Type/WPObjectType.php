@@ -106,14 +106,14 @@ class WPObjectType extends ObjectType {
 			self::$prepared_fields = [];
 		}
 
-		if ( empty( self::$prepared_fields[ $type_name ] ) ) :
+		if ( empty( self::$prepared_fields[ $type_name ] ) ) {
 			/**
 			 * Filter all object fields, passing the $typename as a param
 			 *
 			 * This is useful when several different types need to be easily filtered at once. . .for example,
 			 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 			 *
-			 * @param array $fields The array of fields for the object config
+			 * @param array  $fields    The array of fields for the object config
 			 * @param string $type_name The name of the object type
 			 */
 			$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
@@ -150,7 +150,7 @@ class WPObjectType extends ObjectType {
 			 */
 			ksort( $fields );
 			self::$prepared_fields[ $type_name ] = $fields;
-		endif;
+		}
 		return ! empty( self::$prepared_fields[ $type_name ] ) ? self::$prepared_fields[ $type_name ] : null;
 	}
 

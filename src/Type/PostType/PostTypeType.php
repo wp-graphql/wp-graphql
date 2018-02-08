@@ -67,177 +67,178 @@ class PostTypeType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
+			 *
 			 * @since 0.0.6
 			 */
 			$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
 			self::$fields = function() use ( $allowed_taxonomies ) {
 				$fields = [
-					'id' => [
-						'type' => Types::non_null( Types::id() ),
+					'id'                     => [
+						'type'    => Types::non_null( Types::id() ),
 						'resolve' => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $post_type->name ) && ! empty( $post_type->name ) ) ? Relay::toGlobalId( 'postType', $post_type->name ) : null;
 						},
 					],
-					'name' => [
-						'type' => Types::string(),
+					'name'                   => [
+						'type'        => Types::string(),
 						'description' => __( 'The internal name of the post type. This should not be used for display purposes.', 'wp-graphql' ),
 					],
-					'label' => [
-						'type' => Types::string(),
+					'label'                  => [
+						'type'        => Types::string(),
 						'description' => __( 'Display name of the content type.', 'wp-graphql' ),
 					],
-					'labels' => [
+					'labels'                 => [
 						'type'        => self::labels_details(),
 						'description' => __( 'Details about the post type labels.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post_Type $post_type, $args, $context, ResolveInfo $info ) {
 							return get_post_type_labels( $post_type );
 						},
 					],
-					'description' => [
-						'type' => Types::string(),
+					'description'            => [
+						'type'        => Types::string(),
 						'description' => __( 'Description of the content type.', 'wp-graphql' ),
 					],
-					'public' => [
-						'type' => Types::boolean(),
+					'public'                 => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether a post type is intended for use publicly either via the admin interface or by front-end users. While the default settings of exclude_from_search, publicly_queryable, show_ui, and show_in_nav_menus are inherited from public, each does not rely on this relationship and controls a very specific intention.', 'wp-graphql' ),
 					],
-					'hierarchical' => [
-						'type' => Types::boolean(),
+					'hierarchical'           => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether the post type is hierarchical, for example pages.', 'wp-graphql' ),
 					],
-					'excludeFromSearch' => [
-						'type' => Types::boolean(),
+					'excludeFromSearch'      => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether to exclude posts with this post type from front end search results.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->exclude_from_search ) ? true : false;
 						},
 					],
-					'publiclyQueryable' => [
-						'type' => Types::boolean(),
+					'publiclyQueryable'      => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether queries can be performed on the front end for the post type as part of parse_request().', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->publicly_queryable ) ? true : false;
 						},
 					],
-					'showUi' => [
-						'type' => Types::boolean(),
+					'showUi'                 => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether to generate and allow a UI for managing this post type in the admin.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_ui ) ? true : false;
 						},
 					],
-					'showInMenu' => [
-						'type' => Types::boolean(),
+					'showInMenu'             => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Where to show the post type in the admin menu. To work, $show_ui must be true. If true, the post type is shown in its own top level menu. If false, no menu is shown. If a string of an existing top level menu (eg. "tools.php" or "edit.php?post_type=page"), the post type will be placed as a sub-menu of that.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_in_menu ) ? true : false;
 						},
 					],
-					'showInNavMenus' => [
-						'type' => Types::boolean(),
+					'showInNavMenus'         => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Makes this post type available for selection in navigation menus.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_in_nav_menus ) ? true : false;
 						},
 					],
-					'showInAdminBar' => [
-						'type' => Types::boolean(),
+					'showInAdminBar'         => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Makes this post type available via the admin bar.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return empty( true === $post_type->show_in_admin_bar ) ? true : false;
 						},
 					],
-					'menuPosition' => [
-						'type' => Types::int(),
+					'menuPosition'           => [
+						'type'        => Types::int(),
 						'description' => __( 'The position of this post type in the menu. Only applies if show_in_menu is true.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->menu_position ) ? $post_type->menu_position : null;
 						},
 					],
-					'menuIcon' => [
-						'type' => Types::string(),
+					'menuIcon'               => [
+						'type'        => Types::string(),
 						'description' => __( 'The name of the icon file to display as a menu icon.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->menu_icon ) ? $post_type->menu_icon : null;
 						},
 					],
-					'hasArchive' => [
-						'type' => Types::boolean(),
+					'hasArchive'             => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether this content type should have archives. Content archives are generated by type and by date.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->has_archive ) ? true : false;
 						},
 					],
-					'canExport' => [
-						'type' => Types::boolean(),
+					'canExport'              => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether this content type should can be exported.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->can_export ) ? true : false;
 						},
 					],
-					'deleteWithUser' => [
-						'type' => Types::boolean(),
+					'deleteWithUser'         => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether delete this type of content when the author of it is deleted from the system.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->delete_with_user ) ? true : false;
 						},
 					],
-					'showInRest' => [
-						'type' => Types::boolean(),
+					'showInRest'             => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_in_rest ) ? true : false;
 						},
 					],
-					'restBase' => [
-						'type' => Types::string(),
+					'restBase'               => [
+						'type'        => Types::string(),
 						'description' => __( 'Name of content type to diplay in REST API `wp/v2` namespace.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->rest_base ) ? $post_type->rest_base : null;
 						},
 					],
-					'restControllerClass' => [
-						'type' => Types::string(),
+					'restControllerClass'    => [
+						'type'        => Types::string(),
 						'description' => __( 'The REST Controller class assigned to handling this content type.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->rest_controller_class ) ? $post_type->rest_controller_class : null;
 						},
 					],
-					'showInGraphql' => [
-						'type' => Types::boolean(),
+					'showInGraphql'          => [
+						'type'        => Types::boolean(),
 						'description' => __( 'Whether to add the post type to the GraphQL Schema.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_in_graphql ) ? true : false;
 						},
 					],
-					'graphqlSingleName' => [
-						'type' => Types::string(),
+					'graphqlSingleName'      => [
+						'type'        => Types::string(),
 						'description' => __( 'The singular name of the post type within the GraphQL Schema.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->graphql_single_name ) ? $post_type->graphql_single_name : null;
 						},
 					],
-					'graphqlPluralName' => [
-						'type' => Types::string(),
+					'graphqlPluralName'      => [
+						'type'        => Types::string(),
 						'description' => __( 'The plural name of the post type within the GraphQL Schema.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->graphql_plural_name ) ? $post_type->graphql_plural_name : null;
 						},
 					],
 					'connectedTaxonomyNames' => [
-						'type' => Types::list_of( Types::string() ),
-						'args' => [
+						'type'        => Types::list_of( Types::string() ),
+						'args'        => [
 							'taxonomies' => [
-								'type' => Types::list_of( Types::taxonomy_enum() ),
+								'type'        => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
 						],
 						'description' => __( 'A list of Taxonomies associated with the post type', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type_object, array $args, $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+						'resolve'     => function( \WP_Post_Type $post_type_object, array $args, $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
 							$object_taxonomies = get_object_taxonomies( $post_type_object->name );
 
@@ -256,19 +257,20 @@ class PostTypeType extends WPObjectType {
 									}
 								}
 							}
+
 							return ! empty( $taxonomy_names ) ? $taxonomy_names : null;
 						},
 					],
-					'connectedTaxonomies' => [
-						'type' => Types::list_of( Types::taxonomy() ),
-						'args' => [
+					'connectedTaxonomies'    => [
+						'type'        => Types::list_of( Types::taxonomy() ),
+						'args'        => [
 							'taxonomies' => [
-								'type' => Types::list_of( Types::taxonomy_enum() ),
+								'type'        => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
 						],
 						'description' => __( 'List of Taxonomies connected to the Post Type', 'wp-graphql' ),
-						'resolve' => function( \WP_Post_Type $post_type_object, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+						'resolve'     => function( \WP_Post_Type $post_type_object, array $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
 							$tax_objects = [];
 
@@ -281,11 +283,12 @@ class PostTypeType extends WPObjectType {
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-										$tax_object = get_taxonomy( $taxonomy );
+										$tax_object                                      = get_taxonomy( $taxonomy );
 										$tax_objects[ $tax_object->graphql_single_name ] = $tax_object;
 									}
 								}
 							}
+
 							return ! empty( $tax_objects ) ? $tax_objects : null;
 						},
 					],
@@ -295,12 +298,13 @@ class PostTypeType extends WPObjectType {
 				/**
 				 * Pass the fields through a filter to allow for hooking in and adjusting the shape
 				 * of the type's schema
+				 *
 				 * @since 0.0.5
 				 */
 				return self::prepare_fields( $fields, self::$type_name );
 
 			};
-		endif;
+		}
 		return self::$fields;
 	}
 

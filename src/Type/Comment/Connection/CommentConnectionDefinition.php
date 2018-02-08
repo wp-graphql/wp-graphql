@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Comment\Connection;
 
 use GraphQL\Type\Definition\InputObjectType;
@@ -10,8 +11,9 @@ use WPGraphQL\Types;
 
 /**
  * Class CommentConnectionDefinition
+ *
  * @package WPGraphQL\Type\Comment\Connection
- * @since 0.0.5
+ * @since   0.0.5
  */
 class CommentConnectionDefinition {
 
@@ -19,37 +21,36 @@ class CommentConnectionDefinition {
 	 * @var array connection
 	 * @since 0.0.5
 	 */
-	private static $connection;
+	private static $connection = [];
 
 	/**
 	 * Holds the input $args for the Connection
+	 *
 	 * @var $args InputObjectType
 	 */
-	private static $args;
+	private static $args = [];
 
 	/**
 	 * connection
 	 * This sets up a connection of comments
+	 *
 	 * @param string $from_type
+	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
 	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) {
-			self::$connection = [];
-		}
-
-		if ( empty( self::$connection[ $from_type ] ) ) :
+		if ( empty( self::$connection[ $from_type ] ) ) {
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::comment(),
-				'name' => ucfirst( $from_type ) . 'Comments',
+				'nodeType'         => Types::comment(),
+				'name'             => ucfirst( $from_type ) . 'Comments',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
-							'type' => Types::list_of( Types::comment() ),
+							'type'        => Types::list_of( Types::comment() ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve' => function( $source, $args, $context, $info ) {
+							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
@@ -59,6 +60,7 @@ class CommentConnectionDefinition {
 
 			/**
 			 * Add the "where" args to the commentConnection
+			 *
 			 * @since 0.0.5
 			 */
 			$args[ $from_type ] = [
@@ -69,14 +71,15 @@ class CommentConnectionDefinition {
 			];
 
 			self::$connection[ $from_type ] = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
-				'args' => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				'args'        => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
+				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
 				},
 			];
-		endif;
+		}
+
 		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 
 	}
@@ -86,21 +89,17 @@ class CommentConnectionDefinition {
 	 * Return the $args to use for the connection
 	 *
 	 * @param string $connection
+	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
 	private static function args( $connection ) {
-
-		if ( null === self::$args ) {
-			self::$args = [];
-		}
 
 		if ( empty( self::$args[ $connection ] ) ) {
 			self::$args[ $connection ] = new CommentConnectionArgs( [], $connection );
 		}
 
 		return self::$args[ $connection ];
-
 
 	}
 

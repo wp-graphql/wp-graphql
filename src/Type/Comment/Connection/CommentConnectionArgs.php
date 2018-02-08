@@ -22,7 +22,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 * @var array $fields
 	 * @since 0.0.5
 	 */
-	public static $fields;
+	public static $fields = [];
 
 	/**
 	 * Holds the orderby Enum definition
@@ -59,137 +59,133 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) {
-			self::$fields = [];
-		}
-
-		if ( empty( self::$fields[ $connection ] ) ) :
+		if ( empty( self::$fields[ $connection ] ) ) {
 			$fields = [
-				'authorEmail' => [
-					'type' => Types::string(),
+				'authorEmail'        => [
+					'type'        => Types::string(),
 					'description' => __( 'Comment author email address.', 'wp-graphql' ),
 				],
-				'authorUrl' => [
-					'type' => Types::string(),
+				'authorUrl'          => [
+					'type'        => Types::string(),
 					'description' => __( 'Comment author URL.', 'wp-graphql' ),
 				],
-				'authorIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'authorIn'           => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of author IDs to include comments for.', 'wp-graphql' ),
 				],
-				'authorNotIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'authorNotIn'        => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of author IDs to exclude comments for.', 'wp-graphql' ),
 				],
-				'commentIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'commentIn'          => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
 				],
-				'commentNotIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'commentNotIn'       => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the 
 							query regardless of status.', 'wp-graphql' ),
 				],
-				'includeUnapproved' => [
-					'type' => Types::list_of( Types::int() ),
+				'includeUnapproved'  => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of author IDs to include comments for.', 'wp-graphql' ),
 				],
-				'karma' => [
-					'type' => Types::int(),
+				'karma'              => [
+					'type'        => Types::int(),
 					'description' => __( 'Karma score to retrieve matching comments for.', 'wp-graphql' ),
 				],
-				'orderby' => [
-					'type' => self::comments_orderby_enum(),
+				'orderby'            => [
+					'type'        => self::comments_orderby_enum(),
 					'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 				],
-				'order' => [
+				'order'              => [
 					'type' => self::comment_order(),
 				],
-				'parent' => [
-					'type' => Types::int(),
+				'parent'             => [
+					'type'        => Types::int(),
 					'description' => __( 'Parent ID of comment to retrieve children of.', 'wp-graphql' ),
 				],
-				'parentIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'parentIn'           => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of parent IDs of comments to retrieve children for.', 'wp-graphql' ),
 				],
-				'parentNotIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'parentNotIn'        => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of parent IDs of comments *not* to retrieve children 
 							for.', 'wp-graphql' ),
 				],
-				'contentAuthorIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'contentAuthorIn'    => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of author IDs to retrieve comments for.', 'wp-graphql' ),
 				],
 				'contentAuthorNotIn' => [
-					'type' => Types::list_of( Types::int() ),
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of author IDs *not* to retrieve comments for.', 'wp-graphql' ),
 				],
-				'contentId' => [
-					'type' => Types::int(),
+				'contentId'          => [
+					'type'        => Types::int(),
 					'description' => __( 'Limit results to those affiliated with a given content object 
 							ID.', 'wp-graphql' ),
 				],
-				'contentIdIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'contentIdIn'        => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of content object IDs to include affiliated comments 
 							for.', 'wp-graphql' ),
 				],
-				'contentIdNotIn' => [
-					'type' => Types::list_of( Types::int() ),
+				'contentIdNotIn'     => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Array of content object IDs to exclude affiliated comments 
 							for.', 'wp-graphql' ),
 				],
-				'contentAuthor' => [
-					'type' => Types::list_of( Types::int() ),
+				'contentAuthor'      => [
+					'type'        => Types::list_of( Types::int() ),
 					'description' => __( 'Content object author ID to limit results by.', 'wp-graphql' ),
 				],
-				'contentStatus' => [
-					'type' => Types::list_of( Types::post_status_enum() ),
+				'contentStatus'      => [
+					'type'        => Types::list_of( Types::post_status_enum() ),
 					'description' => __( 'Array of content object statuses to retrieve affiliated comments for. 
 							Pass \'any\' to match any value.', 'wp-graphql' ),
 				],
-				'contentType' => [
-					'type' => Types::list_of( Types::post_type_enum() ),
+				'contentType'        => [
+					'type'        => Types::list_of( Types::post_type_enum() ),
 					'description' => __( 'Content object type or array of types to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
 				],
-				'contentName' => [
-					'type' => Types::string(),
+				'contentName'        => [
+					'type'        => Types::string(),
 					'description' => __( 'Content object name to retrieve affiliated comments for.', 'wp-graphql' ),
 				],
-				'contentParent' => [
-					'type' => Types::int(),
+				'contentParent'      => [
+					'type'        => Types::int(),
 					'description' => __( 'Content Object parent ID to retrieve affiliated comments for.', 'wp-graphql' ),
 				],
-				'search' => [
-					'type' => Types::string(),
+				'search'             => [
+					'type'        => Types::string(),
 					'description' => __( 'Search term(s) to retrieve matching comments for.', 'wp-graphql' ),
 				],
-				'status' => [
-					'type' => Types::string(),
+				'status'             => [
+					'type'        => Types::string(),
 					'description' => __( 'Comment status to limit results by.', 'wp-graphql' ),
 				],
-				'commentType' => [
-					'type' => Types::string(),
+				'commentType'        => [
+					'type'        => Types::string(),
 					'description' => __( 'Include comments of a given type.', 'wp-graphql' ),
 				],
-				'commentTypeIn' => [
-					'type' => Types::list_of( Types::string() ),
+				'commentTypeIn'      => [
+					'type'        => Types::list_of( Types::string() ),
 					'description' => __( 'Include comments from a given array of comment types.', 'wp-graphql' ),
 				],
-				'commentTypeNotIn' => [
-					'type' => Types::string(),
+				'commentTypeNotIn'   => [
+					'type'        => Types::string(),
 					'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
 				],
-				'userId' => [
-					'type' => Types::int(),
+				'userId'             => [
+					'type'        => Types::int(),
 					'description' => __( 'Include comments for a specific user ID.', 'wp-graphql' ),
 				],
 			];
 
 			self::$fields[ $connection ] = self::prepare_fields( $fields, ucfirst( $connection ) . 'CommentArgs' );
-		endif;
+		}
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ] : null;
 
 	}
@@ -204,67 +200,67 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 */
 	private static function comments_orderby_enum() {
 
-		if ( null === self::$comments_orderby_enum ) :
-			self::$comments_orderby_enum = new WPEnumType([
-				'name' => 'CommentsOrderby',
+		if ( null === self::$comments_orderby_enum ) {
+			self::$comments_orderby_enum = new WPEnumType( [
+				'name'   => 'CommentsOrderby',
 				'values' => [
-					'COMMENT_AGENT' => [
+					'COMMENT_AGENT'        => [
 						'value' => 'comment_agent',
 					],
-					'COMMENT_APPROVED' => [
+					'COMMENT_APPROVED'     => [
 						'value' => 'comment_approved',
 					],
-					'COMMENT_AUTHOR' => [
+					'COMMENT_AUTHOR'       => [
 						'value' => 'comment_author',
 					],
 					'COMMENT_AUTHOR_EMAIL' => [
 						'value' => 'comment_author_email',
 					],
-					'COMMENT_AUTHOR_IP' => [
+					'COMMENT_AUTHOR_IP'    => [
 						'value' => 'comment_author_IP',
 					],
-					'COMMENT_AUTHOR_URL' => [
+					'COMMENT_AUTHOR_URL'   => [
 						'value' => 'comment_author_url',
 					],
-					'COMMENT_CONTENT' => [
+					'COMMENT_CONTENT'      => [
 						'value' => 'comment_content',
 					],
-					'COMMENT_DATE' => [
+					'COMMENT_DATE'         => [
 						'value' => 'comment_date',
 					],
-					'COMMENT_DATE_GMT' => [
+					'COMMENT_DATE_GMT'     => [
 						'value' => 'comment_date_gmt',
 					],
-					'COMMENT_ID' => [
+					'COMMENT_ID'           => [
 						'value' => 'comment_ID',
 					],
-					'COMMENT_KARMA' => [
+					'COMMENT_KARMA'        => [
 						'value' => 'comment_karma',
 					],
-					'COMMENT_PARENT' => [
+					'COMMENT_PARENT'       => [
 						'value' => 'comment_parent',
 					],
-					'COMMENT_POST_ID' => [
+					'COMMENT_POST_ID'      => [
 						'value' => 'comment_post_ID',
 					],
-					'COMMENT_TYPE' => [
+					'COMMENT_TYPE'         => [
 						'value' => 'comment_type',
 					],
-					'USER_ID' => [
+					'USER_ID'              => [
 						'value' => 'user_id',
 					],
-					'COMMENT_IN' => [
+					'COMMENT_IN'           => [
 						'value' => 'comment__in',
 					],
 				],
-			]);
-		endif;
+			] );
+		}
 		return self::$comments_orderby_enum;
 	}
 
 	private static function comment_order() {
 
-		if ( null === self::$comments_order ) :
+		if ( null === self::$comments_order ) {
 			self::$comments_order = new WPEnumType( [
 				'name'         => 'CommentsOrder',
 				'values'       => [
@@ -277,7 +273,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'defaultValue' => 'DESC',
 			] );
-		endif;
+		}
 
 		return self::$comments_order;
 

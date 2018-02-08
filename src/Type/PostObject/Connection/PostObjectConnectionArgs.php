@@ -33,7 +33,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @var array $fields
 	 * @since 0.0.5
 	 */
-	public static $fields;
+	public static $fields = [];
 
 	/**
 	 * This holds the orderby_field input object type
@@ -51,7 +51,8 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 
 	/**
 	 * PostObjectConnectionArgs constructor.
-	 * @param string $connection
+	 * @param array $config Array of Config data for the Input Type
+	 * @param string $connection The name of the connection the args belong to
 	 * @since 0.0.5
 	 */
 	public function __construct( $config = [], $connection ) {
@@ -65,16 +66,13 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 *
 	 * This defines the fields that make up the PostObjectConnectionArgs
 	 *
+	 * @param string $connection The name of the connection the fields belong to
 	 * @return array
 	 * @since 0.0.5
 	 */
 	private static function fields( $connection ) {
 
-		if ( null === self::$fields ) {
-			self::$fields = [];
-		}
-
-		if ( empty( self::$fields[ $connection ] ) ) :
+		if ( empty( self::$fields[ $connection ] ) ) {
 			$fields = [
 
 				/**
@@ -262,7 +260,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 			];
 
 			self::$fields[ $connection ] = self::prepare_fields( $fields, ucfirst( $connection ) . 'QueryArgs' );
-		endif;
+		}
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ] : null;
 	}
 
@@ -313,49 +311,49 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	private static function orderby_enum() {
 
-		if ( null === self::$orderby_enum ) :
-			self::$orderby_enum = new WPEnumType([
-				'name' => 'OrderBy',
+		if ( null === self::$orderby_enum ) {
+			self::$orderby_enum = new WPEnumType( [
+				'name'   => 'OrderBy',
 				'values' => [
-					'AUTHOR' => [
+					'AUTHOR'     => [
 						'value'       => 'post_author',
 						'description' => __( 'Order by author', 'wp-graphql' ),
 					],
-					'TITLE' => [
+					'TITLE'      => [
 						'value'       => 'post_title',
 						'description' => __( 'Order by title', 'wp-graphql' ),
 					],
-					'SLUG' => [
+					'SLUG'       => [
 						'value'       => 'post_name',
 						'description' => __( 'Order by slug', 'wp-graphql' ),
 					],
-					'MODIFIED' => [
+					'MODIFIED'   => [
 						'value'       => 'post_modified',
 						'description' => __( 'Order by last modified date', 'wp-graphql' ),
 					],
-					'DATE' => [
+					'DATE'       => [
 						'value'       => 'post_date',
 						'description' => __( 'Order by publish date', 'wp-graphql' ),
 					],
-					'PARENT' => [
+					'PARENT'     => [
 						'value'       => 'post_parent',
 						'description' => __( 'Order by parent ID', 'wp-graphql' ),
 					],
-					'IN' => [
+					'IN'         => [
 						'value'       => 'post__in',
 						'description' => __( 'Preserve the ID order given in the IN array', 'wp-graphql' ),
 					],
-					'NAME_IN' => [
+					'NAME_IN'    => [
 						'value'       => 'post_name__in',
 						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
 					],
 					'MENU_ORDER' => [
 						'value'       => 'menu_order',
 						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
-					],					
+					],
 				],
-			]);
-		endif;
+			] );
+		}
 		return self::$orderby_enum;
 	}
 

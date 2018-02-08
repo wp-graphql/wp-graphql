@@ -65,7 +65,7 @@ class AvatarType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
 			self::$fields = function() {
 				$fields = [
 					'size'         => [
@@ -109,7 +109,7 @@ class AvatarType extends WPObjectType {
 					'foundAvatar'  => [
 						'type'        => Types::boolean(),
 						'description' => __( 'Whether the avatar was successfully found.', 'wp-graphql' ),
-						'resolve' => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $avatar, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $avatar['found_avatar'] && true === $avatar['found_avatar'] ) ? true : false;
 						},
 					],
@@ -128,7 +128,7 @@ class AvatarType extends WPObjectType {
 				return self::prepare_fields( $fields, self::$type_name );
 
 			};
-		endif;
+		}
 
 		return self::$fields;
 

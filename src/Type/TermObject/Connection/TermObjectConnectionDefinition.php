@@ -21,7 +21,7 @@ class TermObjectConnectionDefinition {
 	 * @since  0.0.5
 	 * @access private
 	 */
-	private static $connection;
+	private static $connection = [];
 
 	/**
 	 * Method that sets up the relay connection for term objects
@@ -32,31 +32,28 @@ class TermObjectConnectionDefinition {
 	 */
 	public static function connection( $taxonomy_object, $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) {
-			self::$connection = [];
-		}
-
-		if ( empty( self::$connection[ $from_type ][ $taxonomy_object->name ] ) ) :
+		if ( empty( self::$connection[ $from_type ][ $taxonomy_object->name ] ) ) {
 			/**
 			 * Setup the connectionDefinition
+			 *
 			 * @since 0.0.5
 			 */
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::term_object( $taxonomy_object->name ),
-				'name' => ucfirst( $from_type ) . ucfirst( $taxonomy_object->graphql_plural_name ),
+				'nodeType'         => Types::term_object( $taxonomy_object->name ),
+				'name'             => ucfirst( $from_type ) . ucfirst( $taxonomy_object->graphql_plural_name ),
 				'connectionFields' => function() use ( $taxonomy_object ) {
 					return [
 						'taxonomyInfo' => [
-							'type' => Types::taxonomy(),
+							'type'        => Types::taxonomy(),
 							'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-							'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+							'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 								return $taxonomy_object;
 							},
 						],
-						'nodes' => [
-							'type' => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
+						'nodes'        => [
+							'type'        => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve' => function( $source, $args, $context, $info ) {
+							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
@@ -66,6 +63,7 @@ class TermObjectConnectionDefinition {
 
 			/**
 			 * Add the "where" args to the termObjectConnections
+			 *
 			 * @since 0.0.5
 			 */
 			$args[ $from_type ] = [
@@ -77,17 +75,18 @@ class TermObjectConnectionDefinition {
 
 			/**
 			 * Add the connection to the post_objects_connection object
+			 *
 			 * @since 0.0.5
 			 */
 			self::$connection[ $from_type ][ $taxonomy_object->name ] = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $taxonomy_object->graphql_plural_name ),
-				'args' => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
-				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+				'args'        => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
+				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 					return DataSource::resolve_term_objects_connection( $source, $args, $context, $info, $taxonomy_object->name );
 				},
 			];
-		endif;
+		}
 		return self::$connection[ $from_type ][ $taxonomy_object->name ];
 	}
 

@@ -18,7 +18,7 @@ class PluginConnectionDefinition {
 	 * @var array connection
 	 * @since 0.0.5
 	 */
-	private static $connection;
+	private static $connection = [];
 
 	/**
 	 * connection
@@ -28,25 +28,22 @@ class PluginConnectionDefinition {
 	 */
 	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) {
-			self::$connection = [];
-		}
-
-		if ( empty( self::$connection[ $from_type ] ) ) :
+		if ( empty( self::$connection[ $from_type ] ) ) {
 
 			/**
 			 * Setup the connectionDefinition
+			 *
 			 * @since 0.0.5
 			 */
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::plugin(),
-				'name' => 'Plugins',
+				'nodeType'         => Types::plugin(),
+				'name'             => 'Plugins',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
-							'type' => Types::list_of( Types::plugin() ),
+							'type'        => Types::list_of( Types::plugin() ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve' => function( $source, $args, $context, $info ) {
+							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
@@ -56,18 +53,20 @@ class PluginConnectionDefinition {
 
 			/**
 			 * Add the connection to the post_objects_connection object
+			 *
 			 * @since 0.0.5
 			 */
 			self::$connection[ $from_type ] = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of plugins', 'wp-graphql' ),
-				'args' => Relay::connectionArgs(),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				'args'        => Relay::connectionArgs(),
+				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_plugins_connection( $source, $args, $context, $info );
 				},
 			];
 
-		endif;
+		}
+
 		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
 
 	}

@@ -21,7 +21,7 @@ class UserConnectionDefinition {
 	 * @since  0.0.5
 	 * @access private
 	 */
-	private static $connection;
+	private static $connection = [];
 
 	/**
 	 * Method that sets up the relay connection for term objects
@@ -32,20 +32,16 @@ class UserConnectionDefinition {
 	 */
 	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) {
-			self::$connection = [];
-		}
-
-		if ( empty( self::$connection[ $from_type ] ) ) :
+		if ( empty( self::$connection[ $from_type ] ) ) {
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::user(),
-				'name' => ucfirst( $from_type ) . 'Users',
+				'nodeType'         => Types::user(),
+				'name'             => ucfirst( $from_type ) . 'Users',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
-							'type' => Types::list_of( Types::user() ),
+							'type'        => Types::list_of( Types::user() ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve' => function( $source, $args, $context, $info ) {
+							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 							},
 						],
@@ -55,6 +51,7 @@ class UserConnectionDefinition {
 
 			/**
 			 * Add the "where" args to the commentConnection
+			 *
 			 * @since 0.0.5
 			 */
 			$args = [
@@ -65,15 +62,17 @@ class UserConnectionDefinition {
 			];
 
 			self::$connection[ $from_type ] = [
-				'type' => $connection['connectionType'],
+				'type'        => $connection['connectionType'],
 				'description' => __( 'A collection of user objects', 'wp-graphql' ),
-				'args' => array_merge( Relay::connectionArgs(), $args ),
-				'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				'args'        => array_merge( Relay::connectionArgs(), $args ),
+				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
 				},
 			];
-		endif;
+		}
+
 		return ! empty( self::$connection[ $from_type ] ) ? self::$connection[ $from_type ] : null;
+
 	}
 
 }
