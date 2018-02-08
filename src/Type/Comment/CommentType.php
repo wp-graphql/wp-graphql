@@ -59,7 +59,7 @@ class CommentType extends WPObjectType {
 	 */
 	private static function fields() {
 
-		if ( null === self::$fields ) :
+		if ( null === self::$fields ) {
 			self::$fields = function() {
 				$fields = [
 					'id'          => [
@@ -168,7 +168,7 @@ class CommentType extends WPObjectType {
 				 *
 				 * @since 0.0.5
 				 */
-				$fields['children'] = CommentConnectionDefinition::connection();
+				$fields['children'] = CommentConnectionDefinition::connection( 'Children' );
 
 				/**
 				 * This prepares the fields by sorting them and applying a filter for adjusting the schema.
@@ -178,7 +178,7 @@ class CommentType extends WPObjectType {
 				 */
 				return self::prepare_fields( $fields, self::$type_name );
 			};
-		endif;
+		}
 
 		return self::$fields;
 	}

@@ -484,13 +484,23 @@ class Types {
 
 	/**
 	 * This returns the definition for the PostObjectConnectionArgs
-	 *
+	 * @param string $connection The connection the args belong to
 	 * @return PostObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function post_object_query_args() {
-		return self::$post_object_query_args ? : ( self::$post_object_query_args = new PostObjectConnectionArgs() );
+	public static function post_object_query_args( $connection ) {
+
+		if ( null === self::$post_object_query_args ) {
+			self::$post_object_query_args = [];
+		}
+
+		if ( empty( self::$post_object_query_args[ $connection ] ) ) {
+			self::$post_object_query_args[ $connection ] = new PostObjectConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$post_object_query_args[ $connection ] ) ? self::$post_object_query_args[ $connection ] : null;
+
 	}
 
 	/**
@@ -586,12 +596,23 @@ class Types {
 	/**
 	 * This returns the definition for the TermObjectConnectionArgs
 	 *
+	 * @param string $connection
 	 * @return TermObjectConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function term_object_query_args() {
-		return self::$term_object_query_args ? : ( self::$term_object_query_args = new TermObjectConnectionArgs() );
+	public static function term_object_query_args( $connection ) {
+
+		if ( null === self::$term_object_query_args ) {
+			self::$term_object_query_args = [];
+		}
+
+		if ( empty( self::$term_object_query_args[ $connection ] ) ) {
+			self::$term_object_query_args[ $connection ] = new TermObjectConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$term_object_query_args[ $connection ] ) ? self::$term_object_query_args[ $connection ] : null;
+
 	}
 
 	/**
@@ -629,12 +650,22 @@ class Types {
 	/**
 	 * This returns the definition for the UserConnectionArgs
 	 *
+	 * @param string $connection The connection the args are for
 	 * @return UserConnectionArgs object
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function user_connection_query_args() {
-		return self::$user_connection_query_args ? : ( self::$user_connection_query_args = new UserConnectionArgs() );
+	public static function user_connection_query_args( $connection ) {
+
+		if ( null === self::$user_connection_query_args ) {
+			self::$user_connection_query_args = [];
+		}
+
+		if ( empty( self::$user_connection_query_args ) ) {
+			self::$user_connection_query_args[ $connection ] = new UserConnectionArgs( [], $connection );
+		}
+
+		return ! empty( self::$user_connection_query_args[ $connection ] ) ? self::$user_connection_query_args[ $connection ] : null;
 	}
 
 	/**
@@ -695,7 +726,7 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\ListOfType
@@ -709,7 +740,7 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\NonNull

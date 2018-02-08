@@ -24,7 +24,10 @@ class TermObjectUpdate {
 	 */
 	public static function mutate( \WP_Taxonomy $taxonomy ) {
 
-		if ( ! empty( $taxonomy->graphql_single_name ) && empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ) :
+		if (
+			! empty( $taxonomy->graphql_single_name )
+			&& empty( self::$mutation[ $taxonomy->graphql_single_name ] )
+		) {
 
 			$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );
 
@@ -46,7 +49,7 @@ class TermObjectUpdate {
 					/**
 					 * Get the ID parts
 					 */
-					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+					$id_parts = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 
 					/**
 					 * Ensure the type for the Global ID matches the type being mutated
@@ -106,8 +109,8 @@ class TermObjectUpdate {
 					/**
 					 * Fires an action when a term is updated via a GraphQL Mutation
 					 *
-					 * @param int $term_id The ID of the term object that was mutated
-					 * @param array $args The args used to update the term
+					 * @param int    $term_id       The ID of the term object that was mutated
+					 * @param array  $args          The args used to update the term
 					 * @param string $mutation_name The name of the mutation being performed (create, update, delete, etc)
 					 */
 					do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name );
@@ -122,7 +125,7 @@ class TermObjectUpdate {
 				},
 			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ?  self::$mutation[ $taxonomy->graphql_single_name ] : null;
 

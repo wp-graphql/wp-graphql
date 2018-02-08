@@ -124,7 +124,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * For example, if we're querying for posts as a field of termObject query, this will automatically
 		 * set the query to pull posts that belong to that term.
 		 */
-		if ( true === is_object( $source ) ) :
+		if ( true === is_object( $source ) ) {
 			switch ( true ) {
 				case $source instanceof \WP_Post:
 					$query_args['post_parent'] = $source->ID;
@@ -145,7 +145,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 					$query_args['author'] = $source->ID;
 					break;
 			}
-		endif;
+		}
 
 		/**
 		 * Merge the input_fields with the default query_args

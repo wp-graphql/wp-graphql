@@ -33,7 +33,7 @@ class TermObjectType extends WPObjectType {
 	 *
 	 * @var $fields
 	 */
-	private static $fields;
+	private static $fields = [];
 
 	/**
 	 * Holds the $taxonomy_object
@@ -86,22 +86,12 @@ class TermObjectType extends WPObjectType {
 		$single_name = self::$taxonomy_object->graphql_single_name;
 
 		/**
-		 * If no fields have been defined for this type already,
-		 * make sure the $fields var is an empty array
-		 *
-		 * @since 0.0.5
-		 */
-		if ( null === self::$fields ) {
-			self::$fields = [];
-		}
-
-		/**
 		 * If the $fields haven't already been defined for this type,
 		 * define the fields
 		 *
 		 * @since 0.0.5
 		 */
-		if ( empty( self::$fields[ $single_name ] ) ) :
+		if ( empty( self::$fields[ $single_name ] ) ) {
 
 			/**
 			 * Get the post_types and taxonomies that are allowed
@@ -120,10 +110,10 @@ class TermObjectType extends WPObjectType {
 			self::$fields[ $single_name ] = function() use ( $single_name, $taxonomy_object, $allowed_post_types ) {
 				$fields = [
 					'id'                => [
-						'type'    => Types::non_null( Types::id() ),
+						'type'        => Types::non_null( Types::id() ),
 						# Placeholder is the name of the taxonomy
 						'description' => __( 'The global ID for the ' . $taxonomy_object->name, 'wp-graphql' ),
-						'resolve' => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
 							return ( ! empty( $term->taxonomy ) && ! empty( $term->term_id ) ) ? Relay::toGlobalId( $term->taxonomy, $term->term_id ) : null;
 						},
 					],
@@ -134,8 +124,8 @@ class TermObjectType extends WPObjectType {
 							return ! empty( $term->term_id ) ? absint( $term->term_id ) : null;
 						},
 					],
-					'count' => [
-						'type' => Types::int(),
+					'count'             => [
+						'type'        => Types::int(),
 						'description' => __( 'The number of objects connected to the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Term $term, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $term->count ) ? absint( $term->count ) : null;
@@ -201,29 +191,30 @@ class TermObjectType extends WPObjectType {
 				 */
 				if ( true === $taxonomy_object->hierarchical ) {
 					$fields['parent'] = [
-						'type' => Types::term_object( $taxonomy_object->name ),
+						'type'        => Types::term_object( $taxonomy_object->name ),
 						'description' => __( 'The parent object', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $term->parent ) ? DataSource::resolve_term_object( $term->parent, $term->taxonomy ) : null;
 						},
 					];
 
 					$fields['ancestors'] = [
-						'type' => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
+						'type'        => Types::list_of( Types::term_object( $taxonomy_object->name ) ),
 						'description' => esc_html__( 'The ancestors of the object', 'wp-graphql' ),
-						'resolve' => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
-							$ancestors = [];
+						'resolve'     => function( \WP_Term $term, $args, AppContext $context, ResolveInfo $info ) {
+							$ancestors    = [];
 							$ancestor_ids = get_ancestors( $term->term_id, $term->taxonomy );
 							if ( ! empty( $ancestor_ids ) ) {
 								foreach ( $ancestor_ids as $ancestor_id ) {
 									$ancestors[] = get_term( $ancestor_id );
 								}
 							}
+
 							return ! empty( $ancestors ) ? $ancestors : null;
 						},
 					];
 
-					$fields['children'] = TermObjectConnectionDefinition::connection( $taxonomy_object );
+					$fields['children'] = TermObjectConnectionDefinition::connection( $taxonomy_object, 'Children' );
 
 				}
 
@@ -236,7 +227,7 @@ class TermObjectType extends WPObjectType {
 					foreach ( $allowed_post_types as $post_type ) {
 						if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
 							$post_type_object                                 = get_post_type_object( $post_type );
-							$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
+							$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object, $taxonomy_object->graphql_single_name );
 						}
 					}
 				}
@@ -252,7 +243,7 @@ class TermObjectType extends WPObjectType {
 				return self::prepare_fields( $fields, $single_name );
 
 			};
-		endif;
+		}
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
 	}
 }

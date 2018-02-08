@@ -30,14 +30,17 @@ class PostObjectUpdate {
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
 
-		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
+		if (
+			! empty( $post_type_object->graphql_single_name ) &&
+			empty( self::$mutation[ $post_type_object->graphql_single_name ] )
+		) {
 
 			/**
 			 * Set the name of the mutation being performed
 			 */
 			$mutation_name = 'Update' . ucwords( $post_type_object->graphql_single_name );
 
-			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId([
+			self::$mutation[ $post_type_object->graphql_single_name ] = Relay::mutationWithClientMutationId( [
 				'name'                => $mutation_name,
 				// translators: The placeholder is the name of the post type being updated
 				'description'         => sprintf( __( 'Updates %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
@@ -141,9 +144,9 @@ class PostObjectUpdate {
 					];
 
 				},
-			]);
+			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 

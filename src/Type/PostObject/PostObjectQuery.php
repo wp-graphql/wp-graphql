@@ -21,19 +21,19 @@ class PostObjectQuery {
 	 * @var array $root_query
 	 * @since 0.0.5
 	 */
-	private static $root_query;
+	private static $root_query = [];
 
 	/**
 	 * Holds the definition of the $post_object_by field
 	 * @var array $post_object_by
 	 */
-	private static $post_object_by;
+	private static $post_object_by = [];
 
 	/**
 	 * Holds the definition for the args that can be input on the $post_object_by field
 	 * @var array $post_object_by_args
 	 */
-	private static $post_object_by_args;
+	private static $post_object_by_args = [];
 
 	/**
 	 * Method that returns the root query field definition for the post object type
@@ -44,23 +44,20 @@ class PostObjectQuery {
 	 */
 	public static function root_query( $post_type_object ) {
 
-		if ( null === self::$root_query ) {
-			self::$root_query = [];
-		}
-
-		if ( ! empty( $post_type_object->name ) && empty( self::$root_query[ $post_type_object->name ] ) ) :
+		if ( ! empty( $post_type_object->name ) && empty( self::$root_query[ $post_type_object->name ] ) ) {
 			self::$root_query[ $post_type_object->name ] = [
-				'type' => Types::post_object( $post_type_object->name ),
+				'type'        => Types::post_object( $post_type_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				'args' => [
+				'args'        => [
 					'id' => Types::non_null( Types::id() ),
 				],
-				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
+
 					return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
 				},
 			];
-		endif;
+		}
 
 		return ! empty( self::$root_query[ $post_type_object->name ] ) ? self::$root_query[ $post_type_object->name ] : null;
 	}
@@ -73,33 +70,29 @@ class PostObjectQuery {
 	 */
 	public static function post_object_by( \WP_Post_Type $post_type_object ) {
 
-		if ( null === self::$post_object_by ) {
-			self::$post_object_by = [];
-		}
-
-		if ( ! empty( $post_type_object->name ) && empty( self::$post_object_by[ $post_type_object->name ] ) ) :
+		if ( ! empty( $post_type_object->name ) && empty( self::$post_object_by[ $post_type_object->name ] ) ) {
 			self::$post_object_by[ $post_type_object->name ] = [
-				'type' => Types::post_object( $post_type_object->name ),
+				'type'        => Types::post_object( $post_type_object->name ),
 				'description' => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				'args' => self::post_object_by_args( $post_type_object ),
-				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'args'        => self::post_object_by_args( $post_type_object ),
+				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 
 					$post_object = null;
-			
+
 					if ( ! empty( $args['id'] ) ) {
 						$id_components = Relay::fromGlobalId( $args['id'] );
-						if ( empty( $id_components['id'] ) || empty( $id_components[ 'type' ] ) ) {
+						if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
 							throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 						}
 						$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
 					} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
-						$id = $args[ $post_type_object->graphql_single_name . 'Id' ];
-						$post_object =  DataSource::resolve_post_object( $id, $post_type_object->name );
+						$id          = $args[ $post_type_object->graphql_single_name . 'Id' ];
+						$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
 					} elseif ( ! empty( $args['uri'] ) ) {
-						$uri = esc_html( $args['uri'] );
+						$uri         = esc_html( $args['uri'] );
 						$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
 					} elseif ( ! empty( $args['slug'] ) ) {
-						$slug = esc_html( $args['slug'] );
+						$slug        = esc_html( $args['slug'] );
 						$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
 					}
 
@@ -119,7 +112,7 @@ class PostObjectQuery {
 
 				},
 			];
-		endif;
+		}
 		return ! empty( self::$post_object_by[ $post_type_object->name ] ) ? self::$post_object_by[ $post_type_object->name ] : null;
 	}
 
@@ -130,10 +123,6 @@ class PostObjectQuery {
 	 * @return mixed
 	 */
 	public static function post_object_by_args( \WP_Post_Type $post_type_object ) {
-
-		if ( null === self::$post_object_by_args ) {
-			self::$post_object_by_args = [];
-		}
 
 		if ( empty( self::$post_object_by_args[ ucfirst( $post_type_object->name ) . 'ByArgs' ] ) ) {
 
