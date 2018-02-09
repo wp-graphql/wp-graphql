@@ -320,6 +320,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			'categoryId'   => 'cat',
 			'categoryName' => 'category_name',
 			'categoryIn'   => 'category__in',
+			'categoryAnd'   => 'category__and',
 			'tagId'        => 'tag_id',
 			'tagIds'       => 'tag__and',
 			'tagSlugAnd'   => 'tag_slug__and',
