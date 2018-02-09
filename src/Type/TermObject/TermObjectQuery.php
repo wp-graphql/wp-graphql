@@ -19,7 +19,7 @@ class TermObjectQuery {
 	 * @var array $root_query
 	 * @since 0.0.5
 	 */
-	private static $root_query;
+	private static $root_query = [];
 
 	/**
 	 * Method that returns the root query field definition for the post object type
@@ -30,18 +30,14 @@ class TermObjectQuery {
 	 */
 	public static function root_query( $taxonomy_object ) {
 
-		if ( null === self::$root_query ) {
-			self::$root_query = [];
-		}
-
-		if ( ! empty( $taxonomy_object->name ) && empty( self::$root_query[ $taxonomy_object->name ] ) ) :
+		if ( ! empty( $taxonomy_object->name ) && empty( self::$root_query[ $taxonomy_object->name ] ) ) {
 			self::$root_query[ $taxonomy_object->name ] = [
-				'type' => Types::term_object( $taxonomy_object->name ),
+				'type'        => Types::term_object( $taxonomy_object->name ),
 				'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
-				'args' => [
+				'args'        => [
 					'id' => Types::non_null( Types::id() ),
 				],
-				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 
 					return DataSource::resolve_term_object( $id_components['id'], $taxonomy_object->name );
@@ -49,7 +45,7 @@ class TermObjectQuery {
 			];
 
 			return self::$root_query[ $taxonomy_object->name ];
-		endif;
+		}
 	}
 
 }

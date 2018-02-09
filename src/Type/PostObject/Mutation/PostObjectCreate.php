@@ -30,7 +30,10 @@ class PostObjectCreate {
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
 
-		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
+		if (
+			! empty( $post_type_object->graphql_single_name ) &&
+			empty( self::$mutation[ $post_type_object->graphql_single_name ] )
+		) {
 
 			/**
 			 * Set the name of the mutation being performed
@@ -78,8 +81,8 @@ class PostObjectCreate {
 
 					/**
 					 * @todo: When we support assigning terms and setting posts as "sticky" we need to check permissions
-					 * @see:https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L504-L506
-					 * @see: https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L496-L498
+					 * @see :https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L504-L506
+					 * @see : https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L496-L498
 					 */
 
 					/**
@@ -129,7 +132,7 @@ class PostObjectCreate {
 
 			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 

@@ -36,7 +36,7 @@ class PostObjectType extends WPObjectType {
 	 *
 	 * @var $fields
 	 */
-	private static $fields;
+	private static $fields = [];
 
 	/**
 	 * Holds the post_type_object
@@ -91,15 +91,6 @@ class PostObjectType extends WPObjectType {
 		 */
 		$single_name = self::$post_type_object->graphql_single_name;
 
-		/**
-		 * If no fields have been defined for this type already,
-		 * make sure the $fields var is an empty array
-		 *
-		 * @since 0.0.5
-		 */
-		if ( null === self::$fields ) {
-			self::$fields = [];
-		}
 
 		/**
 		 * If the $fields haven't already been defined for this type,
@@ -107,7 +98,8 @@ class PostObjectType extends WPObjectType {
 		 *
 		 * @since 0.0.5
 		 */
-		if ( empty( self::$fields[ $single_name ] ) ) :
+		if ( empty( self::$fields[ $single_name ] ) ) {
+
 			/**
 			 * Get the taxonomies that are allowed in WPGraphQL
 			 *
@@ -180,7 +172,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_date_gmt ) ? Types::prepare_date_response( $post->post_date_gmt ): null;
+							return ! empty( $post->post_date_gmt ) ? Types::prepare_date_response( $post->post_date_gmt ) : null;
 						},
 					],
 					'content'           => [
@@ -235,6 +227,7 @@ class PostObjectType extends WPObjectType {
 							}
 
 							$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $post );
+
 							return apply_filters( 'the_excerpt', $excerpt );
 						},
 					],
@@ -291,7 +284,7 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_modified_gmt ) ? Types::prepare_date_response( $post->post_modified_gmt ): null;
+							return ! empty( $post->post_modified_gmt ) ? Types::prepare_date_response( $post->post_modified_gmt ) : null;
 						},
 					],
 					'parent'            => [
@@ -374,8 +367,8 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::list_of( Types::term_object_union() ),
 						'args'        => [
 							'taxonomy' => [
-								'type'         => Types::list_of( Types::taxonomy_enum() ),
-								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'type'        => Types::list_of( Types::taxonomy_enum() ),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
 						],
 						// Translators: placeholder is the name of the post_type
@@ -404,8 +397,8 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
 							'taxonomy' => [
-								'type'         => Types::taxonomy_enum(),
-								'description'  => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+								'type'        => Types::taxonomy_enum(),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
 						],
 						// Translators: placeholder is the name of the post_type
@@ -439,7 +432,7 @@ class PostObjectType extends WPObjectType {
 				 * @since 0.0.5
 				 */
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					$fields['comments']     = CommentConnectionDefinition::connection();
+					$fields['comments']     = CommentConnectionDefinition::connection( $post_type_object->graphql_single_name );
 					$fields['commentCount'] = [
 						'type'        => Types::int(),
 						'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
@@ -453,7 +446,7 @@ class PostObjectType extends WPObjectType {
 				 * If the post_type is Hierarchical, there should be a children field
 				 */
 				if ( true === $post_type_object->hierarchical ) {
-					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object );
+					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
 				}
 
 				/**
@@ -467,7 +460,7 @@ class PostObjectType extends WPObjectType {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							$tax_object                                 = get_taxonomy( $taxonomy );
-							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object );
+							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object, $post_type_object->graphql_single_name );
 						}
 					}
 				}
@@ -494,7 +487,7 @@ class PostObjectType extends WPObjectType {
 				 */
 				return self::prepare_fields( $fields, $single_name );
 			};
-		endif;
+		}
 
 		return ! empty( self::$fields[ $single_name ] ) ? self::$fields[ $single_name ] : null;
 	}

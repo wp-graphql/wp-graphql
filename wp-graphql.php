@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WP GraphQL
- * Plugin URI: https://github.com/dfmedia/wp-graphql
+ * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.24
+ * Version: 0.0.25
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.24
+ * @version  0.0.25
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -105,16 +105,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				self::$instance->filters();
 			}
 
-			new \WPGraphQL\Data\Config();
-			new \WPGraphQL\Router();
-
-			/**
-			 * Fire off init action
-			 *
-			 * @param WPGraphQL $instance The instance of the WPGraphQL class
-			 */
-			do_action( 'graphql_init', self::$instance );
-
 			/**
 			 * Return the WPGraphQL Instance
 			 */
@@ -162,7 +152,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.24' );
+				define( 'WPGRAPHQL_VERSION', '0.0.25' );
 			}
 
 			// Plugin Folder Path.
@@ -226,8 +216,30 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 		 */
 		private function actions() {
-			register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
-			register_activation_hook( __FILE__, [ $this, 'activate' ] );
+
+			/**
+			 * Init WPGraphQL after themes have been setup,
+			 * allowing for both plugins and themes to register
+			 * things before graphql_init
+			 */
+			add_action( 'after_setup_theme', function() {
+
+				new \WPGraphQL\Data\Config();
+				new \WPGraphQL\Router();
+
+				/**
+				 * Fire off init action
+				 *
+				 * @param WPGraphQL $instance The instance of the WPGraphQL class
+				 */
+				do_action( 'graphql_init', self::$instance );
+
+			} );
+
+			/**
+			 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
+			 */
+			add_action( 'wp_loaded', [ $this, 'maybe_flush_permalinks' ] );
 
 			/**
 			 * Register default settings available in WordPress so we can use
@@ -242,6 +254,16 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
 
+		}
+
+		/**
+		 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
+		 */
+		public function maybe_flush_permalinks() {
+			$rules = get_option( 'rewrite_rules' );
+			if ( ! isset( $rules[ \WPGraphQL\Router::$route . '/?$' ] ) ) {
+				flush_rewrite_rules();
+			}
 		}
 
 		/**
@@ -434,6 +456,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * @return \WPGraphQL\WPSchema
 		 */
 		public static function get_schema() {
+
+			/**
+			 * Fire an action when the Schema is returned
+			 */
+			do_action( 'graphql_get_schema', self::$schema );
 
 			if ( null === self::$schema ) {
 
@@ -653,6 +680,54 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			return $result->toArray( GRAPHQL_DEBUG );
 
 		}
+
+		public static function server( $request = null ) {
+
+			/**
+			 * Whether it's a GraphQL Request (http or internal)
+			 *
+			 * @since 0.0.5
+			 */
+			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
+				define( 'GRAPHQL_REQUEST', true );
+			}
+
+			/**
+			 * Setup the post_types and taxonomies to show_in_graphql
+			 */
+			\WPGraphQL::show_in_graphql();
+			\WPGraphQL::get_allowed_post_types();
+			\WPGraphQL::get_allowed_taxonomies();
+
+			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 */
+			$helper = new \GraphQL\Server\Helper();
+			$query = $helper->parseHttpRequest()->query;
+			$operation = $helper->parseHttpRequest()->operation;
+			$variables = $helper->parseHttpRequest()->variables;
+
+			/**
+			 * Run an action as soon when do_graphql_request begins.
+			 *
+			 * @param string $request        The GraphQL request to be run
+			 * @param string $operation_name The name of the operation
+			 * @param string $variables      Variables to be passed to your GraphQL request
+			 */
+			do_action( 'do_graphql_request', $query, $operation, $variables );
+
+			$config = new \GraphQL\Server\ServerConfig();
+			$config
+				->setDebug( GRAPHQL_DEBUG )
+				->setSchema( self::get_schema() )
+				->setContext( self::get_app_context() )
+				->setQueryBatching(true);
+
+			$server = new \GraphQL\Server\StandardServer( $config );
+
+			return $server;
+		}
+
 	}
 endif;
 
@@ -668,13 +743,7 @@ function graphql_init() {
 	 */
 	return \WPGraphQL::instance();
 }
-
-/**
- * Instantiate the plugin
- *
- * @since 0.0.2
- */
-add_action( 'after_setup_theme', 'graphql_init', 10 );
+graphql_init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( 'cli/wp-cli.php' );

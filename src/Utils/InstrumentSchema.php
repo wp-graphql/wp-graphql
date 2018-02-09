@@ -69,6 +69,14 @@ class InstrumentSchema {
 				if ( $field instanceof FieldDefinition ) {
 
 					/**
+					 * Filter the field definition
+					 *
+					 * @param \GraphQL\Type\Definition\FieldDefinition $field The field definition
+					 * @param string $type_name The name of the Type the field belongs to
+					 */
+					$field = apply_filters( 'graphql_field_definition', $field, $type_name );
+
+					/**
 					 * Get the fields resolve function
 					 *
 					 * @since 0.0.1

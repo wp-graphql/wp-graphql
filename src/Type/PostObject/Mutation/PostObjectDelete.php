@@ -29,7 +29,10 @@ class PostObjectDelete {
 	 */
 	public static function mutate( \WP_Post_Type $post_type_object ) {
 
-		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ) :
+		if (
+			! empty( $post_type_object->graphql_single_name ) &&
+			empty( self::$mutation[ $post_type_object->graphql_single_name ] )
+		) {
 
 			/**
 			 * Set the name of the mutation being performed
@@ -52,11 +55,12 @@ class PostObjectDelete {
 					],
 				],
 				'outputFields'        => [
-					'deletedId' => [
+					'deletedId'                            => [
 						'type'        => Types::id(),
 						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
 						'resolve'     => function( $payload ) use ( $post_type_object ) {
 							$deleted = (object) $payload['postObject'];
+
 							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 						},
 					],
@@ -65,6 +69,7 @@ class PostObjectDelete {
 						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
 						'resolve'     => function( $payload ) {
 							$deleted = (object) $payload['postObject'];
+
 							return ! empty( $deleted ) ? $deleted : null;
 						},
 					],
@@ -125,7 +130,7 @@ class PostObjectDelete {
 				},
 			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 

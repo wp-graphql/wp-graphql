@@ -57,7 +57,7 @@ before_script:
   - bash bin/install-wp-tests.sh wpgraphql_test root '' 127.0.0.1 $WP_VERSION
   # Update composer
   - composer self-update
-  # Install APIGen and PHPUnit, using the specified version for the PHP version we're running
+  # Install APIGen
   - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
   - composer install --no-interaction
   # Make a directory for storing logs
@@ -98,11 +98,11 @@ after_success:
       graphql-schema-linter ./schema.graphql
     fi
   # Generate the APIGen Docs
-  - |
-    if [ $APIGEN_DOCS == true ]; then
-      cd $TRAVIS_BUILD_DIR
-      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
-    fi
+  #  - |
+  #    if [ $APIGEN_DOCS == true ]; then
+  #      cd $TRAVIS_BUILD_DIR
+  #      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
+  #    fi
 
 deploy:
   # Deploy the Generated API docs to the wp-graphql-api-docs repo

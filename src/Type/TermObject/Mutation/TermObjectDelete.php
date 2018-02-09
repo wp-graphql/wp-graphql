@@ -24,38 +24,43 @@ class TermObjectDelete {
 	 */
 	public static function mutate( \WP_Taxonomy $taxonomy ) {
 
-		if ( ! empty( $taxonomy->graphql_single_name ) && empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ) :
+		if (
+			! empty( $taxonomy->graphql_single_name ) &&
+			empty( self::$mutation[ $taxonomy->graphql_single_name ] )
+		) {
 
 			/**
 			 * Set the name of the mutation being performed
 			 */
 			$mutation_name = 'Delete' . ucwords( $taxonomy->graphql_single_name );
 
-			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId([
-				'name' => esc_html( $mutation_name ),
+			self::$mutation[ $taxonomy->graphql_single_name ] = Relay::mutationWithClientMutationId( [
+				'name'                => esc_html( $mutation_name ),
 				// Translators: The placeholder is the taxonomy name of the term being deleted
-				'description' => sprintf( esc_html__( 'Delete %1$s objects', 'wp-graphql' ), $taxonomy->graphql_single_name ),
-				'inputFields' => [
+				'description'         => sprintf( esc_html__( 'Delete %1$s objects', 'wp-graphql' ), $taxonomy->graphql_single_name ),
+				'inputFields'         => [
 					'id' => [
-						'type' => Types::non_null( Types::id() ),
+						'type'        => Types::non_null( Types::id() ),
 						// translators: The placeholder is the name of the taxonomy for the term being deleted
 						'description' => sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $taxonomy->graphql_single_name ),
 					],
 				],
-				'outputFields' => [
-					'deletedId' => [
-						'type' => Types::id(),
+				'outputFields'        => [
+					'deletedId'                    => [
+						'type'        => Types::id(),
 						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-						'resolve' => function( $payload ) use ( $taxonomy ) {
+						'resolve'     => function( $payload ) use ( $taxonomy ) {
 							$deleted = (object) $payload['termObject'];
+
 							return ! empty( $deleted->term_id ) ? Relay::toGlobalId( $taxonomy->name, $deleted->term_id ) : null;
 						},
 					],
 					$taxonomy->graphql_single_name => [
-						'type' => Types::term_object( $taxonomy->name ),
+						'type'        => Types::term_object( $taxonomy->name ),
 						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-						'resolve' => function( $payload ) use ( $taxonomy ) {
+						'resolve'     => function( $payload ) use ( $taxonomy ) {
 							$deleted = (object) $payload['termObject'];
+
 							return ! empty( $deleted ) ? $deleted : null;
 						},
 					],
@@ -118,9 +123,9 @@ class TermObjectDelete {
 					];
 
 				},
-			]);
+			] );
 
-		endif; // End if().
+		}
 
 		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ? self::$mutation[ $taxonomy->graphql_single_name ] : null;
 
