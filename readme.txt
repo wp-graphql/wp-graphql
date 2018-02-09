@@ -1,5 +1,5 @@
 === WPGraphQL ===
-Contributors: jasonbahl, ryankanner, chopinbach
+Contributors: jasonbahl, ryankanner, chopinbach, hughdevore
 Tags: GraphQL, API, HTTP, Remote, Query Language
 Requires at least: 4.7.0
 Tested up to: 4.8.1
