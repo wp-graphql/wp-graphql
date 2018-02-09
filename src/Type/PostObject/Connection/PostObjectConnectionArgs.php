@@ -119,6 +119,11 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Array of category IDs, used to display objects from one 
 										category OR another', 'wp-graphql' ),
 				],
+				'categoryAnd'   => [
+					'type'        => Types::list_of( Types::int() ),
+					'description' => __( 'Array of category IDs, used to display objects from one
+										or more categories', 'wp-graphql' ),
+				],
 
 				/**
 				 * Tag $args
