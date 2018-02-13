@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -53,7 +55,7 @@ class PostObjectCreate {
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 					/**
 					 * Throw an exception if there's no input
@@ -145,7 +147,7 @@ class PostObjectCreate {
 					 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 					 * postObject that was created so that relations can be set, meta can be updated, etc.
 					 */
-					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name );
+					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
 					/**
 					 * Determine whether the intended status should be set or not.
@@ -161,10 +163,12 @@ class PostObjectCreate {
 					 * @param boolean $should_set_intended_status Whether to set the intended post_status or not. Default true.
 					 * @param \WP_Post_Type $post_type_object The Post Type Object for the post being mutated
 					 * @param string $mutation_name The name of the mutation currently in progress
-					 * @param string $intended_post_status The intended post_status the post should have according to the mutation input
-					 * @param string $default_post_status The default status posts should use if an intended status wasn't set
+					 * @param AppContext  $context              The AppContext passed down to all resolvers
+					 * @param ResolveInfo $info                 The ResolveInfo passed down to all resolvers
+					 * @param string      $intended_post_status The intended post_status the post should have according to the mutation input
+					 * @param string      $default_post_status  The default status posts should use if an intended status wasn't set
 					 */
-					$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $intended_post_status, $default_post_status  );
+					$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status  );
 
 					/**
 					 * If the intended post status and the default post status are not the same,
@@ -180,7 +184,6 @@ class PostObjectCreate {
 							'edit_date' => ! empty( $post_args['post_date'] ) ? $post_args['post_date'] : false,
 						];
 
-						$update_args = array_merge( $update_args );
 						wp_update_post( $update_args );
 					}
 
