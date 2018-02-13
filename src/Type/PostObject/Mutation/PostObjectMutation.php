@@ -284,7 +284,7 @@ class PostObjectMutation {
 	 *                                            mutation input
 	 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
 	 */
-	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info, $default_post_status, $intended_post_status ) {
+	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info, $default_post_status = null, $intended_post_status = null ) {
 
 		/**
 		 * Set the post_lock for the $new_post_id
