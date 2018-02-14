@@ -97,9 +97,9 @@ class PostObjectCreate {
 					 * allow other plugins to override the default (for example, Edit Flow, which provides control over
 					 * customizing stati or various E-commerce plugins that make heavy use of custom stati)
 					 *
-					 * @param string $default_status The default status to be used when the post is initially inserted
+					 * @param string        $default_status   The default status to be used when the post is initially inserted
 					 * @param \WP_Post_Type $post_type_object The Post Type that is being inserted
-					 * @param string $mutation_name The name of the mutation currently in progress
+					 * @param string        $mutation_name    The name of the mutation currently in progress
 					 */
 					$default_post_status = apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
 
@@ -160,15 +160,15 @@ class PostObjectCreate {
 					 * be deferred (cron or whatever), and when those actions complete they could come back and set
 					 * the $intended_status.
 					 *
-					 * @param boolean $should_set_intended_status Whether to set the intended post_status or not. Default true.
-					 * @param \WP_Post_Type $post_type_object The Post Type Object for the post being mutated
-					 * @param string $mutation_name The name of the mutation currently in progress
-					 * @param AppContext  $context              The AppContext passed down to all resolvers
-					 * @param ResolveInfo $info                 The ResolveInfo passed down to all resolvers
-					 * @param string      $intended_post_status The intended post_status the post should have according to the mutation input
-					 * @param string      $default_post_status  The default status posts should use if an intended status wasn't set
+					 * @param boolean       $should_set_intended_status Whether to set the intended post_status or not. Default true.
+					 * @param \WP_Post_Type $post_type_object           The Post Type Object for the post being mutated
+					 * @param string        $mutation_name              The name of the mutation currently in progress
+					 * @param AppContext    $context                    The AppContext passed down to all resolvers
+					 * @param ResolveInfo   $info                       The ResolveInfo passed down to all resolvers
+					 * @param string        $intended_post_status       The intended post_status the post should have according to the mutation input
+					 * @param string        $default_post_status        The default status posts should use if an intended status wasn't set
 					 */
-					$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status  );
+					$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status );
 
 					/**
 					 * If the intended post status and the default post status are not the same,
@@ -189,13 +189,15 @@ class PostObjectCreate {
 						 * proceed and update the status.
 						 */
 						if ( $intended_post_status !== $new_post->post_status ) {
-							global $wpdb;
+							$update_args = [
+								'ID'          => $post_id,
+								'post_status' => $intended_post_status,
+								// Prevent the post_date from being reset if the date was included in the create post $args
+								// see: https://core.trac.wordpress.org/browser/tags/4.9/src/wp-includes/post.php#L3637
+								'edit_date'   => ! empty( $post_args['post_date'] ) ? $post_args['post_date'] : false,
+							];
 
-							$wpdb->update( $wpdb->posts, [ 'post_status' => $intended_post_status ], [ 'ID' => $new_post->ID ] );
-							clean_post_cache( $new_post->ID );
-							$old_status = $new_post->post_status;
-							$new_post->post_status = 'publish';
-							wp_transition_post_status( 'publish', $old_status, $new_post );
+							wp_update_post( $update_args );
 						}
 
 					}
