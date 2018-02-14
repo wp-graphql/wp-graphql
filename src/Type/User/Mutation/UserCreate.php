@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\User\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -43,7 +45,7 @@ class UserCreate {
 						}
 					]
 				],
-				'mutateAndGetPayload' => function( $input ) {
+				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) {
 
 					if ( ! current_user_can( 'create_users' ) ) {
 						throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
@@ -81,7 +83,7 @@ class UserCreate {
 					/**
 					 * Update additional user data
 					 */
-					UserMutation::update_additional_user_object_data( $user_id, $input, 'create' );
+					UserMutation::update_additional_user_object_data( $user_id, $input, 'create', $context, $info );
 
 					/**
 					 * Return the new user ID

@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -46,7 +48,7 @@ class MediaItemUpdate {
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 				$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 				$existing_media_item = get_post( absint( $id_parts['id'] ) );
@@ -113,7 +115,7 @@ class MediaItemUpdate {
 				 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 				 * postObject that was updated so that relations can be set, meta can be updated, etc.
 				 */
-				MediaItemMutation::update_additional_media_item_data( $post_id, $input, $post_type_object, $mutation_name );
+				MediaItemMutation::update_additional_media_item_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 				/**
 				 * Return the payload

@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\TermObject\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 class TermObjectCreate {
@@ -49,7 +51,7 @@ class TermObjectCreate {
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
+				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 					/**
 					 * Ensure the user can edit_terms
@@ -101,11 +103,13 @@ class TermObjectCreate {
 					 *
 					 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 					 *
-					 * @param int    $term_id       Inserted term object
-					 * @param array  $args          The args used to insert the term
-					 * @param string $mutation_name The name of the mutation being performed
+					 * @param int         $term_id       Inserted term object
+					 * @param array       $args          The args used to insert the term
+					 * @param string      $mutation_name The name of the mutation being performed
+					 * @param AppContext  $context       The AppContext passed down the resolve tree
+					 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
 					 */
-					do_action( "graphql_insert_{$taxonomy->name}", $term['term_id'], $args, $mutation_name );
+					do_action( "graphql_insert_{$taxonomy->name}", $term['term_id'], $args, $mutation_name, $context, $info );
 
 					return [
 						'id' => $term['term_id'],

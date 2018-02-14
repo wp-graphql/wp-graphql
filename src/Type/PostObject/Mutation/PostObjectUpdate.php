@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -53,7 +55,7 @@ class PostObjectUpdate {
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 					$existing_post = get_post( absint( $id_parts['id'] ) );
@@ -134,7 +136,7 @@ class PostObjectUpdate {
 					 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 					 * postObject that was updated so that relations can be set, meta can be updated, etc.
 					 */
-					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name );
+					PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 					/**
 					 * Return the payload
