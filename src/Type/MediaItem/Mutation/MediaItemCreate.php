@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -46,7 +48,7 @@ class MediaItemCreate {
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 				/**
 				 * Stop now if a user isn't allowed to upload a mediaItem
@@ -180,7 +182,7 @@ class MediaItemCreate {
 				/**
 				 * Update alt text postmeta for mediaItem
 				 */
-				MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, $post_type_object, $mutation_name );
+				MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 				return [
 					'id' => $attachment_id,

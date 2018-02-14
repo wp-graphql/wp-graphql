@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\User\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -42,7 +43,7 @@ class UserUpdate {
 							return get_user_by( 'ID', $payload['userId'] );
 						}
 					]
-				], 'mutateAndGetPayload' => function( $input ) {
+				], 'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 					$existing_user = get_user_by( 'ID', $id_parts['id'] );
@@ -95,7 +96,7 @@ class UserUpdate {
 					/**
 					 * Update additional user data
 					 */
-					UserMutation::update_additional_user_object_data( $user_id, $input, 'update' );
+					UserMutation::update_additional_user_object_data( $user_id, $input, 'update', $context, $info );
 
 					/**
 					 * Return the new user ID

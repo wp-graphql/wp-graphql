@@ -3,6 +3,8 @@
 namespace WPGraphQL\Type\User\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -205,11 +207,13 @@ class UserMutation {
 	/**
 	 * This updates additional data related to the user object after the initial mutation has happened
 	 *
-	 * @param int    $user_id       The ID of the user being mutated
-	 * @param array  $input         The input data from the GraphQL query
-	 * @param string $mutation_name Name of the mutation currently being run
+	 * @param int         $user_id       The ID of the user being mutated
+	 * @param array       $input         The input data from the GraphQL query
+	 * @param string      $mutation_name Name of the mutation currently being run
+	 * @param AppContext  $context       The AppContext passed down the resolve tree
+	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
 	 */
-	public static function update_additional_user_object_data( $user_id, $input, $mutation_name ) {
+	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
 		$roles = ! empty( $input['roles'] ) ? $input['roles'] : [];
 		self::add_user_roles( $user_id, $roles );
@@ -219,11 +223,13 @@ class UserMutation {
 		 * update additional data related to users, such as setting relationships, updating additional usermeta,
 		 * or sending emails to Kevin... whatever you need to do with the userObject.
 		 *
-		 * @param int    $user_id       The ID of the user being mutated
-		 * @param array  $input         The input for the mutation
-		 * @param string $mutation_name The name of the mutation (ex: create, update, delete)
+		 * @param int         $user_id       The ID of the user being mutated
+		 * @param array       $input         The input for the mutation
+		 * @param string      $mutation_name The name of the mutation (ex: create, update, delete)
+		 * @param AppContext  $context       The AppContext passed down the resolve tree
+		 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
 		 */
-		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name );
+		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
 
 	}
 

@@ -176,15 +176,28 @@ class PostObjectCreate {
 					 */
 					if ( $intended_post_status !== $default_post_status && true === $should_set_intended_status ) {
 
-						$update_args = [
-							'ID' => $post_id,
-							'post_status' => $intended_post_status,
-							// Prevent the post_date from being reset if the date was included in the create post $args
-							// see: https://core.trac.wordpress.org/browser/tags/4.9/src/wp-includes/post.php#L3637
-							'edit_date' => ! empty( $post_args['post_date'] ) ? $post_args['post_date'] : false,
-						];
+						/**
+						 * If the post was deleted by a side effect action before getting here,
+						 * don't proceed.
+						 */
+						if ( ! $new_post = get_post( $post_id ) ) {
+							throw new UserError( sprintf( __( 'The status of the post could not be set', 'wp-graphql' ) ) );
+						}
 
-						wp_update_post( $update_args );
+						/**
+						 * If the $intended_post_status is different than the current status of the post
+						 * proceed and update the status.
+						 */
+						if ( $intended_post_status !== $new_post->post_status ) {
+							global $wpdb;
+
+							$wpdb->update( $wpdb->posts, [ 'post_status' => $intended_post_status ], [ 'ID' => $new_post->ID ] );
+							clean_post_cache( $new_post->ID );
+							$old_status = $new_post->post_status;
+							$new_post->post_status = 'publish';
+							wp_transition_post_status( 'publish', $old_status, $new_post );
+						}
+
 					}
 
 					/**

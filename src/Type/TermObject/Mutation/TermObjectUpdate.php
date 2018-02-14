@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\TermObject\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 class TermObjectUpdate {
@@ -44,7 +46,7 @@ class TermObjectUpdate {
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
+				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 					/**
 					 * Get the ID parts
@@ -109,11 +111,13 @@ class TermObjectUpdate {
 					/**
 					 * Fires an action when a term is updated via a GraphQL Mutation
 					 *
-					 * @param int    $term_id       The ID of the term object that was mutated
-					 * @param array  $args          The args used to update the term
-					 * @param string $mutation_name The name of the mutation being performed (create, update, delete, etc)
+					 * @param int         $term_id       The ID of the term object that was mutated
+					 * @param array       $args          The args used to update the term
+					 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
+					 * @param AppContext  $context       The AppContext passed down the resolve tree
+					 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
 					 */
-					do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name );
+					do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name, $context, $info );
 
 					/**
 					 * Return the payload
@@ -127,7 +131,7 @@ class TermObjectUpdate {
 
 		}
 
-		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ?  self::$mutation[ $taxonomy->graphql_single_name ] : null;
+		return ! empty( self::$mutation[ $taxonomy->graphql_single_name ] ) ? self::$mutation[ $taxonomy->graphql_single_name ] : null;
 
 	}
 
@@ -150,8 +154,8 @@ class TermObjectUpdate {
 					// Translators: The placeholder is the name of the taxonomy for the object being mutated
 					'description' => sprintf( __( 'The name of the %1$s object to mutate', 'wp-graphql' ), $taxonomy->name ),
 				],
-				'id' => [
-					'type' => Types::non_null( Types::id() ),
+				'id'   => [
+					'type'        => Types::non_null( Types::id() ),
 					// Translators: The placeholder is the taxonomy of the term being updated
 					'description' => sprintf( __( 'The ID of the %1$s object to update', 'wp-graphql' ), $taxonomy->graphql_single_name ),
 				],
