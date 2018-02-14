@@ -1,7 +1,10 @@
 <?php
+
 namespace WPGraphQL\Type\MediaItem\Mutation;
 
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Types;
 
 /**
@@ -202,12 +205,14 @@ class MediaItemMutation {
 	/**
 	 * This updates additional data related to a mediaItem, such as postmeta.
 	 *
-	 * @param int           $media_item_id
-	 * @param array         $input
-	 * @param \WP_Post_Type $post_type_object
-	 * @param string        $mutation_name
+	 * @param int           $media_item_id    The ID of the media item being mutated
+	 * @param array         $input            The input on the mutation
+	 * @param \WP_Post_Type $post_type_object The Post Type Object for the item being mutated
+	 * @param string        $mutation_name    The name of the mutation
+	 * @param AppContext    $context          The AppContext that is passed down the resolve tree
+	 * @param ResolveInfo   $info             The ResolveInfo that is passed down the resolve tree
 	 */
-	public static function update_additional_media_item_data( $media_item_id, $input, $post_type_object, $mutation_name ) {
+	public static function update_additional_media_item_data( $media_item_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Update alt text postmeta for the mediaItem
@@ -219,14 +224,16 @@ class MediaItemMutation {
 		/**
 		 * Run an action after the additional data has been updated. This is a great spot to hook into to
 		 * update additional data related to mediaItems, such as updating additional postmeta,
-		 * or sending emails to Jason. . .whatever you need to do with the mediaItem.
+		 * or sending emails to Kevin. . .whatever you need to do with the mediaItem.
 		 *
 		 * @param int           $media_item_id    The ID of the mediaItem being mutated
 		 * @param array         $input            The input for the mutation
 		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
 		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 * @param AppContext    $context          The AppContext that is passed down the resolve tree
+		 * @param ResolveInfo   $info             The ResolveInfo that is passed down the resolve tree
 		 */
-		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name );
+		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 	}
 
