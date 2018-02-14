@@ -380,7 +380,7 @@ class PostObjectType extends WPObjectType {
 							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
-							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
+							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? $args['taxonomy'] : $allowed_taxonomies;
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									$tax_terms = get_the_terms( $post->ID, $taxonomy );
@@ -410,7 +410,7 @@ class PostObjectType extends WPObjectType {
 							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
-							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
+							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? $args['taxonomy'] : $allowed_taxonomies;
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									$tax_terms = get_the_terms( $post->ID, $taxonomy );
