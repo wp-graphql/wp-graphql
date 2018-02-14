@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -105,25 +107,25 @@ class PostObjectMutation {
 				foreach ( $allowed_taxonomies as $taxonomy ) {
 					// If the taxonomy is in the array of taxonomies registered to the post_type
 					if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-						$tax_object                                       = get_taxonomy( $taxonomy );
+						$tax_object = get_taxonomy( $taxonomy );
 
 						$node_input = new WPInputObjectType( [
-							'name'   => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'Nodes',
+							'name'        => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'Nodes',
 							'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
-							'fields' => [
-								'id'   => [
+							'fields'      => [
+								'id'          => [
 									'type'        => Types::id(),
 									'description' => sprintf( __( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ), $tax_object->graphql_single_name, $post_type_object->graphql_single_name ),
 								],
-								'slug' => [
+								'slug'        => [
 									'type'        => Types::string(),
 									'description' => sprintf( __( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
 								],
-								'description'   => [
+								'description' => [
 									'type'        => Types::string(),
 									'description' => sprintf( __( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
 								],
-								'name'   => [
+								'name'        => [
 									'type'        => Types::string(),
 									'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
 								],
@@ -132,7 +134,7 @@ class PostObjectMutation {
 
 						$input_fields[ $tax_object->graphql_plural_name ] = [
 							'description' => sprintf( __( 'Set connections between the %1$s and %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
-							'type' => new WPInputObjectType( [
+							'type'        => new WPInputObjectType( [
 								'name'        => ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ),
 								'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
 								'fields'      => [
@@ -272,12 +274,17 @@ class PostObjectMutation {
 	/**
 	 * This updates additional data related to a post object, such as postmeta, term relationships, etc.
 	 *
-	 * @param int           $post_id          $post_id      The ID of the postObject being mutated
-	 * @param array         $input            The input for the mutation
-	 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
-	 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+	 * @param int           $post_id              $post_id      The ID of the postObject being mutated
+	 * @param array         $input                The input for the mutation
+	 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+	 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
+	 * @param AppContext    $context              The AppContext passed down to all resolvers
+	 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
+	 * @param string        $intended_post_status The intended post_status the post should have according to the
+	 *                                            mutation input
+	 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
 	 */
-	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name ) {
+	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info, $default_post_status = null, $intended_post_status = null ) {
 
 		/**
 		 * Set the post_lock for the $new_post_id
@@ -311,12 +318,16 @@ class PostObjectMutation {
 		 * update additional data related to postObjects, such as setting relationships, updating additional postmeta,
 		 * or sending emails to Kevin. . .whatever you need to do with the postObject.
 		 *
-		 * @param int           $post_id          $post_id      The ID of the postObject being mutated
-		 * @param array         $input            The input for the mutation
-		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 * @param int           $post_id              The ID of the postObject being mutated
+		 * @param array         $input                The input for the mutation
+		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext    $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
+		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
 		 */
-		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name );
+		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
 	}
 
@@ -387,8 +398,8 @@ class PostObjectMutation {
 						 * but if filtered to false, this will prevent the term that doesn't already exist
 						 * from being created during the mutation of the post.
 						 *
-						 * @param bool $allow_term_creation Whether new terms should be created during the post object mutation
-						 * @param \WP_Taxonomy $tax_object The Taxonomy object for the term being added to the Post Object
+						 * @param bool         $allow_term_creation Whether new terms should be created during the post object mutation
+						 * @param \WP_Taxonomy $tax_object          The Taxonomy object for the term being added to the Post Object
 						 */
 						$allow_term_creation = apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
 
@@ -397,7 +408,7 @@ class PostObjectMutation {
 						 */
 						if ( ! empty( $term_input['nodes'] ) && is_array( $term_input['nodes'] ) ) {
 
-							foreach( $term_input['nodes'] as $node ) {
+							foreach ( $term_input['nodes'] as $node ) {
 
 								$term_exists = false;
 
@@ -427,19 +438,19 @@ class PostObjectMutation {
 										}
 									}
 
-								/**
-								 * Next, handle the input for slug if there wasn't an ID input
-								 */
+									/**
+									 * Next, handle the input for slug if there wasn't an ID input
+									 */
 								} elseif ( ! empty( $node['slug'] ) ) {
 									$sanitized_slug = sanitize_text_field( $node['slug'] );
-									$term_exists = get_term_by( 'slug', $sanitized_slug, $tax_object->name );
+									$term_exists    = get_term_by( 'slug', $sanitized_slug, $tax_object->name );
 									if ( $term_exists ) {
 										$terms_to_connect[] = $term_exists->term_id;
 									}
-								/**
-								 * If the input for the term isn't an existing term, check to make sure
-								 * we're allowed to create new terms during a Post Object mutation
-								 */
+									/**
+									 * If the input for the term isn't an existing term, check to make sure
+									 * we're allowed to create new terms during a Post Object mutation
+									 */
 								}
 
 								/**
@@ -494,16 +505,16 @@ class PostObjectMutation {
 	/**
 	 * Given an array of Term properties (slug, name, description, etc), create the term and return a term_id
 	 *
-	 * @param array $node The node input for the term
+	 * @param array  $node     The node input for the term
 	 * @param string $taxonomy The taxonomy the term input is for
 	 *
 	 * @return int $term_id The ID of the created term. 0 if no term was created.
 	 */
 	protected static function create_term_to_connect( $node, $taxonomy ) {
 
-		$created_term = [];
+		$created_term   = [];
 		$term_to_create = [];
-		$term_args = [];
+		$term_args      = [];
 
 		if ( ! empty( $node['name'] ) ) {
 			$term_to_create['name'] = sanitize_text_field( $node['name'] );

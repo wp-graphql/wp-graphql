@@ -626,8 +626,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
         $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
         $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+        $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+        $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
     }
 
@@ -663,8 +663,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
         $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
         $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
     }
 
@@ -701,8 +701,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
         $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
         $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['modified'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['modifiedGmt'] );
+	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
     }
 
