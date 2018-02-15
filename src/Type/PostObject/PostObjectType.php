@@ -383,7 +383,14 @@ class PostObjectType extends WPObjectType {
 							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
-									$tax_terms = get_the_terms( $post->ID, $taxonomy );
+
+									$term_query = new \WP_Term_Query([
+										'taxonomy' => $taxonomy,
+										'object_ids' => [ $post->ID ],
+									]);
+
+									$tax_terms = $term_query->get_terms();
+
 									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
 										$terms = array_merge( $terms, $tax_terms );
 									}
@@ -413,7 +420,14 @@ class PostObjectType extends WPObjectType {
 							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
 							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 								foreach ( $allowed_taxonomies as $taxonomy ) {
-									$tax_terms = get_the_terms( $post->ID, $taxonomy );
+
+									$term_query = new \WP_Term_Query([
+										'taxonomy' => $taxonomy,
+										'object_ids' => [ $post->ID ],
+									]);
+
+									$tax_terms = $term_query->get_terms();
+
 									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
 										$terms = array_merge( $terms, $tax_terms );
 									}
