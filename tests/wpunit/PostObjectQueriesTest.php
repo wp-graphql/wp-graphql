@@ -513,8 +513,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			  postId
 			  title
 			  tagSlugs:termSlugs(taxonomies:[TAG])
-			  catSlugs:termSlugs(taxonomies:[TAG])
-			  termNames(taxonomies:[TAG, CATEGORY])
+			  catSlugs:termSlugs(taxonomies:[CATEGORY])
+			  termSlugs
+			  catNames:termNames(taxonomies:[CATEGORY])
+			  tagNames:termNames(taxonomies:[TAG])
+			  termNames
 			  tags:terms(taxonomies:[TAG]) {
 			     ... on Tag {
 			       slug
@@ -553,11 +556,20 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $post_id, $post['postId'] );
 		$this->assertEquals( $post_title, $post['title'] );
+
+		// Slug fields
 		$this->assertTrue( in_array( $tag_name, $post['tagSlugs'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['catSlugs'], true ) );
+		$this->assertTrue( in_array( $tag_name, $post['termSlugs'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['termSlugs'], true ) );
+
+		// Name fields
+		$this->assertTrue( in_array( $tag_name, $post['tagNames'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['catNames'], true ) );
 		$this->assertTrue( in_array( $tag_name, $post['termNames'], true ) );
 		$this->assertTrue( in_array( $cat_name, $post['termNames'], true ) );
-		$this->assertTrue( in_array( $cat_name, $post['termNames'], true ) );
 
+		// tag and cat fields
 		$tag_names = wp_list_pluck( $post['tags'], 'name' );
 		$cat_names = wp_list_pluck( $post['cats'], 'name' );
 		$all_term_names = wp_list_pluck( $post['allTerms'], 'name' );
