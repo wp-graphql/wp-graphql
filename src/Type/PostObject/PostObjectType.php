@@ -366,7 +366,7 @@ class PostObjectType extends WPObjectType {
 					'terms'             => [
 						'type'        => Types::list_of( Types::term_object_union() ),
 						'args'        => [
-							'taxonomy' => [
+							'taxonomies' => [
 								'type'        => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
@@ -375,36 +375,42 @@ class PostObjectType extends WPObjectType {
 						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
-							$terms = [];
 							/**
 							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
-							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
-							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-								foreach ( $allowed_taxonomies as $taxonomy ) {
-
-									$term_query = new \WP_Term_Query([
-										'taxonomy' => $taxonomy,
-										'object_ids' => [ $post->ID ],
-									]);
-
-									$tax_terms = $term_query->get_terms();
-
-									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
-										$terms = array_merge( $terms, $tax_terms );
+							$taxonomies = [];
+							if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+								$taxonomies = $args['taxonomies'];
+							} else {
+								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
+								foreach( $connected_taxonomies as $taxonomy ) {
+									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+										$taxonomies[] = $taxonomy;
 									}
 								}
 							}
 
-							return ! empty( $terms ) ? $terms : null;
+							$tax_terms = [];
+							if ( ! empty( $taxonomies ) ) {
+
+								$term_query = new \WP_Term_Query( [
+									'taxonomy'   => $taxonomies,
+									'object_ids' => $post->ID,
+								] );
+
+								$tax_terms = $term_query->get_terms();
+
+							}
+
+							return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
 						},
 					],
 					'termNames'         => [
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
-							'taxonomy' => [
-								'type'        => Types::taxonomy_enum(),
+							'taxonomies' => [
+								'type'        => Types::list_of( Types::taxonomy_enum() ),
 								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 							],
 						],
@@ -412,30 +418,80 @@ class PostObjectType extends WPObjectType {
 						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
 
-							$terms = [];
 							/**
 							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
-							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? [ $args['taxonomy'] ] : $allowed_taxonomies;
-							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-								foreach ( $allowed_taxonomies as $taxonomy ) {
-
-									$term_query = new \WP_Term_Query([
-										'taxonomy' => $taxonomy,
-										'object_ids' => [ $post->ID ],
-									]);
-
-									$tax_terms = $term_query->get_terms();
-
-									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
-										$terms = array_merge( $terms, $tax_terms );
+							$taxonomies = [];
+							if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+								$taxonomies = $args['taxonomies'];
+							} else {
+								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
+								foreach( $connected_taxonomies as $taxonomy ) {
+									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+										$taxonomies[] = $taxonomy;
 									}
 								}
 							}
-							$term_names = wp_list_pluck( $terms, 'name' );
+
+							$tax_terms = [];
+							if ( ! empty( $taxonomies ) ) {
+
+								$term_query = new \WP_Term_Query( [
+									'taxonomy'   => $taxonomies,
+									'object_ids' => [ $post->ID ],
+								] );
+
+								$tax_terms = $term_query->get_terms();
+
+							}
+							$term_names = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'name' ) : [];
 
 							return ! empty( $term_names ) ? $term_names : null;
+						},
+					],
+					'termSlugs'         => [
+						'type'        => Types::list_of( Types::string() ),
+						'args'        => [
+							'taxonomies' => [
+								'type'        => Types::list_of( Types::taxonomy_enum() ),
+								'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+							],
+						],
+						// Translators: placeholder is the name of the post_type
+						'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) use ( $allowed_taxonomies ) {
+
+							/**
+							 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+							 * otherwise use the default $allowed_taxonomies passed down
+							 */
+							$taxonomies = [];
+							if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+								$taxonomies = $args['taxonomies'];
+							} else {
+								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
+								foreach( $connected_taxonomies as $taxonomy ) {
+									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+										$taxonomies[] = $taxonomy;
+									}
+								}
+							}
+
+							$tax_terms = [];
+							if ( ! empty( $taxonomies ) ) {
+
+								$term_query = new \WP_Term_Query( [
+									'taxonomy'   => $taxonomies,
+									'object_ids' => [ $post->ID ],
+								] );
+
+								$tax_terms = $term_query->get_terms();
+
+							}
+							$term_slugs = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'slug' ) : [];
+
+							return ! empty( $term_slugs ) ? $term_slugs : null;
 						},
 					],
 				];
