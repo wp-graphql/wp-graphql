@@ -12,7 +12,7 @@ modules:
         - \Helper\Functional
     config:
         WPDb:
-            dsn: 'mysql:host=127.0.0.1;dbname=wpgraphql_serve'
+            dsn: 'mysql:host=127.0.0.1;dbname=wpgraphql_test'
             user: 'root'
             password: ''
             dump: 'tests/_data/dump.sql'

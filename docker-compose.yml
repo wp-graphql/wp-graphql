@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  tests:
+    build: "./bin"
+    depends_on:
+      - wpgraphql_test
+    environment:
+      DB_SERVE_NAME: "wpgraphql_test"
+    volumes:
+      - "test-suite:/tmp"
+      - "test-webroot:/docker/webroot"
+      - "./:/project"
+  wpgraphql_test:
+    image: "wordpress:4.9.4-php7.0-apache"
+    depends_on:
+      - mysql_test
+    ports:
+      - "8000:80"
+    volumes:
+      - "test-webroot:/var/www/html"
+      - "./:/var/www/html/wp-content/plugins/wp-graphql"
+  mysql_test:
+    image: "mariadb:10.2"
+    environment:
+      MYSQL_DATABASE: "wpgraphql_test"
+      MYSQL_ROOT_PASSWORD: "testing"
+
+volumes:
+  test-suite: {}
+  test-webroot: {}

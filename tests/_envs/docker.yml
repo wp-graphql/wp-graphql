@@ -1,0 +1,12 @@
+modules:
+    config:
+        WPDb:
+            dsn: 'mysql:host=mysql_test;dbname=wpgraphql_test'
+            dump: 'tests/_data/dump.sql'
+            password: 'testing'
+            url: 'http://wpgraphql_test'
+        WPLoader:
+            dbHost: "mysql_test"
+            dbPassword: "testing"
+        WPBrowser:
+            url: 'http://wpgraphql_test'

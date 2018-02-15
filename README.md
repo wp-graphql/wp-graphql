@@ -93,7 +93,7 @@ To install the test suite/test databases, from the root of the plugin directory,
 
 For example: 
 
-`bin/install-wp-tests.sh wpgraphql_tests root password 127.0.0.1 latest`
+`bin/install-wp-tests.sh wpgraphql_test root password 127.0.0.1 latest`
 
 DEBUGGING: If you have run this command before in another branch you may already have a local copy of WordPress downloaded in your `/private/tmp` directory. 
 If this is the case, please remove it and then run the install script again. Without removing this you may receive an error when running phpunit.
@@ -127,7 +127,53 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
         - `vendor/bin/codecept run functional`
         - `vendor/bin/codecept run unit`
         - `vendor/bin/codecept run acceptance`
-        
+
+
+### Unit testing in Docker
+
+A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
+tests in isolation without installing anything locally (besides Docker).
+
+Install dependencies using Composer. Note the `--ignore-platform-reqs` which skips the checks for PHP extensions
+inside the barebones Docker container.
+
+```
+docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
+```
+
+Now you're ready to start the Docker containers: a PHP container to hold the code under test and two MariaDB
+containers that provides the serve and test databases.
+
+```
+docker-compose up -d
+```
+
+Your stack is starting! If this is your first time running that command, it will take a few minutes to download the
+referenced Docker images. Note that it takes about 15-30 seconds after this process completes for MariaDB to be
+ready to accept connections, so you'll need to wait that long before running the next command.
+
+Now we install the WordPress testing suite inside the container, link the local codebase inside it, and activate it
+as a plugin. Note that we are skipping database creation (handled by our `docker-compose` file). The WordPress
+version you pass here should match what is specified in `docker-compose.yml`.
+
+```
+docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test 4.9.4 true
+```
+
+You now have a stable testing environment. The WPGraphQL codebase is mapped inside your containers and any changes
+you make will be reflected almost immediately. We use Codeception Environments (`--env`) to point tests to our
+database containers instead of localhost. Run your tests (repeat as necessary), e.g.:
+
+```
+docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
+docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
+```
+
+If you need to test against a different WordPress version, you will need to destroy your environemnt, update
+`docker-compose.yml` and `bin/Dockerfile` to point to the desired version, then recreate your environment.
+
+
+
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 
 
