@@ -381,7 +381,8 @@ class PostObjectType extends WPObjectType {
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
 							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? $args['taxonomy'] : $allowed_taxonomies;
-							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+							if ( ! empty( $allowed_taxonomies ) ) {
+								$allowed_taxonomies = is_array( $allowed_taxonomies ) ? $allowed_taxonomies : [ $allowed_taxonomies ];
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									$tax_terms = get_the_terms( $post->ID, $taxonomy );
 									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
@@ -411,7 +412,8 @@ class PostObjectType extends WPObjectType {
 							 * otherwise use the default $allowed_taxonomies passed down
 							 */
 							$allowed_taxonomies = ! empty( $args['taxonomy'] ) ? $args['taxonomy'] : $allowed_taxonomies;
-							if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+							if ( ! empty( $allowed_taxonomies ) ) {
+								$allowed_taxonomies = is_array( $allowed_taxonomies ) ? $allowed_taxonomies : [ $allowed_taxonomies ];
 								foreach ( $allowed_taxonomies as $taxonomy ) {
 									$tax_terms = get_the_terms( $post->ID, $taxonomy );
 									if ( ! empty( $tax_terms ) && is_array( $tax_terms ) ) {
