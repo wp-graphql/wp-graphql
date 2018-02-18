@@ -129,7 +129,7 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
         - `vendor/bin/codecept run acceptance`
 
 
-### Unit testing in Docker
+### Testing in Docker
 
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
@@ -138,12 +138,12 @@ Install dependencies using Composer, including testing dependencies not in `comp
 `--ignore-platform-reqs` which skips the checks for PHP extensions inside the barebones Docker container.
 
 ```
-docker run --rm -v $(pwd):/app composer require lucatume/wp-browser --ignore-platform-reqs
 docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
+docker run --rm -v $(pwd):/app composer require lucatume/wp-browser --ignore-platform-reqs
 ```
 
-Now you're ready to start the Docker containers: a PHP container to hold the code under test and two MariaDB
-containers that provides the serve and test databases.
+Now you're ready to start the Docker containers: a PHP container to hold the code under test, a PHP/Apache
+container to serve WordPress, and a MariaDB container.
 
 ```
 docker-compose up -d
@@ -163,10 +163,11 @@ docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mys
 
 You now have a stable testing environment. The WPGraphQL codebase is mapped inside your containers and any changes
 you make will be reflected almost immediately. We use Codeception Environments (`--env`) to point tests to our
-database containers instead of localhost. Run your tests (repeat as necessary), e.g.:
+database container instead of `127.0.0.1`. Run your tests and repeat as necessary, e.g.:
 
 ```
 docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
+docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
 docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
 ```
 
