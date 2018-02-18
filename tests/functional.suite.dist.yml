@@ -13,9 +13,9 @@ modules:
     config:
         REST:
             depends: WPBrowser
-            url: 'http://wp.localhost'
+            url: 'http://wpgraphql.test'
         WPBrowser:
-            url: 'http://wp.localhost'
+            url: 'http://wpgraphql.test'
             adminUsername: 'admin'
             adminPassword: 'password'
             adminPath: '/wp-admin'

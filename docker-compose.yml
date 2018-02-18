@@ -20,7 +20,7 @@ services:
     networks:
       testing:
         aliases:
-          - "wp.localhost"
+          - "wpgraphql.test"
     volumes:
       - "test-webroot:/var/www/html"
       - "./:/var/www/html/wp-content/plugins/wp-graphql"
