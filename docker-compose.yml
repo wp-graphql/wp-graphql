@@ -7,6 +7,8 @@ services:
       - wpgraphql_test
     environment:
       DB_SERVE_NAME: "wpgraphql_test"
+    networks:
+      - "testing"
     volumes:
       - "test-suite:/tmp"
       - "test-webroot:/docker/webroot"
@@ -15,8 +17,10 @@ services:
     image: "wordpress:4.9.4-php7.0-apache"
     depends_on:
       - mysql_test
-    ports:
-      - "8000:80"
+    networks:
+      testing:
+        aliases:
+          - "wp.localhost"
     volumes:
       - "test-webroot:/var/www/html"
       - "./:/var/www/html/wp-content/plugins/wp-graphql"
@@ -25,6 +29,11 @@ services:
     environment:
       MYSQL_DATABASE: "wpgraphql_test"
       MYSQL_ROOT_PASSWORD: "testing"
+    networks:
+      - "testing"
+
+networks:
+  testing: {}
 
 volumes:
   test-suite: {}
