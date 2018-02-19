@@ -20,17 +20,17 @@ $I->havePostInDatabase([
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode([
 	'query' => '
-	{ 
-		posts { 
-			edges { 
-				node { 
+	{
+		posts {
+			edges {
+				node {
 					id
 					title
 					link
-					date 
-				} 
-			} 
-		} 
+					date
+				}
+			}
+		}
 	}'
 ]) );
 
