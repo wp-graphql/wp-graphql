@@ -1,8 +1,11 @@
-version: "2"
+version: "3"
 
 services:
   tests:
-    build: "./bin"
+    build:
+      context: "./bin"
+      args:
+        PHP_VERSION: "${PHP_VERSION:-7.2}"
     depends_on:
       - wpgraphql_test
     environment:
@@ -14,7 +17,7 @@ services:
       - "test-webroot:/docker/webroot"
       - "./:/project"
   wpgraphql_test:
-    image: "wordpress:4.9.4-php7.0-apache"
+    image: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
     depends_on:
       - mysql_test
     networks:

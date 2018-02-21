@@ -149,9 +149,9 @@ wait_for_database_connection() {
 configure_wordpress() {
 
     cd $WP_CORE_DIR
-    wp config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
-    wp core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
-    wp rewrite structure '/%year%/%monthnum%/%postname%/'
+    wp $WP_CLI_ARGS config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
+    wp $WP_CLI_ARGS core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
+    wp $WP_CLI_ARGS rewrite structure '/%year%/%monthnum%/%postname%/'
 }
 
 activate_plugin() {
@@ -164,19 +164,19 @@ activate_plugin() {
     cd $WP_CORE_DIR
 
     # activate the plugin
-    wp plugin activate wp-graphql
+    wp $WP_CLI_ARGS plugin activate wp-graphql
 
     # Flush the permalinks
-    wp rewrite flush
+    wp $WP_CLI_ARGS rewrite flush
 
     # Export the db for codeception to use
-    wp db export $PLUGIN_DIR/tests/_data/dump.sql
+    wp $WP_CLI_ARGS db export $PLUGIN_DIR/tests/_data/dump.sql
 }
 
 # This is intended to run only in Docker environment.
 copy_to_webroot() {
     if [ -d /docker/webroot ]; then
-        sudo cp /tmp/wordpress/wp-config.php /docker/webroot/wp-config.php
+        cp /tmp/wordpress/wp-config.php /docker/webroot/wp-config.php
     fi
 }
 
