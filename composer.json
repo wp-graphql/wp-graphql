@@ -23,6 +23,10 @@
     "webonyx/graphql-php": "^0.11.2",
     "ivome/graphql-relay-php": "^0.3.1"
   },
+  "require-dev": {
+    "apigen/apigen": "^4.1",
+    "lucatume/wp-browser": "~1.21.20"
+  },
   "config": {
     "optimize-autoloader": true
   },
