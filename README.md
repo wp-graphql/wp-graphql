@@ -134,18 +134,18 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
 
-Install dependencies using Composer, including testing dependencies not in `composer.json`. Note the
-`--ignore-platform-reqs` which skips the checks for PHP extensions inside the barebones Docker container.
+Install dependencies using Composer. Note the `--ignore-platform-reqs` which skips the checks for PHP extensions
+inside the barebones Docker container.
 
 ```
 docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
-docker run --rm -v $(pwd):/app composer require lucatume/wp-browser --ignore-platform-reqs
 ```
 
 Now you're ready to start the Docker containers: a PHP container to hold the code under test, a PHP/Apache
 container to serve WordPress, and a MariaDB container.
 
 ```
+docker-compose build
 docker-compose up -d
 ```
 
