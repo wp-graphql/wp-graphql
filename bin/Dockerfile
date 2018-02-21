@@ -10,12 +10,6 @@ RUN docker-php-ext-install pdo_mysql
 
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini
 
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug-2.5.0 \
-    && docker-php-ext-enable xdebug
-
-EXPOSE 9000
-
 ENV WP_CLI_ARGS="--allow-root"
 
 WORKDIR /project
