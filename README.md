@@ -171,6 +171,12 @@ docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
 docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
 ```
 
+Code coverage for `wpunit` tests can be generated using `phpdbg`:
+
+```
+docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
+```
+
 If you need to test against a different WordPress version, you will need to destroy your environemnt, update
 `docker-compose.yml` and `bin/Dockerfile` to point to the desired version, then recreate your environment.
 
