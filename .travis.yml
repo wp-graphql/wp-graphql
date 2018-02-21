@@ -22,11 +22,11 @@ env:
     - COVERAGE: false
   matrix:
     - PHP_VERSION=5.6 WP_VERSION=4.7.1
-    - PHP_VERSION=5.6 WP_VERSION=latest
+    - PHP_VERSION=5.6 WP_VERSION=4.9.4
     - PHP_VERSION=7.0 WP_VERSION=4.7.1
-    - PHP_VERSION=7.0 WP_VERSION=latest
+    - PHP_VERSION=7.0 WP_VERSION=4.9.4
     - PHP_VERSION=7.1 WP_VERSION=4.7.1
-    - PHP_VERSION=7.1 WP_VERSION=latest APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
+    - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
 install:
   - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
