@@ -173,17 +173,9 @@ activate_plugin() {
     wp $WP_CLI_ARGS db export $PLUGIN_DIR/tests/_data/dump.sql
 }
 
-# This is intended to run only in Docker environment.
-copy_to_webroot() {
-    if [ -d /docker/webroot ]; then
-        cp /tmp/wordpress/wp-config.php /docker/webroot/wp-config.php
-    fi
-}
-
 install_wp
 install_test_suite
 wait_for_database_connection
 install_db
 configure_wordpress
 activate_plugin
-copy_to_webroot

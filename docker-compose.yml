@@ -14,18 +14,21 @@ services:
       - "testing"
     volumes:
       - "test-suite:/tmp"
-      - "test-webroot:/docker/webroot"
       - "./:/project"
   wpgraphql_test:
     image: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
     depends_on:
       - mysql_test
+    environment:
+      WORDPRESS_DB_HOST: "mysql_test"
+      WORDPRESS_DB_NAME: "wpgraphql_test"
+      WORDPRESS_DB_PASSWORD: "testing"
+      WORDPRESS_DB_USER: "root"
     networks:
       testing:
         aliases:
           - "wpgraphql.test"
     volumes:
-      - "test-webroot:/var/www/html"
       - "./:/var/www/html/wp-content/plugins/wp-graphql"
   mysql_test:
     image: "mariadb:10.2"
@@ -40,4 +43,3 @@ networks:
 
 volumes:
   test-suite: {}
-  test-webroot: {}
