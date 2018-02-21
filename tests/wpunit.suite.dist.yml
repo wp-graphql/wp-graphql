@@ -15,8 +15,8 @@ modules:
             dbUser: "root"
             dbPassword: ""
             tablePrefix: "wp_"
-            domain: "wp.localhost"
-            adminEmail: "admin@wp.localhost"
+            domain: "wpgraphql.test"
+            adminEmail: "admin@wpgraphql.test"
             title: "Test"        
             plugins: ['wp-graphql/wp-graphql.php']
             activatePlugins: ['wp-graphql/wp-graphql.php']

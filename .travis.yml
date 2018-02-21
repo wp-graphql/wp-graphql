@@ -1,6 +1,7 @@
-language: php
+sudo: required
 
-sudo: false
+services:
+  - docker
 
 notifications:
   email:
@@ -14,65 +15,41 @@ branches:
 
 cache:
   apt: true
-  directories:
-  - $HOME/.composer/cache
 
 # Set the global environment variables
 env:
   global:
-    - WP_CORE_DIR: /tmp/wordpress
-    - WP_VERSION: latest
     - COVERAGE: false
-
-# Set the various variables for the environments to test
-matrix:
-  include:
-    - php: 5.5
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=5.7
-    - php: 7.1
-      env: WP_MULTISITE=0 PHP_UNIT_VERSION=6.3 COVERAGE=true APIGEN_DOCS=true LINT_SCHEMA=true
-    - php: 5.5
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 5.6
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=4.8
-    - php: 7.0
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=5.7
-    - php: 7.1
-      env: WP_MULTISITE=1 PHP_UNIT_VERSION=6.3
-  fast_finish: true
+  matrix:
+    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.7.1
+    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.9.4
+    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.7.1
+    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.9.4
+    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.7.1
+    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.9.4
+    - PHP_VERSION=5.6 WP_VERSION=4.7.1
+    - PHP_VERSION=5.6 WP_VERSION=4.9.4
+    - PHP_VERSION=7.0 WP_VERSION=4.7.1
+    - PHP_VERSION=7.0 WP_VERSION=4.9.4
+    - PHP_VERSION=7.1 WP_VERSION=4.7.1
+    - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
 install:
-  - cd $TRAVIS_BUILD_DIR
-  # Install WP CLI
-  - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-  - chmod +x wp-cli.phar
-  - sudo mv wp-cli.phar /usr/local/bin/wp
+  - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
+  - docker-compose build
 
 before_script:
-  # Install WordPress and the Test Suite
-  - bash bin/install-wp-tests.sh wpgraphql_test root '' 127.0.0.1 $WP_VERSION
-  # Update composer
-  - composer self-update
-  # Install APIGen
-  - composer require apigen/apigen:^4.1 lucatume/wp-browser:~1.21.20
-  - composer install --no-interaction
-  # Make a directory for storing logs
-  - mkdir -p build/logs
-  - ls -al
+  - docker-compose up -d
+  - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
 
 script:
- # Execute unit tests with coverage if specified, otherwise without coverage
- - |
+  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
+  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
+  - |
     if [ $COVERAGE == true ]; then
-      vendor/bin/phpunit --group ajax
-      vendor/bin/codecept run wpunit --coverage --coverage-xml
+      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
     else
-      vendor/bin/phpunit --group ajax --no-coverage
-      vendor/bin/codecept run wpunit
+      docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
     fi
 
 after_success:
@@ -119,3 +96,6 @@ deploy:
       all_branches: develop
       # Only deploy when APIGEN_DOCS are generated
       condition: $APIGEN_DOCS == true
+
+after_script:
+  - docker-compose down
