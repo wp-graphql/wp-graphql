@@ -18,7 +18,10 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	private function create_posts( $count, $operator, $offset_multiplier = 1 ) {
 		$iterable = array_keys( array_fill( 0, $count, null ) );
-		$timestamp = time();
+
+		// Make sure starting timestamp is sufficiently in the past so that posts
+		// do not receive a post_status of "future".
+		$timestamp = time() - 1000;
 
 		$posts = array_map( function ( $offset ) use ( $timestamp, $offset_multiplier ) {
 			return $this->factory->post->create_and_get(
