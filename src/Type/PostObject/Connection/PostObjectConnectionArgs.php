@@ -83,7 +83,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				 */
 				'author'       => [
 					'type'        => Types::int(),
-					'description' => __( 'The user that\'s connected as the author of the object. Use the 
+					'description' => __( 'The user that\'s connected as the author of the object. Use the
 							userId for the author object.', 'wp-graphql' ),
 				],
 				'authorName'   => [
@@ -96,7 +96,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'authorNotIn'  => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s 
+					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s
 							userIds', 'wp-graphql' ),
 				],
 
@@ -116,7 +116,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'categoryIn'   => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of category IDs, used to display objects from one 
+					'description' => __( 'Array of category IDs, used to display objects from one
 										category OR another', 'wp-graphql' ),
 				],
 
@@ -136,17 +136,17 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'tagIn'        => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of tag IDs, used to display objects from one tag OR 
+					'description' => __( 'Array of tag IDs, used to display objects from one tag OR
 							another', 'wp-graphql' ),
 				],
 				'tagSlugAnd'   => [
 					'type'        => Types::list_of( Types::string() ),
-					'description' => __( 'Array of tag slugs, used to display objects from one tag OR 
+					'description' => __( 'Array of tag slugs, used to display objects from one tag OR
 							another', 'wp-graphql' ),
 				],
 				'tagSlugIn'    => [
 					'type'        => Types::list_of( Types::string() ),
-					'description' => __( 'Array of tag slugs, used to exclude objects in specified 
+					'description' => __( 'Array of tag slugs, used to exclude objects in specified
 							tags', 'wp-graphql' ),
 				],
 
@@ -182,7 +182,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'parent'       => [
 					'type'        => Types::string(),
-					'description' => __( 'Use ID to return only children. Use 0 to return only top-level 
+					'description' => __( 'Use ID to return only children. Use 0 to return only top-level
 							items', 'wp-graphql' ),
 				],
 				'parentIn'     => [
@@ -199,7 +199,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 				'notIn'        => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", 
+					'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in",
 							it will be ignored', 'wp-graphql' ),
 				],
 				'nameIn'       => [
@@ -215,7 +215,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				 */
 				'hasPassword'  => [
 					'type'        => Types::boolean(),
-					'description' => __( 'True for objects with passwords; False for objects without passwords; 
+					'description' => __( 'True for objects with passwords; False for objects without passwords;
 							null for all objects with or without passwords', 'wp-graphql' ),
 				],
 				'password'     => [
