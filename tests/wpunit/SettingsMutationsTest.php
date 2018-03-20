@@ -396,7 +396,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 							'generalSettingsTimeFormat'                      => $this->generalSettingsTimeFormat,
 							'generalSettingsTimezone'                        => $this->generalSettingsTimezone,
 							'generalSettingsTitle'                           => $this->generalSettingsTitle,
-							'generalSettingsUrl'                             => 'http://wp.localhost',
+							'generalSettingsUrl'                             => 'http://wpgraphql.test',
 							'readingSettingsPostsPerPage'                    => $this->readingSettingsPostsPerPage,
 							'writingSettingsDefaultCategory'                 => $this->writingSettingsDefaultCategory,
 							'writingSettingsDefaultPostFormat'               => $this->writingSettingsDefaultPostFormat,
@@ -415,7 +415,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 							'timeFormat'  => $this->generalSettingsTimeFormat,
 							'timezone'    => $this->generalSettingsTimezone,
 							'title'       => $this->generalSettingsTitle,
-							'url'         => 'http://wp.localhost',
+							'url'         => 'http://wpgraphql.test',
 						],
 						'readingSettings'       => [
 							'postsPerPage' => $this->readingSettingsPostsPerPage,

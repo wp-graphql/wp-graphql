@@ -6,24 +6,27 @@
 actor: FunctionalTester
 modules:
     enabled:
-        - WPDb
-        - WordPress
+        - REST
+        - WPBrowser
         - Asserts
         - \Helper\Functional
+        - WPDb
     config:
+        REST:
+          depends: WPBrowser
+          url: 'http://wpgraphql.test'
+        WPBrowser:
+          url: 'http://wpgraphql.test'
+          adminUsername: 'admin'
+          adminPassword: 'password'
+          adminPath: '/wp-admin'
         WPDb:
-            dsn: 'mysql:host=127.0.0.1;dbname=wpgraphql_serve'
-            user: 'root'
-            password: ''
-            dump: 'tests/_data/dump.sql'
-            populate: true
-            cleanup: true
-            url: 'http://wp.localhost'
-            urlReplacement: true
-            tablePrefix: 'wp_'
-        WordPress:
-            depends: WPDb
-            wpRootFolder: '/tmp/wordpress'
-            adminUsername: 'admin'
-            adminPassword: 'password'
-            adminPath: '/wp-admin'
+          dsn: 'mysql:host=127.0.0.1;dbname=wpgraphql_test'
+          user: 'root'
+          password: ''
+          dump: 'tests/_data/dump.sql'
+          populate: true
+          cleanup: true
+          url: 'http://wpgraphql.test'
+          urlReplacement: true
+          tablePrefix: 'wp_'

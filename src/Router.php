@@ -395,7 +395,7 @@ class Router {
 
 
 				if ( false === headers_sent() ) {
-					self::prepare_headers();
+					self::prepare_headers( $response, $graphql_results, $request, $operation_name, $variables, $user );
 				}
 
 				/**
@@ -415,7 +415,7 @@ class Router {
 					$response['errors'] = __( 'The GraphQL request returned an invalid response', 'wp-graphql' );
 				}
 
-				self::after_execute( $response, $operation_name, $request, $variables );
+				self::after_execute( $response, $operation_name, $request, $variables, $graphql_results );
 
 				wp_send_json( $response );
 
@@ -427,7 +427,7 @@ class Router {
 				 */
 				if ( false === headers_sent() ) {
 
-					self::prepare_headers();
+					self::prepare_headers( $response, $graphql_results, $request, $operation_name, $variables, $user );
 
 					/**
 					 * Send the JSON response
@@ -435,7 +435,7 @@ class Router {
 					$server = \WPGraphQL::server();
 					$result = $server->executeRequest();
 
-					self::after_execute( $result, $operation_name, $request, $variables );
+					self::after_execute( $result, $operation_name, $request, $variables, $graphql_results );
 
 					/**
 					 * Send the response
@@ -465,7 +465,7 @@ class Router {
 
 	}
 
-	protected static function prepare_headers() {
+	protected static function prepare_headers( $response, $graphql_results, $request, $operation_name, $variables, $user ) {
 
 		/**
 		 * Filter the $status_code before setting the headers
@@ -487,7 +487,7 @@ class Router {
 
 	}
 
-	protected static function after_execute( $result, $operation_name, $request, $variables ) {
+	protected static function after_execute( $result, $operation_name, $request, $variables, $graphql_results ) {
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
