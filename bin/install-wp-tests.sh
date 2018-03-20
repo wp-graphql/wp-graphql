@@ -133,33 +133,49 @@ install_db() {
 
 }
 
+# MySQL may not be ready when container starts; wait at most 30 seconds.
+wait_for_database_connection() {
+    set +ex
+    DB_TRIES=1
+    while [ $DB_TRIES -lt 15 ]; do
+        if curl --fail --show-error --silent "$DB_HOST:3306" > /dev/null 2>&1; then break; fi
+        echo "Waiting for database to be ready...."
+        sleep 2
+        DB_TRIES=$((DB_TRIES + 1))
+    done
+    set -ex
+}
+
 configure_wordpress() {
 
     cd $WP_CORE_DIR
-    wp config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
-    wp core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test
-    wp rewrite structure '/%year%/%monthnum%/%postname%/'
+    wp $WP_CLI_ARGS config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
+    wp $WP_CLI_ARGS core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
+    wp $WP_CLI_ARGS rewrite structure '/%year%/%monthnum%/%postname%/'
 }
 
 activate_plugin() {
 
     # Add this repo as a plugin to the repo
-    ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
+    if [ ! -d $WP_CORE_DIR/wp-content/plugins/wp-graphql ]; then
+      ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
+    fi
 
     cd $WP_CORE_DIR
 
     # activate the plugin
-    wp plugin activate wp-graphql
+    wp $WP_CLI_ARGS plugin activate wp-graphql
 
     # Flush the permalinks
-    wp rewrite flush
+    wp $WP_CLI_ARGS rewrite flush
 
     # Export the db for codeception to use
-    wp db export $PLUGIN_DIR/tests/_data/dump.sql
+    wp $WP_CLI_ARGS db export $PLUGIN_DIR/tests/_data/dump.sql
 }
 
 install_wp
 install_test_suite
+wait_for_database_connection
 install_db
 configure_wordpress
 activate_plugin

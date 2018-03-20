@@ -206,7 +206,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'count'          => null,
 					'description'    => 'just a description',
 					'id'             => $global_id,
-					'link'           => "http://wp.localhost/?cat={$term_id}",
+					'link'           => "http://wpgraphql.test/?cat={$term_id}",
 					'name'           => 'A Category',
 					'posts'          => [
 						'edges' => [],

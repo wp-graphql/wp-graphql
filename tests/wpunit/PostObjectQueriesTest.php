@@ -433,7 +433,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 				}
-				tagNames:termNames(taxonomy:TAG)
+				tagNames:termNames(taxonomies:[TAG])
 				terms{
 				  ...on Tag{
 				    name
@@ -477,6 +477,108 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function testPostQueryWithTermFields() {
+
+		$post_title = uniqid();
+		$cat_name = uniqid();
+		$tag_name = uniqid();
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => $post_title
+		] );
+
+		// Create a comment and assign it to post.
+		$category_id = $this->factory()->category->create( [
+			'name' => $cat_name,
+			'slug' => $cat_name,
+		] );
+
+		$tag_id = $this->factory()->tag->create( [
+			'name' => $tag_name,
+			'slug' => $tag_name,
+		] );
+
+		wp_set_object_terms( $post_id, $category_id, 'category' );
+		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
+
+		$query = '
+		query getPostWithTermFields( $id:ID! ){
+			post( id:$id ) {
+			  postId
+			  title
+			  tagSlugs:termSlugs(taxonomies:[TAG])
+			  catSlugs:termSlugs(taxonomies:[CATEGORY])
+			  termSlugs
+			  catNames:termNames(taxonomies:[CATEGORY])
+			  tagNames:termNames(taxonomies:[TAG])
+			  termNames
+			  tags:terms(taxonomies:[TAG]) {
+			     ... on Tag {
+			       slug
+			       name
+			     }
+			  }
+			  cats:terms(taxonomies:[CATEGORY]) {
+			    ... on Category {
+			       slug
+			       name
+			     }
+			  }
+			  allTerms:terms(taxonomies:[TAG,CATEGORY]) {
+			     ... on Tag {
+			       slug
+			       name
+			     }
+			     ... on Category {
+			       slug
+			       name
+			     }
+			  }
+			}
+		}
+		';
+
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+		];
+
+		$actual = do_graphql_request( $query, 'getPostWithTermFields', $variables );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$post = $actual['data']['post'];
+
+		$this->assertEquals( $post_id, $post['postId'] );
+		$this->assertEquals( $post_title, $post['title'] );
+
+		// Slug fields
+		$this->assertTrue( in_array( $tag_name, $post['tagSlugs'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['catSlugs'], true ) );
+		$this->assertTrue( in_array( $tag_name, $post['termSlugs'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['termSlugs'], true ) );
+
+		// Name fields
+		$this->assertTrue( in_array( $tag_name, $post['tagNames'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['catNames'], true ) );
+		$this->assertTrue( in_array( $tag_name, $post['termNames'], true ) );
+		$this->assertTrue( in_array( $cat_name, $post['termNames'], true ) );
+
+		// tag and cat fields
+		$tag_names = wp_list_pluck( $post['tags'], 'name' );
+		$cat_names = wp_list_pluck( $post['cats'], 'name' );
+		$all_term_names = wp_list_pluck( $post['allTerms'], 'name' );
+
+		$this->assertTrue( in_array( $tag_name, $tag_names, true ) );
+		$this->assertTrue( in_array( $cat_name, $cat_names, true ) );
+		$this->assertTrue( in_array( $tag_name, $all_term_names, true ) );
+		$this->assertTrue( in_array( $cat_name, $all_term_names, true ) );
+
 	}
 
 	/**

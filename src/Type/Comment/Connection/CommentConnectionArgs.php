@@ -83,7 +83,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'commentNotIn'       => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the 
+					'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the
 							query regardless of status.', 'wp-graphql' ),
 				],
 				'includeUnapproved'  => [
@@ -111,7 +111,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'parentNotIn'        => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of parent IDs of comments *not* to retrieve children 
+					'description' => __( 'Array of parent IDs of comments *not* to retrieve children
 							for.', 'wp-graphql' ),
 				],
 				'contentAuthorIn'    => [
@@ -124,17 +124,17 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'contentId'          => [
 					'type'        => Types::int(),
-					'description' => __( 'Limit results to those affiliated with a given content object 
+					'description' => __( 'Limit results to those affiliated with a given content object
 							ID.', 'wp-graphql' ),
 				],
 				'contentIdIn'        => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of content object IDs to include affiliated comments 
+					'description' => __( 'Array of content object IDs to include affiliated comments
 							for.', 'wp-graphql' ),
 				],
 				'contentIdNotIn'     => [
 					'type'        => Types::list_of( Types::int() ),
-					'description' => __( 'Array of content object IDs to exclude affiliated comments 
+					'description' => __( 'Array of content object IDs to exclude affiliated comments
 							for.', 'wp-graphql' ),
 				],
 				'contentAuthor'      => [
@@ -143,7 +143,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 				],
 				'contentStatus'      => [
 					'type'        => Types::list_of( Types::post_status_enum() ),
-					'description' => __( 'Array of content object statuses to retrieve affiliated comments for. 
+					'description' => __( 'Array of content object statuses to retrieve affiliated comments for.
 							Pass \'any\' to match any value.', 'wp-graphql' ),
 				],
 				'contentType'        => [

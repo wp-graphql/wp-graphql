@@ -2,8 +2,8 @@
   "name": "wp-graphql/wp-graphql",
   "description": "GraphQL API for WordPress",
   "type": "wordpress-plugin",
-  "license": "GPLv3",
-  "version": "0.0.26",
+  "license": "GPL-3.0+",
+  "version": "0.0.27",
   "authors": [
     {
       "name": "Jason Bahl",
@@ -22,6 +22,10 @@
   "require": {
     "webonyx/graphql-php": "^0.11.2",
     "ivome/graphql-relay-php": "^0.3.1"
+  },
+  "require-dev": {
+    "apigen/apigen": "^4.1",
+    "lucatume/wp-browser": "~1.21.20"
   },
   "config": {
     "optimize-autoloader": true
