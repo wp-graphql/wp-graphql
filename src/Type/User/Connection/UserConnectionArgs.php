@@ -42,9 +42,10 @@ class UserConnectionArgs extends WPInputObjectType {
 	 * UserConnectionArgs constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct( $config = [] ) {
-		$config['name'] = 'UserArgs';
-		$config['fields'] = self::fields();
+	public function __construct( $config = [], $connection = '' ) {
+		$config['name'] = ucfirst( $connection ) . 'UserArgs';
+		$config['queryClass'] = 'WP_User_Query';
+		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
 
