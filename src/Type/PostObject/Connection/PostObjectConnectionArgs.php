@@ -57,6 +57,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	public function __construct( $config = [], $connection ) {
 		$config['name'] = ucfirst( $connection ) . 'QueryArgs';
+		$config['queryClass'] = 'WP_Query';
 		$config['fields'] = self::fields( $connection );
 		parent::__construct( $config );
 	}
