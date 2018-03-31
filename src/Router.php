@@ -343,8 +343,8 @@ class Router {
 			} else if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
-					'query'         => isset( $_GET['query'] ) ? sanitize_text_field( $_GET['query'] ) : '',
-					'operationName' => isset( $_GET['operationName'] ) ? sanitize_text_field( $_GET['operationName'] ) : '',
+					'query'         => isset( $_GET['query'] ) ? wp_kses_stripslashes( sanitize_text_field( $_GET['query'] ) ) : '',
+					'operationName' => isset( $_GET['operationName'] ) ? wp_kses_stripslashes( sanitize_text_field( $_GET['operationName'] ) ) : '',
 					'variables'     => isset( $_GET['variables'] ) ? $_GET['variables'] : '',
 				];
 
@@ -373,7 +373,7 @@ class Router {
 					 * use in the executor.
 					 */
 				} else {
-					$decoded_variables = json_decode( $data['variables'] );
+					$decoded_variables = json_decode( wp_kses_stripslashes( $data['variables'] ), true );
 				}
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
