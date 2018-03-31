@@ -373,7 +373,7 @@ class Router {
 					 * use in the executor.
 					 */
 				} else {
-					$decoded_variables = (array) json_decode( wp_kses_stripslashes( $data['variables'] ) );
+					$decoded_variables = json_decode( wp_kses_stripslashes( $data['variables'] ), true );
 				}
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
