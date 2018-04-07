@@ -2,13 +2,11 @@
 
 namespace WPGraphQL\Type\PostObject;
 
-use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\Loader;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
@@ -154,13 +152,6 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $ancestors ) ? $ancestors : null;
 						},
 					],
-					'author'            => [
-						'type'        => Types::user(),
-						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return DataSource::resolve_user( $post->post_author );
-						},
-					],
 					'date'              => [
 						'type'        => Types::string(),
 						'description' => __( 'Post publishing date.', 'wp-graphql' ),
@@ -175,62 +166,6 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->post_date_gmt ) ? Types::prepare_date_response( $post->post_date_gmt ) : null;
 						},
 					],
-					'content'           => [
-						'type'        => Types::string(),
-						'description' => __( 'The content of the post.', 'wp-graphql' ),
-						'args'        => [
-							'format' => self::post_object_format_arg(),
-						],
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-							$content = ! empty( $post->post_content ) ? $post->post_content : null;
-
-							// If the raw format is requested, don't apply any filters.
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $content;
-							}
-
-							return apply_filters( 'the_content', $content );
-						},
-					],
-					'title'             => [
-						'type'        => Types::string(),
-						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-						'args'        => [
-							'format' => self::post_object_format_arg(),
-						],
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-							$title = ! empty( $post->post_title ) ? $post->post_title : null;
-
-							// If the raw format is requested, don't apply any filters.
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $title;
-							}
-
-							return apply_filters( 'the_title', $title );
-						},
-					],
-					'excerpt'           => [
-						'type'        => Types::string(),
-						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
-						'args'        => [
-							'format' => self::post_object_format_arg(),
-						],
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-							$excerpt = ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
-
-							// If the raw format is requested, don't apply any filters.
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $excerpt;
-							}
-
-							$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $post );
-
-							return apply_filters( 'the_excerpt', $excerpt );
-						},
-					],
 					'status'            => [
 						'type'        => Types::string(),
 						'description' => __( 'The current status of the object', 'wp-graphql' ),
@@ -238,13 +173,6 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->post_status ) ? $post->post_status : null;
 						},
 					],
-					'commentStatus'     => array(
-						'type'        => Types::string(),
-						'description' => __( 'Whether the comments are open or closed for this particular post.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->comment_status ) ? $post->comment_status : null;
-						},
-					),
 					'pingStatus'        => [
 						'type'        => Types::string(),
 						'description' => __( 'Whether the pings are open or closed for this particular post.', 'wp-graphql' ),
@@ -384,7 +312,7 @@ class PostObjectType extends WPObjectType {
 								$taxonomies = $args['taxonomies'];
 							} else {
 								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
-								foreach( $connected_taxonomies as $taxonomy ) {
+								foreach ( $connected_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
 										$taxonomies[] = $taxonomy;
 									}
@@ -427,7 +355,7 @@ class PostObjectType extends WPObjectType {
 								$taxonomies = $args['taxonomies'];
 							} else {
 								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
-								foreach( $connected_taxonomies as $taxonomy ) {
+								foreach ( $connected_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
 										$taxonomies[] = $taxonomy;
 									}
@@ -471,7 +399,7 @@ class PostObjectType extends WPObjectType {
 								$taxonomies = $args['taxonomies'];
 							} else {
 								$connected_taxonomies = get_object_taxonomies( $post, 'names' );
-								foreach( $connected_taxonomies as $taxonomy ) {
+								foreach ( $connected_taxonomies as $taxonomy ) {
 									if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
 										$taxonomies[] = $taxonomy;
 									}
@@ -497,13 +425,108 @@ class PostObjectType extends WPObjectType {
 				];
 
 				/**
+				 * Add "title" to the PostObject if the post_type supports it
+				 */
+				if ( post_type_supports( $post_type_object->name, 'title' ) ) {
+					$fields['title'] = [
+						'type'        => Types::string(),
+						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
+						'args'        => [
+							'format' => self::post_object_format_arg(),
+						],
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+							$title = ! empty( $post->post_title ) ? $post->post_title : null;
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $title;
+							}
+
+							return apply_filters( 'the_title', $title );
+						},
+					];
+				}
+
+				/**
+				 * Add "content" to the PostObject if the post_type supports the editor
+				 */
+				if ( post_type_supports( $post_type_object->name, 'editor' ) ) {
+					$fields['content'] = [
+						'type'        => Types::string(),
+						'description' => __( 'The content of the post.', 'wp-graphql' ),
+						'args'        => [
+							'format' => self::post_object_format_arg(),
+						],
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+							$content = ! empty( $post->post_content ) ? $post->post_content : null;
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $content;
+							}
+
+							return apply_filters( 'the_content', $content );
+						},
+					];
+				}
+
+				/**
+				 * Add the "author" field if the post_type supports it
+				 */
+				if ( post_type_supports( $post_type_object->name, 'author' ) ) {
+					$fields['author'] = [
+						'type'        => Types::user(),
+						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							return DataSource::resolve_user( $post->post_author );
+						},
+					];
+				}
+
+				/**
+				 * Add the "excerpt" field if the post_type supports it
+				 */
+				if ( post_type_supports( $post_type_object->name, 'excerpt' ) ) {
+					$fields['excerpt'] = [
+						'type'        => Types::string(),
+						'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
+						'args'        => [
+							'format' => self::post_object_format_arg(),
+						],
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+							$excerpt = ! empty( $post->post_excerpt ) ? $post->post_excerpt : null;
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $excerpt;
+							}
+
+							$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $post );
+
+							return apply_filters( 'the_excerpt', $excerpt );
+						},
+					];
+
+				}
+
+				/**
 				 * Add comment fields to the schema if the post_type supports "comments"
 				 *
 				 * @since 0.0.5
 				 */
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					$fields['comments']     = CommentConnectionDefinition::connection( $post_type_object->graphql_single_name );
-					$fields['commentCount'] = [
+					$fields['comments']      = CommentConnectionDefinition::connection( $post_type_object->graphql_single_name );
+					$fields['commentStatus'] = [
+						'type'        => Types::string(),
+						'description' => __( 'Whether the comments are open or closed for this particular post.', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $post->comment_status ) ? $post->comment_status : null;
+						},
+					];
+					$fields['commentCount']  = [
 						'type'        => Types::int(),
 						'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {

@@ -54,17 +54,6 @@ class MediaItemType {
 	public static function fields( $fields ) {
 
 		/**
-		 * Deprecate fields for the mediaItem type.
-		 * These fields can still be queried, but are just not preferred for the mediaItem type
-		 *
-		 * @since 0.0.6
-		 */
-		$fields['excerpt']['isDeprecated']      = true;
-		$fields['excerpt']['deprecationReason'] = __( 'Use the caption field instead of excerpt', 'wp-graphql' );
-		$fields['content']['isDeprecated']      = true;
-		$fields['content']['deprecationReason'] = __( 'Use the description field instead of content', 'wp-graphql' );
-
-		/**
 		 * Add new fields to the mediaItem type
 		 *
 		 * @since 0.0.6
