@@ -129,7 +129,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'ancestors'         => [
 						'type'        => Types::list_of( Types::post_object_union() ),
-						'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
+						'description' => esc_html__( 'Ancestors of the object. Typically this makes sense for hierarchical post_types, but non-hierarchical post_types can have parents of other types.', 'wp-graphql' ),
 						'args'        => [
 							'types' => [
 								'type'        => Types::list_of( Types::post_type_enum() ),
@@ -217,7 +217,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'parent'            => [
 						'type'        => Types::post_object_union(),
-						'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
+						'description' => __( 'The parent of the object. The parent object can be of various types. Even non-hierarchical post_types can have a parent. So this field is available for non-hierarchica post_types as well.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_parent ) ? get_post( $post->post_parent ) : null;
 						},
@@ -291,7 +291,14 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $uri ) ? $uri : null;
 						},
 					],
-					'terms'             => [
+				];
+
+				/**
+				 * Only if the post_type has taxonomies associated with it should it get these fields
+				 */
+				if ( ! empty( $object_taxonomies = get_object_taxonomies( $post_type_object->name ) ) ) {
+
+					$fields['terms'] = [
 						'type'        => Types::list_of( Types::term_object_union() ),
 						'args'        => [
 							'taxonomies' => [
@@ -333,8 +340,9 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
 						},
-					],
-					'termNames'         => [
+					];
+
+					$fields['termNames'] = [
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
 							'taxonomies' => [
@@ -377,8 +385,9 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $term_names ) ? $term_names : null;
 						},
-					],
-					'termSlugs'         => [
+					];
+
+					$fields['termSlugs'] = [
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
 							'taxonomies' => [
@@ -421,8 +430,26 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $term_slugs ) ? $term_slugs : null;
 						},
-					],
-				];
+					];
+
+					/**
+					 * Add term connections based on the allowed taxonomies that are also
+					 * registered to the post_type
+					 *
+					 * @since 0.0.5
+					 */
+					if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+						foreach ( $allowed_taxonomies as $taxonomy ) {
+							// If the taxonomy is in the array of taxonomies registered to the post_type
+							if ( in_array( $taxonomy, $object_taxonomies, true ) ) {
+								$tax_object                                 = get_taxonomy( $taxonomy );
+								$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object, $post_type_object->graphql_single_name );
+							}
+						}
+					}
+
+				}
+
 
 				/**
 				 * Add "title" to the PostObject if the post_type supports it
@@ -540,22 +567,6 @@ class PostObjectType extends WPObjectType {
 				 */
 				if ( true === $post_type_object->hierarchical ) {
 					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
-				}
-
-				/**
-				 * Add term connections based on the allowed taxonomies that are also
-				 * registered to the post_type
-				 *
-				 * @since 0.0.5
-				 */
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
-						// If the taxonomy is in the array of taxonomies registered to the post_type
-						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-							$tax_object                                 = get_taxonomy( $taxonomy );
-							$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object, $post_type_object->graphql_single_name );
-						}
-					}
 				}
 
 				if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {

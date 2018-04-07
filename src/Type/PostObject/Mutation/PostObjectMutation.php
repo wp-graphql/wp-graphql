@@ -33,29 +33,9 @@ class PostObjectMutation {
 		if ( ! empty( $post_type_object->graphql_single_name ) && empty( self::$input_fields[ $post_type_object->graphql_single_name ] ) ) {
 
 			$input_fields = [
-				'authorId'      => [
-					'type'        => Types::id(),
-					'description' => __( 'The userId to assign as the author of the post', 'wp-graphql' ),
-				],
-				'commentCount'  => [
-					'type'        => Types::int(),
-					'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
-				],
-				'commentStatus' => [
-					'type'        => Types::string(),
-					'description' => __( 'The comment status for the object', 'wp-graphql' ),
-				],
-				'content'       => [
-					'type'        => Types::string(),
-					'description' => __( 'The content of the object', 'wp-graphql' ),
-				],
 				'date'          => [
 					'type'        => Types::string(),
 					'description' => __( 'The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17 ', 'wp-graphql' ),
-				],
-				'excerpt'       => [
-					'type'        => Types::string(),
-					'description' => __( 'The excerpt of the object', 'wp-graphql' ),
 				],
 				'menuOrder'     => [
 					'type'        => Types::int(),
@@ -67,7 +47,7 @@ class PostObjectMutation {
 				],
 				'parentId'      => [
 					'type'        => Types::id(),
-					'description' => __( 'The ID of the parent object', 'wp-graphql' ),
+					'description' => __( 'The ID of the parent object. Even non-hierarchical post types can have a parent, so this field is supported even for non-hierarchical types.', 'wp-graphql' ),
 				],
 				'password'      => [
 					'type'        => Types::string(),
@@ -89,15 +69,52 @@ class PostObjectMutation {
 					'type'        => Types::post_status_enum(),
 					'description' => __( 'The status of the object', 'wp-graphql' ),
 				],
-				'title'         => [
-					'type'        => Types::string(),
-					'description' => __( 'The title of the post', 'wp-graphql' ),
-				],
 				'toPing'        => [
 					'type'        => Types::list_of( Types::string() ),
 					'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
 				],
 			];
+
+			if ( post_type_supports( $post_type_object->name, 'author' ) ) {
+				$input_fields['title'] = [
+					'type'        => Types::string(),
+					'description' => __( 'The title of the post', 'wp-graphql' ),
+				];
+			}
+
+			if ( post_type_supports( $post_type_object->name, 'editor' ) ) {
+				$input_fields['content'] = [
+					'type'        => Types::string(),
+					'description' => __( 'The content of the object', 'wp-graphql' ),
+				];
+			}
+
+			if ( post_type_supports( $post_type_object->name, 'author' ) ) {
+				$input_fields['author'] = [
+					'type'        => Types::id(),
+					'description' => __( 'The userId to assign as the author of the post', 'wp-graphql' ),
+				];
+			}
+
+			if ( post_type_supports( $post_type_object->name, 'excerpt' ) ) {
+				$input_fields['excerpt'] = [
+					'type'        => Types::string(),
+					'description' => __( 'The excerpt of the object', 'wp-graphql' ),
+				];
+			}
+
+			if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+				$input_fields['commentCount']  = [
+					'type'        => Types::int(),
+					'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
+				];
+				$input_fields['commentStatus'] = [
+					'type'        => Types::string(),
+					'description' => __( 'The comment status for the object', 'wp-graphql' ),
+				];
+			}
+
+
 
 			/**
 			 * Add inputs for connected taxonomies
