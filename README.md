@@ -2,7 +2,7 @@
 
 # WPGraphQL 
 
-<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wp-graphql.gitbooks.io/wp-graphql/content/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
+<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wpgraphql.com/docs/getting-started/about/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
 
 GraphQL API for WordPress.
 
@@ -17,7 +17,7 @@ Download and install like any WordPress plugin.
 
 ## Documentation
 
-Documentation can be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
+Documentation is being moved [here](https://wpgraphql.com/docs/getting-started/about), but some can still be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
 
 - Requires PHP 5.5+
 - Requires WordPress 4.7+
