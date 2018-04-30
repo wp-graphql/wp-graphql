@@ -335,6 +335,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			'hasPassword'  => 'has_password',
 			'password'     => 'post_password',
 			'status'       => 'post_status',
+			'stati'        => 'post_status',
 			'dateQuery'    => 'date_query',
 		];
 

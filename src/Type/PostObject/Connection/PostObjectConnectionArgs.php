@@ -244,6 +244,13 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				],
 
 				/**
+				 * List of post status parameters
+				 */
+				'stati' => [
+					'type' => Types::list_of( Types::post_status_enum() ),
+				],
+
+				/**
 				 * Order & Orderby parameters
 				 *
 				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
