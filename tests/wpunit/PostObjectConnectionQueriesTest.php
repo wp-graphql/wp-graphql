@@ -501,7 +501,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$mock_args = [
 			'hasPassword' => true,
 			'password'    => 'myPostPassword123',
-			'status'      => [ 'publish', 'private' ],
+			'status'      => 'publish',
 			'dateQuery'   => array(
 				array(
 					'year'  => 2012,
@@ -518,7 +518,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertTrue( $actual['has_password'] );
 		$this->assertEquals( 'myPostPassword123', $actual['post_password'] );
-		$this->assertEquals( [ 'publish', 'private' ], $actual['post_status'] );
+		$this->assertEquals( 'publish', $actual['post_status'] );
 		$this->assertEquals(
 			array(
 				array(
@@ -536,6 +536,24 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'password', $actual );
 		$this->assertArrayNotHasKey( 'status', $actual );
 		$this->assertArrayNotHasKey( 'dateQuery', $actual );
+	}
+
+	public function testSanitizeInputFieldsListOfPostStatusEnum() {
+		$mock_args = [
+			'stati'      =>  [ 'publish', 'private' ],
+		];
+
+		$actual = \WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
+
+		/**
+		 * Make sure the returned values are equal to mock args
+		 */
+		$this->assertEquals( ['publish', 'private'], $actual['post_status'] );
+
+		/**
+		 * Make sure the query didn't return these array values
+		 */
+		$this->assertArrayNotHasKey( 'status', $actual );
 	}
 
 	/**

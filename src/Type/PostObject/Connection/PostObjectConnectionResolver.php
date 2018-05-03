@@ -157,16 +157,21 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
-		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
-			foreach ( $args['where']['orderby'] as $orderby_input ) {
-				if ( ! empty( $orderby_input['field'] ) ) {
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
-					];
-				}
-			}
-		}
+		 if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
+ 			$query_args['orderby'] = [];
+ 			foreach ( $args['where']['orderby'] as $orderby_input ) {
+ 				/**
+ 				 * These orderby options should not include the order parameter.
+ 				 */
+ 				if ( in_array( $orderby_input['field'], [ 'post__in', 'post_name__in', 'post_parent__in' ], true ) ) {
+ 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+ 				} else if ( ! empty( $orderby_input['field'] ) ) {
+ 					$query_args['orderby'] = [
+ 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
+ 					];
+ 				}
+ 			}
+ 		}
 
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
@@ -335,6 +340,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			'hasPassword'  => 'has_password',
 			'password'     => 'post_password',
 			'status'       => 'post_status',
+			'stati'        => 'post_status',
 			'dateQuery'    => 'date_query',
 		];
 
