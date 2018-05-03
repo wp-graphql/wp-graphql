@@ -20,9 +20,13 @@ foreach ($test_posts_statuses as $post_status) {
 }
 
 /**
- * Set the content-type so we get only posts with status published and draft.
+ * Set the content-type so we get a proper response from the API
  */
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
+
+/**
+ * Query for only posts with a status of published and draft.
+ */
 $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
 	'query' => '
 	{
