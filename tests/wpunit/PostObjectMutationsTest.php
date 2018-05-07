@@ -231,6 +231,11 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEquals( $actual, $expected );
 
+		/**
+		 * Make sure the edit lock is removed after the mutation has finished
+		 */
+		$this->assertFalst( get_post_meta( '_edit_lock', $page_id, true ) );
+
 	}
 
 	public function testDeletePageMutation() {
