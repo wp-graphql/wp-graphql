@@ -234,7 +234,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Make sure the edit lock is removed after the mutation has finished
 		 */
-		$this->assertFalst( get_post_meta( '_edit_lock', $page_id, true ) );
+		$this->assertFalse( get_post_meta( '_edit_lock', $page_id, true ) );
 
 	}
 
