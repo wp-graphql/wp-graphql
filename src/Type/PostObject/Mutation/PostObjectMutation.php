@@ -300,7 +300,7 @@ class PostObjectMutation {
 		 *
 		 * @return bool
 		 */
-		if ( true === apply_filters( 'graphql_lock_post_after_mutation', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
+		if ( true === apply_filters( 'graphql_post_object_mutation_set_edit_lock', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
 			/**
 			 * Set the post_lock for the $new_post_id
 			 */
@@ -359,7 +359,7 @@ class PostObjectMutation {
 		 *
 		 * @return bool
 		 */
-		if ( true === apply_filters( 'graphql_lock_post_after_mutation', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
+		if ( true === apply_filters( 'graphql_post_object_mutation_set_edit_lock', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
 			/**
 			 * Set the post_lock for the $new_post_id
 			 */
