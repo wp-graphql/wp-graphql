@@ -426,9 +426,6 @@ class Router {
 
 				self::after_execute( $response, $operation_name, $request, $variables, $graphql_results );
 
-				wp_send_json( $response );
-
-
 			} else {
 
 				/**
