@@ -39,7 +39,7 @@ class PostObjectType extends WPObjectType {
 	/**
 	 * Holds the post_type_object
 	 *
-	 * @var object $post_type_object
+	 * @var \WP_Post_Type $post_type_object
 	 */
 	private static $post_type_object;
 
@@ -565,8 +565,9 @@ class PostObjectType extends WPObjectType {
 				/**
 				 * If the post_type is Hierarchical, there should be a children field
 				 */
-				if ( true === $post_type_object->hierarchical ) {
-					$fields[ 'child' . ucfirst( $post_type_object->graphql_plural_name ) ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
+				if ( isset( $post_type_object->hierarchical ) && true === $post_type_object->hierarchical ) {
+					$field_name            = 'child' . ucfirst( $post_type_object->graphql_plural_name );
+					$fields[ $field_name ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
 				}
 
 				if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
