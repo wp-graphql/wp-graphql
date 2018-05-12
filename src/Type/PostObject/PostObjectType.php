@@ -344,49 +344,7 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->post_status ) ? $post->post_status : null;
 						},
 					],
-					'title' => [
-						'type'        => Types::string(),
-						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-						'args'        => [
-							'format' => self::post_object_format_arg(),
-						],
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-							$title = ! empty( $post->post_title ) ? $post->post_title : null;
-
-							// If the raw format is requested, don't apply any filters.
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $title;
-							}
-
-							return apply_filters( 'the_title', $title );
-						},
-					],
-					'toPing'            => [
-						'type'        => Types::list_of( Types::string() ),
-						'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->to_ping ) ? implode( ',', $post->to_ping ) : null;
-						},
-					],
-					'uri'               => [
-						'type'        => Types::string(),
-						'description' => __( 'URI path for the resource', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							$uri = get_page_uri( $post->ID );
-
-							return ! empty( $uri ) ? $uri : null;
-						},
-					],
-				];
-
-
-				/**
-				 * Only if the post_type has taxonomies associated with it should it get these fields
-				 */
-				if ( ! empty( $object_taxonomies = get_object_taxonomies( $post_type_object->name ) ) ) {
-
-					$fields['terms'] = [
+					'terms' => [
 						'type'        => Types::list_of( Types::term_object_union() ),
 						'args'        => [
 							'taxonomies' => [
@@ -428,9 +386,8 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
 						},
-					];
-
-					$fields['termNames'] = [
+					],
+					'termNames' => [
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
 							'taxonomies' => [
@@ -473,9 +430,8 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $term_names ) ? $term_names : null;
 						},
-					];
-
-					$fields['termSlugs'] = [
+					],
+					'termSlugs' => [
 						'type'        => Types::list_of( Types::string() ),
 						'args'        => [
 							'taxonomies' => [
@@ -518,7 +474,55 @@ class PostObjectType extends WPObjectType {
 
 							return ! empty( $term_slugs ) ? $term_slugs : null;
 						},
-					];
+					],
+					'title' => [
+						'type'        => Types::string(),
+						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
+						'args'        => [
+							'format' => self::post_object_format_arg(),
+						],
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+							$title = ! empty( $post->post_title ) ? $post->post_title : null;
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $title;
+							}
+
+							return apply_filters( 'the_title', $title );
+						},
+					],
+					'toPing'            => [
+						'type'        => Types::list_of( Types::string() ),
+						'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $post->to_ping ) ? implode( ',', $post->to_ping ) : null;
+						},
+					],
+					'uri'               => [
+						'type'        => Types::string(),
+						'description' => __( 'URI path for the resource', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							$uri = get_page_uri( $post->ID );
+
+							return ! empty( $uri ) ? $uri : null;
+						},
+					],
+				];
+				
+				/**
+				 * If the post_type is Hierarchical, there should be a children field
+				 */
+				if ( isset( $post_type_object->hierarchical ) && true === $post_type_object->hierarchical ) {
+					$field_name            = 'child' . ucfirst( $post_type_object->graphql_plural_name );
+					$fields[ $field_name ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
+				}
+
+				/**
+				 * Only if the post_type has taxonomies associated with it should it get these fields
+				 */
+				if ( ! empty( $object_taxonomies = get_object_taxonomies( $post_type_object->name ) ) ) {
 
 					/**
 					 * Add term connections based on the allowed taxonomies that are also
@@ -536,14 +540,18 @@ class PostObjectType extends WPObjectType {
 						}
 					}
 
-				}
+				} else {
 
-				/**
-				 * If the post_type is Hierarchical, there should be a children field
-				 */
-				if ( isset( $post_type_object->hierarchical ) && true === $post_type_object->hierarchical ) {
-					$field_name            = 'child' . ucfirst( $post_type_object->graphql_plural_name );
-					$fields[ $field_name ] = PostObjectConnectionDefinition::connection( $post_type_object, 'Children' );
+					/**
+					 * If the post_type has NO connected taxonomies, we can unset
+					 * the term fields.
+					 */
+					$term_fields = [ 'termNames', 'termSlugs', 'terms' ];
+ 					foreach ( $term_fields as $term_field_key ) {
+ 						if ( isset( $fields[ $term_field_key ] ) ) {
+ 							unset( $fields[ $term_field_key ] );
+						}
+					}
 				}
 
 				/**
