@@ -287,9 +287,25 @@ class PostObjectMutation {
 	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info, $default_post_status = null, $intended_post_status = null ) {
 
 		/**
-		 * Set the post_lock for the $new_post_id
+		 * Sets the post lock
+		 *
+		 * @param int           $post_id              The ID of the postObject being mutated
+		 * @param array         $input                The input for the mutation
+		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext    $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
+		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+		 *
+		 * @return bool
 		 */
-		self::set_edit_lock( $post_id );
+		if ( true === apply_filters( 'graphql_post_object_mutation_set_edit_lock', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
+			/**
+			 * Set the post_lock for the $new_post_id
+			 */
+			self::set_edit_lock( $post_id );
+		}
 
 		/**
 		 * Update the _edit_last field
@@ -328,6 +344,27 @@ class PostObjectMutation {
 		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
 		 */
 		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
+
+		/**
+		 * Sets the post lock
+		 *
+		 * @param int           $post_id              The ID of the postObject being mutated
+		 * @param array         $input                The input for the mutation
+		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext    $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
+		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+		 *
+		 * @return bool
+		 */
+		if ( true === apply_filters( 'graphql_post_object_mutation_set_edit_lock', true, $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status ) ) {
+			/**
+			 * Set the post_lock for the $new_post_id
+			 */
+			self::remove_edit_lock( $post_id );
+		}
 
 	}
 
@@ -578,6 +615,25 @@ class PostObjectMutation {
 		update_post_meta( $post->ID, '_edit_lock', $lock );
 
 		return [ $now, $user_id ];
+
+	}
+
+	/**
+	 * Remove the edit lock for a post
+	 *
+	 * @param int $post_id ID of the post to delete the lock for
+	 *
+	 * @return bool
+	 */
+	public static function remove_edit_lock( $post_id ) {
+
+		$post = get_post( $post_id );
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return false;
+		}
+
+		return delete_post_meta( $post->ID, '_edit_lock' );
 
 	}
 
