@@ -442,20 +442,10 @@ class Router {
 					 * Send the JSON response
 					 */
 					$server = \WPGraphQL::server();
-					$result = $server->executeRequest();
+					$response = $server->executeRequest();
 
-					self::after_execute( $result, $operation_name, $request, $variables, $graphql_results );
+					self::after_execute( $response, $operation_name, $request, $variables, $graphql_results );
 
-					/**
-					 * Send the response
-					 */
-					wp_send_json( $result );
-
-				} elseif ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-					/**
-					 * Headers will already be set if this function is called within AJAX.
-					 */
-					wp_send_json( $response );
 				}
 
 			}
@@ -471,6 +461,11 @@ class Router {
 			self::$http_status_code = 500;
 			$response['errors']     = [ FormattedError::createFromException( $error ) ];
 		} // End try().
+
+		/**
+		 * Send the response
+		 */
+		wp_send_json( $response );
 
 	}
 
