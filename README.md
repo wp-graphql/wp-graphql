@@ -2,7 +2,7 @@
 
 # WPGraphQL 
 
-<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wp-graphql.gitbooks.io/wp-graphql/content/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
+<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wpgraphql.com/docs/getting-started/about/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
 
 GraphQL API for WordPress.
 
@@ -13,10 +13,11 @@ GraphQL API for WordPress.
 
 ## Quick Install
 Download and install like any WordPress plugin.
+[Details on Install and Activation](https://wpgraphql.com/docs/getting-started/install-and-activate/)
 
 ## Documentation
 
-Documentation can be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
+Documentation is being moved [here](https://wpgraphql.com/docs/getting-started/about), but some can still be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
 
 - Requires PHP 5.5+
 - Requires WordPress 4.7+
@@ -52,7 +53,7 @@ my recommendation is the _GraphiQL_ desktop app below:
 
 - <a href="https://github.com/skevy/graphiql-app">Download the GraphiQL Desktop App</a>
     - Once the app is downloaded and installed, open the App.
-    - Set the `GraphQL Endpoint` to `http://yoursite.com/graphql`
+    - Set the `GraphQL Endpoint` to `http://yoursite.com/graphql`. In order for the /graphql endpoint to work, you must have [pretty permalinks](https://codex.wordpress.org/Using_Permalinks/) enabled.
     - You should now be able to browse the GraphQL Schema via the "Docs" explorer
     at the top right. 
     - On the left side, you can execute GraphQL Queries

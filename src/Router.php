@@ -190,9 +190,19 @@ class Router {
 	 */
 	protected static function get_response_headers() {
 
+		/**
+		 * Filtered list of access control headers.
+		 *
+		 * @param array $access_control_headers Array of headers to allow.
+		 */
+		$access_control_allow_headers = apply_filters( 'graphql_access_control_allow_headers', [
+			'Authorization',
+			'Content-Type'
+		] );
+
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
-			'Access-Control-Allow-Headers' => 'Authorization, Content-Type',
+			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
@@ -287,7 +297,6 @@ class Router {
 	}
 
 
-
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
@@ -343,8 +352,8 @@ class Router {
 			} else if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
 
 				$data = [
-					'query'         => isset( $_GET['query'] ) ? sanitize_text_field( $_GET['query'] ) : '',
-					'operationName' => isset( $_GET['operationName'] ) ? sanitize_text_field( $_GET['operationName'] ) : '',
+					'query'         => isset( $_GET['query'] ) ? wp_kses_stripslashes( sanitize_text_field( $_GET['query'] ) ) : '',
+					'operationName' => isset( $_GET['operationName'] ) ? wp_kses_stripslashes( sanitize_text_field( $_GET['operationName'] ) ) : '',
 					'variables'     => isset( $_GET['variables'] ) ? $_GET['variables'] : '',
 				];
 
@@ -373,7 +382,7 @@ class Router {
 					 * use in the executor.
 					 */
 				} else {
-					$decoded_variables = json_decode( $data['variables'] );
+					$decoded_variables = json_decode( wp_kses_stripslashes( $data['variables'] ), true );
 				}
 
 				$data['variables'] = ! empty( $decoded_variables ) && is_array( $decoded_variables ) ? $decoded_variables : null;
@@ -391,7 +400,7 @@ class Router {
 				 */
 				$request        = isset( $data['query'] ) ? $data['query'] : '';
 				$operation_name = isset( $data['operationName'] ) ? $data['operationName'] : '';
-				$variables      = isset( $data['variables'] ) ? $data['variables'] : '';
+				$variables      = isset( $data['variables'] ) ? $data['variables'] : [];
 
 
 				if ( false === headers_sent() ) {
@@ -465,6 +474,17 @@ class Router {
 
 	}
 
+
+	/**
+	 * Prepare headers for response
+	 *
+	 * @param array    $response        The response of the GraphQL Request
+	 * @param array    $graphql_results The results of the GraphQL execution
+	 * @param string   $request         The GraphQL Request
+	 * @param string   $operation_name  The operation name of the GraphQL Request
+	 * @param array    $variables       The variables applied to the GraphQL Request
+	 * @param \WP_User $user            The current user object
+	 */
 	protected static function prepare_headers( $response, $graphql_results, $request, $operation_name, $variables, $user ) {
 
 		/**
@@ -487,7 +507,15 @@ class Router {
 
 	}
 
-	protected static function after_execute( $result, $operation_name, $request, $variables, $graphql_results ) {
+	/**
+	 * Apply filters and do actions after GraphQL Execution
+	 *
+	 * @param array      $result         The result of your GraphQL request
+	 * @param string     $operation_name The name of the operation
+	 * @param string     $request        The request that GraphQL executed
+	 * @param array|null $variables      Variables to passed to your GraphQL query
+	 */
+	protected static function after_execute( $result, $operation_name, $request, $variables ) {
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
@@ -532,7 +560,7 @@ class Router {
 		 *
 		 * @param array      $filtered_result The filtered_result of the GraphQL request
 		 * @param array      $result          The result of your GraphQL request
-		 * @param            Schema           object $schema The schema object for the root request
+		 * @param WPSchema   $schema          The schema object for the root request
 		 * @param string     $operation_name  The name of the operation
 		 * @param string     $request         The request that GraphQL executed
 		 * @param array|null $variables       Variables to passed to your GraphQL query
@@ -555,12 +583,15 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param array $response
-		 * @param array $graphql_results
+		 * @param array  $result         The result of the GraphQL Query
+		 * @param array  $filtered_result
+		 * @param string $operation_name The name of the operation
+		 * @param string $request        The request that GraphQL executed
+		 * @param array  $variables      Variables to passed to your GraphQL query
 		 *
 		 * @since 0.0.5
 		 */
-		do_action( 'graphql_process_http_request_response', $result, $graphql_results );
+		do_action( 'graphql_process_http_request_response', $filtered_result, $result, $operation_name, $request, $variables );
 
 	}
 
