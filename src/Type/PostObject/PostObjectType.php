@@ -510,7 +510,7 @@ class PostObjectType extends WPObjectType {
 						},
 					],
 				];
-				
+
 				/**
 				 * If the post_type is Hierarchical, there should be a children field
 				 */
@@ -588,14 +588,19 @@ class PostObjectType extends WPObjectType {
 					'excerpt' => [
 						'excerpt',
 					],
+					'trackbacks' => [],
+					'custom-fields' => [],
 					'comments' => [
 						'comments',
 						'commentCount',
 						'commentStatus',
 					],
+					'revisions' => [],
+					'page-attributes' => [],
+					'post-formats' => []
 				];
 
-				/**
+				/**0
 				 * Loop through the supported features, and if the post_type doesn't support
 				 * the feature, unset the fields related to the feature
 				 */
