@@ -30,55 +30,70 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
-		$query_args = [];
+		// Prevent the query from matching anything by default.
+		$query_args = [
+			'post_type' => 'nav_menu_item',
+			'post__in'  => array( 0 ),
+		];
 
-		/**
-		 * Determine the menu_slug based on the $source of the query or from query
-		 * args.
-		 */
-		if ( $source instanceof \WP_Term ) {
-			$menu_slug = ! empty( $source->slug ) ? $source->slug : null;
-		} elseif ( $source instanceof \WP_Post ) {
-			$menu_slug = ! empty( $source->menu->slug ) ? $source->menu->slug : null;
-		} elseif ( ! empty( $args['where']['location'] ) ) {
-			$menu_slug = $args['where']['location'];
+		$menu_slug = null;
+		$parent_id = 0;
+
+		// Source object is a nav menu.
+		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
+			$menu_slug = $source->slug;
 		}
 
-		/**
-		 * Allow menu items to be queried by ID.
-		 */
-		if ( ! empty( $args['where']['id'] ) ) {
-			$query_args['post__in'] = [ intval( $args['where']['id'] ) ];
-		}
-
-		/**
-		 * **NOT CURRENTLY IMPLEMENTED**
-		 * If the source of the query is another nav_menu_item, and
-		 * the field is "childItems" set the value of the $menu_item_parent to
-		 */
+		// Source object is a nav menu item, via childItems.
 		if (
 			$source instanceof \WP_Post &&
 			'nav_menu_item' === get_post_type( $source ) &&
 			'childItems' === $info->fieldName
 		) {
+			// Set the parent ID.
 			$parent_id = $source->ID;
-		} else {
-			$parent_id = 0;
+
+			// Get the nav menu that this nav menu item belongs to.
+			$menus = get_terms( 'nav_menu', $source );
+			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
+				$menu_slug = $menus[0]->slug;
+			}
 		}
 
-		$query_args['post_type'] = 'nav_menu_item';
+		// Menu slug can also available from user arg, but don't let the user
+		// override the connection context.
+		if ( empty( $menu_slug ) && ! empty( $args['where']['location'] ) ) {
+			$menu_slug = $args['where']['location'];
+		}
 
-		/**
-		 * Limit the query to items of a specific menu
-		 */
-		if ( ! empty( $menu_slug ) ) {
-			$query_args['tax_query'] = [
-				[
-					'taxonomy' => 'nav_menu',
-					'field'    => 'slug',
-					'terms'    => [ $menu_slug ],
-				],
-			];
+		// Instead of querying posts by the taxonomy, use wp_get_nav_menu_items so
+		// that we are able to differentiate between parent and child nav items.
+		// Otherwise we would need to use (slow) meta queries.
+		$menu_items = wp_get_nav_menu_items( $menu_slug );
+
+		// No menu items? Nothing to do.
+		if ( empty( $menu_items ) ) {
+			return $query_args;
+		}
+
+		// Filter the menu items on whether they match a parent ID. If parent ID
+		// is 0, that corresponds to a top-level menu item.
+		$matched_items = array_filter( $menu_items, function( $item ) use ( $parent_id ) {
+			return $parent_id === intval( $item->menu_item_parent );
+		} );
+
+		// Get post IDs.
+		$matched_ids = wp_list_pluck( $matched_items, 'ID' );
+
+		// If the user requested a specific ID, check for it.
+		if ( ! empty( $args['where']['id'] ) ) {
+			$requested_ids = [ intval( $args['where']['id'] ) ];
+			$matched_ids = array_intersect( $matched_ids, $requested_ids );
+		}
+
+		// Only update post__in if there are matches.
+		if ( count( $matched_ids ) ) {
+			$query_args['post__in'] = $matched_ids;
 		}
 
 		/**
