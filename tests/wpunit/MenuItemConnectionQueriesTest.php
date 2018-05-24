@@ -38,7 +38,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 	}
 
-	public function testMenuItemsQuery() {
+	public function testMenuItemsQueryWithNoArgs() {
 		$count = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
@@ -67,6 +67,40 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// The query should return no menu items since no where args were specified.
 		$this->assertEquals( 0, count( $actual['data']['menuItems']['edges'] ) );
+	}
+
+	public function testMenuItemsQueryById() {
+		$count = 10;
+		$created = $this->createMenuItems( 'my-test-menu-id', $count );
+
+		$menu_item_id = intval( $created['menu_item_ids'][2] );
+		$post_id = intval( $created['post_ids'][2] );
+
+		$query = '
+		{
+			menuItems( where: { id: ' . $menu_item_id . ' } ) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		// The returned menu items have the expected number.
+		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
+
+		// The returned menu items and connected posts have the expected IDs.
+		$this->assertEquals( $menu_item_id, $actual['data']['menuItems']['edges'][0]['node']['menuItemId'] );
+		$this->assertEquals( $post_id, $actual['data']['menuItems']['edges'][0]['node']['connectedObject']['postId'] );
 	}
 
 	public function testMenuItemsQueryByLocation() {

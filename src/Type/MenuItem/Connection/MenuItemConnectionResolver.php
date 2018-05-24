@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\MenuItem\Connection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 
 /**
@@ -14,6 +15,49 @@ use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
  * @since 0.0.29
  */
 class MenuItemConnectionResolver extends PostObjectConnectionResolver {
+
+	/**
+	 * Return an array of menu items associated with the menu connection, the
+	 * requested menu location, or the specific menu item.
+	 *
+	 * Instead of querying posts by the taxonomy, use wp_get_nav_menu_items so
+	 * that we are able to differentiate between parent and child nav items.
+	 * Otherwise we would need to use (slow) meta queries.
+	 *
+	 * @param mixed       $source  The query source being passed down to the resolver
+	 * @param array       $args    The arguments that were provided to the query
+	 *
+	 * @return array
+	 */
+	private static function get_menu_items( $source, array $args ) {
+		// Source object is a nav menu.
+		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
+			return wp_get_nav_menu_items( $source->slug );
+		}
+
+		// Source object is a nav menu item via childItems or found via where arg.
+		if (
+			$source instanceof \WP_Post &&
+			'nav_menu_item' === get_post_type( $source )
+		) {
+			// Get the nav menu that this nav menu item belongs to.
+			$menus = get_terms( 'nav_menu', $source );
+			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
+				return wp_get_nav_menu_items( $menus[0]->slug );
+			}
+		}
+
+		// Menu location can be available from user arg.
+		if ( ! empty( $args['where']['location'] ) ) {
+			$theme_locations = get_nav_menu_locations();
+
+			if ( isset( $theme_locations[ $args['where']['location'] ] ) ) {
+				return wp_get_nav_menu_items( $theme_locations[ $args['where']['location'] ] );
+			}
+		}
+
+		return array();
+	}
 
 	/**
 	 * This returns the $query_args that should be used when querying for posts in the postObjectConnectionResolver.
@@ -36,54 +80,22 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			'post__in'  => array( 0 ),
 		];
 
-		$menu_slug = null;
-		$parent_id = 0;
-
-		// Source object is a nav menu.
-		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
-			$menu_slug = $source->slug;
+		// If the user requested a specific ID, set the source object accordingly.
+		if ( ! empty( $args['where']['id'] ) ) {
+			$source = DataSource::resolve_post_object( intval( $args['where']['id'] ), 'nav_menu_item' );
 		}
 
-		// Source object is a nav menu item, via childItems.
-		if (
-			$source instanceof \WP_Post &&
-			'nav_menu_item' === get_post_type( $source ) &&
-			'childItems' === $info->fieldName
-		) {
-			// Set the parent ID.
-			$parent_id = $source->ID;
-
-			// Get the nav menu that this nav menu item belongs to.
-			$menus = get_terms( 'nav_menu', $source );
-			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
-				$menu_slug = $menus[0]->slug;
-			}
-		}
-
-		// Menu slug can also available from user arg, but don't let the user
-		// override the connection context.
-		if ( empty( $menu_slug ) && ! empty( $args['where']['location'] ) ) {
-			$theme_locations = get_nav_menu_locations();
-
-			if ( isset( $theme_locations[ $args['where']['location'] ] ) ) {
-				// This is a menu ID, not a slug, but we are just passing it to
-				// wp_get_nav_menu_items so it's fine.
-				$menu_slug = $theme_locations[ $args['where']['location'] ];
-			}
-		}
-
-		// Instead of querying posts by the taxonomy, use wp_get_nav_menu_items so
-		// that we are able to differentiate between parent and child nav items.
-		// Otherwise we would need to use (slow) meta queries.
-		$menu_items = wp_get_nav_menu_items( $menu_slug );
+		$menu_items = self::get_menu_items( $source, $args );
 
 		// No menu items? Nothing to do.
 		if ( empty( $menu_items ) ) {
 			return $query_args;
 		}
 
-		// Filter the menu items on whether they match a parent ID. If parent ID
-		// is 0, that corresponds to a top-level menu item.
+		// Filter the menu items on whether they match a parent ID, if we are
+		// inside a request for child items. If parent ID is 0, that corresponds to
+		// a top-level menu item.
+		$parent_id = ( $source instanceof \WP_Post && 'childItems' === $info->fieldName ) ? $source->ID : 0;
 		$matched_items = array_filter( $menu_items, function( $item ) use ( $parent_id ) {
 			return $parent_id === intval( $item->menu_item_parent );
 		} );

@@ -63,7 +63,7 @@ class MenuItemType extends WPObjectType {
 						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'Relay ID of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return ( ! empty( $menu_item->post_type ) && ! empty( $menu_item->ID ) ) ? Relay::toGlobalId( $menu_item->post_type, $menu_item->ID ) : null;
+							return ! empty( $menu_item->ID ) ? Relay::toGlobalId( self::$type_name, $menu_item->ID ) : null;
 						},
 					],
 					'childItems' => MenuItemConnectionDefinition::connection(),
