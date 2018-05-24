@@ -63,7 +63,13 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Menu slug can also available from user arg, but don't let the user
 		// override the connection context.
 		if ( empty( $menu_slug ) && ! empty( $args['where']['location'] ) ) {
-			$menu_slug = $args['where']['location'];
+			$theme_locations = get_nav_menu_locations();
+
+			if ( isset( $theme_locations[ $args['where']['location'] ] ) ) {
+				// This is a menu ID, not a slug, but we are just passing it to
+				// wp_get_nav_menu_items so it's fine.
+				$menu_slug = $theme_locations[ $args['where']['location'] ];
+			}
 		}
 
 		// Instead of querying posts by the taxonomy, use wp_get_nav_menu_items so
