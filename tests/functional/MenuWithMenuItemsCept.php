@@ -78,10 +78,10 @@ $I->seeResponseIsJson();
 $response       = $I->grabResponse();
 $response_array = json_decode( $response, true );
 
-// Make sure query is valid and has no errors.
+// The query is valid and has no errors.
 $I->assertArrayNotHasKey( 'errors', $response_array );
 
-// Make sure response is properly returning data as expected.
+// The response is properly returning data as expected.
 $I->assertArrayHasKey( 'data', $response_array );
 
 // The correct menu is returned.
