@@ -33,6 +33,23 @@ class MenuLocationEnumType extends WPEnumType {
 	}
 
 	/**
+	 * Generate a safe / sanitized name from an enum value.
+	 *
+	 * @param  string $value Enum value.
+	 * @return string
+	 */
+	private static function get_safe_name( $value ) {
+		$safe_name = strtoupper( preg_replace( '#[^A-z0-9]#', '_', $value ) );
+
+		// Enum names must start with a letter or underscore.
+		if ( ! preg_match( '#^[_a-zA-Z]#', $value ) ) {
+			return '_' . $safe_name;
+		}
+
+		return $safe_name;
+	}
+
+	/**
 	 * This configures the values to use for the Enum.
 	 *
 	 * @return array
@@ -50,7 +67,7 @@ class MenuLocationEnumType extends WPEnumType {
 		 */
 		self::$values = [];
 		foreach ( array_keys( get_registered_nav_menus() ) as $location ) {
-			self::$values[ strtoupper( $location ) ] = [
+			self::$values[ self::get_safe_name( $location ) ] = [
 				'value' => $location,
 			];
 		}
