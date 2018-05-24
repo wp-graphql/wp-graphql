@@ -2,6 +2,14 @@
 
 class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		add_theme_support( 'nav_menu_locations' );
+		register_nav_menu( 'my-menu-location', 'My Menu' );
+		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
+	}
+
 	public function testMenusQueryById() {
 		$menu_slug = 'my-test-menu-by-id';
 		$menu_id = wp_create_nav_menu( $menu_slug );
@@ -33,7 +41,6 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$menu_id = wp_create_nav_menu( $menu_slug );
 
 		// Assign menu to location.
-		register_nav_menu( 'my-menu-location', 'My Menu Location' );
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $menu_id ] );
 
 		$query = '

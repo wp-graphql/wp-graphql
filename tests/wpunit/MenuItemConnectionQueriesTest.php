@@ -1,6 +1,17 @@
 <?php
 
+use WPGraphQL\Type\Enum\MenuLocationEnumType;
+
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		add_theme_support( 'nav_menu_locations' );
+		register_nav_menu( 'my-menu-location', 'My Menu' );
+		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
+	}
+
 	private function createMenuItem( $menu_id, $options ) {
 		return wp_update_nav_menu_item( $menu_id, 0, $options );
 	}
@@ -28,7 +39,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Assign menu to location.
-		register_nav_menu( 'my-menu-location', 'My Menu Location' );
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $menu_id ] );
 
 		return [
