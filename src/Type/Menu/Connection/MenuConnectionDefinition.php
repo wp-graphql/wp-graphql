@@ -15,7 +15,7 @@ use WPGraphQL\Type\WPInputObjectType;
 class MenuConnectionDefinition {
 
 	/**
-	 * Stores some date for the Relay connection for term objects
+	 * Stores the Relay connection for Menus
 	 *
 	 * @var array $connection
 	 * @access private
@@ -37,7 +37,7 @@ class MenuConnectionDefinition {
 	private static $where_fields;
 
 	/**
-	 * Method that sets up the relay connection for term objects
+	 * Create the Relay connection for Menus.
 	 *
 	 * @param string $from_type Connection type.
 	 * @return mixed

@@ -72,12 +72,12 @@ class MenuItemObjectUnionType extends UnionType {
 
 		self::$possible_types = [];
 
-		// Add post types that are allowed in WPGraphQL and in nav menus.
+		// Add post types that are allowed in WPGraphQL.
 		foreach ( get_post_types( $args ) as $type ) {
 			self::$possible_types[ $type ] = Types::post_object( $type );
 		}
 
-		// Add taxonomies that are allowed in WPGraphQL and in nav menus.
+		// Add taxonomies that are allowed in WPGraphQL.
 		foreach ( get_taxonomies( $args ) as $type ) {
 			self::$possible_types[ $type ] = Types::term_object( $type );
 		}

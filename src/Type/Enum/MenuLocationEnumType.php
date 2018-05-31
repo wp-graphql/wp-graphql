@@ -33,7 +33,7 @@ class MenuLocationEnumType extends WPEnumType {
 	}
 
 	/**
-	 * Generate a safe / sanitized name from an enum value.
+	 * Generate a safe / sanitized name from a menu location slug.
 	 *
 	 * @param  string $value Enum value.
 	 * @return string

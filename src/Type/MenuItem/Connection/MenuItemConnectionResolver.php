@@ -60,7 +60,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	}
 
 	/**
-	 * This returns the $query_args that should be used when querying for posts in the postObjectConnectionResolver.
+	 * This returns the $query_args that should be used when querying for posts in the menuItemConnectionResolver.
 	 * This checks what input $args are part of the query, combines them with various filters, etc and returns an
 	 * array of $query_args to be used in the \WP_Query call
 	 *
