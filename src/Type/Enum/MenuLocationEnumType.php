@@ -60,15 +60,23 @@ class MenuLocationEnumType extends WPEnumType {
 		}
 
 		/**
-		 * Loop through the registered nav menu locations and create an array of
-		 * values for use in the enum type. The location slug is already formatted
-		 * to our liking (alphanumerics and underscores) so we simply need to
-		 * uppercase it.
+		 * Loop through the registered nav menu locations for the current theme
+		 * and create an array of values for use in the enum type.
 		 */
 		self::$values = [];
-		foreach ( array_keys( get_registered_nav_menus() ) as $location ) {
+		foreach ( array_keys( get_nav_menu_locations() ) as $location ) {
 			self::$values[ self::get_safe_name( $location ) ] = [
 				'value' => $location,
+			];
+		}
+
+		/**
+		 * Enums cannot be empty, so provide a dummy location if none are
+		 * registered for this theme.
+		 */
+		if ( empty( self::$values ) ) {
+			self::$values['EMPTY'] = [
+				'value' => 'Empty menu location',
 			];
 		}
 
