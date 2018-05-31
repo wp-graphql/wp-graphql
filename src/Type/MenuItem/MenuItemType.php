@@ -3,6 +3,8 @@
 namespace WPGraphQL\Type\MenuItem;
 
 use GraphQLRelay\Relay;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
@@ -70,8 +72,8 @@ class MenuItemType extends WPObjectType {
 					'connectedObject' => [
 						'type'        => Types::menu_item_object_union(),
 						'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $menu_item ) {
-							$object_id   = get_post_meta( $menu_item->ID, '_menu_item_object_id', true );
+						'resolve' => function( \WP_Post $menu_item, array $args, AppContext $context, ResolveInfo $info ) {
+							$object_id   = intval( get_post_meta( $menu_item->ID, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->ID, '_menu_item_type', true );
 
 							// By default, resolve to the menu item itself. This is the
@@ -95,8 +97,25 @@ class MenuItemType extends WPObjectType {
 							 * This is useful since we often add taxonomy terms to menus
 							 * but would prefer to represent the menu item in other ways,
 							 * e.g., a linked post object (or vice-versa).
+							 *
+							 * @param WP_Post|WP_Term $resolved_object Post or term connected to MenuItem
+							 * @param array           $args            Array of arguments input in the field as part of the GraphQL query
+							 * @param AppContext      $context         Object containing app context that gets passed down the resolve tree
+							 * @param ResolveInfo     $info            Info about fields passed down the resolve tree
+							 * @param int             $object_id       Post or term ID of connected object
+							 * @param string          $object_type     Type of connected object ("post_type" or "taxonomy")
+							 *
+							 * @since 0.0.29
 							 */
-							return apply_filters( 'graphql_resolve_menu_item', $resolved_object );
+							return apply_filters(
+								'graphql_resolve_menu_item',
+								$resolved_object,
+								$args,
+								$context,
+								$info,
+								$object_id,
+								$object_type
+							);
 						},
 					],
 					'cssClasses' => [
