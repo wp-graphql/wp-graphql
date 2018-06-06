@@ -99,6 +99,86 @@ class PostObjectMutation {
 				],
 			];
 
+			if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+
+				/**
+				 * Add input for the featuredImage
+				 */
+				$input_fields['featuredImage'] = [
+					'description' => __( 'The featured image attached to the post.', 'wp-graphql' ),
+					'type' => new WPInputObjectType( [
+						'name'        => $post_type_object->graphql_single_name . 'FeaturedImageNode',
+						'description' => __( 'The featured image node.', 'wp-graphql' ),
+						'fields' => [
+							'id'            => [
+								'type'        => Types::id(),
+								'description' => __( 'The global ID of the featured mediaItemId.', 'wp-graphql' ),
+							],
+							'mediaItemId'   => [
+								'type'        => Types::int(),
+								'description' => __( 'The local ID of the featured mediaItem.', 'wp-graphql' ),
+							],
+							'sourceUrl'     => [
+								'type'        => Types::string(),
+								'description' => __( 'The URL or file path to the mediaItem', 'wp-graphql' ),
+							],
+							'altText'       => [
+								'type'        => Types::string(),
+								'description' => __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' ),
+							],
+							'authorId'      => [
+								'type'        => Types::id(),
+								'description' => __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' ),
+							],
+							'caption'       => [
+								'type'        => Types::string(),
+								'description' => __( 'The caption for the mediaItem', 'wp-graphql' ),
+							],
+							'commentStatus' => [
+								'type'        => Types::string(),
+								'description' => __( 'The comment status for the mediaItem', 'wp-graphql' ),
+							],
+							'date'          => [
+								'type'        => Types::string(),
+								'description' => __( 'The date of the mediaItem', 'wp-graphql' ),
+							],
+							'dateGmt'       => [
+								'type'        => Types::string(),
+								'description' => __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' ),
+							],
+							'description'   => [
+								'type'        => Types::string(),
+								'description' => __( 'Description of the mediaItem', 'wp-graphql' ),
+							],
+							'fileType'      => [
+								'type'        => Types::mime_type_enum(),
+								'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
+							],
+							'slug'          => [
+								'type'        => Types::string(),
+								'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
+							],
+							'status'        => [
+								'type'        => Types::media_item_status_enum(),
+								'description' => __( 'The status of the mediaItem', 'wp-graphql' ),
+							],
+							'title'         => [
+								'type'        => Types::string(),
+								'description' => __( 'The title of the mediaItem', 'wp-graphql' ),
+							],
+							'pingStatus'    => [
+								'type'        => Types::string(),
+								'description' => __( 'The ping status for the mediaItem', 'wp-graphql' ),
+							],
+							'parentId'      => [
+								'type'        => Types::id(),
+								'description' => __( 'The WordPress post ID or the graphQL postId of the parent object', 'wp-graphql' ),
+							],
+						],
+					] ),
+				];
+			}
+
 			/**
 			 * Add inputs for connected taxonomies
 			 */
