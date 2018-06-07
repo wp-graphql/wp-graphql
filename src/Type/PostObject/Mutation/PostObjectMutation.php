@@ -105,9 +105,9 @@ class PostObjectMutation {
 				 * Add input for the featuredImage
 				 */
 				$input_fields['featuredImage'] = [
-					'description' => __( 'The featured image attached to the post.', 'wp-graphql' ),
+					'description' => __( 'The mutation input for the featured image attached to the post.', 'wp-graphql' ),
 					'type' => new WPInputObjectType( [
-						'name'        => $post_type_object->graphql_single_name . 'FeaturedImageNode',
+						'name'        => ucfirst( $post_type_object->graphql_single_name ) . 'FeaturedImageNodeInput',
 						'description' => __( 'The featured image node.', 'wp-graphql' ),
 						'fields' => [
 							'id'            => [
