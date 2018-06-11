@@ -798,4 +798,130 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
         $this->assertNotNull( $results['data']['post']['dateGmt'] );
     }
 
+	/**
+	 * This processes a mutation to create a post with a featured image
+	 *
+	 * @return array
+	 */
+	public function testCreatePostMutationWithFeaturedImage() {
+
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+		mutation createPostWithImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  createPost(
+		    input:{
+		      clientMutationId:$clientMutationId,
+		      title:$title
+		      content:$content
+		      featuredImage: $featuredImage
+		    }
+		  ){
+		    clientMutationId
+		    post{
+		      title
+		      content
+		      featuredImage {
+		        title
+		        sourceUrl
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'clientMutationId' => $this->client_mutation_id,
+			'title'            => 'Post with an Awesome Photo',
+			'content'          => $this->content,
+			'featuredImage'    => [
+				'title' => 'Awesome Photo',
+				'sourceUrl' => 'https://media.giphy.com/media/Z6f7vzq3iP6Mw/giphy.gif',
+			],
+		];
+
+		$actual = do_graphql_request( $mutation, 'createPostWithImage', $variables );
+
+		$expected = [
+			'data' => [
+				'createPost' => [
+					'clientMutationId' => $variables['clientMutationId'],
+					'post' => [
+						'title'         => apply_filters( 'the_title', $variables['title'] ),
+						'content'       => apply_filters( 'the_content', $variables['content'] ),
+						'featuredImage' => [
+							'title'     => $variables['featuredImage']['title'],
+							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * This processes a mutation to create a post with a featured image
+	 *
+	 * @return array
+	 */
+	public function testUpdatePostMutationWithFeaturedImage() {
+
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+		mutation createPostWithImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  createPost(
+		    input:{
+		      clientMutationId:$clientMutationId,
+		      title:$title
+		      content:$content
+		      featuredImage: $featuredImage
+		    }
+		  ){
+		    clientMutationId
+		    post{
+		      title
+		      content
+		      featuredImage {
+		        title
+		        sourceUrl
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'clientMutationId' => $this->client_mutation_id,
+			'title'            => 'Post with an Awesome Photo',
+			'content'          => $this->content,
+			'featuredImage'    => [
+				'title' => 'Awesome Photo',
+				'sourceUrl' => 'https://media.giphy.com/media/Z6f7vzq3iP6Mw/giphy.gif',
+			],
+		];
+
+		$actual = do_graphql_request( $mutation, 'createPostWithImage', $variables );
+
+		$expected = [
+			'data' => [
+				'createPost' => [
+					'clientMutationId' => $variables['clientMutationId'],
+					'post' => [
+						'title'         => apply_filters( 'the_title', $variables['title'] ),
+						'content'       => apply_filters( 'the_content', $variables['content'] ),
+						'featuredImage' => [
+							'title'     => $variables['featuredImage']['title'],
+							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
 }
