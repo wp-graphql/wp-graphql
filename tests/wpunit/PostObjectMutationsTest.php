@@ -12,8 +12,30 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $media_item_id;
 	public $post;
 	public $post_uid;
+	public $create_media_item_variables;
+	public $altText;
+	public $authorId;
+	public $caption;
+	public $commentStatus;
+	public $current_date_gmt;
+	public $date;
+	public $dateGmt;
+	public $description;
+	public $filePath;
+	public $fileType;
+	public $slug;
+	public $status;
+	public $pingStatus;
+	public $parentId;
 
 	public function setUp() {
+
+		/**
+		 * Clear the uploads folder
+		 */
+		$_wp_content_upload_dir = WP_CONTENT_DIR . '/uploads';
+		system( 'rm -rf ' . escapeshellarg( $_wp_content_upload_dir ), $retval );
+
 		// before
 		parent::setUp();
 
@@ -46,7 +68,48 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 		] );
-		$this->post_uid = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
+		$this->post_uid = \GraphQLRelay\Relay::toGlobalId( 'post', $this->post );
+
+		/**
+		 * Populate the mediaItem input fields
+		 */
+		$this->altText          = 'A gif of Shia doing Magic.';
+		$this->authorId         = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		$this->caption          = 'Shia shows off some magic in this caption.';
+		$this->commentStatus    = 'closed';
+		$this->date             = '2017-08-01 15:00:00';
+		$this->dateGmt          = '2017-08-01T21:00:00';
+		$this->description      = 'This is a magic description.';
+		$this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
+		$this->fileType         = 'IMAGE_GIF';
+		$this->slug             = 'magic-shia';
+		$this->status           = 'INHERIT';
+		$this->title            = 'Magic Shia Gif';
+		$this->pingStatus       = 'closed';
+		$this->parentId         = null;
+
+		/**
+		 * Set the createMediaItem mutation input variables
+		 */
+		$this->create_media_item_variables = [
+			'input' => [
+				'filePath'         => $this->filePath,
+				'fileType'         => $this->fileType,
+				'clientMutationId' => $this->client_mutation_id,
+				'title'            => $this->title,
+				'description'      => $this->description,
+				'altText'          => $this->altText,
+				'parentId'         => $this->parentId,
+				'caption'          => $this->caption,
+				'commentStatus'    => $this->commentStatus,
+				'date'             => $this->date,
+				'dateGmt'          => $this->dateGmt,
+				'slug'             => $this->slug,
+				'status'           => $this->status,
+				'pingStatus'       => $this->pingStatus,
+				'authorId'         => $this->authorId,
+			],
+		];
 	}
 
 
@@ -55,6 +118,80 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
+	}
+
+	/**
+	 * This function tests the createMediaItem mutation
+	 * and is reused throughout the createMediaItem tests
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
+	 * @access public
+	 * @return array $actual
+	 */
+	public function createMediaItemMutation() {
+
+		/**
+		 * Set up the createMediaItem mutation
+		 */
+		$mutation = '
+			mutation createMediaItem( $input: CreateMediaItemInput! ){
+			  createMediaItem(input: $input){
+			    clientMutationId
+			    mediaItem{
+			      id
+			      mediaItemId
+			      mediaType
+			      date
+			      dateGmt
+			      slug
+			      status
+			      title
+			      commentStatus
+			      pingStatus
+			      altText
+			      caption
+			      description
+			      mimeType
+			      parent {
+			        ... on Post {
+			          id
+			        }
+			      }
+			      sourceUrl
+			      mediaDetails {
+			          file
+			          height
+			          meta {
+			            aperture
+			            credit
+			            camera
+			            caption
+			            createdTimestamp
+			            copyright
+			            focalLength
+			            iso
+			            shutterSpeed
+			            title
+			            orientation
+			          }
+			          width
+			          sizes {
+			            name
+			            file
+			            width
+			            height
+			            mimeType
+			            sourceUrl
+			          }
+			        }
+			    }
+			  }
+			}
+		';
+
+		$actual = do_graphql_request( $mutation, 'createMediaItem', $this->create_media_item_variables );
+
+		return $actual;
 	}
 
 	/**
@@ -580,9 +717,9 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function createPostWithDatesMutation( $input ) {
 
-        wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->admin );
 
-        $mutation = 'mutation createPost( $input:CreatePostInput! ) {
+		$mutation = 'mutation createPost( $input:CreatePostInput! ) {
           createPost(input: $input) {
             post {
               id
@@ -597,161 +734,161 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
         ';
 
-        $defaults = [
-            'clientMutationId' => uniqid(),
-            'title' => 'New Post',
-            'status' => 'PUBLISH',
-        ];
+		$defaults = [
+			'clientMutationId' => uniqid(),
+			'title' => 'New Post',
+			'status' => 'PUBLISH',
+		];
 
-        $input = array_merge( $defaults, $input );
+		$input = array_merge( $defaults, $input );
 
-        $variables = [
-            'input' => $input,
-        ];
+		$variables = [
+			'input' => $input,
+		];
 
-        /**
-         * Run the mutation.
-         */
+		/**
+		 * Run the mutation.
+		 */
 
-        $results = do_graphql_request( $mutation, 'createPost', $variables );
+		$results = do_graphql_request( $mutation, 'createPost', $variables );
 
-	    return $results;
+		return $results;
 	}
 
-    public function testDateInputsForCreatePost() {
+	public function testDateInputsForCreatePost() {
 
-        /**
-         * Set the current user as the admin role so we
-         * can test the mutation
-         */
+		/**
+		 * Set the current user as the admin role so we
+		 * can test the mutation
+		 */
 
-        wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->admin );
 
-        /**
-         * Set the expected date outcome
-         */
+		/**
+		 * Set the expected date outcome
+		 */
 
-        $dateExpected = '2017-01-03 00:00:00';
-        $dateGmtExpected = '2017-01-03T00:00:00';
+		$dateExpected = '2017-01-03 00:00:00';
+		$dateGmtExpected = '2017-01-03T00:00:00';
 
-        $results = $this->createPostWithDatesMutation([
-            'date' => '1/3/2017',
-            'status' => 'PUBLISH'
-        ]);
+		$results = $this->createPostWithDatesMutation([
+			'date' => '1/3/2017',
+			'status' => 'PUBLISH'
+		]);
 
-        /**
-         * Make sure there are no errors
-         */
-        $this->assertArrayNotHasKey( 'errors', $results );
+		/**
+		 * Make sure there are no errors
+		 */
+		$this->assertArrayNotHasKey( 'errors', $results );
 
-        /**
-         * We're expecting the date variable to match the date entry regardless of the way user enters it
-         */
+		/**
+		 * We're expecting the date variable to match the date entry regardless of the way user enters it
+		 */
 
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-        $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
-        $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
+		$this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
-    }
+	}
 
-    public function testDateInputsWithSlashFormattingForCreatePost() {
+	public function testDateInputsWithSlashFormattingForCreatePost() {
 
-        /**
-         * Set the current user as the admin role so we
-         * can test the mutation
-         */
+		/**
+		 * Set the current user as the admin role so we
+		 * can test the mutation
+		 */
 
-        wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->admin );
 
-        /**
-         * Set the input and expected date outcome
-         */
+		/**
+		 * Set the input and expected date outcome
+		 */
 
-        $dateExpected = '2017-01-03 00:00:00';
-        $dateGmtExpected = '2017-01-03T00:00:00';
+		$dateExpected = '2017-01-03 00:00:00';
+		$dateGmtExpected = '2017-01-03T00:00:00';
 
-        $results = $this->createPostWithDatesMutation([
-            'date' => '2017/01/03',
-        ]);
+		$results = $this->createPostWithDatesMutation([
+			'date' => '2017/01/03',
+		]);
 
-        /**
-         * Make sure there are no errors
-         */
+		/**
+		 * Make sure there are no errors
+		 */
 
-        $this->assertArrayNotHasKey( 'errors', $results );
+		$this->assertArrayNotHasKey( 'errors', $results );
 
-        /**
-         * We're expecting the date variable to match the date entry regardless of the way user enters it
-         */
+		/**
+		 * We're expecting the date variable to match the date entry regardless of the way user enters it
+		 */
 
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
-	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
+		$this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
-    }
+	}
 
-    public function testDateInputsWithStatusPendingAndDashesCreatePost() {
+	public function testDateInputsWithStatusPendingAndDashesCreatePost() {
 
-        /**
-         * Set the current user as the admin role so we
-         * can test the mutation
-         */
+		/**
+		 * Set the current user as the admin role so we
+		 * can test the mutation
+		 */
 
-        wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->admin );
 
-        /**
-         * Set the input and expected date outcome
-         */
+		/**
+		 * Set the input and expected date outcome
+		 */
 
-        $dateExpected = '2017-01-03 00:00:00';
-        $dateGmtExpected = null;
+		$dateExpected = '2017-01-03 00:00:00';
+		$dateGmtExpected = null;
 
-        $results = $this->createPostWithDatesMutation([
-            'date' => '3-1-2017',
-            'status' => 'PENDING'
-        ]);
+		$results = $this->createPostWithDatesMutation([
+			'date' => '3-1-2017',
+			'status' => 'PENDING'
+		]);
 
-        /**
-         * Make sure there are no errors
-         */
+		/**
+		 * Make sure there are no errors
+		 */
 
-        $this->assertArrayNotHasKey( 'errors', $results );
+		$this->assertArrayNotHasKey( 'errors', $results );
 
-        /**
-         * We're expecting the date variable to match the date entry regardless of the way user enters it
-         */
+		/**
+		 * We're expecting the date variable to match the date entry regardless of the way user enters it
+		 */
 
-        $this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
-        $this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
-	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
-	    $this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
+		$this->assertEquals( $dateExpected, $results['data']['createPost']['post']['date'] );
+		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
+		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
 
-    }
+	}
 
-    public function testDateInputsWithDraftAndPublishUpdatePost() {
+	public function testDateInputsWithDraftAndPublishUpdatePost() {
 
-        /**
-         * Set the current user as the admin role so we
-         * can test the mutation
-         */
-        wp_set_current_user( $this->admin );
+		/**
+		 * Set the current user as the admin role so we
+		 * can test the mutation
+		 */
+		wp_set_current_user( $this->admin );
 
-        /**
-         * Create a post to test against and set global ID
-         */
-        $test_post = $this->factory()->post->create( [
-            'post_title' => 'My Test Post',
-            'post_status' => 'draft',
-        ] );
+		/**
+		 * Create a post to test against and set global ID
+		 */
+		$test_post = $this->factory()->post->create( [
+			'post_title' => 'My Test Post',
+			'post_status' => 'draft',
+		] );
 
-        $global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 
-        /**
-         * Prepare mutation for GQL request
-         */
-        $request = '
+		/**
+		 * Prepare mutation for GQL request
+		 */
+		$request = '
         {
             post( id: "'. $global_id . '" ) {
               id
@@ -765,63 +902,63 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
         }
         ';
 
-        /**
-         * Run GQl request
-         */
-        $results = do_graphql_request( $request );
+		/**
+		 * Run GQl request
+		 */
+		$results = do_graphql_request( $request );
 
-        /**
-         * Set the expected dateGmt outcome
-         */
-        $dateGmtExpected = null;
+		/**
+		 * Set the expected dateGmt outcome
+		 */
+		$dateGmtExpected = null;
 
-        /**
-         * Assert results dateGmt equals the expected outcome
-         */
-        $this->assertEquals( $dateGmtExpected, $results['data']['post']['dateGmt'] );
+		/**
+		 * Assert results dateGmt equals the expected outcome
+		 */
+		$this->assertEquals( $dateGmtExpected, $results['data']['post']['dateGmt'] );
 
-        /**
-         * Update post to test against status: published
-         */
-        wp_update_post( [
-            'ID'          => $test_post,
-            'post_status' => 'publish',
-        ] );
+		/**
+		 * Update post to test against status: published
+		 */
+		wp_update_post( [
+			'ID'          => $test_post,
+			'post_status' => 'publish',
+		] );
 
-        /**
-         * Run GQl request
-         */
-        $results = do_graphql_request( $request );
+		/**
+		 * Run GQl request
+		 */
+		$results = do_graphql_request( $request );
 
-        /**
-         * Assert timestamp is not null
-         */
-        $this->assertNotNull( $results['data']['post']['dateGmt'] );
+		/**
+		 * Assert timestamp is not null
+		 */
+		$this->assertNotNull( $results['data']['post']['dateGmt'] );
 
-        /**
-         * Update post back to draft
-         */
-        wp_update_post( [
-            'ID' => $test_post,
-            'post_status' => 'draft'
-        ] );
+		/**
+		 * Update post back to draft
+		 */
+		wp_update_post( [
+			'ID' => $test_post,
+			'post_status' => 'draft'
+		] );
 
-        /**
-         * Run GQl request
-         */
-        $results = do_graphql_request( $request );
+		/**
+		 * Run GQl request
+		 */
+		$results = do_graphql_request( $request );
 
-        /**
-         * Assert timestamp is STILL not null
-         */
-        $this->assertNotNull( $results['data']['post']['dateGmt'] );
-    }
+		/**
+		 * Assert timestamp is STILL not null
+		 */
+		$this->assertNotNull( $results['data']['post']['dateGmt'] );
+	}
 
 	/**
 	 * This processes a mutation to create a post with an existing mediaItem and
 	 * a new mediaItem for the featured image
 	 *
-	 * @return array
+	 * @return void
 	 */
 	public function testCreatePostMutationWithFeaturedImage() {
 
@@ -829,61 +966,6 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the current user to admin
 		 */
 		wp_set_current_user( $this->admin );
-
-		/**
-		 * ADD EXISTING IMAGE on create
-		 *
-		 * Create a test post with an existing featured image
-		 */
-		$existing_image_mutation = '
-		mutation createPostWithExistingImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
-		  createPost(
-		    input:{
-		      clientMutationId:$clientMutationId,
-		      title:$title
-		      content:$content
-		      featuredImage: $featuredImage
-		    }
-		  ){
-		    clientMutationId
-		    post{
-		      title
-		      content
-		      featuredImage {
-		        id
-		      }
-		    }
-		  }
-		}
-		';
-
-		$existing_image_variables = [
-			'clientMutationId' => $this->client_mutation_id,
-			'title'            => 'Post with an Awesome Photo',
-			'content'          => $this->content,
-			'featuredImage'    => [
-				'id' => $this->media_item_id,
-			],
-		];
-
-		$actual = do_graphql_request( $existing_image_mutation, 'createPostWithExistingImage', $existing_image_variables );
-
-		$expected = [
-			'data' => [
-				'createPost' => [
-					'clientMutationId' => $existing_image_variables['clientMutationId'],
-					'post' => [
-						'title'         => apply_filters( 'the_title', $existing_image_variables['title'] ),
-						'content'       => apply_filters( 'the_content', $existing_image_variables['content'] ),
-						'featuredImage' => [
-							'id'     => $this->media_item_id,
-						],
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
 
 		/**
 		 * ADD NEW IMAGE on create
@@ -942,38 +1024,33 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
-	}
 
-	/**
-	 * This processes a mutation to create a post with a featured image
-	 *
-	 * @return array
-	 */
-	public function testUpdatePostMutationWithFeaturedImage() {
 
 		/**
-		 * Set the current user to admin
+		 * Create a media item to add to the post
 		 */
-		wp_set_current_user( $this->admin );
-
+		$media_item = $this->createMediaItemMutation();
+		$media_item_uid = $media_item['data']['createMediaItem']['mediaItem']['id'];
 
 		/**
-		 * ADD EXISTING IMAGE on update
+		 * ADD EXISTING IMAGE on create
 		 *
-		 * Update the factory created test post with an existing featured image
+		 * Create a test post with an existing featured image
 		 */
 		$existing_image_mutation = '
-		mutation updatePostWithExistingImage( $id:String!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
-		  updatePost(
+		mutation createPostWithExistingImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  createPost(
 		    input:{
 		      clientMutationId:$clientMutationId,
-		      id:$id
-		      featuredImage:$featuredImage
+		      title:$title
+		      content:$content
+		      featuredImage: $featuredImage
 		    }
 		  ){
 		    clientMutationId
 		    post{
-		      id
+		      title
+		      content
 		      featuredImage {
 		        id
 		      }
@@ -982,26 +1059,26 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		/**
-		 * Variables for the already created featured image
-		 */
 		$existing_image_variables = [
-			'id'               => $this->post_uid,
 			'clientMutationId' => $this->client_mutation_id,
+			'title'            => 'Post with an Awesome Photo',
+			'content'          => $this->content,
 			'featuredImage'    => [
-				'id' => $this->media_item_id,
+				'id' => $media_item_uid,
 			],
 		];
 
-		$actual = do_graphql_request( $existing_image_mutation, 'updatePostWithExistingImage', $existing_image_variables );
+		$actual = do_graphql_request( $existing_image_mutation, 'createPostWithExistingImage', $existing_image_variables );
 
 		$expected = [
 			'data' => [
-				'updatePost' => [
+				'createPost' => [
 					'clientMutationId' => $existing_image_variables['clientMutationId'],
 					'post' => [
+						'title'         => apply_filters( 'the_title', $existing_image_variables['title'] ),
+						'content'       => apply_filters( 'the_content', $existing_image_variables['content'] ),
 						'featuredImage' => [
-							'id'     => $this->media_item_id,
+							'id'     => $media_item_uid,
 						],
 					],
 				],
@@ -1010,13 +1087,27 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual );
 
+	}
+
+	/**
+	 * This processes a mutation to create a post with a featured image
+	 *
+	 * @return void
+	 */
+	public function testUpdatePostMutationWithFeaturedImage() {
+
+		/**
+		 * Set the current user to admin
+		 */
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * CREATE FEATURED IMAGE on update
 		 *
 		 * Update the factory created test post with an existing featured image
 		 */
 		$new_image_mutation = '
-		mutation updatePostWithNewImage( $id:String!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		mutation updatePostWithNewImage( $id:ID!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
 		  updatePost(
 		    input:{
 		      clientMutationId:$clientMutationId,
@@ -1026,7 +1117,6 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		  ){
 		    clientMutationId
 		    post{
-		      id
 		      featuredImage {
 		        title
 		        sourceUrl
@@ -1065,6 +1155,65 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+
+		/**
+		 * Create a media item to add to the post
+		 */
+		$media_item = $this->createMediaItemMutation();
+		$media_item_uid = $media_item['data']['createMediaItem']['mediaItem']['id'];
+
+		/**
+		 * ADD EXISTING IMAGE on update
+		 *
+		 * Update the factory created test post with an existing featured image
+		 */
+		$existing_image_mutation = '
+		mutation updatePostWithExistingImage( $id:ID!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  updatePost(
+		    input:{
+		      clientMutationId:$clientMutationId,
+		      id:$id
+		      featuredImage:$featuredImage
+		    }
+		  ){
+		    clientMutationId
+		    post{
+		      featuredImage {
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Variables for the already created featured image
+		 */
+		$existing_image_variables = [
+			'id'               => $this->post_uid,
+			'clientMutationId' => $this->client_mutation_id,
+			'featuredImage'    => [
+				'id' => $media_item_uid,
+			],
+		];
+
+		$actual = do_graphql_request( $existing_image_mutation, 'updatePostWithExistingImage', $existing_image_variables );
+
+		$expected = [
+			'data' => [
+				'updatePost' => [
+					'clientMutationId' => $existing_image_variables['clientMutationId'],
+					'post' => [
+						'featuredImage' => [
+							'id'     => $media_item_uid,
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 }

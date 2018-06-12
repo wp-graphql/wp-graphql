@@ -772,7 +772,8 @@ class PostObjectMutation {
 			/**
 			 * Update the image using the inputs
 			 */
-			$image_id = self::update_image( $wp_featured_image_id, $featured_image_node );
+			$updated_image_id = self::update_image( $wp_featured_image_id, $featured_image_node );
+			$image_id = ! empty( $updated_image_id ) ? $updated_image_id : $wp_featured_image_id;
 			set_post_thumbnail( absint( $new_post_id ), $image_id );
 		}
 
