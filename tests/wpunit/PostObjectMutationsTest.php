@@ -1016,7 +1016,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'content'       => apply_filters( 'the_content', $new_image_variables['content'] ),
 						'featuredImage' => [
 							'title'     => $new_image_variables['featuredImage']['title'],
-							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+							'sourceUrl' => 'http://wpgraphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
 						],
 					],
 				],
@@ -1147,7 +1147,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'post' => [
 						'featuredImage' => [
 							'title'     => $new_image_variables['featuredImage']['title'],
-							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+							'sourceUrl' => 'http://wpgraphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
 						],
 					],
 				],
