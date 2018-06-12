@@ -8,6 +8,10 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 	public $author;
+	public $attachment_id;
+	public $media_item_id;
+	public $post;
+	public $post_uid;
 
 	public function setUp() {
 		// before
@@ -28,6 +32,21 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->subscriber = $this->factory()->user->create( [
 			'role' => 'subscriber',
 		] );
+
+		/**
+		 * Create a mediaItem to update and store it's WordPress post ID
+		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
+		 */
+		$this->attachment_id = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif', 'post_author' => $this->admin] );
+		$this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $this->attachment_id );
+
+		/**
+		 * Create a post to test against
+		 */
+		$this->post = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+		] );
+		$this->post_uid = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
 	}
 
 
@@ -799,16 +818,80 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
     }
 
 	/**
-	 * This processes a mutation to create a post with a featured image
+	 * This processes a mutation to create a post with an existing mediaItem and
+	 * a new mediaItem for the featured image
 	 *
 	 * @return array
 	 */
 	public function testCreatePostMutationWithFeaturedImage() {
 
+		/**
+		 * Set the current user to admin
+		 */
 		wp_set_current_user( $this->admin );
 
-		$mutation = '
-		mutation createPostWithImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		/**
+		 * ADD EXISTING IMAGE on create
+		 *
+		 * Create a test post with an existing featured image
+		 */
+		$existing_image_mutation = '
+		mutation createPostWithExistingImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  createPost(
+		    input:{
+		      clientMutationId:$clientMutationId,
+		      title:$title
+		      content:$content
+		      featuredImage: $featuredImage
+		    }
+		  ){
+		    clientMutationId
+		    post{
+		      title
+		      content
+		      featuredImage {
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$existing_image_variables = [
+			'clientMutationId' => $this->client_mutation_id,
+			'title'            => 'Post with an Awesome Photo',
+			'content'          => $this->content,
+			'featuredImage'    => [
+				'id' => $this->media_item_id,
+			],
+		];
+
+		$actual = do_graphql_request( $existing_image_mutation, 'createPostWithExistingImage', $existing_image_variables );
+
+		$expected = [
+			'data' => [
+				'createPost' => [
+					'clientMutationId' => $variables['clientMutationId'],
+					'post' => [
+						'title'         => apply_filters( 'the_title', $variables['title'] ),
+						'content'       => apply_filters( 'the_content', $variables['content'] ),
+						'featuredImage' => [
+							'id'     => $this->media_item_id,
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+		/**
+		 * ADD NEW IMAGE on create
+		 *
+		 * Create a test post with an new mediaItem as the featured image
+		 */
+		$new_image_mutation = '
+		mutation createPostWithNewImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
 		  createPost(
 		    input:{
 		      clientMutationId:$clientMutationId,
@@ -830,7 +913,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$variables = [
+		$new_image_variables = [
 			'clientMutationId' => $this->client_mutation_id,
 			'title'            => 'Post with an Awesome Photo',
 			'content'          => $this->content,
@@ -840,7 +923,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$actual = do_graphql_request( $mutation, 'createPostWithImage', $variables );
+		$actual = do_graphql_request( $new_image_mutation, 'createPostWithNewImage', $new_image_variables );
 
 		$expected = [
 			'data' => [
@@ -868,22 +951,82 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUpdatePostMutationWithFeaturedImage() {
 
+		/**
+		 * Set the current user to admin
+		 */
 		wp_set_current_user( $this->admin );
 
-		$mutation = '
-		mutation createPostWithImage( $clientMutationId:String!, $title:String!, $content:String!, $featuredImage:PostFeaturedImageNodeInput! ){
-		  createPost(
+
+		/**
+		 * ADD EXISTING IMAGE on update
+		 *
+		 * Update the factory created test post with an existing featured image
+		 */
+		$existing_image_mutation = '
+		mutation updatePostWithExistingImage( $id:String!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  updatePost(
 		    input:{
 		      clientMutationId:$clientMutationId,
-		      title:$title
-		      content:$content
-		      featuredImage: $featuredImage
+		      id:$id
+		      featuredImage:$featuredImage
 		    }
 		  ){
 		    clientMutationId
 		    post{
-		      title
-		      content
+		      id
+		      featuredImage {
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Variables for the already created featured image
+		 */
+		$existing_image_variables = [
+			'id'               => $this->post_uid,
+			'clientMutationId' => $this->client_mutation_id,
+			'featuredImage'    => [
+				'id' => $this->media_item_id,
+			],
+		];
+
+		$actual = do_graphql_request( $existing_image_mutation, 'updatePostWithExistingImage', $existing_image_variables );
+
+		$expected = [
+			'data' => [
+				'updatePost' => [
+					'clientMutationId' => $existing_image_variables['clientMutationId'],
+					'post' => [
+						'featuredImage' => [
+							'id'     => $this->media_item_id,
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+		/**
+		 * CREATE FEATURED IMAGE on update
+		 *
+		 * Update the factory created test post with an existing featured image
+		 */
+		$new_image_mutation = '
+		mutation updatePostWithNewImage( $id:String!, $clientMutationId:String!, $featuredImage:PostFeaturedImageNodeInput! ){
+		  updatePost(
+		    input:{
+		      clientMutationId:$clientMutationId,
+		      id:$id
+		      featuredImage:$featuredImage
+		    }
+		  ){
+		    clientMutationId
+		    post{
+		      id
 		      featuredImage {
 		        title
 		        sourceUrl
@@ -893,27 +1036,27 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$variables = [
+		/**
+		 * Variables for the already created featured image
+		 */
+		$new_image_variables = [
+			'id'               => $this->post_uid,
 			'clientMutationId' => $this->client_mutation_id,
-			'title'            => 'Post with an Awesome Photo',
-			'content'          => $this->content,
 			'featuredImage'    => [
 				'title' => 'Awesome Photo',
 				'sourceUrl' => 'https://media.giphy.com/media/Z6f7vzq3iP6Mw/giphy.gif',
 			],
 		];
 
-		$actual = do_graphql_request( $mutation, 'createPostWithImage', $variables );
+		$actual = do_graphql_request( $new_image_mutation, 'updatePostWithNewImage', $new_image_variables );
 
 		$expected = [
 			'data' => [
-				'createPost' => [
-					'clientMutationId' => $variables['clientMutationId'],
+				'updatePost' => [
+					'clientMutationId' => $new_image_variables['clientMutationId'],
 					'post' => [
-						'title'         => apply_filters( 'the_title', $variables['title'] ),
-						'content'       => apply_filters( 'the_content', $variables['content'] ),
 						'featuredImage' => [
-							'title'     => $variables['featuredImage']['title'],
+							'title'     => $new_image_variables['featuredImage']['title'],
 							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
 						],
 					],
