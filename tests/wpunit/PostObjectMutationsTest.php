@@ -871,10 +871,10 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'data' => [
 				'createPost' => [
-					'clientMutationId' => $variables['clientMutationId'],
+					'clientMutationId' => $existing_image_variables['clientMutationId'],
 					'post' => [
-						'title'         => apply_filters( 'the_title', $variables['title'] ),
-						'content'       => apply_filters( 'the_content', $variables['content'] ),
+						'title'         => apply_filters( 'the_title', $existing_image_variables['title'] ),
+						'content'       => apply_filters( 'the_content', $existing_image_variables['content'] ),
 						'featuredImage' => [
 							'id'     => $this->media_item_id,
 						],
@@ -928,12 +928,12 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'data' => [
 				'createPost' => [
-					'clientMutationId' => $variables['clientMutationId'],
+					'clientMutationId' => $new_image_variables['clientMutationId'],
 					'post' => [
-						'title'         => apply_filters( 'the_title', $variables['title'] ),
-						'content'       => apply_filters( 'the_content', $variables['content'] ),
+						'title'         => apply_filters( 'the_title', $new_image_variables['title'] ),
+						'content'       => apply_filters( 'the_content', $new_image_variables['content'] ),
 						'featuredImage' => [
-							'title'     => $variables['featuredImage']['title'],
+							'title'     => $new_image_variables['featuredImage']['title'],
 							'sourceUrl' => 'http://wp-graphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
 						],
 					],
