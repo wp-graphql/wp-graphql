@@ -6,7 +6,11 @@
 #
 # 127.0.0.1 localhost wpgraphql.example
 #
-# Next, start the environment. The `-f` flag is necessary to restrict your
+# Next, make sure you're logged into Docker.
+#
+# docker login
+#
+# Then, start the environment. The `-f` flag is necessary to restrict your
 # commands to this docker-compose file:
 #
 # docker-compose -f docker-compose.dev.yml up -d
