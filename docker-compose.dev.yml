@@ -6,11 +6,7 @@
 #
 # 127.0.0.1 localhost wpgraphql.example
 #
-# Next, make sure you're logged into Docker.
-#
-# docker login
-#
-# Then, start the environment. The `-f` flag is necessary to restrict your
+# Next, start the environment. The `-f` flag is necessary to restrict your
 # commands to this docker-compose file:
 #
 # docker-compose -f docker-compose.dev.yml up -d
@@ -21,6 +17,17 @@
 # Stop the environment with:
 #
 # docker-compose -f docker-compose.dev.yml stop
+#
+# NOTE: If you experience issues starting the environment, make sure you're either logged out of Docker completely
+# or are logged in with proper credentials. If you were logged in and your credentials are invalid, the setup will
+# fail. You can logout of Docker with the following command:
+#
+# docker logout
+#
+# And login to Docker with the following command:
+#
+# docker login
+
 
 version: "3"
 
