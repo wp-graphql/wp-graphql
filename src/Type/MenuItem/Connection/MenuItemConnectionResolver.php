@@ -149,6 +149,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 				$items = array_slice( $items, absint( $query_amount ) );
 			}
 			foreach ( $items as $item ) {
+
 				/**
 				 * Add the menu as context to each item to pass down the graph
 				 */

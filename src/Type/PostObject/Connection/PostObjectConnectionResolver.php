@@ -243,7 +243,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Get the edges from the $items
 		 */
-		$edges = self::get_edges( $items, $source, $args, $context, $info );
+		$edges = static::get_edges( $items, $source, $args, $context, $info );
 
 		/**
 		 * Find the first_edge and last_edge

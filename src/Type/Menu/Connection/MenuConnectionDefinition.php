@@ -49,6 +49,17 @@ class MenuConnectionDefinition {
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::menu(),
 				'name'     => 'Menus',
+                'connectionFields' => function() {
+                    return [
+                        'nodes'        => [
+                            'type'        => Types::list_of( Types::menu() ),
+                            'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+                            'resolve'     => function( $source, $args, $context, $info ) {
+                                return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+                            },
+                        ],
+                    ];
+                },
 			] );
 
 			$args = [

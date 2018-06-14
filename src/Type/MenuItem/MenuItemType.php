@@ -57,8 +57,6 @@ class MenuItemType extends WPObjectType {
 
 		if ( null === self::$fields ) {
 
-			$local_id_name = lcfirst( self::$type_name ) . 'Id';
-
 			self::$fields = function() {
 				$fields = [
 					'id' => [
@@ -98,7 +96,7 @@ class MenuItemType extends WPObjectType {
 							 * but would prefer to represent the menu item in other ways,
 							 * e.g., a linked post object (or vice-versa).
 							 *
-							 * @param WP_Post|WP_Term $resolved_object Post or term connected to MenuItem
+							 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
 							 * @param array           $args            Array of arguments input in the field as part of the GraphQL query
 							 * @param AppContext      $context         Object containing app context that gets passed down the resolve tree
 							 * @param ResolveInfo     $info            Info about fields passed down the resolve tree
@@ -122,36 +120,35 @@ class MenuItemType extends WPObjectType {
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Class attribute for the menu item link', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							$classes = get_post_meta( $menu_item->ID, '_menu_item_classes', true );
 
 							// If all we have is a non-array or an array with one empty
 							// string, return an empty array.
-							if ( ! is_array( $classes ) || empty( $classes ) || empty( $classes[0] ) ) {
+							if ( ! is_array( $menu_item->classes ) || empty( $menu_item->classes ) || empty( $menu_item->classes[0] ) ) {
 								return [];
 							}
 
-							return $classes;
+							return $menu_item->classes;
 						},
 					],
 					'description' => [
 						'type'        => Types::string(),
 						'description' => __( 'Description of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return ( ! empty( $menu_item->post_content ) ) ? $menu_item->post_content : null;
+							return ( ! empty( $menu_item->description ) ) ? $menu_item->description : null;
 						},
 					],
 					'label' => [
 						'type'        => Types::string(),
 						'description' => __( 'Label or title of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return ( ! empty( $menu_item->post_title ) ) ? $menu_item->post_title : null;
+							return ( ! empty( $menu_item->title ) ) ? $menu_item->title : null;
 						},
 					],
 					'linkRelationship' => [
 						'type'        => Types::string(),
 						'description' => __( 'Link relationship (XFN) of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return get_post_meta( $menu_item->ID, '_menu_item_xfn', true );
+							return ! empty( $menu_item->xfn ) ? $menu_item->xfn : null;
 						},
 					],
 					'menuItemId' => [
@@ -165,33 +162,21 @@ class MenuItemType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'Target attribute for the menu item link.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return get_post_meta( $menu_item->ID, '_menu_item_target', true );
+							return ! empty( $menu_item->target ) ? $menu_item->target : null;
 						},
 					],
 					'title' => [
 						'type'        => Types::string(),
 						'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							return ( ! empty( $menu_item->post_excerpt ) ) ? $menu_item->post_excerpt : null;
+                            return ( ! empty( $menu_item->attr_title ) ) ? $menu_item->attr_title : null;
 						},
 					],
 					'url' => [
 						'type'        => Types::string(),
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-							$url = get_post_meta( $menu_item->ID, '_menu_item_url', true );
-
-							if ( ! empty( $url ) ) {
-								return $url;
-							}
-
-							// Get the permalink of the connected object, if available.
-							$object_id = get_post_meta( $menu_item->ID, '_menu_item_object_id', true );
-							if ( ! empty( $object_id ) ) {
-								return get_permalink( $object_id );
-							}
-
-							return null;
+                            return ! empty( $menu_item->url ) ? $menu_item->url : null;
 						},
 					],
 				];
