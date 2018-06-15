@@ -41,11 +41,43 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Assign menu to location.
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $menu_id ] );
 
+		// Make sure menu items were created.
+		$this->assertEquals( $count, count( $menu_item_ids ) );
+		$this->assertEquals( $count, count( $post_ids ) );
+
 		return [
 			'menu_id'       => $menu_id,
 			'menu_item_ids' => $menu_item_ids,
 			'post_ids'      => $post_ids,
 		];
+	}
+
+	/**
+	 * Some common assertions repeated for each test.
+	 *
+	 * @param  array $created_menu_ids Created menu items.
+	 * @param  array $created_post_ids Created connected posts.
+	 * @param  array $query_results    Query results.
+	 * @return void
+	 */
+	private function compareResults( $created_menu_ids, $created_post_ids, $query_result ) {
+		$edges = $query_result['data']['menuItems']['edges'];
+
+		// The returned menu items have the expected IDs in the expected order.
+		$this->assertEquals(
+			$created_menu_ids,
+			array_map( function( $menu_item ) {
+				return $menu_item['node']['menuItemId'];
+			}, $edges )
+		);
+
+		// The connected posts have the expected IDs in the expected order.
+		$this->assertEquals(
+			$created_post_ids,
+			array_map( function( $menu_item ) {
+				return $menu_item['node']['connectedObject']['postId'];
+			}, $edges )
+		);
 	}
 
 	public function testMenuItemsQueryWithNoArgs() {
@@ -70,10 +102,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
-
-		// Make sure menu items were created.
-		$this->assertEquals( $count, count( $created['menu_item_ids'] ) );
-		$this->assertEquals( $count, count( $created['post_ids'] ) );
 
 		// The query should return no menu items since no where args were specified.
 		$this->assertEquals( 0, count( $actual['data']['menuItems']['edges'] ) );
@@ -105,12 +133,8 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		// The returned menu items have the expected number.
-		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
-
-		// The returned menu items and connected posts have the expected IDs.
-		$this->assertEquals( $menu_item_id, $actual['data']['menuItems']['edges'][0]['node']['menuItemId'] );
-		$this->assertEquals( $post_id, $actual['data']['menuItems']['edges'][0]['node']['connectedObject']['postId'] );
+		// Perform some common assertions.
+		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
 	}
 
 	public function testMenuItemsQueryByLocation() {
@@ -139,11 +163,8 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// The returned menu items have the expected number.
 		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );
 
-		// The returned menu items and connected posts have the expected IDs.
-		foreach( $actual['data']['menuItems']['edges'] as $menu_item ) {
-			$this->assertTrue( in_array( $menu_item['node']['menuItemId'], $created['menu_item_ids'], true ) );
-			$this->assertTrue( in_array( $menu_item['node']['connectedObject']['postId'], $created['post_ids'], true ) );
-		}
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 	}
 
 	public function testMenuItemsQueryWithChildItems() {
@@ -196,14 +217,8 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		// The returned menu items have the expected number.
-		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );
-
-		// The returned menu items and connected posts have the expected IDs.
-		foreach( $actual['data']['menuItems']['edges'] as $menu_item ) {
-			$this->assertTrue( in_array( $menu_item['node']['menuItemId'], $created['menu_item_ids'], true ) );
-			$this->assertTrue( in_array( $menu_item['node']['connectedObject']['postId'], $created['post_ids'], true ) );
-		}
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 
 		// The fourth menu item has the expected number of child items.
 		$this->assertEquals( $child_count, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
@@ -236,14 +251,10 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		// The returned menu items have the expected number.
-		$this->assertEquals( $limit, count( $actual['data']['menuItems']['edges'] ) );
-
-		// The returned menu items and connected posts have the expected IDs.
-		foreach( $actual['data']['menuItems']['edges'] as $menu_item ) {
-			$this->assertTrue( in_array( $menu_item['node']['menuItemId'], $created['menu_item_ids'], true ) );
-			$this->assertTrue( in_array( $menu_item['node']['connectedObject']['postId'], $created['post_ids'], true ) );
-		}
+		// Perform some common assertions. Slice the created IDs to the limit.
+		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
+		$post_ids = array_slice( $created['post_ids'], 0, $limit );
+		$this->compareResults( $menu_item_ids, $post_ids, $actual );
 	}
 
 }
