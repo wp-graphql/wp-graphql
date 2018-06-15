@@ -209,4 +209,41 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $child_count, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 
+	public function testMenuItemsQueryWithLimit() {
+		$count = 10;
+		$created = $this->createMenuItems( 'my-test-menu-location', $count );
+		$limit = 5;
+
+		$query = '
+		{
+			menuItems(
+				first: ' . $limit . '
+				where: { location: MY_MENU_LOCATION }
+			) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		// The returned menu items have the expected number.
+		$this->assertEquals( $limit, count( $actual['data']['menuItems']['edges'] ) );
+
+		// The returned menu items and connected posts have the expected IDs.
+		foreach( $actual['data']['menuItems']['edges'] as $menu_item ) {
+			$this->assertTrue( in_array( $menu_item['node']['menuItemId'], $created['menu_item_ids'], true ) );
+			$this->assertTrue( in_array( $menu_item['node']['connectedObject']['postId'], $created['post_ids'], true ) );
+		}
+	}
+
 }

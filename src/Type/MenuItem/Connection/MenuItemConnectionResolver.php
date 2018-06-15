@@ -140,14 +140,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$edges = [];
 
 		if ( ! empty( $items ) && is_array( $items ) ) {
-			$items = array_reverse( $items );
-			/**
-			 * If the $items returned is more than the amount that was asked for, slice the array to match
-			 */
-			$query_amount = self::get_query_amount( $source, $args, $context, $info );
-			if ( count( $items ) > $query_amount ) {
-				$items = array_slice( $items, absint( $query_amount ) );
-			}
 			foreach ( $items as $item ) {
 
 				/**
