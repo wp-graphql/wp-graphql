@@ -12,7 +12,7 @@ use WPGraphQL\Types;
  * Class MenuQuery
  *
  * @package WPGraphQL\Type\Menu
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuQuery {
 
@@ -20,7 +20,6 @@ class MenuQuery {
 	 * Holds the root_query field definition
 	 *
 	 * @var array $root_query
-	 * @since 0.0.29
 	 */
 	private static $root_query;
 
@@ -28,7 +27,7 @@ class MenuQuery {
 	 * Method that returns the root query field definition
 	 *
 	 * @return array
-	 * @since 0.0.29
+	 * @since  0.0.30
 	 */
 	public static function root_query() {
 

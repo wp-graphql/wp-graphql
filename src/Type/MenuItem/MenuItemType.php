@@ -13,7 +13,7 @@ use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
  * Class MenuItemType
  *
  * @package WPGraphQL\Type\MenuItem
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuItemType extends WPObjectType {
 
@@ -103,7 +103,7 @@ class MenuItemType extends WPObjectType {
 							 * @param int             $object_id       Post or term ID of connected object
 							 * @param string          $object_type     Type of connected object ("post_type" or "taxonomy")
 							 *
-							 * @since 0.0.29
+							 * @since 0.0.30
 							 */
 							return apply_filters(
 								'graphql_resolve_menu_item',

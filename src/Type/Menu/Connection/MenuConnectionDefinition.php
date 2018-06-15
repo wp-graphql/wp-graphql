@@ -10,7 +10,7 @@ use WPGraphQL\Type\WPInputObjectType;
  * Class MenuConnectionDefinition
  *
  * @package WPGraphQL\Type\Menu\Connection
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuConnectionDefinition {
 
@@ -41,6 +41,7 @@ class MenuConnectionDefinition {
 	 *
 	 * @param string $from_type Connection type.
 	 * @return mixed
+	 * @since  0.0.30
 	 */
 	public static function connection( $from_type = 'Root' ) {
 

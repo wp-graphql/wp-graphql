@@ -10,7 +10,7 @@ use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
  * Class MenuConnectionResolver
  *
  * @package WPGraphQL\Type\Menu\Connection
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuConnectionResolver extends TermObjectConnectionResolver {
 
@@ -24,6 +24,7 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 	 *
 	 * @return array
 	 * @throws \Exception
+	 * @since  0.0.30
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$term_args = [

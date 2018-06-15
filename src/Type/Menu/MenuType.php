@@ -11,7 +11,7 @@ use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
  * Class MenuType
  *
  * @package WPGraphQL\Type\Menu
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuType extends WPObjectType {
 

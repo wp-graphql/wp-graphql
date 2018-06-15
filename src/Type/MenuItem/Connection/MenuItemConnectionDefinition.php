@@ -10,7 +10,7 @@ use WPGraphQL\Type\WPInputObjectType;
  * Class MenuItemConnectionDefinition
  *
  * @package WPGraphQL\Type\MenuItem\Connection
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuItemConnectionDefinition {
 
@@ -40,6 +40,7 @@ class MenuItemConnectionDefinition {
 	 * Create the Relay connection for MenuItems
 	 *
 	 * @return mixed
+	 * @since  0.0.30
 	 */
 	public static function connection() {
 

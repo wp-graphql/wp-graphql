@@ -8,6 +8,7 @@ use WPGraphQL\Type\WPEnumType;
  * Class MenuLocationEnumType
  *
  * @package WPGraphQL\Type\Enum
+ * @since   0.0.30
  */
 class MenuLocationEnumType extends WPEnumType {
 

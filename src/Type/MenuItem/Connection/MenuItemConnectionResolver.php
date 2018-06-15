@@ -12,7 +12,7 @@ use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
  * Class MenuItemConnectionResolver
  *
  * @package WPGraphQL\Type\MenuItem\Connection
- * @since 0.0.29
+ * @since   0.0.30
  */
 class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
@@ -71,6 +71,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 *
 	 * @return array
 	 * @throws \Exception
+	 * @since  0.0.30
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
@@ -135,6 +136,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @param $items
 	 *
 	 * @return array
+	 * @since  0.0.30
 	 */
 	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
