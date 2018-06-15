@@ -169,14 +169,14 @@ class MenuItemType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-                            return ( ! empty( $menu_item->attr_title ) ) ? $menu_item->attr_title : null;
+							return ( ! empty( $menu_item->attr_title ) ) ? $menu_item->attr_title : null;
 						},
 					],
 					'url' => [
 						'type'        => Types::string(),
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $menu_item ) {
-                            return ! empty( $menu_item->url ) ? $menu_item->url : null;
+							return ! empty( $menu_item->url ) ? $menu_item->url : null;
 						},
 					],
 				];
