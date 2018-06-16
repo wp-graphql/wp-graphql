@@ -121,12 +121,12 @@ install_db() {
 	fi
 
 
-    RESULT=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"`
+    RESULT=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"$EXTRA`
     if [ "$RESULT" != $DB_NAME ]; then
         mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
 
-    RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"`
+    RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"$EXTRA`
     if [ "$RESULT_2" != $DB_SERVE_NAME ]; then
         mysqladmin create $DB_SERVE_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
