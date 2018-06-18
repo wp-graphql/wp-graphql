@@ -1142,7 +1142,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'post' => [
 						'featuredImage' => [
 							'title'     => $new_image_variables['featuredImage']['title'],
-							'sourceUrl' => $actual['data']['updatePost']['post']['updatePost']['sourceUrl'],
+							'sourceUrl' => $actual['data']['updatePost']['post']['featuredImage']['sourceUrl'],
 						],
 					],
 				],
