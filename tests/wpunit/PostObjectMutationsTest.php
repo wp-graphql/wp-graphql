@@ -1142,7 +1142,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'post' => [
 						'featuredImage' => [
 							'title'     => $new_image_variables['featuredImage']['title'],
-							'sourceUrl' => 'http://wpgraphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+							'sourceUrl' => $actual['data']['updatePost']['post']['updatePost']['sourceUrl'],
 						],
 					],
 				],
@@ -1150,6 +1150,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+		$this->assertArrayHasKey( 'sourceUrl', $actual['data']['updatePost']['post']['featuredImage'] );
+		$this->assertInternalType( 'string', $actual['data']['updatePost']['post']['featuredImage']['sourceUrl'] );
 
 		/**
 		 * Create a media item to add to the post
