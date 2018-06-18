@@ -30,12 +30,6 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 
-		/**
-		 * Clear the uploads folder
-		 */
-		$_wp_content_upload_dir = WP_CONTENT_DIR . '/uploads';
-		system( 'rm -rf ' . escapeshellarg( $_wp_content_upload_dir ), $retval );
-
 		// before
 		parent::setUp();
 
@@ -1016,7 +1010,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'content'       => apply_filters( 'the_content', $new_image_variables['content'] ),
 						'featuredImage' => [
 							'title'     => $new_image_variables['featuredImage']['title'],
-							'sourceUrl' => 'http://wpgraphql.test/wp-content/uploads/'. date("Y") . '/' . date('m') . '/giphy.gif',
+							'sourceUrl' => $actual['data']['createPost']['post']['featuredImage']['sourceUrl'],
 						],
 					],
 				],
@@ -1024,7 +1018,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
-
+		$this->assertArrayHasKey( 'sourceUrl', $actual['data']['createPost']['post']['featuredImage'] );
+		$this->assertInternalType( 'string', $actual['data']['createPost']['post']['featuredImage']['sourceUrl'] );
 
 		/**
 		 * Create a media item to add to the post
