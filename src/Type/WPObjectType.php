@@ -53,11 +53,6 @@ class WPObjectType extends ObjectType {
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
 		/**
-		 * Filter the Type config
-		 */
-		apply_filters( 'graphql_type_config', $config );
-
-		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
 		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
