@@ -5,8 +5,8 @@
 
 namespace WPGraphQL\Type\Union;
 
-use GraphQL\Type\Definition\UnionType;
 use WPGraphQL\Types;
+use WPGraphQL\Type\WPUnionType;
 
 /**
  * Class MenuItemObjectUnionType
@@ -14,7 +14,7 @@ use WPGraphQL\Types;
  * Navigation menus comprise menu items that reference an object, which can be
  * a post object, a taxonomy term object, or a custom link.
  */
-class MenuItemObjectUnionType extends UnionType {
+class MenuItemObjectUnionType extends WPUnionType {
 	/**
 	 * An array of the possible types that can be resolved by this union.
 	 *
@@ -84,13 +84,6 @@ class MenuItemObjectUnionType extends UnionType {
 
 		// Add the custom link type (which is just a menu item).
 		self::$possible_types['MenuItem'] = Types::menu_item();
-
-		/**
-		 * Filter the possible types.
-		 *
-		 * @param array $possible_types An array of possible types that can be resolved for the union.
-		 */
-		self::$possible_types = apply_filters( 'graphql_menu_item_union_possible_types', self::$possible_types );
 
 		return self::$possible_types;
 	}
