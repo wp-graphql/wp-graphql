@@ -130,7 +130,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 					$query_args['object_ids'] = $source->ID;
 					break;
 				case $source instanceof \WP_Term:
-					$query_args['object_ids'] = $GLOBALS['post']->ID;
+					$query_args['object_ids'] = $GLOBALS['post'] ? $GLOBALS['post']->ID : null;
 					$query_args['parent'] = ! empty( $source->term_id ) ? $source->term_id : 0;
 					break;
 				default:
