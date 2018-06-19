@@ -7,6 +7,10 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Comment\CommentQuery;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\Menu\MenuQuery;
+use WPGraphQL\Type\Menu\Connection\MenuConnectionDefinition;
+use WPGraphQL\Type\MenuItem\MenuItemQuery;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Settings\SettingsQuery;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
@@ -82,6 +86,20 @@ class RootQueryType extends WPObjectType {
 		 */
 		$fields['comment'] = CommentQuery::root_query();
 		$fields['comments'] = CommentConnectionDefinition::connection();
+
+		/**
+		 * Creates the menu root query fields
+		 * @since 0.0.29
+		 */
+		$fields['menu'] = MenuQuery::root_query();
+		$fields['menus'] = MenuConnectionDefinition::connection();
+
+		/**
+		 * Creates the menu items root query fields
+		 * @since 0.0.29
+		 */
+		$fields['menuItem'] = MenuItemQuery::root_query();
+		$fields['menuItems'] = MenuItemConnectionDefinition::connection();
 
 		/**
 		 * Creates the plugin root query field
