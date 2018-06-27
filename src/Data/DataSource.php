@@ -13,6 +13,7 @@ use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
+use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -369,6 +370,34 @@ class DataSource {
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
 		return UserConnectionResolver::resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * Returns an array of data about the user role you are requesting
+	 *
+	 * @param string $name Name of the user role you want info for
+	 *
+	 * @return null|array
+	 * @throws \Exception
+	 * @since  0.0.30
+	 * @access public
+	 */
+	public static function resolve_user_role( $name ) {
+
+		$role = get_role( $name );
+
+		if ( null === $role ) {
+			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
+		} else {
+			$role = (array) $role;
+			$role['id'] = $name;
+			return $role;
+		}
+
+	}
+
+	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
