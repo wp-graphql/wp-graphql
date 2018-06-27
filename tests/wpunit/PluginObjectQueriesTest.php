@@ -57,7 +57,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'id' => $global_id,
 					'name' => 'Hello Dolly',
 					'pluginUri' => 'http://wordpress.org/plugins/hello-dolly/',
-					'version' => '1.6',
+					'version' => '1.7',
 				],
 			],
 		];
