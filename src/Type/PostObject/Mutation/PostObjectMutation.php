@@ -99,6 +99,86 @@ class PostObjectMutation {
 				],
 			];
 
+			if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+
+				/**
+				 * Add input for the featuredImage
+				 */
+				$input_fields['featuredImage'] = [
+					'description' => __( 'The mutation input for the featured image attached to the post.', 'wp-graphql' ),
+					'type' => new WPInputObjectType( [
+						'name'        => ucfirst( $post_type_object->graphql_single_name ) . 'FeaturedImageNodeInput',
+						'description' => __( 'The featured image node.', 'wp-graphql' ),
+						'fields' => [
+							'id'            => [
+								'type'        => Types::id(),
+								'description' => __( 'The global ID of the featured mediaItemId.', 'wp-graphql' ),
+							],
+							'mediaItemId'   => [
+								'type'        => Types::int(),
+								'description' => __( 'The local ID of the featured mediaItem.', 'wp-graphql' ),
+							],
+							'sourceUrl'     => [
+								'type'        => Types::string(),
+								'description' => __( 'The URL or file path to the mediaItem', 'wp-graphql' ),
+							],
+							'altText'       => [
+								'type'        => Types::string(),
+								'description' => __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' ),
+							],
+							'authorId'      => [
+								'type'        => Types::id(),
+								'description' => __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' ),
+							],
+							'caption'       => [
+								'type'        => Types::string(),
+								'description' => __( 'The caption for the mediaItem', 'wp-graphql' ),
+							],
+							'commentStatus' => [
+								'type'        => Types::string(),
+								'description' => __( 'The comment status for the mediaItem', 'wp-graphql' ),
+							],
+							'date'          => [
+								'type'        => Types::string(),
+								'description' => __( 'The date of the mediaItem', 'wp-graphql' ),
+							],
+							'dateGmt'       => [
+								'type'        => Types::string(),
+								'description' => __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' ),
+							],
+							'description'   => [
+								'type'        => Types::string(),
+								'description' => __( 'Description of the mediaItem', 'wp-graphql' ),
+							],
+							'fileType'      => [
+								'type'        => Types::mime_type_enum(),
+								'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
+							],
+							'slug'          => [
+								'type'        => Types::string(),
+								'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
+							],
+							'status'        => [
+								'type'        => Types::media_item_status_enum(),
+								'description' => __( 'The status of the mediaItem', 'wp-graphql' ),
+							],
+							'title'         => [
+								'type'        => Types::string(),
+								'description' => __( 'The title of the mediaItem', 'wp-graphql' ),
+							],
+							'pingStatus'    => [
+								'type'        => Types::string(),
+								'description' => __( 'The ping status for the mediaItem', 'wp-graphql' ),
+							],
+							'parentId'      => [
+								'type'        => Types::id(),
+								'description' => __( 'The WordPress post ID or the graphQL postId of the parent object', 'wp-graphql' ),
+							],
+						],
+					] ),
+				];
+			}
+
 			/**
 			 * Add inputs for connected taxonomies
 			 */
@@ -317,6 +397,13 @@ class PostObjectMutation {
 		 */
 		if ( ! empty( $input['desiredSlug'] ) ) {
 			update_post_meta( $post_id, '_wp_desired_post_slug', $input['desiredSlug'] );
+		}
+
+		/**
+		 * Set the post's featured image
+		 */
+		if ( ! empty( $input['featuredImage'] ) ) {
+			self::handle_featured_image_input( $post_id, $input['featuredImage'] );
 		}
 
 		/**
@@ -584,6 +671,377 @@ class PostObjectMutation {
 		 */
 		return ! empty( $created_term['term_id'] ) ? $created_term['term_id'] : 0;
 
+	}
+
+	/**
+	 * Check whether a file extension type is allowed by WordPress
+	 *
+	 * @access public
+	 *
+	 * @return array
+	 */
+	public static function allowed_file_types() {
+
+
+		$allowed_file_types = [];
+		$mime_types         = get_allowed_mime_types();
+
+		foreach ( $mime_types as $type => $mime_type ) {
+
+			$extras = explode( '|', $type );
+
+			foreach ( $extras as $extra ) {
+				$allowed_file_types[] = $extra;
+			}
+		}
+
+		return $allowed_file_types;
+	}
+
+	/**
+	 * Get the WordPress ID from both global id and mediaItemId
+	 *
+	 * @param $current_id
+	 *
+	 * @return int|string
+	 */
+	public static function get_wp_attachment_id( $current_id ) {
+
+		if ( is_numeric( $current_id ) ) {
+			$wp_id = $current_id;
+		} else {
+			$current_id_parts = Relay::fromGlobalId( $current_id );
+			$wp_id            = $current_id_parts['id'];
+		}
+
+		return absint( $wp_id );
+	}
+
+	/**
+	 * Handle the featured image GraphQL input
+	 *
+	 * @access public
+	 * @param $new_post_id int The WP ID of the post
+	 * @param $featured_image_node
+	 */
+	public static function handle_featured_image_input( $new_post_id, $featured_image_node ) {
+
+		/**
+		 * If the featuredImage node is set to null, the featured image has been removed, so delete it from the post
+		 */
+		if ( is_null( $featured_image_node ) ) {
+			delete_post_meta( $new_post_id, '_thumbnail_id' );
+		}
+
+		/**
+		 * Get the local id of the attachment if it exists
+		 */
+		if ( ! empty( $featured_image_node['id'] ) ) {
+			$wp_featured_image_id = self::get_wp_attachment_id( $featured_image_node['id'] );
+			if ( empty( $wp_featured_image_id ) ) {
+				throw new UserError( __( 'Sorry, we could not find an image that matched that id.', 'dfm-graphql-extensions' ) );
+			}
+		} elseif ( ! empty( $featured_image_node['mediaItemId'] ) ) {
+
+			$wp_featured_image_id = self::get_wp_attachment_id( $featured_image_node['mediaItemId'] );
+			if ( empty( $wp_featured_image_id ) ) {
+				throw new UserError( __( 'Sorry, we could not find an image that matched that mediaItemId.', 'dfm-graphql-extensions' ) );
+			}
+		} else {
+			$wp_featured_image_id = false;
+		}
+
+		/**
+		 * If the file doesn't exist locally then we need the sourceUrl field to upload it
+		 */
+		if ( empty( $wp_featured_image_id ) && ! empty( $featured_image_node['sourceUrl'] ) ) {
+
+			/**
+			 * Create the image using the sourceUrl and inputs
+			 */
+			$image_id = self::create_image( $new_post_id, $featured_image_node );
+			set_post_thumbnail( absint( $new_post_id ), $image_id );
+
+		}
+
+		/**
+		 * If the image exists and the user isn't changing the sourceUrl, update it
+		 */
+		if ( ! empty( $wp_featured_image_id ) && empty( $featured_image_node['sourceUrl'] ) ) {
+
+			/**
+			 * Update the image using the inputs
+			 */
+			$updated_image_id = self::update_image( $wp_featured_image_id, $featured_image_node );
+			$image_id = ! empty( $updated_image_id ) ? $updated_image_id : $wp_featured_image_id;
+			set_post_thumbnail( absint( $new_post_id ), $image_id );
+		}
+
+		/**
+		 * Don't let the user change an existing image's sourceUrl
+		 */
+		if ( ! empty( $wp_featured_image_id ) && ! empty( $featured_image_node['sourceUrl'] ) ) {
+			throw new UserError( __( 'Sorry, you cannot change the sourceUrl on an existing image. Either input a sourceUrl to create a new image or add an existing image id', 'dfm-graphql-extensions' ) );
+		}
+
+	}
+
+	/**
+	 * Create an image in WordPress using GraphQL inputs
+	 *
+	 * @param $new_post_id
+	 * @param $input
+	 *
+	 * @return int|\WP_Error
+	 */
+	public static function create_image( $new_post_id, $input ) {
+
+		/**
+		 * Set the file name, whether it's a local file or from a URL.
+		 * Then set the url for the uploaded file
+		 */
+		$uploaded_file_url = $input['sourceUrl'];
+
+		/**
+		 * Require the file.php file from wp-admin. This file includes the
+		 * download_url and wp_handle_sideload methods
+		 */
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+		$file           = $uploaded_file_url;
+		$filename       = basename( $file );
+		$file_data      = pathinfo( $filename );
+		$file_extension = $file_data['extension'];
+		$allowed_types  = self::allowed_file_types();
+		$type_exists    = in_array( $file_extension, $allowed_types, true );
+
+		if ( false === $type_exists ) {
+			throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'dfm-graphql-extensions' ) );
+		}
+
+		/**
+		 * If the file type is allowed, upload it
+		 */
+		$upload_file = wp_upload_bits( $filename, null, file_get_contents( $file ) );
+
+		/**
+		 * Build the file data for side loading
+		 */
+		$file = [
+			'name'     => $filename,
+			'type'     => wp_check_filetype( $upload_file['file'] ),
+			'tmp_name' => basename( $upload_file['file'] ),
+			'error'    => 0,
+			'size'     => filesize( $upload_file['file'] ),
+		];
+
+		/**
+		 * Insert the mediaItem object and get the ID
+		 */
+		$media_item_args = self::prepare_media_item( $new_post_id, $input, $file );
+
+		/**
+		 * Insert the mediaItem
+		 *
+		 * Required Argument defaults are set in prepare_media_item method if they aren't set
+		 * by the user during input, they are:
+		 * post_title (pulled from file if not entered)
+		 * post_content (empty string if not entered)
+		 * post_status (inherit if not entered)
+		 * post_mime_type (pulled from the file if not entered in the mutation)
+		 */
+		$attachment_id = wp_insert_attachment( $media_item_args, $upload_file['file'], $media_item_args['post_parent'] );
+
+		/**
+		 * Check if the wp_generate_attachment_metadata method exists and include it if not
+		 */
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+		/**
+		 * Generate and update the mediaItem's metadata.
+		 * If we make it this far the file and attachment
+		 * have been validated and we will not receive any errors
+		 */
+		$attachment_data = wp_generate_attachment_metadata( $attachment_id, $upload_file['file'] );
+		wp_update_attachment_metadata( $attachment_id, $attachment_data );
+
+		return $attachment_id;
+
+	}
+
+	/**
+	 * Update an image in WordPress using GraphQL inputs
+	 *
+	 * @param $image_id
+	 * @param $input
+	 *
+	 * @return bool|int|\WP_Error
+	 */
+	public static function update_image( $image_id, $input ) {
+
+		/**
+		 * Set the $update_post_args
+		 */
+		$update_post_args = [];
+
+		/**
+		 * Prepare the data for inserting the mediaItem
+		 * NOTE: These are organized in the same order as: http://v2.wp-api.org/reference/media/#schema-meta
+		 */
+		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
+			$update_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
+		}
+
+		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
+			$update_post_args['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $input['dateGmt'] ) );
+		}
+
+		if ( ! empty( $input['slug'] ) ) {
+			$update_post_args['post_name'] = $input['slug'];
+		}
+
+		if ( ! empty( $input['status'] ) ) {
+			$update_post_args['post_status'] = $input['status'];
+		}
+
+		if ( ! empty( $input['title'] ) ) {
+			$update_post_args['post_title'] = $input['title'];
+		}
+
+		if ( ! empty( $input['authorId'] ) ) {
+			if ( is_numeric( $input['authorId'] ) ) {
+				$update_post_args['post_author'] = $input['authorId'];
+			} else {
+				$id_parts                        = Relay::fromGlobalId( $input['authorId'] );
+				$update_post_args['post_author'] = $id_parts['id'];
+			}
+		}
+
+		if ( ! empty( $input['commentStatus'] ) ) {
+			$update_post_args['comment_status'] = $input['commentStatus'];
+		}
+
+		if ( ! empty( $input['pingStatus'] ) ) {
+			$update_post_args['ping_status'] = $input['pingStatus'];
+		}
+
+		if ( ! empty( $input['caption'] ) ) {
+			// Replace the leftover newline character in the caption
+			$caption = preg_replace( '/(?<=>)(n)/', '', $input['caption'] );
+			// Strip all HTML Tags from the caption and set it as the post_excerpt
+			$insert_post_args['post_excerpt'] = strip_tags( $caption );
+		}
+
+		if ( ! empty( $input['description'] ) ) {
+			$update_post_args['post_content'] = $input['description'];
+		}
+
+		if ( ! empty( $input['parentId'] ) ) {
+			$update_post_args['post_parent'] = absint( $input['parentId'] );
+		}
+
+		if ( ! empty( $update_post_args ) ) {
+			$update_post_args['ID'] = $image_id;
+			$updated_image_id       = wp_update_post( $update_post_args );
+		} else {
+			$updated_image_id = false;
+		}
+
+		return $updated_image_id;
+	}
+
+	/**
+	 * This prepares the media item for insertion
+	 *
+	 * @param int           $post_parent      The ID of the newly created post that we need to attach this image to
+	 * @param array         $input            The input for the mutation from the GraphQL request
+	 * @param mixed         $file             The mediaItem (attachment) file
+	 *
+	 * @return array $media_item_args
+	 */
+	public static function prepare_media_item( $post_parent, $input, $file ) {
+
+		/**
+		 * Set the post_type (attachment) for the insert
+		 */
+		$insert_post_args['post_type'] = 'attachment';
+
+		/**
+		 * Prepare the data for inserting the mediaItem
+		 * NOTE: These are organized in the same order as: http://v2.wp-api.org/reference/media/#schema-meta
+		 */
+		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
+			$insert_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
+		}
+
+		if ( ! empty( $input['dateGmt'] ) && false !== strtotime( $input['dateGmt'] ) ) {
+			$insert_post_args['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $input['dateGmt'] ) );
+		}
+
+		if ( ! empty( $input['slug'] ) ) {
+			$insert_post_args['post_name'] = $input['slug'];
+		}
+
+		if ( ! empty( $input['status'] ) ) {
+			$insert_post_args['post_status'] = $input['status'];
+		} else {
+			$insert_post_args['post_status'] = 'inherit';
+		}
+
+		if ( ! empty( $input['title'] ) ) {
+			$insert_post_args['post_title'] = $input['title'];
+		} elseif ( ! empty( $file['name'] ) ) {
+			$insert_post_args['post_title'] = pathinfo( $file['name'], PATHINFO_FILENAME );
+		}
+
+		if ( empty( $input['authorId'] ) ) {
+			$insert_post_args['post_author'] = get_current_user_id();
+		} else {
+			if ( is_numeric( $input['authorId'] ) ) {
+				$insert_post_args['post_author'] = $input['authorId'];
+			} else {
+				$id_parts                        = Relay::fromGlobalId( $input['authorId'] );
+				$insert_post_args['post_author'] = $id_parts['id'];
+			}
+		}
+
+		if ( ! empty( $input['commentStatus'] ) ) {
+			$insert_post_args['comment_status'] = $input['commentStatus'];
+		}
+
+		if ( ! empty( $input['pingStatus'] ) ) {
+			$insert_post_args['ping_status'] = $input['pingStatus'];
+		}
+
+		/**
+		 * Format the caption properly
+		 */
+		if ( ! empty( $input['caption'] ) ) {
+			// Replace the leftover newline character in the caption
+			$caption = preg_replace( '/(?<=>)(n)/', '', $input['caption'] );
+			// Strip all HTML Tags from the caption and set it as the post_excerpt
+			$insert_post_args['post_excerpt'] = strip_tags( $caption );
+		}
+
+		if ( ! empty( $input['description'] ) ) {
+			$insert_post_args['post_content'] = $input['description'];
+		} else {
+			$insert_post_args['post_content'] = '';
+		}
+
+		if ( ! empty( $input['fileType'] ) ) {
+			$insert_post_args['post_mime_type'] = $input['fileType'];
+		} elseif ( ! empty( $file['type']['type'] ) ) {
+			$insert_post_args['post_mime_type'] = $file['type']['type'];
+		}
+
+		if ( ! empty( $input['parentId'] ) ) {
+			$insert_post_args['post_parent'] = absint( $input['parentId'] );
+		} else {
+			$insert_post_args['post_parent'] = $post_parent;
+		}
+
+		return $insert_post_args;
 	}
 
 	/**
