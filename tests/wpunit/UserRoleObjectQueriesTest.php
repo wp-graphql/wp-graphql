@@ -2,8 +2,11 @@
 
 class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	private $admin;
+
 	public function setUp() {
 		parent::setUp();
+		$this->admin = $this->factory->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown() {
@@ -15,6 +18,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserRoleQuery() {
 
+		wp_set_current_user( $this->admin );
 		$role_to_test = 'administrator';
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'role', $role_to_test );
@@ -51,6 +55,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserRoleQueryNonExistent() {
 
+		wp_set_current_user( $this->admin );
 		$role_to_test = 'norole';
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'role', $role_to_test );
 

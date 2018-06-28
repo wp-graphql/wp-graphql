@@ -30,6 +30,10 @@ class UserRoleConnectionResolver {
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
+		if ( ! current_user_can( 'list_users' ) ) {
+			throw new UserError( __( 'The current user does not have the proper privileges to query this data', 'wp-graphql' ) );
+		}
+
 		$roles = wp_roles();
 		$clean_roles = [];
 

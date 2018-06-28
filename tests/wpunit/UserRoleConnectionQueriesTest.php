@@ -2,8 +2,11 @@
 
 class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	private $admin;
+
 	public function setUp() {
 		parent::setUp();
+		$this->admin = $this->factory->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown() {
@@ -14,6 +17,8 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * Test that the user role query works as expected
 	 */
 	public function testUserRoleConnectionQuery() {
+
+		wp_set_current_user( $this->admin );
 
 		$query = "
 		query {

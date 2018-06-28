@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\UserRoles;
 
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
@@ -40,8 +41,14 @@ class UserRoleQuery {
 					'id' => Types::non_null( Types::id() ),
 				],
 				'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
-					$id_components = Relay::fromGlobalId( $args['id'] );
-					return DataSource::resolve_user_role( $id_components['id'] );
+
+					if ( current_user_can( 'list_users' ) ) {
+						$id_components = Relay::fromGlobalId( $args['id'] );
+						return DataSource::resolve_user_role( $id_components['id'] );
+					} else {
+						throw new UserError( __( 'The current user does not have the proper privileges to query this data', 'wp-graphql' ) );
+					}
+
 				}
 			];
 		}
