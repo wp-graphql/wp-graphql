@@ -28,7 +28,7 @@
   },
   "require-dev": {
     "apigen/apigen": "^4.1",
-    "lucatume/wp-browser": "~1.21.20"
+    "lucatume/wp-browser": "~2.1.4"
   },
   "config": {
     "optimize-autoloader": true

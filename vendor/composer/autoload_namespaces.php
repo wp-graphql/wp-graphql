@@ -6,4 +6,21 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'cli' => array($vendorDir . '/wp-cli/php-cli-tools/lib'),
+    'WP_CLI' => array($vendorDir . '/wp-cli/wp-cli/php'),
+    'TokenReflection' => array($vendorDir . '/andrewsville/php-token-reflection'),
+    'Symfony\\Component\\OptionsResolver\\' => array($vendorDir . '/symfony/options-resolver'),
+    'Requests' => array($vendorDir . '/rmccue/requests/library'),
+    'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
+    'Oxymel' => array($vendorDir . '/nb/oxymel'),
+    'Mustache' => array($vendorDir . '/mustache/mustache/src'),
+    'Kdyby\\Events\\' => array($vendorDir . '/kdyby/events/src'),
+    'Herrera\\Version' => array($vendorDir . '/herrera-io/version/src/lib'),
+    'Herrera\\Phar\\Update' => array($vendorDir . '/herrera-io/phar-update/src/lib'),
+    'Herrera\\Json' => array($vendorDir . '/herrera-io/json/src/lib'),
+    'Hautelook' => array($vendorDir . '/hautelook/phpass/src'),
+    'Handlebars' => array($vendorDir . '/xamin/handlebars.php/src'),
+    'FSHL' => array($vendorDir . '/kukulich/fshl'),
+    'Behat\\Gherkin' => array($vendorDir . '/behat/gherkin/src'),
+    'BaconStringUtils' => array($vendorDir . '/bacon/bacon-string-utils/src'),
 );
