@@ -396,6 +396,16 @@ class DataSource {
 
 	}
 
+	/**
+	 * Resolve the connection data for user roles
+	 *
+	 * @param array       $source  The Query results
+	 * @param array       $args    The query arguments
+	 * @param AppContext  $context The AppContext passed down to the query
+	 * @param ResolveInfo $info    The ResloveInfo object
+	 *
+	 * @return array
+	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
 	}
