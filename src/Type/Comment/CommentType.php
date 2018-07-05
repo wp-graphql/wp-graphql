@@ -123,7 +123,14 @@ class CommentType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the `comment_content` column in SQL.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_content ) ? $comment->comment_content : '';
+							$content =  ! empty( $comment->comment_content ) ? $comment->comment_content : null;
+
+							// If the raw format is requested, don't apply any filters.
+							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+								return $content;
+							}
+
+							return apply_filters('comment_text', $content);
 						},
 					],
 					'karma'       => [

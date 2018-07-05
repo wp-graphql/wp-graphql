@@ -1,6 +1,7 @@
 <?php
 
 namespace WPGraphQL\Type\Comment\Mutation;
+
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -26,12 +27,10 @@ class CommentCreate {
 	 * @return array|mixed
 	 */
 	public static function mutate() {
-
         if (empty(self::$mutation)) {
-			$mutation_name = 'createComment';
+			$mutation_name = 'CreateComment';
 			self::$mutation = Relay::mutationWithClientMutationId([
 				'name' => $mutation_name,
-				// translators: The placeholder is the name of the object type
 				'description' => __('Create comment objects', 'wp-graphql'),
 				'inputFields' => WPInputObjectType::prepare_fields(CommentMutation::input_fields(), $mutation_name),
 				'outputFields' => [
@@ -42,8 +41,7 @@ class CommentCreate {
 						},
 					],
 				],
-				'mutateAndGetPayload' => function($input, AppContext $context, ResolveInfo $info) {
-
+				'mutateAndGetPayload' => function($input, AppContext $context, ResolveInfo $info) use ($mutation_name) {
 					/**
 					 * Throw an exception if there's no input
 					 */
@@ -54,19 +52,29 @@ class CommentCreate {
 					/**
 					 * Stop if post not open to comments
 					 */
-					if (get_post($input(postId))->post_status === 'closed') {
+					if (get_post($input['postId'])->post_status === 'closed') {
 						throw new UserError(__( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ));
 					}
 
 					/**
 					 * Map all of the args from GraphQL to WordPress friendly args array
 					 */
-					$comment_args = CommentMutation::prepare_comment_object($input, $mutation_name);
+					$comment_args =  [
+						'comment_author_url' => '',
+						'comment_type' => '',
+						'comment_parent' => 0,
+						'user_id' => 0,
+						'comment_author_IP' => ':1',
+						'comment_agent' => '',
+						'comment_date' => date('Y-m-d H:i:s'),
+					];
+
+					CommentMutation::prepare_comment_object($input, $comment_args, $mutation_name);
 
 					/**
 					 * Insert the comment and retrieve the ID
 					 */
-					$comment_id = wp_insert_comment(wp_slash((array) $comment_args), true);
+					$comment_id = wp_new_comment($comment_args, true);
 
 					/**
 					 * Throw an exception if the comment failed to be created
@@ -96,12 +104,12 @@ class CommentCreate {
 					CommentMutation::update_additional_comment_data($comment_id, $input, 'create', $context, $info );
 
 					/**
-					 * Return the post object
+					 * Return the comment object
 					 */
 					return ['id' => $comment_id,];
 				},
 			]);
 		}
-		return ( !empty(self::$mutation)) ? self::$mutation : null;
+		return (!empty(self::$mutation)) ? self::$mutation : null;
     }
 }

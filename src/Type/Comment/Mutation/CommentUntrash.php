@@ -10,7 +10,7 @@ use WPGraphQL\Types;
  *
  * @package WPGraphQL\Type\Comment\Mutation
  */
-class CommentDelete { 
+class CommentUntrash { 
 
 	/**
 	 * Holds the mutation field definition
@@ -28,35 +28,31 @@ class CommentDelete {
 			/**
 			 * Set the name of the mutation being performed
 			 */
-			$mutation_name = 'DeleteComment';
+			$mutation_name = 'UntrashComment';
 			self::$mutation = Relay::mutationWithClientMutationId([
 				'name' => $mutation_name,
-				'description' => __('Delete comment objects', 'wp-graphql'),
+				'description' => __('Restore comment objects from trash', 'wp-graphql'),
 				'inputFields' => [
 					'id' => [
 						'type'        => Types::non_null(Types::id()),
-						'description' => __('The ID of the comment to be deleted', 'wp-graphql'),
-					],
-					'forceDelete' => [
-						'type'        => Types::boolean(),
-						'description' => __('Whether the comment should be force deleted instead of being moved to the trash', 'wp-graphql'),
+						'description' => __('The ID of the comment to be restored', 'wp-graphql'),
 					],
 				],
 				'outputFields' => [
-					'deletedId' => [
+					'restoredId' => [
 						'type'        => Types::id(),
-						'description' => __( 'The ID of the deleted comment', 'wp-graphql' ),
+						'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
 						'resolve'     => function($payload) {
-							$deleted = (object) $payload['commentObject'];
-							return !empty($deleted->comment_ID) ? Relay::toGlobalId('comment', absint($deleted->comment_ID)) : null;
+							$restore = (object) $payload['commentObject'];
+							return !empty($restore->comment_ID) ? Relay::toGlobalId('comment', absint($restore->comment_ID)) : null;
 						},
 					],
 					'comment' => [
 						'type'        => Types::comment(),
-						'description' => __( 'The comment before it was deleted', 'wp-graphql' ),
+						'description' => __( 'The restored comment object', 'wp-graphql' ),
 						'resolve'     => function($payload) {
-							$deleted = (object) $payload['commentObject'];
-							return !empty($deleted) ? $deleted : null;
+							$restore = (object) $payload['commentObject'];
+							return !empty($restore) ? $restore : null;
 						},
 					],
 				],
@@ -70,31 +66,23 @@ class CommentDelete {
 					 * Get the post object before deleting it
 					 */
 					$comment_id = absint($id_parts['id']);
-					$comment_before_delete = get_comment($comment_id);
 
 					/**
 					 * Stop now if a user isn't allowed to delete the comment
 					 */
-					$user_id = $comment_before_delete->user_id;
-					if (
-						!current_user_can('moderate_comments') && 
-						absint(get_current_user_id()) !== absint($user_id)
-					) {
+					if (!current_user_can('moderate_comments')) {
 						throw new UserError(__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql'));
 					}
 
 					/**
-					 * Check if we should force delete or not
-					 */
-					$force_delete = (!empty($input['forceDelete']) && true === $input['forceDelete']) ? true : false;
-
-					/**
 					 * Delete the comment
 					 */
-					$deleted = wp_delete_comment($id_parts['id'], $force_delete);
+                    $restored = wp_untrash_comment($id_parts['id']);
+                    
+                    $comment = get_comment($comment_id);
 
 					return [
-						'commentObject' => $comment_before_delete,
+						'commentObject' => $comment,
 					];
 				}
 			]);

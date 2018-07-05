@@ -30,11 +30,11 @@ class CommentMutation {
 		if (empty(self::$input_fields)) {
 			$input_fields = [
 				'postId' 	  => [
-					'type'		  => Types::id(),
+					'type'		  => Types::int(),
 					'description' => __('The ID of the post the comment belongs to.', 'wp-graphql'),
 				],
 				'userId'    => [
-					'type'        => Types::id(),
+					'type'        => Types::int(),
 					'description' => __( 'The userID of the comment\'s author.', 'wp-graphql' ),
 				],
 				'author'    => [
@@ -96,12 +96,12 @@ class CommentMutation {
 	 * @param array         $input              The input for the mutation
 	 * @param string        $mutation_name      The name of the mutation being performed
 	 *
-	 * @return array $insert_comment_args
+	 * @return array $output_args
 	 * @throws \Exception
 	 */
-	public static function prepare_comment_object($input, $mutation_name) {
+	public static function prepare_comment_object($input, &$output_args, $mutation_name, $update = false) {
 		/**
-		 * Prepare the data for inserting the post
+		 * Prepare the data for inserting the comment
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_comment/
 		 *
 		 *  Ex.
@@ -119,68 +119,69 @@ class CommentMutation {
 		 *	'comment_approved' => 1,
 		 */
 
-		$insert_comment_args = [];
-
-		$author = !empty($input['authorId']) ? Relay::fromGlobalId($input['authorId']) : null;
-		if (is_array($author) && is_int($author['id'])) {
-			$insert_comment_args['user_id'] = absint($author['id']);
-			if ($author['name']) $insert_comment_args['comment_author'] = $author['name'];
-			if ($author['email']) $insert_comment_args['comment_author_email'] = $author['email'];
-			if ($author['url']) $insert_comment_args['comment_author_url'] = $author['url'];
+		$user = !empty($input['userId']) ? get_user_by('ID', $input['userId']) : false;
+		if ($user instanceof \WP_User) {
+			$output_args['user_id'] = $user->ID;
+			$output_args['comment_author'] = $user->display_name;
+			$output_args['comment_author_email'] = $user->user_email;
+			if (!is_null($user->user_url)) $output_args['comment_author_url'] = $user->user_url;
 		} else {
-			if (!empty($input['author'])) $insert_comment_args['comment_author'] = $input['author'];
+			if (empty($input['author'])) {
+				if(!$update) throw new UserError(__('Must enter a valid user_id or author name', 'graphql'));
+			} else { $output_args['comment_author'] = $input['author']; }
 			if (!empty($input['authorEmail'])) {
-				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+				if (false === is_email(apply_filters('pre_user_email', $input['authorEmail']))) {
+					throw new UserError(__( 'The email address you are trying to use is invalid', 'graphql'));
 				}
-				$insert_comment_args['comment_author_email'] = $input['authorEmail'];
+				$output_args['comment_author_email'] = $input['authorEmail'];
 			}
-			if (!empty($input['authorUrl'])) $insert_comment_args['comment_author_url'] = $input['authorUrl'];
+			if (!empty($input['authorUrl'])) {
+				$output_args['comment_author_url'] = $input['authorUrl'];
+			}
 		}
 
 		if (!empty($input['postId'])) {
-			$insert_comment_args['comment_post_ID'] = $input['postId'];
+			$output_args['comment_post_ID'] = $input['postId'];
 		}
 
 		if (!empty($input['date']) && false !== strtotime($input['date'])) {
-			$insert_comment_args['comment_date'] = date( 'Y-m-d H:i:s', strtotime($input['date']));
+			$output_args['comment_date'] = date( 'Y-m-d H:i:s', strtotime($input['date']));
 		}
 
 		if (!empty($input['content'])) {
-			$insert_comment_args['comment_content'] = $input['content'];
+			$output_args['comment_content'] = $input['content'];
 		}
 
 		if (!empty($input['parent'])) {
-			$insert_comment_args['comment_parent'] = $input['parent'];
+			$output_args['comment_parent'] = $input['parent'];
 		}
 
 		if (!empty($input['type'])) {
-			$insert_comment_args['comment_type'] = $input['type'];
+			$output_args['comment_type'] = $input['type'];
 		}
 
-		if (!empty($input['authorIP'])) {
-			$insert_comment_args['comment_author_IP'] = $input['authorIp'];
+		if (!empty($input['authorIp'])) {
+			$output_args['comment_author_IP'] = $input['authorIp'];
 		}
 
 		if (!empty($input['agent'])) {
-			$insert_comment_args['comment_agent'] = $input['agent'];
+			$output_args['comment_agent'] = $input['agent'];
 		}
 
 		if (!empty($input['approved'])) {
-			$insert_comment_args['comment_approved'] = $input['approved'];
+			$output_args['comment_approved'] = $input['approved'];
 		}
 
 		/**
 		 * Filter the $insert_post_args
 		 *
-		 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_post
+		 * @param array         $output_args The array of $input_post_args that will be passed to wp_new_comment
 		 * @param array         $input            The data that was entered as input for the mutation
-		 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
 		 * @param string        $mutation_type    The type of mutation being performed (create, edit, etc)
 		 */
-		$insert_comment_args = apply_filters('graphql_comment_insert_post_args', $insert_comment_args, $input, $mutation_name);
+		$output_args = apply_filters('graphql_comment_insert_post_args', $output_args, $input, $mutation_name);
 
-		return $insert_comment_args;
+		return ;
     }
 
     /**
@@ -188,13 +189,11 @@ class CommentMutation {
 	 *
 	 * @param int           $post_id              The ID of the postObject the comment is connected to
 	 * @param array         $input                The input for the mutation
-	 * @param \WP_Comment   $comment_object       The Comment Object for the type of post being mutated
 	 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
 	 * @param AppContext    $context              The AppContext passed down to all resolvers
 	 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
-	 * @param string        $comment_status       The comment object status set by user privileges and post permissions
 	 */
-	public static function update_additional_comment_data($post_id, $input, $comment_object, $mutation_name, AppContext $context, ResolveInfo $info) {
+	public static function update_additional_comment_data($comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info) {
 
     }
 }

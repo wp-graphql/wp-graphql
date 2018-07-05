@@ -85,7 +85,7 @@ class CommentAuthorType extends WPObjectType {
 						'type'        => Types::string(),
 						'description' => __( 'The url the comment author.', 'wp-graphql' ),
 						'resolve'     => function( array $comment_author, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment_author['comment_author_url'] ) ? $comment_author['comment_author_url'] : '';
+							return ! empty( $comment_author['comment_author_url'] ) ? $comment_author['comment_author_urlb'] : '';
 						},
 					],
 				];
