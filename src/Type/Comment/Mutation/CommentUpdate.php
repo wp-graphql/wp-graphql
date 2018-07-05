@@ -1,6 +1,7 @@
 <?php
 
 namespace WPGraphQL\Type\Comment\Mutation;
+
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -34,8 +35,8 @@ class CommentUpdate {
 				'inputFields' => WPInputObjectType::prepare_fields(
 					array_merge(
 						[
-							'commentId' 	  => [
-								'type'		  => Types::non_null(Types::int()),
+							'id' 	  => [
+								'type'		  => Types::non_null(Types::id()),
 								'description' => __('The ID of the comment being updated.', 'wp-graphql'),
 							],
 						],
@@ -57,17 +58,14 @@ class CommentUpdate {
 						throw new UserError( __('Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql'));
 					}
 
-					/**
-					 * Throw an exception if commentId isn't input.
-					 */
-					if(empty($input['commentId'])){
-						throw new UserError( __('commentId must be provided', 'wp-graphql'));
-					}
+					$id_parts = !empty($input['id']) ? Relay::fromGlobalId($input['id']) : null;
+					$comment_id = absint($id_parts['id']);
+					$comment_args = get_comment($comment_id, ARRAY_A);
+					
 
 					/**
 					 * Map all of the args from GraphQL to WordPress friendly args array
 					 */
-					$comment_args = get_comment($input['commentId'], ARRAY_A);
 					$user_id = $comment_args['user_id'];
 					CommentMutation::prepare_comment_object($input, $comment_args, $mutation_name, true);
 
@@ -100,12 +98,12 @@ class CommentUpdate {
 					 * The input for the commentMutation will be passed, along with the $new_comment_id for the
 					 * comment that was created so that relations can be set, meta can be updated, etc.
 					 */
-					CommentMutation::update_additional_comment_data($input['commentId'], $input, 'create', $context, $info );
+					CommentMutation::update_additional_comment_data($comment_id, $input, 'create', $context, $info );
 
 					/**
 					 * Return the comment object
 					 */
-					return ['id' => $input['commentId']];
+					return ['id' => $comment_id];
 				},
 			]);
 		}

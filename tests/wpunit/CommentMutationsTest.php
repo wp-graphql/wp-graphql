@@ -138,7 +138,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 					],
 				],
 			],
-		];
+        ];
+        
+        /**
+         * use --debug flag to view
+         */
+        \Codeception\Util\Debug::debug($actual);
 
 		/**
 		 * Compare the actual output vs the expected output
@@ -167,11 +172,11 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 
         $content = 'Updated Content';
         $mutation = '
-		mutation updateCommentTest($clientMutationId: String!, $commentId: Int!, $content: String!, $ip: String) {
+		mutation updateCommentTest($clientMutationId: String!, $id: ID!, $content: String!, $ip: String) {
 		  updateComment(
 		    input: {
 		      clientMutationId: $clientMutationId
-              commentId: $commentId
+              id: $id
               content: $content
               authorIp: $ip
 		    }
@@ -180,6 +185,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		    clientMutationId
 		    comment {
               id
+              commentId
               content
               authorIp
 		    }
@@ -188,7 +194,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		';
 		$variables = wp_json_encode([
 			'clientMutationId' => $this->client_mutation_id,
-            'commentId'        => $comment_id,
+            'id'        => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
             'content'          => $content,
             'ip'               => ':2',
         ]);
@@ -201,6 +207,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 					'clientMutationId' => $this->client_mutation_id,
 					'comment' => [
                         'id'          => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
+                        'commentId'   => $comment_id,
                         'content'     => apply_filters('comment_text', $content),
                         'authorIp'    => ':2',
                     ],
@@ -208,7 +215,10 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-        //\Codeception\Util\Debug::debug($actual);
+        /**
+         * use --debug flag to view
+         */
+        \Codeception\Util\Debug::debug($actual);
 
 		/**
 		 * Compare the actual output vs the expected output
@@ -245,6 +255,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
             deletedId
             comment {
               id
+              commentId
               content
             }
           }
@@ -265,13 +276,17 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
                     'deletedId' => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
 					'comment' => [
                         'id'          => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
+                        'commentId'   => $comment_id,
                         'content'     => apply_filters('comment_text', $content),
                     ],
 				],
 			],
         ];
         
-        //\Codeception\Util\Debug::debug($actual);
+        /**
+         * use --debug flag to view
+         */
+        \Codeception\Util\Debug::debug($actual);
 
 		/**
 		 * Compare the actual output vs the expected output
@@ -310,6 +325,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
             restoredId
             comment {
               id
+              commentId
               content
             }
           }
@@ -332,12 +348,16 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
                     'restoredId' => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
 					'comment' => [
                         'id'          => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
+                        'commentId'   => $comment_id,
                         'content'     => apply_filters('comment_text', $content),
                     ],
 				],
 			],
         ];
         
+        /**
+         * use --debug flag to view
+         */
         \Codeception\Util\Debug::debug($actual);
 
 		/**
