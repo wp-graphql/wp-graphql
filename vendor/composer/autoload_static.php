@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit989472a815f7398c1ff4d2e496f07f11
+class ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -268,6 +268,10 @@ class ComposerStaticInit989472a815f7398c1ff4d2e496f07f11
         'WPGraphQL\\Type\\Union\\CommentAuthorUnionType' => __DIR__ . '/../..' . '/src/Type/Union/CommentAuthorUnionType.php',
         'WPGraphQL\\Type\\Union\\PostObjectUnionType' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnionType.php',
         'WPGraphQL\\Type\\Union\\TermObjectUnionType' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnionType.php',
+        'WPGraphQL\\Type\\UserRoles\\Connection\\UserRoleConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/UserRoles/Connection/UserRoleConnectionDefinition.php',
+        'WPGraphQL\\Type\\UserRoles\\Connection\\UserRoleConnectionResolver' => __DIR__ . '/../..' . '/src/Type/UserRoles/Connection/UserRoleConnectionResolver.php',
+        'WPGraphQL\\Type\\UserRoles\\UserRoleQuery' => __DIR__ . '/../..' . '/src/Type/UserRoles/UserRoleQuery.php',
+        'WPGraphQL\\Type\\UserRoles\\UserRoleType' => __DIR__ . '/../..' . '/src/Type/UserRoles/UserRoleType.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionArgs' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionArgs.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionDefinition.php',
         'WPGraphQL\\Type\\User\\Connection\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Type/User/Connection/UserConnectionResolver.php',
@@ -288,9 +292,9 @@ class ComposerStaticInit989472a815f7398c1ff4d2e496f07f11
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit989472a815f7398c1ff4d2e496f07f11::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit989472a815f7398c1ff4d2e496f07f11::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit989472a815f7398c1ff4d2e496f07f11::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -37,6 +37,7 @@ use WPGraphQL\Type\Union\PostObjectUnionType;
 use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
+use WPGraphQL\Type\UserRoles\UserRoleType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -333,6 +334,15 @@ class Types {
 	 * @access private
 	 */
 	private static $user_connection_query_args;
+
+	/**
+	 * Stores the user role type object
+	 *
+	 * @var UserRoleType object $user_role
+	 * @since 0.0.30
+	 * @access private
+	 */
+	private static $user_role;
 
 	/**
 	 * This returns the definition for the AvatarType
@@ -750,6 +760,17 @@ class Types {
 		}
 
 		return ! empty( self::$user_connection_query_args[ $connection ] ) ? self::$user_connection_query_args[ $connection ] : null;
+	}
+
+	/**
+	 * Returns the definition for the UserRoleType
+	 *
+	 * @return UserRoleType
+	 * @since 0.0.30
+	 * @access public
+	 */
+	public static function user_role() {
+		return self::$user_role ? : ( self::$user_role = new UserRoleType() );
 	}
 
 	/**

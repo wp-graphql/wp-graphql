@@ -22,6 +22,8 @@ use WPGraphQL\Type\TermObject\TermObjectQuery;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
 use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\User\UserQuery;
+use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
+use WPGraphQL\Type\UserRoles\UserRoleQuery;
 use WPGraphQL\Types;
 
 /**
@@ -149,6 +151,18 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['users'] = UserConnectionDefinition::connection();
+
+		/**
+		 * Creates the userRole root query field
+		 * @since 0.0.30
+		 */
+		$fields['userRole'] = UserRoleQuery::root_query();
+
+		/**
+		 * Creates the userRoles root connection
+		 * @since 0.0.30
+		 */
+		$fields['userRoles'] = UserRoleConnectionDefinition::connection();
 
 		/**
 		 * Creates the viewer root query field
