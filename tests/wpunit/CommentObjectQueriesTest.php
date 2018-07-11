@@ -135,7 +135,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,
-					'content'     => 'Test comment content',
+					'content'     => apply_filters( 'comment_text', 'Test comment content'),
 					'date'        => $this->current_date,
 					'dateGmt'     => $this->current_date_gmt,
 					'id'          => $global_id,
@@ -310,13 +310,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							[
 								'node' => [
 									'commentId' => $child_2,
-									'content'   => 'Child 2',
+									'content'   => apply_filters( 'comment_text', 'Child 2' ),
 								],
 							],
 							[
 								'node' => [
 									'commentId' => $child_1,
-									'content'   => 'Child 1',
+									'content'   => apply_filters( 'comment_text', 'Child 1' ),
 								],
 							],
 						],
@@ -328,7 +328,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'content'     => 'Test comment',
 					'parent'      => [
 						'commentId' => $parent_comment,
-						'content'   => 'Parent comment',
+						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
 					],
 				],
 			],
