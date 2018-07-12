@@ -325,7 +325,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentedOn' => [
 						'content' => apply_filters( 'the_content', 'Post object' ),
 					],
-					'content'     => 'Test comment',
+					'content'     => apply_filters( 'comment_text', 'Test comment' ),
 					'parent'      => [
 						'commentId' => $parent_comment,
 						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
