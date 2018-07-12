@@ -17,7 +17,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param string $versionB 	string representation of version number
 	 * @return string|boolean 	returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
 	 */
-	public function compareSemantics( string $versionA, string $versionB )
+	public function compareSemantics( $versionA, $versionB )
 	{
 		$a = explode( '.', $versionA );
 		$b = explode( '.', $versionB );
