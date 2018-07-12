@@ -106,7 +106,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
-		$this->assertTrue( compareSemantics( $actual['data']['plugin']['version'], '1.6' ) !== false );
+		$this->assertTrue( $this->compareSemantics( $actual['data']['plugin']['version'], '1.6' ) !== false );
 
 	}
 
