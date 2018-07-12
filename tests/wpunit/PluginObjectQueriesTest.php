@@ -17,7 +17,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param string $versionB 	string representation of version number
 	 * @return string|boolean 	returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
 	 */
-	public function compareSemantics( string $versionA, string $versionB = '1.0.0' )
+	public function compareSemantics( string $versionA, string $versionB )
 	{
 		$a = explode( '.', $versionA );
 		$b = explode( '.', $versionB );
@@ -106,6 +106,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
+		$this->assertTrue( compareSemantics( $actual['data']['plugin']['version'], '1.6' ) !== false );
 
 	}
 
