@@ -2,6 +2,10 @@
 
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Type\Comment\Mutation\CommentCreate;
+use WPGraphQL\Type\Comment\Mutation\CommentDelete;
+use WPGraphQL\Type\Comment\Mutation\CommentRestore;
+use WPGraphQL\Type\Comment\Mutation\CommentUpdate;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemCreate;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemUpdate;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemDelete;
@@ -63,8 +67,9 @@ class RootMutationType extends WPObjectType {
 	}
 
 	/**
-	 * This defines the fields for the RootMutationType. The fields are passed through a filter so the shape of the
-	 * schema can be modified, for example to add entry points to Types that are unique to certain plugins.
+	 * This defines the fields for the RootMutationType. The fields are passed through a filter so
+	 * the shape of the schema can be modified, for example to add entry points to Types that are
+	 * unique to certain plugins.
 	 *
 	 * @return array|\GraphQL\Type\Definition\FieldDefinition[]
 	 */
@@ -107,7 +112,7 @@ class RootMutationType extends WPObjectType {
 			/**
 			 * Root mutation field for updating settings
 			 */
-			$fields[ 'updateSettings' ] = SettingsUpdate::mutate();
+			$fields['updateSettings'] = SettingsUpdate::mutate();
 
 			if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 				foreach ( $allowed_taxonomies as $taxonomy ) {
@@ -127,11 +132,19 @@ class RootMutationType extends WPObjectType {
 			} // End if().
 
 			/**
+			 * Comment Mutations
+			 */
+			$fields['createComment']  = CommentCreate::mutate();
+			$fields['updateComment']  = CommentUpdate::mutate();
+			$fields['deleteComment']  = CommentDelete::mutate();
+			$fields['restoreComment'] = CommentRestore::mutate();
+
+			/**
 			 * User Mutations
 			 */
-			$fields[ 'createUser' ] = UserCreate::mutate();
-			$fields[ 'updateUser' ] = UserUpdate::mutate();
-			$fields[ 'deleteUser' ] = UserDelete::mutate();
+			$fields['createUser'] = UserCreate::mutate();
+			$fields['updateUser'] = UserUpdate::mutate();
+			$fields['deleteUser'] = UserDelete::mutate();
 
 			self::$fields = $fields;
 
