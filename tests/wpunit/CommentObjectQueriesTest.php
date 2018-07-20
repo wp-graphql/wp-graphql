@@ -135,7 +135,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,
-					'content'     => 'Test comment content',
+					'content'     => apply_filters( 'comment_text', 'Test comment content'),
 					'date'        => $this->current_date,
 					'dateGmt'     => $this->current_date_gmt,
 					'id'          => $global_id,
@@ -235,7 +235,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$parent_comment = $this->createCommentObject(
 			[
 				'comment_post_ID' => $post_id,
-				'comment_content' => 'Parent comment',
+				'comment_content' => apply_filters( 'the_content', 'Parent comment' ),
 			]
 		);
 
@@ -244,20 +244,20 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$comment_id = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => 'Test comment',
+			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
 			'comment_parent'  => $parent_comment,
 		] );
 
 		// Create child comments.
 		$child_1 = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => 'Child 1',
+			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
 			'comment_parent'  => $comment_id,
 		] );
 
 		$child_2 = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => 'Child 2',
+			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
 			'comment_parent'  => $comment_id,
 		] );
 
@@ -310,13 +310,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							[
 								'node' => [
 									'commentId' => $child_2,
-									'content'   => 'Child 2',
+									'content'   => apply_filters( 'comment_text', 'Child 2' ),
 								],
 							],
 							[
 								'node' => [
 									'commentId' => $child_1,
-									'content'   => 'Child 1',
+									'content'   => apply_filters( 'comment_text', 'Child 1' ),
 								],
 							],
 						],
@@ -325,10 +325,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentedOn' => [
 						'content' => apply_filters( 'the_content', 'Post object' ),
 					],
-					'content'     => 'Test comment',
+					'content'     => apply_filters( 'comment_text', 'Test comment' ),
 					'parent'      => [
 						'commentId' => $parent_comment,
-						'content'   => 'Parent comment',
+						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
 					],
 				],
 			],
