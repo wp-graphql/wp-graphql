@@ -238,7 +238,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$parent_comment = $this->createCommentObject(
 			[
 				'comment_post_ID' => $post_id,
-				'comment_content' => apply_filters( 'the_content', 'Parent comment' ),
+				'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
 			]
 		);
 
@@ -247,20 +247,20 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$comment_id = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
+			'comment_content' => apply_filters( 'comment_text', 'Test comment' ),
 			'comment_parent'  => $parent_comment,
 		] );
 
 		// Create child comments.
 		$child_1 = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
+			'comment_content' => apply_filters( 'comment_text', 'Child 1' ),
 			'comment_parent'  => $comment_id,
 		] );
 
 		$child_2 = $this->createCommentObject( [
 			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Parent comment' ),
+			'comment_content' => apply_filters( 'comment_text', 'Child 2' ),
 			'comment_parent'  => $comment_id,
 		] );
 
