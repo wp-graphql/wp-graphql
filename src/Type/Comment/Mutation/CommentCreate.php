@@ -108,7 +108,10 @@ class CommentCreate {
 					/**
 					 * Return the comment object
 					 */
-					return [ 'id' => $comment_id, ];
+					return [
+						'id' => $comment_id,
+					];
+					
 				},
 			] );
 		}
