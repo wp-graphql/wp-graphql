@@ -111,7 +111,7 @@ class CommentCreate {
 					return [
 						'id' => $comment_id,
 					];
-					
+
 				},
 			] );
 		}
