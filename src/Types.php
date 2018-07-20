@@ -345,6 +345,33 @@ class Types {
 	private static $user_role;
 
 	/**
+	 * Stores custom types
+	 * 
+	 * @var array $custom_types
+	 * @since 0.0.30
+	 */
+	private static $custom_types;
+
+	/**
+	 * Magic function for extending schema Types query. 
+	 * Note: I'm pretty sure this is unsafe somehow, just not sure how
+	 * if you know please tell me - kidunot89@github
+	 *
+	 * @param string $name
+	 * @param array $args
+	 * @return void
+	 */
+	public static function __callStatic (string $name, array $args) {
+		if (! empty( args ) ) {
+			$class = $args[0];
+			array_shift( $args );
+
+			return self::$custom_types[ $name ] ?: ( self::$custom_types[ $name ] = new $class( ...$args ) );
+		}
+		return null;
+	}
+
+	/**
 	 * This returns the definition for the AvatarType
 	 *
 	 * @return AvatarType object
