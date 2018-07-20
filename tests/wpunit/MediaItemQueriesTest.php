@@ -326,7 +326,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 150, $sizes[0]['height'] );
 		$this->assertEquals( 150, $sizes[0]['width'] );
 		$this->assertEquals( 'image/jpeg', $sizes[0]['mimeType'] );
-		$this->assertEquals( 'example-thumbnail.jpg', $sizes[0]['sourceUrl'] );
+		$this->assertEquals( wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0], $sizes[0]['sourceUrl'] );
 
 	}
 

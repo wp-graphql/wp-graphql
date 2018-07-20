@@ -118,7 +118,9 @@ class MediaItemType {
 				'type'        => self::media_details(),
 				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
 				'resolve'     => function( \WP_Post $post, $args, $context, ResolveInfo $info ) {
-					return wp_get_attachment_metadata( $post->ID );
+					$media_details = wp_get_attachment_metadata( $post->ID );
+					$media_details['ID'] = $post->ID;
+					return $media_details;
 				},
 			],
 
@@ -159,6 +161,7 @@ class MediaItemType {
 							'resolve'     => function( $media_details, $args, $context, ResolveInfo $info ) {
 								if ( ! empty( $media_details['sizes'] ) ) {
 									foreach ( $media_details['sizes'] as $size_name => $size ) {
+										$size['ID']     = $media_details['ID'];
 										$size['name']   = $size_name;
 										$sizes[]        = $size;
 									}
@@ -285,7 +288,21 @@ class MediaItemType {
 						'type'        => Types::string(),
 						'description' => __( 'The url of the for the referenced size', 'wp-graphql' ),
 						'resolve'     => function( $image, $args, $context, ResolveInfo $info ) {
-							return ! empty( $image['file'] ) ? $image['file'] : null;
+
+							$src_url = null;
+
+							if ( ! empty( $image['ID'] ) ) {
+								$src = wp_get_attachment_image_src( absint( $image['ID'] ), $image['name'] );
+								if ( ! empty( $src[0] ) ) {
+									$src_url = $src[0];
+								}
+							} else {
+								if ( ! empty( $image['file'] ) ) {
+									$src_url = $image['file'];
+								}
+							}
+
+							return $src_url;
 						},
 					],
 				],
