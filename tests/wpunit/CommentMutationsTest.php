@@ -313,8 +313,8 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
         $this->trashComment( $comment_id );
 
         $mutation = '
-		mutation untrashCommentTest( $clientMutationId: String!, $id: ID! ) {
-		  untrashComment( 
+		mutation restoreCommentTest( $clientMutationId: String!, $id: ID! ) {
+		  restoreComment( 
 		    input: {
 		      clientMutationId: $clientMutationId
               id: $id
@@ -339,11 +339,11 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
         
         wp_set_current_user( $this->admin );
 
-        $actual = do_graphql_request( $mutation, 'untrashCommentTest', $variables );
+        $actual = do_graphql_request( $mutation, 'restoreCommentTest', $variables );
         
         $expected = [
 			'data' => [
-				'untrashComment' => [
+				'restoreComment' => [
                     'clientMutationId' => $this->client_mutation_id,
                     'restoredId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 					'comment' => [

@@ -56,7 +56,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testCommentQuery
 	 *
-	 * This tests creating a single comment with data and retrieving said comment via a GraphQL query
+	 * This tests creating a single comment with data and retrieving said comment via a GraphQL
+	 * query
 	 *
 	 * @since 0.0.5
 	 */
@@ -135,7 +136,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,
-					'content'     => apply_filters( 'comment_text', 'Test comment content'),
+					'content'     => apply_filters( 'comment_text', 'Test comment content' ),
 					'date'        => $this->current_date,
 					'dateGmt'     => $this->current_date_gmt,
 					'id'          => $global_id,
@@ -152,7 +153,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testCommentQuery
 	 *
-	 * This tests creating a single comment with data and retrieving said comment via a GraphQL query
+	 * This tests creating a single comment with data and retrieving said comment via a GraphQL
+	 * query
 	 *
 	 * @since 0.0.5
 	 */
@@ -220,7 +222,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testCommentQuery
 	 *
-	 * This tests creating a single comment with data and retrieving said comment via a GraphQL query
+	 * This tests creating a single comment with data and retrieving said comment via a GraphQL
+	 * query
 	 *
 	 * @since 0.0.5
 	 */

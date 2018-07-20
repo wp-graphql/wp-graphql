@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53
+class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -219,7 +219,7 @@ class ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53
         'WPGraphQL\\Type\\Comment\\Mutation\\CommentCreate' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentCreate.php',
         'WPGraphQL\\Type\\Comment\\Mutation\\CommentDelete' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentDelete.php',
         'WPGraphQL\\Type\\Comment\\Mutation\\CommentMutation' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentMutation.php',
-        'WPGraphQL\\Type\\Comment\\Mutation\\CommentUntrash' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentUntrash.php',
+        'WPGraphQL\\Type\\Comment\\Mutation\\CommentRestore' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentRestore.php',
         'WPGraphQL\\Type\\Comment\\Mutation\\CommentUpdate' => __DIR__ . '/../..' . '/src/Type/Comment/Mutation/CommentUpdate.php',
         'WPGraphQL\\Type\\EditLock\\EditLockType' => __DIR__ . '/../..' . '/src/Type/EditLock/EditLockType.php',
         'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnumType.php',
@@ -308,9 +308,9 @@ class ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitb5a6c18f5fe183d02e3cfb2ede146b53::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$classMap;
 
         }, null, ClassLoader::class);
     }

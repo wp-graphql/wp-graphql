@@ -5,7 +5,7 @@ namespace WPGraphQL\Type;
 use WPGraphQL\Type\Comment\Mutation\CommentCreate;
 use WPGraphQL\Type\Comment\Mutation\CommentUpdate;
 use WPGraphQL\Type\Comment\Mutation\CommentDelete;
-use WPGraphQL\Type\Comment\Mutation\CommentUntrash;
+use WPGraphQL\Type\Comment\Mutation\CommentRestore;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemCreate;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemUpdate;
 use WPGraphQL\Type\MediaItem\Mutation\MediaItemDelete;
@@ -133,7 +133,7 @@ class RootMutationType extends WPObjectType {
 			$fields[ 'createComment' ] = CommentCreate::mutate();
 			$fields[ 'updateComment' ] = CommentUpdate::mutate();
 			$fields[ 'deleteComment' ] = CommentDelete::mutate();
-			$fields[ 'untrashComment' ] = CommentUntrash::mutate();
+			$fields[ 'restoreComment' ] = CommentRestore::mutate();
 
 			/**
 			 * User Mutations

@@ -8,12 +8,13 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
+
 /**
  * Class CommentCreate
  *
  * @package WPGraphQL\Type\Comment\Mutation
  */
-class CommentUpdate { 
+class CommentUpdate {
 
 	/**
 	 * Holds the mutation field definition
@@ -21,36 +22,37 @@ class CommentUpdate {
 	 * @var array $mutation
 	 */
 	private static $mutation = [];
+
 	/**
 	 * Defines the create mutation for Comments
 	 *
 	 * @return array|mixed
 	 */
 	public static function mutate() {
-        if ( empty( self::$mutation ) ) {
-			$mutation_name = 'UpdateComment';
+		if ( empty( self::$mutation ) ) {
+			$mutation_name  = 'UpdateComment';
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => $mutation_name,
-				'description' => __( 'Create comment objects', 'wp-graphql' ),
-				'inputFields' => WPInputObjectType::prepare_fields( 
-					array_merge( 
+				'name'                => $mutation_name,
+				'description'         => __( 'Create comment objects', 'wp-graphql' ),
+				'inputFields'         => WPInputObjectType::prepare_fields(
+					array_merge(
 						[
-							'id' 	  => [
-								'type'		  => Types::non_null( Types::id() ),
+							'id' => [
+								'type'        => Types::non_null( Types::id() ),
 								'description' => __( 'The ID of the comment being updated.', 'wp-graphql' ),
 							],
 						],
 						CommentMutation::input_fields()
-					 ), $mutation_name ),
-				'outputFields' => [
+					), $mutation_name ),
+				'outputFields'        => [
 					'comment' => [
 						'type'    => Types::comment(),
-						'resolve' => function( $payload ) {
+						'resolve' => function ( $payload ) {
 							return get_comment( $payload['id'] );
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $mutation_name ) {
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $mutation_name ) {
 					/**
 					 * Throw an exception if there's no input
 					 */
@@ -58,10 +60,10 @@ class CommentUpdate {
 						throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
 					}
 
-					$id_parts = !empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-					$comment_id = absint( $id_parts['id'] );
+					$id_parts     = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+					$comment_id   = absint( $id_parts['id'] );
 					$comment_args = get_comment( $comment_id, ARRAY_A );
-					
+
 
 					/**
 					 * Map all of the args from GraphQL to WordPress friendly args array
@@ -72,10 +74,10 @@ class CommentUpdate {
 					/**
 					 * Check if use has required capabilities
 					 */
-					if ( 
-						!current_user_can( 'moderate_comments' ) && 
+					if (
+						! current_user_can( 'moderate_comments' ) &&
 						absint( get_current_user_id() ) !== absint( $user_id )
-					 ) {
+					) {
 						throw new UserError( __( 'You do not have the appropriate capabilities to update this comment.', 'wp-graphql' ) );
 					}
 
@@ -88,7 +90,7 @@ class CommentUpdate {
 					/**
 					 * Throw an exception if the comment failed to be created
 					 */
-					if ( !$success ) {
+					if ( ! $success ) {
 						throw new UserError( __( 'The comment failed to update', 'wp-graphql' ) );
 					}
 
@@ -103,10 +105,11 @@ class CommentUpdate {
 					/**
 					 * Return the comment object
 					 */
-					return ['id' => $comment_id];
+					return [ 'id' => $comment_id ];
 				},
 			] );
 		}
-		return ( !empty( self::$mutation ) ) ? self::$mutation : null;
-    }
+
+		return ( ! empty( self::$mutation ) ) ? self::$mutation : null;
+	}
 }

@@ -192,7 +192,7 @@ return array(
     'WPGraphQL\\Type\\Comment\\Mutation\\CommentCreate' => $baseDir . '/src/Type/Comment/Mutation/CommentCreate.php',
     'WPGraphQL\\Type\\Comment\\Mutation\\CommentDelete' => $baseDir . '/src/Type/Comment/Mutation/CommentDelete.php',
     'WPGraphQL\\Type\\Comment\\Mutation\\CommentMutation' => $baseDir . '/src/Type/Comment/Mutation/CommentMutation.php',
-    'WPGraphQL\\Type\\Comment\\Mutation\\CommentUntrash' => $baseDir . '/src/Type/Comment/Mutation/CommentUntrash.php',
+    'WPGraphQL\\Type\\Comment\\Mutation\\CommentRestore' => $baseDir . '/src/Type/Comment/Mutation/CommentRestore.php',
     'WPGraphQL\\Type\\Comment\\Mutation\\CommentUpdate' => $baseDir . '/src/Type/Comment/Mutation/CommentUpdate.php',
     'WPGraphQL\\Type\\EditLock\\EditLockType' => $baseDir . '/src/Type/EditLock/EditLockType.php',
     'WPGraphQL\\Type\\Enum\\MediaItemStatusEnumType' => $baseDir . '/src/Type/Enum/MediaItemStatusEnumType.php',
