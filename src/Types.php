@@ -362,7 +362,7 @@ class Types {
 	 * @return void
 	 */
 	public static function __callStatic (string $name, array $args) {
-		if (! empty( args ) ) {
+		if (! empty( $args ) ) {
 			$class = $args[0];
 			array_shift( $args );
 
