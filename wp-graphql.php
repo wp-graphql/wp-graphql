@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.29
+ * Version: 0.0.30
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -14,10 +14,11 @@
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
+ *
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.29
+ * @version  0.0.30
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -152,7 +153,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.29' );
+				define( 'WPGRAPHQL_VERSION', '0.0.30' );
 			}
 
 			// Plugin Folder Path.
@@ -731,17 +732,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 	}
 endif;
 
-/**
- * Function that instantiates the plugins main class
- *
- * @since 0.0.1
- */
-function graphql_init() {
-
+if ( ! function_exists( 'graphql_init' ) ) {
 	/**
-	 * Return an instance of the action
+	 * Function that instantiates the plugins main class
+	 *
+	 * @since 0.0.1
 	 */
-	return \WPGraphQL::instance();
+	function graphql_init() {
+
+		/**
+		 * Return an instance of the action
+		 */
+		return \WPGraphQL::instance();
+	}
 }
 graphql_init();
 

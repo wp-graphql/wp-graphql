@@ -121,12 +121,12 @@ install_db() {
 	fi
 
 
-    RESULT=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"`
+    RESULT=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"$EXTRA`
     if [ "$RESULT" != $DB_NAME ]; then
         mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
 
-    RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"`
+    RESULT_2=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_SERVE_NAME'"$EXTRA`
     if [ "$RESULT_2" != $DB_SERVE_NAME ]; then
         mysqladmin create $DB_SERVE_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
     fi
@@ -149,7 +149,7 @@ wait_for_database_connection() {
 configure_wordpress() {
 
     cd $WP_CORE_DIR
-    wp $WP_CLI_ARGS config create --dbname="$DB_SERVE_NAME" --dbuser=root --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
+    wp $WP_CLI_ARGS config create --dbname="$DB_SERVE_NAME" --dbuser=$DB_USER --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
     wp $WP_CLI_ARGS core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
     wp $WP_CLI_ARGS rewrite structure '/%year%/%monthnum%/%postname%/'
 }

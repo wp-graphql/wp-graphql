@@ -3,7 +3,7 @@
   "description": "GraphQL API for WordPress",
   "type": "wordpress-plugin",
   "license": "GPL-3.0+",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "authors": [
     {
       "name": "Jason Bahl",

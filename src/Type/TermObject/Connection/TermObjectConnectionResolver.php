@@ -33,7 +33,8 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	}
 
 	/**
-	 * Returns an array of query_args to use in the WP_Term_Query to fetch the necessary terms for the connection
+	 * Returns an array of query_args to use in the WP_Term_Query to fetch the necessary terms for
+	 * the connection
 	 *
 	 * @param             $source
 	 * @param array       $args
@@ -125,12 +126,16 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
 				case $source instanceof \WP_Post:
-					$post = $source;
+					$post                                  = $source;
 					$post->shouldOnlyIncludeConnectedItems = isset( $input_fields['shouldOnlyIncludeConnectedItems'] ) ? $input_fields['shouldOnlyIncludeConnectedItems'] : true;
-					$query_args['object_ids'] = $source->ID;
+					$query_args['object_ids']              = $source->ID;
 					break;
 				case $source instanceof \WP_Term:
-					$query_args['object_ids'] = $GLOBALS['post']->ID;
+
+					if ( is_a( $GLOBALS['post'], 'WP_Post' ) && isset( $GLOBALS['post']->ID ) ) {
+						$query_args['object_ids'] = $GLOBALS['post']->ID;
+					}
+
 					$query_args['parent'] = ! empty( $source->term_id ) ? $source->term_id : 0;
 					break;
 				default:
@@ -148,9 +153,9 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If the connection is set to output in a flat list, unset the parent
 		 */
-		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ){
+		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
 			unset( $query_args['parent'] );
-			$connected = wp_get_object_terms( $source->ID, self::$taxonomy, ['fields' => 'ids'] );
+			$connected             = wp_get_object_terms( $source->ID, self::$taxonomy, [ 'fields' => 'ids' ] );
 			$query_args['include'] = ! empty( $connected ) ? $connected : [];
 		}
 
@@ -181,6 +186,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	 */
 	public static function get_query( $query_args ) {
 		$query = new \WP_Term_Query( $query_args );
+
 		return $query;
 	}
 
@@ -239,7 +245,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
 			],
-			'nodes' => $items,
+			'nodes'    => $items,
 		];
 
 		return $connection;

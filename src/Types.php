@@ -9,13 +9,16 @@ use WPGraphQL\Type\Avatar\AvatarType;
 use WPGraphQL\Type\Comment\CommentType;
 use WPGraphQL\Type\CommentAuthor\CommentAuthorType;
 use WPGraphQL\Type\EditLock\EditLockType;
+use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
+use WPGraphQL\Type\Enum\MenuLocationEnumType;
 use WPGraphQL\Type\Enum\MimeTypeEnumType;
 use WPGraphQL\Type\Enum\PostObjectFieldFormatEnumType;
 use WPGraphQL\Type\Enum\PostStatusEnumType;
-use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
 use WPGraphQL\Type\Enum\PostTypeEnumType;
 use WPGraphQL\Type\Enum\RelationEnumType;
 use WPGraphQL\Type\Enum\TaxonomyEnumType;
+use WPGraphQL\Type\Menu\MenuType;
+use WPGraphQL\Type\MenuItem\MenuItemType;
 use WPGraphQL\Type\Setting\SettingType;
 use WPGraphQL\Type\Settings\SettingsType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
@@ -29,10 +32,12 @@ use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
 use WPGraphQL\Type\Union\CommentAuthorUnionType;
+use WPGraphQL\Type\Union\MenuItemObjectUnionType;
 use WPGraphQL\Type\Union\PostObjectUnionType;
 use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
+use WPGraphQL\Type\UserRoles\UserRoleType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -99,6 +104,15 @@ class Types {
 	 * @access private
 	 */
 	private static $mime_type_enum;
+
+	/**
+	 * Stores the menu location enum type
+	 *
+	 * @var MenuLocationEnumType object $menu_location_enum
+	 * @since  0.0.29
+	 * @access private
+	 */
+	private static $menu_location_enum;
 
 	/**
 	 * Stores the plugin type object
@@ -188,6 +202,33 @@ class Types {
 	 * @access private
 	 */
 	private static $relation_enum;
+
+	/**
+	 * Stores the menu type
+	 *
+	 * @var MenuType object $menu
+	 * @since  0.0.29
+	 * @access private
+	 */
+	private static $menu;
+
+	/**
+	 * Stores the menu item type
+	 *
+	 * @var MenuIntemType object $menu_item
+	 * @since  0.0.29
+	 * @access private
+	 */
+	private static $menu_item;
+
+	/**
+	 * Stores the menu item object union type
+	 *
+	 * @var MenuItemObjectUnionType object $menu_item_object_union
+	 * @since  0.0.29
+	 * @access private
+	 */
+	private static $menu_item_object_union;
 
 	/**
 	 * Stores the root mutation type object
@@ -295,6 +336,15 @@ class Types {
 	private static $user_connection_query_args;
 
 	/**
+	 * Stores the user role type object
+	 *
+	 * @var UserRoleType object $user_role
+	 * @since 0.0.30
+	 * @access private
+	 */
+	private static $user_role;
+
+	/**
 	 * This returns the definition for the AvatarType
 	 *
 	 * @return AvatarType object
@@ -336,6 +386,17 @@ class Types {
 	 */
 	public static function comment_author_union() {
 		return self::$comment_author_union ? : ( self::$comment_author_union = new CommentAuthorUnionType() );
+	}
+
+	/**
+	 * This returns the definition for the MenuItemObjectUnionType
+	 *
+	 * @return MenuItemObjectUnionType object
+	 * @since  0.0.29
+	 * @access public
+	 */
+	public static function menu_item_object_union() {
+		return self::$menu_item_object_union ? : ( self::$menu_item_object_union = new MenuItemObjectUnionType() );
 	}
 
 	/**
@@ -472,6 +533,17 @@ class Types {
 	}
 
 	/**
+	 * This returns the definition for the MenuLocationEnumType
+	 *
+	 * @return MenuLocationEnumType object
+	 * @since  0.0.29
+	 * @access public
+	 */
+	public static function menu_location_enum() {
+		return self::$menu_location_enum ? : ( self::$menu_location_enum = new MenuLocationEnumType() );
+	}
+
+	/**
 	 * This returns the definition for the PostStatusEnumType
 	 *
 	 * @return PostTypeEnumType object
@@ -523,6 +595,28 @@ class Types {
 	 */
 	public static function relation_enum() {
 		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnumType() );
+	}
+
+	/**
+	 * This returns the definition for the MenuType
+	 *
+	 * @return MenuType object
+	 * @since  0.0.29
+	 * @access public
+	 */
+	public static function menu() {
+		return self::$menu ? : ( self::$menu = new MenuType() );
+	}
+
+	/**
+	 * This returns the definition for the MenuItemType
+	 *
+	 * @return MenuItemType object
+	 * @since  0.0.29
+	 * @access public
+	 */
+	public static function menu_item() {
+		return self::$menu_item ? : ( self::$menu_item = new MenuItemType() );
 	}
 
 	/**
@@ -666,6 +760,17 @@ class Types {
 		}
 
 		return ! empty( self::$user_connection_query_args[ $connection ] ) ? self::$user_connection_query_args[ $connection ] : null;
+	}
+
+	/**
+	 * Returns the definition for the UserRoleType
+	 *
+	 * @return UserRoleType
+	 * @since 0.0.30
+	 * @access public
+	 */
+	public static function user_role() {
+		return self::$user_role ? : ( self::$user_role = new UserRoleType() );
 	}
 
 	/**

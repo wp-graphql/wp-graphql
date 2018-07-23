@@ -201,6 +201,7 @@ class PostObjectType extends WPObjectType {
 						],
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
+							$id = ! empty( $post->ID ) ? $post->ID : null;
 							$title = ! empty( $post->post_title ) ? $post->post_title : null;
 
 							// If the raw format is requested, don't apply any filters.
@@ -208,7 +209,7 @@ class PostObjectType extends WPObjectType {
 								return $title;
 							}
 
-							return apply_filters( 'the_title', $title );
+							return apply_filters( 'the_title', $title, $id );
 						},
 					],
 					'excerpt'           => [
