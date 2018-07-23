@@ -40,22 +40,17 @@ class WPObjectType extends ObjectType {
 	public function __construct( $config ) {
 
 		/**
+		 * Set the Types to start with capitals
+		 */
+		$config['name'] = ucfirst( $config['name'] );
+
+		/**
 		 * Filter the config of WPObjectType
 		 *
 		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param Object $this The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
-
-		/**
-		 * Set the Types to start with capitals
-		 */
-		$config['name'] = ucfirst( $config['name'] );
-
-		/**
-		 * Filter the Type config
-		 */
-		apply_filters( 'graphql_type_config', $config );
 
 		/**
 		 * Run an action when the WPObjectType is instantiating

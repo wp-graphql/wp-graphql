@@ -441,6 +441,9 @@ class Router {
 					$server = \WPGraphQL::server();
 					$response = $server->executeRequest();
 
+					$helper = new \GraphQL\Server\Helper();
+					$request = $helper->parseHttpRequest();
+
 					self::after_execute( $response, $operation_name, $request, $variables, $graphql_results );
 
 				}

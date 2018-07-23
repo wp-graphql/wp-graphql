@@ -732,17 +732,19 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 	}
 endif;
 
-/**
- * Function that instantiates the plugins main class
- *
- * @since 0.0.1
- */
-function graphql_init() {
-
+if ( ! function_exists( 'graphql_init' ) ) {
 	/**
-	 * Return an instance of the action
+	 * Function that instantiates the plugins main class
+	 *
+	 * @since 0.0.1
 	 */
-	return \WPGraphQL::instance();
+	function graphql_init() {
+
+		/**
+		 * Return an instance of the action
+		 */
+		return \WPGraphQL::instance();
+	}
 }
 graphql_init();
 

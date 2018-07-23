@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Type\Union;
 
-use GraphQL\Type\Definition\UnionType;
 use WPGraphQL\Types;
+use WPGraphQL\Type\WPUnionType;
 
 /**
  * Class CommentAuthorUnionType
@@ -13,7 +13,7 @@ use WPGraphQL\Types;
  *
  * @package WPGraphQL\Type\Union
  */
-class CommentAuthorUnionType extends UnionType {
+class CommentAuthorUnionType extends WPUnionType {
 
 	/**
 	 * This holds an array of the possible types that can be resolved by this union
@@ -61,17 +61,6 @@ class CommentAuthorUnionType extends UnionType {
 			'user'          => Types::user(),
 			'commentAuthor' => Types::comment_author(),
 		];
-
-		/**
-		 * Filter the possible_types as it's possible some systems might set things like "parent_id" to a different
-		 * object than a post_type, and might want to be able to hook in and add a non postObject type to the possible
-		 * resolveTypes.
-		 *
-		 * @param array $possible_types An array of possible types that can be resolved for the union
-		 *
-		 * @since 0.0.6
-		 */
-		self::$possible_types = apply_filters( 'graphql_comment_author_union_possible_types', self::$possible_types );
 
 		return ! empty( self::$possible_types ) ? self::$possible_types : null;
 

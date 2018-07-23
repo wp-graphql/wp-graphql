@@ -54,6 +54,41 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test to make sure the router is setting the request variable
+	 * 
+	 * @see: https://github.com/wp-graphql/wp-graphql/pull/452
+	 */
+	public function testRequestVariableIsSet() {
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		{
+			posts {
+				edges {
+					node {
+						id
+					}
+				}
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Filter the request data
+		 */
+		add_filter( 'graphql_request_results', function( $result, $schema, $operation, $request, $variables ) {
+			$this->assertEquals( $query, $request );
+
+			return true;
+		} );
+	}	
+
+	/**
 	 * Test the "send_header" method in the Router class
 	 *
 	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720
