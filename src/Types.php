@@ -357,8 +357,8 @@ class Types {
 	 * Note: I'm pretty sure this is unsafe somehow, just not sure how
 	 * if you know please tell me - kidunot89@github
 	 *
-	 * @param string $name
-	 * @param array $args
+	 * @param string $name - type name
+	 * @param array $args - the first item must be a string the fully qualified classname of the type e.g \\SomeNamespace\\SomeClass
 	 * @return void
 	 */
 	public static function __callStatic (string $name, array $args) {
