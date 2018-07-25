@@ -181,6 +181,7 @@ class DataSource {
 		 * post data being set up.
 		 */
 		$GLOBALS['post'] = $post_object;
+		setup_postdata( $post_object );
 
 		return $post_object;
 
