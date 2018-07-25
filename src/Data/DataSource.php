@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Data;
 
 use GraphQL\Deferred;
@@ -70,9 +71,10 @@ class DataSource {
 	 */
 	public static function resolve_comment_author( $author_email ) {
 		global $wpdb;
-		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
-		$comment_author = ! empty( $comment_author ) ? ( array ) $comment_author : [];
+		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
+		$comment_author                      = ! empty( $comment_author ) ? ( array ) $comment_author : [];
 		$comment_author['is_comment_author'] = true;
+
 		return $comment_author;
 	}
 
@@ -86,6 +88,7 @@ class DataSource {
 	 *
 	 * @return mixed
 	 * @since 0.0.5
+	 * @throws \Exception
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
 		$resolver = new CommentConnectionResolver();
@@ -190,15 +193,16 @@ class DataSource {
 	/**
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
-	 * @param string      $post_type Post type of the post we are trying to resolve
 	 * @param             $source
 	 * @param array       $args      Arguments to pass to the resolve method
 	 * @param AppContext  $context   AppContext object to pass down
 	 * @param ResolveInfo $info      The ResolveInfo object
+	 * @param string      $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
 		$resolver = new PostObjectConnectionResolver( $post_type );
@@ -296,6 +300,7 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
 		$resolver = new TermObjectConnectionResolver( $taxonomy );
@@ -350,10 +355,12 @@ class DataSource {
 	public static function resolve_user( $id ) {
 
 		Loader::addOne( 'user', $id );
-		$loader = function() use ( $id ) {
+		$loader = function () use ( $id ) {
 			Loader::loadBuffered( 'user' );
+
 			return Loader::loadOne( 'user', $id );
 		};
+
 		return new Deferred( $loader );
 	}
 
@@ -368,6 +375,7 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
 		return UserConnectionResolver::resolve( $source, $args, $context, $info );
@@ -390,8 +398,9 @@ class DataSource {
 		if ( null === $role ) {
 			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
 		} else {
-			$role = (array) $role;
+			$role       = (array) $role;
 			$role['id'] = $name;
+
 			return $role;
 		}
 
@@ -416,6 +425,7 @@ class DataSource {
 	 * settings group that matches the group param
 	 *
 	 * @access public
+	 *
 	 * @param string $group
 	 *
 	 * @return array $settings_groups[ $group ]
@@ -452,11 +462,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key'] = $key;
+					$setting['key']                                         = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} else if ( true === $setting['show_in_graphql'] ) {
-				$setting['key'] = $key;
+				$setting['key']                                         = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
@@ -497,11 +507,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key'] = $key;
+					$setting['key']           = $key;
 					$allowed_settings[ $key ] = $setting;
 				}
 			} else if ( true === $setting['show_in_graphql'] ) {
-				$setting['key'] = $key;
+				$setting['key']           = $key;
 				$allowed_settings[ $key ] = $setting;
 			}
 		};
@@ -542,7 +552,7 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 			// The ID fetcher definition
-				function( $global_id ) {
+				function ( $global_id ) {
 
 					if ( empty( $global_id ) ) {
 						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
@@ -635,7 +645,7 @@ class DataSource {
 				},
 
 				// Type resolver
-				function( $node ) {
+				function ( $node ) {
 
 					if ( true === is_object( $node ) ) {
 
@@ -666,7 +676,7 @@ class DataSource {
 						}
 
 						// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node )  ) {
+					} elseif ( is_array( $node ) ) {
 
 						switch ( $node ) {
 							case array_key_exists( 'PluginURI', $node ):
@@ -723,10 +733,11 @@ class DataSource {
 	 * This is a modified version of the cached function from WordPress.com VIP MU Plugins here.
 	 *
 	 * @param string $uri
-	 * @param string $output Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
+	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
-	 * @return WP_Post|null WP_Post on success or null on failure
-	 * @see https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
+	 *
+	 * @return \WP_Post|null WP_Post on success or null on failure
+	 * @see  https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
 	 * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
 	 */
 	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
@@ -739,7 +750,7 @@ class DataSource {
 		$post_id = wp_cache_get( $cache_key, 'get_post_object_by_path' );
 
 		if ( false === $post_id ) {
-			$post = get_page_by_path( $uri, $output, $post_type );
+			$post    = get_page_by_path( $uri, $output, $post_type );
 			$post_id = $post ? $post->ID : 0;
 			if ( 0 === $post_id ) {
 				wp_cache_set( $cache_key, $post_id, 'get_post_object_by_path', ( 1 * HOUR_IN_SECONDS + mt_rand( 0, HOUR_IN_SECONDS ) ) ); // We only store the ID to keep our footprint small
@@ -750,6 +761,7 @@ class DataSource {
 		if ( $post_id ) {
 			return get_post( $post_id, $output );
 		}
+
 		return null;
 
 	}
