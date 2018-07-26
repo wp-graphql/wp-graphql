@@ -250,7 +250,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Determine what to show in graphql
 			 */
-			add_action( 'init', [ $this, 'setup_types' ], 10 );
+			add_action( 'do_graphql_request', 'register_initial_settings', 10 );
+			add_action( 'do_graphql_request', [ $this, 'setup_types' ], 10 );
 
 		}
 
@@ -268,7 +269,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				/**
 				 * Setup the settings, post_types and taxonomies to show_in_graphql
 				 */
-				register_initial_settings();
 				\WPGraphQL::show_in_graphql();
 				\WPGraphQL::get_allowed_post_types();
 				\WPGraphQL::get_allowed_taxonomies();
