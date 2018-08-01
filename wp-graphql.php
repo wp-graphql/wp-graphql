@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.30
+ * Version: 0.0.31
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.30
+ * @version  0.0.31
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -153,7 +153,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.30' );
+				define( 'WPGRAPHQL_VERSION', '0.0.31' );
 			}
 
 			// Plugin Folder Path.
@@ -243,17 +243,37 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			add_action( 'wp_loaded', [ $this, 'maybe_flush_permalinks' ] );
 
 			/**
-			 * Register default settings available in WordPress so we can use
-			 * the get_registered_settings method
-			 *
-			 * @source https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L393
-			 */
-			add_action( 'do_graphql_request', 'register_initial_settings', 10 );
-
-			/**
 			 * Hook in before fields resolve to check field permissions
 			 */
 			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
+
+			/**
+			 * Determine what to show in graphql
+			 */
+			add_action( 'graphql_get_schema', 'register_initial_settings', 10 );
+			add_action( 'graphql_get_schema', [ $this, 'setup_types' ], 10 );
+
+		}
+
+		/**
+		 * Determine the post_types and taxonomies, etc that should show in GraphQL
+		 */
+		public function setup_types() {
+
+			/**
+			 * Only do this if we're in the context of a GraphQL request (note, this doesn't
+			 * mean just an HTTP request, but even an internal request via "do_graphql_request")
+			 */
+			if ( defined( 'GRAPHQL_REQUEST' ) && true === GRAPHQL_REQUEST ) {
+
+				/**
+				 * Setup the settings, post_types and taxonomies to show_in_graphql
+				 */
+				\WPGraphQL::show_in_graphql();
+				\WPGraphQL::get_allowed_post_types();
+				\WPGraphQL::get_allowed_taxonomies();
+
+			}
 
 		}
 
@@ -559,13 +579,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 				define( 'GRAPHQL_REQUEST', true );
 			}
-
-			/**
-			 * Setup the post_types and taxonomies to show_in_graphql
-			 */
-			\WPGraphQL::show_in_graphql();
-			\WPGraphQL::get_allowed_post_types();
-			\WPGraphQL::get_allowed_taxonomies();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
