@@ -36,7 +36,7 @@ env:
 
 install:
   - docker run --rm -v $(pwd):/app composer self-update
-  - docker run --rm -v $(pwd):/app composer require apigen/apigen:^4.1 satooshi/php-coveralls:~~1.0 lucatume/wp-browser:^1.21 codeception/c3:2.* phpunit/phpcov:^4.0
+  - docker run --rm -v $(pwd):/app composer require apigen/apigen:^4.1 satooshi/php-coveralls:~1.0 lucatume/wp-browser:^1.21 codeception/c3:2.* phpunit/phpcov:^4.0
   - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
   - docker-compose build
 
