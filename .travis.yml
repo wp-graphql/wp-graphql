@@ -43,12 +43,14 @@ before_script:
   - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
 
 script:
-  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
   - |
     if [ $COVERAGE == true ]; then
+      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run acceptance --env docker --coverage --coverage-xml
+      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run functional --env docker --coverage --coverage-xml
       docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
     else
+      docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
+      docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
       docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
     fi
 
