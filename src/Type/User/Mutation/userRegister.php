@@ -70,22 +70,22 @@ class UserRegister {
 					$user_id = register_new_user( $user_args['user_login'], $user_args['user_email'] );
 
 					/**
-					 * Throw an exception if the post failed to create
+					 * Throw an exception if the user failed to register
 					 */
 					if ( is_wp_error( $user_id ) ) {
 						$error_message = $user_id->get_error_message();
 						if ( ! empty( $error_message ) ) {
 							throw new UserError( esc_html( $error_message ) );
 						} else {
-							throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+							throw new UserError( __( 'The user failed to register but no error was provided', 'wp-graphql' ) );
 						}
 					}
 
 					/**
-					 * If the $post_id is empty, we should throw an exception
+					 * If the $user_id is empty, we should throw an exception
 					 */
 					if ( empty( $user_id ) ) {
-						throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+						throw new UserError( __( 'The user failed to create', 'wp-graphql' ) );
 					}
 
 					/**
@@ -110,7 +110,7 @@ class UserRegister {
 	}
 
 	/**
-	 * Add the email as a nonNull field for update mutations
+	 * Add the username and email fields for register mutations
 	 *
 	 * @return array
 	 */
@@ -122,7 +122,7 @@ class UserRegister {
 		return [
 			'username' => [
 				'type'        => Types::non_null( Types::string() ),
-				// translators: the placeholder is the name of the type of post object being updated
+				// translators: the placeholder is the name of the type of object being updated
 				'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
 			],
 			'email'    => [
