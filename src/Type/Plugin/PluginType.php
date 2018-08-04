@@ -43,7 +43,7 @@ class PluginType extends WPObjectType {
 
 		$config = [
 			'name' => self::$type_name,
-			'description' => __( 'An plugin object', 'wp-graphql' ),
+			'description' => __( 'A plugin object', 'wp-graphql' ),
 			'fields' => self::fields(),
 			'interfaces' => [ self::node_interface() ],
 		];

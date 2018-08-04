@@ -27,6 +27,7 @@ use WPGraphQL\Type\RootQueryType;
 use WPGraphQL\Type\Plugin\PluginType;
 use WPGraphQL\Type\PostObject\PostObjectType;
 use WPGraphQL\Type\PostType\PostTypeType;
+use WPGraphQL\Type\Sidebar\SidebarType;
 use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
@@ -263,6 +264,14 @@ class Types {
 	 * @access private
 	 */
 	private static $settings;
+
+	/**
+	 * Stores the sidebar object type
+	 *
+	 * @var SidebarType object $sidebar
+	 * @access private
+	 */
+	private static $sidebar;
 	
 	/**
 	 * Stores the taxonomy type object
@@ -641,6 +650,17 @@ class Types {
 	public static function root_query() {
 		return self::$root_query ? : ( self::$root_query = new RootQueryType() );
 	}
+
+		/**
+		 * This returns the definition for the PluginType
+		 *
+		 * @return SidebarType object
+		 * @since  0.0.31
+		 * @access public
+		 */
+		public static function sidebar() {
+			return self::$sidebar ? : ( self::$sidebar = new SidebarType() );
+		}
 
 	/**
 	 * This returns the definition for the TaxonomyType

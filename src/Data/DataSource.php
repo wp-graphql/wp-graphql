@@ -239,6 +239,44 @@ class DataSource {
 	}
 
 	/**
+	 * Returns an array of data about the sidebar you are requesting
+	 *
+	 * @param string $name Name of the sidebar you want info for
+	 *
+	 * @return null|array
+	 * @throws \Exception
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function resolve_sidebar( $sidebar_id ) {
+
+		global $wp_registered_sidebars;
+		/**
+		 * Get registered sidebar data
+		 */
+		$sidebar_keys = array_keys( $wp_registered_sidebars );//get_option( 'sidebars_widgets' );
+		/**
+		 * Throw if requested sidebar not found
+		 */
+		if( ! in_array( $sidebar_id, $sidebar_keys ) ) {
+			throw new UserError( sprintf( __( 'No sidebar was found with the sidebar_id %s', 'wp-graphql' ), $sidebar_id ) );
+		}
+
+		$sidebar = $wp_registered_sidebars[ $sidebar_id ];
+		
+		/**
+		 * for nodeDefinitions
+		 */
+		$sidebar[ 'is_sidebar' ] = true;
+
+		/**
+		 * Return requested sidebar array
+		 */
+		return $sidebar;
+
+	}
+
+	/**
 	 * Retrieves the taxonomy object for the name of the taxonomy passed
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
@@ -599,6 +637,9 @@ class DataSource {
 							case 'postType':
 								$node = self::resolve_post_type( $id_components['id'] );
 								break;
+							case 'sidebar':
+								$node = self::resolve_sidebar( $id_components['id'] );
+								break;
 							case 'taxonomy':
 								$node = self::resolve_taxonomy( $id_components['id'] );
 								break;
@@ -684,6 +725,9 @@ class DataSource {
 								break;
 							case array_key_exists( 'is_comment_author', $node ):
 								$type = Types::comment_author();
+								break;
+							case array_key_exists( 'is_sidebar', $node ):
+								$type = Types::sidebar();
 								break;
 							default:
 								$type = null;
