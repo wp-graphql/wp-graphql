@@ -16,6 +16,7 @@ use WPGraphQL\Type\Sidebar\Connection\SidebarConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionResolver;
+use WPGraphQL\Type\Widget\Connection\WidgetConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -290,9 +291,7 @@ class DataSource {
 	 * @access public
 	 */
 	public static function resolve_sidebars_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		
 		return SidebarConnectionResolver::resolve( $source, $args, $context, $info );
-	
 	}
 
 	/**
@@ -475,6 +474,74 @@ class DataSource {
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+	}
+
+	/**
+	 * Returns an array of data about the widget you are requesting
+	 *
+	 * @param string $name Name of the sidebar you want info for
+	 *
+	 * @return null|array
+	 * @throws \Exception
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function resolve_widget( $widget_id ) {
+		global $wp_registered_sidebars, $wp_registered_widgets;
+
+		/**
+		 * Get registered sidebar data
+		 */
+		$widget_keys = array_keys( $wp_registered_widgets );//get_option( 'sidebars_widgets' );
+		/**
+		 * Throw if requested sidebar not found
+		 */
+		if( ! in_array( $widget_id, $widget_keys ) ) {
+			throw new UserError( sprintf( __( 'No widget was found with the ID %s', 'wp-graphql' ), $widget_id ) );
+		}
+
+		$widget = [
+			'id' => $wp_registered_widgets[ $widget_id ]['id'],
+			'name' => $wp_registered_widgets[ $widget_id ]['name'],
+			'type' => $wp_registered_widgets[ $widget_id ]['callback'][0]->id_base,
+			'is_widget' => true,
+		];
+
+		// The name of the option in the database is the name of the widget class.
+		$option_name = $wp_registered_widgets[ $widget_id ]['callback'][0]->option_name;
+
+		// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
+		$key = $wp_registered_widgets[ $widget_id ]['params'][0]['number'];
+		
+		/**
+		 * Retrieve widget data if exist
+		 */
+		if( $key > -1 ) {
+			$widget_data = get_option( $option_name );
+			$widget += $widget_data[ $key ];
+		}
+
+		/**
+		 * Return requested sidebar array
+		 */
+		return $widget;
+
+	}
+
+	/**
+	 * Wrapper for WidgetConnectionResolver::resolve
+	 *
+	 * @param array    		$source  sidebar object
+	 * @param array       $args    Array of arguments to pass to reolve method
+	 * @param AppContext  $context AppContext object passed down
+	 * @param ResolveInfo $info    The ResolveInfo object
+	 *
+	 * @return array
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function resolve_widgets_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		return WidgetConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
 	/**
@@ -668,6 +735,9 @@ class DataSource {
 							case 'user':
 								$node = self::resolve_user( $id_components['id'] );
 								break;
+							case 'widget':
+								$node = self::resolve_widget( $id_components['id'] );
+								break;
 							default:
 								/**
 								 * Add a filter to allow externally registered node types to resolve based on
@@ -747,6 +817,9 @@ class DataSource {
 								break;
 							case array_key_exists( 'is_sidebar', $node ):
 								$type = Types::sidebar();
+								break;
+							case array_key_exists( 'is_widget', $node ):
+								$type = Types::widget();
 								break;
 							default:
 								$type = null;

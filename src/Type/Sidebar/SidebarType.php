@@ -53,7 +53,7 @@ class SidebarType extends WPObjectType {
 	}
 
 	/**
-	 * This defines the fields that make up the MenuType.
+	 * This defines the fields that make up the SidebarType.
 	 *
 	 * @return array|\Closure|null
 	 */

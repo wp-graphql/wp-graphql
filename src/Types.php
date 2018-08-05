@@ -39,6 +39,7 @@ use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
 use WPGraphQL\Type\UserRoles\UserRoleType;
+use WPGraphQL\Type\Widget\WidgetType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -269,6 +270,7 @@ class Types {
 	 * Stores the sidebar object type
 	 *
 	 * @var SidebarType object $sidebar
+	 * @since 0.0.31
 	 * @access private
 	 */
 	private static $sidebar;
@@ -352,6 +354,15 @@ class Types {
 	 * @access private
 	 */
 	private static $user_role;
+
+	/**
+	 * Stores the widget object type
+	 *
+	 * @var WidgetType object $widget
+	 * @since 0.0.31
+	 * @access private
+	 */
+	private static $widget;
 
 	/**
 	 * This returns the definition for the AvatarType
@@ -651,16 +662,16 @@ class Types {
 		return self::$root_query ? : ( self::$root_query = new RootQueryType() );
 	}
 
-		/**
-		 * This returns the definition for the PluginType
-		 *
-		 * @return SidebarType object
-		 * @since  0.0.31
-		 * @access public
-		 */
-		public static function sidebar() {
-			return self::$sidebar ? : ( self::$sidebar = new SidebarType() );
-		}
+	/**
+	 * This returns the definition for the SidebarType
+	 *
+	 * @return SidebarType object
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function sidebar() {
+		return self::$sidebar ? : ( self::$sidebar = new SidebarType() );
+	}
 
 	/**
 	 * This returns the definition for the TaxonomyType
@@ -791,6 +802,17 @@ class Types {
 	 */
 	public static function user_role() {
 		return self::$user_role ? : ( self::$user_role = new UserRoleType() );
+	}
+
+	/**
+	 * This returns the definition for the WidgetType
+	 *
+	 * @return WidgetType object
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function widget() {
+		return self::$widget ? : ( self::$widget = new WidgetType() );
 	}
 
 	/**

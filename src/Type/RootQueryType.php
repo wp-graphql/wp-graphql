@@ -26,6 +26,8 @@ use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\User\UserQuery;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
 use WPGraphQL\Type\UserRoles\UserRoleQuery;
+use WPGraphQL\Type\Widget\Connection\WidgetConnectionDefinition;
+use WPGraphQL\Type\Widget\WidgetQuery;
 use WPGraphQL\Types;
 
 /**
@@ -178,6 +180,13 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['viewer'] = self::viewer();
+
+		/**
+		 * Creates the widget root query field
+		 * @since 0.0.31
+		 */
+		$fields['widget'] = WidgetQuery::root_query();
+		$fields['widgets'] = WidgetConnectionDefinition::connection();
 
 		/**
 		 * Creates the root fields for post objects (of any post_type)

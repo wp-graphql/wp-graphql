@@ -2,7 +2,7 @@
 
 class SidebarQueriesTest extends \Codeception\TestCase\WPTestCase
 {
-    public function testSideBarQuery() {
+    public function testSidebarQuery() {
 
         // Create Test Sidebar
         $sidebar_name = 'Test Sidebar';

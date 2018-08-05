@@ -32,7 +32,16 @@ class WidgetQuery {
     if ( null === self::$root_query ) {
 
 			self::$root_query = [
-				
+				'type' => Types::widget(),
+				'description' => __( 'A WordPress widget', 'wp-graphql' ),
+				'args' => [
+					'id' => Types::non_null( Types::id() ),
+				],
+				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+					$id_components = Relay::fromGlobalId( $args['id'] );
+
+					return DataSource::resolve_widget( $id_components['id'] );
+				},
 			];
 
 		}
