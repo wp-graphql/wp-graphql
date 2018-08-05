@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\Sidebar;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Type\Widget\Connection\WidgetConnectionDefinition;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -125,6 +126,7 @@ class SidebarType extends WPObjectType {
 							return ! empty( $sidebar['after_title'] ) ? $sidebar['after_title'] : '';
 						},
 					],
+					'widgets' => WidgetConnectionDefinition::connection()
 				];
 
 				return self::prepare_fields( $fields, self::$type_name );

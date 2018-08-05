@@ -3,8 +3,8 @@
 namespace WPGraphQL\Type\Sidebar\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 
 /**
  * Class SidebarConnectionResolver
@@ -12,26 +12,44 @@ use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
  * @package WPGraphQL\Type\Sidebar\Connection
  * @since   0.0.31
  */
-class SidebarConnectionResolver extends TermObjectConnectionResolver {
+class SidebarConnectionResolver {
 
 	/**
-	 * Return the term args to be used when getting the term object.
+	 * Creates the connection for sidebar
 	 *
-	 * @param mixed       $source  The query source being passed down to the resolver
-	 * @param array       $args    The arguments that were provided to the query
-	 * @param AppContext  $context Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
+	 * @param mixed       $source  The query results
+	 * @param array       $args    The query arguments
+	 * @param AppContext  $context The AppContext object
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
+	 * @since  0.5.0
 	 * @return array
-	 * @throws \Exception
-	 * @since  0.0.31
+	 * @access public
 	 */
-	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		$term_args = [
+	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
-		];
+		global $wp_registered_sidebars;
 
-		return $term_args;
+		$sidebar_array = array();
+		foreach( $wp_registered_sidebars as $data ) {
+			
+			$sidebar = $data;
+
+			$sidebar['is_sidebar'] = true;
+
+			$sidebar_array[] = $sidebar;
+		}
+
+		$connection = Relay::connectionFromArray( $sidebar_array, $args );
+
+		$nodes = [];
+		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
+			foreach ( $connection['edges'] as $edge ) {
+				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
+			}
+		}
+		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
+
+		return ! empty( $sidebar_array ) ? $connection : null;
 	}
-
 }

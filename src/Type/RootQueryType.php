@@ -17,6 +17,7 @@ use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\Sidebar\Connection\SidebarConnectionDefinition;
 use WPGraphQL\Type\Sidebar\SidebarQuery;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\TermObjectQuery;
@@ -132,6 +133,7 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.31
 		 */
 		$fields['sidebar'] = SidebarQuery::root_query();
+		$fields['sidebars'] = SidebarConnectionDefinition::connection();
 
 		/**
 		 * Creates the theme root query field

@@ -2,7 +2,7 @@
 
 class SidebarQueriesTest extends \Codeception\TestCase\WPTestCase
 {
-    public function testSideQuery() {
+    public function testSideBarQuery() {
 
         // Create Test Sidebar
         $sidebar_name = 'Test Sidebar';
@@ -47,11 +47,6 @@ class SidebarQueriesTest extends \Codeception\TestCase\WPTestCase
                 ]
             ]
         ];
-
-        /**
-         * use --debug flag to view
-         */
-        \Codeception\Util\Debug::debug( $relay_id );
 
         /**
          * use --debug flag to view

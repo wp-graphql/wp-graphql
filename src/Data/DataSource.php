@@ -12,6 +12,7 @@ use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Type\Sidebar\Connection\SidebarConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionResolver;
@@ -274,6 +275,24 @@ class DataSource {
 		 */
 		return $sidebar;
 
+	}
+
+	/**
+	 * Wrapper for SidebarConnectionResolver::resolve
+	 *
+	 * @param array    		$source  sidebar object
+	 * @param array       $args    Array of arguments to pass to reolve method
+	 * @param AppContext  $context AppContext object passed down
+	 * @param ResolveInfo $info    The ResolveInfo object
+	 *
+	 * @return array
+	 * @since  0.0.31
+	 * @access public
+	 */
+	public static function resolve_sidebars_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		
+		return SidebarConnectionResolver::resolve( $source, $args, $context, $info );
+	
 	}
 
 	/**
