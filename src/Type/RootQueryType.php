@@ -186,7 +186,6 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.31
 		 */
 		$fields['widget'] = WidgetQuery::root_query();
-		$fields['widgets'] = WidgetConnectionDefinition::connection();
 
 		/**
 		 * Creates the root fields for post objects (of any post_type)

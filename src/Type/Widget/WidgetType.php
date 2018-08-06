@@ -2,11 +2,13 @@
 
 namespace WPGraphQL\Type\Widget;
 
-use GraphQLRelay\Relay;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
 use WPGraphQL\Type\Widget\WidgetTypes;
+use WPGraphQL\Types;
 
 /**
  * Class WidgetType
@@ -28,16 +30,24 @@ class WidgetType extends InterfaceType {
 	 */
 	public function __construct() {
 		$config = [
-			'name' => self::$type_name,
 			'description' => __( 'A widget object', 'wp-graphql' ),
 			'fields' => self::fields(),
 			'resolveType' => function( $widget ) {
-				$type = $widget[ 'type' ];
-				return WidgetTypes::$type();
+        if( ! empty( $widget[ 'type' ] ) ) {
+          return WidgetTypes::{ $widget[ 'type' ] }();
+        }
+        return self;
 			},
 		];
 
-		parent::__construct( $config );
+    parent::__construct( $config );
+    
+    add_filter( 'graphql_executable_schema', function( $executable_schema ) {
+
+      $executable_schema[ 'types' ] = WidgetTypes::get_types();
+  
+      return $executable_schema;
+    } );
 	}
 
 	/**
