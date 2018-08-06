@@ -58,7 +58,7 @@ class WidgetTypes {
     /**
      * Check if type already loaded
      */
-    $type =& self::$types[ $type_name ];
+    $type = self::$types[ $type_name ];
     if( self::loaded( $type_name ) ) return $type;
   }
 
@@ -74,7 +74,23 @@ class WidgetTypes {
 
   public static function get_types() {
     return [
+      self::archives(),
+      self::media_audio(),
+      self::calendar(),
+      self::categories(),
+      self::custom_html(),
+      self::media_gallery(),
+      self::media_image(),
       self::meta(),
+      self::nav_menu(),
+      self::pages(),
+      self::recent_comments(),
+      self::recent_posts(),
+      self::rss(),
+      self::search(),
+      self::tag_cloud(),
+      self::text(),
+      self::media_video(),
     ];
   }
 
@@ -143,6 +159,116 @@ class WidgetTypes {
 
   }
 
+    /**
+   * Stores image size EnumType used by gallery and image widgets
+   *
+   * @var EnumType
+   */
+  private static $image_size_enum;
+
+  /**
+   * Stores link destination-type EnumType used by gallery and image widgets
+   *
+   * @var EnumType
+   */
+  private static $link_to_enum;
+
+  /**
+   * Stores preload EnumType used by video and audio widgets
+   *
+   * @var EnumType
+   */
+  private static $preload_enum;
+
+  /**
+   * Stores sortby EnumType used by pages widget
+   *
+   * @var EnumType
+   */
+  private static $sortby_enum;
+
+  /**
+   * Stores taxonomy EnumType used by tag cloud widget
+   *
+   * @var EnumType
+   */
+  private static $taxonomy_enum;
+
+  /**
+   * Defines and register image_size enumeration type
+   *
+   * @return EnumType
+   */
+  public static function image_size_enum() {
+    return self::$image_size_enum ?: self::$image_size_enum = new EnumType(
+      array(
+        'name' => 'ImageSizeEnum',
+        'description' => __( 'Size of image', 'wp-graphql' ),
+        'values' => array( 'THUMBNAIL', 'MEDIUM', 'LARGE', 'FULLSIZE' )
+      )
+    );
+  }  
+
+  /**
+   * Defines and register link to enumeration type
+   *
+   * @return EnumType
+   */
+  public static function link_to_enum() {
+    return self::$link_to_enum ?: self::$link_to_enum = new EnumType(
+      array(
+        'name' => 'LinkToEnum',
+        'description' => __( 'Destination type of link', 'wp-graphql' ),
+        'values' => array( 'NONE', 'POST', 'FILE', 'CUSTOM' )
+      )
+    );
+  }
+
+  /**
+   * Defines and register preload enumeration type
+   *
+   * @return EnumType
+   */
+  public static function preload_enum() {
+    return self::$preload_enum ?: self::$preload_enum = new EnumType(
+      array(
+        'name' => 'PreloadEnum',
+        'description' => __( 'Preload type of media widget', 'wp-graphql' ),
+        'values' => array( 'AUTO', 'METADATA', 'NONE' )
+      )
+    );
+  }
+
+  /**
+   * Defines and register sort order enumeration type
+   *
+   * @return EnumType
+   */
+  public static function sortby_enum() {
+    return self::$sortby_enum ?: self::$sortby_enum = new EnumType(
+      array(
+        'name' => 'SortByEnum',
+        'description' => __( 'Sorting order of widget resource type', 'wp-graphql' ),
+        'values' => array( 'MENU_ORDER', 'POST_TITLE', 'ID' )
+      )
+    );
+  }
+
+  /**
+   * Defines and register taxonomy enumeration type
+   *
+   * @return EnumType
+   */
+  public static function taxonomy_enum() {
+    return self::$taxonomy_enum ?: self::$taxonomy_enum = new EnumType(
+      array(
+        'name' => 'TaxonomyEnum',
+        'description' => __( 'Taxonomy', 'wp-graphql' ),
+        'values' => array( 'CATEGORY', 'POST_TAG', 'LINK_CATEGORY' )
+      )
+    );
+  }
+
   /**
    * Defines Archives widget type
    *
@@ -192,7 +318,19 @@ class WidgetTypes {
               return ( ! empty( $widget[ 'attachment_id' ] ) ) ?
                 DataSource::resolve_post_object( absint( $widget[ 'attachment_id' ] ) ) : null;
             }
-          ]
+          ],
+          'preload' => [
+            'type'        => self::preload_enum(),
+            'description' => __( 'Sort style of widget', 'wp-graphql' ),
+            'resolve'     => function( array $widget ) {
+              return ( ! empty( $widget[ 'preload' ] ) ) ? strtoupper( $widget[ 'preload' ] ) : 'METADATA';
+            }
+          ],
+          'loop'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Play repeatly', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'loop', false )
+          ],
         )
       ),
 			'interfaces'  => self::interfaces(),
@@ -282,7 +420,7 @@ class WidgetTypes {
    * @since 0.0.31
    * @return array
    */
-  public static function gallery_config() {
+  public static function media_gallery_config() {
     return [
 			'name' => 'GalleryWidget',
 			'description' => __( 'A gallery widget object', 'wp-graphql' ),
@@ -295,17 +433,17 @@ class WidgetTypes {
             'resolve'     => self::resolve_field( 'columns', 3 ),
           ],
           'size' => [
-            'type'        => self::gallery_size_enum(),
+            'type'        => self::image_size_enum(),
             'description' => __( 'Display size of gallery images', 'wp-graphql' ),
             'resolve'     => function( array $widget ) {
-
+              return ( ! empty( $widget[ 'size' ] ) ) ? strtoupper( $widget[ 'size' ] ) : 'THUMBNAIL';
             },
           ],
           'linkType' => [
-            'type'        => self::gallery_link_enum(),
+            'type'        => self::link_to_enum(),
             'description' => __( 'Link types of gallery images', 'wp-graphql'),
             'resolve'     => function( array $widget ) {
-
+              return ( ! empty( $widget[ 'link_type' ] ) ) ? strtoupper( $widget[ 'link_type' ] ) : 'NONE';
             },
           ],
           'orderbyRandom' => [
@@ -326,7 +464,7 @@ class WidgetTypes {
    * @since 0.0.31
    * @return array
    */
-  public static function image_config() {
+  public static function media_image_config() {
     return [
 			'name' => 'ImageWidget',
 			'description' => __( 'A image widget object', 'wp-graphql' ),
@@ -340,7 +478,19 @@ class WidgetTypes {
               return ( ! empty( $widget[ 'attachment_id' ] ) ) ?
                 DataSource::resolve_post_object( absint( $widget[ 'attachment_id' ] ) ) : null;
             }
-          ]
+          ],
+          'linkType' => [
+            'type'        => self::link_to_enum(),
+            'description' => __( 'Link types of images', 'wp-graphql'),
+            'resolve'     => function( array $widget ) {
+              return ( ! empty( $widget[ 'link_type' ] ) ) ? strtoupper( $widget[ 'link_type' ] ) : 'NONE';
+            },
+          ],
+          'linkUrl' => [
+            'type'        => Types::string(),
+            'description' => __( 'Url of image link', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'link_url', '' ),
+          ],
         )
       ),
 			'interfaces' => self::interfaces(),
@@ -407,10 +557,10 @@ class WidgetTypes {
         array(
           'title'   => self::title_field(),
           'sortby' => [
-            'type'        => self::pages_sort_enum(),
+            'type'        => self::sortby_enum(),
             'description' => __( 'Sort style of widget', 'wp-graphql' ),
             'resolve'     => function( array $widget ) {
-
+              return ( ! empty( $widget[ 'sortby' ] ) ) ? strtoupper( $widget[ 'sortby' ] ) : 'MENU_ORDER';
             }
           ],
           'exclude' => [
@@ -489,7 +639,41 @@ class WidgetTypes {
     return [
 			'name' => 'RSSWidget',
 			'description' => __( 'A rss feed widget object', 'wp-graphql' ),
-			'fields' => self::fields(array()),
+			'fields' => self::fields(
+        array(
+          'title'   => self::title_field(),
+          'url' => [
+            'type'        => Types::string(),
+            'description' => __( 'Url of RSS/Atom feed', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'url', '' ),
+          ],
+          'itemsPerDisplay' => [
+            'type'        => Types::int(),
+            'description' => __( 'Number of items to display at one time', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'item', 10 ),
+          ],
+          'error'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'RSS url invalid', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'error', false )
+          ],
+          'showSummary'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Show item summary', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'show_summary', false )
+          ],
+          'showAuthor'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Show item author', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'show_author', false )
+          ],
+          'showDate'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Show item date', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'show_date', true )
+          ],
+        )
+      ),
 			'interfaces' => self::interfaces(),
 		];
   }
@@ -504,7 +688,11 @@ class WidgetTypes {
     return[
 			'name' => 'SearchWidget',
 			'description' => __( 'A search widget object', 'wp-graphql' ),
-			'fields' => self::fields(array()),
+			'fields' => self::fields(
+        array(
+          'title'   => self::title_field(),
+        )
+      ),
 			'interfaces' => self::interfaces(),
 		];
   }
@@ -519,7 +707,23 @@ class WidgetTypes {
     return [
 			'name' => 'TagCloudWidget',
 			'description' => __( 'A tag cloud widget object', 'wp-graphql' ),
-			'fields' => self::fields(array()),
+			'fields' => self::fields(
+        array(
+          'title'     => self::title_field(),
+          'showCount' => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Show tag count', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'count', true )
+          ],
+          'taxonomy'  => [
+            'type'        => self::taxonomy_enum(),
+            'description' => __( 'Widget taxonomy type', 'wp-graphql' ),
+            'resolve'     => function( array $widget ) {
+              return ( ! empty( $widget[ 'taxonomy' ] ) ) ? strtoupper( $widget[ 'taxonomy' ] ) : 'POST_TAG';
+            }
+          ],
+        )
+      ),
 			'interfaces' => self::interfaces(),
 		];
   }
@@ -534,7 +738,25 @@ class WidgetTypes {
     return [
 			'name' => 'TextWidget',
 			'description' => __( 'A text widget object', 'wp-graphql' ),
-			'fields' => self::fields(array()),
+			'fields' => self::fields(
+        array(
+          'title'   => self::title_field(),
+          'text' => [
+            'type'        => Types::string(),
+            'description' => __( 'Text content of widget', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'text', '' ),
+          ],
+          'filterText'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Filter text content', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'filter', true )
+          ],
+          'visual'     => [
+            'type'        => Types::boolean(),
+            'resolve'     => self::resolve_field( 'visual', true )
+          ]
+        )
+      ),
 			'interfaces' => self::interfaces(),
 		];
   }
@@ -545,11 +767,35 @@ class WidgetTypes {
    * @since 0.0.31
    * @return array
    */
-  public static function video_config() {
+  public static function media_video_config() {
     return [
 			'name' => 'VideoWidget',
 			'description' => __( 'A video widget object', 'wp-graphql' ),
-			'fields' => self::fields(array()),
+			'fields' => self::fields(
+        array(
+          'title' => self::title_field(),
+          'video' => [
+            'type'        => Types::post_object( 'attachment' ),
+            'description' => __( 'Widget video file data object', 'wp-graphql' ),
+            'resolve'     => function( array $widget ) {
+              return ( ! empty( $widget[ 'attachment_id' ] ) ) ?
+                DataSource::resolve_post_object( absint( $widget[ 'attachment_id' ] ) ) : null;
+            }
+          ],
+          'preload' => [
+            'type'        => self::preload_enum(),
+            'description' => __( 'Sort style of widget', 'wp-graphql' ),
+            'resolve'     => function( array $widget ) {
+              return ( ! empty( $widget[ 'preload' ] ) ) ? strtoupper( $widget[ 'preload' ] ) : 'METADATA';
+            }
+          ],
+          'loop'     => [
+            'type'        => Types::boolean(),
+            'description' => __( 'Play repeatly', 'wp-graphql' ),
+            'resolve'     => self::resolve_field( 'loop', false )
+          ],
+        )
+      ),
 			'interfaces' => self::interfaces(),
 		];
   }
