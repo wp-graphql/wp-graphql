@@ -35,7 +35,7 @@ class WidgetTypes {
    * @param string $type_name - Name of widget type
    * @return WPObjectType
    */
-  public static function __callStatic( string $type_name, array $args = [] ) {
+  public static function __callStatic( $type_name, array $args = [] ) {
 
     /**
      * Initialize widget types;
