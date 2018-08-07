@@ -70,7 +70,7 @@ class WidgetTypes {
    * @param string $type_name - Name of widget type
    * @return boolean
    */
-  private static function loaded( string $type_name ) {
+  private static function loaded( $type_name ) {
     return isset( self::$types[ $type_name ] ) && self::$types[ $type_name ] instanceof WPObjectType;
   }
 
@@ -167,7 +167,7 @@ class WidgetTypes {
    *
    * @return callable
    */
-  public static function resolve_field( string $key, $default = null ) {
+  public static function resolve_field( $key, $default = null ) {
 
     return function( array $widget, $args, AppContext $context, ResolveInfo $info ) use ( $key, $default ) {
       return ( ! empty( $widget[ $key ] ) ) ? $widget[ $key ] : $default;
