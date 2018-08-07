@@ -118,9 +118,12 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 						default:
 							$array_slice = $items;
 					}
+				} elseif ( true === is_array( $item ) ) {
+					$array_slice[] = $item;
 				}
 			}
 		}
+		
 		return $array_slice;
 	}
 
@@ -299,6 +302,9 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 					$query_info['items']       = $query->get_results();
 					break;
 			}
+		} elseif ( true === is_array( $query ) ) {
+			$query_info['total_items'] = ! empty ( $query ) ? count( $query ) : null;
+			$query_info['items']			= $query; 
 		}
 
 		/**

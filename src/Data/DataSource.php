@@ -250,21 +250,39 @@ class DataSource {
 	 * @since  0.0.31
 	 * @access public
 	 */
-	public static function resolve_sidebar( $sidebar_id ) {
+	public static function resolve_sidebar( $sidebar_id, $index = null ) {
 
 		global $wp_registered_sidebars;
 		/**
 		 * Get registered sidebar data
 		 */
-		$sidebar_keys = array_keys( $wp_registered_sidebars );//get_option( 'sidebars_widgets' );
-		/**
-		 * Throw if requested sidebar not found
-		 */
-		if( ! in_array( $sidebar_id, $sidebar_keys ) ) {
-			throw new UserError( sprintf( __( 'No sidebar was found with the sidebar_id %s', 'wp-graphql' ), $sidebar_id ) );
-		}
+		$sidebar = null;
+		if ( ! is_null( $index ) ) {
 
-		$sidebar = $wp_registered_sidebars[ $sidebar_id ];
+			foreach( $wp_registered_sidebars as $registered_sidebar ) {
+				if( $registered_sidebar[ $index ] === $sidebar_id ) {
+					$sidebar = $registered_sidebar;
+					break;
+				}
+			}
+
+			if( ! $sidebar ) {
+				throw new UserError( sprintf( __( 'No widget was found with the \"%s\" %s', 'wp-graphql' ), $index, $sidebar_id ) );
+			}
+
+		} else { 
+
+			$sidebar_keys = array_keys( $wp_registered_sidebars );//get_option( 'sidebars_widgets' );
+			/**
+			 * Throw if requested sidebar not found
+			 */
+			if( ! in_array( $sidebar_id, $sidebar_keys ) ) {
+				throw new UserError( sprintf( __( 'No sidebar was found with the sidebar_id %s', 'wp-graphql' ), $sidebar_id ) );
+			}
+
+			$sidebar = $wp_registered_sidebars[ $sidebar_id ];
+
+		}
 		
 		/**
 		 * for nodeDefinitions
@@ -476,43 +494,6 @@ class DataSource {
 		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
-	public static function rh_get_widget_data_for( $sidebar_name ) {
-		global $wp_registered_sidebars, $wp_registered_widgets;
-		// Holds the final data to return
-		$output = array();
-		// Loop over all of the registered sidebars looking for the one with the same name as $sidebar_name
-		$sidebar_id = false;
-		foreach ( $wp_registered_sidebars as $sidebar ) {
-			if ( $sidebar['name'] == $sidebar_name ) {
-				// We now have the Sidebar ID, we can stop our loop and continue.
-				$sidebar_id = $sidebar['id'];
-				break;
-			}
-		}
-		if ( ! $sidebar_id ) {
-			// There is no sidebar registered with the name provided.
-			return $output;
-		}
-		// A nested array in the format $sidebar_id => array( 'widget_id-1', 'widget_id-2' ... );
-		$sidebars_widgets = wp_get_sidebars_widgets();
-		$widget_ids = $sidebars_widgets[ $sidebar_id ];
-		if ( ! $widget_ids ) {
-			// Without proper widget_ids we can't continue.
-			return array();
-		}
-		// Loop over each widget_id so we can fetch the data out of the wp_options table.
-		foreach ( $widget_ids as $id ) {
-			// The name of the option in the database is the name of the widget class.
-			$option_name = $wp_registered_widgets[ $id ]['callback'][0]->option_name;
-			// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
-			$key = $wp_registered_widgets[ $id ]['params'][0]['number'];
-			$widget_data = get_option( $option_name );
-			// Add the widget data on to the end of the output array.
-			$output[$id] = $widget_data[ $key ];
-		}
-		return $output;
-	}
-
 	/**
 	 * Returns an array of data about the widget you are requesting
 	 *
@@ -523,34 +504,57 @@ class DataSource {
 	 * @since  0.0.31
 	 * @access public
 	 */
-	public static function resolve_widget( $widget_id ) {
-		global $wp_registered_sidebars, $wp_registered_widgets;
+	public static function resolve_widget( $widget_id, $index = null ) {
+		global $wp_registered_widgets;
+
+		$id = null;
+		if ( ! is_null( $index ) ) {
+
+			foreach( $wp_registered_widgets as $key => $registered_widget ) {
+				if( $registered_sidebar[ $index ] === $widget_id ) {
+					$id = $key;
+					break;
+				}
+			}
+			/**
+			 * Throw if requested sidebar not found
+			 */
+			if( ! $id ) {
+				throw new UserError( sprintf( __( 'No widget was found with the \"%s\" %s', 'wp-graphql' ), $index, $widget_id ) );
+			}
+
+		} else { 
 
 		/**
 		 * Get registered sidebar data
 		 */
-		$widget_keys = array_keys( $wp_registered_widgets );//get_option( 'sidebars_widgets' );
-		/**
-		 * Throw if requested sidebar not found
-		 */
-		if( ! in_array( $widget_id, $widget_keys ) ) {
-			throw new UserError( sprintf( __( 'No widget was found with the ID %s', 'wp-graphql' ), $widget_id ) );
+			$widget_keys = array_keys( $wp_registered_widgets );
+
+			/**
+			 * Throw if requested sidebar not found
+			 */
+			if( ! in_array( $widget_id, $widget_keys ) ) {
+				throw new UserError( sprintf( __( 'No widget was found with the ID %s', 'wp-graphql' ), $widget_id ) );
+			}
+
+			$id = $widget_id;
+
 		}
 
+		
+
 		$widget = [
-			'id' => $wp_registered_widgets[ $widget_id ]['id'],
-			'name' => $wp_registered_widgets[ $widget_id ]['name'],
-			'type' => $wp_registered_widgets[ $widget_id ]['callback'][0]->id_base,
+			'id' => $wp_registered_widgets[ $id ]['id'],
+			'name' => $wp_registered_widgets[ $id ]['name'],
+			'type' => $wp_registered_widgets[ $id ]['callback'][0]->id_base,
 			'is_widget' => true,
 		];
 
-		print_r(self::rh_get_widget_data_for( 'Widget Area' ));
-
 		// The name of the option in the database is the name of the widget class.
-		$option_name = $wp_registered_widgets[ $widget_id ]['callback'][0]->option_name;
+		$option_name = $wp_registered_widgets[ $id ]['callback'][0]->option_name;
 
 		// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
-		$key = $wp_registered_widgets[ $widget_id ]['params'][0]['number'];
+		$key = $wp_registered_widgets[ $id ]['params'][0]['number'];
 		
 		/**
 		 * Retrieve widget data if exist

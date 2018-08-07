@@ -22,7 +22,7 @@ class SidebarType extends WPObjectType {
 	 *
 	 * @var string $type_name
 	 */
-	private static $type_name = 'Menu';
+	private static $type_name = 'Sidebar';
 
 	/**
 	 * This holds the field definitions
@@ -35,12 +35,6 @@ class SidebarType extends WPObjectType {
 	 * SidebarType constructor.
 	 */
 	public function __construct() {
-
-		/**
-		 * Set the type_name
-		 * @since 0.0.31
-		 */
-		self::$type_name = 'Sidebar';
 
 		$config = [
 			'name' => self::$type_name,
@@ -126,7 +120,7 @@ class SidebarType extends WPObjectType {
 							return ! empty( $sidebar['after_title'] ) ? $sidebar['after_title'] : '';
 						},
 					],
-					'widgets' => WidgetConnectionDefinition::connection()
+					'widgets' => WidgetConnectionDefinition::connection( self::$type_name )
 				];
 
 				return self::prepare_fields( $fields, self::$type_name );

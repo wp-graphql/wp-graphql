@@ -23,6 +23,13 @@ class SidebarQuery {
 	private static $root_query;
 
 	/**
+	 * Holds the sidebar_by field definition
+	 *
+	 * @var array $sidebar_by
+	 */
+	private static $sidebar_by;
+
+	/**
 	 * Method that returns the root query field definition
 	 *
 	 * @return array
@@ -47,5 +54,41 @@ class SidebarQuery {
 		}
 
 		return self::$root_query;
+	}
+	
+	/**
+	 * Method that returns the "sidebar_by" field definition to get a sidebar by id or name.
+	 *
+	 * @return array
+	 */
+	public static function sidebar_by() {
+    if ( null === self::$sidebar_by ) {
+
+			self::$sidebar_by = [
+				'type' => Types::sidebar(),
+				'description' => __( 'A WordPress sidebar', 'wp-graphql' ),
+				'args' => [
+					'id' 		=> Types::string(),
+					'name' 	=> Types::string(),
+				],
+				'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+
+					$sidebar = null;
+
+					if( ! empty( $args[ 'id' ] ) ) {
+						$sidebar = DataSource::resolve_sidebar( $args[ 'id' ] );
+					}
+					if ( ! empty( $args[ 'name' ] ) ) {
+						$sidebar = DataSource::resolve_sidebar( $args[ 'name' ], 'name' );
+					}
+
+					return $sidebar;
+
+				},
+			];
+
+		}
+
+		return self::$sidebar_by;
   }
 }

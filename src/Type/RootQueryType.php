@@ -135,6 +135,7 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.31
 		 */
 		$fields['sidebar'] = SidebarQuery::root_query();
+		$fields['sidebarBy'] = SidebarQuery::sidebar_by();
 		$fields['sidebars'] = SidebarConnectionDefinition::connection();
 
 		/**
@@ -186,6 +187,8 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.31
 		 */
 		$fields['widget'] = WidgetQuery::root_query();
+		$fields['widgetBy'] = WidgetQuery::widget_by();
+		$fields['widgets'] = WidgetConnectionDefinition::connection();
 
 		/**
 		 * Creates the root fields for post objects (of any post_type)

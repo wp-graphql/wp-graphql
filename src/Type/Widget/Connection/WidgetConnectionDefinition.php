@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Widget\Connection;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 use WPGraphQL\Type\WPInputObjectType;
 
@@ -20,7 +21,7 @@ class WidgetConnectionDefinition {
 	 * @var array $connection
 	 * @access private
 	 */
-	private static $connection;
+	private static $connection = [];
 
 	/**
 	 * Stores the where_args Input Object Type
@@ -41,15 +42,17 @@ class WidgetConnectionDefinition {
 	 *
 	 * @param string $from_type Connection type.
 	 * @return mixed
-	 * @since  0.0.30
+	 * @since  0.0.31
 	 */
 	public static function connection( $from_type = 'Root' ) {
 
-		if ( null === self::$connection ) {
+		if ( empty( self::$connection[ $from_type ] ) ) {
+
+			$type_name = 'Widgets';
 
 			$connection = Relay::connectionDefinitions( [
 				'nodeType' => Types::widget(),
-				'name'     => 'Widgets',
+				'name'     => ucfirst( $from_type ) . $type_name,
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
@@ -66,38 +69,51 @@ class WidgetConnectionDefinition {
 			$args = [
 				'where' => [
 					'name' => 'where',
-					'type' => self::where_args(),
+					'type' => self::where_args( $type_name ),
 				],
 			];
 
-			self::$connection = [
+			/**
+			 * Add the connection to the widgets_connection object
+			 *
+			 * @since 0.0.31
+			 */
+			$connection_name 								= ucfirst( $from_type ) . $type_name;
+			self::$connection[ $from_type ] = [
 				'type'        => $connection['connectionType'],
-				'description' => __( 'A collection of widget objects', 'wp-graphql' ),
+				// Translators: the placeholder is the name of the post_type
+				'description' => sprintf( __( 'A collection of %s objects', 'wp-graphql' ), $type_name ),
 				'args'        => array_merge( Relay::connectionArgs(), $args ),
-				'resolve'     => [ __NAMESPACE__ . '\\WidgetConnectionResolver', 'resolve' ],
+				'resolve'     => function( $source, $args, $context, $info ) {
+					return DataSource::resolve_widgets_connection( $source, $args, $context, $info );
+				},
 			];
 		}
 
-		return ! empty( self::$connection ) ? self::$connection : null;
+		/**
+		 * Return the connection from the post_objects_connection object
+		 *
+		 * @since 0.0.31
+		 */
+		return self::$connection[ $from_type ];
 	}
 
 	/**
-	 * Defines the "where" args that can be used to query menus
+	 * Defines the "where" args that can be used to query menuItems
 	 *
 	 * @return WPInputObjectType
 	 */
-	private static function where_args() {
+	private static function where_args( $type_name ) {
 
 		if ( null === self::$where_args ) {
 			
 			self::$where_args = new WPInputObjectType( [
-				'name'   => 'WidgetQueryArgs',
-				'fields' => function() {
-					return self::where_fields();
+				'name'   => $type_name . 'QueryArgs',
+				'fields' => function() use ( $type_name ) {
+					return self::where_fields( $type_name . 'QueryArgs' );
 				},
 			] );
 		}
-
 
 		return ! empty( self::$where_args ) ? self::$where_args : null;
 
@@ -108,15 +124,27 @@ class WidgetConnectionDefinition {
 	 *
 	 * @return array|mixed
 	 */
-	private static function where_fields() {
+	private static function where_fields( $type_name ) {
 		if ( null === self::$where_fields ) {
 			$fields = [
-
+				'id' => [
+					'type'        => Types::int(),
+					'description' => __( 'The instance ID of the widget', 'wp-graphql' ),
+				],
+				'name' => [
+					'type'        => Types::string(),
+					'description' => __( 'Display name of the widget', 'wp-graphql' ),
+				],
+				'basename' => [
+					'type'        => Types::string(),
+					'description' => __( 'Display name of the widget', 'wp-graphql' ),
+				],
 			];
 
-			self::$where_fields = WPInputObjectType::prepare_fields( $fields, 'WidgetQueryArgs' );
+			self::$where_fields = WPInputObjectType::prepare_fields( $fields, $type_name );
 		}
 
 		return self::$where_fields;
 	}
+
 }

@@ -5,7 +5,9 @@ namespace WPGraphQL\Type\Widget;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 
@@ -44,11 +46,11 @@ class WidgetTypes {
      * Retrieve unloaded default widget types
      */
     $class_name = __CLASS__;
+    $type_name = str_replace('-', '_', $type_name);
     $type_func = "{$type_name}_config";
     if( is_callable( "{$class_name}::{$type_func}" ) && ! self::loaded( $type_name ) ) {
       self::$types[ $type_name ] = new WPObjectType( self::$type_func() );
     }
-
 
     /**
      * Filter for adding custom widget types
@@ -69,11 +71,20 @@ class WidgetTypes {
    * @return boolean
    */
   private static function loaded( string $type_name ) {
-    return isset( self::$types[ $type_name ] ) && is_object( self::$types[ $type_name ] );
+    return isset( self::$types[ $type_name ] ) && self::$types[ $type_name ] instanceof WPObjectType;
   }
 
+  /**
+   * Get widget type listing for invisible types
+   *
+   * @return array
+   */
   public static function get_types() {
     return [
+      self::image_size_enum(),
+      self::link_to_enum(),
+      self::preload_enum(),
+      self::sortby_enum(),
       self::archives(),
       self::media_audio(),
       self::calendar(),
@@ -102,13 +113,18 @@ class WidgetTypes {
    */
   private static function fields( $fields = [] ) {
 
-    $fields = array(
-      Types::widget()->getField( 'id' ),
-      Types::widget()->getField( 'widgetId' ),
-      Types::widget()->getField( 'name' )
-    );
+    return function () use ( $fields ) { 
+      return array_merge(
+        $fields,
+        [
+          Types::widget()->getField( 'id' ),
+          Types::widget()->getField( 'widgetId' ),
+          Types::widget()->getField( 'name' ),
+          Types::widget()->getField( 'basename' )
+        ] 
+      );
+    };
 
-    return $fields;
   }
 
   /**
@@ -188,19 +204,12 @@ class WidgetTypes {
   private static $sortby_enum;
 
   /**
-   * Stores taxonomy EnumType used by tag cloud widget
-   *
-   * @var EnumType
-   */
-  private static $taxonomy_enum;
-
-  /**
    * Defines and register image_size enumeration type
    *
    * @return EnumType
    */
   public static function image_size_enum() {
-    return self::$image_size_enum ?: self::$image_size_enum = new EnumType(
+    return self::$image_size_enum ?: self::$image_size_enum = new WPEnumType(
       array(
         'name' => 'ImageSizeEnum',
         'description' => __( 'Size of image', 'wp-graphql' ),
@@ -212,10 +221,10 @@ class WidgetTypes {
   /**
    * Defines and register link to enumeration type
    *
-   * @return EnumType
+   * @return WPEnumType
    */
   public static function link_to_enum() {
-    return self::$link_to_enum ?: self::$link_to_enum = new EnumType(
+    return self::$link_to_enum ?: self::$link_to_enum = new WPEnumType(
       array(
         'name' => 'LinkToEnum',
         'description' => __( 'Destination type of link', 'wp-graphql' ),
@@ -227,10 +236,10 @@ class WidgetTypes {
   /**
    * Defines and register preload enumeration type
    *
-   * @return EnumType
+   * @return WPEnumType
    */
   public static function preload_enum() {
-    return self::$preload_enum ?: self::$preload_enum = new EnumType(
+    return self::$preload_enum ?: self::$preload_enum = new WPEnumType(
       array(
         'name' => 'PreloadEnum',
         'description' => __( 'Preload type of media widget', 'wp-graphql' ),
@@ -242,29 +251,14 @@ class WidgetTypes {
   /**
    * Defines and register sort order enumeration type
    *
-   * @return EnumType
+   * @return WPEnumType
    */
   public static function sortby_enum() {
-    return self::$sortby_enum ?: self::$sortby_enum = new EnumType(
+    return self::$sortby_enum ?: self::$sortby_enum = new WPEnumType(
       array(
         'name' => 'SortByEnum',
         'description' => __( 'Sorting order of widget resource type', 'wp-graphql' ),
         'values' => array( 'MENU_ORDER', 'POST_TITLE', 'ID' )
-      )
-    );
-  }
-
-  /**
-   * Defines and register taxonomy enumeration type
-   *
-   * @return EnumType
-   */
-  public static function taxonomy_enum() {
-    return self::$taxonomy_enum ?: self::$taxonomy_enum = new EnumType(
-      array(
-        'name' => 'TaxonomyEnum',
-        'description' => __( 'Taxonomy', 'wp-graphql' ),
-        'values' => array( 'CATEGORY', 'POST_TAG', 'LINK_CATEGORY' )
       )
     );
   }
@@ -447,11 +441,11 @@ class WidgetTypes {
             },
           ],
           'orderbyRandom' => [
-            'type'        => self::boolean(),
+            'type'        => Types::boolean(),
             'description' => __( 'Random Order', 'wp-graphql'),
             'resolve'     => self::resolve_field( 'orderby_random', false ),
           ],
-          'images' => PostObjectConnectionDefinition::connection( 'attachment ')
+          'images' => PostObjectConnectionDefinition::connection( DataSource::resolve_post_type( 'attachment' ), 'GalleryWidget' )
         )
       ),
 			'interfaces' => self::interfaces(),
@@ -716,7 +710,7 @@ class WidgetTypes {
             'resolve'     => self::resolve_field( 'count', true )
           ],
           'taxonomy'  => [
-            'type'        => self::taxonomy_enum(),
+            'type'        => Types::taxonomy(),
             'description' => __( 'Widget taxonomy type', 'wp-graphql' ),
             'resolve'     => function( array $widget ) {
               return ( ! empty( $widget[ 'taxonomy' ] ) ) ? strtoupper( $widget[ 'taxonomy' ] ) : 'POST_TAG';

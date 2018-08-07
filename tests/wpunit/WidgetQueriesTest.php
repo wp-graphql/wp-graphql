@@ -6,6 +6,9 @@ class WidgetQueriesTest extends \Codeception\TestCase\WPTestCase
     // tests
     public function testWidgetQuery()
     {
+        /**
+         * Retrieve default Meta widget
+         */
         $widget_id = 'meta-2';
         $widget = \WPGraphQL\Data\DataSource::resolve_widget($widget_id);
 
@@ -19,9 +22,12 @@ class WidgetQueriesTest extends \Codeception\TestCase\WPTestCase
 		$query = '
 		query widgetQuery($id: ID!){
 			widget( id: $id ) {
-                id
                 widgetId
                 name
+                id
+                ... on MetaWidget {
+                    title
+                }
 			}
 		}
         ';
@@ -31,9 +37,14 @@ class WidgetQueriesTest extends \Codeception\TestCase\WPTestCase
         $actual = do_graphql_request( $query, 'widgetQuery', $variables );
 
         $expected = array(
-            'id'        => $relay_id,
-            'widgetId'  => 'meta-2',
-            'name'      => 'Meta'
+            'data' => array(
+                'widget' => array(
+                  'widgetId' => 'meta-2',
+                  'name' => 'Meta',
+                  'id' => $relay_id,
+                  'title' => ''
+                )
+            )
         );
 
         /**

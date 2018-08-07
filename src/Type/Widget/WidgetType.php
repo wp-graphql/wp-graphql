@@ -23,7 +23,14 @@ class WidgetType extends InterfaceType {
 	 *
 	 * @var string $type_name
 	 */
-	private static $type_name = 'Widget';
+  private static $type_name = 'Widget';
+  
+  /**
+	 * This holds the field definitions
+	 *
+	 * @var array $fields
+	 */
+	private static $fields;
 
 	/**
 	 * WidgetType constructor.
@@ -51,36 +58,52 @@ class WidgetType extends InterfaceType {
 	}
 
 	/**
-   * This defines the fields that make up the WidgetType.
-   *
-   * @return array
-   */
-  private static function fields() {
+	 * This defines the fields that make up the WidgetType.
+	 *
+	 * @return array|\Closure|null
+	 */
+	private static function fields() {
 
-    $fields = array(
-      'id'          => [
-        'type'    => Types::non_null( Types::id() ),
-        'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
-          return ( ! empty( $widget ) && ! empty( $widget[ 'id' ] ) ) ? Relay::toGlobalId( 'widget', $widget[ 'id' ] ) : null;
-        },
-      ],
-      'widgetId'          => [
-        'type'    => Types::string(),
-        'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
-          return ( ! empty( $widget[ 'id' ] ) ) ? $widget[ 'id' ] : '';
-        },
-      ],
-      'name'          => [
-        'type'    => Types::string(),
-        'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
-          return ( ! empty( $widget[ 'name' ] ) ) ? $widget[ 'name' ] : '';
-        },
-      ],
-		);
+		if ( null === self::$fields ) {
 
-    $fields = apply_filters( "graphql_widget_fields", $fields );
+			self::$fields = function() {
 
-    return $fields;
+        $fields = array(
+          'id'          => [
+            'type'    => Types::non_null( Types::id() ),
+            'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
+              return ( ! empty( $widget ) && ! empty( $widget[ 'id' ] ) ) ? Relay::toGlobalId( 'widget', $widget[ 'id' ] ) : null;
+            },
+          ],
+          'widgetId'          => [
+            'type'    => Types::string(),
+            'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
+              return ( ! empty( $widget[ 'id' ] ) ) ? $widget[ 'id' ] : '';
+            },
+          ],
+          'name'          => [
+            'type'    => Types::string(),
+            'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
+              return ( ! empty( $widget[ 'name' ] ) ) ? $widget[ 'name' ] : '';
+            },
+          ],
+          'basename'          => [
+            'type'    => Types::string(),
+            'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
+              return ( ! empty( $widget[ 'type' ] ) ) ? $widget[ 'type' ] : '';
+            },
+          ],
+        );
+
+        $fields = apply_filters( "graphql_widget_fields", $fields );
+
+        return $fields;
+      };
+
+    } // End if().
+
+    return ! empty( self::$fields ) ? self::$fields : null;
+
   }
 
 }
