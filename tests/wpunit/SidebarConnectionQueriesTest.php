@@ -28,7 +28,6 @@ class SidebarConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
 		    edges {
 		      node {
 		        id
-		        name
 		      }
 		    }
 		    nodes {
@@ -47,19 +46,16 @@ class SidebarConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
                         array(
                             'node' => array(
                                 'id' => 'c2lkZWJhcjpzaWRlYmFyLTE=',
-                                'name' => 'Blog Sidebar',
                             )      
                         ),
                         array(
                             'node' => array(
                                 'id' => 'c2lkZWJhcjpzaWRlYmFyLTI=',
-                                'name' => 'Footer 1',
                             )
                         ),
                         array(
                             'node' => array(
                                 'id' => 'c2lkZWJhcjpzaWRlYmFyLTM=',
-                                'name' => 'Footer 2',
                             )
                         ),
                     ),
