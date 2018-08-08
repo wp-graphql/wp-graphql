@@ -117,19 +117,22 @@ class UserRegister {
 	private static function input_fields() {
 
 		/**
-		 * Update mutations require an ID to be passed
+		 * Register mutations require a username and email to be passed
 		 */
-		return [
-			'username' => [
-				'type'        => Types::non_null( Types::string() ),
-				// translators: the placeholder is the name of the type of object being updated
-				'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
+		return array_merge(
+			[
+				'username' => [
+					'type'        => Types::non_null( Types::string() ),
+					// translators: the placeholder is the name of the type of object being updated
+					'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
+				],
+				'email'    => [
+					'type'        => Types::string(),
+					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
+				],
 			],
-			'email'    => [
-				'type'        => Types::string(),
-				'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
-			],
-		];
+			UserMutation::input_fields()
+		);
 
 	}
 
