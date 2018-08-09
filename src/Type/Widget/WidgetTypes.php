@@ -9,6 +9,7 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Type\TypeRegistryInterface;
 use WPGraphQL\Types;
 
 /**
@@ -18,73 +19,21 @@ use WPGraphQL\Types;
  * @package WPGraphQL
  */
 
-class WidgetTypes {
+class WidgetTypes extends TypeRegistryInterface {
 
   /**
-	 * Stores the widget type objects
-	 *
-	 * @var array $types
-	 * @since  0.0.31
-	 * @access private
-	 */
-  private static $types;
-
-  /**
-   * Retrieves widget type objects
+   * Store type fully qualified class name
+   * !!!Don't Modify!!!
    *
-   * @param string $type_name - Name of widget type
-   * @return WPObjectType
+   * @var string
    */
-  public static function __callStatic( $type_name, array $args = [null] ) {
-    /**
-     * Initialize widget types;
-     */
-    if( null === self::$types ) self::$types = array();
-    
-    /**
-     * Check if default type configuration exists and load it
-     */
-    $type_name = str_replace('-', '_', $type_name);
-    $type_func = "{$type_name}_config";
-    if( method_exists( __CLASS__, $type_func ) && ! self::loaded( $type_name ) ) {
-      self::$types[ $type_name ] = new WPObjectType( self::$type_func() );
-    }
-    
-    /**
-     * If no default config exist use base configuration
-     */
-    elseif( ! method_exists( __CLASS__, $type_func ) && ! self::loaded( $type_name ) ) {
-      self::$types[ $type_name ] = new WPObjectType( self::_config( $type_name, $args[0] ) );
-    }
-
-    /**
-     * Filter for providing a specific widget type
-     */
-    self::$types = apply_filters( "graphql_{$type_name}_widget_type", self::$types, $type_name );
-
-    /**
-     * Check if type already loaded
-     */
-    $type = self::$types[ $type_name ];
-    if( self::loaded( $type_name ) ) return $type;
-  }
-
-  /**
-   * Checks if widget type is loaded
-   *
-   * @param string $type_name - Name of widget type
-   * @return boolean
-   */
-  private static function loaded( $type_name ) {
-    return isset( self::$types[ $type_name ] ) && self::$types[ $type_name ] instanceof WPObjectType;
-  }
-
+  protected static $__CLASS__ = __CLASS__; 
   /**
    * Get widget type listing for invisible types
    *
    * @return array
    */
-  public static function get_types() {
+  protected static function get_types() {
     /**
      * Get active widget types
      */
@@ -110,31 +59,13 @@ class WidgetTypes {
   }
 
   /**
-   * Prepares WPObjectType config array
-   *
-   * @param string $type_name - object type name
-   * @param array $fields - array of object type field definitions
-   * @param array $interfaces - array of object type interface definitions
-   * @param string $description - object type description
-   * @return array - WPObjectType config
-   */
-  private static function create_type_config( $type_name, $fields, $interfaces, $description = '' ) {
-    return [
-			'name'        => $type_name,
-			'description' => $description,
-			'fields'      => self::prepare_fields( $fields, $type_name ),
-			'interfaces'  => self::prepare_interfaces( $interfaces, $type_name ),
-		];
-  }
-
-  /**
    * Prepares WPObjectType config array from data array
    *
    * @param string $type_name
    * @param array $data
    * @return void
    */
-  private static function _config( $type_name, $data ) {
+  protected static function _config( $type_name, $data = null ) {
     
     if ( null === $data ) return null;
     
@@ -189,6 +120,26 @@ class WidgetTypes {
     }
 
     return self::create_type_config( $type_name, $fields, [], $description );
+  }
+
+  /**
+   * Prepares WPObjectType config array
+   *
+   * @param string $type_name - object type name
+   * @param array $fields - array of object type field definitions
+   * @param array $interfaces - array of object type interface definitions
+   * @param string $description - object type description
+   * @return array - WPObjectType config
+   */
+  private static function create_type_config( $type_name, $fields, $interfaces, $description = '' ) {
+    $config  = [
+			'name'        => $type_name,
+			'description' => $description,
+			'fields'      => self::prepare_fields( $fields, $type_name ),
+			'interfaces'  => self::prepare_interfaces( $interfaces, $type_name ),
+    ];
+    
+    return new WPObjectType( $config );
   }
 
   /**

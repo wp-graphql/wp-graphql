@@ -31,7 +31,14 @@ class WidgetInterfaceType extends WPInterfaceType {
 	 *
 	 * @var array $fields
 	 */
-	private static $fields;
+  private static $fields;
+  
+  /**
+   * This holds the type registry instance
+   * 
+   * @var WidgetTypes $registry
+   */
+  private static $registry;
 
 	/**
 	 * WidgetInterfaceType constructor.
@@ -51,8 +58,10 @@ class WidgetInterfaceType extends WPInterfaceType {
 
     parent::__construct( $config );
 
-    self::prepare_types( WidgetTypes::get_types(), self::$type_name );
-    
+    /**
+     * Initialize Registry
+     */
+    self::$registry = new WidgetTypes( self::$type_name );
 	}
 
 	/**

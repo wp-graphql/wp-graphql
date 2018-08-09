@@ -48,62 +48,6 @@ class WPInterfaceType extends InterfaceType {
     parent::__construct( $config );
     
   }
-  
-  /**
-	 * prepare_types
-	 *
-	 * This function sorts the types and filters the schema config to use interface child objects not included on the type registry.
-	 *
-	 * @param array  $types - interface child types
-	 *
-	 * @return mixed
-	 * @since 0.0.31
-	 */
-  public static function prepare_types( $types, $type_name ) {
-
-    /**
-			 * Filter once with lowercase, once with uppercase for Back Compat.
-			 */
-			$lc_type_name = lcfirst( $type_name );
-			$uc_type_name = ucfirst( $type_name );
-
-			/**
-			 * Filter the types with the type_name explicitly in the filter name
-			 *
-			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-			 * more specific overrides
-			 *
-			 * @param array $types The array of types for the schema config
-			 */
-			$types = apply_filters( "graphql_{$lc_type_name}_types", $types );
-
-			/**
-			 * Filter the types with the type_name explicitly in the filter name
-			 *
-			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-			 * more specific overrides
-			 *
-			 * @param array $types The array of types for the schema config
-			 */
-			$types = apply_filters( "graphql_{$uc_type_name}_types", $types );
-
-    add_filter( 'graphql_schema_config', function( $schema ) use ( $types ) {
-
-      if( is_array( $types ) && ! empty( $types ) ) { 
-
-        /**
-         * Merge $types array with schema config types array
-         */
-        if( ! empty( $schema['types'] ) ) $schema['types'] = array_merge( $schema['types'], $types );
-        else $schema['types'] = $types;
-
-      }
-  
-      return $schema;
-
-    } );
-
-  }
 
   /**
 	 * prepare_fields

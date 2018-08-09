@@ -37,6 +37,14 @@ class WPSchema extends Schema {
 	 */
 	public function __construct( $config ) {
 
+		$types = [];
+		$types = apply_filters('graphql_schema_config_types', $types);
+		if( is_array( $types ) && ! empty( $types ) ) {
+			$config['types'] = function() use( $types ) {
+				return $types;
+			};
+		}
+
 		/**
 		 * Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
 		 *
