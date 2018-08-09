@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\Widget\WidgetTypes;
 use WPGraphQL\Types;
 
@@ -16,7 +17,7 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Type\Widget
  * @since   0.0.31
  */
-class WidgetType extends InterfaceType {
+class WidgetInterfaceType extends WPInterfaceType {
 
 	/**
 	 * Type name
@@ -33,13 +34,14 @@ class WidgetType extends InterfaceType {
 	private static $fields;
 
 	/**
-	 * WidgetType constructor.
+	 * WidgetInterfaceType constructor.
 	 */
 	public function __construct() {
 		$config = [
+      'name'        => self::$type_name,
 			'description' => __( 'A widget object', 'wp-graphql' ),
 			'fields' => self::fields(),
-			'resolveType' => function( $widget ) {
+      'resolveType' => function( $widget ) {
         if( ! empty( $widget[ 'type' ] ) ) {
           return WidgetTypes::{ $widget[ 'type' ] }();
         }
@@ -48,17 +50,13 @@ class WidgetType extends InterfaceType {
 		];
 
     parent::__construct( $config );
-    
-    add_filter( 'graphql_executable_schema', function( $executable_schema ) {
 
-      $executable_schema[ 'types' ] = WidgetTypes::get_types();
-  
-      return $executable_schema;
-    } );
+    self::prepare_types( WidgetTypes::get_types(), self::$type_name );
+    
 	}
 
 	/**
-	 * This defines the fields that make up the WidgetType.
+	 * This defines the fields that make up the WidgetInterfaceType.
 	 *
 	 * @return array|\Closure|null
 	 */
@@ -68,7 +66,7 @@ class WidgetType extends InterfaceType {
 
 			self::$fields = function() {
 
-        $fields = array(
+        $fields = [
           'id'          => [
             'type'    => Types::non_null( Types::id() ),
             'resolve' => function( array $widget, $args, AppContext $context, ResolveInfo $info ) {
@@ -93,11 +91,9 @@ class WidgetType extends InterfaceType {
               return ( ! empty( $widget[ 'type' ] ) ) ? $widget[ 'type' ] : '';
             },
           ],
-        );
+        ];
 
-        $fields = apply_filters( "graphql_widget_fields", $fields );
-
-        return $fields;
+        return self::prepare_fields( $fields, self::$type_name );
       };
 
     } // End if().

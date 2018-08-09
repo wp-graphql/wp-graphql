@@ -39,7 +39,7 @@ use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\User\UserType;
 use WPGraphQL\Type\UserRoles\UserRoleType;
-use WPGraphQL\Type\Widget\WidgetType;
+use WPGraphQL\Type\Widget\WidgetInterfaceType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -358,7 +358,7 @@ class Types {
 	/**
 	 * Stores the widget object type
 	 *
-	 * @var WidgetType object $widget
+	 * @var WidgetInterfaceType object $widget
 	 * @since 0.0.31
 	 * @access private
 	 */
@@ -807,12 +807,12 @@ class Types {
 	/**
 	 * This returns the definition for the WidgetType
 	 *
-	 * @return WidgetType object
+	 * @return WidgetInterfaceType object
 	 * @since  0.0.31
 	 * @access public
 	 */
 	public static function widget() {
-		return self::$widget ? : ( self::$widget = new WidgetType() );
+		return self::$widget ? : ( self::$widget = new WidgetInterfaceType() );
 	}
 
 	/**

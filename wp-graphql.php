@@ -495,11 +495,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				];
 
 				/**
-				 * Filter for alternating schema config
-				 */
-				$executable_schema = apply_filters( 'graphql_executable_schema', $executable_schema );
-
-				/**
 				 * Generate the Schema
 				 */
 				$schema = new \WPGraphQL\WPSchema( $executable_schema );
@@ -514,6 +509,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 *                                           information about the context we know at this point
 				 */
 				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+
+				
 
 			}
 

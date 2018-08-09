@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit026dacd9efa3c443300f6d5de37218da
+class ComposerStaticInit3f24d85a6d9713a883de441a249753f8
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -302,12 +302,13 @@ class ComposerStaticInit026dacd9efa3c443300f6d5de37218da
         'WPGraphQL\\Type\\User\\UserType' => __DIR__ . '/../..' . '/src/Type/User/UserType.php',
         'WPGraphQL\\Type\\WPEnumType' => __DIR__ . '/../..' . '/src/Type/WPEnumType.php',
         'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php',
+        'WPGraphQL\\Type\\WPInterfaceType' => __DIR__ . '/../..' . '/src/Type/WPInterfaceType.php',
         'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php',
         'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php',
         'WPGraphQL\\Type\\Widget\\Connection\\WidgetConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Widget/Connection/WidgetConnectionDefinition.php',
         'WPGraphQL\\Type\\Widget\\Connection\\WidgetConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Widget/Connection/WidgetConnectionResolver.php',
+        'WPGraphQL\\Type\\Widget\\WidgetInterfaceType' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetInterfaceType.php',
         'WPGraphQL\\Type\\Widget\\WidgetQuery' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetQuery.php',
-        'WPGraphQL\\Type\\Widget\\WidgetType' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetType.php',
         'WPGraphQL\\Type\\Widget\\WidgetTypes' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetTypes.php',
         'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php',
         'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php',
@@ -317,9 +318,9 @@ class ComposerStaticInit026dacd9efa3c443300f6d5de37218da
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit026dacd9efa3c443300f6d5de37218da::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit026dacd9efa3c443300f6d5de37218da::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit026dacd9efa3c443300f6d5de37218da::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3f24d85a6d9713a883de441a249753f8::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3f24d85a6d9713a883de441a249753f8::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3f24d85a6d9713a883de441a249753f8::$classMap;
 
         }, null, ClassLoader::class);
     }

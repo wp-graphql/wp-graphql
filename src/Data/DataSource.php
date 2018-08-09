@@ -510,14 +510,17 @@ class DataSource {
 		$id = null;
 		if ( ! is_null( $index ) ) {
 
+			/**
+			 * Loop through registered widget and compare index value
+			 */
 			foreach( $wp_registered_widgets as $key => $registered_widget ) {
-				if( $registered_sidebar[ $index ] === $widget_id ) {
+				if( $registered_widget[ $index ] === $widget_id ) {
 					$id = $key;
 					break;
 				}
 			}
 			/**
-			 * Throw if requested sidebar not found
+			 * Throw if requested widget not found
 			 */
 			if( ! $id ) {
 				throw new UserError( sprintf( __( 'No widget was found with the \"%s\" %s', 'wp-graphql' ), $index, $widget_id ) );
@@ -526,12 +529,12 @@ class DataSource {
 		} else { 
 
 		/**
-		 * Get registered sidebar data
+		 * Get registered widget data
 		 */
 			$widget_keys = array_keys( $wp_registered_widgets );
 
 			/**
-			 * Throw if requested sidebar not found
+			 * Throw if requested widget not found
 			 */
 			if( ! in_array( $widget_id, $widget_keys ) ) {
 				throw new UserError( sprintf( __( 'No widget was found with the ID %s', 'wp-graphql' ), $widget_id ) );
@@ -541,33 +544,10 @@ class DataSource {
 
 		}
 
-		
-
-		$widget = [
-			'id' => $wp_registered_widgets[ $id ]['id'],
-			'name' => $wp_registered_widgets[ $id ]['name'],
-			'type' => $wp_registered_widgets[ $id ]['callback'][0]->id_base,
-			'is_widget' => true,
-		];
-
-		// The name of the option in the database is the name of the widget class.
-		$option_name = $wp_registered_widgets[ $id ]['callback'][0]->option_name;
-
-		// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
-		$key = $wp_registered_widgets[ $id ]['params'][0]['number'];
-		
 		/**
-		 * Retrieve widget data if exist
+		 * Return requested widget data object
 		 */
-		if( $key > -1 ) {
-			$widget_data = get_option( $option_name );
-			$widget += $widget_data[ $key ];
-		}
-
-		/**
-		 * Return requested sidebar array
-		 */
-		return $widget;
+		return self::create_widget_data_object( $wp_registered_widgets[ $id ] );
 
 	}
 
@@ -944,4 +924,75 @@ class DataSource {
 		return null;
 
 	}
+
+	/**
+	 * Create widget data 
+	 *
+	 * @since 0.0.31
+	 * @param array $widget
+	 * @return array
+	 */
+	public static function create_widget_data_object( $widget ) {
+		$widget_data = [
+			'id' => $widget['id'],
+			'name' => $widget['name'],
+			'widget_description' => ( ! empty( $widget['description'] ) ) ? $widget['description'] : '',
+			'type' => $widget['callback'][0]->id_base,
+			'is_widget' => true,
+		];
+
+		/**
+		 * The name of the option in the database is the name of the widget class.
+		 */
+		$option_name = $widget['callback'][0]->option_name;
+
+		/**
+		 * Widget data is stored as an associative array. To get the right data we need to get the right key
+		 * which is stored in $wp_registered_widgets
+		 */
+		$key = $widget['params'][0]['number'];
+		
+		/**
+		 * Retrieve widget data if exist
+		 */
+		if( $key > -1 ) {
+			$widget_data += get_option( $option_name )[ $key ];
+		}
+
+		return $widget_data;
+	}
+
+	/**
+	 * Return an array of data for all active widget types
+	 *
+	 * @return array
+	 */
+	public static function get_active_widget_types() {
+		global $wp_registered_widgets;
+
+		/**
+		 * Holds the query data to return
+		 */
+		$types = [];
+
+		/**
+		 * Loop through registered widgets
+		 */
+		foreach( $wp_registered_widgets as $widget ) {
+			$widget_data = self::create_widget_data_object( $widget );
+			$type = $widget_data['type'];
+
+			if( ! empty( $types[$type] ) ) continue;
+
+			unset( $widget_data['id'] );
+			unset( $widget_data['name'] );
+			unset( $widget_data['type'] );
+			unset( $widget_data['is_widget'] );
+			
+			$types[$type] = $widget_data;
+		}
+
+		return $types;
+	}
+
 }

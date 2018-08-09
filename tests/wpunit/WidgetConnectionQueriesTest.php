@@ -4,7 +4,7 @@ class WidgetConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
 {
 
     // tests
-    public function testMe()
+    public function testWidgetConnectionQuery()
     {
         /**
          * Retrieve default Meta widget

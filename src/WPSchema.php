@@ -44,6 +44,7 @@ class WPSchema extends Schema {
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
 		parent::__construct( $this->filterable_config );
+
 	}
 
 }

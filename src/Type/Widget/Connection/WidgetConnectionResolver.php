@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\Widget\Connection;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\ConnectionResolver;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -91,7 +92,7 @@ class WidgetConnectionResolver extends ConnectionResolver {
 		/**
 		 * Holds the query data to return
 		 */
-		$query = array();
+		$query = [];
 
 		/**
 		 * Query registered widget by where args
@@ -136,68 +137,24 @@ class WidgetConnectionResolver extends ConnectionResolver {
 			 * Loop over each widget_id so we can fetch the data out of the wp_options table.
 			 */
 			foreach ( $widget_ids as $id ) {
-
 				/**
 				 * If widget not in valid widgets array continue.
 				 */
 				if ( empty( $valid[ $id ] ) ) continue;
-
-				/**
-				 * Holds widget response data.
-				 * 
-				 * @var array
-				 */
-				$widget = [
-					'id' => $valid[ $id ]['id'],
-					'name' => $valid[ $id ]['name'],
-					'type' => $valid[ $id ]['callback'][0]->id_base,
-					'is_widget' => true,
-				];
-		
-				// The name of the option in the database is the name of the widget class.
-				$option_name = $valid[ $id ]['callback'][0]->option_name;
-		
-				// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
-				$key = $valid[ $id ]['params'][0]['number'];
 				
 				/**
-				 * Retrieve widget specific data if any exist
+				 * Create widget data object and add it to the query response
 				 */
-				if( $key > -1 ) {
-					$widget_data = get_option( $option_name );
-					$widget += $widget_data[ $key ];
-				}
-				
-				$query[] = $widget;
-
+				$query[] = DataSource::create_widget_data_object( $valid[ $id ] );
 			}
 
 		} else {
 
 			foreach ( $valid as $valid_widget ) {
-				$widget = [
-					'id' => $valid_widget['id'],
-					'name' => $valid_widget['name'],
-					'type' => $valid_widget['callback'][0]->id_base,
-					'is_widget' => true,
-				];
-		
-				// The name of the option in the database is the name of the widget class.
-				$option_name = $valid_widget['callback'][0]->option_name;
-		
-				// Widget data is stored as an associative array. To get the right data we need to get the right key which is stored in $wp_registered_widgets
-				$key = $valid_widget['params'][0]['number'];
-				
 				/**
-				 * Retrieve widget data if exist
+				 * Create widget data object and add it to the query response
 				 */
-				if( $key > -1 ) {
-					$widget_data = get_option( $option_name );
-					$widget += $widget_data[ $key ];
-				}
-
-				$query[] = $widget;
-				
+				$query[] = DataSource::create_widget_data_object( $valid_widget );
 			}
 
 		}
