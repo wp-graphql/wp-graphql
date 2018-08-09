@@ -304,6 +304,10 @@ class WidgetTypes {
     );
   }
 
+  public static function add_post_object_connection_query_args_filter( $filter ) {
+    add_filter( 'graphql_post_object_connection_query_args', $filter, 10, 5 );
+  }
+
     /**
    * Stores image size EnumType used by gallery and image widgets
    *
@@ -557,6 +561,14 @@ class WidgetTypes {
       ],
       'images' => PostObjectConnectionDefinition::connection( DataSource::resolve_post_type( 'attachment' ), 'GalleryWidget' )
     ];
+
+    self::add_post_object_connection_query_args_filter( function( $query_args, $source, $args, $context, $info ) {
+      if ( ! empty( $source['type'] ) && $source['type'] === 'media_gallery' ) {
+        $query_args['post__in'] = $source['ids'];
+      }
+
+      return $query_args;
+    } );
 
     return self::create_type_config($type_name, $fields, [], $description );
   }
