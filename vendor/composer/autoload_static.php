@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
+class ComposerStaticInit456e4d5380531ab6950e6e1d2b6ad45a
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -209,6 +209,7 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
         'WPGraphQL\\Data\\Loader' => __DIR__ . '/../..' . '/src/Data/Loader.php',
         'WPGraphQL\\Router' => __DIR__ . '/../..' . '/src/Router.php',
+        'WPGraphQL\\TypeRegistry' => __DIR__ . '/../..' . '/src/TypeRegistry.php',
         'WPGraphQL\\Type\\Avatar\\AvatarType' => __DIR__ . '/../..' . '/src/Type/Avatar/AvatarType.php',
         'WPGraphQL\\Type\\CommentAuthor\\CommentAuthorType' => __DIR__ . '/../..' . '/src/Type/CommentAuthor/CommentAuthorType.php',
         'WPGraphQL\\Type\\Comment\\CommentQuery' => __DIR__ . '/../..' . '/src/Type/Comment/CommentQuery.php',
@@ -267,6 +268,10 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
         'WPGraphQL\\Type\\Settings\\Mutation\\SettingsUpdate' => __DIR__ . '/../..' . '/src/Type/Settings/Mutation/SettingsUpdate.php',
         'WPGraphQL\\Type\\Settings\\SettingsQuery' => __DIR__ . '/../..' . '/src/Type/Settings/SettingsQuery.php',
         'WPGraphQL\\Type\\Settings\\SettingsType' => __DIR__ . '/../..' . '/src/Type/Settings/SettingsType.php',
+        'WPGraphQL\\Type\\Sidebar\\Connection\\SidebarConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Sidebar/Connection/SidebarConnectionDefinition.php',
+        'WPGraphQL\\Type\\Sidebar\\Connection\\SidebarConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Sidebar/Connection/SidebarConnectionResolver.php',
+        'WPGraphQL\\Type\\Sidebar\\SidebarQuery' => __DIR__ . '/../..' . '/src/Type/Sidebar/SidebarQuery.php',
+        'WPGraphQL\\Type\\Sidebar\\SidebarType' => __DIR__ . '/../..' . '/src/Type/Sidebar/SidebarType.php',
         'WPGraphQL\\Type\\Taxonomy\\TaxonomyType' => __DIR__ . '/../..' . '/src/Type/Taxonomy/TaxonomyType.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionArgs' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionArgs.php',
         'WPGraphQL\\Type\\TermObject\\Connection\\TermObjectConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/TermObject/Connection/TermObjectConnectionDefinition.php',
@@ -298,8 +303,14 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
         'WPGraphQL\\Type\\User\\UserType' => __DIR__ . '/../..' . '/src/Type/User/UserType.php',
         'WPGraphQL\\Type\\WPEnumType' => __DIR__ . '/../..' . '/src/Type/WPEnumType.php',
         'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php',
+        'WPGraphQL\\Type\\WPInterfaceType' => __DIR__ . '/../..' . '/src/Type/WPInterfaceType.php',
         'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php',
         'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php',
+        'WPGraphQL\\Type\\Widget\\Connection\\WidgetConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Widget/Connection/WidgetConnectionDefinition.php',
+        'WPGraphQL\\Type\\Widget\\Connection\\WidgetConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Widget/Connection/WidgetConnectionResolver.php',
+        'WPGraphQL\\Type\\Widget\\WidgetInterfaceType' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetInterfaceType.php',
+        'WPGraphQL\\Type\\Widget\\WidgetQuery' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetQuery.php',
+        'WPGraphQL\\Type\\Widget\\WidgetTypes' => __DIR__ . '/../..' . '/src/Type/Widget/WidgetTypes.php',
         'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php',
         'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php',
         'WPGraphQL\\WPSchema' => __DIR__ . '/../..' . '/src/WPSchema.php',
@@ -308,9 +319,9 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit456e4d5380531ab6950e6e1d2b6ad45a::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit456e4d5380531ab6950e6e1d2b6ad45a::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit456e4d5380531ab6950e6e1d2b6ad45a::$classMap;
 
         }, null, ClassLoader::class);
     }

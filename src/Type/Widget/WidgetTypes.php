@@ -9,7 +9,7 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
-use WPGraphQL\Type\TypeRegistryInterface;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -19,7 +19,7 @@ use WPGraphQL\Types;
  * @package WPGraphQL
  */
 
-class WidgetTypes extends TypeRegistryInterface {
+class WidgetTypes extends TypeRegistry {
 
   /**
    * Store type fully qualified class name

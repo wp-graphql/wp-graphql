@@ -1,14 +1,15 @@
 <?php
-namespace WPGraphQL\Type;
+namespace WPGraphQL;
 
 /**
  * Class TypeRegistry
  *
  * This class provides some helper methods to make creating type registries easier.
  *
- * @package WPGraphQL\Registry
+ * @package WPGraphQL
+ * @since 0.0.31
  */
-abstract class TypeRegistryInterface {
+abstract class TypeRegistry {
 
   /**
    * Store type registry name
@@ -22,7 +23,7 @@ abstract class TypeRegistryInterface {
    *
    * @var string
    */
-  protected static $__CLASS__;  
+  protected static $__CLASS__ = __CLASS__;  
 
   /**
    * Stores the type objects
@@ -34,7 +35,7 @@ abstract class TypeRegistryInterface {
   protected static $types;
 
   /**
-   * TypeRegistryInterface constructor
+   * TypeRegistry constructor
    *
    * @return void
    */
@@ -42,18 +43,20 @@ abstract class TypeRegistryInterface {
 
     static::$registry_name = "{$from_type}_registry";
 
-    add_filter('graphql_schema_config_types', function( $types ) {
-      
-      /**
-       * Get registry types
-       */
-      $registry_types = self::prepare_types( static::get_types() );
-      if( is_array( $registry_types ) && ! empty( $registry_types ) ) {
-        $types = array_merge( $types, $registry_types );
-      }
+    if( $from_type !== 'root') {
+      add_filter('graphql_schema_config_types', function( $types ) {
+        
+        /**
+         * Get registry types
+         */
+        $registry_types = self::prepare_types( static::get_types() );
+        if( is_array( $registry_types ) && ! empty( $registry_types ) ) {
+          $types = array_merge( $types, $registry_types );
+        }
 
-      return $types;
-    });
+        return $types;
+      }, 10, 1 );
+    }
   }
 
   /**
@@ -112,8 +115,7 @@ abstract class TypeRegistryInterface {
     /**
      * Check if type loaded or possibly unloaded 
      */
-    $type = self::$types[ $registry_name ][ $type_name ];
-    return $type;
+    return self::loaded( $type_name ) ? self::$types[ $registry_name ][ $type_name ] : null;
   }
 
    /**
@@ -123,7 +125,7 @@ abstract class TypeRegistryInterface {
    * @return boolean
    */
   private static function loaded( $type_name ) {
-    return isset( self::$types[ static::$registry_name ][ $type_name ] ) && self::$types[ static::$registry_name ][ $type_name ] instanceof WPObjectType;
+    return isset( self::$types[ static::$registry_name ][ $type_name ] ) && is_object( self::$types[ static::$registry_name ][ $type_name ] );
   }
 
   /**
