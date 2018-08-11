@@ -31,6 +31,7 @@ use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
+use WPGraphQL\Type\ThemeMods\ThemeModsType;
 use WPGraphQL\Type\Union\CommentAuthorUnionType;
 use WPGraphQL\Type\Union\MenuItemObjectUnionType;
 use WPGraphQL\Type\Union\PostObjectUnionType;
@@ -316,6 +317,15 @@ class Types {
 	 * @access private
 	 */
 	private static $theme;
+
+	/**
+	 * Stores the theme mods type object
+	 *
+	 * @var ThemeModsType object $theme_mods
+	 * @since  0.0.32
+	 * @access private
+	 */
+	private static $theme_mods;
 
 	/**
 	 * Stores the user type object
@@ -728,6 +738,17 @@ class Types {
 	 */
 	public static function theme() {
 		return self::$theme ? : ( self::$theme = new ThemeType() );
+	}
+
+	/**
+	 * This returns the definition for the ThemeModType
+	 *
+	 * @return ThemeModsType object
+	 * @since  0.0.32
+	 * @access public
+	 */
+	public static function theme_mods() {
+		return self::$theme_mods ? : ( self::$theme_mods = new ThemeModsType() );
 	}
 
 	/**

@@ -20,6 +20,7 @@ use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\TermObjectQuery;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
+use WPGraphQL\Type\ThemeMods\ThemeModsQuery;
 use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\User\UserQuery;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
@@ -131,6 +132,12 @@ class RootQueryType extends WPObjectType {
 		 * @since 0.0.5
 		 */
 		$fields['theme'] = self::theme();
+
+		/**
+		 * Creates a theme mod root query field
+		 * @since 0.0.5
+		 */
+		$fields['themeMods'] = ThemeModsQuery::root_query();
 
 		/**
 		 * Creates the theme root query field to query a collection

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
+class ComposerStaticInit1c3d0ed79c64335da242a834b833c667
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -276,6 +276,9 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
         'WPGraphQL\\Type\\TermObject\\Mutation\\TermObjectUpdate' => __DIR__ . '/../..' . '/src/Type/TermObject/Mutation/TermObjectUpdate.php',
         'WPGraphQL\\Type\\TermObject\\TermObjectQuery' => __DIR__ . '/../..' . '/src/Type/TermObject/TermObjectQuery.php',
         'WPGraphQL\\Type\\TermObject\\TermObjectType' => __DIR__ . '/../..' . '/src/Type/TermObject/TermObjectType.php',
+        'WPGraphQL\\Type\\ThemeMods\\ThemeModsFields' => __DIR__ . '/../..' . '/src/Type/ThemeMods/ThemeModsFields.php',
+        'WPGraphQL\\Type\\ThemeMods\\ThemeModsQuery' => __DIR__ . '/../..' . '/src/Type/ThemeMods/ThemeModsQuery.php',
+        'WPGraphQL\\Type\\ThemeMods\\ThemeModsType' => __DIR__ . '/../..' . '/src/Type/ThemeMods/ThemeModsType.php',
         'WPGraphQL\\Type\\Theme\\Connection\\ThemeConnectionDefinition' => __DIR__ . '/../..' . '/src/Type/Theme/Connection/ThemeConnectionDefinition.php',
         'WPGraphQL\\Type\\Theme\\Connection\\ThemeConnectionResolver' => __DIR__ . '/../..' . '/src/Type/Theme/Connection/ThemeConnectionResolver.php',
         'WPGraphQL\\Type\\Theme\\ThemeType' => __DIR__ . '/../..' . '/src/Type/Theme/ThemeType.php',
@@ -308,9 +311,9 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1c3d0ed79c64335da242a834b833c667::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1c3d0ed79c64335da242a834b833c667::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1c3d0ed79c64335da242a834b833c667::$classMap;
 
         }, null, ClassLoader::class);
     }
