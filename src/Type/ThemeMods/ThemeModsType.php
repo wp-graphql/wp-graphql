@@ -8,7 +8,6 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
-use WPGraphQL\Type\ThemeMods\ThemeModsFields;
 
 /**
  * Class ThemeModsType
@@ -87,7 +86,7 @@ class ThemeModsType extends WPObjectType {
 					 * Dynamically build the individual setting and it's fields
 					 * then add it to $fields
 					 */
-					$field = ThemeModsFields::$mod_name( $mod_data );
+					$field = ThemeModsFields::$mod_name();
 					
 					if (false !== $field)	$fields[ $field_key ] = $field;
 
@@ -96,11 +95,13 @@ class ThemeModsType extends WPObjectType {
 				/**
 				 * Prepare and return field definitions
 				 */
-				return self::prepare_fields( $fields, self::$type_name );;
+
+				$fields = self::prepare_fields( $fields, self::$type_name );
+				return ! empty( $fields ) ? $fields : null;
 			};
 		}
 
-    return ! empty( self::$fields ) ? self::$fields : null;
+    return self::$fields;
 
   }
 

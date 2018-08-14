@@ -27,10 +27,10 @@ class ThemeModsFields {
   public static function __callStatic( $mod_name, $args ) {
 
 		if( method_exists( __CLASS__, $mod_name) ) {
-			return self::$mod_name( ...$args );
+			return self::$mod_name();
 		}
 
-		return self::_default_field( $mod_name, ...$args );
+		return self::_default_field( $mod_name );
 	}
 
 	/**
@@ -40,7 +40,7 @@ class ThemeModsFields {
 	 * @param mixed $data
 	 * @return array
 	 */
-	private static function _default_field($mod_name) {
+	private static function _default_field( $mod_name ) {
 		return [ 
 			'type' 				=> Types::string(),
 			'description'	=> $mod_name,

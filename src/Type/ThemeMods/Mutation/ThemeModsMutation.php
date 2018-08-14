@@ -165,11 +165,11 @@ class ThemeModsMutation {
         /**
          * Get nav menu locations
          */
-        $locations = get_nav_menu_locations();
+        $locations = DataSource::get_registered_nav_menu_locations();
 
         $fields = [];
         if ( ! empty( $locations ) ) {
-          foreach( $locations as $location => $menu ) {
+          foreach( $locations as $location ) {
             $fields[ $location ] = [
               'type' => Types::int(),
               'description' => __( 'The WP ID of the nav menu to be assigned to %s', 'wp-graphql', $location ),
@@ -177,7 +177,7 @@ class ThemeModsMutation {
           }
         }
 
-        return ( ! empty( $fields ) ) ? $fields : null;
+        return $fields;
       },
     ] );
 
