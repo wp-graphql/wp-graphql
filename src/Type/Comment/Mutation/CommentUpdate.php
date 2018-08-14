@@ -10,7 +10,7 @@ use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
 /**
- * Class CommentCreate
+ * Class CommentUpdate
  *
  * @package WPGraphQL\Type\Comment\Mutation
  */
@@ -24,7 +24,7 @@ class CommentUpdate {
 	private static $mutation = [];
 
 	/**
-	 * Defines the create mutation for Comments
+	 * Defines the update mutation for Comments
 	 *
 	 * @return array|mixed
 	 */
@@ -33,7 +33,7 @@ class CommentUpdate {
 			$mutation_name  = 'UpdateComment';
 			self::$mutation = Relay::mutationWithClientMutationId( [
 				'name'                => $mutation_name,
-				'description'         => __( 'Create comment objects', 'wp-graphql' ),
+				'description'         => __( 'Update comment objects', 'wp-graphql' ),
 				'inputFields'         => WPInputObjectType::prepare_fields(
 					array_merge(
 						[
@@ -72,7 +72,7 @@ class CommentUpdate {
 					CommentMutation::prepare_comment_object( $input, $comment_args, $mutation_name, true );
 
 					/**
-					 * Check if use has required capabilities
+					 * Check if user has required capabilities
 					 */
 					if (
 						! current_user_can( 'moderate_comments' ) &&

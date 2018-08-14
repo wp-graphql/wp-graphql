@@ -769,9 +769,10 @@ class DataSource {
 	/**
 	 * Retrieves and formats theme modification data
 	 *
+	 * @param array|null $theme_mods - array of raw theme modification data
 	 * @return array|null
 	 */
-	public static function get_theme_mods_data() {
+	public static function get_theme_mods_data($theme_mods = null) {
 
 		/**
 		 * Output array

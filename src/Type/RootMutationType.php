@@ -16,6 +16,7 @@ use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
 use WPGraphQL\Type\Settings\Mutation\SettingsUpdate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
 use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
+use WPGraphQL\Type\ThemeMods\Mutation\ThemeModsUpdate;
 use WPGraphQL\Type\User\Mutation\UserCreate;
 use WPGraphQL\Type\User\Mutation\UserDelete;
 use WPGraphQL\Type\User\Mutation\UserUpdate;
@@ -130,10 +131,18 @@ class RootMutationType extends WPObjectType {
 				}
 			} // End if().
 
+			/**
+			 * Comment Mutations
+			 */
 			$fields[ 'createComment' ] = CommentCreate::mutate();
 			$fields[ 'updateComment' ] = CommentUpdate::mutate();
 			$fields[ 'deleteComment' ] = CommentDelete::mutate();
 			$fields[ 'restoreComment' ] = CommentRestore::mutate();
+
+			/**
+			 * ThemeMods Mutations
+			 */
+			$fields[ 'updateThemeMods' ] = ThemeModsUpdate::mutate();
 
 			/**
 			 * User Mutations
