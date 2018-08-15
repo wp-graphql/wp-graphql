@@ -56,19 +56,17 @@ class UserUpdate {
 						throw new UserError( $id_parts['id'] );
 					}
 
-					if ( ! current_user_can( 'edit_users' ) ) {
+					if ( ! current_user_can( 'edit_user', $existing_user->ID ) ) {
+						throw new UserError( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
+					}
+
+					if ( isset( $input['roles'] ) && ! current_user_can( 'edit_users' ) ) {
+						unset( $input['roles'] );
 						throw new UserError( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 					}
 
 					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
 					$user_args['ID'] = absint( $id_parts['id'] );
-
-					/**
-					 * If the query is trying to modify the users role, but doesn't have permissions to do so, throw an exception
-					 */
-					if ( ! current_user_can( 'promote_users' ) && isset( $user_args['role'] ) ) {
-						throw new UserError( __( 'You do not have the appropriate capabilities to change this users role.', 'wp-graphql' ) );
-					}
 
 					/**
 					 * Update the user

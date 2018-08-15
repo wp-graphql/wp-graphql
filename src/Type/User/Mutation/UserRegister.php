@@ -89,6 +89,16 @@ class UserRegister {
 					}
 
 					/**
+					 * Set the ID of the user to be used in the update
+					 */
+					$user_args['ID'] = absint( $user_id );
+
+					/**
+					 * Update the registered user with the additional input (firstName, lastName, etc) from the mutation
+					 */
+					wp_update_user( $user_args );
+
+					/**
 					 * Update additional user data
 					 */
 					UserMutation::update_additional_user_object_data( $user_id, $input, 'register', $context, $info );
@@ -119,7 +129,7 @@ class UserRegister {
 		/**
 		 * Register mutations require a username and email to be passed
 		 */
-		return array_merge(
+		$input_fields = array_merge(
 			[
 				'username' => [
 					'type'        => Types::non_null( Types::string() ),
@@ -133,6 +143,13 @@ class UserRegister {
 			],
 			UserMutation::input_fields()
 		);
+
+		/**
+		 * Roles should not be a mutable field by default during registration
+		 */
+		unset( $input_fields['roles'] );
+
+		return $input_fields;
 
 	}
 
