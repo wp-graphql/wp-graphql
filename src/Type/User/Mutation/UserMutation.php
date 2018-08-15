@@ -243,7 +243,7 @@ class UserMutation {
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
 	 * @access private
-	 * @throws /\Exception
+	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
 
@@ -265,7 +265,8 @@ class UserMutation {
 					$message = $verified->get_error_message();
 					throw new \Exception( $message );
 				} else if ( false === $verified ) {
-					throw new \Exception( __( 'This role cannot be added to this user', 'wp-graphql' ) );
+					// Translators: The placeholder is the name of the user role
+					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
 				}
 
 			}
@@ -287,11 +288,12 @@ class UserMutation {
 
 		global $wp_roles;
 
-		if ( ! isset( $wp_roles->role_objects[ $role ] ) ) {
-			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'The role %s does not exist.' ), $role ) );
-		}
+		$potential_role = isset( $wp_roles->role_objects[ $role ] ) ? $wp_roles->role_objects[ $role ] : '';
 
-		$potential_role = $wp_roles->role_objects[ $role ];
+		if ( empty( $wp_roles->role_objects[ $role ] ) ) {
+			// Translators: The placeholder is the name of the user role
+			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'The role %s does not exist', 'wp-graphql' ), $role ) );
+		}
 
 		/*
 		 * Don't let anyone with 'edit_users' (admins) edit their own role to something without it.
@@ -301,7 +303,7 @@ class UserMutation {
 		     && get_current_user_id() === $user_id
 		     && ! $potential_role->has_cap( 'edit_users' )
 		) {
-			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you are not allowed to give users that role.' ) );
+			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you are not allowed to give users that role.', 'wp-graphql' ) );
 		}
 
 		/**

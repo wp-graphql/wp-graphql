@@ -570,7 +570,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $mutation, 'updateUserWithInvalidRole', $variables );
 
-		$this->assertEquals( 'Sorry, you are not allowed to give this the following role: invalidRole.', $actual['errors'][0]['message'] );
+		$this->assertEquals( 'You do not have the appropriate capabilities to perform this action', $actual['errors'][0]['message'] );
 
 	}
 
