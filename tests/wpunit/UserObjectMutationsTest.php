@@ -570,7 +570,97 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $mutation, 'updateUserWithInvalidRole', $variables );
 
-		$this->assertEquals( 'Sorry, you are not allowed to give this the following role: invalidRole.', $actual['errors'][0]['message'] );
+		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
+
+	}
+
+	public function registerUserMutation( $args ) {
+
+		$mutation = '
+		mutation registerUser($input:RegisterUserInput!) {
+		  registerUser(input:$input) {
+		    clientMutationId
+			user {
+			  username
+			  email
+			  roles
+			}
+		  }
+		}';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'username'         => $args['username'],
+				'email'            => $args['email'],
+			]
+		];
+
+		$actual = do_graphql_request( $mutation, 'registerUser', $variables );
+
+		return $actual;
+
+	}
+
+	public function testRegisterUserWithRegistrationDisabled() {
+
+		/**
+		 * Disable new user registration.
+		 */
+		update_option( 'users_can_register', 0 );
+
+		/**
+		 * Run the mutation.
+		 */
+		$actual = $this->registerUserMutation( [
+			'username' => 'userDoesNotExist',
+			'email'    => 'emailDoesNotExist@test.com',
+		] );
+
+
+		/**
+		 * We're asserting that this will properly return an error
+		 * because registration is disabled.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testRegisterUserWithRegistrationEnabled() {
+
+		$username     = 'userDoesNotExist';
+		$email        = 'emailDoesNotExist@test.com';
+		$default_role = get_option( 'default_role' );
+
+		/**
+		 * Enable new user registration.
+		 */
+		update_option( 'users_can_register', 1 );
+
+		/**
+		 * Run the mutation.
+		 */
+		$actual = $this->registerUserMutation( [
+			'username' => $username,
+			'email'    => $email,
+		] );
+
+		$expected = [
+			'data' => [
+				'registerUser' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user'             => [
+						'username'  => $username,
+						'email'     => $email,
+						'roles'     => [
+							$default_role,
+						],
+					]
+				]
+			]
+		];
+
+		$this->assertEquals( $expected, $actual );
 
 	}
 

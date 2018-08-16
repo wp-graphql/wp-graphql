@@ -205,13 +205,16 @@ class UserMutation {
 	}
 
 	/**
-	 * This updates additional data related to the user object after the initial mutation has happened
+	 * This updates additional data related to the user object after the initial mutation has
+	 * happened
 	 *
 	 * @param int         $user_id       The ID of the user being mutated
 	 * @param array       $input         The input data from the GraphQL query
 	 * @param string      $mutation_name Name of the mutation currently being run
 	 * @param AppContext  $context       The AppContext passed down the resolve tree
 	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+	 *
+	 * @throws \Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
@@ -240,35 +243,68 @@ class UserMutation {
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
 	 * @access private
+	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
 
-		if ( empty( $roles ) || ! is_array( $roles ) ) {
+		if ( empty( $roles ) || ! is_array( $roles ) || ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
 		}
 
 		$user = get_user_by( 'ID', $user_id );
 
 		if ( false !== $user ) {
+
 			foreach ( $roles as $role ) {
-				self::verify_user_role( $role );
-				$user->add_role( $role );
+
+				$verified = self::verify_user_role( $role, $user_id );
+
+				if ( true === $verified ) {
+					$user->add_role( $role );
+				} else if ( is_wp_error( $verified ) ) {
+					$message = $verified->get_error_message();
+					throw new \Exception( $message );
+				} else if ( false === $verified ) {
+					// Translators: The placeholder is the name of the user role
+					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
+				}
+
 			}
 		}
 
 	}
 
 	/**
-	 * Method to check if the user role is valid, and if the current user has permission to add, or remove it from a
-	 * user.
+	 * Method to check if the user role is valid, and if the current user has permission to add, or
+	 * remove it from a user.
 	 *
-	 * @param string $role Name of the role trying to get added to a user object
+	 * @param string $role    Name of the role trying to get added to a user object
+	 * @param int    $user_id The ID of the user being mutated
 	 *
-	 * @return bool
-	 * @throws \Exception
+	 * @return mixed|bool|\WP_Error
 	 * @access private
 	 */
-	private static function verify_user_role( $role ) {
+	private static function verify_user_role( $role, $user_id ) {
+
+		global $wp_roles;
+
+		$potential_role = isset( $wp_roles->role_objects[ $role ] ) ? $wp_roles->role_objects[ $role ] : '';
+
+		if ( empty( $wp_roles->role_objects[ $role ] ) ) {
+			// Translators: The placeholder is the name of the user role
+			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'The role %s does not exist', 'wp-graphql' ), $role ) );
+		}
+
+		/*
+		 * Don't let anyone with 'edit_users' (admins) edit their own role to something without it.
+		 * Multisite super admins can freely edit their blog roles -- they possess all caps.
+		 */
+		if ( ! ( is_multisite() && current_user_can( 'manage_sites' ) )
+		     && get_current_user_id() === $user_id
+		     && ! $potential_role->has_cap( 'edit_users' )
+		) {
+			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you are not allowed to give users that role.', 'wp-graphql' ) );
+		}
 
 		/**
 		 * The function for this is only loaded on admin pages. See note: https://codex.wordpress.org/Function_Reference/get_editable_roles#Notes
@@ -281,7 +317,7 @@ class UserMutation {
 
 		if ( empty( $editable_roles[ $role ] ) ) {
 			// Translators: %s is the name of the role that can't be added to the user.
-			throw new UserError( sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
+			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
 		} else {
 			return true;
 		}
