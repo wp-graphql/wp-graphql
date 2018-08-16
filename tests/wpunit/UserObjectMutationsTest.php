@@ -722,8 +722,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testSendPasswordResetEmailResponseWithEmail() {
 
-		$old_user_obj = get_userdata( $this->subscriber );
-		$email        = $old_user_obj->user_email;
+		$user  = get_userdata( $this->subscriber );
+		$email = $user->user_email;
 
 		// Run the mutation, passing in a valid email address.
 		$actual   = $this->sendPasswordResetEmailMutation( $email );
@@ -748,9 +748,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'sendPasswordResetEmail' => [
 					'clientMutationId' => $this->client_mutation_id,
 					'user'             => [
-						'username'  => $username,
-						'email'     => $email,
-						'roles'     => $roles,
+						'username' => $username,
+						'email'    => $email,
+						'roles'    => $roles,
 					]
 				]
 			]
