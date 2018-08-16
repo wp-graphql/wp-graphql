@@ -172,7 +172,8 @@ docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
 docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
 ```
 
-Code coverage for `wpunit` tests can be generated using `phpdbg`:
+Code coverage for `wpunit` tests can be generated using `phpdbg` (note that Codeception currently segfaults under 
+phpdbg and PHP 7.2):
 
 ```
 docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
