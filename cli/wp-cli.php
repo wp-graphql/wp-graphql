@@ -17,7 +17,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLE
 	 *
-	 *     $ wp graphql generate
+	 *     $ wp graphql generate-static-schema
 	 *
 	 * @alias generate
 	 * @subcommand generate-static-schema
@@ -29,9 +29,11 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 */
 		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
 
-		define( 'GRAPHQL_REQUEST', true );
-		do_action( 'do_graphql_request' );
-		do_action( 'graphql_get_schema' );
+		if ( ! defined( 'GRAPHQL_REQUEST') ) {
+			define( 'GRAPHQL_REQUEST', true );
+		}
+
+		do_action( 'init_graphql_request' );
 
 		/**
 		 * Generate the Schema

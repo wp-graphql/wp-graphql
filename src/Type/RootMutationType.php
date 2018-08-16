@@ -19,6 +19,7 @@ use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
 use WPGraphQL\Type\User\Mutation\UserCreate;
 use WPGraphQL\Type\User\Mutation\UserDelete;
 use WPGraphQL\Type\User\Mutation\UserUpdate;
+use WPGraphQL\Type\User\Mutation\UserRegister;
 use WPGraphQL\Type\User\Mutation\SendPasswordResetEmail;
 
 /**
@@ -131,9 +132,9 @@ class RootMutationType extends WPObjectType {
 				}
 			} // End if().
 
-			$fields[ 'createComment' ] = CommentCreate::mutate();
-			$fields[ 'updateComment' ] = CommentUpdate::mutate();
-			$fields[ 'deleteComment' ] = CommentDelete::mutate();
+			$fields[ 'createComment' ]  = CommentCreate::mutate();
+			$fields[ 'updateComment' ]  = CommentUpdate::mutate();
+			$fields[ 'deleteComment' ]  = CommentDelete::mutate();
 			$fields[ 'restoreComment' ] = CommentRestore::mutate();
 
 			/**
@@ -142,6 +143,7 @@ class RootMutationType extends WPObjectType {
 			$fields[ 'createUser' ]             = UserCreate::mutate();
 			$fields[ 'updateUser' ]             = UserUpdate::mutate();
 			$fields[ 'deleteUser' ]             = UserDelete::mutate();
+			$fields[ 'registerUser' ]           = UserRegister::mutate();
 			$fields[ 'sendPasswordResetEmail' ] = SendPasswordResetEmail::mutate();
 
 			self::$fields = $fields;

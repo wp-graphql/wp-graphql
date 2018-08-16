@@ -74,13 +74,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
+	 * @param  int $count Number of posts to create.
 	 * @return array
 	 */
-	public function create_posts() {
+	public function create_posts( $count = 20 ) {
 
-		// Create 20 posts
+		// Create posts
 		$created_posts = [];
-		for ( $i = 1; $i <= 200; $i ++ ) {
+		for ( $i = 1; $i <= $count; $i ++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
 			$created_posts[ $i ] = $this->createPostObject( [
@@ -235,6 +236,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMaxQueryAmount() {
+		// Create some additional posts to test a large query.
+		$this->create_posts( 150 );
+
 		$variables = [
 			'first' => 150,
 		];
