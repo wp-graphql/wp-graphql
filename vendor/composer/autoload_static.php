@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
+class ComposerStaticInit0c25c267e5411e2b5e8a8029d09a908c
 {
     public static $files = array (
         'c594688b3441835d5575f3085da4a242' => __DIR__ . '/..' . '/webonyx/graphql-php/src/deprecated.php',
@@ -293,6 +293,7 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
         'WPGraphQL\\Type\\User\\Mutation\\UserCreate' => __DIR__ . '/../..' . '/src/Type/User/Mutation/UserCreate.php',
         'WPGraphQL\\Type\\User\\Mutation\\UserDelete' => __DIR__ . '/../..' . '/src/Type/User/Mutation/UserDelete.php',
         'WPGraphQL\\Type\\User\\Mutation\\UserMutation' => __DIR__ . '/../..' . '/src/Type/User/Mutation/UserMutation.php',
+        'WPGraphQL\\Type\\User\\Mutation\\UserRegister' => __DIR__ . '/../..' . '/src/Type/User/Mutation/UserRegister.php',
         'WPGraphQL\\Type\\User\\Mutation\\UserUpdate' => __DIR__ . '/../..' . '/src/Type/User/Mutation/UserUpdate.php',
         'WPGraphQL\\Type\\User\\UserQuery' => __DIR__ . '/../..' . '/src/Type/User/UserQuery.php',
         'WPGraphQL\\Type\\User\\UserType' => __DIR__ . '/../..' . '/src/Type/User/UserType.php',
@@ -308,9 +309,9 @@ class ComposerStaticInitfadf956e42a7e091c90199f6c18ca242
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitfadf956e42a7e091c90199f6c18ca242::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0c25c267e5411e2b5e8a8029d09a908c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0c25c267e5411e2b5e8a8029d09a908c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit0c25c267e5411e2b5e8a8029d09a908c::$classMap;
 
         }, null, ClassLoader::class);
     }
