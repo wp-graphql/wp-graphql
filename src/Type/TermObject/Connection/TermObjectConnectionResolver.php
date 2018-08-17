@@ -123,7 +123,6 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 * @since 0.0.5
 		 */
 		global $post;
-		$connected = [];
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
 				case $source instanceof \WP_Post:
