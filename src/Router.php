@@ -23,6 +23,13 @@ class Router {
 	public static $route = 'graphql';
 
 	/**
+	 * Holds the Global Post for later resetting
+	 *
+	 * @var string
+	 */
+	protected static $global_post = '';
+
+	/**
 	 * Set the default status code to 200.
 	 *
 	 * @var int
@@ -335,7 +342,7 @@ class Router {
 			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
 			 * the same.
 			 */
-			$global_post = ! empty( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+			self::$global_post = ! empty( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 
 			/**
 			 * Respond to pre-flight requests.
@@ -438,10 +445,10 @@ class Router {
 					/**
 					 * Send the JSON response
 					 */
-					$server = \WPGraphQL::server();
+					$server   = \WPGraphQL::server();
 					$response = $server->executeRequest();
 
-					$helper = new \GraphQL\Server\Helper();
+					$helper  = new \GraphQL\Server\Helper();
 					$request = $helper->parseHttpRequest();
 
 					self::after_execute( $response, $operation_name, $request, $variables, $graphql_results );
@@ -468,7 +475,6 @@ class Router {
 		wp_send_json( $response );
 
 	}
-
 
 	/**
 	 * Prepare headers for response
@@ -505,23 +511,24 @@ class Router {
 	/**
 	 * Apply filters and do actions after GraphQL Execution
 	 *
-	 * @param array      $result         The result of your GraphQL request
-	 * @param string     $operation_name The name of the operation
-	 * @param string     $request        The request that GraphQL executed
-	 * @param array|null $variables      Variables to passed to your GraphQL query
+	 * @param array              $result          The result of your GraphQL request
+	 * @param string             $operation_name  The name of the operation
+	 * @param string             $request         The request that GraphQL executed
+	 * @param array|null         $variables       Variables to passed to your GraphQL query,
+	 * @param mixed|array|object $graphql_results The results of the GraphQL Execution
 	 */
-	protected static function after_execute( $result, $operation_name, $request, $variables ) {
+	protected static function after_execute( $result, $operation_name, $request, $variables, $graphql_results ) {
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
 		 * @since 0.0.4
 		 *
-		 * @param array      $result         The result of your GraphQL request
-		 * @param            Schema          object $schema The schema object for the root request
-		 * @param string     $operation_name The name of the operation
-		 * @param string     $request        The request that GraphQL executed
-		 * @param array|null $variables      Variables to passed to your GraphQL query
+		 * @param array               $result         The result of your GraphQL request
+		 * @param \WPGraphQL\WPSchema $schema         The schema object for the root request
+		 * @param string              $operation_name The name of the operation
+		 * @param string              $request        The request that GraphQL executed
+		 * @param array|null          $variables      Variables to passed to your GraphQL query
 		 */
 		do_action( 'graphql_execute', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
 
@@ -541,11 +548,11 @@ class Router {
 		 *
 		 * @since 0.0.5
 		 *
-		 * @param array      $result         The result of your GraphQL query
-		 * @param            Schema          object $schema The schema object for the root query
-		 * @param string     $operation_name The name of the operation
-		 * @param string     $request        The request that GraphQL executed
-		 * @param array|null $variables      Variables to passed to your GraphQL request
+		 * @param array               $result         The result of your GraphQL query
+		 * @param \WPGraphQL\WPSchema $schema         The schema object for the root query
+		 * @param string              $operation_name The name of the operation
+		 * @param string              $request        The request that GraphQL executed
+		 * @param array|null          $variables      Variables to passed to your GraphQL request
 		 */
 		$filtered_result = apply_filters( 'graphql_request_results', $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
 
@@ -553,12 +560,12 @@ class Router {
 		 * Run an action after the result has been filtered, as the response is being returned.
 		 * This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param array      $filtered_result The filtered_result of the GraphQL request
-		 * @param array      $result          The result of your GraphQL request
-		 * @param WPSchema   $schema          The schema object for the root request
-		 * @param string     $operation_name  The name of the operation
-		 * @param string     $request         The request that GraphQL executed
-		 * @param array|null $variables       Variables to passed to your GraphQL query
+		 * @param array               $filtered_result The filtered_result of the GraphQL request
+		 * @param array               $result          The result of your GraphQL request
+		 * @param \WPGraphQL\WPSchema $schema          The schema object for the root request
+		 * @param string              $operation_name  The name of the operation
+		 * @param string              $request         The request that GraphQL executed
+		 * @param array|null          $variables       Variables to passed to your GraphQL query
 		 */
 		do_action( 'graphql_return_response', $filtered_result, $result, \WPGraphQL::get_schema(), $operation_name, $request, $variables );
 
@@ -569,8 +576,8 @@ class Router {
 		 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
 		 * the same.
 		 */
-		if ( ! empty( $global_post ) ) {
-			$GLOBALS['post'] = $global_post;
+		if ( ! empty( self::$global_post ) ) {
+			$GLOBALS['post'] = self::$global_post;
 		}
 
 		/**
@@ -578,11 +585,11 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param array  $result         The result of the GraphQL Query
-		 * @param array  $filtered_result
-		 * @param string $operation_name The name of the operation
-		 * @param string $request        The request that GraphQL executed
-		 * @param array  $variables      Variables to passed to your GraphQL query
+		 * @param array  $result          The result of the GraphQL Query
+		 * @param array  $filtered_result The result, passed through filters
+		 * @param string $operation_name  The name of the operation
+		 * @param string $request         The request that GraphQL executed
+		 * @param array  $variables       Variables to passed to your GraphQL query
 		 *
 		 * @since 0.0.5
 		 */

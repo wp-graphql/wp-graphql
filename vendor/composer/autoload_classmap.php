@@ -266,6 +266,7 @@ return array(
     'WPGraphQL\\Type\\User\\Mutation\\UserCreate' => $baseDir . '/src/Type/User/Mutation/UserCreate.php',
     'WPGraphQL\\Type\\User\\Mutation\\UserDelete' => $baseDir . '/src/Type/User/Mutation/UserDelete.php',
     'WPGraphQL\\Type\\User\\Mutation\\UserMutation' => $baseDir . '/src/Type/User/Mutation/UserMutation.php',
+    'WPGraphQL\\Type\\User\\Mutation\\UserRegister' => $baseDir . '/src/Type/User/Mutation/UserRegister.php',
     'WPGraphQL\\Type\\User\\Mutation\\UserUpdate' => $baseDir . '/src/Type/User/Mutation/UserUpdate.php',
     'WPGraphQL\\Type\\User\\UserQuery' => $baseDir . '/src/Type/User/UserQuery.php',
     'WPGraphQL\\Type\\User\\UserType' => $baseDir . '/src/Type/User/UserType.php',
