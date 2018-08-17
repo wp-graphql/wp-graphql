@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.33
+ * Version: 0.0.34
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.33
+ * @version  0.0.34
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,25 +28,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
  *
- * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of Digital First Media
- * (https://github.com/dfmedia), and Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign).
+ * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of
+ * Digital First Media
+ * (https://github.com/dfmedia), and Edwin Cromley of BE-Webdesign
+ * (https://github.com/BE-Webdesign).
  *
- * The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes
- * use of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
+ * The plugin is built on top of the graphql-php library by Webonyx
+ * (https://github.com/webonyx/graphql-php) and makes use of the graphql-relay-php library by Ivome
+ * (https://github.com/ivome/graphql-relay-php/)
  *
- * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development resources to push
- * the project forward.
+ * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development
+ * resources to push the project forward.
  *
  * Some of the concepts and code are based on the WordPress Rest API.
- * Much love to the folks (https://github.com/orgs/WP-API/people) that put their blood, sweat and tears into the
- * WP-API project, as it's been huge in moving WordPress forward as a platform and helped inspire and direct the
- * development of WPGraphQL.
+ * Much love to the folks (https://github.com/orgs/WP-API/people) that put their blood, sweat and
+ * tears into the WP-API project, as it's been huge in moving WordPress forward as a platform and
+ * helped inspire and direct the development of WPGraphQL.
  *
- * Much love to Facebook® for open sourcing the GraphQL spec (https://facebook.github.io/graphql/) and maintaining the
- * JS reference implementation (https://github.com/graphql/graphql-js)
+ * Much love to Facebook® for open sourcing the GraphQL spec (https://facebook.github.io/graphql/)
+ * and maintaining the JS reference implementation (https://github.com/graphql/graphql-js)
  *
- * Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a
- * lot of insight into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.com/
+ * Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and
+ * providing a lot of insight into how to design GraphQL schemas, etc. Check them out:
+ * http://www.apollodata.com/
  */
 
 if ( ! class_exists( 'WPGraphQL' ) ) :
@@ -67,6 +71,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Holds the Schema def
+		 *
 		 * @var \WPGraphQL\WPSchema
 		 */
 		protected static $schema;
@@ -153,7 +158,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.33' );
+				define( 'WPGRAPHQL_VERSION', '0.0.34' );
 			}
 
 			// Plugin Folder Path.
@@ -223,7 +228,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * allowing for both plugins and themes to register
 			 * things before graphql_init
 			 */
-			add_action( 'after_setup_theme', function() {
+			add_action( 'after_setup_theme', function () {
 
 				new \WPGraphQL\Data\Config();
 				new \WPGraphQL\Router();
@@ -245,7 +250,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Hook in before fields resolve to check field permissions
 			 */
-			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
+			add_action( 'graphql_before_resolve_field', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'check_field_permissions'
+			], 10, 8 );
 
 			/**
 			 * Determine what to show in graphql
@@ -297,12 +305,18 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * than postObjects out of the box, so this filter adjusts the core mediaItem
 			 * shape of data
 			 */
-			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
+			add_filter( 'graphql_mediaItem_fields', [
+				'\WPGraphQL\Type\MediaItem\MediaItemType',
+				'fields'
+			], 10, 1 );
 
 			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 			 */
-			add_filter( 'graphql_schema', [ '\WPGraphQL\Utils\InstrumentSchema', 'instrument_schema' ], 10, 1 );
+			add_filter( 'graphql_schema', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'instrument_schema'
+			], 10, 1 );
 		}
 
 		/**
@@ -389,14 +403,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all post_types
 			 */
-			$post_types = get_post_types([
+			$post_types = get_post_types( [
 				'show_in_graphql' => true,
-			]);
+			] );
 
 			/**
 			 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 			 */
-			array_map( function( $post_type ) {
+			array_map( function ( $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $post_type_object->name ) );
@@ -436,14 +450,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies
 			 */
-			$taxonomies = get_taxonomies([
+			$taxonomies = get_taxonomies( [
 				'show_in_graphql' => true,
-			]);
+			] );
 
 			/**
 			 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 			 */
-			array_map( function( $taxonomy ) {
+			array_map( function ( $taxonomy ) {
 				$tax_object = get_taxonomy( $taxonomy );
 				if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $tax_object->name ) );
@@ -536,6 +550,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Get the AppContext for use in passing down the Resolve Tree
+		 *
 		 * @return \WPGraphQL\AppContext
 		 * @access public
 		 */
@@ -610,9 +625,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @since 0.0.5
 			 *
-			 * @param string     $request        The request to be executed by GraphQL
-			 * @param string     $operation_name The name of the operation
-			 * @param array      $variables      Variables to be passed to your GraphQL request
+			 * @param string $request            The request to be executed by GraphQL
+			 * @param string $operation_name     The name of the operation
+			 * @param array  $variables          Variables to be passed to your GraphQL request
 			 * @param            AppContext      object The AppContext object containing all of the
 			 *                                   information about the context we know at this point
 			 */
@@ -722,8 +737,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Run an action as soon when do_graphql_request begins.
 			 */
-			$helper = new \GraphQL\Server\Helper();
-			$query = $helper->parseHttpRequest()->query;
+			$helper    = new \GraphQL\Server\Helper();
+			$query     = $helper->parseHttpRequest()->query;
 			$operation = $helper->parseHttpRequest()->operation;
 			$variables = $helper->parseHttpRequest()->variables;
 
@@ -741,7 +756,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				->setDebug( GRAPHQL_DEBUG )
 				->setSchema( self::get_schema() )
 				->setContext( self::get_app_context() )
-				->setQueryBatching(true);
+				->setQueryBatching( true );
 
 			$server = new \GraphQL\Server\StandardServer( $config );
 
