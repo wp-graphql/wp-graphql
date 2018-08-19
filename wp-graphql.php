@@ -489,9 +489,16 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 * Create an executable Schema from the registered
 				 * root_Query and root_mutation
 				 */
+//				$executable_schema = [
+//					'query'    => \WPGraphQL\Types::root_query(),
+//					'mutation' => \WPGraphQL\Types::root_mutation(),
+//				];
+
 				$executable_schema = [
-					'query'    => \WPGraphQL\Types::root_query(),
-					'mutation' => \WPGraphQL\Types::root_mutation(),
+					'query' => \WPGraphQL\Type\TypeRegistry::get_type( 'RootQuery' ),
+					'typeLoader' => function( $type_name ) {
+						return \WPGraphQL\Type\TypeRegistry::get_type( $type_name );
+					},
 				];
 
 				/**
@@ -571,6 +578,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 
+			\WPGraphQL\Type\TypeRegistry::init();
 
 			/**
 			 * Whether it's a GraphQL Request (http or internal)
@@ -718,6 +726,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			\WPGraphQL::show_in_graphql();
 			\WPGraphQL::get_allowed_post_types();
 			\WPGraphQL::get_allowed_taxonomies();
+
+			\WPGraphQL\Type\TypeRegistry::init();
 
 			/**
 			 * Run an action as soon when do_graphql_request begins.
