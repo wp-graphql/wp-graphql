@@ -20,6 +20,7 @@ use WPGraphQL\Type\User\Mutation\UserCreate;
 use WPGraphQL\Type\User\Mutation\UserDelete;
 use WPGraphQL\Type\User\Mutation\UserUpdate;
 use WPGraphQL\Type\User\Mutation\UserRegister;
+use WPGraphQL\Type\User\Mutation\ResetUserPassword;
 
 /**
  * Class RootMutationType
@@ -139,10 +140,11 @@ class RootMutationType extends WPObjectType {
 			/**
 			 * User Mutations
 			 */
-			$fields[ 'createUser' ]   = UserCreate::mutate();
-			$fields[ 'updateUser' ]   = UserUpdate::mutate();
-			$fields[ 'deleteUser' ]   = UserDelete::mutate();
-			$fields[ 'registerUser' ] = UserRegister::mutate();
+			$fields[ 'createUser' ]        = UserCreate::mutate();
+			$fields[ 'updateUser' ]        = UserUpdate::mutate();
+			$fields[ 'deleteUser' ]        = UserDelete::mutate();
+			$fields[ 'registerUser' ]      = UserRegister::mutate();
+			$fields[ 'resetUserPassword' ] = ResetUserPassword::mutate();
 
 			self::$fields = $fields;
 
