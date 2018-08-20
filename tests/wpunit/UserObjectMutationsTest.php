@@ -664,4 +664,136 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function resetUserPasswordMutation( $args ) {
+
+		$mutation = '
+		mutation resetUserPassword($input:ResetUserPasswordInput!) {
+			resetUserPassword(input:$input){
+				clientMutationId
+				user {
+					username
+					email
+					roles
+				}
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'key'              => $args['key'],
+				'login'            => $args['login'],
+				'password'         => $args['password'],
+			]
+		];
+
+		return do_graphql_request( $mutation, 'resetUserPassword', $variables );
+
+	}
+
+	public function testResetUserPasswordWithInvalidLoginAndKey() {
+
+		$args = [
+			'login'    => 'invalidLogin',
+			'key'      => 'invalidKey',
+			'password' => 'newPassword123',
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		/**
+		 * We're asserting that this will properly return an error
+		 * because an invalid login and reset key were provided.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testResetUserPasswordWithInvalidKey() {
+
+		$user = get_userdata( $this->subscriber );
+		$login = $user->user_login;
+
+		$args = [
+			'key'      => 'invalidKey',
+			'login'    => $login,
+			'password' => 'newPassword123',
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		/**
+		 * We're asserting that this will properly return an error
+		 * because an invalid reset key was provided.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testResetUserPasswordResponse() {
+
+		$user         = get_userdata( $this->subscriber );
+		$key          = get_password_reset_key( $user );
+		$login        = $user->user_login;
+		$email        = $user->user_email;
+		$roles        = $user->roles;
+		$new_password = 'newPassword123';
+
+		$args = [
+			'key'      => $key,
+			'login'    => $login,
+			'password' => $new_password,
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		$expected = [
+			'data' => [
+				'resetUserPassword' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user'             => [
+						'username' => $login,
+						'email'    => $email,
+						'roles'    => $roles,
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $actual, $expected );
+
+	}
+
+	public function testResetUserPassword() {
+
+		/**
+		 * Initialize old password to ensure it's different from
+		 * what we're resetting it to.
+		 */
+		wp_set_password( 'oldPassword123', $this->subscriber );
+
+		$user         = get_userdata( $this->subscriber );
+		$key          = get_password_reset_key( $user );
+		$login        = $user->user_login;
+		$new_password = 'newPassword123';
+
+		$args = [
+			'key'      => $key,
+			'login'    => $login,
+			'password' => $new_password,
+		];
+
+		$this->resetUserPasswordMutation( $args );
+
+		// Try to authenticate user using new password.
+		$authenticated_user   = wp_authenticate( $login, $new_password );
+		$was_reset_successful = ! is_wp_error( $authenticated_user );
+
+		/**
+		 * Assert that password was successfully reset.
+		 */
+		$this->assertTrue( $was_reset_successful );
+
+	}
+
 }
