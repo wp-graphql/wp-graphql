@@ -241,6 +241,61 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * testPostQueryWherePostDoesNotExist
+	 *
+	 * Tests a query for non existant post.
+	 *
+	 * @since 0.0.34
+	 */
+	public function testPostQueryWherePostDoesNotExist() {
+		/**
+		 * Create the global ID based on the plugin_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', 'doesNotExist' );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			post(id: \"{$global_id}\") {
+				slug
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'post' => null,
+			],
+			'errors' => [
+				[
+					'message' => 'No post was found with the ID: doesNotExist',
+					'locations' => [
+						[
+							'line' => 3,
+							'column' => 4,
+						],
+					],
+					'path' => [
+						'post',
+					],
+					'category' => 'user',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * testPostQueryWithComments
 	 *
 	 * This tests creating a single post with comments.
