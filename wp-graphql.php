@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.31
+ * Version: 0.0.33
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.31
+ * @version  0.0.33
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -153,7 +153,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.31' );
+				define( 'WPGRAPHQL_VERSION', '0.0.33' );
 			}
 
 			// Plugin Folder Path.
@@ -250,8 +250,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Determine what to show in graphql
 			 */
-			add_action( 'graphql_get_schema', 'register_initial_settings', 10 );
-			add_action( 'graphql_get_schema', [ $this, 'setup_types' ], 10 );
+			add_action( 'do_graphql_request', 'register_initial_settings', 10 );
+			add_action( 'init_graphql_request', [ $this, 'setup_types' ], 10 );
 
 		}
 
@@ -571,6 +571,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 
+
 			/**
 			 * Whether it's a GraphQL Request (http or internal)
 			 *
@@ -579,6 +580,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 				define( 'GRAPHQL_REQUEST', true );
 			}
+
+			/**
+			 * Action – intentionally with no context – to indicate a GraphQL Request has started
+			 */
+			do_action( 'init_graphql_request' );
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
