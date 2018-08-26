@@ -171,7 +171,7 @@ class DataSource {
 	 * @return \WP_Post
 	 * @access public
 	 */
-	public static function resolve_post_object( $id, $post_type ) {
+	public static function resolve_post_object( $id, $post_type, $post_pass ) {
 
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
@@ -183,6 +183,11 @@ class DataSource {
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
 		 */
+
+		if( !empty($post_object->post_password) && $post_pass != $post_object->post_password ) {
+			$post_object->post_content = '';
+		}
+
 		$GLOBALS['post'] = $post_object;
 		setup_postdata( $post_object );
 
@@ -579,10 +584,10 @@ class DataSource {
 						 */
 						$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 						$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-
+						
 						switch ( $id_components['type'] ) {
 							case in_array( $id_components['type'], $allowed_post_types, true ):
-								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_post_object( $id_components['id'], $id_components['type'], $id_components['password'] );
 								break;
 							case in_array( $id_components['type'], $allowed_taxonomies, true ):
 								$node = self::resolve_term_object( $id_components['id'], $id_components['type'] );

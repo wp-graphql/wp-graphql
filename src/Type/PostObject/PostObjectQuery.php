@@ -54,7 +54,7 @@ class PostObjectQuery {
 				'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 
-					return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
+					return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name, '' );
 				},
 			];
 		}
@@ -84,10 +84,10 @@ class PostObjectQuery {
 						if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
 							throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 						}
-						$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
+						$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name, '' );
 					} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
 						$id          = $args[ $post_type_object->graphql_single_name . 'Id' ];
-						$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
+						$post_object = DataSource::resolve_post_object( $id, $post_type_object->name, '' );
 					} elseif ( ! empty( $args['uri'] ) ) {
 						$uri         = esc_html( $args['uri'] );
 						$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
