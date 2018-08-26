@@ -279,6 +279,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 */
 	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
+		$pass = '';
 
 		/**
 		 * If we're doing backward pagination we want to reverse the array before
@@ -288,11 +289,15 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			$items = array_reverse( $items );
 		}
 
+		if ( ! empty( $args['password'] ) ) {
+			$pass = $args['password'];
+		}
+
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
 				$edges[] = [
 					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-					'node'   => DataSource::resolve_post_object( $item->ID, $item->post_type ),
+					'node'   => DataSource::resolve_post_object( $item->ID, $item->post_type, $pass ),
 				];
 			}
 		}

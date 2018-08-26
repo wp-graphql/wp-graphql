@@ -175,6 +175,14 @@ class PostObjectType extends WPObjectType {
 							return ! empty( $post->post_date_gmt ) ? Types::prepare_date_response( $post->post_date_gmt ) : null;
 						},
 					],
+					'hasPassword'  => [
+						'type'        => Types::boolean(),
+						'description' => __( 'True for objects with passwords; False for objects without passwords; 
+								null for all objects with or without passwords', 'wp-graphql' ),
+						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $post->post_password ) ? true : false;
+						},
+					],
 					'content'           => [
 						'type'        => Types::string(),
 						'description' => __( 'The content of the post.', 'wp-graphql' ),
