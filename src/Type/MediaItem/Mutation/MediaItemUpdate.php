@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -44,7 +45,7 @@ class MediaItemUpdate {
 				'mediaItem' => [
 					'type'    => Types::post_object( $post_type_object->name ),
 					'resolve' => function( $payload ) {
-						return get_post( $payload['postObjectId'] );
+						return DataSource::resolve_post_object( $payload['postObjectId'], 'attachment' );
 					},
 				],
 			],

@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\MenuItem;
 use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Types;
 use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
@@ -82,11 +83,13 @@ class MenuItemType extends WPObjectType {
 								// Post object
 								case 'post_type':
 									$resolved_object = get_post( $object_id );
+									$resolved_object = isset( $resolved_object->post_type ) && isset( $resolved_object->ID ) ? DataSource::resolve_post_object( $resolved_object->ID, $resolved_object->post_type ) : $resolved_object;
 									break;
 
 								// Taxonomy term
 								case 'taxonomy':
 									$resolved_object = get_term( $object_id );
+									$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
 									break;
 							}
 

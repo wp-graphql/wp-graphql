@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -67,10 +68,9 @@ class PostObjectDelete {
 					$post_type_object->graphql_single_name => [
 						'type'        => Types::post_object( $post_type_object->name ),
 						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-						'resolve'     => function( $payload ) {
+						'resolve'     => function( $payload ) use ( $post_type_object ) {
 							$deleted = (object) $payload['postObject'];
-
-							return ! empty( $deleted ) ? $deleted : null;
+							return isset( $deleted->ID ) && isset( $deleted->post_type ) ? DataSource::resolve_post_object( $deleted->ID, $deleted->post_type ) : null;
 						},
 					],
 				],

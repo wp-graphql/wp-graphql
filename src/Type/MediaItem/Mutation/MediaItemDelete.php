@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\MediaItem\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -53,14 +54,17 @@ class MediaItemDelete {
 					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
 					'resolve'     => function( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
+						$deleted = isset( $deleted->ID ) && isset( $post_type_object->ID ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
 						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 					},
 				],
 				'mediaItem' => [
 					'type'        => Types::post_object( $post_type_object->name ),
 					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-					'resolve'     => function( $payload ) {
+					'resolve'     => function( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
+						$deleted = isset( $deleted->ID ) && isset( $post_type_object->name ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
+
 						return ! empty( $deleted ) ? $deleted : null;
 					},
 				],

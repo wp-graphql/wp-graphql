@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -50,8 +51,8 @@ class PostObjectCreate {
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function( $payload ) {
-							return get_post( $payload['id'] );
+						'resolve' => function( $payload ) use ( $post_type_object ) {
+							return DataSource::resolve_post_object( $payload['id'], $post_type_object->name );
 						},
 					],
 				],

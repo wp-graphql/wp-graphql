@@ -146,7 +146,7 @@ class PostObjectType extends WPObjectType {
 								foreach ( $ancestor_ids as $ancestor_id ) {
 									$ancestor_obj = get_post( $ancestor_id );
 									if ( in_array( $ancestor_obj->post_type, $types, true ) ) {
-										$ancestors[] = $ancestor_obj;
+										$ancestors[] = DataSource::resolve_post_object( $ancestor_obj->ID, $ancestor_obj->post_type );
 									}
 								}
 							}
@@ -292,7 +292,8 @@ class PostObjectType extends WPObjectType {
 						'type'        => Types::post_object_union(),
 						'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, array $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $post->post_parent ) ? get_post( $post->post_parent ) : null;
+							$parent_post = ! empty( $post->post_parent ) ? get_post( $post->post_parent ) : null;
+							return isset( $parent_post->ID ) && isset( $parent_post->post_type ) ? DataSource::resolve_post_object( $parent_post->ID, $parent_post->post_type ) : $parent_post;
 						},
 					],
 					'editLast'          => [
@@ -542,8 +543,8 @@ class PostObjectType extends WPObjectType {
 						'description' => __( 'The featured image for the object', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$thumbnail_id = get_post_thumbnail_id( $post->ID );
+							return isset( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : get_post( absint( $thumbnail_id ) );
 
-							return ! empty( $thumbnail_id ) ? get_post( absint( $thumbnail_id ) ) : null;
 						},
 					];
 				}

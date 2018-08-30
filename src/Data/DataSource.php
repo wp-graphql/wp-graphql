@@ -179,6 +179,14 @@ class DataSource {
 		}
 
 		/**
+		 * Mimic core functionality for templates, as seen here:
+		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 */
+		if ( 'attachment' === $post_type ) {
+			remove_filter( 'the_content', 'prepend_attachment' );
+		}
+
+		/**
 		 * Set the resolving post to the global $post. That way any filters that
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
@@ -759,7 +767,7 @@ class DataSource {
 			}
 		}
 		if ( $post_id ) {
-			return get_post( $post_id, $output );
+			return self::resolve_post_object( $post_id, $post_type );
 		}
 
 		return null;

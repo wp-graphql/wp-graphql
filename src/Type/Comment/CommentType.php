@@ -80,7 +80,13 @@ class CommentType extends WPObjectType {
 						'type'        => Types::post_object_union(),
 						'description' => __( 'The object the comment was added to', 'wp-graphql' ),
 						'resolve'     => function ( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_post_ID ) ? get_post( $comment->comment_post_ID ) : null;
+							$post_object = null;
+							if ( ! empty( $comment->comment_post_ID ) ) {
+								$post_object = get_post( $comment->comment_post_ID );
+								$post_object = isset( $post_object->post_type ) && isset( $post_object->ID ) ? DataSource::resolve_post_object( $post_object->ID, $post_object->post_type ) : null;
+							}
+							return $post_object;
+
 						},
 					],
 					'author'      => [
