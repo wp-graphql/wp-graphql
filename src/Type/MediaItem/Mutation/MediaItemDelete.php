@@ -54,7 +54,6 @@ class MediaItemDelete {
 					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
-						$deleted = isset( $deleted->ID ) && isset( $post_type_object->ID ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
 
 						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 					},
@@ -64,7 +63,6 @@ class MediaItemDelete {
 					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
-						$deleted = isset( $deleted->ID ) && isset( $post_type_object->name ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
 
 						return ! empty( $deleted ) ? $deleted : null;
 					},
@@ -101,6 +99,8 @@ class MediaItemDelete {
 				 * Get the mediaItem object before deleting it
 				 */
 				$media_item_before_delete = get_post( absint( $id_parts['id'] ) );
+				$media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? DataSource::resolve_post_object( $media_item_before_delete->ID, $post_type_object->name ) : $media_item_before_delete;
+
 
 				/**
 				 * If the mediaItem isn't of the attachment post type, throw an error
