@@ -58,20 +58,20 @@ class MenuItemType extends WPObjectType {
 
 		if ( null === self::$fields ) {
 
-			self::$fields = function() {
+			self::$fields = function () {
 				$fields = [
-					'id' => [
+					'id'               => [
 						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'Relay ID of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->ID ) ? Relay::toGlobalId( self::$type_name, $menu_item->ID ) : null;
 						},
 					],
-					'childItems' => MenuItemConnectionDefinition::connection(),
-					'connectedObject' => [
+					'childItems'       => MenuItemConnectionDefinition::connection(),
+					'connectedObject'  => [
 						'type'        => Types::menu_item_object_union(),
 						'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-						'resolve' => function( \WP_Post $menu_item, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function ( \WP_Post $menu_item, array $args, AppContext $context, ResolveInfo $info ) {
 							$object_id   = intval( get_post_meta( $menu_item->ID, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->ID, '_menu_item_type', true );
 
@@ -100,11 +100,11 @@ class MenuItemType extends WPObjectType {
 							 * e.g., a linked post object (or vice-versa).
 							 *
 							 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
-							 * @param array           $args            Array of arguments input in the field as part of the GraphQL query
-							 * @param AppContext      $context         Object containing app context that gets passed down the resolve tree
-							 * @param ResolveInfo     $info            Info about fields passed down the resolve tree
-							 * @param int             $object_id       Post or term ID of connected object
-							 * @param string          $object_type     Type of connected object ("post_type" or "taxonomy")
+							 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
+							 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
+							 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
+							 * @param int               $object_id       Post or term ID of connected object
+							 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
 							 *
 							 * @since 0.0.30
 							 */
@@ -119,10 +119,10 @@ class MenuItemType extends WPObjectType {
 							);
 						},
 					],
-					'cssClasses' => [
+					'cssClasses'       => [
 						'type'        => Types::list_of( Types::string() ),
 						'description' => __( 'Class attribute for the menu item link', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 
 							// If all we have is a non-array or an array with one empty
 							// string, return an empty array.
@@ -133,52 +133,52 @@ class MenuItemType extends WPObjectType {
 							return $menu_item->classes;
 						},
 					],
-					'description' => [
+					'description'      => [
 						'type'        => Types::string(),
 						'description' => __( 'Description of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ( ! empty( $menu_item->description ) ) ? $menu_item->description : null;
 						},
 					],
-					'label' => [
+					'label'            => [
 						'type'        => Types::string(),
 						'description' => __( 'Label or title of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ( ! empty( $menu_item->title ) ) ? $menu_item->title : null;
 						},
 					],
 					'linkRelationship' => [
 						'type'        => Types::string(),
 						'description' => __( 'Link relationship (XFN) of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->xfn ) ? $menu_item->xfn : null;
 						},
 					],
-					'menuItemId' => [
+					'menuItemId'       => [
 						'type'        => Types::int(),
 						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->ID ) ? $menu_item->ID : null;
 						},
 					],
-					'target' => [
+					'target'           => [
 						'type'        => Types::string(),
 						'description' => __( 'Target attribute for the menu item link.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->target ) ? $menu_item->target : null;
 						},
 					],
-					'title' => [
+					'title'            => [
 						'type'        => Types::string(),
 						'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ( ! empty( $menu_item->attr_title ) ) ? $menu_item->attr_title : null;
 						},
 					],
-					'url' => [
+					'url'              => [
 						'type'        => Types::string(),
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
-						'resolve'     => function( \WP_Post $menu_item ) {
+						'resolve'     => function ( \WP_Post $menu_item ) {
 							return ! empty( $menu_item->url ) ? $menu_item->url : null;
 						},
 					],

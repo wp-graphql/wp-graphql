@@ -52,16 +52,17 @@ class MediaItemDelete {
 				'deletedId' => [
 					'type'        => Types::id(),
 					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-					'resolve'     => function( $payload ) use ( $post_type_object ) {
+					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
 						$deleted = isset( $deleted->ID ) && isset( $post_type_object->ID ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
+
 						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 					},
 				],
 				'mediaItem' => [
 					'type'        => Types::post_object( $post_type_object->name ),
 					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-					'resolve'     => function( $payload ) use ( $post_type_object ) {
+					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
 						$deleted = isset( $deleted->ID ) && isset( $post_type_object->name ) ? DataSource::resolve_post_object( $deleted->ID, $post_type_object->name ) : $deleted;
 
@@ -69,12 +70,12 @@ class MediaItemDelete {
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 				/**
 				 * Get the ID from the global ID
 				 */
-				$id_parts = Relay::fromGlobalId( $input['id'] );
+				$id_parts            = Relay::fromGlobalId( $input['id'] );
 				$existing_media_item = get_post( absint( $id_parts['id'] ) );
 
 				/**

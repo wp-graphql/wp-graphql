@@ -51,12 +51,12 @@ class PostObjectCreate {
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function( $payload ) use ( $post_type_object ) {
+						'resolve' => function ( $payload ) use ( $post_type_object ) {
 							return DataSource::resolve_post_object( $payload['id'], $post_type_object->name );
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 					/**
 					 * Throw an exception if there's no input
