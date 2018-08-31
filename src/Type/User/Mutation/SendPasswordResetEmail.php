@@ -73,11 +73,6 @@ class SendPasswordResetEmail {
 					}
 
 					/**
-					 * Update additional user data
-					 */
-					UserMutation::update_additional_user_object_data( $user_data->ID, $input, 'sentPasswordResetEmail', $context, $info );
-
-					/**
 					 * Return the ID of the user
 					 */
 					return [
@@ -229,7 +224,7 @@ class SendPasswordResetEmail {
 	}
 
 	/**
-	 * Add the username and email fields for the send password reset email mutation
+	 * Add the username field for the send password reset email mutation
 	 *
 	 * @return array
 	 */
@@ -238,16 +233,12 @@ class SendPasswordResetEmail {
 		/**
 		 * A username or email address is required to send a password reset email
 		 */
-		return array_merge(
-			[
-				'username' => [
-					'type'        => Types::non_null( Types::string() ),
-					// translators: the placeholder is the name of the type of object being updated
-					'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
-				],
+		return [
+			'username' => [
+				'type'        => Types::non_null( Types::string() ),
+				'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
 			],
-			UserMutation::input_fields()
-		);
+		];
 
 	}
 
