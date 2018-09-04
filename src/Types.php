@@ -627,7 +627,7 @@ class Types {
 	 * @access public
 	 */
 	public static function root_mutation() {
-		return self::$root_mutation ? : ( self::$root_mutation = new RootMutationType() );
+		return self::$root_mutation ? : ( self::$root_mutation = TypeRegistry::get_type( 'RootMutation' ) );
 	}
 
 
@@ -639,7 +639,7 @@ class Types {
 	 * @access public
 	 */
 	public static function root_query() {
-		return self::$root_query ? : ( self::$root_query = new RootQueryType() );
+		return self::$root_query ? : ( self::$root_query = TypeRegistry::get_type( 'RootQuery' ) );
 	}
 
 	/**

@@ -497,6 +497,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
+			/**
+			 * Initialize the TypeRegistry
+			 */
+			\WPGraphQL\TypeRegistry::init();
+
 			if ( null === self::$schema ) {
 
 				/**
@@ -504,8 +509,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 * root_Query and root_mutation
 				 */
 				$executable_schema = [
-					'query'    => \WPGraphQL\Types::root_query(),
-					'mutation' => \WPGraphQL\Types::root_mutation(),
+					'query'    => \WPGraphQL\TypeRegistry::get_type( 'RootQuery' ),
+					'mutation' => \WPGraphQL\TypeRegistry::get_type( 'RootMutation' ),
 				];
 
 				/**
