@@ -19,6 +19,7 @@ vendor/composer/*/
 !/tests
 /tests/*.suite.yml
 build/
+c3.php
 coverage/*
 schema.graphql
 phpunit.xml

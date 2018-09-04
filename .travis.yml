@@ -35,6 +35,8 @@ env:
     - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
 install:
+  - docker run --rm -v $(pwd):/app composer self-update
+  - docker run --rm -v $(pwd):/app composer require apigen/apigen:^4.1 satooshi/php-coveralls:~1.0 lucatume/wp-browser:^1.21 codeception/c3:2.* phpunit/phpcov:^4.0
   - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
   - docker-compose build
 
@@ -43,12 +45,14 @@ before_script:
   - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
 
 script:
-  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
   - |
     if [ $COVERAGE == true ]; then
+      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run acceptance --env docker --coverage --coverage-xml
+      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run functional --env docker --coverage --coverage-xml
       docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
     else
+      docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
+      docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
       docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
     fi
 
