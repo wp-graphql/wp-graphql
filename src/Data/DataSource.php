@@ -81,7 +81,7 @@ class DataSource {
 	/**
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
-	 * @param             WP_Post  object $source
+	 * @param mixed  object $source
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object

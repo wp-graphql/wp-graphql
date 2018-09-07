@@ -103,11 +103,11 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 				],
 				'nameLike'            => [
 					'type'        => Types::string(),
-					'description' => __( 'Retrieve terms with criteria by which a term is LIKE `$name__like`. Default empty.', 'wp-graphql' ),
+					'description' => __( 'Retrieve terms where the name is LIKE the input value. Default empty.', 'wp-graphql' ),
 				],
 				'descriptionLike'     => [
 					'type'        => Types::string(),
-					'description' => __( 'Retrieve terms where the description is LIKE `$description__like`. Default empty.', 'wp-graphql' ),
+					'description' => __( 'Retrieve terms where the description is LIKE the input value. Default empty.', 'wp-graphql' ),
 				],
 				'padCounts'           => [
 					'type'        => Types::boolean(),

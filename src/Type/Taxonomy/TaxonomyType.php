@@ -143,14 +143,14 @@ class TaxonomyType extends WPObjectType {
 					],
 					'showInRest'             => [
 						'type'        => Types::boolean(),
-						'description' => __( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Whether to add the post type route in the REST API "wp/v2" namespace.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $taxonomy->show_in_rest ) ? true : false;
 						},
 					],
 					'restBase'               => [
 						'type'        => Types::string(),
-						'description' => __( 'Name of content type to diplay in REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Name of content type to diplay in REST API "wp/v2" namespace.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : null;
 						},

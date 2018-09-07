@@ -41,6 +41,26 @@ function register_graphql_type( $type_name, $config ) {
 	\WPGraphQL\TypeRegistry::register_type( $type_name, $config );
 }
 
+function register_graphql_object_type( $type_name, $config ) {
+	$config['kind'] = 'object';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_input_type( $type_name, $config ) {
+	$config['kind'] = 'input';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_union_type( $type_name, $config ) {
+	$config['kind'] = 'union';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_enum_type( $type_name, $config ) {
+	$config['kind'] = 'enum';
+	register_graphql_type( $type_name, $config );
+}
+
 function register_graphql_field( $type_name, $field_name, $config ) {
 	\WPGraphQL\TypeRegistry::register_field( $type_name, $field_name, $config );
 }
@@ -48,58 +68,3 @@ function register_graphql_field( $type_name, $field_name, $config ) {
 function register_graphql_fields( $type_name, array $fields ) {
 	\WPGraphQL\TypeRegistry::register_fields( $type_name, $fields );
 }
-
-
-
-add_action( 'graphql_register_types', function() {
-
-	register_graphql_field( 'RootQuery', 'myCustomField', [
-		'type' => 'MyCustomType',
-		'resolve' => function() {
-			return [
-				'id' => 'gooooo'
-			];
-		},
-	]);
-
-	register_graphql_fields( 'MyCustomType', [
-		'field1' => [
-			'type' => 'string',
-			'isPrivate' => true,
-			'resolve' => function() {
-				return 'goo';
-			}
-		],
-		'field2' => [
-			'type' => 'int'
-		],
-		'field3' => [
-			'type' => 'boolean'
-		]
-	]);
-
-	register_graphql_field( 'MyCustomType', 'someCoolField', [
-		'type' => 'string',
-		'resolve' => function( $root ) {
-			return 'custom value';
-		}
-	] );
-
-	register_graphql_field( 'MyCustomType', 'anotherCoolField', [
-		'type' => 'id',
-		'resolve' => function( $root ) {
-			return 'idvalue';
-		}
-	] );
-
-	register_graphql_type( 'MyCustomType', [
-		'kind' => 'object',
-		'description' => __( 'MyCustomType description', 'wp-graphql' ),
-		'fields' => [
-			'id' => [
-				'type' => 'string',
-			],
-		],
-	] );
-
-} );

@@ -5,18 +5,6 @@ namespace WPGraphQL;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Type\Avatar\AvatarType;
-use WPGraphQL\Type\Comment\CommentType;
-use WPGraphQL\Type\CommentAuthor\CommentAuthorType;
-use WPGraphQL\Type\EditLock\EditLockType;
-use WPGraphQL\Type\Enum\MediaItemStatusEnumType;
-use WPGraphQL\Type\Enum\MenuLocationEnumType;
-use WPGraphQL\Type\Enum\MimeTypeEnumType;
-use WPGraphQL\Type\Enum\PostObjectFieldFormatEnumType;
-use WPGraphQL\Type\Enum\PostStatusEnumType;
-use WPGraphQL\Type\Enum\PostTypeEnumType;
-use WPGraphQL\Type\Enum\RelationEnumType;
-use WPGraphQL\Type\Enum\TaxonomyEnumType;
 use WPGraphQL\Type\Menu\MenuType;
 use WPGraphQL\Type\MenuItem\MenuItemType;
 use WPGraphQL\Type\Setting\SettingType;
@@ -31,13 +19,10 @@ use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
 use WPGraphQL\Type\Theme\ThemeType;
-use WPGraphQL\Type\Union\CommentAuthorUnionType;
-use WPGraphQL\Type\Union\MenuItemObjectUnionType;
-use WPGraphQL\Type\Union\PostObjectUnionType;
-use WPGraphQL\Type\Union\TermObjectUnionType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
-use WPGraphQL\Type\User\UserType;
 use WPGraphQL\Type\UserRoles\UserRoleType;
+use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Type\WPUnionType;
 
 /**
  * Class Types - Acts as a registry and factory for Types.
@@ -55,7 +40,7 @@ class Types {
 	/**
 	 * Stores the avatar type object
 	 *
-	 * @var AvatarType object $avatar
+	 * @var WPObjectType object $avatar
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -263,7 +248,7 @@ class Types {
 	 * @access private
 	 */
 	private static $settings;
-	
+
 	/**
 	 * Stores the taxonomy type object
 	 *
@@ -347,12 +332,12 @@ class Types {
 	/**
 	 * This returns the definition for the AvatarType
 	 *
-	 * @return AvatarType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function avatar() {
-		return self::$avatar ? : ( self::$avatar = new AvatarType() );
+		return self::$avatar ? : ( self::$avatar = TypeRegistry::get_type( 'Avatar' ) );
 	}
 
 	/**
@@ -363,7 +348,7 @@ class Types {
 	 * @access public
 	 */
 	public static function comment() {
-		return self::$comment ? : ( self::$comment = new CommentType() );
+		return self::$comment ? : ( self::$comment = TypeRegistry::get_type( 'Comment' ) );
 	}
 
 	/**
@@ -374,7 +359,7 @@ class Types {
 	 * @access public
 	 */
 	public static function comment_author() {
-		return self::$comment_author ? : ( self::$comment_author = new CommentAuthorType() );
+		return self::$comment_author ? : ( self::$comment_author = TypeRegistry::get_type( 'CommentAuthor' ) );
 	}
 
 	/**
@@ -385,18 +370,18 @@ class Types {
 	 * @access public
 	 */
 	public static function comment_author_union() {
-		return self::$comment_author_union ? : ( self::$comment_author_union = new CommentAuthorUnionType() );
+		return self::$comment_author_union ? : ( self::$comment_author_union = TypeRegistry::get_type( 'CommentAuthorUnion' ) );
 	}
 
 	/**
 	 * This returns the definition for the MenuItemObjectUnionType
 	 *
-	 * @return MenuItemObjectUnionType object
+	 * @return WPUnionType object
 	 * @since  0.0.29
 	 * @access public
 	 */
 	public static function menu_item_object_union() {
-		return self::$menu_item_object_union ? : ( self::$menu_item_object_union = new MenuItemObjectUnionType() );
+		return self::$menu_item_object_union ? : ( self::$menu_item_object_union = TypeRegistry::get_type( 'MenuItemObjectUnion' ) );
 	}
 
 	/**
@@ -406,7 +391,7 @@ class Types {
 	 * @access public
 	 */
 	public static function edit_lock() {
-		return self::$edit_lock ? : ( self::$edit_lock = new EditLockType() );
+		return self::$edit_lock ? : ( self::$edit_lock = TypeRegistry::get_type( 'EditLock' ) );
 	}
 
 	/**
@@ -417,11 +402,13 @@ class Types {
 	 * @access public
 	 */
 	public static function mime_type_enum() {
-		return self::$mime_type_enum ? : ( self::$mime_type_enum = new MimeTypeEnumType() );
+		return self::$mime_type_enum ? : ( self::$mime_type_enum = TypeRegistry::get_type( 'MimeTypeEnum') );
 	}
 
 	/**
 	 * This returns the definition for the SettingType
+	 *
+	 * @param string $setting_type
 	 *
 	 * @return SettingType object
 	 * @access public
@@ -463,7 +450,7 @@ class Types {
 	 * @access public
 	 */
 	public static function plugin() {
-		return self::$plugin ? : ( self::$plugin = new PluginType() );
+		return self::$plugin ? : ( self::$plugin = TypeRegistry::get_type( 'Plugin' ) );
 	}
 
 	/**
@@ -492,12 +479,12 @@ class Types {
 	/**
 	 * This returns the definition for the PostObjectUnionType
 	 *
-	 * @return PostObjectUnionType object
+	 * @return WPUnionType object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function post_object_union() {
-		return self::$post_object_union ? : ( self::$post_object_union = new PostObjectUnionType() );
+		return self::$post_object_union ? : ( self::$post_object_union = TypeRegistry::get_type( 'PostObjectUnion' ) );
 	}
 
 	/**
@@ -508,7 +495,7 @@ class Types {
 	 * @access public
 	 */
 	public static function post_object_field_format_enum() {
-		return self::$post_object_field_format_enum ? : ( self::$post_object_field_format_enum = new PostObjectFieldFormatEnumType() );
+		return self::$post_object_field_format_enum ? : ( self::$post_object_field_format_enum = TypeRegistry::get_type( 'PostObjectFieldFormatEnum') );
 	}
 
 	/**
@@ -519,7 +506,7 @@ class Types {
 	 * @access public
 	 */
 	public static function post_status_enum() {
-		return self::$post_status_enum ? : ( self::$post_status_enum = new PostStatusEnumType() );
+		return self::$post_status_enum ? : ( self::$post_status_enum = TypeRegistry::get_type( 'PostStatusEnum' ) );
 	}
 
 	/**
@@ -529,7 +516,7 @@ class Types {
 	 * @access public
 	 */
 	public static function media_item_status_enum() {
-		return self::$media_item_status_enum ? : ( self::$media_item_status_enum = new MediaItemStatusEnumType() );
+		return self::$media_item_status_enum ? : ( self::$media_item_status_enum = TypeRegistry::get_type( 'MediaItemStatusEnum' ) );
 	}
 
 	/**
@@ -540,7 +527,7 @@ class Types {
 	 * @access public
 	 */
 	public static function menu_location_enum() {
-		return self::$menu_location_enum ? : ( self::$menu_location_enum = new MenuLocationEnumType() );
+		return self::$menu_location_enum ? : ( self::$menu_location_enum = TypeRegistry::get_type( 'MenuLocationEnum' ) );
 	}
 
 	/**
@@ -551,7 +538,7 @@ class Types {
 	 * @access public
 	 */
 	public static function post_type_enum() {
-		return self::$post_type_enum ? : ( self::$post_type_enum = new PostTypeEnumType() );
+		return self::$post_type_enum ? : ( self::$post_type_enum = TypeRegistry::get_type( 'PostTypeEnum' ) );
 	}
 
 	/**
@@ -594,7 +581,7 @@ class Types {
 	 * @access public
 	 */
 	public static function relation_enum() {
-		return self::$relation_enum ? : ( self::$relation_enum = new RelationEnumType() );
+		return self::$relation_enum ? : ( self::$relation_enum = TypeRegistry::get_type( 'RelationEnum' ) );
 	}
 
 	/**
@@ -661,7 +648,7 @@ class Types {
 	 * @access public
 	 */
 	public static function taxonomy_enum() {
-		return self::$taxonomy_enum ? : ( self::$taxonomy_enum = new TaxonomyEnumType() );
+		return self::$taxonomy_enum ? : ( self::$taxonomy_enum = TypeRegistry::get_type( 'TaxonomyEnum' ) );
 	}
 
 	/**
@@ -712,11 +699,11 @@ class Types {
 	/**
 	 * This returns the definition for the termObjectUnionType
 	 *
-	 * @return TermObjectUnionType object
+	 * @return WPUnionType object
 	 * @access public
 	 */
 	public static function term_object_union() {
-		return self::$term_object_union ? : ( self::$term_object_union = new TermObjectUnionType() );
+		return self::$term_object_union ? : ( self::$term_object_union = TypeRegistry::get_type( 'TermObjectUnion' ) );
 	}
 
 	/**
@@ -738,7 +725,7 @@ class Types {
 	 * @access public
 	 */
 	public static function user() {
-		return self::$user ? : ( self::$user = new UserType() );
+		return self::$user ? : ( self::$user = TypeRegistry::get_type( 'User' ) );
 	}
 
 	/**

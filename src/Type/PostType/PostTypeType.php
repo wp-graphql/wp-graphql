@@ -189,14 +189,14 @@ class PostTypeType extends WPObjectType {
 					],
 					'showInRest'             => [
 						'type'        => Types::boolean(),
-						'description' => __( 'Whether to add the post type route in the REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Whether to add the post type route in the REST API "wp/v2" namespace.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ( true === $post_type->show_in_rest ) ? true : false;
 						},
 					],
 					'restBase'               => [
 						'type'        => Types::string(),
-						'description' => __( 'Name of content type to diplay in REST API `wp/v2` namespace.', 'wp-graphql' ),
+						'description' => __( 'Name of content type to diplay in REST API "wp/v2" namespace.', 'wp-graphql' ),
 						'resolve'     => function( \WP_Post_Type $post_type, array $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post_type->rest_base ) ? $post_type->rest_base : null;
 						},

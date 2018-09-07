@@ -91,7 +91,7 @@ class UserConnectionArgs extends WPInputObjectType {
 				],
 				'search'            => [
 					'type'        => Types::string(),
-					'description' => __( 'Search keyword. Searches for possible string matches on columns. When `searchColumns` is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
+					'description' => __( 'Search keyword. Searches for possible string matches on columns. When "searchColumns" is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
 				],
 				'searchColumns'     => [
 					'type'        => Types::list_of( self::search_columns_enum() ),

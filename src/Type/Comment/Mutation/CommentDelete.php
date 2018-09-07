@@ -44,26 +44,28 @@ class CommentDelete {
 						'description' => __( 'Whether the comment should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 					],
 				],
-				'outputFields'        => [
-					'deletedId' => [
-						'type'        => Types::id(),
-						'description' => __( 'The ID of the deleted comment', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) {
-							$deleted = ( object ) $payload['commentObject'];
+				'outputFields'        => function() use ( $mutation_name ) {
+					return [
+						'deletedId' => [
+							'type'        => Types::id(),
+							'description' => __( 'The ID of the deleted comment', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$deleted = ( object ) $payload['commentObject'];
 
-							return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
-						},
-					],
-					'comment'   => [
-						'type'        => Types::comment(),
-						'description' => __( 'The comment before it was deleted', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) {
-							$deleted = ( object ) $payload['commentObject'];
+								return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
+							},
+						],
+						'comment'   => [
+							'type'        => Types::comment(),
+							'description' => __( 'The comment before it was deleted', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$deleted = ( object ) $payload['commentObject'];
 
-							return ! empty( $deleted ) ? $deleted : null;
-						},
-					],
-				],
+								return ! empty( $deleted ) ? $deleted : null;
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function ( $input ) {
 					/**
 					 * Get the ID from the global ID

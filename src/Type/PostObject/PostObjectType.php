@@ -256,7 +256,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'slug'              => [
 						'type'        => Types::string(),
-						'description' => __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the `post_objects` table.', 'wp-graphql' ),
+						'description' => __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the "post_objects" table.', 'wp-graphql' ),
 						'resolve'     => function ( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->post_name ) ? $post->post_name : null;
 						},
@@ -328,7 +328,7 @@ class PostObjectType extends WPObjectType {
 					],
 					'guid'              => [
 						'type'        => Types::string(),
-						'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the `post_objects` database table.', 'wp-graphql' ),
+						'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' ),
 						'resolve'     => function ( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $post->guid ) ? $post->guid : null;
 						},

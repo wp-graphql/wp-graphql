@@ -34,20 +34,22 @@ class UserRegister {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'RegisterUser',
-				'description' => __( 'Register new user', 'wp-graphql' ),
-				'inputFields' => self::input_fields(),
-				'outputFields' => [
-					'user' => [
-						'type' => Types::user(),
-						'resolve' => function( $payload ) {
-							return get_user_by( 'ID', $payload['id'] );
-						}
-					]
-				],
-				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) {
+				'name'                => 'RegisterUser',
+				'description'         => __( 'Register new user', 'wp-graphql' ),
+				'inputFields'         => self::input_fields(),
+				'outputFields'        => function () {
+					return [
+						'user' => [
+							'type'    => Types::user(),
+							'resolve' => function ( $payload ) {
+								return get_user_by( 'ID', $payload['id'] );
+							}
+						]
+					];
+				},
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
 
-					if ( ! get_option('users_can_register') ) {
+					if ( ! get_option( 'users_can_register' ) ) {
 						throw new UserError( __( 'User registration is currently not allowed.', 'wp-graphql' ) );
 					}
 

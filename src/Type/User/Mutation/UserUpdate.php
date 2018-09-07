@@ -33,18 +33,21 @@ class UserUpdate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'UpdateUser',
-				'description' => 'Updates a user object',
-				'inputFields' => self::input_fields(),
-				'outputFields' => [
-					'user' => [
-						'type' => Types::user(),
-						'description' => __( 'The updated user', 'wp-graphql' ),
-						'resolve' => function( $payload ) {
-							return get_user_by( 'ID', $payload['userId'] );
-						}
-					]
-				], 'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) {
+				'name'                => 'UpdateUser',
+				'description'         => 'Updates a user object',
+				'inputFields'         => self::input_fields(),
+				'outputFields'        => function () {
+					return [
+						'user' => [
+							'type'        => Types::user(),
+							'description' => __( 'The updated user', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								return get_user_by( 'ID', $payload['userId'] );
+							}
+						]
+					];
+				},
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 					$existing_user = get_user_by( 'ID', $id_parts['id'] );
@@ -52,7 +55,7 @@ class UserUpdate {
 					/**
 					 * If there's no existing user, throw an exception
 					 */
-					if ( empty( $id_parts['id'] )  || false === $existing_user ) {
+					if ( empty( $id_parts['id'] ) || false === $existing_user ) {
 						throw new UserError( $id_parts['id'] );
 					}
 
@@ -65,7 +68,7 @@ class UserUpdate {
 						throw new UserError( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 					}
 
-					$user_args = UserMutation::prepare_user_object( $input, 'userCreate' );
+					$user_args       = UserMutation::prepare_user_object( $input, 'userCreate' );
 					$user_args['ID'] = absint( $id_parts['id'] );
 
 					/**
