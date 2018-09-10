@@ -26,6 +26,7 @@ use WPGraphQL\Type\PostTypeLabelDetails;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
+use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
 use WPGraphQL\Type\TermObjectUnion;
@@ -46,6 +47,7 @@ class TypeRegistry {
 		register_graphql_type( 'Bool', Types::boolean() );
 		register_graphql_type( 'Boolean', Types::boolean() );
 		register_graphql_type( 'Float', Types::float() );
+		register_graphql_type( 'Number', Types::float() );
 		register_graphql_type( 'Id', Types::id() );
 		register_graphql_type( 'Int', Types::int() );
 		register_graphql_type( 'Integer', Types::int() );
@@ -68,6 +70,7 @@ class TypeRegistry {
 		PostTypeLabelDetails::register_type();
 		PostTypeEnum::register_type();
 		RelationEnum::register_type();
+		Settings::register_type();
 		Theme::register_type();
 		Taxonomy::register_type();
 		TaxonomyEnum::register_type();

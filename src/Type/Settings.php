@@ -1,89 +1,25 @@
 <?php
-
-namespace WPGraphQL\Type\Settings;
+namespace WPGraphQL\Type;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\WPObjectType;
-use WPGraphQL\Types;
+use WPGraphQL\TypeRegistry;
 
-/**
- * Class SettingsType
- *
- * This sets up the base settings Type for settings queries and mutations
- *
- * @package WPGraphQL\Type\Settings
- */
-class SettingsType extends WPObjectType {
+class Settings {
+	public static function register_type() {
 
-	/**
-	 * Holds the type name
-	 *
-	 * @var string $type_name
-	 */
-	private static $type_name;
-
-	/**
-	 * Holds the $fields definition for the SettingsType
-	 *
-	 * @var array $fields
-	 * @access private
-	 */
-	private static $fields;
-
-	/**
-	 * SettingsType constructor.
-	 *
-	 * @access public
-	 */
-	public function __construct() {
-
-		/**
-		 * Set the type_name
-		 *
-		 * @since 0.0.5
-		 */
-		self::$type_name = 'Settings';
-
-		/**
-		 * Retrieve all of the allowed settings
-		 */
-		$settings_array = DataSource::get_allowed_settings();
-
-		$config = [
-			'name'        => self::$type_name,
-			'fields'      => self::fields( $settings_array ),
-			'description' => __( 'All of the registered settings', 'wp-graphql' ),
-		];
-
-		parent::__construct( $config );
-
-	}
-
-	/**
-	 * This defines the fields for the settings type
-	 *
-	 * @param $settings_array
-	 *
-	 * @access private
-	 * @return \GraphQL\Type\Definition\FieldDefinition|mixed|null
-	 */
-	private static function fields( $settings_array ) {
-
-		/**
-		 * Define $fields
-		 */
+		$registered_settings = DataSource::get_allowed_settings();
 		$fields = [];
 
-		if ( ! empty( $settings_array ) && is_array( $settings_array ) ) {
+		if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 
 			/**
 			 * Loop through the $settings_array and build the setting with
 			 * proper fields
 			 */
-			foreach ( $settings_array as $key => $setting_field ) {
+			foreach ( $registered_settings as $key => $setting_field ) {
 
 				/**
 				 * Determine if the individual setting already has a
@@ -104,7 +40,7 @@ class SettingsType extends WPObjectType {
 					 * then add it to $fields
 					 */
 					$fields[ $field_key ] = [
-						'type'        => Types::get_type( $setting_field['type'] ),
+						'type'        => TypeRegistry::get_type( $setting_field['type'] ),
 						'description' => $setting_field['description'],
 
 						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) use ( $setting_field, $field_key, $key ) {
@@ -141,16 +77,11 @@ class SettingsType extends WPObjectType {
 
 			}
 
-			/**
-			 * Pass the fields through a filter to allow for hooking in and adjusting the shape
-			 * of the type's schema
-			 */
-			self::$fields = self::prepare_fields( $fields, self::$type_name );
-
 		}
 
-		return ! empty( self::$fields ) ? self::$fields : null;
-
+		register_graphql_object_type( 'Settings', [
+			'description' => __( 'All of the registered settings', 'wp-graphql' ),
+			'fields'      => $fields
+		]);
 	}
-
 }

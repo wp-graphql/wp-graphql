@@ -1,20 +1,10 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
+
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\Comment\CommentQuery;
-use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
-use WPGraphQL\Type\Menu\MenuQuery;
-use WPGraphQL\Type\Menu\Connection\MenuConnectionDefinition;
-use WPGraphQL\Type\MenuItem\MenuItemQuery;
-use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Settings\SettingsQuery;
-use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
-use WPGraphQL\Type\Plugin\PluginQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
@@ -24,7 +14,6 @@ use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\User\UserQuery;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
 use WPGraphQL\Type\UserRoles\UserRoleQuery;
-use WPGraphQL\Types;
 
 /**
  * Class RootQueryType
@@ -79,42 +68,6 @@ class RootQueryType extends WPObjectType {
 				$allowed_post_types = \WPGraphQL::$allowed_post_types;
 				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 				$allowed_setting_types = DataSource::get_allowed_settings_by_group();
-				$node_definition = DataSource::get_node_definition();
-
-				/**
-				 * Creates the node root query field which can be used
-				 * to query any node from the system using the globally unique
-				 * ID
-				 * @since 0.0.5
-				 */
-				$fields['node'] = $node_definition['nodeField'];
-
-				/**
-				 * Creates the comment root query field
-				 * @since 0.0.5
-				 */
-				// $fields['comments'] = CommentConnectionDefinition::connection();
-
-				/**
-				 * Creates the menu root query fields
-				 * @since 0.0.29
-				 */
-				$fields['menu'] = MenuQuery::root_query();
-				$fields['menus'] = MenuConnectionDefinition::connection();
-
-				/**
-				 * Creates the menu items root query fields
-				 * @since 0.0.29
-				 */
-				$fields['menuItem'] = MenuItemQuery::root_query();
-				$fields['menuItems'] = MenuItemConnectionDefinition::connection();
-
-				/**
-				 * Creates the plugin root query field
-				 * @since 0.0.5
-				 */
-				$fields['plugin'] = PluginQuery::root_query();
-				$fields['plugins'] = PluginConnectionDefinition::connection();
 
 				/**
 				 * Create the root query fields for any setting type in
@@ -126,12 +79,7 @@ class RootQueryType extends WPObjectType {
 						$fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
 					}
 				}
-
-				/**
-				 * Creates the all settings root query field
-				 */
-				$fields['allSettings'] = SettingsQuery::root_query();
-
+				
 				/**
 				 * Creates the theme root query field to query a collection
 				 * of themes

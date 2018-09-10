@@ -96,7 +96,7 @@ class Types {
 	/**
 	 * Stores the plugin type object
 	 *
-	 * @var PluginType $plugin
+	 * @var WPObjectType $plugin
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -238,7 +238,7 @@ class Types {
 	/**
 	 * Stores the settings object type
 	 *
-	 * @var SettingsType object $settings
+	 * @var WPObjectType object $settings
 	 * @access private
 	 */
 	private static $settings;
@@ -424,16 +424,11 @@ class Types {
 	/**
 	 * This returns the definition for the SettingsType
 	 *
-	 * @return SettingsType object
+	 * @return WPObjectType object
 	 * @access public
 	 */
 	public static function settings() {
-
-		if ( empty( self::$settings ) ) {
-			self::$settings = new SettingsType();
-		}
-
-		return ! empty( self::$settings ) ? self::$settings : null;
+		return self::$settings ? : ( self::$settings = TypeRegistry::get_type( 'Settings' ) );
 	}
 
 	/**
@@ -848,24 +843,7 @@ class Types {
 	 * @return \GraphQL\Type\Definition\BooleanType|\GraphQL\Type\Definition\FloatType|\GraphQL\Type\Definition\IntType|\GraphQL\Type\Definition\StringType
 	 */
 	public static function get_type( $type ) {
-
-		switch ( $type ) {
-			case 'integer':
-				$type = self::int();
-				break;
-			case 'float':
-			case 'number':
-				$type = self::float();
-				break;
-			case 'boolean':
-				$type = self::boolean();
-				break;
-			case 'string':
-			default:
-				$type = self::string();
-		}
-
-		return $type;
+		return TypeRegistry::get_type( $type );
 	}
 
 	/**

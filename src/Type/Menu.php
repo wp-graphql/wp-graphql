@@ -40,6 +40,9 @@ class Menu {
 			]
 		]);
 
+		/**
+		 * Register the connection after the Types have been established
+		 */
 		register_graphql_field( 'Menu', 'menuItems', MenuItemConnectionDefinition::connection() );
 
 	}
