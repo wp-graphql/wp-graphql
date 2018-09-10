@@ -4,16 +4,10 @@ namespace WPGraphQL\Type;
 
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\Setting\SettingQuery;
-use WPGraphQL\Type\Settings\SettingsQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\TermObjectQuery;
-use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
-use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
-use WPGraphQL\Type\User\UserQuery;
-use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
-use WPGraphQL\Type\UserRoles\UserRoleQuery;
 
 /**
  * Class RootQueryType
@@ -30,15 +24,7 @@ class RootQueryType extends WPObjectType {
 	 * RootQueryType constructor.
 	 * @since 0.0.5
 	 */
-	public function __construct() {
-
-		/**
-		 * Run an action when the RootQuery is being generated
-		 * @since 0.0.5
-		 */
-		do_action( 'graphql_root_query' );
-
-		self::$type_name = 'RootQuery';
+	public function __construct() {self::$type_name = 'RootQuery';
 
 		/**
 		 * Configure the RootQuery
@@ -67,51 +53,6 @@ class RootQueryType extends WPObjectType {
 				 */
 				$allowed_post_types = \WPGraphQL::$allowed_post_types;
 				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-				$allowed_setting_types = DataSource::get_allowed_settings_by_group();
-
-				/**
-				 * Create the root query fields for any setting type in
-				 * the $allowed_setting_types array.
-				 */
-				if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-					foreach ( $allowed_setting_types as $group => $setting_type ) {
-						$setting_type = str_replace('_', '', strtolower( $group ) );
-						$fields[ $setting_type . 'Settings' ] = SettingQuery::root_query( $group, $setting_type );
-					}
-				}
-				
-				/**
-				 * Creates the theme root query field to query a collection
-				 * of themes
-				 * @since 0.0.5
-				 */
-				$fields['themes'] = ThemeConnectionDefinition::connection();
-
-				/**
-				 * Creates the user root query field
-				 * @since 0.0.5
-				 */
-				$fields['user'] = UserQuery::root_query();
-
-				/**
-				 * Creates the users root query field to query a collection
-				 * of users
-				 * @since 0.0.5
-				 */
-				$fields['users'] = UserConnectionDefinition::connection();
-
-				/**
-				 * Creates the userRole root query field
-				 * @since 0.0.30
-				 */
-				$fields['userRole'] = UserRoleQuery::root_query();
-
-				/**
-				 * Creates the userRoles root connection
-				 * @since 0.0.30
-				 */
-				$fields['userRoles'] = UserRoleConnectionDefinition::connection();
-
 
 				/**
 				 * Creates the root fields for post objects (of any post_type)
