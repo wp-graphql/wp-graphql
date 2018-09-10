@@ -68,3 +68,7 @@ function register_graphql_field( $type_name, $field_name, $config ) {
 function register_graphql_fields( $type_name, array $fields ) {
 	\WPGraphQL\TypeRegistry::register_fields( $type_name, $fields );
 }
+
+function register_graphql_schema( $schema_name, array $config ) {
+	\WPGraphQL\SchemaRegistry::register_schema( $schema_name, $config );
+}

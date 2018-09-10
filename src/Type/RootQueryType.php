@@ -93,8 +93,7 @@ class RootQueryType extends WPObjectType {
 				 * Creates the comment root query field
 				 * @since 0.0.5
 				 */
-				$fields['comment'] = CommentQuery::root_query();
-				$fields['comments'] = CommentConnectionDefinition::connection();
+				// $fields['comments'] = CommentConnectionDefinition::connection();
 
 				/**
 				 * Creates the menu root query fields
@@ -134,12 +133,6 @@ class RootQueryType extends WPObjectType {
 				$fields['allSettings'] = SettingsQuery::root_query();
 
 				/**
-				 * Creates the theme root query field
-				 * @since 0.0.5
-				 */
-				$fields['theme'] = self::theme();
-
-				/**
 				 * Creates the theme root query field to query a collection
 				 * of themes
 				 * @since 0.0.5
@@ -171,11 +164,6 @@ class RootQueryType extends WPObjectType {
 				 */
 				$fields['userRoles'] = UserRoleConnectionDefinition::connection();
 
-				/**
-				 * Creates the viewer root query field
-				 * @since 0.0.5
-				 */
-				$fields['viewer'] = self::viewer();
 
 				/**
 				 * Creates the root fields for post objects (of any post_type)
@@ -249,49 +237,12 @@ class RootQueryType extends WPObjectType {
 				 * @since 0.0.5
 				 */
 				$fields = apply_filters( 'graphql_root_queries', $fields );
-				$fields = WPObjectType::prepare_fields( $fields, self::$type_name );
+				$fields = self::prepare_fields( $fields, self::$type_name );
 				return $fields;
 			};
 		}
 
 		return self::$fields;
 
-	}
-
-	/**
-	 * theme
-	 * This sets up the theme entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function theme() {
-		return [
-			'type' => Types::theme(),
-			'description' => __( 'A Theme object', 'wp-graphql' ),
-			'args' => [
-				'id' => Types::non_null( Types::id() ),
-			],
-			'resolve' => function( $source, array $args, $context, ResolveInfo $info ) {
-				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_theme( $id_components['id'] );
-			},
-		];
-	}
-
-	/**
-	 * viewer
-	 * This sets up the viewer entry point for the root query
-	 * @return array
-	 * @since 0.0.5
-	 */
-	public static function viewer() {
-		return [
-			'type' => Types::user(),
-			'description' => __( 'Returns the current user', 'wp-graphql' ),
-			'resolve' => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID ) : null;
-			},
-		];
 	}
 }

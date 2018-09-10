@@ -501,17 +501,16 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Initialize the TypeRegistry
 			 */
 			\WPGraphQL\TypeRegistry::init();
+			\WPGraphQL\SchemaRegistry::init();
 
 			if ( null === self::$schema ) {
 
 				/**
-				 * Create an executable Schema from the registered
-				 * root_Query and root_mutation
+				 * Filter the Active Schema, allowing for custom Schemas to be active instead
+				 * of the core schema
 				 */
-				$executable_schema = [
-					'query'    => \WPGraphQL\TypeRegistry::get_type( 'RootQuery' ),
-					'mutation' => \WPGraphQL\TypeRegistry::get_type( 'RootMutation' ),
-				];
+				$active_schema = apply_filters( 'graphql_active_schema', 'core' );
+				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
 
 				/**
 				 * Generate the Schema

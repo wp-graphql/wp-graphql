@@ -7,22 +7,31 @@ use WPGraphQL\Type\AvatarRatingEnum;
 use WPGraphQL\Type\Comment;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\CommentAuthor;
+use WPGraphQL\Type\CommentAuthorUnion;
 use WPGraphQL\Type\EditLock;
 use WPGraphQL\Type\MediaItemStatusEnum;
+use WPGraphQL\Type\MenuItem;
 use WPGraphQL\Type\MenuItemObjectUnion;
 use WPGraphQL\Type\MenuLocationEnum;
+use WPGraphQL\Type\Menu;
 use WPGraphQL\Type\MimeTypeEnum;
 use WPGraphQL\Type\Plugin;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
+use WPGraphQL\Type\PostObjectUnion;
 use WPGraphQL\Type\PostStatusEnum;
+use WPGraphQL\Type\PostType;
 use WPGraphQL\Type\PostTypeEnum;
+use WPGraphQL\Type\PostTypeLabelDetails;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
-use WPGraphQL\Type\RootMutationType;
-use WPGraphQL\Type\RootQueryType;
+use WPGraphQL\Type\RootQuery;
+use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
+use WPGraphQL\Type\TermObjectUnion;
+use WPGraphQL\Type\Theme;
 use WPGraphQL\Type\User;
+use WPGraphQL\Type\UserRole;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -48,25 +57,32 @@ class TypeRegistry {
 		CommentAuthor::register_type();
 		EditLock::register_type();
 		MediaItemStatusEnum::register_type();
+		MenuItem::register_type();
 		MenuLocationEnum::register_type();
+		Menu::register_type();
 		MimeTypeEnum::register_type();
 		Plugin::register_type();
-		PostStatusEnum::register_type();
 		PostObjectFieldFormatEnum::register_type();
+		PostStatusEnum::register_type();
+		PostType::register_type();
+		PostTypeLabelDetails::register_type();
 		PostTypeEnum::register_type();
 		RelationEnum::register_type();
+		Theme::register_type();
+		Taxonomy::register_type();
 		TaxonomyEnum::register_type();
 		User::register_type();
+		UserRole::register_type();
 		RootMutation::register_type();
-		self::register_root_query_type();
+		RootQuery::register_type();
 
 		/**
 		 * Unions (need to be registered after other types)
 		 */
-		self::register_comment_author_union_type();
+		CommentAuthorUnion::register_type();
 		MenuItemObjectUnion::register_type();
-		self::register_post_object_union();
-		self::register_term_object_union();
+		PostObjectUnion::register_type();
+		TermObjectUnion::register_type();
 
 		if ( ! did_action( 'graphql_register_types' ) ) {
 			do_action( 'graphql_register_types' );
@@ -257,16 +273,8 @@ class TypeRegistry {
 		}
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
-			foreach ( $field_config['args'] as $arg => $arg_config ) {
-				if ( isset( $arg_config['type'] ) ) {
-					if ( is_string( $arg_config['type'] ) ) {
-						$type = TypeRegistry::get_type( $arg_config['type'] );
-						if ( ! empty( $type ) ) {
-							$arg_config['type'] = $type;
-						}
-					}
-				}
-				$field_config['args'][ $arg ] = $arg_config;
+			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
+				$field_config['args'][ $arg_name ] = self::prepare_field( $arg_name, $arg_config, $type_name );
 			}
 		} else {
 			unset( $field_config['args'] );
@@ -286,72 +294,6 @@ class TypeRegistry {
 
 	public static function get_types() {
 		return ! empty( self::$types ) ? self::$types : [];
-	}
-
-	protected static function register_comment_author_union_type() {
-
-		$comment_author_type = TypeRegistry::get_type( 'CommentAuthor' );
-		$user_type           = TypeRegistry::get_type( 'User' );
-
-		register_graphql_union_type( 'CommentAuthorUnion', [
-			'name'        => 'CommentAuthorUnion',
-			'typeNames'   => [ 'User', 'CommentAuthor' ],
-			'resolveType' => function ( $source ) use ( $comment_author_type, $user_type ) {
-				if ( $source instanceof \WP_User ) {
-					$type = $user_type;
-				} else {
-					$type = $comment_author_type;
-				}
-
-				return $type;
-			},
-		] );
-
-	}
-
-	protected static function register_post_object_union() {
-		$possible_types     = [];
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $allowed_post_type ) {
-				if ( empty( $possible_types[ $allowed_post_type ] ) ) {
-					$possible_types[ $allowed_post_type ] = Types::post_object( $allowed_post_type );
-				}
-			}
-		}
-
-		register_graphql_union_type( 'PostObjectUnion', [
-			'name'        => 'PostObjectUnion',
-			'types'       => $possible_types,
-			'resolveType' => function ( $value ) {
-				return ! empty( $value->post_type ) ? Types::post_object( $value->post_type ) : null;
-			},
-		] );
-	}
-
-	protected static function register_term_object_union() {
-
-		$possible_types = [];
-
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
-				if ( empty( $possible_types[ $allowed_taxonomy ] ) ) {
-					$possible_types[ $allowed_taxonomy ] = Types::term_object( $allowed_taxonomy );
-				}
-			}
-		}
-
-		register_graphql_union_type( 'TermObjectUnion', [
-			'types'       => $possible_types,
-			'resolveType' => function ( $value ) {
-				return ! empty( $value->taxonomy ) ? Types::term_object( $value->taxonomy ) : null;
-			},
-		] );
-	}
-
-	protected static function register_root_query_type() {
-		register_graphql_type( 'RootQuery', new RootQueryType() );
 	}
 
 }

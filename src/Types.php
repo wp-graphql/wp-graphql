@@ -5,22 +5,16 @@ namespace WPGraphQL;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Type\Menu\MenuType;
-use WPGraphQL\Type\MenuItem\MenuItemType;
 use WPGraphQL\Type\Setting\SettingType;
 use WPGraphQL\Type\Settings\SettingsType;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
-use WPGraphQL\Type\Plugin\PluginType;
 use WPGraphQL\Type\PostObject\PostObjectType;
-use WPGraphQL\Type\PostType\PostTypeType;
-use WPGraphQL\Type\Taxonomy\TaxonomyType;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
 use WPGraphQL\Type\TermObject\TermObjectType;
-use WPGraphQL\Type\Theme\ThemeType;
 use WPGraphQL\Type\User\Connection\UserConnectionArgs;
-use WPGraphQL\Type\UserRoles\UserRoleType;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
 
@@ -49,7 +43,7 @@ class Types {
 	/**
 	 * Stores the comment type object
 	 *
-	 * @var CommentType object $comment
+	 * @var WPObjectType object $comment
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -58,7 +52,7 @@ class Types {
 	/**
 	 * Stores the comment author type object
 	 *
-	 * @var CommentAuthorType object $comment_author
+	 * @var WPObjectType object $comment_author
 	 * @since  0.0.21
 	 * @access private
 	 */
@@ -67,7 +61,7 @@ class Types {
 	/**
 	 * Stores the comment author union type config
 	 *
-	 * @var CommentAuthorUnionType object $comment_author_union
+	 * @var WPUnionType object $comment_author_union
 	 * @since  0.0.21
 	 * @access private
 	 */
@@ -76,7 +70,7 @@ class Types {
 	/**
 	 * Stores the EditLock definition
 	 *
-	 * @var EditLockType object $edit_lock
+	 * @var WPObjectType object $edit_lock
 	 * @access private
 	 */
 	private static $edit_lock;
@@ -84,7 +78,7 @@ class Types {
 	/**
 	 * Stores the mime type enum object
 	 *
-	 * @var MimeTypeEnumType object $mime_type_enum
+	 * @var WPEnumType object $mime_type_enum
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -93,7 +87,7 @@ class Types {
 	/**
 	 * Stores the menu location enum type
 	 *
-	 * @var MenuLocationEnumType object $menu_location_enum
+	 * @var WPEnumType object $menu_location_enum
 	 * @since  0.0.29
 	 * @access private
 	 */
@@ -129,7 +123,7 @@ class Types {
 	/**
 	 * Stores the post object union type config
 	 *
-	 * @var PostObjectUnionType object $post_object_union
+	 * @var WPUnionType object $post_object_union
 	 * @since  0.0.6
 	 * @access private
 	 */
@@ -138,7 +132,7 @@ class Types {
 	/**
 	 * Stores the post object field format enum type object
 	 *
-	 * @var PostObjectFieldFormatEnumType object $post_object_field_format_enum
+	 * @var WPEnumType object $post_object_field_format_enum
 	 * @since  0.0.18
 	 * @access private
 	 */
@@ -147,7 +141,7 @@ class Types {
 	/**
 	 * Stores the post status enum type object
 	 *
-	 * @var PostStatusEnumType object $post_status_enum
+	 * @var WPEnumType object $post_status_enum
 	 * @since  0.0.5
 	 * @access private
 	 */
@@ -156,7 +150,7 @@ class Types {
 	/**
 	 * Stores the media item (attachment) status enum type object
 	 *
-	 * @var MediaItemStatusEnumType object $media_item_status_enum
+	 * @var WPEnumType object $media_item_status_enum
 	 * @access private
 	 */
 	private static $media_item_status_enum;
@@ -164,7 +158,7 @@ class Types {
 	/**
 	 * Stores the post type enum type object
 	 *
-	 * @var PostTypeEnumType object $post_type_enum
+	 * @var WPEnumType object $post_type_enum
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -173,7 +167,7 @@ class Types {
 	/**
 	 * Stores the post type type object
 	 *
-	 * @var PostTypeType object $post_type
+	 * @var WPObjectType object $post_type
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -182,7 +176,7 @@ class Types {
 	/**
 	 * Stores the relation enum type object
 	 *
-	 * @var RelationEnumType object $relation_enum
+	 * @var WPEnumType object $relation_enum
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -200,7 +194,7 @@ class Types {
 	/**
 	 * Stores the menu item type
 	 *
-	 * @var MenuIntemType object $menu_item
+	 * @var WPObjectType object $menu_item
 	 * @since  0.0.29
 	 * @access private
 	 */
@@ -209,7 +203,7 @@ class Types {
 	/**
 	 * Stores the menu item object union type
 	 *
-	 * @var MenuItemObjectUnionType object $menu_item_object_union
+	 * @var WPUnionType object $menu_item_object_union
 	 * @since  0.0.29
 	 * @access private
 	 */
@@ -252,7 +246,7 @@ class Types {
 	/**
 	 * Stores the taxonomy type object
 	 *
-	 * @var TaxonomyType object $taxonomy
+	 * @var WPObjectType object $taxonomy
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -261,7 +255,7 @@ class Types {
 	/**
 	 * Stores the taxonomy enum type object
 	 *
-	 * @var TaxonomyEnumType object $taxonomy_enum
+	 * @var WPEnumType object $taxonomy_enum
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -279,7 +273,7 @@ class Types {
 	/**
 	 * Stores the term object union definition
 	 *
-	 * @var TermObjectUnionType object $term_object_union
+	 * @var WPUnionType object $term_object_union
 	 * @access private
 	 */
 	private static $term_object_union;
@@ -296,7 +290,7 @@ class Types {
 	/**
 	 * Stores the theme type object
 	 *
-	 * @var ThemeType object $theme
+	 * @var WPObjectType object $theme
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -305,7 +299,7 @@ class Types {
 	/**
 	 * Stores the user type object
 	 *
-	 * @var UserType object $user
+	 * @var WPObjectType object $user
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -323,7 +317,7 @@ class Types {
 	/**
 	 * Stores the user role type object
 	 *
-	 * @var UserRoleType object $user_role
+	 * @var WPObjectType object $user_role
 	 * @since 0.0.30
 	 * @access private
 	 */
@@ -343,7 +337,7 @@ class Types {
 	/**
 	 * This returns the definition for the CommentType
 	 *
-	 * @return CommentType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -354,7 +348,7 @@ class Types {
 	/**
 	 * This returns the definition for the CommentAuthorType
 	 *
-	 * @return CommentAuthorType object
+	 * @return WPObjectType object
 	 * @since  0.0.21
 	 * @access public
 	 */
@@ -365,7 +359,7 @@ class Types {
 	/**
 	 * This returns the definition for the PostObjectUnionType
 	 *
-	 * @return CommentAuthorUnionType object
+	 * @return WPUnionType object
 	 * @since  0.0.21
 	 * @access public
 	 */
@@ -387,7 +381,7 @@ class Types {
 	/**
 	 * This returns the definition for the EditLock type
 	 *
-	 * @return EditLockType object
+	 * @return WPObjectType object
 	 * @access public
 	 */
 	public static function edit_lock() {
@@ -397,7 +391,7 @@ class Types {
 	/**
 	 * This returns the definition for the MimeTypeEnumType
 	 *
-	 * @return MimeTypeEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -445,7 +439,7 @@ class Types {
 	/**
 	 * This returns the definition for the PluginType
 	 *
-	 * @return PluginType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -458,7 +452,7 @@ class Types {
 	 *
 	 * @param string $post_type Name of the post type you want to retrieve the PostObjectType for
 	 *
-	 * @return PostObjectType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -490,7 +484,7 @@ class Types {
 	/**
 	 * This returns the definition for the PostObjectFieldFormatEnumType
 	 *
-	 * @return PostObjectFieldFormatEnumType object
+	 * @return WPEnumType object
 	 * @since  0.1.18
 	 * @access public
 	 */
@@ -501,7 +495,7 @@ class Types {
 	/**
 	 * This returns the definition for the PostStatusEnumType
 	 *
-	 * @return PostStatusEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -512,7 +506,7 @@ class Types {
 	/**
 	 * This returns the definition for the MediaItemStatusEnumType
 	 *
-	 * @return MediaItemStatusEnumType object
+	 * @return WPEnumType object
 	 * @access public
 	 */
 	public static function media_item_status_enum() {
@@ -522,7 +516,7 @@ class Types {
 	/**
 	 * This returns the definition for the MenuLocationEnumType
 	 *
-	 * @return MenuLocationEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.29
 	 * @access public
 	 */
@@ -533,7 +527,7 @@ class Types {
 	/**
 	 * This returns the definition for the PostStatusEnumType
 	 *
-	 * @return PostTypeEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -565,18 +559,18 @@ class Types {
 	/**
 	 * This returns the definition for the PostTypeType
 	 *
-	 * @return PostTypeType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function post_type() {
-		return self::$post_type ? : ( self::$post_type = new PostTypeType() );
+		return self::$post_type ? : ( self::$post_type = TypeRegistry::get_type( 'PostType' ) );
 	}
 
 	/**
 	 * This returns the definition for the RelationEnum
 	 *
-	 * @return RelationEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -585,25 +579,25 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the MenuType
+	 * This returns the definition for the Menu
 	 *
-	 * @return MenuType object
+	 * @return WPObjectType object
 	 * @since  0.0.29
 	 * @access public
 	 */
 	public static function menu() {
-		return self::$menu ? : ( self::$menu = new MenuType() );
+		return self::$menu ? : ( self::$menu = TypeRegistry::get_type( 'Menu' ) );
 	}
 
 	/**
 	 * This returns the definition for the MenuItemType
 	 *
-	 * @return MenuItemType object
+	 * @return WPObjectType object
 	 * @since  0.0.29
 	 * @access public
 	 */
 	public static function menu_item() {
-		return self::$menu_item ? : ( self::$menu_item = new MenuItemType() );
+		return self::$menu_item ? : ( self::$menu_item = TypeRegistry::get_type( 'MenuItem' ) );
 	}
 
 	/**
@@ -632,18 +626,18 @@ class Types {
 	/**
 	 * This returns the definition for the TaxonomyType
 	 *
-	 * @return TaxonomyType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function taxonomy() {
-		return self::$taxonomy ? : ( self::$taxonomy = new TaxonomyType() );
+		return self::$taxonomy ? : ( self::$taxonomy = TypeRegistry::get_type( 'Taxonomy' ) );
 	}
 
 	/**
 	 * This returns the definition for the TaxonomyEnumType
 	 *
-	 * @return TaxonomyEnumType object
+	 * @return WPEnumType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -709,18 +703,18 @@ class Types {
 	/**
 	 * This returns the definition for the ThemeType
 	 *
-	 * @return ThemeType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
 	public static function theme() {
-		return self::$theme ? : ( self::$theme = new ThemeType() );
+		return self::$theme ? : ( self::$theme = TypeRegistry::get_type( 'Theme' ) );
 	}
 
 	/**
 	 * This returns the definition for the UserType
 	 *
-	 * @return UserType object
+	 * @return WPObjectType object
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -752,12 +746,12 @@ class Types {
 	/**
 	 * Returns the definition for the UserRoleType
 	 *
-	 * @return UserRoleType
+	 * @return WPObjectType
 	 * @since 0.0.30
 	 * @access public
 	 */
 	public static function user_role() {
-		return self::$user_role ? : ( self::$user_role = new UserRoleType() );
+		return self::$user_role ? : ( self::$user_role = TypeRegistry::get_type( 'UserRole' ) );
 	}
 
 	/**
@@ -818,7 +812,7 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\ListOfType
@@ -832,12 +826,13 @@ class Types {
 	/**
 	 * This is a wrapper for the GraphQL type to give a consistent experience
 	 *
-	 * @param object $type instance of GraphQL\Type\Definition\Type or callable returning instance
+	 * @param callable $type instance of GraphQL\Type\Definition\Type or callable returning instance
 	 *                       of that class
 	 *
 	 * @return \GraphQL\Type\Definition\NonNull
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function non_null( $type ) {
 		return new NonNull( $type );

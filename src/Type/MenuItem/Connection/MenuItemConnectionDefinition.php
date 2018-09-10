@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\MenuItem\Connection;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 use WPGraphQL\Type\WPInputObjectType;
 
@@ -47,12 +48,12 @@ class MenuItemConnectionDefinition {
 		if ( null === self::$connection ) {
 
 			$connection = Relay::connectionDefinitions( [
-				'nodeType' => Types::menu_item(),
+				'nodeType' => TypeRegistry::get_type( 'MenuItem' ),
 				'name'     => 'MenuItems',
 				'connectionFields' => function() {
 					return [
 						'nodes' => [
-							'type'        => Types::list_of( Types::menu_item() ),
+							'type'        => Types::list_of( TypeRegistry::get_type( 'MenuItem' ) ),
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 							'resolve'     => function( $source, $args, $context, $info ) {
 								return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
