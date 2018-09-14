@@ -15,6 +15,7 @@ use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionResolver;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -557,6 +558,7 @@ class DataSource {
 
 		if ( null === self::$node_definition ) {
 
+			$types = TypeRegistry::get_types();
 			$node_definition = Relay::nodeDefinitions(
 
 			// The ID fetcher definition
@@ -659,25 +661,27 @@ class DataSource {
 
 						switch ( true ) {
 							case $node instanceof \WP_Post:
-								$type = Types::post_object( $node->post_type );
+								$post_type_object = get_post_type_object( $node->post_type );
+								$type = $post_type_object->graphql_single_name;
 								break;
 							case $node instanceof \WP_Term:
 								$type = Types::term_object( $node->taxonomy );
 								break;
 							case $node instanceof \WP_Comment:
-								$type = Types::comment();
+								$type = 'Comment';
 								break;
 							case $node instanceof \WP_Post_Type:
-								$type = Types::post_type();
+								$type = 'PostType';
 								break;
 							case $node instanceof \WP_Taxonomy:
-								$type = Types::taxonomy();
+								$type = 'Taxonomy';
 								break;
+
 							case $node instanceof \WP_Theme:
-								$type = Types::theme();
+								$type = 'Theme';
 								break;
 							case $node instanceof \WP_User:
-								$type = Types::user();
+								$type = 'User';
 								break;
 							default:
 								$type = null;
@@ -688,10 +692,10 @@ class DataSource {
 
 						switch ( $node ) {
 							case array_key_exists( 'PluginURI', $node ):
-								$type = Types::plugin();
+								$type = 'Plugin';
 								break;
 							case array_key_exists( 'is_comment_author', $node ):
-								$type = Types::comment_author();
+								$type = 'CommentAuthor';
 								break;
 							default:
 								$type = null;

@@ -1,0 +1,108 @@
+<?php
+
+namespace WPGraphQL\Connection;
+
+use WPGraphQL\Data\DataSource;
+
+class Users {
+	public static function register_connection( $config = [] ) {
+
+		$default = [
+			'fromType'         => 'RootQuery',
+			'toType'           => 'User',
+			'fromFieldName'    => 'users',
+			'connectionArgs'   => [
+				'role'              => [
+					'type'        => 'UserRolesEnum',
+					'description' => __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' ),
+				],
+				'roleIn'            => [
+					'type'        => [
+						'list_of' => 'UserRolesEnum'
+					],
+					'description' => __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' ),
+				],
+				'roleNotIn'         => [
+					'type'        => [
+						'list_of' => 'UserRolesEnum'
+					],
+					'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
+				],
+				'include'           => [
+					'type'        => [
+						'list_of' => 'ID'
+					],
+					'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
+				],
+				'exclude'           => [
+					'type'        => [
+						'list_of' => 'ID'
+					],
+					'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
+				],
+				'search'            => [
+					'type'        => 'String',
+					'description' => __( 'Search keyword. Searches for possible string matches on columns. When "searchColumns" is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
+				],
+				'searchColumns'     => [
+					'type'        => [
+						'list_of' => 'UserSearchColumnEnum'
+					],
+					'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' ),
+				],
+				'hasPublishedPosts' => [
+					'type'        => [
+						'list_of' => 'PostTypeEnum'
+					],
+					'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
+				],
+				'nicename'          => [
+					'type'        => 'String',
+					'description' => __( 'The user nicename.', 'wp-graphql' ),
+				],
+				'nicenameIn'        => [
+					'type'        => [
+						'list_of' => 'String'
+					],
+					'description' => __( 'An array of nicenames to include. Users matching one of these nicenames will be included in results.', 'wp-graphql' ),
+				],
+				'nicenameNotIn'     => [
+					'type'        => [
+						'list_of' => 'String'
+					],
+					'description' => __( 'An array of nicenames to exclude. Users matching one of these nicenames will not be included in results.', 'wp-graphql' ),
+				],
+				'login'             => [
+					'type'        => 'String',
+					'description' => __( 'The user login.', 'wp-graphql' ),
+				],
+				'loginIn'           => [
+					'type'        => 'Int',
+					'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
+				],
+				'loginNotIn'        => [
+					'type'        => 'Int',
+					'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
+				],
+			],
+			'connectionFields' => [
+				'nodes' => [
+					'type'        => [
+						'list_of' => 'User',
+					],
+					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+					'resolve'     => function ( $source, $args, $context, $info ) {
+						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+					},
+				],
+			],
+			'resolve'          => function ( $source, $args, $context, $info ) {
+				return DataSource::resolve_users_connection( $source, $args, $context, $info );
+			}
+		];
+
+		$config = array_merge( $default, $config );
+
+		register_graphql_connection( $config );
+	}
+}

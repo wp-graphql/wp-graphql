@@ -260,7 +260,10 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 					'type'        => Types::list_of( self::orderby_field() ),
 					'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 				],
-				'dateQuery'    => self::date_query(),
+				'dateQuery'    => [
+					'type' => 'PostObjectsConnectionDateQuery',
+					'description' => __( 'Filter the connection by date', 'wp-graphql' ),
+				],
 				'mimeType'     => [
 					'type'        => Types::mime_type_enum(),
 					'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),

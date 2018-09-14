@@ -243,7 +243,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}";
 
 		$actual = do_graphql_request( $query );
-
+		
 		$expected = [
 			'data' => [
 				'node' => [

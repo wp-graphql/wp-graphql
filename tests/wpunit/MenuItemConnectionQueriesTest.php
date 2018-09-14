@@ -1,6 +1,5 @@
 <?php
 
-use WPGraphQL\Type\Enum\MenuLocationEnumType;
 
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 

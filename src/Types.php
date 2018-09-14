@@ -458,8 +458,10 @@ class Types {
 		}
 
 		if ( empty( self::$post_object[ $post_type ] ) ) {
-			self::$post_object[ $post_type ] = new PostObjectType( $post_type );
+			$post_type_object = get_post_type_object( $post_type );
+			self::$post_object[ $post_type ] = TypeRegistry::get_type( $post_type_object->graphql_single_name );
 		}
+
 
 		return ! empty( self::$post_object[ $post_type ] ) ? self::$post_object[ $post_type ] : null;
 
@@ -656,7 +658,8 @@ class Types {
 		}
 
 		if ( empty( self::$term_object[ $taxonomy ] ) ) {
-			self::$term_object[ $taxonomy ] = new TermObjectType( $taxonomy );
+			$tax_object = get_taxonomy( $taxonomy );
+			self::$term_object[ $taxonomy ] = TypeRegistry::get_type( $tax_object->graphql_single_name );
 		}
 
 		return ! empty( self::$term_object[ $taxonomy ] ) ? self::$term_object[ $taxonomy ] : null;

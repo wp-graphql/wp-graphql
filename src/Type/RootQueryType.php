@@ -1,9 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\PostObject\PostObjectQuery;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
@@ -26,20 +23,10 @@ class RootQueryType extends WPObjectType {
 	 */
 	public function __construct() {self::$type_name = 'RootQuery';
 
-		/**
-		 * Configure the RootQuery
-		 * @since 0.0.5
-		 */
-		$config = [
+		parent::__construct( [
 			'name' => self::$type_name,
 			'fields' => self::fields(),
-		];
-
-		/**
-		 * Pass the config to the parent construct
-		 * @since 0.0.5
-		 */
-		parent::__construct( $config );
+		]);
 
 	}
 
@@ -80,7 +67,7 @@ class RootQueryType extends WPObjectType {
 						 * Root query for collections of posts (of the specified post_type)
 						 * @since 0.0.5
 						 */
-						$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
+						// $fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
 					}
 				}
 
@@ -104,13 +91,13 @@ class RootQueryType extends WPObjectType {
 						 * Root query for single terms (of the specified taxonomy)
 						 * @since 0.0.5
 						 */
-						$fields[ $taxonomy_object->graphql_single_name ] = TermObjectQuery::root_query( $taxonomy_object );
+						// $fields[ $taxonomy_object->graphql_single_name ] = TermObjectQuery::root_query( $taxonomy_object );
 
 						/**
 						 * Root query for collections of terms (of the specified taxonomy)
 						 * @since 0.0.5
 						 */
-						$fields[ $taxonomy_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $taxonomy_object );
+						// $fields[ $taxonomy_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $taxonomy_object );
 					}
 				}
 
