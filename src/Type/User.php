@@ -5,6 +5,8 @@ namespace WPGraphQL\Type;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
+use WPGraphQL\Type\User\UserType;
 
 class User {
 	public static function register_type() {
@@ -198,6 +200,13 @@ class User {
 			],
 			'interfaces'  => [ WPObjectType::node_interface() ]
 		] );
+
+		/**
+		 * Add a connection between user and comments.
+		 *
+		 * @todo: abstract to "register_graphql_connection"
+		 */
+		register_graphql_field( 'User', 'comments', CommentConnectionDefinition::connection( 'User' ) );
 
 	}
 }

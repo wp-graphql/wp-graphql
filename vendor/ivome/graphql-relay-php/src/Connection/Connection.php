@@ -163,7 +163,7 @@ class Connection {
     {
         if (self::$pageInfoType === null){
             self::$pageInfoType = new ObjectType([
-                'name' => 'RelayPageInfo',
+                'name' => 'PageInfo',
                 'description' => 'Information about pagination in a connection.',
                 'fields' => [
                     'hasNextPage' => [

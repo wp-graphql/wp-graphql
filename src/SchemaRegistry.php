@@ -31,10 +31,7 @@ class SchemaRegistry {
 			'mutation' => 'RootMutation',
 		] );
 
-		if ( ! did_action( 'graphql_register_schemas' ) ) {
-			do_action( 'graphql_register_schemas' );
-		}
-
+		do_action( 'graphql_register_schemas' );
 	}
 
 	/**

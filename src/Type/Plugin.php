@@ -9,7 +9,6 @@ class Plugin {
 	public static function register_type() {
 		register_graphql_object_type( 'Plugin', [
 			'description' => __( 'An plugin object', 'wp-graphql' ),
-			'interfaces' => [ WPObjectType::node_interface() ],
 			'fields' => [
 				'id'          => [
 					'type'    => [
@@ -62,6 +61,7 @@ class Plugin {
 					},
 				],
 			],
+			'interfaces' => [ WPObjectType::node_interface() ],
 		] );
 	}
 }

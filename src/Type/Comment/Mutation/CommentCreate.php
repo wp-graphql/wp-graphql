@@ -7,7 +7,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPInputObjectType;
-use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -39,7 +38,7 @@ class CommentCreate {
 				'outputFields'        => function() use ( $mutation_name ) {
 					return [
 						'comment' => [
-							'type'    => 'Comment',
+							'type'    => Types::comment(),
 							'resolve' => function ( $payload ) {
 								return get_comment( $payload['id'] );
 							},

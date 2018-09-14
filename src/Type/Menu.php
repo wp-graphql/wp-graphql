@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 
 class Menu {
 	public static function register_type() {
@@ -39,6 +40,10 @@ class Menu {
 			]
 		]);
 
+		/**
+		 * Register the connection after the Types have been established
+		 */
+		register_graphql_field( 'Menu', 'menuItems', MenuItemConnectionDefinition::connection() );
 
 	}
 }

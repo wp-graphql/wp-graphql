@@ -31,7 +31,7 @@ use WPGraphQL\Type\User\Mutation\UserRegister;
 class RootMutationType extends WPObjectType {
 
 	/**
-	 * Holds the $fields definition for the RootMutationType
+	 * Holds the $fields definition for the PluginType
 	 *
 	 * @var $fields
 	 */

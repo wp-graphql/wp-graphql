@@ -2,22 +2,12 @@
 
 namespace WPGraphQL;
 
-use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\Connections;
-use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\Menus;
-use WPGraphQL\Connection\Plugins;
-use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\Themes;
-use WPGraphQL\Connection\Users;
 use WPGraphQL\Type\Avatar;
 use WPGraphQL\Type\AvatarRatingEnum;
 use WPGraphQL\Type\Comment;
+use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\CommentAuthor;
 use WPGraphQL\Type\CommentAuthorUnion;
-use WPGraphQL\Type\CommentsOrderbyEnum;
-use WPGraphQL\Type\CommentsOrderEnum;
-use WPGraphQL\Type\DateInput;
 use WPGraphQL\Type\EditLock;
 use WPGraphQL\Type\MediaItemStatusEnum;
 use WPGraphQL\Type\MenuItem;
@@ -25,15 +15,9 @@ use WPGraphQL\Type\MenuItemObjectUnion;
 use WPGraphQL\Type\MenuLocationEnum;
 use WPGraphQL\Type\Menu;
 use WPGraphQL\Type\MimeTypeEnum;
-use WPGraphQL\Type\PageInfo;
 use WPGraphQL\Type\Plugin;
-use WPGraphQL\Type\PostObject;
+use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
-use WPGraphQL\Type\PostObjectOrderEnum;
-use WPGraphQL\Type\PostObjectsConnectionDateQuery;
-use WPGraphQL\Type\PostObjectsDateColumnEnum;
-use WPGraphQL\Type\PostObjectsOrderby;
-use WPGraphQL\Type\PostObjectsOrderbyFieldEnum;
 use WPGraphQL\Type\PostObjectUnion;
 use WPGraphQL\Type\PostStatusEnum;
 use WPGraphQL\Type\PostType;
@@ -45,14 +29,10 @@ use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
-use WPGraphQL\Type\TaxonomyOrderbyEnum;
-use WPGraphQL\Type\TermObject;
 use WPGraphQL\Type\TermObjectUnion;
 use WPGraphQL\Type\Theme;
 use WPGraphQL\Type\User;
 use WPGraphQL\Type\UserRole;
-use WPGraphQL\Type\UserRolesEnum;
-use WPGraphQL\Type\UserSearchColumnEnum;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -77,22 +57,13 @@ class TypeRegistry {
 		AvatarRatingEnum::register_type();
 		Comment::register_type();
 		CommentAuthor::register_type();
-		CommentsOrderbyEnum::register_type();
-		CommentsOrderEnum::register_type();
-		DateInput::register_type();
 		EditLock::register_type();
 		MediaItemStatusEnum::register_type();
 		MenuItem::register_type();
 		MenuLocationEnum::register_type();
 		Menu::register_type();
 		MimeTypeEnum::register_type();
-		PageInfo::register_type();
 		Plugin::register_type();
-		PostObjectsConnectionDateQuery::register_type();
-		PostObjectsOrderby::register_type();
-		PostObjectsOrderbyFieldEnum::register_type();
-		PostObjectsDateColumnEnum::register_type();
-		PostObjectOrderEnum::register_type();
 		PostObjectFieldFormatEnum::register_type();
 		PostStatusEnum::register_type();
 		PostType::register_type();
@@ -103,77 +74,75 @@ class TypeRegistry {
 		Theme::register_type();
 		Taxonomy::register_type();
 		TaxonomyEnum::register_type();
-		TaxonomyOrderbyEnum::register_type();
 		User::register_type();
 		UserRole::register_type();
-		UserRolesEnum::register_type();
-		UserSearchColumnEnum::register_type();
-
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $post_type ) {
-				$post_type_object = get_post_type_object( $post_type );
-				if ( ! empty( $post_type_object->graphql_single_name) ) {
-					PostObject::register_type( $post_type_object );
-				}
-			}
-		}
-
-
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				$tax_object = get_taxonomy( $taxonomy );
-				TermObject::register_type( $tax_object );
-			}
-		}
-
 		RootMutation::register_type();
 		RootQuery::register_type();
 
-		if ( ! did_action( 'graphql_register_types' ) ) {
-			do_action( 'graphql_register_types' );
-		}
-
 		/**
-		 * Unions: need to be registered after other types as they are a merger of Types
+		 * Unions (need to be registered after other types)
 		 */
 		CommentAuthorUnion::register_type();
 		MenuItemObjectUnion::register_type();
 		PostObjectUnion::register_type();
 		TermObjectUnion::register_type();
 
-
-		if ( ! did_action( 'graphql_register_unions' ) ) {
-			do_action( 'graphql_register_unions' );
+		if ( ! did_action( 'graphql_register_types' ) ) {
+			do_action( 'graphql_register_types' );
 		}
 
-		/**
-		 * Connections get registered after Types
-		 */
-		Connections::register_connections();
-
-		/**
-		 * RootQueryToCommentConnection
-		 */
-		// Comments::register_connection();
-		// Comments::register_connection([ 'fromType' => 'Comment', 'fromFieldName' => 'children' ]);
-		// Comments::register_connection([ 'fromType' => 'User', 'fromFieldName' => 'comments' ]);
-		Menus::register_connection();
-		MenuItems::register_connection();
-		MenuItems::register_connection([ 'fromType' => 'Menu', 'fromFieldName' => 'menuItems' ]);
-		Plugins::register_connection();
-		Themes::register_connection();
-		Users::register_connection();
-
-		if ( ! did_action( 'graphql_register_connections' ) ) {
-			do_action( 'graphql_register_connections' );
-		}
+		self::register_connections();
 
 	}
 
+	protected static function register_connections() {
+
+		/**
+		 * Connections: Need to be registered after other Types
+		 *
+		 * @todo: abstract to "register_graphql_connection"
+		 */
+		register_graphql_field( 'Comment', 'children', CommentConnectionDefinition::connection( 'Children' ) );
+
+
+		self::register_user_connections();
+
+	}
+
+	protected static function register_user_connections() {
+
+		/**
+		 * Add a connection between user and comments.
+		 *
+		 * @todo: abstract to "register_graphql_connection"
+		 */
+		register_graphql_field( 'User', 'comments', CommentConnectionDefinition::connection( 'User' ) );
+
+		/**
+		 * Get the allowed_post_types so that we can create a connection from users
+		 * to post_types
+		 *
+		 * @since 0.0.5
+		 */
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+
+		/**
+		 * Add connection to each of the allowed post_types as users can have connections
+		 * to any post_type.
+		 *
+		 * @since 0.0.5
+		 */
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				// @todo: maybe look into narrowing this based on permissions?
+				$post_type_object = get_post_type_object( $post_type );
+				if ( ! empty( $post_type_object->graphql_plural_name ) ) {
+					register_graphql_field( 'User', lcfirst( $post_type_object->graphql_plural_name ), PostObjectConnectionDefinition::connection( $post_type_object, 'User' ) );
+				}
+			}
+		}
+
+	}
 
 	protected static function format_key( $key ) {
 		return strtolower( $key );
@@ -283,7 +252,7 @@ class TypeRegistry {
 			$field_config['name'] = $field_name;
 		}
 
-		if ( isset( $field_config['type'] ) && is_string( $field_config['type'] ) ) {
+		if ( is_string( $field_config['type'] ) ) {
 			$type = TypeRegistry::get_type( $field_config['type'] );
 			if ( ! empty( $type ) ) {
 				$field_config['type'] = $type;
@@ -308,9 +277,7 @@ class TypeRegistry {
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$field_config['args'][ $arg_name ] = function() use ( $arg_name, $arg_config, $type_name ) {
-					return self::prepare_field( $arg_name, $arg_config, $type_name );
-				};
+				$field_config['args'][ $arg_name ] = self::prepare_field( $arg_name, $arg_config, $type_name );
 			}
 		} else {
 			unset( $field_config['args'] );
@@ -330,107 +297,6 @@ class TypeRegistry {
 
 	public static function get_types() {
 		return ! empty( self::$types ) ? self::$types : [];
-	}
-
-	protected static function get_connection_name( $from_type, $to_type ) {
-		return $from_type . 'To' . $to_type . 'Connection';
-	}
-
-	public static function register_connection( $config ) {
-
-		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
-		}
-
-		$from_type          = $config['fromType'];
-		$to_type            = $config['toType'];
-		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
-		$connection_name    = self::get_connection_name( $from_type, $to_type );
-		$where_args = [];
-
-		/**
-		 * If there are any $connectionArgs,
-		 * register their inputType and configure them as $where_args to be added to the connection
-		 * field as arguments
-		 */
-		if ( ! empty( $connection_args ) ) {
-			register_graphql_input_type( $from_type . 'To' . $to_type . 'ConnectionWhereArgs', [
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-				'fields' => $connection_args,
-			]);
-
-			$where_args = [
-				'where' => [
-					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type' => $from_type . 'To' . $to_type . 'ConnectionWhereArgs',
-				],
-			];
-
-		}
-
-		register_graphql_type( $connection_name . 'Edge', [
-			'description' => __( 'An edge in a connection', 'wp-graphql' ),
-			'fields'      => array_merge( [
-				'cursor' => [
-					'type'        => 'String',
-					'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-					'resolve'     => $resolve_cursor
-				],
-				'node'   => [
-					'type'        => $to_type,
-					'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-					'resolve'     => $resolve_node
-				],
-			], $edge_fields ),
-		] );
-
-		register_graphql_type( $connection_name, [
-			// Translators: the placeholders are the name of the Types the connection is between.
-			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
-			'fields'      => array_merge( [
-				'pageInfo' => [
-					'type'        => 'PageInfo',
-					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-				],
-				'edges'    => [
-					'type'        => [
-						'list_of' => $connection_name . 'Edge',
-					],
-					'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
-				],
-			], $connection_fields ),
-		] );
-
-		register_graphql_field( $from_type, $from_field_name, [
-			'type'        => $connection_name,
-			'args'        => array_merge( [
-				'first'  => [
-					'type'        => 'Int',
-					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
-				],
-				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
-				],
-				'after'  => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-				'before' => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-			], $where_args ),
-			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
-			'resolve'     => $resolve_connection
-		] );
-
 	}
 
 }

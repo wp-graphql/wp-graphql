@@ -127,16 +127,14 @@ class Comment {
 						return ! empty( $comment->comment_type ) ? $comment->comment_type : '';
 					},
 				],
-			],
+				'parent'      => [
+					'type'        => 'Comment',
+					'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
+					'resolve'     => function ( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+						return get_comment( $comment->comment_parent );
+					},
+				],
+			]
 		] );
-
-		register_graphql_field( 'Comment', 'parent', [
-			'type'        => 'Comment',
-			'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
-			'resolve'     => function ( \WP_Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-				return get_comment( $comment->comment_parent );
-			},
-		] );
-
 	}
 }
