@@ -546,7 +546,7 @@ class PostObjectType extends WPObjectType {
 						'resolve'     => function ( \WP_Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							$thumbnail_id = get_post_thumbnail_id( $post->ID );
 
-							return isset( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : get_post( absint( $thumbnail_id ) );
+							return ! empty( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : get_post( absint( $thumbnail_id ) );
 
 						},
 					];
