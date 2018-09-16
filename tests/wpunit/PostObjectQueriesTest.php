@@ -310,6 +310,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( [
 			'post_type' => 'post',
 		] );
+		
+		/**
+		 * Remove Featured Image
+		 */
+		delete_post_meta( $post_id, '_thumbnail_id' );
 
 		// Create a comment and assign it to post.
 		$comment_id = $this->factory()->comment->create( [
