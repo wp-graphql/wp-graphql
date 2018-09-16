@@ -302,7 +302,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @since 0.0.5
 	 */
-	public function testPostQueryWithComments() {
+	public function testPostQueryWithCommentsAndNoFeaturedImage() {
 
 		/**
 		 * Create a post
@@ -337,6 +337,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 				}
+				featuredImage {
+					id
+				}
 			}
 		}";
 
@@ -363,6 +366,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'commentCount'  => 1,
 					'commentStatus' => 'open',
+					'featuredImage' => null,
 				],
 			],
 		];
