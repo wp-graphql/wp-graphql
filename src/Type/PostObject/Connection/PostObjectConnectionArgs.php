@@ -5,6 +5,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -296,13 +297,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				'name' => 'OrderByOptions',
 				'fields' => self::prepare_fields( [
 					'field' => Types::non_null( self::orderby_enum() ),
-					'order' => new WPEnumType( [
-						'name'   => 'Order',
-						'values' => [
-							'ASC'  => [ 'value' => 'ASC' ],
-							'DESC' => [ 'value' => 'DESC' ],
-						],
-					] ),
+					'order' => TypeRegistry::get_type( 'OrderEnum' ),
 				], 'OrderByOptions' ),
 			] );
 		}
