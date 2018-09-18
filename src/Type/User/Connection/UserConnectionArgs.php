@@ -119,5 +119,5 @@ class UserConnectionArgs extends WPInputObjectType {
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ]: null;
 
 	}
-	
+
 }
