@@ -26,13 +26,6 @@ class UserConnectionArgs extends WPInputObjectType {
 	public static $fields;
 
 	/**
-	 * This holds the $roles_enum definition
-	 * @var EnumType
-	 * @since 0.0.5
-	 */
-	private static $roles_enum;
-
-	/**
 	 * UserConnectionArgs constructor.
 	 * @param array $config Array of config for the Input Type
 	 * @param string $connection The name of the connection the args belong to
@@ -64,15 +57,15 @@ class UserConnectionArgs extends WPInputObjectType {
 
 			$fields                      = [
 				'role'              => [
-					'type'        => self::roles_enum(),
+					'type'        => TypeRegistry::get_type( 'UserRoleEnum' ),
 					'description' => __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' ),
 				],
 				'roleIn'            => [
-					'type'        => Types::list_of( self::roles_enum() ),
+					'type'        => Types::list_of( TypeRegistry::get_type( 'UserRoleEnum' ) ),
 					'description' => __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' ),
 				],
 				'roleNotIn'         => [
-					'type'        => Types::list_of( self::roles_enum() ),
+					'type'        => Types::list_of( TypeRegistry::get_type( 'UserRoleEnum' ) ),
 					'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
 				],
 				'include'           => [
@@ -126,43 +119,5 @@ class UserConnectionArgs extends WPInputObjectType {
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ]: null;
 
 	}
-
-	/**
-	 * roles_enum
-	 *
-	 * Returns the userRoleEnum type definition
-	 *
-	 * @return EnumType
-	 * @since 0.0.5
-	 */
-	private static function roles_enum() {
-
-		if ( null === self::$roles_enum ) {
-			global $wp_roles;
-			$all_roles      = $wp_roles->roles;
-			$editable_roles = apply_filters( 'editable_roles', $all_roles );
-			$roles          = [];
-
-			if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
-				foreach ( $editable_roles as $key => $role ) {
-
-					$formatted_role = self::format_enum_name( $role['name'] );
-
-					$roles[ $formatted_role ] = [
-						'value' => $key,
-					];
-				}
-			}
-
-			if ( ! empty( $roles ) ) {
-				self::$roles_enum = new WPEnumType( [
-					'name'   => 'UserRoleEnum',
-					'values' => $roles,
-				] );
-			}
-		}
-
-		return self::$roles_enum;
-	}
-
+	
 }
