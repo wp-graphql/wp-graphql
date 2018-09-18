@@ -19,6 +19,7 @@ use WPGraphQL\Type\MenuItemObjectUnion;
 use WPGraphQL\Type\MenuLocationEnum;
 use WPGraphQL\Type\Menu;
 use WPGraphQL\Type\MimeTypeEnum;
+use WPGraphQL\Type\OrderEnum;
 use WPGraphQL\Type\Plugin;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
@@ -71,6 +72,7 @@ class TypeRegistry {
 		MenuLocationEnum::register_type();
 		Menu::register_type();
 		MimeTypeEnum::register_type();
+		OrderEnum::register_type();
 		Plugin::register_type();
 		PostObjectFieldFormatEnum::register_type();
 		PostStatusEnum::register_type();

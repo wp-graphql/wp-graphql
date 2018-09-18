@@ -2,7 +2,6 @@
 namespace WPGraphQL\Type\Comment\Connection;
 
 use GraphQL\Type\Definition\EnumType;
-use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
@@ -24,12 +23,6 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public static $fields = [];
-
-	/**
-	 * Holds the order Enum definition
-	 * @var EnumType
-	 */
-	private static $comments_order;
 
 	/**
 	 * CommentConnectionArgs constructor.
@@ -93,7 +86,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 				],
 				'order'              => [
-					'type' => self::comment_order(),
+					'type' => TypeRegistry::get_type( 'OrderEnum' ),
 				],
 				'parent'             => [
 					'type'        => Types::int(),
@@ -184,25 +177,5 @@ class CommentConnectionArgs extends WPInputObjectType {
 
 	}
 
-	private static function comment_order() {
-
-		if ( null === self::$comments_order ) {
-			self::$comments_order = new WPEnumType( [
-				'name'         => 'CommentsOrder',
-				'values'       => [
-					'ASC'  => [
-						'value' => 'ASC',
-					],
-					'DESC' => [
-						'value' => 'DESC',
-					],
-				],
-				'defaultValue' => 'DESC',
-			] );
-		}
-
-		return self::$comments_order;
-
-	}
 
 }
