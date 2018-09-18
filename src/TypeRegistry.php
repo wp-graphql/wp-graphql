@@ -41,6 +41,7 @@ use WPGraphQL\Type\TermObjectUnion;
 use WPGraphQL\Type\Theme;
 use WPGraphQL\Type\User;
 use WPGraphQL\Type\UserRole;
+use WPGraphQL\Type\UsersConnectionSearchColumnEnum;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -91,6 +92,7 @@ class TypeRegistry {
 		Taxonomy::register_type();
 		TaxonomyEnum::register_type();
 		User::register_type();
+		UsersConnectionSearchColumnEnum::register_type();
 		UserRole::register_type();
 		RootMutation::register_type();
 		RootQuery::register_type();

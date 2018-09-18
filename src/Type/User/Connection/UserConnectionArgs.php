@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\User\Connection;
 use GraphQL\Type\Definition\EnumType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -30,13 +31,6 @@ class UserConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	private static $roles_enum;
-
-	/**
-	 * This holds the SearchColumnsEnumType
-	 * @var EnumType
-	 * @since 0.0.5
-	 */
-	private static $search_columns_enum;
 
 	/**
 	 * UserConnectionArgs constructor.
@@ -94,7 +88,7 @@ class UserConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Search keyword. Searches for possible string matches on columns. When "searchColumns" is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' ),
 				],
 				'searchColumns'     => [
-					'type'        => Types::list_of( self::search_columns_enum() ),
+					'type'        => Types::list_of( TypeRegistry::get_type( 'UsersConnectionSearchColumnEnum' ) ),
 					'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' ),
 				],
 				'hasPublishedPosts' => [
@@ -131,41 +125,6 @@ class UserConnectionArgs extends WPInputObjectType {
 
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ]: null;
 
-	}
-
-	/**
-	 * search_columns_enum
-	 *
-	 * Returns the searchColumnsEnum type defintion
-	 *
-	 * @return EnumType
-	 * @since 0.0.5
-	 */
-	private static function search_columns_enum() {
-
-		if ( null === self::$search_columns_enum ) {
-			self::$search_columns_enum = new WPEnumType( [
-				'name'   => 'SearchColumnsEnum',
-				'values' => [
-					'ID'       => [
-						'value' => 'ID',
-					],
-					'LOGIN'    => [
-						'value' => 'login',
-					],
-					'NICENAME' => [
-						'value' => 'nicename',
-					],
-					'EMAIL'    => [
-						'value' => 'email',
-					],
-					'URL'      => [
-						'value' => 'url',
-					],
-				],
-			] );
-		}
-		return self::$search_columns_enum;
 	}
 
 	/**
