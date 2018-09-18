@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\PostObject\Connection;
 
-use GraphQL\Type\Definition\InputObjectType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
@@ -33,13 +32,6 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public static $fields = [];
-
-	/**
-	 * This holds the orderby_field input object type
-	 *
-	 * @var array $orderby_field
-	 */
-	private static $orderby_field;
 
 	/**
 	 * PostObjectConnectionArgs constructor.
@@ -249,7 +241,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				 * @since 0.0.2
 				 */
 				'orderby'      => [
-					'type'        => Types::list_of( self::orderby_field() ),
+					'type'        => Types::list_of( TypeRegistry::get_type( 'PostObjectsConnectionOrderbyInput' ) ),
 					'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 				],
 				'dateQuery'    => self::date_query(),
@@ -273,27 +265,6 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	public static function date_query() {
 		return self::$date_query ? : ( self::$date_query = new PostObjectConnectionArgsDateQuery() );
-	}
-
-	/**
-	 * This returns the orderby field which accepts a field (enum) and an order (enum, ASC/DESC)
-	 *
-	 * @return InputObjectType object
-	 * @access private
-	 */
-	private static function orderby_field() {
-		if ( null === self::$orderby_field ) {
-
-			self::$orderby_field = new WPInputObjectType( [
-				'name' => 'OrderByOptions',
-				'fields' => self::prepare_fields( [
-					'field' => Types::non_null( TypeRegistry::get_type( 'PostObjectsConnectionOrderbyEnum' ) ),
-					'order' => TypeRegistry::get_type( 'OrderEnum' ),
-				], 'OrderByOptions' ),
-			] );
-		}
-
-		return ! empty( self::$orderby_field ) ? self::$orderby_field : null;
 	}
 
 }
