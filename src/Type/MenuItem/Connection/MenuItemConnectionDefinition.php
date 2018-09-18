@@ -5,7 +5,6 @@ namespace WPGraphQL\Type\MenuItem\Connection;
 use GraphQLRelay\Relay;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
-use WPGraphQL\Type\WPInputObjectType;
 
 /**
  * Class MenuItemConnectionDefinition
@@ -22,20 +21,6 @@ class MenuItemConnectionDefinition {
 	 * @access private
 	 */
 	private static $connection;
-
-	/**
-	 * Stores the where_args Input Object Type
-	 *
-	 * @var \WPGraphQL\Type\WPInputObjectType $where_args
-	 */
-	private static $where_args;
-
-	/**
-	 * Stores the fields for the $where_args
-	 *
-	 * @var array $where_fields
-	 */
-	private static $where_fields;
 
 	/**
 	 * Create the Relay connection for MenuItems
@@ -66,7 +51,7 @@ class MenuItemConnectionDefinition {
 			$args = [
 				'where' => [
 					'name' => 'where',
-					'type' => self::where_args(),
+					'type' => 'MenuItemsWhereArgs',
 				],
 			];
 
@@ -81,48 +66,4 @@ class MenuItemConnectionDefinition {
 		return ! empty( self::$connection ) ? self::$connection : null;
 	}
 
-	/**
-	 * Defines the "where" args that can be used to query menuItems
-	 *
-	 * @return WPInputObjectType
-	 */
-	private static function where_args() {
-
-		if ( null === self::$where_args ) {
-			
-			self::$where_args = new WPInputObjectType( [
-				'name'   => 'MenuItemQueryArgs',
-				'fields' => function() {
-					return self::where_fields();
-				},
-			] );
-		}
-
-		return ! empty( self::$where_args ) ? self::$where_args : null;
-
-	}
-
-	/**
-	 * This defines the fields to be used in the $where_args input type
-	 *
-	 * @return array|mixed
-	 */
-	private static function where_fields() {
-		if ( null === self::$where_fields ) {
-			$fields = [
-				'id' => [
-					'type'        => Types::int(),
-					'description' => __( 'The ID of the object', 'wp-graphql' ),
-				],
-				'location' => [
-					'type'        => Types::menu_location_enum(),
-					'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
-				],
-			];
-
-			self::$where_fields = WPInputObjectType::prepare_fields( $fields, 'MenuItemQueryArgs' );
-		}
-
-		return self::$where_fields;
-	}
 }

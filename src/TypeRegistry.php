@@ -17,6 +17,7 @@ use WPGraphQL\Type\MediaSize;
 use WPGraphQL\Type\MenuConnectionWhereArgs;
 use WPGraphQL\Type\MenuItem;
 use WPGraphQL\Type\MenuItemObjectUnion;
+use WPGraphQL\Type\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\MenuLocationEnum;
 use WPGraphQL\Type\Menu;
 use WPGraphQL\Type\MimeTypeEnum;
@@ -76,6 +77,7 @@ class TypeRegistry {
 		MediaSize::register_type();
 		MenuConnectionWhereArgs::register_type();
 		MenuItem::register_type();
+		MenuItemsConnectionWhereArgs::register_type();
 		MenuLocationEnum::register_type();
 		Menu::register_type();
 		MimeTypeEnum::register_type();

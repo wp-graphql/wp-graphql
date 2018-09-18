@@ -52,7 +52,7 @@ class MenuConnectionDefinition {
 			$args = [
 				'where' => [
 					'name' => 'where',
-					'type' => TypeRegistry::get_type( 'MenuConnectionWhereArgs' ),
+					'type' => 'MenuConnectionWhereArgs',
 				],
 			];
 
