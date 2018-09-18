@@ -1,8 +1,8 @@
 <?php
 namespace WPGraphQL\Type\TermObject\Connection;
 
-use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -22,12 +22,6 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public static $fields = [];
-
-	/**
-	 * Holds the orderby enum definition
-	 * @var $orderby_enum
-	 */
-	protected static $orderby_enum;
 
 	/**
 	 * TermObjectConnectionArgs constructor.
@@ -62,7 +56,7 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 				],
 				'orderby'             => [
-					'type'        => self::orderby_enum(),
+					'type'        => TypeRegistry::get_type( 'TermObjectsConnectionOrderbyEnum' ),
 					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
 				],
 				'hideEmpty'           => [
@@ -153,46 +147,6 @@ class TermObjectConnectionArgs extends WPInputObjectType {
 		}
 
 		return ! empty( self::$fields[ $connection ] ) ? self::prepare_fields( self::$fields[ $connection ], ucfirst( $connection ) . 'TermArgs' ) : null;
-	}
-
-	/**
-	 * Sets up the definition of the TermsOrderby enum
-	 * @return null|WPEnumType
-	 */
-	protected static function orderby_enum() {
-
-		if ( null === self::$orderby_enum ) {
-
-			self::$orderby_enum = new WPEnumType( [
-				'name'   => 'TermsOrderby',
-				'values' => [
-					'NAME'        => [
-						'value' => 'name',
-					],
-					'SLUG'        => [
-						'value' => 'slug',
-					],
-					'TERM_GROUP'  => [
-						'value' => 'term_group',
-					],
-					'TERM_ID'     => [
-						'value' => 'term_id',
-					],
-					'TERM_ORDER'  => [
-						'value' => 'term_order',
-					],
-					'DESCRIPTION' => [
-						'value' => 'description',
-					],
-					'COUNT'       => [
-						'value' => 'count',
-					],
-				],
-			] );
-
-		}
-
-		return ! empty( self::$orderby_enum ) ? self::$orderby_enum : null;
 	}
 
 }

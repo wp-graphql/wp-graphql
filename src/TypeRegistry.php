@@ -36,6 +36,7 @@ use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
+use WPGraphQL\Type\TermObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\TermObjectUnion;
 use WPGraphQL\Type\Theme;
 use WPGraphQL\Type\User;
@@ -85,6 +86,7 @@ class TypeRegistry {
 		PostTypeEnum::register_type();
 		RelationEnum::register_type();
 		Settings::register_type();
+		TermObjectsConnectionOrderbyEnum::register_type();
 		Theme::register_type();
 		Taxonomy::register_type();
 		TaxonomyEnum::register_type();
