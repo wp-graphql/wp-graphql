@@ -9,6 +9,7 @@ use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\CommentAuthor;
 use WPGraphQL\Type\CommentAuthorUnion;
 use WPGraphQL\Type\CommentsConnectionOrderbyEnum;
+use WPGraphQL\Type\DateInput;
 use WPGraphQL\Type\EditLock;
 use WPGraphQL\Type\MediaDetails;
 use WPGraphQL\Type\MediaItemMeta;
@@ -71,6 +72,7 @@ class TypeRegistry {
 		Comment::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentAuthor::register_type();
+		DateInput::register_type();
 		EditLock::register_type();
 		MediaItemStatusEnum::register_type();
 		MediaDetails::register_type();
