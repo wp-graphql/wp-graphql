@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\Comment\Connection;
 use GraphQL\Type\Definition\EnumType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -23,13 +24,6 @@ class CommentConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public static $fields = [];
-
-	/**
-	 * Holds the orderby Enum definition
-	 * @var EnumType
-	 * @since 0.0.5
-	 */
-	private static $comments_orderby_enum;
 
 	/**
 	 * Holds the order Enum definition
@@ -95,7 +89,7 @@ class CommentConnectionArgs extends WPInputObjectType {
 					'description' => __( 'Karma score to retrieve matching comments for.', 'wp-graphql' ),
 				],
 				'orderby'            => [
-					'type'        => self::comments_orderby_enum(),
+					'type'        => TypeRegistry::get_type( 'CommentsConnectionOrderbyEnum' ),
 					'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 				],
 				'order'              => [
@@ -188,74 +182,6 @@ class CommentConnectionArgs extends WPInputObjectType {
 		}
 		return ! empty( self::$fields[ $connection ] ) ? self::$fields[ $connection ] : null;
 
-	}
-
-	/**
-	 * comments_orderby_enum
-	 *
-	 * Defines the orderby Enum values for ordering a comments query
-	 *
-	 * @return EnumType
-	 * @since 0.0.5
-	 */
-	private static function comments_orderby_enum() {
-
-		if ( null === self::$comments_orderby_enum ) {
-			self::$comments_orderby_enum = new WPEnumType( [
-				'name'   => 'CommentsOrderby',
-				'values' => [
-					'COMMENT_AGENT'        => [
-						'value' => 'comment_agent',
-					],
-					'COMMENT_APPROVED'     => [
-						'value' => 'comment_approved',
-					],
-					'COMMENT_AUTHOR'       => [
-						'value' => 'comment_author',
-					],
-					'COMMENT_AUTHOR_EMAIL' => [
-						'value' => 'comment_author_email',
-					],
-					'COMMENT_AUTHOR_IP'    => [
-						'value' => 'comment_author_IP',
-					],
-					'COMMENT_AUTHOR_URL'   => [
-						'value' => 'comment_author_url',
-					],
-					'COMMENT_CONTENT'      => [
-						'value' => 'comment_content',
-					],
-					'COMMENT_DATE'         => [
-						'value' => 'comment_date',
-					],
-					'COMMENT_DATE_GMT'     => [
-						'value' => 'comment_date_gmt',
-					],
-					'COMMENT_ID'           => [
-						'value' => 'comment_ID',
-					],
-					'COMMENT_KARMA'        => [
-						'value' => 'comment_karma',
-					],
-					'COMMENT_PARENT'       => [
-						'value' => 'comment_parent',
-					],
-					'COMMENT_POST_ID'      => [
-						'value' => 'comment_post_ID',
-					],
-					'COMMENT_TYPE'         => [
-						'value' => 'comment_type',
-					],
-					'USER_ID'              => [
-						'value' => 'user_id',
-					],
-					'COMMENT_IN'           => [
-						'value' => 'comment__in',
-					],
-				],
-			] );
-		}
-		return self::$comments_orderby_enum;
 	}
 
 	private static function comment_order() {

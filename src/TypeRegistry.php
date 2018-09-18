@@ -8,6 +8,7 @@ use WPGraphQL\Type\Comment;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\CommentAuthor;
 use WPGraphQL\Type\CommentAuthorUnion;
+use WPGraphQL\Type\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\EditLock;
 use WPGraphQL\Type\MediaDetails;
 use WPGraphQL\Type\MediaItemMeta;
@@ -59,6 +60,7 @@ class TypeRegistry {
 		Avatar::register_type();
 		AvatarRatingEnum::register_type();
 		Comment::register_type();
+		CommentsConnectionOrderbyEnum::register_type();
 		CommentAuthor::register_type();
 		EditLock::register_type();
 		MediaItemStatusEnum::register_type();
