@@ -23,6 +23,7 @@ use WPGraphQL\Type\OrderEnum;
 use WPGraphQL\Type\Plugin;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
+use WPGraphQL\Type\PostObjectsConnectionDateColumnEnum;
 use WPGraphQL\Type\PostObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\PostObjectUnion;
 use WPGraphQL\Type\PostStatusEnum;
@@ -76,6 +77,7 @@ class TypeRegistry {
 		OrderEnum::register_type();
 		Plugin::register_type();
 		PostObjectsConnectionOrderbyEnum::register_type();
+		PostObjectsConnectionDateColumnEnum::register_type();
 		PostObjectFieldFormatEnum::register_type();
 		PostStatusEnum::register_type();
 		PostType::register_type();

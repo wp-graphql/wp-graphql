@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\PostObject\Connection;
 use GraphQL\Type\Definition\EnumType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -36,13 +37,6 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	private static $date_before;
-
-	/**
-	 * Holds the column_enum EnumType definition
-	 * @var EnumType
-	 * @since 0.0.5
-	 */
-	private static $column_enum;
 
 	/**
 	 * DateQueryType constructor.
@@ -109,7 +103,7 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
 				],
 				'column'    => [
-					'type'        => self::column_enum(),
+					'type'        => TypeRegistry::get_type( 'PostObjectsConnectionDateColumnEnum' ),
 					'description' => __( 'Column to query against', 'wp-graphql' ),
 				],
 				'relation'  => [
@@ -119,30 +113,6 @@ class PostObjectConnectionArgsDateQuery extends WPInputObjectType {
 			];
 		}
 		return self::prepare_fields( self::$fields, 'DateQuery' );
-	}
-
-	/**
-	 * column_enum
-	 * Creates an Enum type with the columns that can be queried against for the DateQuery
-	 * @return EnumType|null
-	 * @since 0.0.5
-	 */
-	private static function column_enum() {
-
-		if ( null === self::$column_enum ) {
-			self::$column_enum = new WPEnumType( [
-				'name'   => 'DateColumn',
-				'values' => [
-					'DATE'     => [
-						'value' => 'post_date',
-					],
-					'MODIFIED' => [
-						'value' => 'post_modified',
-					],
-				],
-			] );
-		}
-		return self::$column_enum;
 	}
 
 	/**
