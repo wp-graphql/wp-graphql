@@ -150,9 +150,10 @@ sudo ./run-docker-tests.sh functional
 sudo ./run-docker-tests.sh acceptance
 ```
 
-Note: It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
+Note: 
+* It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
 some of the processing steps will be cached and it should run more quickly afterwards.
-
+* Docker artifacts will *usually* be cleaned up automatically when the script completes.
 
 
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
