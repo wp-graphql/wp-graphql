@@ -132,6 +132,29 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
 
 ### Testing in Docker
 
+#### Prerequisites
+1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
+   ```
+   sudo docker --version
+   ```
+   
+1. Verify [Docker Compose](https://docs.docker.com/compose/install/) is installed:
+   ```
+   sudo docker-compose --version
+   ```
+
+1. Run the tests in pristine Docker environments by running any of these commands: 
+```
+sudo ./run-docker-tests.sh wpunit
+sudo ./run-docker-tests.sh functional
+sudo ./run-docker-tests.sh acceptance
+```
+
+Note: It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
+some of the processing steps will be cached and it should run more quickly afterwards.
+
+
+
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
 
