@@ -15,21 +15,28 @@ RUN pecl install xdebug \
   && docker-php-ext-install pdo_mysql \
   && echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini
 
-
 WORKDIR /project
 
-# First copy the files needed for composer install so that the Docker build only re-executes the install when those
+# First copy the files needed for php composer install so that the Docker build only re-executes the install when those
 # files change.
-RUN mkdir /project/src
-
+RUN mkdir /project/src /project/vendor
 COPY composer.json composer.lock /project/
 COPY src/ /project/src/
+COPY vendor/ /project/vendor/
+RUN chown -R www-data:www-data /project
+USER www-data
+RUN composer install
 
-RUN composer install --ignore-platform-reqs
 
+# Copy in everything else, but don't clobber the php composer files or the 'vendor' directory
+USER root
+RUN mkdir /tmp/project
+COPY . /tmp/project
+RUN rm -rf /tmp/project/composer.* /tmp/project/vendor && cp -a /tmp/project/* /project/
+RUN chown -R www-data:www-data /project
+
+# Copy docker-endpoints to a place that's already in the environment PATH
 COPY docker-endpoints/docker-endpoint*.sh /usr/local/bin/
 
-# Copy in everything else
-COPY . /project/
-
-#RUN find && false
+# Don't need 'root' privileges anymore, so don't run as 'root'.
+USER www-data
