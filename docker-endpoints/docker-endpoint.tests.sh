@@ -6,7 +6,7 @@ install_wp_test_framework() {
 }
 
 run_codeception() {
-  ./vendor/bin/codecept "$@"
+  phpdbg -qrr ./vendor/bin/codecept "$@"
 }
 
 main() {

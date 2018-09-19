@@ -7,6 +7,8 @@ services:
       args:
         PHP_VERSION: "${PHP_VERSION:-7.2}"
     image: wpgraphql-tests-cache
+    # This option is used by 'run-docker-compose-up.sh' to copy coverage data out of the container onto the Docker host
+    container_name: "${CONTAINER_NAME}"
     environment:
       DB_SERVE_NAME: 'wpgraphql_test'
       DB_HOST: 'mysql_test'
@@ -16,8 +18,7 @@ services:
     volumes:
       - 'wp-graphql:/project'
     entrypoint:
-      [ "docker-endpoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker" ]
-
+      [ "docker-endpoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker", "--coverage", "--coverage-xml" ]
 
   wpgraphql.test:
     image: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
