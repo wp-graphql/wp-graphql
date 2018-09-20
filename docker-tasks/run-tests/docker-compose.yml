@@ -2,11 +2,9 @@ version: "3"
 
 services:
   main:
-    build:
-      context: ../../.
-      args:
-        PHP_VERSION: "${PHP_VERSION:-7.2}"
-    image: wpgraphql-tests-cache
+    image: wpgraphql-cache
+    depends_on:
+      - image-builder
     # This option is used by 'run-docker-compose-up.sh' to copy coverage data out of the container onto the Docker host
     container_name: "${CONTAINER_NAME}"
     environment:
@@ -15,20 +13,31 @@ services:
       DB_USER: 'root'
       DB_PASSWORD: 'testing'
       WP_VERSION: "${WP_VERSION:-4.9.4}"
-    volumes:
-      - 'wp-graphql:/project'
     entrypoint:
-      [ "docker-endpoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker", "--coverage", "--coverage-xml" ]
+      #[ "docker-entrypoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker", "--coverage", "--coverage-xml" ]
+      [ "docker-entrypoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker" ]
 
   wpgraphql.test:
-    image: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
+    image: wpgraphql-cache
+    depends_on:
+      - image-builder
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
-    volumes:
-      - 'wp-graphql:/var/www/html/wp-content/plugins/wp-graphql:ro'
+    entrypoint:
+      [ "docker-entrypoint.wpgraphql.sh" ]
+
+  # This configuration ensures the custom image is built exactly once
+  image-builder:
+    build:
+      context: ../../.
+      args:
+        WP_DOCKER_IMAGE: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
+    image: wpgraphql-cache
+    entrypoint:
+      [ "sleep", "9999d" ]
 
   mysql_test:
     image: mariadb:10.2
