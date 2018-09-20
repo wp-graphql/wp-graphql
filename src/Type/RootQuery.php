@@ -6,13 +6,10 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
-use WPGraphQL\Type\Menu\Connection\MenuConnectionDefinition;
 use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Setting\SettingQuery;
 use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
-use WPGraphQL\Type\User\Connection\UserConnectionDefinition;
 use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
 use WPGraphQL\TypeRegistry;
 
@@ -65,7 +62,6 @@ class RootQuery {
 					return DataSource::resolve_term_object( $id_components['id'], 'nav_menu' );
 				},
 			],
-			'menus' => MenuConnectionDefinition::connection(),
 			'menuItem' => [
 				'type' => 'MenuItem',
 				'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),

@@ -3,6 +3,7 @@
 namespace WPGraphQL;
 
 use WPGraphQL\Connection\Comments;
+use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Type\Avatar;
 use WPGraphQL\Type\AvatarRatingEnum;
@@ -17,7 +18,6 @@ use WPGraphQL\Type\MediaDetails;
 use WPGraphQL\Type\MediaItemMeta;
 use WPGraphQL\Type\MediaItemStatusEnum;
 use WPGraphQL\Type\MediaSize;
-use WPGraphQL\Type\MenuConnectionWhereArgs;
 use WPGraphQL\Type\MenuItem;
 use WPGraphQL\Type\MenuItemObjectUnion;
 use WPGraphQL\Type\MenuItemsConnectionWhereArgs;
@@ -40,7 +40,6 @@ use WPGraphQL\Type\PostTypeLabelDetails;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
-use WPGraphQL\Type\RootQueryToUserConnection;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
@@ -82,7 +81,6 @@ class TypeRegistry {
 		MediaDetails::register_type();
 		MediaItemMeta::register_type();
 		MediaSize::register_type();
-		MenuConnectionWhereArgs::register_type();
 		MenuItem::register_type();
 		MenuItemsConnectionWhereArgs::register_type();
 		MenuLocationEnum::register_type();
@@ -125,6 +123,7 @@ class TypeRegistry {
 		}
 
 		Comments::register_connections();
+		Menus::register_connections();
 		Users::register_connections();
 
 		self::register_connections();
