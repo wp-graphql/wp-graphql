@@ -14,8 +14,7 @@ RUN apt-get update -y \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
-  && mv wp-cli.phar /usr/local/bin/wp \
-  && mkdir -p /project/src /project/vendor
+  && mv wp-cli.phar /usr/local/bin/wp
 
 # First copy the files needed for php composer install so that the Docker build only re-executes the install when those
 # files change.
@@ -30,7 +29,6 @@ RUN cd /project \
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 # Also copy in the "c3.php" needed for remote Codeception code coverage. https://github.com/Codeception/c3
 USER root
-RUN mkdir /tmp/project
 COPY . /tmp/project/
 RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
   && cp -a /tmp/project/* /project/ \
