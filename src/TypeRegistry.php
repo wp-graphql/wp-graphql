@@ -2,6 +2,8 @@
 
 namespace WPGraphQL;
 
+use WPGraphQL\Connection\Comments;
+use WPGraphQL\Connection\Users;
 use WPGraphQL\Type\Avatar;
 use WPGraphQL\Type\AvatarRatingEnum;
 use WPGraphQL\Type\Comment;
@@ -23,6 +25,7 @@ use WPGraphQL\Type\MenuLocationEnum;
 use WPGraphQL\Type\Menu;
 use WPGraphQL\Type\MimeTypeEnum;
 use WPGraphQL\Type\OrderEnum;
+use WPGraphQL\Type\PageInfo;
 use WPGraphQL\Type\Plugin;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
@@ -37,6 +40,7 @@ use WPGraphQL\Type\PostTypeLabelDetails;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
+use WPGraphQL\Type\RootQueryToUserConnection;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
@@ -85,6 +89,7 @@ class TypeRegistry {
 		Menu::register_type();
 		MimeTypeEnum::register_type();
 		OrderEnum::register_type();
+		PageInfo::register_type();
 		Plugin::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
 		PostObjectsConnectionOrderbyEnum::register_type();
@@ -118,6 +123,9 @@ class TypeRegistry {
 		if ( ! did_action( 'graphql_register_types' ) ) {
 			do_action( 'graphql_register_types' );
 		}
+
+		Comments::register_connections();
+		Users::register_connections();
 
 		self::register_connections();
 
@@ -325,6 +333,116 @@ class TypeRegistry {
 
 	public static function get_types() {
 		return ! empty( self::$types ) ? self::$types : [];
+	}
+
+	protected static function get_connection_name( $from_type, $to_type ) {
+		return $from_type . 'To' . $to_type . 'Connection';
+	}
+
+	public static function register_connection( $config ) {
+
+		if ( ! array_key_exists( 'fromType', $config ) ) {
+			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+		}
+
+		if ( ! array_key_exists( 'toType', $config ) ) {
+			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
+		}
+
+		if ( ! array_key_exists( 'fromFieldName', $config ) ) {
+			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
+		}
+
+		$from_type          = $config['fromType'];
+		$to_type            = $config['toType'];
+		$from_field_name    = $config['fromFieldName'];
+		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$resolve_node       = array_key_exists( 'resolveNode', $config ) ? $config['resolveNode'] : null;
+		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) ? $config['resolveCursor'] : null;
+		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
+		$connection_name    = self::get_connection_name( $from_type, $to_type );
+		$where_args = [];
+
+		/**
+		 * If there are any $connectionArgs,
+		 * register their inputType and configure them as $where_args to be added to the connection
+		 * field as arguments
+		 */
+		if ( ! empty( $connection_args ) ) {
+			register_graphql_input_type( $from_type . 'To' . $to_type . 'ConnectionWhereArgs', [
+				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				'fields' => $connection_args,
+			]);
+
+			$where_args = [
+				'where' => [
+					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+					'type' => $from_type . 'To' . $to_type . 'ConnectionWhereArgs',
+				],
+			];
+
+		}
+
+		register_graphql_type( $connection_name . 'Edge', [
+			'description' => __( 'An edge in a connection', 'wp-graphql' ),
+			'fields'      => array_merge( [
+				'cursor' => [
+					'type'        => 'String',
+					'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
+					'resolve'     => $resolve_cursor
+				],
+				'node'   => [
+					'type'        => $to_type,
+					'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
+					'resolve'     => $resolve_node
+				],
+			], $edge_fields ),
+		] );
+
+		register_graphql_type( $connection_name, [
+			// Translators: the placeholders are the name of the Types the connection is between.
+			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+			'fields'      => array_merge( [
+				'pageInfo' => [
+					// @todo: change to PageInfo when/if the Relay lib is deprecated
+					'type'        => 'WPPageInfo',
+					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				],
+				'edges'    => [
+					'type'        => [
+						'list_of' => $connection_name . 'Edge',
+					],
+					'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
+				],
+			], $connection_fields ),
+		] );
+
+		register_graphql_field( $from_type, $from_field_name, [
+			'type'        => $connection_name,
+			'args'        => array_merge( [
+				'first'  => [
+					'type'        => 'Int',
+					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
+				],
+				'last'   => [
+					'type'         => 'Int',
+					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
+				],
+				'after'  => [
+					'type'        => 'String',
+					'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
+				],
+				'before' => [
+					'type'        => 'String',
+					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
+				],
+			], $where_args ),
+			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+			'resolve'     => $resolve_connection
+		] );
+
 	}
 
 }

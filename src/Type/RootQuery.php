@@ -48,7 +48,6 @@ class RootQuery {
 					return DataSource::resolve_comment( $id_components['id'] );
 				},
 			],
-			'comments' => CommentConnectionDefinition::connection(),
 			'node' => $node_definition['nodeField'],
 			'menu' => [
 				'type' => 'Menu',
@@ -134,7 +133,6 @@ class RootQuery {
 					return DataSource::resolve_user( $id_components['id'] );
 				},
 			],
-			'users' => UserConnectionDefinition::connection(),
 			'userRole' => [
 				'type'        => 'UserRole',
 				'description' => __( 'Returns a user role', 'wp-graphql' ),

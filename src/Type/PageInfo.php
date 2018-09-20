@@ -3,7 +3,14 @@ namespace WPGraphQL\Type;
 
 class PageInfo {
 	public static function register_type() {
-		register_graphql_object_type( 'PageInfo', [
+		/**
+		 * Note: This was added as WPPageInfo to avoid conflicts with
+		 * the PageInfo type that's registered in the Relay library.
+		 *
+		 * @todo: Ideally, when the relay library is deprecated this can be changed
+		 * back to PageInfo – which would be another breaking change at that time
+		 */
+		register_graphql_object_type( 'WPPageInfo', [
 			'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 			'fields'      => [
 				'hasNextPage'     => [
