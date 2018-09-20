@@ -132,7 +132,6 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
 
 ### Testing in Docker
 
-#### Prerequisites
 1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
    ```
    sudo docker --version
@@ -155,7 +154,7 @@ Note:
 some of the processing steps will be cached and it should run more quickly afterwards.
 * Docker artifacts will *usually* be cleaned up automatically when the script completes.
 
-
+#### Old Docker notes
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
 

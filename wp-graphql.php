@@ -20,6 +20,8 @@
  * @author   WPGraphQL
  * @version  0.0.34
  */
+
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -828,6 +830,10 @@ if ( ! function_exists( 'graphql_init' ) ) {
 		return \WPGraphQL::instance();
 	}
 }
+
+// Including the Codeception file for generating code coverage info: https://github.com/Codeception/c3
+require_once( 'c3.php' );
+
 graphql_init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
