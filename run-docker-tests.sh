@@ -7,7 +7,7 @@ if [[ -z "${1}" ]]; then
 fi
 
 readonly TEST_TYPE="${1}"
-readonly TEST_RESULTS_DIR=./docker-test-results
+readonly TEST_RESULTS_DIR=./docker-output
 
 initialize_test_results_dir() {
   rm -rf "${TEST_RESULTS_DIR}"
@@ -19,6 +19,7 @@ run_tests() {
 }
 
 main() {
+  initialize_test_results_dir
   run_tests
 }
 

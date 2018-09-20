@@ -1,8 +1,7 @@
 ARG WP_DOCKER_IMAGE
-FROM ${WP_DOCKER_IMAGE} as base-environment
+FROM ${WP_DOCKER_IMAGE}
 
-USER root
-
+# Install PHP Composeer, WP-CLI, xdebug, PHP MySQL driver, etc
 RUN apt-get update -y \
   && apt-get install --no-install-recommends -y g++ git make mysql-client subversion unzip zip zlib1g-dev \
   && rm -rf /var/lib/apt/lists/* \
@@ -13,37 +12,31 @@ RUN apt-get update -y \
   && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40109bfbec0f9b8b39f12f260fb6e80befa/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
-  && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+  && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
-  && mv wp-cli.phar /usr/local/bin/wp
-
-WORKDIR /project
+  && mv wp-cli.phar /usr/local/bin/wp \
+  && mkdir -p /project/src /project/vendor
 
 # First copy the files needed for php composer install so that the Docker build only re-executes the install when those
 # files change.
-RUN mkdir /project/src /project/vendor && chown -R www-data:www-data /project
-COPY --chown=www-data:www-data composer.json composer.lock /project/
-COPY --chown=www-data:www-data src/ /project/src/
-COPY --chown=www-data:www-data vendor/ /project/vendor/
-#RUN chown -R www-data:www-data /project
+COPY composer.json composer.lock /project/
+COPY src/ /project/src/
+COPY vendor/ /project/vendor/
+RUN chown -R www-data:www-data /project
 USER www-data
-RUN composer install
+RUN cd /project \
+  && composer install
 
-# Copy in everything else, but don't clobber the php composer files or the 'vendor' directory
+# Copy in all other files from repo, but preserve the files used by/modified by composer install.
+# Also copy in the "c3.php" needed for remote Codeception code coverage. https://github.com/Codeception/c3
 USER root
-RUN mkdir /tmp/project && chown -R www-data:www-data /tmp/project
-COPY --chown=www-data:www-data . /tmp/project/
-RUN rm -rf /tmp/project/composer.* /tmp/project/vendor && cp -a /tmp/project/* /project/
-#RUN chown -R www-data:www-data /project
+RUN mkdir /tmp/project
+COPY . /tmp/project/
+RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
+  && cp -a /tmp/project/* /project/ \
+  && curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /project/c3.php \
+  && chown -R www-data:www-data /project \
+  && rm -rf /tmp/project
 
-# Copy docker-entrypoints to a place that's already in the environment PATH
+# Copy docker-entrypoints to a directory that's already in the environment PATH
 COPY docker-entrypoints/docker-entrypoint*.sh /usr/local/bin/
-
-RUN rm -rf /tmp/project && mkdir /tmp/project
-COPY --chown=www-data:www-data . /tmp/project/
-
-WORKDIR /var/www/html
-
-
-# Don't need 'root' privileges anymore, so don't run as 'root'.
-#USER www-data

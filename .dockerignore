@@ -1,7 +1,7 @@
 .git
 .idea
 docker-tasks
-docker-test-results
+docker-output
 docs
 img
 .dockerignore
