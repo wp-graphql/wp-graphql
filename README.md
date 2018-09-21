@@ -130,7 +130,8 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
         - `vendor/bin/codecept run acceptance`
 
 
-### Testing in Docker
+### Using Docker
+Docker can be used to run tests or a local application instance in an isolated environment with very little set up by a developer.  
 
 1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
    ```
@@ -141,26 +142,35 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
    ```
    sudo docker-compose --version
    ```
-
-1. Run the tests in pristine Docker environments by running any of these commands: 
+#### Running tests with Docker
+* Run the tests in pristine Docker environments by running any of these commands: 
 ```
 sudo ./run-docker-tests.sh wpunit
 sudo ./run-docker-tests.sh functional
 sudo ./run-docker-tests.sh acceptance
 ```
 
-Results should appear in `docker-output/`
+* Run the tests in pristine Docker environments and get coverage reports by running any of these commands: 
+```
+sudo env COVERAGE='true' ./run-docker-tests.sh wpunit
+sudo env COVERAGE='true' ./run-docker-tests.sh functional
+sudo env COVERAGE='true' ./run-docker-tests.sh acceptance
+```
+Results should appear in `docker-output/`.
 
-Note: 
+
+Notes: 
 * It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
 some of the processing steps will be cached and it should run more quickly afterwards.
-* Docker artifacts will *usually* be cleaned up automatically when the script completes.
+* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
+try these solutions:
+   * Run this command: `sudo docker system prune`
+   * https://docs.docker.com/config/pruning/#prune-containers
 
-### Running WP and wp-graphql plugin with Docker
+#### Running Wordpress + wp-graphql plugin with Docker
 ```
 sudo ./run-docker-local-app.sh
 ```
-
 
 #### Older Docker notes
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
