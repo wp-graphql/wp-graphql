@@ -1,4 +1,5 @@
 service_name: travis-ci
+json_path: ./coveralls-upload.json
 coverage_clover:
 - docker-output/wpunit/_output/coverage.xml
 - docker-output/functional/_output/coverage.xml
