@@ -43,7 +43,7 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 			 *
 			 * @since 0.0.18
 			 */
-			self::$values = [
+			self::$values = apply_filters('graphql_post_object_field_format_enum_values', [
 				'RAW' => [
 					'name'  => 'RAW',
 					'description' => __( 'Provide the field value directly from database', 'wp-graphql' ),
@@ -54,7 +54,7 @@ class PostObjectFieldFormatEnumType extends WPEnumType {
 					'description' => __( 'Apply the default WordPress rendering', 'wp-graphql' ),
 					'value' => 'rendered',
 				],
-			];
+			]);
 
 		}
 
