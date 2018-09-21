@@ -12,9 +12,11 @@ services:
       DB_HOST: 'mysql_test'
       DB_USER: 'root'
       DB_PASSWORD: 'testing'
-      WP_VERSION: "${WP_VERSION:-4.9.4}"
+      WP_VERSION: "${WP_VERSION:-4.9.8}"
+      TEST_TYPE: "${TEST_TYPE}"
+      COVERAGE: "${COVERAGE}"
     entrypoint:
-      [ "docker-entrypoint.tests.sh", "run", "${TEST_TYPE}", "--env", "docker", "--coverage", "--coverage-xml" ]
+      [ "docker-entrypoint.tests.sh" ]
 
   wpgraphql.test:
     image: wpgraphql-cache
@@ -33,7 +35,7 @@ services:
     build:
       context: ../../.
       args:
-        WP_DOCKER_IMAGE: "wordpress:${WP_VERSION:-4.9.4}-php${PHP_VERSION:-7.2}-apache"
+        WP_DOCKER_IMAGE: "wordpress:${WP_VERSION:-4.9.8}-php${PHP_VERSION:-7.2}-apache"
     image: wpgraphql-cache
     entrypoint:
       # This is a workaround to prevent the docker compose invocation from exiting prematurely

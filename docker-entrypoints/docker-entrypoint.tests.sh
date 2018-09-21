@@ -6,7 +6,13 @@ install_wp_test_framework() {
 }
 
 run_codeception() {
-  phpdbg -qrr ./vendor/bin/codecept "$@"
+  local coverage_params=''
+
+  if [[ "${COVERAGE}" == 'true' ]]; then
+    coverage_params='--coverage --coverage-xml'
+  fi
+
+  phpdbg -qrr ./vendor/bin/codecept run "${TEST_TYPE}" --env docker ${coverage_params}
 }
 
 main() {
