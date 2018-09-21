@@ -10,17 +10,6 @@ class Comments {
 			'toType' => 'Comment',
 			'fromFieldName' => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'connectionFields' => [
-				'nodes' => [
-					'type'        => [
-						'list_of' => 'Comment',
-					],
-					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function( $source, $args, $context, $info ) {
-						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
-					},
-				],
-			],
 			'resolve' => function( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},

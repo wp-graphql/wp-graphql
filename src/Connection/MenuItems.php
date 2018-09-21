@@ -55,17 +55,6 @@ class MenuItems {
 					'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
 				],
 			],
-			'connectionFields' => [
-				'nodes' => [
-					'type'        => [
-						'list_of' => 'MenuItem',
-					],
-					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, $info ) {
-						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
-					},
-				],
-			],
 			'resolve'          => function ( $source, $args, $context, $info ) {
 				return MenuItemConnectionResolver::resolve( $source, $args, $context, $info );
 			},

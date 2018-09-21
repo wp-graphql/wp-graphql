@@ -417,6 +417,15 @@ class TypeRegistry {
 					],
 					'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
 				],
+				'nodes' => [
+					'type'        => [
+						'list_of' => $to_type,
+					],
+					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+					'resolve'     => function( $source, $args, $context, $info ) {
+						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+					},
+				],
 			], $connection_fields ),
 		] );
 

@@ -94,7 +94,6 @@ class RootQuery {
 					return DataSource::resolve_plugin( $id_components['id'] );
 				},
 			],
-			'plugins' => PluginConnectionDefinition::connection(),
 			'theme' => [
 				'type' => 'Theme',
 				'description' => __( 'A Theme object', 'wp-graphql' ),
