@@ -150,13 +150,13 @@ sudo ./run-docker-tests.sh functional
 sudo ./run-docker-tests.sh acceptance
 ```
 
-* Run the tests in pristine Docker environments and get coverage reports by running any of these commands: 
+* Run the tests in pristine Docker environments with different configurations. Here are some examples: 
 ```
-sudo env COVERAGE='true' ./run-docker-tests.sh wpunit
-sudo env COVERAGE='true' ./run-docker-tests.sh functional
-sudo env COVERAGE='true' ./run-docker-tests.sh acceptance
+sudo env WP_MULTISITE='1' PHP_VERSION='7.1' WP_VERSION='4.9.4' ./run-docker-tests.sh wpunit
+sudo env PHP_VERSION='7.1' WP_VERSION='4.9.4' COVERAGE='true' ./run-docker-tests.sh functional
+sudo env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
 ```
-Results should appear in `docker-output/`.
+If `COVERAGE='true'` is set,  results should appear in `docker-output/`.
 
 
 Notes: 
