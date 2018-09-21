@@ -41,9 +41,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			'nav_menu_item' === get_post_type( $source )
 		) {
 			// Get the nav menu that this nav menu item belongs to.
-			$menus = get_terms( 'nav_menu', $source );
-			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
-				return wp_get_nav_menu_items( $menus[0]->slug );
+			if (isset( $source->menu ) && $source->menu instanceof \WP_Term && ! empty($source->menu->slug)) {
+				return wp_get_nav_menu_items( $source->menu->slug );
 			}
 		}
 
