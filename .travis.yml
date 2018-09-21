@@ -83,6 +83,3 @@ deploy:
       all_branches: develop
       # Only deploy when APIGEN_DOCS are generated
       condition: $APIGEN_DOCS == true
-
-after_script:
-  - docker-compose down

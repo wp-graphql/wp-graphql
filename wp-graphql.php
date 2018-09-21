@@ -20,8 +20,6 @@
  * @author   WPGraphQL
  * @version  0.0.34
  */
-
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -839,7 +837,6 @@ if ( ! function_exists( 'graphql_init' ) ) {
 		return \WPGraphQL::instance();
 	}
 }
-
 graphql_init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

@@ -1,11 +1,15 @@
+# Using xdebug version to 2.5.5 to not break Docker builds with PHP 5.6: https://github.com/docker-library/php/issues/566#issuecomment-362094015
+
 ARG WP_DOCKER_IMAGE
 FROM ${WP_DOCKER_IMAGE}
+
+
 
 # Install PHP Composeer, WP-CLI, xdebug, PHP MySQL driver, etc
 RUN apt-get update -y \
   && apt-get install --no-install-recommends -y g++ git make mysql-client subversion unzip zip zlib1g-dev \
   && rm -rf /var/lib/apt/lists/* \
-  && pecl install xdebug \
+  && pecl install xdebug-2.5.5 \
   && docker-php-ext-enable xdebug \
   && docker-php-ext-install pdo_mysql zip \
   && echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \

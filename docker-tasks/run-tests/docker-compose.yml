@@ -27,6 +27,7 @@ services:
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
+      WORDPRESS_CONFIG_EXTRA: "${WORDPRESS_CONFIG_EXTRA}"
     entrypoint:
       [ "docker-entrypoint.wpgraphql.sh" ]
 
