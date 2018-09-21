@@ -40,14 +40,10 @@ script:
   - ./run-docker-tests.sh acceptance
 
 after_success:
-  # Install coveralls.phar
-  # Upload coverage to coveralls
+  # Upload coverage to codecov
   - |
-    if [ $COVERAGE == true ]; then
-      wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-      chmod +x coveralls.phar
-      php coveralls.phar --version
-      travis_retry php coveralls.phar -v
+    if [[ "${COVERAGE}" == 'true' ]]; then
+      bash <(curl -s https://codecov.io/bash)
     fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
