@@ -4,11 +4,17 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
 
 class MenuItem {
+
+	/**
+	 * Register the MenuItem Type
+	 */
 	public static function register_type() {
 
+		/**
+		 * Defines the MenuItem Type and adds it to the TypeRegistry
+		 */
 		register_graphql_object_type( 'MenuItem', [
 			'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 			'fields' => [
@@ -30,7 +36,7 @@ class MenuItem {
 
 						// If all we have is a non-array or an array with one empty
 						// string, return an empty array.
-						if ( ! is_array( $menu_item->classes ) || empty( $menu_item->classes ) || empty( $menu_item->classes[0] ) ) {
+						if ( ! isset( $menu_item->classes ) || ! is_array( $menu_item->classes ) || empty( $menu_item->classes ) || empty( $menu_item->classes[0] ) ) {
 							return [];
 						}
 
@@ -86,64 +92,58 @@ class MenuItem {
 						return ! empty( $menu_item->url ) ? $menu_item->url : null;
 					},
 				],
+				'connectedObject' => [
+					'type' => 'MenuItemObjectUnion',
+					'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
+					'resolve'     => function ( \WP_Post $menu_item, array $args, AppContext $context, ResolveInfo $info ) {
+						$object_id   = intval( get_post_meta( $menu_item->ID, '_menu_item_object_id', true ) );
+						$object_type = get_post_meta( $menu_item->ID, '_menu_item_type', true );
+
+						// By default, resolve to the menu item itself. This is the
+						// case for custom links.
+						$resolved_object = $menu_item;
+
+						switch ( $object_type ) {
+							// Post object
+							case 'post_type':
+								$resolved_object = get_post( $object_id );
+								$resolved_object = isset( $resolved_object->post_type ) && isset( $resolved_object->ID ) ? DataSource::resolve_post_object( $resolved_object->ID, $resolved_object->post_type ) : $resolved_object;
+								break;
+
+							// Taxonomy term
+							case 'taxonomy':
+								$resolved_object = get_term( $object_id );
+								$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
+								break;
+						}
+
+						/**
+						 * Allow users to override how nav menu items are resolved.
+						 * This is useful since we often add taxonomy terms to menus
+						 * but would prefer to represent the menu item in other ways,
+						 * e.g., a linked post object (or vice-versa).
+						 *
+						 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
+						 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
+						 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
+						 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
+						 * @param int               $object_id       Post or term ID of connected object
+						 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
+						 *
+						 * @since 0.0.30
+						 */
+						return apply_filters(
+							'graphql_resolve_menu_item',
+							$resolved_object,
+							$args,
+							$context,
+							$info,
+							$object_id,
+							$object_type
+						);
+					},
+				]
 			]
-		]);
-
-		/**
-		 * Register the connection after the Type has been established
-		 * @todo: abstract to register_graphql_connection
-		 */
-		register_graphql_field( 'MenuItem', 'childItems', MenuItemConnectionDefinition::connection() );
-		register_graphql_field( 'MenuItem', 'connectedObject', [
-			'type'        => 'MenuItemObjectUnion',
-			'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-			'resolve'     => function ( \WP_Post $menu_item, array $args, AppContext $context, ResolveInfo $info ) {
-				$object_id   = intval( get_post_meta( $menu_item->ID, '_menu_item_object_id', true ) );
-				$object_type = get_post_meta( $menu_item->ID, '_menu_item_type', true );
-
-				// By default, resolve to the menu item itself. This is the
-				// case for custom links.
-				$resolved_object = $menu_item;
-
-				switch ( $object_type ) {
-					// Post object
-					case 'post_type':
-						$resolved_object = get_post( $object_id );
-						$resolved_object = isset( $resolved_object->post_type ) && isset( $resolved_object->ID ) ? DataSource::resolve_post_object( $resolved_object->ID, $resolved_object->post_type ) : $resolved_object;
-						break;
-
-					// Taxonomy term
-					case 'taxonomy':
-						$resolved_object = get_term( $object_id );
-						$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
-						break;
-				}
-
-				/**
-				 * Allow users to override how nav menu items are resolved.
-				 * This is useful since we often add taxonomy terms to menus
-				 * but would prefer to represent the menu item in other ways,
-				 * e.g., a linked post object (or vice-versa).
-				 *
-				 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
-				 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
-				 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
-				 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
-				 * @param int               $object_id       Post or term ID of connected object
-				 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
-				 *
-				 * @since 0.0.30
-				 */
-				return apply_filters(
-					'graphql_resolve_menu_item',
-					$resolved_object,
-					$args,
-					$context,
-					$info,
-					$object_id,
-					$object_type
-				);
-			},
 		]);
 
 	}

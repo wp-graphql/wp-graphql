@@ -78,7 +78,6 @@ class RootQuery {
 					return DataSource::resolve_post_object( $id_components['id'], 'nav_menu_item' );
 				}
 			],
-			'menuItems' => MenuItemConnectionDefinition::connection(),
 			'plugin' => [
 				'type' => 'Plugin',
 				'description' => __( 'A WordPress plugin', 'wp-graphql' ),

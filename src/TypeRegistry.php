@@ -3,6 +3,7 @@
 namespace WPGraphQL;
 
 use WPGraphQL\Connection\Comments;
+use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Type\Avatar;
@@ -124,6 +125,7 @@ class TypeRegistry {
 
 		Comments::register_connections();
 		Menus::register_connections();
+		MenuItems::register_connections();
 		Users::register_connections();
 
 		self::register_connections();
