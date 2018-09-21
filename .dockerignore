@@ -17,4 +17,4 @@ LICENSE
 PULL_REQUEST_TEMPLATE.md
 README.md
 readme.txt
-run-docker-tests.sh
+run-docker*.sh

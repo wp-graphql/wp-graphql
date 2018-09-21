@@ -149,12 +149,20 @@ sudo ./run-docker-tests.sh functional
 sudo ./run-docker-tests.sh acceptance
 ```
 
+Results should appear in `docker-output/`
+
 Note: 
 * It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
 some of the processing steps will be cached and it should run more quickly afterwards.
 * Docker artifacts will *usually* be cleaned up automatically when the script completes.
 
-#### Old Docker notes
+### Running WP and wp-graphql plugin with Docker
+```
+sudo ./run-docker-local-app.sh
+```
+
+
+#### Older Docker notes
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
 
