@@ -55,26 +55,28 @@ class PostObjectDelete {
 						'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 					],
 				],
-				'outputFields'        => [
-					'deletedId'                            => [
-						'type'        => Types::id(),
-						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) use ( $post_type_object ) {
-							$deleted = (object) $payload['postObject'];
+				'outputFields'        => function() use ( $post_type_object ) {
+					return [
+						'deletedId'                            => [
+							'type'        => Types::id(),
+							'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) use ( $post_type_object ) {
+								$deleted = (object) $payload['postObject'];
 
-							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
-						},
-					],
-					$post_type_object->graphql_single_name => [
-						'type'        => Types::post_object( $post_type_object->name ),
-						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) use ( $post_type_object ) {
-							$deleted = (object) $payload['postObject'];
+								return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
+							},
+						],
+						$post_type_object->graphql_single_name => [
+							'type'        => Types::post_object( $post_type_object->name ),
+							'description' => __( 'The object before it was deleted', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) use ( $post_type_object ) {
+								$deleted = (object) $payload['postObject'];
 
-							return ! empty( $deleted ) ? $deleted : null;
-						},
-					],
-				],
+								return ! empty( $deleted ) ? $deleted : null;
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 					/**

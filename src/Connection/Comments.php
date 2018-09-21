@@ -5,16 +5,39 @@ use WPGraphQL\Data\DataSource;
 
 class Comments {
 	public static function register_connections() {
-		register_graphql_connection([
-			'fromType' => 'RootQuery',
-			'toType' => 'Comment',
-			'fromFieldName' => 'comments',
+		register_graphql_connection( [
+			'fromType'       => 'RootQuery',
+			'toType'         => 'Comment',
+			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'resolve' => function( $root, $args, $context, $info ) {
+			'resolve'        => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
-		]);
+		] );
+
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+
+		/**
+		 * Register Connections to PostObjects
+		 */
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+					register_graphql_connection( [
+						'fromType'       => $post_type_object->graphql_single_name,
+						'toType'         => 'Comment',
+						'fromFieldName'  => 'comments',
+						'connectionArgs' => self::get_connection_args(),
+						'resolve'        => function ( $root, $args, $context, $info ) {
+							return DataSource::resolve_comments_connection( $root, $args, $context, $info );
+						},
+					] );
+				}
+			}
+		}
 	}
+
 
 	protected static function get_connection_args() {
 		return [

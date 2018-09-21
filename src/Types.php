@@ -112,15 +112,6 @@ class Types {
 	private static $post_object;
 
 	/**
-	 * Stores the post object type query args
-	 *
-	 * @var PostObjectConnectionArgs object $post_object_query_args
-	 * @since  0.5.0
-	 * @access private
-	 */
-	private static $post_object_query_args;
-
-	/**
 	 * Stores the post object union type config
 	 *
 	 * @var WPUnionType object $post_object_union
@@ -458,7 +449,8 @@ class Types {
 		}
 
 		if ( empty( self::$post_object[ $post_type ] ) ) {
-			self::$post_object[ $post_type ] = new PostObjectType( $post_type );
+			$post_type_object = get_post_type_object( $post_type );
+			self::$post_object[ $post_type ] = TypeRegistry::get_type( $post_type_object->graphql_single_name );
 		}
 
 		return ! empty( self::$post_object[ $post_type ] ) ? self::$post_object[ $post_type ] : null;
@@ -528,27 +520,6 @@ class Types {
 	 */
 	public static function post_type_enum() {
 		return self::$post_type_enum ? : ( self::$post_type_enum = TypeRegistry::get_type( 'PostTypeEnum' ) );
-	}
-
-	/**
-	 * This returns the definition for the PostObjectConnectionArgs
-	 * @param string $connection The connection the args belong to
-	 * @return PostObjectConnectionArgs object
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function post_object_query_args( $connection ) {
-
-		if ( null === self::$post_object_query_args ) {
-			self::$post_object_query_args = [];
-		}
-
-		if ( empty( self::$post_object_query_args[ $connection ] ) ) {
-			self::$post_object_query_args[ $connection ] = new PostObjectConnectionArgs( [], $connection );
-		}
-
-		return ! empty( self::$post_object_query_args[ $connection ] ) ? self::$post_object_query_args[ $connection ] : null;
-
 	}
 
 	/**
@@ -656,7 +627,8 @@ class Types {
 		}
 
 		if ( empty( self::$term_object[ $taxonomy ] ) ) {
-			self::$term_object[ $taxonomy ] = new TermObjectType( $taxonomy );
+			$taxonomy_object = get_taxonomy( $taxonomy );
+			self::$term_object[ $taxonomy ] = TypeRegistry::get_type( $taxonomy_object->graphql_single_name );
 		}
 
 		return ! empty( self::$term_object[ $taxonomy ] ) ? self::$term_object[ $taxonomy ] : null;

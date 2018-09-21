@@ -48,14 +48,16 @@ class PostObjectCreate {
 				// translators: The placeholder is the name of the object type
 				'description'         => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				'inputFields'         => WPInputObjectType::prepare_fields( PostObjectMutation::input_fields( $post_type_object ), $mutation_name ),
-				'outputFields'        => [
-					$post_type_object->graphql_single_name => [
-						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function ( $payload ) use ( $post_type_object ) {
-							return DataSource::resolve_post_object( $payload['id'], $post_type_object->name );
-						},
-					],
-				],
+				'outputFields'        => function() use ( $post_type_object ) {
+					return [
+						$post_type_object->graphql_single_name => [
+							'type'    => Types::post_object( $post_type_object->name ),
+							'resolve' => function ( $payload ) use ( $post_type_object ) {
+								return DataSource::resolve_post_object( $payload['id'], $post_type_object->name );
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 					/**

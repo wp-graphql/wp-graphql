@@ -2,10 +2,13 @@
 
 namespace WPGraphQL;
 
+use GraphQL\Error\InvariantViolation;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
+use WPGraphQL\Connection\PostObjects;
+use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Themes;
 use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
@@ -31,6 +34,7 @@ use WPGraphQL\Type\MimeTypeEnum;
 use WPGraphQL\Type\OrderEnum;
 use WPGraphQL\Type\PageInfo;
 use WPGraphQL\Type\Plugin;
+use WPGraphQL\Type\PostObject;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
 use WPGraphQL\Type\PostObjectsConnectionDateColumnEnum;
@@ -47,6 +51,7 @@ use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
+use WPGraphQL\Type\TermObject;
 use WPGraphQL\Type\TermObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\TermObjectUnion;
 use WPGraphQL\Type\Theme;
@@ -114,6 +119,23 @@ class TypeRegistry {
 		RootMutation::register_type();
 		RootQuery::register_type();
 
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+				PostObject::register_type( $post_type_object );
+			}
+		}
+
+		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			foreach ( $allowed_taxonomies as $taxonomy ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				TermObject::register_type( $taxonomy_object );
+			}
+		}
+
 		/**
 		 * Unions (need to be registered after other types)
 		 */
@@ -126,10 +148,13 @@ class TypeRegistry {
 			do_action( 'graphql_register_types' );
 		}
 
+
 		Comments::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
 		Plugins::register_connections();
+		PostObjects::register_connections();
+		TermObjects::register_connections();
 		Themes::register_connections();
 		Users::register_connections();
 		UserRoles::register_connections();
@@ -169,21 +194,21 @@ class TypeRegistry {
 		 */
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 
-		/**
-		 * Add connection to each of the allowed post_types as users can have connections
-		 * to any post_type.
-		 *
-		 * @since 0.0.5
-		 */
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $post_type ) {
-				// @todo: maybe look into narrowing this based on permissions?
-				$post_type_object = get_post_type_object( $post_type );
-				if ( ! empty( $post_type_object->graphql_plural_name ) ) {
-					register_graphql_field( 'User', lcfirst( $post_type_object->graphql_plural_name ), PostObjectConnectionDefinition::connection( $post_type_object, 'User' ) );
-				}
-			}
-		}
+//		/**
+//		 * Add connection to each of the allowed post_types as users can have connections
+//		 * to any post_type.
+//		 *
+//		 * @since 0.0.5
+//		 */
+//		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+//			foreach ( $allowed_post_types as $post_type ) {
+//				// @todo: maybe look into narrowing this based on permissions?
+//				$post_type_object = get_post_type_object( $post_type );
+//				if ( ! empty( $post_type_object->graphql_plural_name ) ) {
+//					register_graphql_field( 'User', lcfirst( $post_type_object->graphql_plural_name ), PostObjectConnectionDefinition::connection( $post_type_object, 'User' ) );
+//				}
+//			}
+//		}
 
 	}
 
@@ -216,6 +241,20 @@ class TypeRegistry {
 
 			if ( ! empty( $field ) ) {
 				$fields[ $field_name ] = self::prepare_field( $field_name, $config, $type_name );
+			}
+
+			return $fields;
+
+		} );
+
+	}
+
+	public static function deregister_field( $type_name, $field_name ) {
+
+		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name ) {
+
+			if ( isset ( $fields[ $field_name ] ) ) {
+				unset( $fields[ $field_name ] );
 			}
 
 			return $fields;
@@ -292,8 +331,13 @@ class TypeRegistry {
 	protected static function prepare_field( $field_name, $field_config, $type_name ) {
 
 		if ( ! isset( $field_config['name'] ) ) {
-			$field_config['name'] = $field_name;
+			$field_config['name'] = lcfirst( $field_name );
 		}
+
+		if ( ! isset( $field_config['type'] ) ) {
+			throw new InvariantViolation( __( 'The Field needs a Type defined', 'wp-graphql' ) );
+		}
+
 
 		if ( is_string( $field_config['type'] ) ) {
 			$type = TypeRegistry::get_type( $field_config['type'] );
@@ -343,7 +387,7 @@ class TypeRegistry {
 	}
 
 	protected static function get_connection_name( $from_type, $to_type ) {
-		return $from_type . 'To' . $to_type . 'Connection';
+		return ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
 	}
 
 	public static function register_connection( $config ) {
@@ -378,7 +422,7 @@ class TypeRegistry {
 		 * field as arguments
 		 */
 		if ( ! empty( $connection_args ) ) {
-			register_graphql_input_type( $from_type . 'To' . $to_type . 'ConnectionWhereArgs', [
+			register_graphql_input_type( $connection_name . 'WhereArgs', [
 				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 				'fields' => $connection_args,
 			]);
@@ -386,7 +430,7 @@ class TypeRegistry {
 			$where_args = [
 				'where' => [
 					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type' => $from_type . 'To' . $to_type . 'ConnectionWhereArgs',
+					'type' => $connection_name . 'WhereArgs',
 				],
 			];
 

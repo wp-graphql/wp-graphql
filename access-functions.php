@@ -76,3 +76,7 @@ function register_graphql_schema( $schema_name, array $config ) {
 function register_graphql_connection( $config ) {
 	\WPGraphQL\TypeRegistry::register_connection( $config );
 }
+
+function deregister_graphql_field( $type_name, $field_name ) {
+	\WPGraphQL\TypeRegistry::deregister_field( $type_name, $field_name );
+}

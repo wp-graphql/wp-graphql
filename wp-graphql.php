@@ -305,9 +305,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * than postObjects out of the box, so this filter adjusts the core mediaItem
 			 * shape of data
 			 */
-			add_filter( 'graphql_mediaItem_fields', [
+			add_action( 'graphql_register_types', [
 				'\WPGraphQL\Type\MediaItem\MediaItemType',
-				'fields'
+				'register_fields'
 			], 10, 1 );
 
 			/**

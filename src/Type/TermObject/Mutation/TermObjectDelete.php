@@ -45,26 +45,28 @@ class TermObjectDelete {
 						'description' => sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $taxonomy->graphql_single_name ),
 					],
 				],
-				'outputFields'        => [
-					'deletedId'                    => [
-						'type'        => Types::id(),
-						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-						'resolve'     => function( $payload ) use ( $taxonomy ) {
-							$deleted = (object) $payload['termObject'];
+				'outputFields'        => function() use ( $taxonomy ) {
+					return [
+						'deletedId'                    => [
+							'type'        => Types::id(),
+							'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
+							'resolve'     => function( $payload ) use ( $taxonomy ) {
+								$deleted = (object) $payload['termObject'];
 
-							return ! empty( $deleted->term_id ) ? Relay::toGlobalId( $taxonomy->name, $deleted->term_id ) : null;
-						},
-					],
-					$taxonomy->graphql_single_name => [
-						'type'        => Types::term_object( $taxonomy->name ),
-						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-						'resolve'     => function( $payload ) use ( $taxonomy ) {
-							$deleted = (object) $payload['termObject'];
+								return ! empty( $deleted->term_id ) ? Relay::toGlobalId( $taxonomy->name, $deleted->term_id ) : null;
+							},
+						],
+						$taxonomy->graphql_single_name => [
+							'type'        => Types::term_object( $taxonomy->name ),
+							'description' => __( 'The object before it was deleted', 'wp-graphql' ),
+							'resolve'     => function( $payload ) use ( $taxonomy ) {
+								$deleted = (object) $payload['termObject'];
 
-							return ! empty( $deleted ) ? $deleted : null;
-						},
-					],
-				],
+								return ! empty( $deleted ) ? $deleted : null;
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function( $input ) use ( $taxonomy, $mutation_name ) {
 
 					$id_parts = Relay::fromGlobalId( $input['id'] );

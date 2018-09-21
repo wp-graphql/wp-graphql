@@ -41,16 +41,18 @@ class TermObjectCreate {
 				// translators: The placeholder is the name of the object type
 				'description'         => sprintf( __( 'Create %1$s objects', 'wp-graphql' ), $taxonomy->name ),
 				'inputFields'         => self::input_fields( $taxonomy ),
-				'outputFields'        => [
-					$taxonomy->graphql_single_name => [
-						'type'        => Types::term_object( $taxonomy->name ),
-						// translators: Placeholder is the name of the taxonomy
-						'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-						'resolve'     => function( $payload ) use ( $taxonomy ) {
-							return get_term( $payload['id'], $taxonomy->name );
-						},
-					],
-				],
+				'outputFields'        => function() use ( $taxonomy ) {
+					return [
+						$taxonomy->graphql_single_name => [
+							'type'        => Types::term_object( $taxonomy->name ),
+							// translators: Placeholder is the name of the taxonomy
+							'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
+							'resolve'     => function ( $payload ) use ( $taxonomy ) {
+								return get_term( $payload['id'], $taxonomy->name );
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 					/**

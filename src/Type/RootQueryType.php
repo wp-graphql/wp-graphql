@@ -8,6 +8,7 @@ use WPGraphQL\Type\PostObject\PostObjectQuery;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
 use WPGraphQL\Type\TermObject\TermObjectQuery;
+use WPGraphQL\Types;
 
 /**
  * Class RootQueryType
@@ -47,72 +48,15 @@ class RootQueryType extends WPObjectType {
 
 		if ( null === self::$fields ) {
 			self::$fields = function() {
-				/**
-				 * Setup data
-				 * @since 0.0.5
-				 */
-				$allowed_post_types = \WPGraphQL::$allowed_post_types;
-				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 
-				/**
-				 * Creates the root fields for post objects (of any post_type)
-				 * This registers root fields (single and plural) for any post_type that has been registered as an
-				 * allowed post_type.
-				 * @see \WPGraphQL::$allowed_post_types
-				 * @since 0.0.5
-				 */
-				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-					foreach ( $allowed_post_types as $post_type ) {
-						/**
-						 * Get the post_type object to pass down to the schema
-						 * @since 0.0.5
-						 */
-						$post_type_object = get_post_type_object( $post_type );
-
-						/**
-						 * Root query for single posts (of the specified post_type)
-						 * @since 0.0.5
-						 */
-						$fields[ $post_type_object->graphql_single_name ] = PostObjectQuery::root_query( $post_type_object );
-						$fields[ $post_type_object->graphql_single_name . 'By' ] = PostObjectQuery::post_object_by( $post_type_object );
-
-						/**
-						 * Root query for collections of posts (of the specified post_type)
-						 * @since 0.0.5
-						 */
-						$fields[ $post_type_object->graphql_plural_name ] = PostObjectConnectionDefinition::connection( $post_type_object );
-					}
-				}
-
-				/**
-				 * Creates the root fields for terms of each taxonomy
-				 * This registers root fields (single and plural) for terms of any taxonomy that has been registered as an
-				 * allowed taxonomy.
-				 * @see \WPGraphQL::$allowed_taxonomies
-				 * @since 0.0.5
-				 */
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
-
-						/**
-						 * Get the taxonomy object
-						 * @since 0.0.5
-						 */
-						$taxonomy_object = get_taxonomy( $taxonomy );
-
-						/**
-						 * Root query for single terms (of the specified taxonomy)
-						 * @since 0.0.5
-						 */
-						$fields[ $taxonomy_object->graphql_single_name ] = TermObjectQuery::root_query( $taxonomy_object );
-
-						/**
-						 * Root query for collections of terms (of the specified taxonomy)
-						 * @since 0.0.5
-						 */
-						$fields[ $taxonomy_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $taxonomy_object );
-					}
-				}
+				$fields = [
+					'hello' => [
+						'type' => Types::string(),
+						'resolve' => function() {
+							return 'world';
+						}
+					]
+				];
 
 				/**
 				 * Pass the root queries through a filter.

@@ -48,26 +48,28 @@ class MediaItemDelete {
 					'description' => __( 'Whether the mediaItem should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 				],
 			],
-			'outputFields'        => [
-				'deletedId' => [
-					'type'        => Types::id(),
-					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) use ( $post_type_object ) {
-						$deleted = (object) $payload['mediaItemObject'];
+			'outputFields'        => function() use ( $post_type_object ) {
+				return [
+					'deletedId' => [
+						'type'        => Types::id(),
+						'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
+						'resolve'     => function ( $payload ) use ( $post_type_object ) {
+							$deleted = (object) $payload['mediaItemObject'];
 
-						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
-					},
-				],
-				'mediaItem' => [
-					'type'        => Types::post_object( $post_type_object->name ),
-					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) use ( $post_type_object ) {
-						$deleted = (object) $payload['mediaItemObject'];
+							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
+						},
+					],
+					'mediaItem' => [
+						'type'        => Types::post_object( $post_type_object->name ),
+						'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
+						'resolve'     => function ( $payload ) use ( $post_type_object ) {
+							$deleted = (object) $payload['mediaItemObject'];
 
-						return ! empty( $deleted ) ? $deleted : null;
-					},
-				],
-			],
+							return ! empty( $deleted ) ? $deleted : null;
+						},
+					],
+				];
+			},
 			'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 				/**

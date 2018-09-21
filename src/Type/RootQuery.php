@@ -6,11 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\MenuItem\Connection\MenuItemConnectionDefinition;
-use WPGraphQL\Type\Plugin\Connection\PluginConnectionDefinition;
 use WPGraphQL\Type\Setting\SettingQuery;
-use WPGraphQL\Type\Theme\Connection\ThemeConnectionDefinition;
-use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionDefinition;
 use WPGraphQL\TypeRegistry;
 
 class RootQuery {
@@ -155,6 +151,121 @@ class RootQuery {
 				},
 			],
 		]);
+
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+
+				register_graphql_field( 'RootQuery', $post_type_object->graphql_single_name, [
+					'type'        => $post_type_object->graphql_single_name,
+					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'args'        => [
+						'id' => [
+							'type' => [
+								'non_null' => 'ID',
+							],
+						],
+					],
+					'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+						$id_components = Relay::fromGlobalId( $args['id'] );
+
+						return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
+					},
+
+				] );
+
+				$post_by_args = [
+					'id' => [
+						'type'        => 'String',
+						'description' => sprintf( __( 'Get the object by it\'s global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					],
+					$post_type_object->graphql_single_name . 'Id' => [
+						'type'        => 'ID',
+						'description' => sprintf( __( 'Get the %s by it\'s database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					],
+					'uri' => [
+						'type'        => 'String',
+						'description' => sprintf( __( 'Get the %s by it\'s uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					]
+				];
+
+				if ( false === $post_type_object->hierarchical ) {
+					$post_by_args['slug'] = [
+						'type' => 'String',
+						'description' => sprintf( __( 'Get the %s by it\'s slug (only available for non-hierarchical types)', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					];
+				}
+
+				register_graphql_field( 'RootQuery', $post_type_object->graphql_single_name . 'By', [
+					'type'        => $post_type_object->graphql_single_name,
+					'description' => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'args'        => $post_by_args,
+					'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+
+						$post_object = null;
+
+						if ( ! empty( $args['id'] ) ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
+							if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
+								throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
+							}
+							$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
+						} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
+							$id          = $args[ $post_type_object->graphql_single_name . 'Id' ];
+							$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
+						} elseif ( ! empty( $args['uri'] ) ) {
+							$uri         = esc_html( $args['uri'] );
+							$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
+						} elseif ( ! empty( $args['slug'] ) ) {
+							$slug        = esc_html( $args['slug'] );
+							$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
+						}
+
+						if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
+							throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
+						}
+
+						if ( ! $post_object instanceof \WP_Post ) {
+							throw new UserError( __( 'The queried resource is not valid', 'wp-graphql' ) );
+						}
+
+						if ( $post_type_object->name !== $post_object->post_type ) {
+							throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
+						}
+
+						return $post_object;
+
+					},
+				] );
+
+			}
+		}
+
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			foreach ( $allowed_taxonomies as $taxonomy ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				register_graphql_field( 'RootQuery', $taxonomy_object->graphql_single_name, [
+					'type'        => $taxonomy_object->graphql_single_name,
+					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
+					'args'        => [
+						'id' => [
+							'type' => [
+								'non_null' => 'ID',
+							],
+						],
+					],
+					'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy_object ) {
+						$id_components = Relay::fromGlobalId( $args['id'] );
+
+						return DataSource::resolve_term_object( $id_components['id'], $taxonomy_object->name );
+					},
+				] );
+
+			}
+		}
+
 
 		/**
 		 * Create the root query fields for any setting type in
