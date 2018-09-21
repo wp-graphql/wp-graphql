@@ -110,7 +110,6 @@ class RootQuery {
 					return DataSource::resolve_theme( $id_components['id'] );
 				},
 			],
-			'themes' => ThemeConnectionDefinition::connection(),
 			'user' => [
 				'type'        => 'User',
 				'description' => __( 'Returns a user', 'wp-graphql' ),
@@ -148,7 +147,6 @@ class RootQuery {
 
 				}
 			],
-			'userRoles' => UserRoleConnectionDefinition::connection(),
 			'viewer' => [
 				'type' => 'User',
 				'description' => __( 'Returns the current user', 'wp-graphql' ),

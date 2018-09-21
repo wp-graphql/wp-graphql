@@ -5,6 +5,9 @@ namespace WPGraphQL;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
+use WPGraphQL\Connection\Plugins;
+use WPGraphQL\Connection\Themes;
+use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Type\Avatar;
 use WPGraphQL\Type\AvatarRatingEnum;
@@ -126,7 +129,10 @@ class TypeRegistry {
 		Comments::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
+		Plugins::register_connections();
+		Themes::register_connections();
 		Users::register_connections();
+		UserRoles::register_connections();
 
 		self::register_connections();
 
