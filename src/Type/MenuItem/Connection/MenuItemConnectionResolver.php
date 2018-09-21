@@ -41,9 +41,19 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			'nav_menu_item' === get_post_type( $source )
 		) {
 			// Get the nav menu that this nav menu item belongs to.
-			$menus = get_terms( 'nav_menu', $source );
-			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
-				return wp_get_nav_menu_items( $menus[0]->slug );
+			if (isset( $source->menu )) { 
+				if ($source->menu instanceof \WP_Term && ! empty($source->menu->slug)) {
+					return wp_get_nav_menu_items( $source->menu->slug );
+				}
+				else if ($source->menu instanceof \WP_Post) {
+					return self::get_menu_items($source->menu, $args);
+				}
+			}
+			else {
+				$menu = get_the_terms( $source, 'nav_menu' );
+				if ( ! is_wp_error( $menu ) && ! empty( $menu ) && $menu[0] instanceof \WP_Term) {
+					return wp_get_nav_menu_items( $menu[0]->slug );
+				}
 			}
 		}
 
