@@ -34,23 +34,10 @@ env:
     - PHP_VERSION=7.1 WP_VERSION=4.7.1
     - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
-install:
-  - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
-  - docker-compose build
-
-before_script:
-  - docker-compose up -d
-  - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
-
 script:
-  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
-  - |
-    if [ $COVERAGE == true ]; then
-      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
-    else
-      docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
-    fi
+  - ./run-docker-tests.sh wpunit
+  - ./run-docker-tests.sh functional
+  - ./run-docker-tests.sh acceptance
 
 after_success:
   # Install coveralls.phar
