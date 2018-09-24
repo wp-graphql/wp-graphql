@@ -27,40 +27,23 @@ env:
     - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.9.4
     - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.7.1
     - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.9.4
-    - PHP_VERSION=5.6 WP_VERSION=4.7.1
-    - PHP_VERSION=5.6 WP_VERSION=4.9.4
-    - PHP_VERSION=7.0 WP_VERSION=4.7.1
-    - PHP_VERSION=7.0 WP_VERSION=4.9.4
-    - PHP_VERSION=7.1 WP_VERSION=4.7.1
+    - PHP_VERSION=5.6 WP_VERSION=4.7.1 COVERAGE=true
+    - PHP_VERSION=5.6 WP_VERSION=4.9.4 COVERAGE=true
+    - PHP_VERSION=7.0 WP_VERSION=4.7.1 COVERAGE=true
+    - PHP_VERSION=7.0 WP_VERSION=4.9.4 COVERAGE=true
+    - PHP_VERSION=7.1 WP_VERSION=4.7.1 COVERAGE=true
     - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
-install:
-  - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
-  - docker-compose build
-
-before_script:
-  - docker-compose up -d
-  - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
-
 script:
-  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
-  - |
-    if [ $COVERAGE == true ]; then
-      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
-    else
-      docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
-    fi
+  - ./run-docker-tests.sh wpunit
+  - ./run-docker-tests.sh functional
+  - ./run-docker-tests.sh acceptance
 
 after_success:
-  # Install coveralls.phar
-  # Upload coverage to coveralls
+  # Upload coverage to codecov
   - |
-    if [ $COVERAGE == true ]; then
-      wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-      chmod +x coveralls.phar
-      php coveralls.phar --version
-      travis_retry php coveralls.phar -v
+    if [[ "${COVERAGE}" == 'true' ]]; then
+      bash <(curl -s https://codecov.io/bash)
     fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
@@ -96,6 +79,3 @@ deploy:
       all_branches: develop
       # Only deploy when APIGEN_DOCS are generated
       condition: $APIGEN_DOCS == true
-
-after_script:
-  - docker-compose down

@@ -130,8 +130,49 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
         - `vendor/bin/codecept run acceptance`
 
 
-### Testing in Docker
+### Using Docker
+Docker can be used to run tests or a local application instance in an isolated environment with very little set up by a developer.  
 
+1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
+   ```
+   sudo docker --version
+   ```
+   
+1. Verify [Docker Compose](https://docs.docker.com/compose/install/) is installed:
+   ```
+   sudo docker-compose --version
+   ```
+#### Running tests with Docker
+* Run the tests in pristine Docker environments by running any of these commands: 
+```
+sudo ./run-docker-tests.sh wpunit
+sudo ./run-docker-tests.sh functional
+sudo ./run-docker-tests.sh acceptance
+```
+
+* Run the tests in pristine Docker environments with different configurations. Here are some examples: 
+```
+sudo env WP_MULTISITE='1' PHP_VERSION='7.1' WP_VERSION='4.9.4' ./run-docker-tests.sh wpunit
+sudo env PHP_VERSION='7.1' WP_VERSION='4.9.4' COVERAGE='true' ./run-docker-tests.sh functional
+sudo env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
+```
+If `COVERAGE='true'` is set,  results should appear in `docker-output/`.
+
+
+Notes: 
+* It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
+some of the processing steps will be cached and it should run more quickly afterwards.
+* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
+try these solutions:
+   * Run this command: `sudo docker system prune`
+   * https://docs.docker.com/config/pruning/#prune-containers
+
+#### Running Wordpress + wp-graphql plugin with Docker
+```
+sudo ./run-docker-local-app.sh
+```
+
+#### Older Docker notes
 A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
 tests in isolation without installing anything locally (besides Docker).
 
