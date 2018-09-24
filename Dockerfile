@@ -12,7 +12,7 @@ RUN apt-get update -y \
 
 # For PHP 5.6, use xdebug versiion 2.5.5.  https://github.com/docker-library/php/issues/566#issuecomment-362094015
 # Otherwise install a more recent version.
-RUN if [ "${DOCKER_PHP_VERSION}" = '5.6' ]; then pecl install xdebug-2.5.5; else echo pecl install xdebug-2.6.1; fi
+RUN if [ "${DOCKER_PHP_VERSION}" = '5.6' ]; then pecl install xdebug-2.5.5; else pecl install xdebug-2.6.1; fi
 
 # Install PHP Composeer, WP-CLI, xdebug, PHP MySQL driver, etc
 RUN docker-php-ext-enable xdebug \
