@@ -185,11 +185,6 @@ Please make sure this file refers to the latest specific versions of WordPress a
 Please avoid using the `latest` tag because the WP Docker image is published a few days after the PHP code
 is made available and that can result in inaccurate test results.
   
-----
-Code coverage for `wpunit` tests can be generated using `phpdbg` (note that Codeception currently segfaults under 
-phpdbg and PHP 7.2):
-
-
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 
 
