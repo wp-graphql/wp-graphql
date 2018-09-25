@@ -19,10 +19,7 @@ cache:
 # Set the global environment variables
 env:
   matrix:
-    # These apply to the latest available WP Docker image version: https://hub.docker.com/_/wordpress/
-    - WP_MULTISITE=1 PHP_VERSION=5.6
-    - WP_MULTISITE=1 PHP_VERSION=7.1
-    - WP_MULTISITE=1 PHP_VERSION=7.2
+    # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
     - PHP_VERSION=5.6
     - PHP_VERSION=7.1
     - PHP_VERSION=7.2 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true

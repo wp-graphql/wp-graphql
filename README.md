@@ -153,7 +153,7 @@ of the set up and configuration tasks performed by a developer.
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   sudo env WP_MULTISITE='1' PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
+   sudo env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
    sudo env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
    sudo env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
    ```

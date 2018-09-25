@@ -18,15 +18,6 @@ initialize_test_results_dir() {
   mkdir -p "${TEST_RESULTS_DIR}"
 }
 
-get_wordpress_config_extra() {
-  if [[ "${WP_MULTISITE}" == '1' ]]; then
-    echo "define('WP_ALLOW_MULTISITE', true );"
-    echo "define('MULTISITE', true);"
-  else
-    echo ''
-  fi
-}
-
 run_tests() {
   echo "Going to run with WP version: ${WP_VERSION} and PHP version: ${PHP_VERSION}"
 
@@ -34,7 +25,6 @@ run_tests() {
     CONTAINER_DATA_PATH=/project/tests/_output/ \
     HOST_DATA_PATH="${TEST_RESULTS_DIR}" \
     TEST_TYPE="${TEST_TYPE}" \
-    WORDPRESS_CONFIG_EXTRA="$(get_wordpress_config_extra)" \
     docker-tasks/run-docker-compose-up.sh --build --exit-code-from 'main'
 }
 
