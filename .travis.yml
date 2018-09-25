@@ -18,21 +18,14 @@ cache:
 
 # Set the global environment variables
 env:
-  global:
-    - COVERAGE: false
   matrix:
-    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.9.4
-    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.9.4
-    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.9.4
-    - PHP_VERSION=5.6 WP_VERSION=4.7.1 COVERAGE=true
-    - PHP_VERSION=5.6 WP_VERSION=4.9.4 COVERAGE=true
-    - PHP_VERSION=7.0 WP_VERSION=4.7.1 COVERAGE=true
-    - PHP_VERSION=7.0 WP_VERSION=4.9.4 COVERAGE=true
-    - PHP_VERSION=7.1 WP_VERSION=4.7.1 COVERAGE=true
-    - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
+    # These apply to the latest available WP Docker image version: https://hub.docker.com/_/wordpress/
+    - WP_MULTISITE=1 PHP_VERSION=5.6
+    - WP_MULTISITE=1 PHP_VERSION=7.1
+    - WP_MULTISITE=1 PHP_VERSION=7.2
+    - PHP_VERSION=5.6
+    - PHP_VERSION=7.1
+    - PHP_VERSION=7.2 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
 script:
   - ./run-docker-tests.sh wpunit

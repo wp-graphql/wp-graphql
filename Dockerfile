@@ -1,23 +1,13 @@
-# Need to use an environment variable name that is different from PHP's reserved constant, PHP_VERSION.
-# http://php.net/manual/en/reserved.constants.php
-ARG DOCKER_PHP_VERSION
-ARG WP_VERSION
-FROM wordpress:${WP_VERSION}-php${DOCKER_PHP_VERSION}-apache
-ARG DOCKER_PHP_VERSION
+# This Dockerfile assumes WORDPRESS_DOCKER_IMAGE refers to a Debian+Apache variant of WordPress.
+ARG WORDPRESS_DOCKER_IMAGE
+FROM ${WORDPRESS_DOCKER_IMAGE}
 
-# Install OS packages needed by some PHP-related packages
+# Install PHP Composer, WP-CLI, xdebug (only for PHP 7.X), PHP MySQL driver, etc
 RUN apt-get update -y \
   && apt-get install --no-install-recommends -y g++ git make mysql-client subversion unzip zip zlib1g-dev \
-  && rm -rf /var/lib/apt/lists/*
-
-# For PHP 5.6, use xdebug versiion 2.5.5.  https://github.com/docker-library/php/issues/566#issuecomment-362094015
-# Otherwise install a more recent version.
-RUN if [ "${DOCKER_PHP_VERSION}" = '5.6' ]; then pecl install xdebug-2.5.5; else pecl install xdebug-2.6.1; fi
-
-# Install PHP Composeer, WP-CLI, xdebug, PHP MySQL driver, etc
-RUN docker-php-ext-enable xdebug \
+  && rm -rf /var/lib/apt/lists/* \
+  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
   && docker-php-ext-install pdo_mysql zip \
-  && echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40109bfbec0f9b8b39f12f260fb6e80befa/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \

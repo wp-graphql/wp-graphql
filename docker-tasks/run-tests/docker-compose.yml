@@ -12,7 +12,7 @@ services:
       DB_HOST: 'mysql_test'
       DB_USER: 'root'
       DB_PASSWORD: 'testing'
-      WP_VERSION: "${WP_VERSION:-4.9.8}"
+      WP_VERSION: "${WP_VERSION}"
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
     entrypoint:
@@ -32,13 +32,13 @@ services:
       [ "docker-entrypoint.wpgraphql.sh" ]
 
 
-  # This configuration ensures the custom image is built exactly once
+  # This configuration ensures the custom image is built exactly once before it's used
   image-builder:
     build:
       context: ../../.
       args:
-        DOCKER_PHP_VERSION: "${PHP_VERSION:-7.2}"
-        WP_VERSION: "${WP_VERSION:-4.9.8}"
+        WORDPRESS_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+    # Setting the 'image' option to only rebuild Docker layers when necessary
     image: wpgraphql-cache
     entrypoint:
       # This is a workaround to prevent the docker compose invocation from exiting prematurely

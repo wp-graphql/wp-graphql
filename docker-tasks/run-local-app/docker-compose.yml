@@ -5,7 +5,7 @@ services:
     build:
       context: ../../.
       args:
-        WP_DOCKER_IMAGE: "wordpress:${WP_VERSION:-4.9.8}-php${PHP_VERSION:-7.2}-apache"
+        WORDPRESS_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
     image: wpgraphql-cache
     ports:
       - '80:80'
