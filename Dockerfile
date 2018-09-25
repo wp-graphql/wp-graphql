@@ -3,7 +3,8 @@ ARG WORDPRESS_DOCKER_IMAGE
 FROM ${WORDPRESS_DOCKER_IMAGE}
 
 # Install PHP Composer, WP-CLI, xdebug (only for PHP 7.X), PHP MySQL driver, etc
-RUN apt-get update -y \
+RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && apt-get update -y \
   && apt-get install --no-install-recommends -y g++ git make mysql-client subversion unzip zip zlib1g-dev \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
