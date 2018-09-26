@@ -3,6 +3,7 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
@@ -12,14 +13,25 @@ use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Themes;
 use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
+use WPGraphQL\Mutation\CommentCreate;
+use WPGraphQL\Mutation\CommentDelete;
+use WPGraphQL\Mutation\CommentRestore;
+use WPGraphQL\Mutation\CommentUpdate;
+use WPGraphQL\Mutation\MediaItemCreate;
+use WPGraphQL\Mutation\MediaItemDelete;
+use WPGraphQL\Mutation\MediaItemUpdate;
+use WPGraphQL\Mutation\UserCreate;
+use WPGraphQL\Mutation\UserDelete;
+use WPGraphQL\Mutation\UserRegister;
+use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Avatar;
 use WPGraphQL\Type\AvatarRatingEnum;
 use WPGraphQL\Type\Comment;
-use WPGraphQL\Type\Comment\Connection\CommentConnectionDefinition;
 use WPGraphQL\Type\CommentAuthor;
 use WPGraphQL\Type\CommentAuthorUnion;
 use WPGraphQL\Type\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\DateInput;
+use WPGraphQL\Type\DateQueryInput;
 use WPGraphQL\Type\EditLock;
 use WPGraphQL\Type\MediaDetails;
 use WPGraphQL\Type\MediaItemMeta;
@@ -35,7 +47,6 @@ use WPGraphQL\Type\OrderEnum;
 use WPGraphQL\Type\PageInfo;
 use WPGraphQL\Type\Plugin;
 use WPGraphQL\Type\PostObject;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
 use WPGraphQL\Type\PostObjectFieldFormatEnum;
 use WPGraphQL\Type\PostObjectsConnectionDateColumnEnum;
 use WPGraphQL\Type\PostObjectsConnectionOrderbyEnum;
@@ -64,12 +75,33 @@ use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
 
+/**
+ * Class TypeRegistry
+ *
+ * This serves as the central TypeRegistry for WPGraphQL.
+ *
+ * Types can be added to the registry via `register_graphql_type`, then can be referenced throughout
+ * via TypeRegistry::get_type( 'typename' );
+ *
+ * @package WPGraphQL
+ */
 class TypeRegistry {
 
+	/**
+	 * Stores all registered Types
+	 *
+	 * @var array
+	 */
 	protected static $types;
 
+	/**
+	 * Initialize the TypeRegistry by registering core Types that should be available
+	 */
 	public static function init() {
 
+		/**
+		 * Register core Scalars
+		 */
 		register_graphql_type( 'Bool', Types::boolean() );
 		register_graphql_type( 'Boolean', Types::boolean() );
 		register_graphql_type( 'Float', Types::float() );
@@ -79,12 +111,16 @@ class TypeRegistry {
 		register_graphql_type( 'Integer', Types::int() );
 		register_graphql_type( 'String', Types::string() );
 
+		/**
+		 * Register core WPGRaphQL Types
+		 */
 		Avatar::register_type();
 		AvatarRatingEnum::register_type();
 		Comment::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentAuthor::register_type();
 		DateInput::register_type();
+		DateQueryInput::register_type();
 		EditLock::register_type();
 		MediaItemStatusEnum::register_type();
 		MediaDetails::register_type();
@@ -119,9 +155,10 @@ class TypeRegistry {
 		RootMutation::register_type();
 		RootQuery::register_type();
 
+		/**
+		 * Register PostObject types based on post_types configured to show_in_graphql
+		 */
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
@@ -129,6 +166,10 @@ class TypeRegistry {
 			}
 		}
 
+		/**
+		 * Register TermObject types based on taxonomies configured to show_in_graphql
+		 */
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
@@ -137,7 +178,8 @@ class TypeRegistry {
 		}
 
 		/**
-		 * Unions (need to be registered after other types)
+		 * Register all Union Types
+		 * Unions need to be registered after other types as they reference other Types
 		 */
 		CommentAuthorUnion::register_type();
 		MenuItemObjectUnion::register_type();
@@ -159,56 +201,17 @@ class TypeRegistry {
 		Users::register_connections();
 		UserRoles::register_connections();
 
-		self::register_connections();
-
-	}
-
-	protected static function register_connections() {
-
-		/**
-		 * Connections: Need to be registered after other Types
-		 *
-		 * @todo: abstract to "register_graphql_connection"
-		 */
-		register_graphql_field( 'Comment', 'children', CommentConnectionDefinition::connection( 'Children' ) );
-
-
-		self::register_user_connections();
-
-	}
-
-	protected static function register_user_connections() {
-
-		/**
-		 * Add a connection between user and comments.
-		 *
-		 * @todo: abstract to "register_graphql_connection"
-		 */
-		register_graphql_field( 'User', 'comments', CommentConnectionDefinition::connection( 'User' ) );
-
-		/**
-		 * Get the allowed_post_types so that we can create a connection from users
-		 * to post_types
-		 *
-		 * @since 0.0.5
-		 */
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
-
-//		/**
-//		 * Add connection to each of the allowed post_types as users can have connections
-//		 * to any post_type.
-//		 *
-//		 * @since 0.0.5
-//		 */
-//		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-//			foreach ( $allowed_post_types as $post_type ) {
-//				// @todo: maybe look into narrowing this based on permissions?
-//				$post_type_object = get_post_type_object( $post_type );
-//				if ( ! empty( $post_type_object->graphql_plural_name ) ) {
-//					register_graphql_field( 'User', lcfirst( $post_type_object->graphql_plural_name ), PostObjectConnectionDefinition::connection( $post_type_object, 'User' ) );
-//				}
-//			}
-//		}
+		CommentCreate::register_mutation();
+		CommentDelete::register_mutation();
+		CommentRestore::register_mutation();
+		CommentUpdate::register_mutation();
+		MediaItemCreate::register_mutation();
+		MediaItemDelete::register_mutation();
+		MediaItemUpdate::register_mutation();
+		UserCreate::register_mutation();
+		UserDelete::register_mutation();
+		UserUpdate::register_mutation();
+		UserRegister::register_mutation();
 
 	}
 
@@ -276,7 +279,7 @@ class TypeRegistry {
 
 		if ( is_array( $config ) ) {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
-			$config['name'] = $type_name;
+			$config['name'] = ucfirst( $type_name );
 
 			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
 				$config['fields'] = function () use ( $config, $type_name ) {
@@ -414,7 +417,7 @@ class TypeRegistry {
 		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) ? $config['resolveCursor'] : null;
 		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
 		$connection_name    = self::get_connection_name( $from_type, $to_type );
-		$where_args = [];
+		$where_args         = [];
 
 		/**
 		 * If there are any $connectionArgs,
@@ -424,13 +427,13 @@ class TypeRegistry {
 		if ( ! empty( $connection_args ) ) {
 			register_graphql_input_type( $connection_name . 'WhereArgs', [
 				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-				'fields' => $connection_args,
-			]);
+				'fields'      => $connection_args,
+			] );
 
 			$where_args = [
 				'where' => [
 					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type' => $connection_name . 'WhereArgs',
+					'type'        => $connection_name . 'WhereArgs',
 				],
 			];
 
@@ -467,12 +470,12 @@ class TypeRegistry {
 					],
 					'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
 				],
-				'nodes' => [
+				'nodes'    => [
 					'type'        => [
 						'list_of' => $to_type,
 					],
 					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function( $source, $args, $context, $info ) {
+					'resolve'     => function ( $source, $args, $context, $info ) {
 						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 					},
 				],
@@ -501,6 +504,61 @@ class TypeRegistry {
 			], $where_args ),
 			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
 			'resolve'     => $resolve_connection
+		] );
+
+	}
+
+	public static function register_mutation( $mutation_name, $config ) {
+
+		$output_fields = [
+			'clientMutationId' => [
+				'type' => [
+					'non_null' => 'String',
+				],
+			],
+		];
+
+		$output_fields = ! empty( $config['outputFields'] ) && is_array( $config['outputFields'] ) ? array_merge( $config['outputFields'], $output_fields ) : $output_fields;
+
+		register_graphql_object_type( $mutation_name . 'Payload', [
+			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+			'fields'      => $output_fields,
+		] );
+
+		$input_fields = [
+			'clientMutationId' => [
+				'type' => [
+					'non_null' => 'String',
+				],
+			],
+		];
+
+		$input_fields = ! empty( $config['inputFields'] ) && is_array( $config['inputFields'] ) ? array_merge( $config['inputFields'], $input_fields ) : $input_fields;
+
+		register_graphql_input_type( $mutation_name . 'Input', [
+			'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
+			'fields'      => $input_fields,
+		] );
+
+		$mutateAndGetPayload = ! empty( $config['mutateAndGetPayload'] ) ? $config['mutateAndGetPayload'] : null;
+
+		register_graphql_field( 'rootMutation', $mutation_name, [
+			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+			'args'        => [
+				'input' => [
+					'type'        => [
+						'non_null' => $mutation_name . 'Input',
+					],
+					'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ), 'wp-graphql' ),
+				],
+			],
+			'type'        => $mutation_name . 'Payload',
+			'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload ) {
+				$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
+				$payload['clientMutationId'] = $args['input']['clientMutationId'];
+
+				return $payload;
+			}
 		] );
 
 	}

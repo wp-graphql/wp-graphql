@@ -1,57 +1,26 @@
 <?php
 
-namespace WPGraphQL\Type\MediaItem\Mutation;
+namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
+use WPGraphQL\Data\MediaItemMutation;
 
-/**
- * Class MediaItemCreate
- *
- * @package WPGraphQL\Type\MediaItem\Mutation
- */
 class MediaItemCreate {
-
-	/**
-	 * Holds the mutation field definition
-	 *
-	 * @var array mutation
-	 */
-	private static $mutation = [];
-
-	/**
-	 * Defines the create mutation for MediaItems
-	 *
-	 * @var \WP_Post_Type $post_type_object
-	 *
-	 * @return array|mixed
-	 */
-	public static function mutate( \WP_Post_Type $post_type_object ) {
-
-		/**
-		 * Set the name of the mutation being performed
-		 */
-		$mutation_name = 'CreateMediaItem';
-
-		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
-			'name'                => esc_html( $mutation_name ),
-			'description'         => __( 'Create mediaItems', 'wp-graphql' ),
-			'inputFields'         => self::input_fields( $post_type_object ),
-			'outputFields'        => function() use ( $post_type_object ) {
-				return [
-					'mediaItem' => [
-						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function ( $payload ) {
-							return DataSource::resolve_post_object( $payload['id'], 'attachment' );
-						},
-					],
-				];
-			},
-			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+	public static function register_mutation() {
+		register_graphql_mutation( 'createMediaItem', [
+			'inputFields'         => self::get_input_fields(),
+			'outputFields'        => [
+				'mediaItem' => [
+					'type'    => 'MediaItem',
+					'resolve' => function ( $payload ) {
+						return DataSource::resolve_post_object( $payload['id'], 'attachment' );
+					},
+				]
+			],
+			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
 
 				/**
 				 * Stop now if a user isn't allowed to upload a mediaItem
@@ -130,7 +99,7 @@ class MediaItemCreate {
 				/**
 				 * Insert the mediaItem object and get the ID
 				 */
-				$media_item_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, $file );
+				$media_item_args = MediaItemMutation::prepare_media_item( $input, get_post_type_object( 'attachment' ), 'createMediaItem', $file );
 
 				/**
 				 * Get the post parent and if it's not set, set it to false
@@ -153,7 +122,7 @@ class MediaItemCreate {
 				 * If the mediaItem being created is being assigned to another user that's not the current user, make sure
 				 * the current user has permission to edit others mediaItems
 				 */
-				if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+				if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( get_post_type_object( 'attachment' )->cap->edit_others_posts ) ) {
 					throw new UserError( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
 				}
 
@@ -185,41 +154,74 @@ class MediaItemCreate {
 				/**
 				 * Update alt text postmeta for mediaItem
 				 */
-				MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, $post_type_object, $mutation_name, $context, $info );
+				MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, get_post_type_object( 'attachment' ), 'createMediaItem', $context, $info );
 
 				return [
 					'id' => $attachment_id,
 				];
 
 			},
-
 		] );
-
-		return ! empty( self::$mutation['mediaItem'] ) ? self::$mutation['mediaItem'] : null;
 	}
 
-	/**
-	 * Add the filePath as a nonNull field for create mutations as its required
-	 * to create a media item
-	 *
-	 * @param \WP_Post_Type $post_type_object
-	 *
-	 * @return array
-	 */
-	private static function input_fields( $post_type_object ) {
-
-		/**
-		 * Creating mutations requires a filePath to be passed
-		 */
-		return array_merge(
-			[
-				'filePath' => [
-					'type'        => Types::non_null( Types::string() ),
-					'description' => __( 'The URL or file path to the mediaItem', 'wp-graphql' ),
-				],
+	public static function get_input_fields() {
+		return [
+			'altText'       => [
+				'type'        => 'String',
+				'description' => __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' ),
 			],
-			MediaItemMutation::input_fields( $post_type_object )
-		);
-
+			'authorId'      => [
+				'type'        => 'Id',
+				'description' => __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' ),
+			],
+			'caption'       => [
+				'type'        => 'String',
+				'description' => __( 'The caption for the mediaItem', 'wp-graphql' ),
+			],
+			'commentStatus' => [
+				'type'        => 'String',
+				'description' => __( 'The comment status for the mediaItem', 'wp-graphql' ),
+			],
+			'date'          => [
+				'type'        => 'String',
+				'description' => __( 'The date of the mediaItem', 'wp-graphql' ),
+			],
+			'dateGmt'       => [
+				'type'        => 'String',
+				'description' => __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' ),
+			],
+			'description'   => [
+				'type'        => 'String',
+				'description' => __( 'Description of the mediaItem', 'wp-graphql' ),
+			],
+			'filePath'      => [
+				'type'        => 'String',
+				'description' => __( 'The file name of the mediaItem', 'wp-graphql' ),
+			],
+			'fileType'      => [
+				'type'        => 'MimeTypeEnum',
+				'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
+			],
+			'slug'          => [
+				'type'        => 'String',
+				'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
+			],
+			'status'        => [
+				'type'        => 'MediaItemStatusEnum',
+				'description' => __( 'The status of the mediaItem', 'wp-graphql' ),
+			],
+			'title'         => [
+				'type'        => 'String',
+				'description' => __( 'The title of the mediaItem', 'wp-graphql' ),
+			],
+			'pingStatus'    => [
+				'type'        => 'String',
+				'description' => __( 'The ping status for the mediaItem', 'wp-graphql' ),
+			],
+			'parentId'      => [
+				'type'        => 'Id',
+				'description' => __( 'The WordPress post ID or the graphQL postId of the parent object', 'wp-graphql' ),
+			],
+		];
 	}
 }

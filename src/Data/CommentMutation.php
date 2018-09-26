@@ -1,12 +1,10 @@
 <?php
 
-namespace WPGraphQL\Type\Comment\Mutation;
+namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
 /**
@@ -15,81 +13,6 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Type\Comment\Mutation
  */
 class CommentMutation {
-	/**
-	 * Holds the input_fields configuration
-	 *
-	 * @var array
-	 */
-	private static $input_fields = [];
-
-	/**
-	 * Checks and initialize comment mutation input fields
-	 *
-	 * @return mixed|array|null $input_fields
-	 */
-	public static function input_fields() {
-		if ( empty( self::$input_fields ) ) {
-			$input_fields = [
-				'postId'      => [
-					'type'        => Types::int(),
-					'description' => __( 'The ID of the post the comment belongs to.', 'wp-graphql' ),
-				],
-				'userId'      => [
-					'type'        => Types::int(),
-					'description' => __( 'The userID of the comment\'s author.', 'wp-graphql' ),
-				],
-				'author'      => [
-					'type'        => Types::string(),
-					'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),
-				],
-				'authorEmail' => [
-					'type'        => Types::string(),
-					'description' => __( 'The email of the comment\'s author.', 'wp-graphql' ),
-				],
-				'authorUrl'   => [
-					'type'        => Types::string(),
-					'description' => __( 'The url of the comment\'s author.', 'wp-graphql' ),
-				],
-				'authorIp'    => [
-					'type'        => Types::string(),
-					'description' => __( 'IP address for the comment\'s author.', 'wp-graphql' ),
-				],
-				'content'     => [
-					'type'        => Types::string(),
-					'description' => __( 'Content of the comment.', 'wp-graphql' ),
-				],
-				'type'        => [
-					'type'        => Types::string(),
-					'description' => __( 'Type of comment.', 'wp-graphql' ),
-				],
-				'parent'      => [
-					'type'        => Types::id(),
-					'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
-				],
-				'agent'       => [
-					'type'        => Types::string(),
-					'description' => __( 'User agent used to post the comment.', 'wp-graphql' ),
-				],
-				'date'        => [
-					'type'        => Types::string(),
-					'description' => __( 'The date of the object. Preferable to enter as year/month/day ( e.g. 01/31/2017 ) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17 ', 'wp-graphql' ),
-				],
-				'approved'    => [
-					'type'        => Types::string(),
-					'description' => __( 'The approval status of the comment.', 'wp-graphql' ),
-				],
-			];
-
-			/**
-			 * Filters the mutation input fields for the object type
-			 *
-			 * @param array $input_fields The array of input fields
-			 */
-			self::$input_fields = apply_filters( 'graphql_comment_mutation_input_fields', $input_fields );
-		}
-
-		return ( ! empty( self::$input_fields ) ) ? self::$input_fields : null;
-	}
 
 	/**
 	 * This handles inserting the comment and creating

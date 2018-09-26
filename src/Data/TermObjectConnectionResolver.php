@@ -1,11 +1,10 @@
 <?php
 
-namespace WPGraphQL\Type\TermObject\Connection;
+namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**

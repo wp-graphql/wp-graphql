@@ -8,10 +8,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
-use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
-use WPGraphQL\Type\User\Connection\UserConnectionResolver;
 use WPGraphQL\Types;
 
 /**

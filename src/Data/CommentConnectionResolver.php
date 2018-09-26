@@ -1,12 +1,10 @@
 <?php
-namespace WPGraphQL\Type\Comment\Connection;
+namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\ConnectionResolver;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**

@@ -1,57 +1,41 @@
 <?php
 
-namespace WPGraphQL\Type\MediaItem\Mutation;
+namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
+use WPGraphQL\Data\MediaItemMutation;
 
-/**
- * Class MediaItemUpdate
- *
- * @package WPGraphQL\Type\PostObject\Mutation
- */
 class MediaItemUpdate {
-
-	/**
-	 * Holds the mutation field definition
-	 *
-	 * @var array $mutation
-	 */
-	private static $mutation = [];
-
-	/**
-	 * Defines the update mutation for MediaItems
-	 *
-	 * @param \WP_Post_Type $post_type_object
-	 *
-	 * @return array|mixed
-	 */
-	public static function mutate( \WP_Post_Type $post_type_object ) {
-
-		/**
-		 * Set the name of the mutation being performed
-		 */
-		$mutation_name = 'UpdateMediaItem';
-
-		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
-			'name'                => esc_html( $mutation_name ),
-			'description'         => __( 'Updates mediaItem objects', 'wp-graphql' ),
-			'inputFields'         => self::input_fields( $post_type_object ),
-			'outputFields'        => function() use ( $post_type_object ) {
-				return [
-					'mediaItem' => [
-						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function ( $payload ) {
-							return DataSource::resolve_post_object( $payload['postObjectId'], 'attachment' );
-						},
+	public static function register_mutation() {
+		register_graphql_mutation( 'updateMediaItem', [
+			'inputFields'         => array_merge(
+				MediaItemCreate::get_input_fields(),
+				[
+					'id' => [
+						'type'        => [
+							'non_null' => 'ID',
+						],
+						// translators: the placeholder is the name of the type of post object being updated
+						'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), get_post_type_object( 'attachment' )->graphql_single_name ),
 					],
-				];
-			},
-			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+				]
+			),
+			'outputFields'        => [
+				'mediaItem' => [
+					'type'    => 'MediaItem',
+					'resolve' => function ( $payload ) {
+						return DataSource::resolve_post_object( $payload['postObjectId'], 'attachment' );
+					},
+				],
+			],
+			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
+
+				$post_type_object = get_post_type_object( 'attachment' );
+				$mutation_name    = 'updateMediaItem';
 
 				$id_parts            = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 				$existing_media_item = get_post( absint( $id_parts['id'] ) );
@@ -129,34 +113,5 @@ class MediaItemUpdate {
 
 			},
 		] );
-
-		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
-
 	}
-
-	/**
-	 * Add the id as a nonNull field for update mutations
-	 *
-	 * @param \WP_Post_Type $post_type_object
-	 *
-	 * @return array
-	 */
-	private static function input_fields( $post_type_object ) {
-
-		/**
-		 * Update mutations require an ID to be passed
-		 */
-		return array_merge(
-			[
-				'id' => [
-					'type'        => Types::non_null( Types::id() ),
-					// translators: the placeholder is the name of the type of post object being updated
-					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				],
-			],
-			MediaItemMutation::input_fields( $post_type_object )
-		);
-
-	}
-
 }

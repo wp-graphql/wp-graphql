@@ -1,55 +1,69 @@
 <?php
+
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class PostObjects
+ *
+ * This class organizes the registration of connections to PostObjects
+ *
+ * @package WPGraphQL\Connection
+ */
 class PostObjects {
-	public static function register_connections() {
 
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+	/**
+	 * Registers the various connections from other Types to PostObjects
+	 */
+	public static function register_connections() {
 
 		/**
 		 * Register Connections to PostObjects
 		 */
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 
 				$post_type_object = get_post_type_object( $post_type );
 
 				/**
-				 * RootQueryToPostObjectsConnection
+				 * Registers the RootQuery connection for each post_type
 				 */
 				register_graphql_connection( self::get_connection_config( $post_type_object ) );
 
 				/**
-				 * UserToPostObjectsConnection
+				 * Registers the User connection for each post_type
 				 */
 				register_graphql_connection( self::get_connection_config( $post_type_object, [
 					'fromType' => 'User'
-				] ));
+				] ) );
 
 				/**
-				 * TermObjectToPostObjectsConnection
+				 * Registers connections for each post_type that has a connection
+				 * to a taxonomy that's allowed in GraphQL
 				 */
 				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-							$tax_object                                 = get_taxonomy( $taxonomy );
-							//$fields[ $tax_object->graphql_plural_name ] = TermObjectConnectionDefinition::connection( $tax_object, $post_type_object->graphql_single_name );
+							$tax_object = get_taxonomy( $taxonomy );
 							register_graphql_connection( self::get_connection_config( $post_type_object, [
 								'fromType' => $tax_object->graphql_single_name,
-							]));
+							] ) );
 						}
 					}
 				}
 
+				/**
+				 * Registers the connection to child items if the post_type is hierarchical
+				 */
 				if ( true === $post_type_object->hierarchical ) {
 					register_graphql_connection( self::get_connection_config( $post_type_object, [
-						'fromType' => $post_type_object->graphql_single_name,
+						'fromType'      => $post_type_object->graphql_single_name,
 						'fromFieldName' => 'child' . ucfirst( $post_type_object->graphql_plural_name ),
-					]));
+					] ) );
 				}
 
 			}
@@ -57,85 +71,46 @@ class PostObjects {
 
 	}
 
+	/**
+	 * Given the Post Type Object and an array of args, this returns an array of args for use in
+	 * registering a connection.
+	 *
+	 * @param \WP_Post_Type $post_type_object The post type object for the post_type having a
+	 *                                        connection registered to it
+	 * @param array         $args             The custom args to modify the connection registration
+	 *
+	 * @return array
+	 */
 	protected static function get_connection_config( $post_type_object, $args = [] ) {
 		return array_merge( [
-			'fromType' => 'RootQuery',
-			'toType' => $post_type_object->graphql_single_name,
-			'queryClass' => 'WP_Query',
+			'fromType'         => 'RootQuery',
+			'toType'           => $post_type_object->graphql_single_name,
+			'queryClass'       => 'WP_Query',
 			'connectionFields' => [
 				'postTypeInfo' => [
 					'type'        => 'PostType',
 					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-					'resolve'     => function( $source, array $args, $context, $info ) use ( $post_type_object ) {
+					'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
 						return $post_type_object;
 					},
 				],
 			],
-			'fromFieldName' => lcfirst( $post_type_object->graphql_plural_name ),
-			'connectionArgs' => self::get_connection_args(),
-			'resolve' => function( $root, $args, $context, $info ) use ( $post_type_object ) {
+			'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
+			'connectionArgs'   => self::get_connection_args(),
+			'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
 				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
 			},
 		], $args );
 	}
 
+	/**
+	 * Given an optional array of args, this returns the args to be used in the connection
+	 *
+	 * @param array $args The args to modify the defaults
+	 *
+	 * @return array
+	 */
 	protected static function get_connection_args( $args = [] ) {
-
-		register_graphql_input_type( 'DateQueryInput', [
-			'description' => __( 'Filter the connection based on input', 'wp-graphql' ),
-			'fields' => [
-				'year'      => [
-					'type'        => 'Int',
-					'description' => __( '4 digit year (e.g. 2017)', 'wp-graphql' ),
-				],
-				'month'     => [
-					'type'        => 'Int',
-					'description' => __( 'Month number (from 1 to 12)', 'wp-graphql' ),
-				],
-				'week'      => [
-					'type'        => 'Int',
-					'description' => __( 'Week of the year (from 0 to 53)', 'wp-graphql' ),
-				],
-				'day'       => [
-					'type'        => 'Int',
-					'description' => __( 'Day of the month (from 1 to 31)', 'wp-graphql' ),
-				],
-				'hour'      => [
-					'type'        => 'Int',
-					'description' => __( 'Hour (from 0 to 23)', 'wp-graphql' ),
-				],
-				'minute'    => [
-					'type'        => 'Int',
-					'description' => __( 'Minute (from 0 to 59)', 'wp-graphql' ),
-				],
-				'second'    => [
-					'type'        => 'Int',
-					'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
-				],
-				'after'     => [
-					'type' => 'DateInput',
-				],
-				'before'    => [
-					'type' => 'DateInput',
-				],
-				'inclusive' => [
-					'type'        => 'Boolean',
-					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
-				],
-				'compare'   => [
-					'type'        => 'String',
-					'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
-				],
-				'column'    => [
-					'type'        => 'PostObjectsConnectionDateColumnEnum',
-					'description' => __( 'Column to query against', 'wp-graphql' ),
-				],
-				'relation'  => [
-					'type'        => 'RelationEnum',
-					'description' => __( 'OR or AND, how the sub-arrays should be compared', 'wp-graphql' ),
-				],
-			]
-		]);
 
 		return array_merge( [
 
@@ -331,7 +306,7 @@ class PostObjects {
 			/**
 			 * List of post status parameters
 			 */
-			'stati' => [
+			'stati'        => [
 				'type' => [
 					'list_of' => 'PostStatusEnum',
 				],
@@ -350,7 +325,7 @@ class PostObjects {
 				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 			],
 			'dateQuery'    => [
-				'type' => 'DateQueryInput',
+				'type'        => 'DateQueryInput',
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
 			'mimeType'     => [

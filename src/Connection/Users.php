@@ -1,17 +1,29 @@
 <?php
+
 namespace WPGraphQL\Connection;
 
+/**
+ * Class Users
+ *
+ * This class organizes the registration of connections to Users
+ *
+ * @package WPGraphQL\Connection
+ */
 class Users {
 
+	/**
+	 * Register connections to Users
+	 */
 	public static function register_connections() {
+
 		/**
 		 * Connection from RootQuery to Users
 		 */
-		register_graphql_connection([
-			'fromType' => 'RootQuery',
-			'toType' => 'User',
-			'fromFieldName' => 'users',
-			'resolve' => function( $source, $args, $context, $info ) {
+		register_graphql_connection( [
+			'fromType'         => 'RootQuery',
+			'toType'           => 'User',
+			'fromFieldName'    => 'users',
+			'resolve'          => function ( $source, $args, $context, $info ) {
 				return \WPGraphQL\Data\DataSource::resolve_users_connection( $source, $args, $context, $info );
 			},
 			'connectionFields' => [
@@ -20,15 +32,21 @@ class Users {
 						'list_of' => 'User',
 					],
 					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function( $source, $args, $context, $info ) {
+					'resolve'     => function ( $source, $args, $context, $info ) {
 						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
 					},
 				],
 			],
-			'connectionArgs' => self::get_connection_args(),
-		]);
+			'connectionArgs'   => self::get_connection_args(),
+		] );
+
 	}
 
+	/**
+	 * Returns the connection args for use in the connection
+	 *
+	 * @return array
+	 */
 	protected static function get_connection_args() {
 		return [
 			'role'              => [

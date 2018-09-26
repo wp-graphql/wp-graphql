@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Type\User\Mutation;
+namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;

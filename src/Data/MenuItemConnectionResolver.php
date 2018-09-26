@@ -5,7 +5,6 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
 
 /**
  * Class MenuItemConnectionResolver
@@ -23,8 +22,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * that we are able to differentiate between parent and child nav items.
 	 * Otherwise we would need to use (slow) meta queries.
 	 *
-	 * @param mixed       $source  The query source being passed down to the resolver
-	 * @param array       $args    The arguments that were provided to the query
+	 * @param mixed $source The query source being passed down to the resolver
+	 * @param array $args   The arguments that were provided to the query
 	 *
 	 * @return array
 	 */
@@ -40,9 +39,17 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			'nav_menu_item' === get_post_type( $source )
 		) {
 			// Get the nav menu that this nav menu item belongs to.
-			$menus = get_terms( 'nav_menu', $source );
-			if ( ! is_wp_error( $menus ) && ! empty( $menus ) ) {
-				return wp_get_nav_menu_items( $menus[0]->slug );
+			if ( isset( $source->menu ) ) {
+				if ( $source->menu instanceof \WP_Term && ! empty( $source->menu->slug ) ) {
+					return wp_get_nav_menu_items( $source->menu->slug );
+				} else if ( $source->menu instanceof \WP_Post ) {
+					return self::get_menu_items( $source->menu, $args );
+				}
+			} else {
+				$menu = get_the_terms( $source, 'nav_menu' );
+				if ( ! is_wp_error( $menu ) && ! empty( $menu ) && $menu[0] instanceof \WP_Term ) {
+					return wp_get_nav_menu_items( $menu[0]->slug );
+				}
 			}
 		}
 
@@ -59,13 +66,15 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	}
 
 	/**
-	 * This returns the $query_args that should be used when querying for posts in the menuItemConnectionResolver.
-	 * This checks what input $args are part of the query, combines them with various filters, etc and returns an
-	 * array of $query_args to be used in the \WP_Query call
+	 * This returns the $query_args that should be used when querying for posts in the
+	 * menuItemConnectionResolver. This checks what input $args are part of the query, combines
+	 * them with various filters, etc and returns an array of $query_args to be used in the
+	 * \WP_Query call
 	 *
 	 * @param mixed       $source  The query source being passed down to the resolver
 	 * @param array       $args    The arguments that were provided to the query
-	 * @param AppContext  $context Object containing app context that gets passed down the resolve tree
+	 * @param AppContext  $context Object containing app context that gets passed down the resolve
+	 *                             tree
 	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
 	 *
 	 * @return array
@@ -95,8 +104,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Filter the menu items on whether they match a parent ID, if we are
 		// inside a request for child items. If parent ID is 0, that corresponds to
 		// a top-level menu item.
-		$parent_id = ( $source instanceof \WP_Post && 'childItems' === $info->fieldName ) ? $source->ID : 0;
-		$matched_items = array_filter( $menu_items, function( $item ) use ( $parent_id ) {
+		$parent_id     = ( $source instanceof \WP_Post && 'childItems' === $info->fieldName ) ? $source->ID : 0;
+		$matched_items = array_filter( $menu_items, function ( $item ) use ( $parent_id ) {
 			return $parent_id === intval( $item->menu_item_parent );
 		} );
 
@@ -106,7 +115,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// If the user requested a specific ID, check for it.
 		if ( ! empty( $args['where']['id'] ) ) {
 			$requested_ids = [ intval( $args['where']['id'] ) ];
-			$matched_ids = array_intersect( $matched_ids, $requested_ids );
+			$matched_ids   = array_intersect( $matched_ids, $requested_ids );
 		}
 
 		// Only update post__in if there are matches.
@@ -123,7 +132,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		/**
 		 * Set the posts_per_page, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$pagination_increase = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
+		$pagination_increase          = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
 		$query_args['posts_per_page'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
 
 		return $query_args;

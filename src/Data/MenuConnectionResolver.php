@@ -4,7 +4,6 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 
 /**
  * Class MenuConnectionResolver

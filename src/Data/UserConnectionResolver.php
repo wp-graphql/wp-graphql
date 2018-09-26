@@ -1,9 +1,8 @@
 <?php
-namespace WPGraphQL\Type\User\Connection;
+namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\ConnectionResolver;
 use WPGraphQL\Types;
 
 /**

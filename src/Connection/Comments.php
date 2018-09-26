@@ -1,25 +1,45 @@
 <?php
+
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class Comments
+ *
+ * This class organizes the registration of connections to Comments
+ *
+ * @package WPGraphQL\Connection
+ */
 class Comments {
-	public static function register_connections() {
-		register_graphql_connection( [
-			'fromType'       => 'RootQuery',
-			'toType'         => 'Comment',
-			'fromFieldName'  => 'comments',
-			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function ( $root, $args, $context, $info ) {
-				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
-			},
-		] );
 
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+	/**
+	 * Register connections to Comments
+	 */
+	public static function register_connections() {
 
 		/**
-		 * Register Connections to PostObjects
+		 * Register connection from RootQuery to Comments
 		 */
+		register_graphql_connection( self::get_connection_config() );
+
+		/**
+		 * Register connection from User to Comments
+		 */
+		register_graphql_connection( self::get_connection_config( [ 'fromType' => 'User' ] ) );
+
+		/**
+		 * Register connection from Comment to children comments
+		 */
+		register_graphql_connection( self::get_connection_config( [
+			'fromType'      => 'Comment',
+			'fromFieldName' => 'children',
+		] ) );
+
+		/**
+		 * Register Connections from all existing PostObject Types to Comments
+		 */
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
@@ -38,7 +58,33 @@ class Comments {
 		}
 	}
 
+	/**
+	 * Given an array of $args, this returns the connection config, merging the provided args
+	 * with the defaults
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	protected static function get_connection_config( $args = [] ) {
+		$defaults = [
+			'fromType'       => 'RootQuery',
+			'toType'         => 'Comment',
+			'fromFieldName'  => 'comments',
+			'connectionArgs' => self::get_connection_args(),
+			'resolve'        => function ( $root, $args, $context, $info ) {
+				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
+			},
+		];
 
+		return array_merge( $defaults, $args );
+	}
+
+	/**
+	 * This returns the connection args for the Comment connection
+	 *
+	 * @return array
+	 */
 	protected static function get_connection_args() {
 		return [
 			'authorEmail'        => [
@@ -89,7 +135,7 @@ class Comments {
 				'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 			],
 			'order'              => [
-				'type' => 'OrderEnum',
+				'type'        => 'OrderEnum',
 				'description' => __( 'The cardinality of the order of the connection', 'wp-graphql' ),
 			],
 			'parent'             => [

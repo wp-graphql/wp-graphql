@@ -301,16 +301,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		private function filters() {
 
 			/**
-			 * mediaItems are the attachment postObject, but they have a different schema shape
-			 * than postObjects out of the box, so this filter adjusts the core mediaItem
-			 * shape of data
-			 */
-			add_action( 'graphql_register_types', [
-				'\WPGraphQL\Type\MediaItem\MediaItemType',
-				'register_fields'
-			], 10, 1 );
-
-			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 			 */
 			add_filter( 'graphql_schema', [
