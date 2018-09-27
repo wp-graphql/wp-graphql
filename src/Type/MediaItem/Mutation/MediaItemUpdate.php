@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -36,21 +37,21 @@ class MediaItemUpdate {
 		 */
 		$mutation_name = 'UpdateMediaItem';
 
-		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId([
+		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
 			'name'                => esc_html( $mutation_name ),
 			'description'         => __( 'Updates mediaItem objects', 'wp-graphql' ),
 			'inputFields'         => self::input_fields( $post_type_object ),
 			'outputFields'        => [
 				'mediaItem' => [
 					'type'    => Types::post_object( $post_type_object->name ),
-					'resolve' => function( $payload ) {
-						return get_post( $payload['postObjectId'] );
+					'resolve' => function ( $payload ) {
+						return DataSource::resolve_post_object( $payload['postObjectId'], 'attachment' );
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
-				$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+				$id_parts            = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 				$existing_media_item = get_post( absint( $id_parts['id'] ) );
 
 				/**
@@ -83,7 +84,7 @@ class MediaItemUpdate {
 				 **/
 				if ( ! empty( $input['authorId'] ) ) {
 					$author_id_parts = Relay::fromGlobalId( $input['authorId'] );
-					$author_id = $author_id_parts['id'];
+					$author_id       = $author_id_parts['id'];
 				}
 
 				/**
@@ -97,8 +98,8 @@ class MediaItemUpdate {
 				/**
 				 * insert the post object and get the ID
 				 */
-				$post_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
-				$post_args['ID'] = absint( $id_parts['id'] );
+				$post_args                = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
+				$post_args['ID']          = absint( $id_parts['id'] );
 				$post_args['post_author'] = $author_id;
 
 				/**
@@ -125,7 +126,7 @@ class MediaItemUpdate {
 				];
 
 			},
-		]);
+		] );
 
 		return ! empty( self::$mutation[ $post_type_object->graphql_single_name ] ) ? self::$mutation[ $post_type_object->graphql_single_name ] : null;
 

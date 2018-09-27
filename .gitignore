@@ -22,3 +22,4 @@ build/
 coverage/*
 schema.graphql
 phpunit.xml
+docker-output

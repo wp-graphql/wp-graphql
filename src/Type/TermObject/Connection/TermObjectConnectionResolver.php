@@ -153,7 +153,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If the connection is set to output in a flat list, unset the parent
 		 */
-		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
+		if ( $source instanceof \WP_Post && isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
 			unset( $query_args['parent'] );
 			$connected             = wp_get_object_terms( $source->ID, self::$taxonomy, [ 'fields' => 'ids' ] );
 			$query_args['include'] = ! empty( $connected ) ? $connected : [];
@@ -201,6 +201,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 	 * @param ResolveInfo $info    The ResolveInfo passed down the resolve tree
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 

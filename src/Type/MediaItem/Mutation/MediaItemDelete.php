@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\MediaItem\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -51,26 +52,28 @@ class MediaItemDelete {
 				'deletedId' => [
 					'type'        => Types::id(),
 					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-					'resolve'     => function( $payload ) use ( $post_type_object ) {
+					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
+
 						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
 					},
 				],
 				'mediaItem' => [
 					'type'        => Types::post_object( $post_type_object->name ),
 					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-					'resolve'     => function( $payload ) {
+					'resolve'     => function ( $payload ) use ( $post_type_object ) {
 						$deleted = (object) $payload['mediaItemObject'];
+
 						return ! empty( $deleted ) ? $deleted : null;
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 				/**
 				 * Get the ID from the global ID
 				 */
-				$id_parts = Relay::fromGlobalId( $input['id'] );
+				$id_parts            = Relay::fromGlobalId( $input['id'] );
 				$existing_media_item = get_post( absint( $id_parts['id'] ) );
 
 				/**
@@ -96,6 +99,8 @@ class MediaItemDelete {
 				 * Get the mediaItem object before deleting it
 				 */
 				$media_item_before_delete = get_post( absint( $id_parts['id'] ) );
+				$media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? DataSource::resolve_post_object( $media_item_before_delete->ID, $post_type_object->name ) : $media_item_before_delete;
+
 
 				/**
 				 * If the mediaItem isn't of the attachment post type, throw an error
