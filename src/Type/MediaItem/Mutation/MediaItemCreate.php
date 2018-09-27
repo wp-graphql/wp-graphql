@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -37,18 +38,18 @@ class MediaItemCreate {
 		$mutation_name = 'CreateMediaItem';
 
 		self::$mutation['mediaItem'] = Relay::mutationWithClientMutationId( [
-			'name' => esc_html( $mutation_name ),
-			'description' => __( 'Create mediaItems', 'wp-graphql' ),
-			'inputFields' => self::input_fields( $post_type_object ),
-			'outputFields' => [
+			'name'                => esc_html( $mutation_name ),
+			'description'         => __( 'Create mediaItems', 'wp-graphql' ),
+			'inputFields'         => self::input_fields( $post_type_object ),
+			'outputFields'        => [
 				'mediaItem' => [
-					'type' => Types::post_object( $post_type_object->name ),
-					'resolve' => function( $payload ) {
-						return get_post( $payload['id'] );
+					'type'    => Types::post_object( $post_type_object->name ),
+					'resolve' => function ( $payload ) {
+						return DataSource::resolve_post_object( $payload['id'], 'attachment' );
 					},
 				],
 			],
-			'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 				/**
 				 * Stop now if a user isn't allowed to upload a mediaItem
@@ -61,7 +62,7 @@ class MediaItemCreate {
 				 * Set the file name, whether it's a local file or from a URL.
 				 * Then set the url for the uploaded file
 				 */
-				$file_name = basename( $input['filePath'] );
+				$file_name         = basename( $input['filePath'] );
 				$uploaded_file_url = $input['filePath'];
 
 				/**
@@ -74,7 +75,7 @@ class MediaItemCreate {
 				 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 				 */
 				if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
-					$uploaded_file = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
+					$uploaded_file     = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
 					$uploaded_file_url = ( empty ( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
 				}
 
@@ -83,7 +84,7 @@ class MediaItemCreate {
 				 * https://developer.wordpress.org/reference/functions/download_url/
 				 */
 				$timeout_seconds = 300;
-				$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
+				$temp_file       = download_url( $uploaded_file_url, $timeout_seconds );
 
 				/**
 				 * Handle the error from download_url if it occurs
@@ -176,7 +177,7 @@ class MediaItemCreate {
 				 * If we make it this far the file and attachment
 				 * have been validated and we will not receive any errors
 				 */
-				$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
+				$attachment_data        = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
 				$attachment_data_update = wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
 				/**
@@ -210,7 +211,7 @@ class MediaItemCreate {
 		 */
 		return array_merge(
 			[
-				'filePath'      => [
+				'filePath' => [
 					'type'        => Types::non_null( Types::string() ),
 					'description' => __( 'The URL or file path to the mediaItem', 'wp-graphql' ),
 				],

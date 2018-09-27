@@ -482,9 +482,9 @@ class Helper
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (stripos($contentType[0], 'application/graphql') !== false) {
+            if (stripos('application/graphql', $contentType[0]) !== false) {
                 $bodyParams = ['query' => $request->getBody()->getContents()];
-            } else if (stripos($contentType[0], 'application/json') !== false) {
+            } else if (stripos('application/json', $contentType[0]) !== false) {
                 $bodyParams = $request->getParsedBody();
 
                 if (null === $bodyParams) {

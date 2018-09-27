@@ -175,7 +175,15 @@ class DataSource {
 
 		$post_object = \WP_Post::get_instance( $id );
 		if ( empty( $post_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $id, $post_type ) );
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $post_type, $id ) );
+		}
+
+		/**
+		 * Mimic core functionality for templates, as seen here:
+		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 */
+		if ( 'attachment' === $post_type ) {
+			remove_filter( 'the_content', 'prepend_attachment' );
 		}
 
 		/**
@@ -759,7 +767,7 @@ class DataSource {
 			}
 		}
 		if ( $post_id ) {
-			return get_post( $post_id, $output );
+			return self::resolve_post_object( $post_id, $post_type );
 		}
 
 		return null;

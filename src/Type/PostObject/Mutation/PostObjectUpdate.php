@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Types;
 
@@ -50,12 +51,12 @@ class PostObjectUpdate {
 				'outputFields'        => [
 					$post_type_object->graphql_single_name => [
 						'type'    => Types::post_object( $post_type_object->name ),
-						'resolve' => function( $payload ) {
-							return get_post( $payload['postObjectId'] );
+						'resolve' => function ( $payload ) use ( $post_type_object ) {
+							return DataSource::resolve_post_object( $payload['postObjectId'], $post_type_object->name );
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 					$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
 					$existing_post = get_post( absint( $id_parts['id'] ) );

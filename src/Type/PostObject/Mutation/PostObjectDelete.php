@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\PostObject\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -58,7 +59,7 @@ class PostObjectDelete {
 					'deletedId'                            => [
 						'type'        => Types::id(),
 						'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-						'resolve'     => function( $payload ) use ( $post_type_object ) {
+						'resolve'     => function ( $payload ) use ( $post_type_object ) {
 							$deleted = (object) $payload['postObject'];
 
 							return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
@@ -67,14 +68,14 @@ class PostObjectDelete {
 					$post_type_object->graphql_single_name => [
 						'type'        => Types::post_object( $post_type_object->name ),
 						'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-						'resolve'     => function( $payload ) {
+						'resolve'     => function ( $payload ) use ( $post_type_object ) {
 							$deleted = (object) $payload['postObject'];
 
 							return ! empty( $deleted ) ? $deleted : null;
 						},
 					],
 				],
-				'mutateAndGetPayload' => function( $input ) use ( $post_type_object, $mutation_name ) {
+				'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 					/**
 					 * Get the ID from the global ID
@@ -98,6 +99,8 @@ class PostObjectDelete {
 					 * Get the post object before deleting it
 					 */
 					$post_before_delete = get_post( absint( $id_parts['id'] ) );
+					$post_before_delete = isset( $post_before_delete->ID ) && isset( $post_before_delete->post_type ) ? DataSource::resolve_post_object( $post_before_delete->ID, $post_before_delete->post_type ) : $post_before_delete;
+
 
 					/**
 					 * If the post is already in the trash, and the forceDelete input was not passed,
