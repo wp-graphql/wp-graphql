@@ -1,8 +1,7 @@
 <?php
 
-namespace WPGraphQL\Type\PostObject\Mutation;
+namespace WPGraphQL\Data;
 
-use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;

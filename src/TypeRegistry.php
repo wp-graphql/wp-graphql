@@ -20,6 +20,12 @@ use WPGraphQL\Mutation\CommentUpdate;
 use WPGraphQL\Mutation\MediaItemCreate;
 use WPGraphQL\Mutation\MediaItemDelete;
 use WPGraphQL\Mutation\MediaItemUpdate;
+use WPGraphQL\Mutation\PostObjectCreate;
+use WPGraphQL\Mutation\PostObjectDelete;
+use WPGraphQL\Mutation\PostObjectUpdate;
+use WPGraphQL\Mutation\TermObjectCreate;
+use WPGraphQL\Mutation\TermObjectDelete;
+use WPGraphQL\Mutation\TermObjectUpdate;
 use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
@@ -163,6 +169,17 @@ class TypeRegistry {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				PostObject::register_type( $post_type_object );
+
+				/**
+				 * Mutations for attachments are handled differently
+				 * because they require different inputs
+				 */
+				if ( 'attachment' !== $post_type_object->name ) {
+					PostObjectCreate::register_mutation( $post_type_object );
+					PostObjectUpdate::register_mutation( $post_type_object );
+					PostObjectDelete::register_mutation( $post_type_object );
+				}
+
 			}
 		}
 
@@ -174,6 +191,9 @@ class TypeRegistry {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
 				TermObject::register_type( $taxonomy_object );
+				TermObjectCreate::register_mutation( $taxonomy_object );
+				TermObjectUpdate::register_mutation( $taxonomy_object );
+				TermObjectDelete::register_mutation( $taxonomy_object );
 			}
 		}
 

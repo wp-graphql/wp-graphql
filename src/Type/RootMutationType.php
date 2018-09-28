@@ -71,55 +71,11 @@ class RootMutationType extends WPObjectType {
 
 			self::$fields = function() {
 				$fields             = [];
-				$allowed_post_types = \WPGraphQL::$allowed_post_types;
-				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-
-				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-					foreach ( $allowed_post_types as $post_type ) {
-						/**
-						 * Get the post_type object to pass down to the schema
-						 *
-						 * @since 0.0.5
-						 */
-						$post_type_object = get_post_type_object( $post_type );
-
-						if ( 'attachment' !== $post_type_object->name ) {
-							/**
-							 * Root mutation for single posts (of the specified post_type)
-							 *
-							 * @since 0.0.5
-							 */
-							$fields[ 'create' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectCreate::mutate( $post_type_object );
-							$fields[ 'update' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectUpdate::mutate( $post_type_object );
-							$fields[ 'delete' . ucwords( $post_type_object->graphql_single_name ) ] = PostObjectDelete::mutate( $post_type_object );
-						}
-
-
-
-					} // End foreach().
-				} // End if().
 
 				/**
 				 * Root mutation field for updating settings
 				 */
 				$fields['updateSettings'] = SettingsUpdate::mutate();
-
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
-
-						/**
-						 * Get the taxonomy object to pass down to the schema
-						 */
-						$taxonomy_object = get_taxonomy( $taxonomy );
-
-						/**
-						 * Root mutation for single term objects (of the specified taxonomy)
-						 */
-						$fields[ 'create' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectCreate::mutate( $taxonomy_object );
-						$fields[ 'update' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectUpdate::mutate( $taxonomy_object );
-						$fields[ 'delete' . ucwords( $taxonomy_object->graphql_single_name ) ] = TermObjectDelete::mutate( $taxonomy_object );
-					}
-				} // End if().
 
 				$fields = self::prepare_fields( $fields, self::$type_name );
 				return $fields;

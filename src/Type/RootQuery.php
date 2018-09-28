@@ -266,7 +266,6 @@ class RootQuery {
 			}
 		}
 
-
 		/**
 		 * Create the root query fields for any setting type in
 		 * the $allowed_setting_types array.

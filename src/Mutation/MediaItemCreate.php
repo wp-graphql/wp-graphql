@@ -149,7 +149,7 @@ class MediaItemCreate {
 				 * have been validated and we will not receive any errors
 				 */
 				$attachment_data        = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
-				$attachment_data_update = wp_update_attachment_metadata( $attachment_id, $attachment_data );
+				wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
 				/**
 				 * Update alt text postmeta for mediaItem
