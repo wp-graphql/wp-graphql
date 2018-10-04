@@ -63,7 +63,7 @@ class PostObjectMutation {
 				],
 				'mimeType'      => [
 					'type'        => Types::mime_type_enum(),
-					'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the `post_objects` database table.', 'wp-graphql' ),
+					'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the "post_objects" database table.', 'wp-graphql' ),
 				],
 				'parentId'      => [
 					'type'        => Types::id(),

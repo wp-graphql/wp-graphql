@@ -41,14 +41,16 @@ class MediaItemCreate {
 			'name'                => esc_html( $mutation_name ),
 			'description'         => __( 'Create mediaItems', 'wp-graphql' ),
 			'inputFields'         => self::input_fields( $post_type_object ),
-			'outputFields'        => [
-				'mediaItem' => [
-					'type'    => Types::post_object( $post_type_object->name ),
-					'resolve' => function ( $payload ) {
-						return DataSource::resolve_post_object( $payload['id'], 'attachment' );
-					},
-				],
-			],
+			'outputFields'        => function() use ( $post_type_object ) {
+				return [
+					'mediaItem' => [
+						'type'    => Types::post_object( $post_type_object->name ),
+						'resolve' => function ( $payload ) {
+							return DataSource::resolve_post_object( $payload['id'], 'attachment' );
+						},
+					],
+				];
+			},
 			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 				/**

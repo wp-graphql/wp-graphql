@@ -176,6 +176,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $mutation, 'updatePageTest', $variables );
 
+
+
 		/**
 		 * We should get an error because the user is a subscriber and can't edit posts
 		 */

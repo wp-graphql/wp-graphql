@@ -10,11 +10,8 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Type\Comment\Connection\CommentConnectionResolver;
-use WPGraphQL\Type\Plugin\Connection\PluginConnectionResolver;
 use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionResolver;
-use WPGraphQL\Type\Theme\Connection\ThemeConnectionResolver;
 use WPGraphQL\Type\User\Connection\UserConnectionResolver;
-use WPGraphQL\Type\UserRoles\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Types;
 
 /**
@@ -81,7 +78,7 @@ class DataSource {
 	/**
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
-	 * @param             WP_Post  object $source
+	 * @param mixed  object $source
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object
@@ -665,19 +662,19 @@ class DataSource {
 								$type = Types::term_object( $node->taxonomy );
 								break;
 							case $node instanceof \WP_Comment:
-								$type = Types::comment();
+								$type = 'Comment';
 								break;
 							case $node instanceof \WP_Post_Type:
-								$type = Types::post_type();
+								$type = 'PostType';
 								break;
 							case $node instanceof \WP_Taxonomy:
-								$type = Types::taxonomy();
+								$type = 'Taxonomy';
 								break;
 							case $node instanceof \WP_Theme:
-								$type = Types::theme();
+								$type = 'Theme';
 								break;
 							case $node instanceof \WP_User:
-								$type = Types::user();
+								$type = 'User';
 								break;
 							default:
 								$type = null;
@@ -688,10 +685,10 @@ class DataSource {
 
 						switch ( $node ) {
 							case array_key_exists( 'PluginURI', $node ):
-								$type = Types::plugin();
+								$type = 'Plugin';
 								break;
 							case array_key_exists( 'is_comment_author', $node ):
-								$type = Types::comment_author();
+								$type = 'CommentAuthor';
 								break;
 							default:
 								$type = null;

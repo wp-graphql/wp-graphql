@@ -80,7 +80,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function categoriesQuery( $variables ) {
 
-		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:RootCategoriesTermArgs){
+		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToCategoryConnectionWhereArgs){
 			categories( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -116,6 +116,8 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'first' => 1,
 		];
 		$results   = $this->categoriesQuery( $variables );
+
+		var_dump( $results );
 
 		/**
 		 * Let's query the first post in our data set so we can test against it

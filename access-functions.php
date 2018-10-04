@@ -36,3 +36,47 @@ function graphql_format_field_name( $field_name ) {
 function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 	return \WPGraphQL::do_graphql_request( $request, $operation_name, $variables );
 }
+
+function register_graphql_type( $type_name, $config ) {
+	\WPGraphQL\TypeRegistry::register_type( $type_name, $config );
+}
+
+function register_graphql_object_type( $type_name, $config ) {
+	$config['kind'] = 'object';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_input_type( $type_name, $config ) {
+	$config['kind'] = 'input';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_union_type( $type_name, $config ) {
+	$config['kind'] = 'union';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_enum_type( $type_name, $config ) {
+	$config['kind'] = 'enum';
+	register_graphql_type( $type_name, $config );
+}
+
+function register_graphql_field( $type_name, $field_name, $config ) {
+	\WPGraphQL\TypeRegistry::register_field( $type_name, $field_name, $config );
+}
+
+function register_graphql_fields( $type_name, array $fields ) {
+	\WPGraphQL\TypeRegistry::register_fields( $type_name, $fields );
+}
+
+function register_graphql_schema( $schema_name, array $config ) {
+	\WPGraphQL\SchemaRegistry::register_schema( $schema_name, $config );
+}
+
+function register_graphql_connection( $config ) {
+	\WPGraphQL\TypeRegistry::register_connection( $config );
+}
+
+function deregister_graphql_field( $type_name, $field_name ) {
+	\WPGraphQL\TypeRegistry::deregister_field( $type_name, $field_name );
+}

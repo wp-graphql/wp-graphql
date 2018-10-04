@@ -32,37 +32,41 @@ class UserDelete {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'DeleteUser',
-				'description' => __( 'Delete a user object', 'wp-graphql' ),
-				'inputFields' => [
-					'id' => [
-						'type' => Types::non_null( Types::id() ),
+				'name'                => 'DeleteUser',
+				'description'         => __( 'Delete a user object', 'wp-graphql' ),
+				'inputFields'         => [
+					'id'         => [
+						'type'        => Types::non_null( Types::id() ),
 						'description' => __( 'The ID of the user you want to delete', 'wp-graphql' ),
 					],
 					'reassignId' => [
-						'type' => Types::id(),
+						'type'        => Types::id(),
 						'description' => __( 'Reassign posts and links to new User ID.', 'wp-graphql' ),
 					]
 				],
-				'outputFields' => [
-					'deletedId' => [
-						'type' => Types::id(),
-						'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
-						'resolve' => function( $payload ) {
-							$deleted = (object) $payload['userObject'];
-							return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
-						}
-					],
-					'user' => [
-						'type' => Types::user(),
-						'description' => __( 'The user object for the user you are trying to delete', 'wp-graphql' ),
-						'resolve' => function( $payload ) {
-							$deleted = (object) $payload['userObject'];
-							return ( ! empty( $deleted ) ) ? $deleted : null;
-						}
-					]
-				],
-				'mutateAndGetPayload' => function( $input ) {
+				'outputFields'        => function () {
+					return [
+						'deletedId' => [
+							'type'        => Types::id(),
+							'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$deleted = (object) $payload['userObject'];
+
+								return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
+							}
+						],
+						'user'      => [
+							'type'        => Types::user(),
+							'description' => __( 'The user object for the user you are trying to delete', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$deleted = (object) $payload['userObject'];
+
+								return ( ! empty( $deleted ) ) ? $deleted : null;
+							}
+						]
+					];
+				},
+				'mutateAndGetPayload' => function ( $input ) {
 
 					/**
 					 * Get the ID from the global ID
@@ -89,7 +93,7 @@ class UserDelete {
 					 * Get the DB id for the user to reassign posts to from the relay ID.
 					 */
 					$reassign_id_parts = ( ! empty( $input['reassignId'] ) ) ? Relay::fromGlobalId( $input['reassignId'] ) : null;
-					$reassign_id = ( ! empty( $reassign_id_parts ) ) ? absint( $reassign_id_parts['id'] ) : null;
+					$reassign_id       = ( ! empty( $reassign_id_parts ) ) ? absint( $reassign_id_parts['id'] ) : null;
 
 					/**
 					 * If the wp_delete_user doesn't exist yet, load the file in which it is
@@ -106,7 +110,7 @@ class UserDelete {
 					} else {
 						$deleted_user = wp_delete_user( absint( $id_parts['id'] ), $reassign_id );
 					}
-					
+
 					if ( true !== $deleted_user ) {
 						throw new UserError( __( 'Could not delete the user.', 'wp-grapgql' ) );
 					}

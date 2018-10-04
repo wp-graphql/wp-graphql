@@ -34,18 +34,20 @@ class UserCreate {
 		if ( empty( self::$mutation ) ) {
 
 			self::$mutation = Relay::mutationWithClientMutationId( [
-				'name' => 'CreateUser',
-				'description' => __( 'Create new user object', 'wp-graphql' ),
-				'inputFields' => self::input_fields(),
-				'outputFields' => [
-					'user' => [
-						'type' => Types::user(),
-						'resolve' => function( $payload ) {
-							return get_user_by( 'ID', $payload['id'] );
-						}
-					]
-				],
-				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) {
+				'name'                => 'CreateUser',
+				'description'         => __( 'Create new user object', 'wp-graphql' ),
+				'inputFields'         => self::input_fields(),
+				'outputFields'        => function () {
+					return [
+						'user' => [
+							'type'    => Types::user(),
+							'resolve' => function ( $payload ) {
+								return get_user_by( 'ID', $payload['id'] );
+							}
+						]
+					];
+				},
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
 
 					if ( ! current_user_can( 'create_users' ) ) {
 						throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );

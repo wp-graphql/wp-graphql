@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\ConnectionResolver;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
 /**
@@ -19,7 +20,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 	 * This prepares the $query_args for use in the connection query. This is where default $args are set, where dynamic
 	 * $args from the $source get set, and where mapping the input $args to the actual $query_args occurs.
 	 *
-	 * @param             $source
+	 * @param mixed            $source
 	 * @param array       $args
 	 * @param AppContext  $context
 	 * @param ResolveInfo $info
@@ -228,7 +229,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 			foreach ( $items as $item ) {
 				$edges[] = [
 					'cursor' => ArrayConnection::offsetToCursor( $item->comment_ID ),
-					'node'   => $item,
+					'node'   => ! empty( $item->comment_id ) ? DataSource::resolve_comment( $item->comment_id ) : $item,
 				];
 			}
 		}

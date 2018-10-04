@@ -98,7 +98,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function postsQuery( $variables ) {
 
-		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:RootPostsQueryArgs){
+		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToPostConnectionWhereArgs ){
 			posts( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -135,6 +135,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'first' => 1,
 		];
 		$results   = $this->postsQuery( $variables );
+
 
 		/**
 		 * Let's query the first post in our data set so we can test against it

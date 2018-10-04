@@ -40,26 +40,28 @@ class CommentRestore {
 						'description' => __( 'The ID of the comment to be restored', 'wp-graphql' ),
 					],
 				],
-				'outputFields'        => [
-					'restoredId' => [
-						'type'        => Types::id(),
-						'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) {
-							$restore = ( object ) $payload['commentObject'];
+				'outputFields'        => function() use ( $mutation_name ) {
+					return [
+						'restoredId' => [
+							'type'        => Types::id(),
+							'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$restore = ( object ) $payload['commentObject'];
 
-							return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
-						},
-					],
-					'comment'    => [
-						'type'        => Types::comment(),
-						'description' => __( 'The restored comment object', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) {
-							$restore = ( object ) $payload['commentObject'];
+								return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
+							},
+						],
+						'comment'    => [
+							'type'        => Types::comment(),
+							'description' => __( 'The restored comment object', 'wp-graphql' ),
+							'resolve'     => function ( $payload ) {
+								$restore = ( object ) $payload['commentObject'];
 
-							return ! empty( $restore ) ? $restore : null;
-						},
-					],
-				],
+								return ! empty( $restore ) ? $restore : null;
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function ( $input ) {
 					/**
 					 * Get the ID from the global ID

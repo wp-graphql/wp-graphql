@@ -24,6 +24,23 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
+	 * Generate a safe / sanitized name from a menu location slug.
+	 *
+	 * @param  string $value Enum value.
+	 * @return string
+	 */
+	public static function get_safe_name( $value ) {
+		$safe_name = strtoupper( preg_replace( '#[^A-z0-9]#', '_', $value ) );
+
+		// Enum names must start with a letter or underscore.
+		if ( ! preg_match( '#^[_a-zA-Z]#', $value ) ) {
+			return '_' . $safe_name;
+		}
+
+		return $safe_name;
+	}
+
+	/**
 	 * prepare_values
 	 *
 	 * This function sorts the values and applies a filter to allow for easily

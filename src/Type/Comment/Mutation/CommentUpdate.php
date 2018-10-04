@@ -30,7 +30,7 @@ class CommentUpdate {
 	 */
 	public static function mutate() {
 		if ( empty( self::$mutation ) ) {
-			$mutation_name  = 'UpdateComment';
+			$mutation_name = 'UpdateComment';
 			self::$mutation = Relay::mutationWithClientMutationId( [
 				'name'                => $mutation_name,
 				'description'         => __( 'Create comment objects', 'wp-graphql' ),
@@ -44,14 +44,16 @@ class CommentUpdate {
 						],
 						CommentMutation::input_fields()
 					), $mutation_name ),
-				'outputFields'        => [
-					'comment' => [
-						'type'    => Types::comment(),
-						'resolve' => function ( $payload ) {
-							return get_comment( $payload['id'] );
-						},
-					],
-				],
+				'outputFields'        => function() use ( $mutation_name ) {
+					return [
+						'comment' => [
+							'type'    => Types::comment(),
+							'resolve' => function ( $payload ) {
+								return get_comment( $payload['id'] );
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) use ( $mutation_name ) {
 					/**
 					 * Throw an exception if there's no input

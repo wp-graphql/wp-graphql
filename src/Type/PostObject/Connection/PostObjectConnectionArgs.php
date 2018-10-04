@@ -1,10 +1,8 @@
 <?php
 namespace WPGraphQL\Type\PostObject\Connection;
 
-use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\InputObjectType;
-use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
 /**
@@ -34,20 +32,6 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 * @since 0.0.5
 	 */
 	public static $fields = [];
-
-	/**
-	 * This holds the orderby_field input object type
-	 *
-	 * @var array $orderby_field
-	 */
-	private static $orderby_field;
-
-	/**
-	 * This holds the orderby EnumType definition
-	 *
-	 * @var EnumType
-	 */
-	private static $orderby_enum;
 
 	/**
 	 * PostObjectConnectionArgs constructor.
@@ -257,7 +241,7 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 				 * @since 0.0.2
 				 */
 				'orderby'      => [
-					'type'        => Types::list_of( self::orderby_field() ),
+					'type'        => Types::list_of( TypeRegistry::get_type( 'PostObjectsConnectionOrderbyInput' ) ),
 					'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 				],
 				'dateQuery'    => self::date_query(),
@@ -281,88 +265,6 @@ class PostObjectConnectionArgs extends WPInputObjectType {
 	 */
 	public static function date_query() {
 		return self::$date_query ? : ( self::$date_query = new PostObjectConnectionArgsDateQuery() );
-	}
-
-	/**
-	 * This returns the orderby field which accepts a field (enum) and an order (enum, ASC/DESC)
-	 *
-	 * @return InputObjectType object
-	 * @access private
-	 */
-	private static function orderby_field() {
-		if ( null === self::$orderby_field ) {
-
-			self::$orderby_field = new WPInputObjectType( [
-				'name' => 'OrderByOptions',
-				'fields' => self::prepare_fields( [
-					'field' => Types::non_null( self::orderby_enum() ),
-					'order' => new WPEnumType( [
-						'name'   => 'Order',
-						'values' => [
-							'ASC'  => [ 'value' => 'ASC' ],
-							'DESC' => [ 'value' => 'DESC' ],
-						],
-					] ),
-				], 'OrderByOptions' ),
-			] );
-		}
-
-		return ! empty( self::$orderby_field ) ? self::$orderby_field : null;
-	}
-
-	/**
-	 * orderby_enum
-	 * This returns the orderby enum type for the PostObjectQueryArgs
-	 *
-	 * @return EnumType
-	 * @since 0.0.5
-	 */
-	private static function orderby_enum() {
-
-		if ( null === self::$orderby_enum ) {
-			self::$orderby_enum = new WPEnumType( [
-				'name'   => 'OrderBy',
-				'values' => [
-					'AUTHOR'     => [
-						'value'       => 'post_author',
-						'description' => __( 'Order by author', 'wp-graphql' ),
-					],
-					'TITLE'      => [
-						'value'       => 'post_title',
-						'description' => __( 'Order by title', 'wp-graphql' ),
-					],
-					'SLUG'       => [
-						'value'       => 'post_name',
-						'description' => __( 'Order by slug', 'wp-graphql' ),
-					],
-					'MODIFIED'   => [
-						'value'       => 'post_modified',
-						'description' => __( 'Order by last modified date', 'wp-graphql' ),
-					],
-					'DATE'       => [
-						'value'       => 'post_date',
-						'description' => __( 'Order by publish date', 'wp-graphql' ),
-					],
-					'PARENT'     => [
-						'value'       => 'post_parent',
-						'description' => __( 'Order by parent ID', 'wp-graphql' ),
-					],
-					'IN'         => [
-						'value'       => 'post__in',
-						'description' => __( 'Preserve the ID order given in the IN array', 'wp-graphql' ),
-					],
-					'NAME_IN'    => [
-						'value'       => 'post_name__in',
-						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
-					],
-					'MENU_ORDER' => [
-						'value'       => 'menu_order',
-						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
-					],
-				],
-			] );
-		}
-		return self::$orderby_enum;
 	}
 
 }

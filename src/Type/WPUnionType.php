@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\UnionType;
+use WPGraphQL\TypeRegistry;
 
 /**
  * Class WPUnionType
@@ -25,11 +26,15 @@ class WPUnionType extends UnionType {
 		 */
 		$config['name'] = ucfirst( $config['name'] );
 
+		if ( ! empty( $config['typeNames'] ) && is_array( $config['typeNames'] ) ) {
+			$config['types'] = self::prepare_types( $config['typeNames'], $config );
+		}
+
 		/**
 		 * Filter the possible_types to allow systems to add to the possible resolveTypes.
 		 *
-		 * @param array $possible_types An array of possible types that can be resolved for the union
 		 * @since 0.0.30
+		 * @return array
 		 */
 		$config['types'] = apply_filters( "graphql_{$config['name']}_possible_types", $config['types'] );
 
@@ -38,6 +43,7 @@ class WPUnionType extends UnionType {
 		 *
 		 * @param array       $config Array of configuration options passed to the WPUnionType when instantiating a new type
 		 * @param WPUnionType $this   The instance of the WPObjectType class
+		 *
 		 * @since 0.0.30
 		 */
 		$config = apply_filters( 'graphql_wp_union_type_config', $config, $this );
@@ -51,5 +57,13 @@ class WPUnionType extends UnionType {
 		do_action( 'graphql_wp_union_type', $config, $this );
 
 		parent::__construct( $config );
+	}
+
+	protected static function prepare_types( $type_names, $config ) {
+		$prepared_types = [];
+		foreach ( $type_names as $type ) {
+			$prepared_types[] = TypeRegistry::get_type( $type );
+		}
+		return $prepared_types;
 	}
 }

@@ -54,7 +54,6 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		global $wp_filter;
 		graphql_init();
 		$this->assertTrue( isset( $wp_filter['graphql_schema']->callbacks ) );
-		$this->assertTrue( isset( $wp_filter['graphql_mediaItem_fields']->callbacks ) );
 
 	}
 

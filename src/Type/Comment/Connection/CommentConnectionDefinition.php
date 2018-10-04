@@ -75,7 +75,8 @@ class CommentConnectionDefinition {
 				'description' => __( 'A collection of comment objects', 'wp-graphql' ),
 				'args'        => array_merge( Relay::connectionArgs(), $args[ $from_type ] ),
 				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
-					return DataSource::resolve_comments_connection( $source, $args, $context, $info );
+					$connection = DataSource::resolve_comments_connection( $source, $args, $context, $info );
+					return $connection;
 				},
 			];
 		}

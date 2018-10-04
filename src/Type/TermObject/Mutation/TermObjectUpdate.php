@@ -38,14 +38,16 @@ class TermObjectUpdate {
 				// translators: The placeholder is the name of the post type being updated
 				'description'         => sprintf( esc_html__( 'Updates %1$s objects', 'wp-graphql' ), $taxonomy->graphql_single_name ),
 				'inputFields'         => self::input_fields( $taxonomy ),
-				'outputFields'        => [
-					$taxonomy->graphql_single_name => [
-						'type'    => Types::term_object( $taxonomy->name ),
-						'resolve' => function( $payload ) use ( $taxonomy ) {
-							return get_term( $payload['term_id'], $taxonomy->name );
-						},
-					],
-				],
+				'outputFields'        => function() use ( $taxonomy ) {
+					return [
+						$taxonomy->graphql_single_name => [
+							'type'    => Types::term_object( $taxonomy->name ),
+							'resolve' => function( $payload ) use ( $taxonomy ) {
+								return get_term( $payload['term_id'], $taxonomy->name );
+							},
+						],
+					];
+				},
 				'mutateAndGetPayload' => function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 					/**
