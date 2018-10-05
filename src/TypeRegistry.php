@@ -27,6 +27,7 @@ use WPGraphQL\Mutation\PostObjectUpdate;
 use WPGraphQL\Mutation\TermObjectCreate;
 use WPGraphQL\Mutation\TermObjectDelete;
 use WPGraphQL\Mutation\TermObjectUpdate;
+use WPGraphQL\Mutation\UpdateSettings;
 use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
@@ -254,6 +255,7 @@ class TypeRegistry {
 		UserDelete::register_mutation();
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
+		UpdateSettings::register_mutation();
 
 	}
 

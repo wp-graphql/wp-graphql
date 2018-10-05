@@ -2,18 +2,6 @@
 
 namespace WPGraphQL\Type;
 
-use WPGraphQL\Type\PostObject\Mutation\PostObjectCreate;
-use WPGraphQL\Type\PostObject\Mutation\PostObjectDelete;
-use WPGraphQL\Type\PostObject\Mutation\PostObjectUpdate;
-use WPGraphQL\Type\PostObject\Mutation\TermObjectDelete;
-use WPGraphQL\Type\Settings\Mutation\SettingsUpdate;
-use WPGraphQL\Type\TermObject\Mutation\TermObjectCreate;
-use WPGraphQL\Type\TermObject\Mutation\TermObjectUpdate;
-use WPGraphQL\Type\User\Mutation\UserCreate;
-use WPGraphQL\Type\User\Mutation\UserDelete;
-use WPGraphQL\Type\User\Mutation\UserUpdate;
-use WPGraphQL\Type\User\Mutation\UserRegister;
-
 /**
  * Class RootMutationType
  * The RootMutationType is the primary entry point for Mutations in the GraphQL Schema
@@ -75,7 +63,7 @@ class RootMutationType extends WPObjectType {
 				/**
 				 * Root mutation field for updating settings
 				 */
-				$fields['updateSettings'] = SettingsUpdate::mutate();
+				// $fields['updateSettings'] = SettingsUpdate::mutate();
 
 				$fields = self::prepare_fields( $fields, self::$type_name );
 				return $fields;
