@@ -13,6 +13,7 @@ use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Themes;
 use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
 use WPGraphQL\Mutation\CommentRestore;
@@ -65,6 +66,7 @@ use WPGraphQL\Type\PostTypeLabelDetails;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
+use WPGraphQL\Type\SettingGroup;
 use WPGraphQL\Type\Settings;
 use WPGraphQL\Type\Taxonomy;
 use WPGraphQL\Type\TaxonomyEnum;
@@ -160,6 +162,26 @@ class TypeRegistry {
 		UserRoleEnum::register_type();
 		RootMutation::register_type();
 		RootQuery::register_type();
+
+		/**
+		 * Create the root query fields for any setting type in
+		 * the $allowed_setting_types array.
+		 */
+		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+			foreach ( $allowed_setting_types as $group => $setting_type ) {
+
+				$group_name = str_replace('_', '', strtolower( $group ) );
+				SettingGroup::register_type( $group_name );
+
+				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
+					'type'        => ucfirst( $group_name ) . 'Settings',
+					'resolve'     => function () use ( $setting_type ) {
+						return $setting_type;
+					},
+				] );
+			}
+		}
 
 		/**
 		 * Register PostObject types based on post_types configured to show_in_graphql

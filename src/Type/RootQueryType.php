@@ -1,13 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\Setting\SettingQuery;
-use WPGraphQL\Type\PostObject\PostObjectQuery;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionDefinition;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionDefinition;
-use WPGraphQL\Type\TermObject\TermObjectQuery;
 use WPGraphQL\Types;
 
 /**
