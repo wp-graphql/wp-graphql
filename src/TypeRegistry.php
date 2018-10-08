@@ -256,7 +256,6 @@ class TypeRegistry {
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
-		
 	}
 
 	protected static function format_key( $key ) {
