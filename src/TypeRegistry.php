@@ -257,6 +257,28 @@ class TypeRegistry {
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
 
+		register_graphql_connection([
+			'fromType'       => 'RootQuery',
+			'toType'         => 'Comment',
+			'fromFieldName'  => 'myCustomCommentConnectionField',
+			'resolve' => function() {
+				return [
+					'edges' => [
+						[
+							'node' => [
+								'id' => 'mockCommentId',
+								'content' => 'mockContent'
+							],
+							'node' => [
+								'id' => 'mockCommentId',
+								'content' => 'mockContent'
+							],
+						],
+					],
+				];
+			}
+		] );
+
 	}
 
 	protected static function format_key( $key ) {
