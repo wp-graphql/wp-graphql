@@ -1,6 +1,6 @@
 <?php
 
-class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCase  {
+class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 	public $clientMutationId;
 	public $defaultCategory;
@@ -23,6 +23,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	public $subscriber;
 	public $subscriber_name;
 	public $author;
+	public $editor;
 	public $author_name;
 	public $admin;
 	public $admin_name;
@@ -37,6 +38,11 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		$this->author = $this->factory->user->create( [
 			'role' => 'author',
 		] );
+
+		$this->editor = $this->factory->user->create( [
+			'role' => 'editor',
+		] );
+
 		$this->author_name = 'User ' . $this->author;
 
 		$this->admin = $this->factory->user->create( [
@@ -279,6 +285,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		 * Validate the request has errors
 		 */
 		wp_set_current_user( $this->editor );
+
 		$query = "
 			query {
 				allSettings {
@@ -287,7 +294,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		    }
 	    ";
 		$actual = do_graphql_request( $query );
-
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}

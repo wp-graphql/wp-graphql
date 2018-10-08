@@ -336,7 +336,7 @@ class Utils
             return 'false';
         }
         if (true === $var) {
-            return 'true';
+            return 'false';
         }
         if (is_string($var)) {
             return "\"$var\"";

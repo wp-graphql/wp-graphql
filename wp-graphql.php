@@ -26,27 +26,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * If the codeception remote coverage file exists, require it.
+ *
+ * This file should only exist locally or when CI bootstraps the environment for testing
+ */
+if ( file_exists( __DIR__ . '/c3.php' ) ) {
+    require_once( __DIR__ . '/c3.php' );
+}
+
+/**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
  *
- * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of Digital First Media
- * (https://github.com/dfmedia), and Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign).
+ * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of
+ * Digital First Media
+ * (https://github.com/dfmedia), and Edwin Cromley of BE-Webdesign
+ * (https://github.com/BE-Webdesign).
  *
- * The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes
- * use of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
+ * The plugin is built on top of the graphql-php library by Webonyx
+ * (https://github.com/webonyx/graphql-php) and makes use of the graphql-relay-php library by Ivome
+ * (https://github.com/ivome/graphql-relay-php/)
  *
- * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development resources to push
- * the project forward.
+ * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development
+ * resources to push the project forward.
  *
  * Some of the concepts and code are based on the WordPress Rest API.
- * Much love to the folks (https://github.com/orgs/WP-API/people) that put their blood, sweat and tears into the
- * WP-API project, as it's been huge in moving WordPress forward as a platform and helped inspire and direct the
- * development of WPGraphQL.
+ * Much love to the folks (https://github.com/orgs/WP-API/people) that put their blood, sweat and
+ * tears into the WP-API project, as it's been huge in moving WordPress forward as a platform and
+ * helped inspire and direct the development of WPGraphQL.
  *
- * Much love to Facebook® for open sourcing the GraphQL spec (https://facebook.github.io/graphql/) and maintaining the
- * JS reference implementation (https://github.com/graphql/graphql-js)
+ * Much love to Facebook® for open sourcing the GraphQL spec (https://facebook.github.io/graphql/)
+ * and maintaining the JS reference implementation (https://github.com/graphql/graphql-js)
  *
- * Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a
- * lot of insight into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.com/
+ * Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and
+ * providing a lot of insight into how to design GraphQL schemas, etc. Check them out:
+ * http://www.apollodata.com/
  */
 
 if ( ! class_exists( 'WPGraphQL' ) ) :
@@ -67,6 +80,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Holds the Schema def
+		 *
 		 * @var \WPGraphQL\WPSchema
 		 */
 		protected static $schema;
@@ -223,7 +237,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * allowing for both plugins and themes to register
 			 * things before graphql_init
 			 */
-			add_action( 'after_setup_theme', function() {
+			add_action( 'after_setup_theme', function () {
 
 				new \WPGraphQL\Data\Config();
 				new \WPGraphQL\Router();
@@ -245,7 +259,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Hook in before fields resolve to check field permissions
 			 */
-			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
+			add_action( 'graphql_before_resolve_field', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'check_field_permissions'
+			], 10, 8 );
 
 			/**
 			 * Determine what to show in graphql
@@ -293,16 +310,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		private function filters() {
 
 			/**
-			 * mediaItems are the attachment postObject, but they have a different schema shape
-			 * than postObjects out of the box, so this filter adjusts the core mediaItem
-			 * shape of data
-			 */
-			add_filter( 'graphql_mediaItem_fields', [ '\WPGraphQL\Type\MediaItem\MediaItemType', 'fields' ], 10, 1 );
-
-			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 			 */
-			add_filter( 'graphql_schema', [ '\WPGraphQL\Utils\InstrumentSchema', 'instrument_schema' ], 10, 1 );
+			add_filter( 'graphql_schema', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'instrument_schema'
+			], 10, 1 );
 		}
 
 		/**
@@ -389,14 +402,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all post_types
 			 */
-			$post_types = get_post_types([
+			$post_types = get_post_types( [
 				'show_in_graphql' => true,
-			]);
+			] );
 
 			/**
 			 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 			 */
-			array_map( function( $post_type ) {
+			array_map( function ( $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $post_type_object->name ) );
@@ -436,14 +449,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Get all taxonomies
 			 */
-			$taxonomies = get_taxonomies([
+			$taxonomies = get_taxonomies( [
 				'show_in_graphql' => true,
-			]);
+			] );
 
 			/**
 			 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 			 */
-			array_map( function( $taxonomy ) {
+			array_map( function ( $taxonomy ) {
 				$tax_object = get_taxonomy( $taxonomy );
 				if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 					throw new \GraphQL\Error\UserError( sprintf( __( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ), $tax_object->name ) );
@@ -483,16 +496,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
+			/**
+			 * Initialize the TypeRegistry
+			 */
+			\WPGraphQL\TypeRegistry::init();
+			\WPGraphQL\SchemaRegistry::init();
+
 			if ( null === self::$schema ) {
 
 				/**
-				 * Create an executable Schema from the registered
-				 * root_Query and root_mutation
+				 * Filter the Active Schema, allowing for custom Schemas to be active instead
+				 * of the core schema
 				 */
-				$executable_schema = [
-					'query'    => \WPGraphQL\Types::root_query(),
-					'mutation' => \WPGraphQL\Types::root_mutation(),
-				];
+				$active_schema = apply_filters( 'graphql_active_schema', 'core' );
+				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
 
 				/**
 				 * Generate the Schema
@@ -536,6 +553,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Get the AppContext for use in passing down the Resolve Tree
+		 *
 		 * @return \WPGraphQL\AppContext
 		 * @access public
 		 */
@@ -556,6 +574,32 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
+		 * Initialize the GraphQL Request.
+		 *
+		 * This defines that the Request is a GraphQL Request and fires off the
+		 * `init_graphql_request` hook which is a great place for plugins to hook
+		 * in and modify things that should only occur in the context
+		 * of a GraphQL Request.
+		 */
+		protected static function init_graphql_request() {
+
+			/**
+			 * Whether it's a GraphQL Request (http or internal)
+			 *
+			 * @since 0.0.5
+			 */
+			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
+				define( 'GRAPHQL_REQUEST', true );
+			}
+
+			/**
+			 * Action – intentionally with no context – to indicate a GraphQL Request has started
+			 */
+			do_action( 'init_graphql_request' );
+
+		}
+
+		/**
 		 * This processes a GraphQL request, given a $request and optional $variables
 		 *
 		 * This function is used to resolve the HTTP requests for the GraphQL API, but can also be
@@ -571,20 +615,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
 
-
 			/**
-			 * Whether it's a GraphQL Request (http or internal)
-			 *
-			 * @since 0.0.5
+			 * Initialize the GraphQL Request
 			 */
-			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
-				define( 'GRAPHQL_REQUEST', true );
-			}
-
-			/**
-			 * Action – intentionally with no context – to indicate a GraphQL Request has started
-			 */
-			do_action( 'init_graphql_request' );
+			self::init_graphql_request();
 
 			/**
 			 * Store the global post so it can be reset after GraphQL execution
@@ -604,18 +638,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'do_graphql_request', $request, $operation_name, $variables );
 
-			/**
-			 * Run an action before generating the schema
-			 * This is a great spot for plugins/themes to hook in to customize the schema.
-			 *
-			 * @since 0.0.5
-			 *
-			 * @param string     $request        The request to be executed by GraphQL
-			 * @param string     $operation_name The name of the operation
-			 * @param array      $variables      Variables to be passed to your GraphQL request
-			 * @param            AppContext      object The AppContext object containing all of the
-			 *                                   information about the context we know at this point
-			 */
 			if ( ! is_array( $variables ) ) {
 				$variables = (string) $variables;
 				$variables = (array) json_decode( $variables );
@@ -638,11 +660,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @since 0.0.4
 			 *
-			 * @param array      $result         The result of your GraphQL request
-			 * @param            Schema          object $schema The schema object for the root request
-			 * @param string     $operation_name The name of the operation
-			 * @param string     $request        The request that GraphQL executed
-			 * @param array|null $variables      Variables to passed to your GraphQL query
+			 * @param array               $result         The result of your GraphQL request
+			 * @param \WPGraphQL\WPSchema $schema         The schema object for the root request
+			 * @param string              $operation_name The name of the operation
+			 * @param string              $request        The request that GraphQL executed
+			 * @param array|null          $variables      Variables to passed to your GraphQL query
 			 */
 			do_action( 'graphql_execute', $result, self::get_schema(), $operation_name, $request, $variables );
 
@@ -662,11 +684,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @since 0.0.5
 			 *
-			 * @param array      $result         The result of your GraphQL query
-			 * @param            Schema          object $schema The schema object for the root query
-			 * @param string     $operation_name The name of the operation
-			 * @param string     $request        The request that GraphQL executed
-			 * @param array|null $variables      Variables to passed to your GraphQL request
+			 * @param array               $result         The result of your GraphQL query
+			 * @param \WPGraphQL\WPSchema $schema         The schema object for the root query
+			 * @param string              $operation_name The name of the operation
+			 * @param string              $request        The request that GraphQL executed
+			 * @param array|null          $variables      Variables to passed to your GraphQL request
 			 */
 			$filtered_result = apply_filters( 'graphql_request_results', $result, self::get_schema(), $operation_name, $request, $variables );
 
@@ -674,12 +696,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Run an action after the result has been filtered, as the response is being returned.
 			 * This is a good place for debug tools to hook in to log things, etc.
 			 *
-			 * @param array      $filtered_result The filtered_result of the GraphQL request
-			 * @param array      $result          The result of your GraphQL request
-			 * @param            Schema           object $schema The schema object for the root request
-			 * @param string     $operation_name  The name of the operation
-			 * @param string     $request         The request that GraphQL executed
-			 * @param array|null $variables       Variables to passed to your GraphQL query
+			 * @param array               $filtered_result The filtered_result of the GraphQL request
+			 * @param array               $result          The result of your GraphQL request
+			 * @param \WPGraphQL\WPSchema $schema          The schema object for the root request
+			 * @param string              $operation_name  The name of the operation
+			 * @param string              $request         The request that GraphQL executed
+			 * @param array|null          $variables       Variables to passed to your GraphQL query
 			 */
 			do_action( 'graphql_return_response', $filtered_result, $result, self::get_schema(), $operation_name, $request, $variables );
 
@@ -701,49 +723,93 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		}
 
+		/**
+		 * @param null $request
+		 *
+		 * @return \GraphQL\Server\StandardServer
+		 * @throws \GraphQL\Server\RequestError
+		 */
 		public static function server( $request = null ) {
 
 			/**
-			 * Whether it's a GraphQL Request (http or internal)
-			 *
-			 * @since 0.0.5
+			 * Initialize the GraphQL Request
 			 */
-			if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
-				define( 'GRAPHQL_REQUEST', true );
-			}
+			self::init_graphql_request();
 
 			/**
-			 * Setup the post_types and taxonomies to show_in_graphql
+			 * Store the global post so it can be reset after GraphQL execution
+			 *
+			 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
+			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
+			 * the same.
 			 */
-			\WPGraphQL::show_in_graphql();
-			\WPGraphQL::get_allowed_post_types();
-			\WPGraphQL::get_allowed_taxonomies();
+			$global_post = ! empty( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 
 			/**
 			 * Run an action as soon when do_graphql_request begins.
 			 */
 			$helper = new \GraphQL\Server\Helper();
-			$query = $helper->parseHttpRequest()->query;
-			$operation = $helper->parseHttpRequest()->operation;
-			$variables = $helper->parseHttpRequest()->variables;
+			$parsed_request = $helper->parseHttpRequest();
 
 			/**
-			 * Run an action as soon when do_graphql_request begins.
-			 *
-			 * @param string $request        The GraphQL request to be run
-			 * @param string $operation_name The name of the operation
-			 * @param string $variables      Variables to be passed to your GraphQL request
+			 * If the request is a batch request it will come back as an array
 			 */
-			do_action( 'do_graphql_request', $query, $operation, $variables );
+			if ( is_array( $parsed_request ) ) {
+
+				/**
+				 * Loop through the requests in the batch
+				 */
+				foreach ( $parsed_request as $request ) {
+					$query     = $request->query;
+					$operation = $request->operation;
+					$variables = $request->variables;
+
+					/**
+					 * Run an action as soon when do_graphql_request begins.
+					 *
+					 * @param string $request        The GraphQL request to be run
+					 * @param string $operation_name The name of the operation
+					 * @param string $variables      Variables to be passed to your GraphQL request
+					 */
+					do_action( 'do_graphql_request', $query, $operation, $variables );
+				}
+
+			} else {
+
+				$query     = isset( $parsed_request->query ) ? $parsed_request->query : '';
+				$operation = isset( $parsed_request->operation ) ? $parsed_request->operation : '';
+				$variables = isset( $parsed_request->variables ) ? $parsed_request->variables : '';
+
+				/**
+				 * Run an action as soon when do_graphql_request begins.
+				 *
+				 * @param string $request        The GraphQL request to be run
+				 * @param string $operation_name The name of the operation
+				 * @param string $variables      Variables to be passed to your GraphQL request
+				 */
+				do_action( 'do_graphql_request', $query, $operation, $variables );
+			}
+
 
 			$config = new \GraphQL\Server\ServerConfig();
 			$config
 				->setDebug( GRAPHQL_DEBUG )
 				->setSchema( self::get_schema() )
 				->setContext( self::get_app_context() )
-				->setQueryBatching(true);
+				->setQueryBatching( true );
 
 			$server = new \GraphQL\Server\StandardServer( $config );
+
+			/**
+			 * Reset the global post after execution
+			 *
+			 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
+			 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
+			 * the same.
+			 */
+			if ( ! empty( $global_post ) ) {
+				$GLOBALS['post'] = $global_post;
+			}
 
 			return $server;
 		}

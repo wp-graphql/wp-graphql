@@ -120,6 +120,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			]
 		]);
 
+
 		$this->assertArrayNotHasKey( 'errors', $results );
 
 		$createdPost = $results['data']['createPost']['post'];
