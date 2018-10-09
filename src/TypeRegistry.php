@@ -64,6 +64,7 @@ use WPGraphQL\Type\PostStatusEnum;
 use WPGraphQL\Type\PostType;
 use WPGraphQL\Type\PostTypeEnum;
 use WPGraphQL\Type\PostTypeLabelDetails;
+use function WPGraphQL\Type\register_post_object_types;
 use WPGraphQL\Type\RelationEnum;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
@@ -191,7 +192,7 @@ class TypeRegistry {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
-				PostObject::register_type( $post_type_object );
+				register_post_object_types( $post_type_object );
 
 				/**
 				 * Mutations for attachments are handled differently
@@ -230,10 +231,16 @@ class TypeRegistry {
 		TermObjectUnion::register_type();
 
 		if ( ! did_action( 'graphql_register_types' ) ) {
+
+			/**
+			 * Hook to extend the schema by registering new types
+			 */
 			do_action( 'graphql_register_types' );
 		}
 
-
+		/**
+		 * Register core connections
+		 */
 		Comments::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
@@ -244,6 +251,9 @@ class TypeRegistry {
 		Users::register_connections();
 		UserRoles::register_connections();
 
+		/**
+		 * Register core mutations
+		 */
 		CommentCreate::register_mutation();
 		CommentDelete::register_mutation();
 		CommentRestore::register_mutation();
@@ -259,10 +269,27 @@ class TypeRegistry {
 
 	}
 
+	/**
+	 * Formats the array key to a more friendly format
+	 *
+	 * @param string $key Name of the array key to format
+	 *
+	 * @return string
+	 * @access protected
+	 */
 	protected static function format_key( $key ) {
 		return strtolower( $key );
 	}
 
+	/**
+	 * Wrapper for the register_field method to register multiple fields at once
+	 *
+	 * @param string $type_name Name of the type in the Type Registry to add the fields to
+	 * @param array  $fields    Fields to register
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public static function register_fields( $type_name, $fields ) {
 		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
@@ -273,6 +300,16 @@ class TypeRegistry {
 		}
 	}
 
+	/**
+	 * Add a field to a Type in the Type Registry
+	 *
+	 * @param string $type_name  Name of the type in the Type Registry to add the fields to
+	 * @param string $field_name Name of the field to add to the type
+	 * @param array  $config     Info about the field to register to the type
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public static function register_field( $type_name, $field_name, $config ) {
 
 		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name, $config ) {
@@ -296,6 +333,15 @@ class TypeRegistry {
 
 	}
 
+	/**
+	 * Remove a field from a type
+	 *
+	 * @param string $type_name  Name of the Type the field is registered to
+	 * @param string $field_name Name of the field you would like to remove from the type
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public static function deregister_field( $type_name, $field_name ) {
 
 		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name ) {
@@ -310,6 +356,15 @@ class TypeRegistry {
 
 	}
 
+	/**
+	 * Add a new Type to the registry
+	 *
+	 * @param string $type_name Name of the type being registered
+	 * @param array  $config    Info about the type being registered
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public static function register_type( $type_name, $config ) {
 		if ( ! isset( self::$types[ $type_name ] ) ) {
 			$prepared_type = self::prepare_type( $type_name, $config );
@@ -319,6 +374,15 @@ class TypeRegistry {
 		}
 	}
 
+	/**
+	 * Build a new type object for the Type you are trying to register. Returns an instance of the
+	 * appropriate class given the Type
+	 *
+	 * @param string $type_name Name of the type being registered
+	 * @param array  $config    Info about the type being registered
+	 *
+	 * @return null|WPEnumType|WPInputObjectType|WPObjectType|WPUnionType
+	 */
 	protected static function prepare_type( $type_name, $config ) {
 
 		if ( is_array( $config ) ) {
@@ -355,6 +419,15 @@ class TypeRegistry {
 		return isset( $prepared_type ) ? $prepared_type : null;
 	}
 
+	/**
+	 * Wrapper for prepare_field to prepare multiple fields for registration at once
+	 *
+	 * @param array  $fields    Array of fields and their settings to register on a Type
+	 * @param string $type_name Name of the Type to register the fields to
+	 *
+	 * @access protected
+	 * @return array
+	 */
 	protected static function prepare_fields( $fields, $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
@@ -375,6 +448,17 @@ class TypeRegistry {
 		return $prepared_fields;
 	}
 
+	/**
+	 * Prepare the field to be registered on the type
+	 *
+	 * @param string $field_name   Friendly name of the field
+	 * @param array  $field_config Config data about the field to prepare
+	 * @param string $type_name    Name of the type to prepare the field for
+	 *
+	 * @access protected
+	 * @return array|null
+	 * @throws \Exception
+	 */
 	protected static function prepare_field( $field_name, $field_config, $type_name ) {
 
 		if ( ! isset( $field_config['name'] ) ) {
@@ -384,7 +468,6 @@ class TypeRegistry {
 		if ( ! isset( $field_config['type'] ) ) {
 			throw new InvariantViolation( __( 'The Field needs a Type defined', 'wp-graphql' ) );
 		}
-
 
 		if ( is_string( $field_config['type'] ) ) {
 			$type = TypeRegistry::get_type( $field_config['type'] );
@@ -421,22 +504,50 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param $type_name
+	 * Return one specific Type given a name
 	 *
+	 * @param string $type_name Name of the type to b e returned
+	 *
+	 * @access public
 	 * @return mixed|WPObjectType|WPUnionType|WPInputObjectType|WPEnumType
 	 */
 	public static function get_type( $type_name ) {
 		return ( null !== self::$types[ self::format_key( $type_name ) ] ) ? ( self::$types[ self::format_key( $type_name ) ] ) : null;
 	}
 
+	/**
+	 * Return array of all Types
+	 *
+	 * @access public
+	 * @return array
+	 */
 	public static function get_types() {
 		return ! empty( self::$types ) ? self::$types : [];
 	}
 
+	/**
+	 * Utility method that formats the connection name given the name of the from Type and the to
+	 * Type
+	 *
+	 * @param string $from_type Name of the Type the connection is coming from
+	 * @param string $to_type   Name of the Type the connection is going to
+	 *
+	 * @access protected
+	 * @return string
+	 */
 	protected static function get_connection_name( $from_type, $to_type ) {
 		return ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
 	}
 
+	/**
+	 * Method to register a new connection in the Type registry
+	 *
+	 * @param array $config The info about the connection being registered
+	 *
+	 * @access public
+	 * @return void
+	 * @throws \InvalidArgumentException
+	 */
 	public static function register_connection( $config ) {
 
 		if ( ! array_key_exists( 'fromType', $config ) ) {
@@ -470,12 +581,14 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 			register_graphql_input_type( $connection_name . 'WhereArgs', [
+				//@TODO: Wondering if this description should be dynamic to include the name of the connection these args are for?
 				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 				'fields'      => $connection_args,
 			] );
 
 			$where_args = [
 				'where' => [
+					//@TODO: Same as above ^ description seems a little vague
 					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 					'type'        => $connection_name . 'WhereArgs',
 				],
@@ -546,12 +659,21 @@ class TypeRegistry {
 					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
 				],
 			], $where_args ),
-			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
-			'resolve'     => $resolve_connection
+			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
+			'resolve'     => $resolve_connection,
 		] );
 
 	}
 
+	/**
+	 * Handles registration of a mutation to the Type registry
+	 *
+	 * @param string $mutation_name Name of the mutation being registered
+	 * @param array  $config        Info about the mutation being registered
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public static function register_mutation( $mutation_name, $config ) {
 
 		$output_fields = [
@@ -562,7 +684,9 @@ class TypeRegistry {
 			],
 		];
 
-		$output_fields = ! empty( $config['outputFields'] ) && is_array( $config['outputFields'] ) ? array_merge( $config['outputFields'], $output_fields ) : $output_fields;
+		if ( ! empty( $config['outputFields'] ) && is_array( $config['outputFields'] ) ) {
+			$output_fields = array_merge( $config['outputFields'], $output_fields );
+		}
 
 		register_graphql_object_type( $mutation_name . 'Payload', [
 			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
@@ -577,7 +701,9 @@ class TypeRegistry {
 			],
 		];
 
-		$input_fields = ! empty( $config['inputFields'] ) && is_array( $config['inputFields'] ) ? array_merge( $config['inputFields'], $input_fields ) : $input_fields;
+		if ( ! empty( $config['inputFields'] ) && is_array( $config['inputFields'] ) ) {
+			$input_fields = array_merge( $config['inputFields'], $input_fields );
+		}
 
 		register_graphql_input_type( $mutation_name . 'Input', [
 			'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
@@ -598,6 +724,7 @@ class TypeRegistry {
 			],
 			'type'        => $mutation_name . 'Payload',
 			'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload ) {
+				//@todo: Might want to check that this is callable before invoking, otherwise errors could happen
 				$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
 				$payload['clientMutationId'] = $args['input']['clientMutationId'];
 
