@@ -5,15 +5,8 @@ namespace WPGraphQL;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Type\Setting\SettingType;
-use WPGraphQL\Type\Settings\SettingsType;
-use WPGraphQL\Type\PostObject\Connection\PostObjectConnectionArgs;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
-use WPGraphQL\Type\PostObject\PostObjectType;
-use WPGraphQL\Type\TermObject\Connection\TermObjectConnectionArgs;
-use WPGraphQL\Type\TermObject\TermObjectType;
-use WPGraphQL\Type\User\Connection\UserConnectionArgs;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
@@ -221,7 +214,7 @@ class Types {
 	/**
 	 * Stores the setting object type
 	 *
-	 * @var SettingType object $setting
+	 * @var WPObjectType object $setting
 	 * @access private
 	 */
 	private static $setting;
@@ -255,7 +248,7 @@ class Types {
 	/**
 	 * Stores the term type object
 	 *
-	 * @var TermObjectType object $term_object
+	 * @var WPObjectType object $term_object
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -268,15 +261,6 @@ class Types {
 	 * @access private
 	 */
 	private static $term_object_union;
-
-	/**
-	 * Stores the term object query args type
-	 *
-	 * @var TermObjectConnectionArgs object $term_object_query_args
-	 * @since  0.5.0
-	 * @access private
-	 */
-	private static $term_object_query_args;
 
 	/**
 	 * Stores the theme type object
@@ -295,15 +279,6 @@ class Types {
 	 * @access private
 	 */
 	private static $user;
-
-	/**
-	 * Stores the user connection query args type object
-	 *
-	 * @var UserConnectionArgs object $user_connection_query_args
-	 * @since  0.5.0
-	 * @access private
-	 */
-	private static $user_connection_query_args;
 
 	/**
 	 * Stores the user role type object
@@ -405,7 +380,8 @@ class Types {
 		}
 
 		if ( empty( self::$setting[ $setting_type ] ) ) {
-			self::$setting[ $setting_type ] = new SettingType( $setting_type );
+
+			self::$setting[ $setting_type ] = TypeRegistry::get_type( $setting_type . 'Settings' );
 		}
 
 		return ! empty( self::$setting[ $setting_type ] ) ? self::$setting[ $setting_type ] : null;
@@ -636,28 +612,6 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the TermObjectConnectionArgs
-	 *
-	 * @param string $connection
-	 * @return TermObjectConnectionArgs object
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function term_object_query_args( $connection ) {
-
-		if ( null === self::$term_object_query_args ) {
-			self::$term_object_query_args = [];
-		}
-
-		if ( empty( self::$term_object_query_args[ $connection ] ) ) {
-			self::$term_object_query_args[ $connection ] = new TermObjectConnectionArgs( [], $connection );
-		}
-
-		return ! empty( self::$term_object_query_args[ $connection ] ) ? self::$term_object_query_args[ $connection ] : null;
-
-	}
-
-	/**
 	 * This returns the definition for the termObjectUnionType
 	 *
 	 * @return WPUnionType object
@@ -687,27 +641,6 @@ class Types {
 	 */
 	public static function user() {
 		return self::$user ? : ( self::$user = TypeRegistry::get_type( 'User' ) );
-	}
-
-	/**
-	 * This returns the definition for the UserConnectionArgs
-	 *
-	 * @param string $connection The connection the args are for
-	 * @return UserConnectionArgs object
-	 * @since  0.0.5
-	 * @access public
-	 */
-	public static function user_connection_query_args( $connection ) {
-
-		if ( null === self::$user_connection_query_args ) {
-			self::$user_connection_query_args = [];
-		}
-
-		if ( empty( self::$user_connection_query_args ) ) {
-			self::$user_connection_query_args[ $connection ] = new UserConnectionArgs( [], $connection );
-		}
-
-		return ! empty( self::$user_connection_query_args[ $connection ] ) ? self::$user_connection_query_args[ $connection ] : null;
 	}
 
 	/**

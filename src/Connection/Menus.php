@@ -4,6 +4,13 @@ namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\MenuConnectionResolver;
 
+/**
+ * Class Menus
+ *
+ * This class organizes the registration of connections to Menus
+ *
+ * @package WPGraphQL\Connection
+ */
 class Menus {
 
 	/**

@@ -12,7 +12,7 @@ use WPGraphQL\TypeRegistry;
 class RootQuery {
 	public static function register_type() {
 
-		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
+
 		$node_definition = DataSource::get_node_definition();
 
 		register_graphql_type( 'RootQuery', new RootQueryType() );
@@ -263,18 +263,6 @@ class RootQuery {
 					},
 				] );
 
-			}
-		}
-
-
-		/**
-		 * Create the root query fields for any setting type in
-		 * the $allowed_setting_types array.
-		 */
-		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
-				$setting_type = str_replace('_', '', strtolower( $group ) );
-				register_graphql_field( 'RootQuery', $setting_type . 'Settings', SettingQuery::root_query( $group, $setting_type ) );
 			}
 		}
 
