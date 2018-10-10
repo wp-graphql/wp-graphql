@@ -35,7 +35,6 @@ use WPGraphQL\Mutation\UserUpdate;
 use function WPGraphQL\Type\register_post_object_types;
 use function WPGraphQL\Type\register_settings_group;
 use function WPGraphQL\Type\register_taxonomy_object_type;
-use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
@@ -108,6 +107,8 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootQuery.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php' );
@@ -123,8 +124,6 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/TermObject.php' );
-		RootMutation::register_type();
-		RootQuery::register_type();
 
 		/**
 		 * Create the root query fields for any setting type in

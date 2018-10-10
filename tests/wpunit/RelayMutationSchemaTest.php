@@ -98,6 +98,10 @@ class RelayMutationSchemaTest extends \Codeception\TestCase\WPTestCase {
 				 */
 				$this->assertNotEmpty( $type );
 
+				if ( $type['kind'] === 'SCALAR' ) {
+					return;
+				}
+
 				/**
 				 * All types should have a "kind"
 				 */
