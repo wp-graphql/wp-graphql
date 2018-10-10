@@ -54,7 +54,7 @@ function get_settings_group_fields( $group_name ) {
 				$fields[ $field_key ] = [
 					'type'        => $setting_field['type'],
 					'description' => $setting_field['description'],
-					'resolve'     => function( $root, array $args, AppContext $context, ResolveInfo $info ) use ( $setting_field, $field_key, $key ) {
+					'resolve'     => function( $root, array $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
 
 						/**
 						 * Check to see if the user querying the email field has the 'manage_options' capability
