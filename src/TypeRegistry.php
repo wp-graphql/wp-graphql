@@ -32,54 +32,11 @@ use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
-use WPGraphQL\Type\Avatar;
-use WPGraphQL\Type\AvatarRatingEnum;
-use WPGraphQL\Type\Comment;
-use WPGraphQL\Type\CommentAuthor;
-use WPGraphQL\Type\CommentAuthorUnion;
-use WPGraphQL\Type\CommentsConnectionOrderbyEnum;
-use WPGraphQL\Type\DateInput;
-use WPGraphQL\Type\DateQueryInput;
-use WPGraphQL\Type\EditLock;
-use WPGraphQL\Type\MediaDetails;
-use WPGraphQL\Type\MediaItemMeta;
-use WPGraphQL\Type\MediaItemStatusEnum;
-use WPGraphQL\Type\MediaSize;
-use WPGraphQL\Type\MenuItem;
-use WPGraphQL\Type\MenuItemObjectUnion;
-use WPGraphQL\Type\MenuItemsConnectionWhereArgs;
-use WPGraphQL\Type\MenuLocationEnum;
-use WPGraphQL\Type\Menu;
-use WPGraphQL\Type\MimeTypeEnum;
-use WPGraphQL\Type\OrderEnum;
-use WPGraphQL\Type\PageInfo;
-use WPGraphQL\Type\Plugin;
-use WPGraphQL\Type\PostObject;
-use WPGraphQL\Type\PostObjectFieldFormatEnum;
-use WPGraphQL\Type\PostObjectsConnectionDateColumnEnum;
-use WPGraphQL\Type\PostObjectsConnectionOrderbyEnum;
-use WPGraphQL\Type\PostObjectsConnectionOrderbyInput;
-use WPGraphQL\Type\PostObjectUnion;
-use WPGraphQL\Type\PostStatusEnum;
-use WPGraphQL\Type\PostType;
-use WPGraphQL\Type\PostTypeEnum;
-use WPGraphQL\Type\PostTypeLabelDetails;
 use function WPGraphQL\Type\register_post_object_types;
-use WPGraphQL\Type\RelationEnum;
+use function WPGraphQL\Type\register_settings_group;
+use function WPGraphQL\Type\register_taxonomy_object_type;
 use WPGraphQL\Type\RootMutation;
 use WPGraphQL\Type\RootQuery;
-use WPGraphQL\Type\SettingGroup;
-use WPGraphQL\Type\Settings;
-use WPGraphQL\Type\Taxonomy;
-use WPGraphQL\Type\TaxonomyEnum;
-use WPGraphQL\Type\TermObject;
-use WPGraphQL\Type\TermObjectsConnectionOrderbyEnum;
-use WPGraphQL\Type\TermObjectUnion;
-use WPGraphQL\Type\Theme;
-use WPGraphQL\Type\User;
-use WPGraphQL\Type\UserRole;
-use WPGraphQL\Type\UserRoleEnum;
-use WPGraphQL\Type\UsersConnectionSearchColumnEnum;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -124,44 +81,48 @@ class TypeRegistry {
 		/**
 		 * Register core WPGRaphQL Types
 		 */
-		Avatar::register_type();
-		AvatarRatingEnum::register_type();
-		Comment::register_type();
-		CommentsConnectionOrderbyEnum::register_type();
-		CommentAuthor::register_type();
-		DateInput::register_type();
-		DateQueryInput::register_type();
-		EditLock::register_type();
-		MediaItemStatusEnum::register_type();
-		MediaDetails::register_type();
-		MediaItemMeta::register_type();
-		MediaSize::register_type();
-		MenuItem::register_type();
-		MenuItemsConnectionWhereArgs::register_type();
-		MenuLocationEnum::register_type();
-		Menu::register_type();
-		MimeTypeEnum::register_type();
-		OrderEnum::register_type();
-		PageInfo::register_type();
-		Plugin::register_type();
-		PostObjectsConnectionOrderbyInput::register_type();
-		PostObjectsConnectionOrderbyEnum::register_type();
-		PostObjectsConnectionDateColumnEnum::register_type();
-		PostObjectFieldFormatEnum::register_type();
-		PostStatusEnum::register_type();
-		PostType::register_type();
-		PostTypeLabelDetails::register_type();
-		PostTypeEnum::register_type();
-		RelationEnum::register_type();
-		Settings::register_type();
-		TermObjectsConnectionOrderbyEnum::register_type();
-		Theme::register_type();
-		Taxonomy::register_type();
-		TaxonomyEnum::register_type();
-		User::register_type();
-		UsersConnectionSearchColumnEnum::register_type();
-		UserRole::register_type();
-		UserRoleEnum::register_type();
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/CommentsConnectionOrderbyEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/CommentAuthor.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateInput.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaSize.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MenuItem.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/MenuItemsConnectionWhereArgs.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MenuLocationEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Menu.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MimeTypeEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/OrderEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PageInfo.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Plugin.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/PostObjectsConnectionOrderbyInput.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectFieldFormatEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php' );
+
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/TermObject.php' );
 		RootMutation::register_type();
 		RootQuery::register_type();
 
@@ -174,7 +135,7 @@ class TypeRegistry {
 			foreach ( $allowed_setting_types as $group => $setting_type ) {
 
 				$group_name = str_replace('_', '', strtolower( $group ) );
-				SettingGroup::register_type( $group_name );
+				register_settings_group( $group_name );
 
 				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
 					'type'        => ucfirst( $group_name ) . 'Settings',
@@ -214,7 +175,7 @@ class TypeRegistry {
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
-				TermObject::register_type( $taxonomy_object );
+				register_taxonomy_object_type( $taxonomy_object );
 				TermObjectCreate::register_mutation( $taxonomy_object );
 				TermObjectUpdate::register_mutation( $taxonomy_object );
 				TermObjectDelete::register_mutation( $taxonomy_object );
@@ -225,10 +186,10 @@ class TypeRegistry {
 		 * Register all Union Types
 		 * Unions need to be registered after other types as they reference other Types
 		 */
-		CommentAuthorUnion::register_type();
-		MenuItemObjectUnion::register_type();
-		PostObjectUnion::register_type();
-		TermObjectUnion::register_type();
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/CommentAuthorUnion.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/MenuItemObjectUnion.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php' );
 
 		if ( ! did_action( 'graphql_register_types' ) ) {
 
@@ -427,6 +388,7 @@ class TypeRegistry {
 	 *
 	 * @access protected
 	 * @return array
+	 * @throws \Exception
 	 */
 	protected static function prepare_fields( $fields, $type_name ) {
 		$prepared_fields = [];
