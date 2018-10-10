@@ -76,7 +76,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function commentsQuery( $variables ) {
-		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:RootCommentsCommentArgs){
+		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToCommentConnectionWhereArgs ){
 			comments( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage

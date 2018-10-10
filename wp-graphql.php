@@ -310,16 +310,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		private function filters() {
 
 			/**
-			 * mediaItems are the attachment postObject, but they have a different schema shape
-			 * than postObjects out of the box, so this filter adjusts the core mediaItem
-			 * shape of data
-			 */
-			add_filter( 'graphql_mediaItem_fields', [
-				'\WPGraphQL\Type\MediaItem\MediaItemType',
-				'fields'
-			], 10, 1 );
-
-			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 			 */
 			add_filter( 'graphql_schema', [
@@ -506,16 +496,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
+			/**
+			 * Initialize the TypeRegistry
+			 */
+			\WPGraphQL\TypeRegistry::init();
+			\WPGraphQL\SchemaRegistry::init();
+
 			if ( null === self::$schema ) {
 
 				/**
-				 * Create an executable Schema from the registered
-				 * root_Query and root_mutation
+				 * Filter the Active Schema, allowing for custom Schemas to be active instead
+				 * of the core schema
 				 */
-				$executable_schema = [
-					'query'    => \WPGraphQL\Types::root_query(),
-					'mutation' => \WPGraphQL\Types::root_mutation(),
-				];
+				$active_schema = apply_filters( 'graphql_active_schema', 'core' );
+				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
 
 				/**
 				 * Generate the Schema
