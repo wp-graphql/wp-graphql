@@ -5,8 +5,12 @@ namespace WPGraphQL;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
+use WPGraphQL\Type\Menu;
+use WPGraphQL\Type\PostObject;
 use WPGraphQL\Type\RootMutationType;
 use WPGraphQL\Type\RootQueryType;
+use WPGraphQL\Type\Settings;
+use WPGraphQL\Type\TermObject;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
@@ -98,7 +102,7 @@ class Types {
 	/**
 	 * Stores the post object type
 	 *
-	 * @var PostObjectType $post_object
+	 * @var PostObject $post_object
 	 * @since  0.5.0
 	 * @access private
 	 */
@@ -169,7 +173,7 @@ class Types {
 	/**
 	 * Stores the menu type
 	 *
-	 * @var MenuType object $menu
+	 * @var WPObjectType object $menu
 	 * @since  0.0.29
 	 * @access private
 	 */
@@ -370,7 +374,7 @@ class Types {
 	 *
 	 * @param string $setting_type
 	 *
-	 * @return SettingType object
+	 * @return Settings object
 	 * @access public
 	 */
 	public static function setting( $setting_type ) {
@@ -592,7 +596,7 @@ class Types {
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to get the TermObjectType for
 	 *
-	 * @return TermObjectType object
+	 * @return TermObject object
 	 * @since  0.0.5
 	 * @access public
 	 */
