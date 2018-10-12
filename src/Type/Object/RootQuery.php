@@ -10,7 +10,7 @@ $node_definition = DataSource::get_node_definition();
 
 register_graphql_object_type( 'RootQuery', [
 	'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
-	'fields'      => apply_filters( 'graphql_root_queries', [
+	'fields'      => [
 		'allSettings' => [
 			'type'        => 'Settings',
 			'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
@@ -144,7 +144,7 @@ register_graphql_object_type( 'RootQuery', [
 				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID ) : null;
 			},
 		],
-	] ),
+	],
 ] );
 
 $allowed_post_types = \WPGraphQL::$allowed_post_types;
