@@ -289,7 +289,7 @@ class TypeRegistry {
 
 			return $fields;
 
-		} );
+		}, 10, 1 );
 
 	}
 
@@ -326,11 +326,12 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public static function register_type( $type_name, $config ) {
-		if ( ! isset( self::$types[ $type_name ] ) ) {
-			$prepared_type = self::prepare_type( $type_name, $config );
-			if ( ! empty( $prepared_type ) ) {
-				self::$types[ self::format_key( $type_name ) ] = $prepared_type;
-			}
+		if ( isset( self::$types[ self::format_key( $type_name ) ] ) ) {
+			return;
+		}
+		$prepared_type = self::prepare_type( $type_name, $config );
+		if ( ! empty( $prepared_type ) ) {
+			self::$types[ self::format_key( $type_name ) ] = $prepared_type;
 		}
 	}
 
@@ -421,6 +422,13 @@ class TypeRegistry {
 	 * @throws \Exception
 	 */
 	protected static function prepare_field( $field_name, $field_config, $type_name ) {
+
+		/**
+		 * If the Field is a Type definition and not
+		 */
+		if ( ! is_array( $field_config ) ) {
+			return $field_config;
+		}
 
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
