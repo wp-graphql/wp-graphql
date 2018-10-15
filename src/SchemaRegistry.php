@@ -1,7 +1,6 @@
 <?php
 
 namespace WPGraphQL;
-use GraphQL\Type\Definition\Type;
 
 /**
  * Class SchemaRegistry
@@ -65,17 +64,11 @@ class SchemaRegistry {
 	 *
 	 * @param string $schema_name The name of the Schema to register
 	 * @param array  $config      The config for the Schema to register
-	 *
-	 * @return mixed Type | null
 	 */
 	public static function register_schema( $schema_name, $config ) {
-		$schema = null;
 		if ( isset( $schema_name ) && is_string( $schema_name ) && ! empty( $config ) && is_array( $config ) && ! isset( self::$schemas[ $schema_name ] ) ) {
 			self::$schemas[ $schema_name ] = self::prepare_schema_config( $config );
-			$schema = self::$schemas[ $schema_name ];
 		}
-
-		return $schema;
 	}
 
 	/**

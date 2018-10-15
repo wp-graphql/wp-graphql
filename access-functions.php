@@ -41,12 +41,10 @@ function do_graphql_request( $request, $operation_name = '', $variables = '' ) {
  * Given a Type Name and a $config array, this adds a Type to the TypeRegistry
  *
  * @param string $type_name The name of the Type to register
- * @param mixed array | \GraphQL\Type\Definition\Type  $config    The Type config
- *
- * @return mixed \GraphQL\Type\Definition\Type | null
+ * @param array  $config    The Type config
  */
 function register_graphql_type( $type_name, $config ) {
-	return \WPGraphQL\TypeRegistry::register_type( $type_name, $config );
+	\WPGraphQL\TypeRegistry::register_type( $type_name, $config );
 }
 
 /**
@@ -54,13 +52,10 @@ function register_graphql_type( $type_name, $config ) {
  *
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
- *
- * @return mixed \GraphQL\Type\Definition\Type | null
  */
 function register_graphql_object_type( $type_name, $config ) {
 	$config['kind'] = 'object';
-
-	return register_graphql_type( $type_name, $config );
+	register_graphql_type( $type_name, $config );
 }
 
 /**
@@ -68,13 +63,10 @@ function register_graphql_object_type( $type_name, $config ) {
  *
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
- *
- * @return mixed \GraphQL\Type\Definition\Type | null
  */
 function register_graphql_input_type( $type_name, $config ) {
 	$config['kind'] = 'input';
-
-	return register_graphql_type( $type_name, $config );
+	register_graphql_type( $type_name, $config );
 }
 
 /**
@@ -82,13 +74,10 @@ function register_graphql_input_type( $type_name, $config ) {
  *
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
- *
- * @return mixed \GraphQL\Type\Definition\Type | null
  */
 function register_graphql_union_type( $type_name, $config ) {
 	$config['kind'] = 'union';
-
-	return register_graphql_type( $type_name, $config );
+	register_graphql_type( $type_name, $config );
 }
 
 /**
@@ -96,13 +85,10 @@ function register_graphql_union_type( $type_name, $config ) {
  *
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
- *
- * @return mixed \GraphQL\Type\Definition\Type | null
  */
 function register_graphql_enum_type( $type_name, $config ) {
 	$config['kind'] = 'enum';
-
-	return register_graphql_type( $type_name, $config );
+	register_graphql_type( $type_name, $config );
 }
 
 /**
@@ -112,12 +98,9 @@ function register_graphql_enum_type( $type_name, $config ) {
  * @param string $type_name  The name of the Type to add the field to
  * @param string $field_name The name of the Field to add to the Type
  * @param array  $config     The Type config
- *
- * @return mixed FieldDefinition | null
- * @throws \Exception
  */
 function register_graphql_field( $type_name, $field_name, $config ) {
-	return \WPGraphQL\TypeRegistry::register_field( $type_name, $field_name, $config );
+	\WPGraphQL\TypeRegistry::register_field( $type_name, $field_name, $config );
 }
 
 /**
@@ -126,12 +109,9 @@ function register_graphql_field( $type_name, $field_name, $config ) {
  *
  * @param string $type_name The name of the Type to add the fields to
  * @param array  $fields    An array of field configs
- *
- * @return array All fields registered to the Type
- * @throws \Exception
  */
 function register_graphql_fields( $type_name, array $fields ) {
-	return \WPGraphQL\TypeRegistry::register_fields( $type_name, $fields );
+	\WPGraphQL\TypeRegistry::register_fields( $type_name, $fields );
 }
 
 /**
@@ -139,11 +119,9 @@ function register_graphql_fields( $type_name, array $fields ) {
  *
  * @param string $schema_name The name of the Schema to register
  * @param array  $config      The config for the Schema
- *
- * @return mixed Type | null
  */
 function register_graphql_schema( $schema_name, array $config ) {
-	return \WPGraphQL\SchemaRegistry::register_schema( $schema_name, $config );
+	\WPGraphQL\SchemaRegistry::register_schema( $schema_name, $config );
 }
 
 /**
@@ -151,8 +129,6 @@ function register_graphql_schema( $schema_name, array $config ) {
  * fields and types for the connection
  *
  * @param array $config Array to configure the connection
- *
- * @throws \Exception
  */
 function register_graphql_connection( array $config ) {
 	\WPGraphQL\TypeRegistry::register_connection( $config );
@@ -173,10 +149,7 @@ function deregister_graphql_field( $type_name, $field_name ) {
  *
  * @param string $mutation_name The name of the Mutation to register
  * @param array  $config        The config for the mutation
- *
- * @return array
- * @throws \Exception
  */
 function register_graphql_mutation( $mutation_name, $config ) {
-	return \WPGraphQL\TypeRegistry::register_mutation( $mutation_name, $config );
+	\WPGraphQL\TypeRegistry::register_mutation( $mutation_name, $config );
 }
