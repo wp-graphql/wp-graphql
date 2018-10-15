@@ -111,8 +111,6 @@ class UpdateSettings {
 
 			}
 
-			$input_fields = apply_filters( 'graphql_setting_mutation_input_fields', $input_fields );
-
 		}
 
 		return $input_fields;
