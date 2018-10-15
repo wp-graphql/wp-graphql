@@ -35,7 +35,6 @@ use WPGraphQL\Mutation\UserUpdate;
 use function WPGraphQL\Type\register_post_object_types;
 use function WPGraphQL\Type\register_settings_group;
 use function WPGraphQL\Type\register_taxonomy_object_type;
-use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -133,15 +132,19 @@ class TypeRegistry {
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 			foreach ( $allowed_setting_types as $group => $setting_type ) {
 
-				$group_name = str_replace('_', '', strtolower( $group ) );
+				$group_name = str_replace( '_', '', strtolower( $group ) );
 				register_settings_group( $group_name );
 
-				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
-					'type'        => ucfirst( $group_name ) . 'Settings',
-					'resolve'     => function () use ( $setting_type ) {
-						return $setting_type;
-					},
-				] );
+				try {
+					register_graphql_field( 'RootQuery', $group_name . 'Settings', [
+						'type'    => ucfirst( $group_name ) . 'Settings',
+						'resolve' => function () use ( $setting_type ) {
+							return $setting_type;
+						},
+					] );
+				} catch ( \Exception $e ) {
+					throw new InvariantViolation( $e->getMessage() );
+				}
 			}
 		}
 
@@ -248,7 +251,8 @@ class TypeRegistry {
 	 * @param array  $fields    Fields to register
 	 *
 	 * @access public
-	 * @return void
+	 * @return array All fields registered to the Type
+	 * @throws \Exception
 	 */
 	public static function register_fields( $type_name, $fields ) {
 		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
@@ -258,6 +262,15 @@ class TypeRegistry {
 				}
 			}
 		}
+
+		$type_fields = [];
+		if ( ! empty( $type = TypeRegistry::get_type( $type_name ) ) ) {
+			if ( ! empty( $field_defs = $type->getFields() ) ) {
+				$type_fields = $field_defs;
+			}
+		}
+
+		return $type_fields;
 	}
 
 	/**
@@ -268,7 +281,8 @@ class TypeRegistry {
 	 * @param array  $config     Info about the field to register to the type
 	 *
 	 * @access public
-	 * @return void
+	 * @return mixed FieldDefinition | null
+	 * @throws \Exception
 	 */
 	public static function register_field( $type_name, $field_name, $config ) {
 
@@ -291,6 +305,15 @@ class TypeRegistry {
 
 		}, 10, 1 );
 
+		$field = null;
+		if ( ! empty( $type = TypeRegistry::get_type( $type_name ) ) ) {
+			if ( ! empty( $field_def = $type->getField( $field_name ) ) ) {
+				$field = $field_def;
+			}
+		}
+
+		return $field;
+
 	}
 
 	/**
@@ -300,7 +323,6 @@ class TypeRegistry {
 	 * @param string $field_name Name of the field you would like to remove from the type
 	 *
 	 * @access public
-	 * @return void
 	 */
 	public static function deregister_field( $type_name, $field_name ) {
 
@@ -313,7 +335,6 @@ class TypeRegistry {
 			return $fields;
 
 		} );
-
 	}
 
 	/**
@@ -323,15 +344,19 @@ class TypeRegistry {
 	 * @param array  $config    Info about the type being registered
 	 *
 	 * @access public
-	 * @return void
+	 * @return mixed \GraphQL\Type\Definition\Type | null
 	 */
 	public static function register_type( $type_name, $config ) {
-		if ( isset( self::$types[ self::format_key( $type_name ) ] ) ) {
-			return;
+		if ( ! isset( self::$types[ self::format_key( $type_name ) ] ) ) {
+			return self::$types[ self::format_key( $type_name ) ];
 		}
 		$prepared_type = self::prepare_type( $type_name, $config );
 		if ( ! empty( $prepared_type ) ) {
 			self::$types[ self::format_key( $type_name ) ] = $prepared_type;
+
+			return $prepared_type;
+		} else {
+			return null;
 		}
 	}
 
@@ -515,7 +540,7 @@ class TypeRegistry {
 	 *
 	 * @access public
 	 * @return void
-	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public static function register_connection( $config ) {
 
@@ -641,9 +666,12 @@ class TypeRegistry {
 	 * @param array  $config        Info about the mutation being registered
 	 *
 	 * @access public
-	 * @return void
+	 * @return array
+	 * @throws \Exception
 	 */
 	public static function register_mutation( $mutation_name, $config ) {
+
+		$mutation = [];
 
 		$output_fields = [
 			'clientMutationId' => [
@@ -657,7 +685,7 @@ class TypeRegistry {
 			$output_fields = array_merge( $config['outputFields'], $output_fields );
 		}
 
-		register_graphql_object_type( $mutation_name . 'Payload', [
+		$mutation['output'] = register_graphql_object_type( $mutation_name . 'Payload', [
 			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
 			'fields'      => $output_fields,
 		] );
@@ -674,14 +702,14 @@ class TypeRegistry {
 			$input_fields = array_merge( $config['inputFields'], $input_fields );
 		}
 
-		register_graphql_input_type( $mutation_name . 'Input', [
+		$mutation['input'] = register_graphql_input_type( $mutation_name . 'Input', [
 			'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
 			'fields'      => $input_fields,
 		] );
 
 		$mutateAndGetPayload = ! empty( $config['mutateAndGetPayload'] ) ? $config['mutateAndGetPayload'] : null;
 
-		register_graphql_field( 'rootMutation', $mutation_name, [
+		$mutation['rootMutationField'] = register_graphql_field( 'rootMutation', $mutation_name, [
 			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
 			'args'        => [
 				'input' => [
@@ -693,10 +721,9 @@ class TypeRegistry {
 			],
 			'type'        => $mutation_name . 'Payload',
 			'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
-				//@todo: Might want to check that this is callable before invoking, otherwise errors could happen
 				if ( ! is_callable( $mutateAndGetPayload ) ) {
 					// Translators: The placeholder is the name of the mutation
-					throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql'), $mutation_name ) );
+					throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
 				}
 				$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
 				$payload['clientMutationId'] = $args['input']['clientMutationId'];
@@ -704,6 +731,8 @@ class TypeRegistry {
 				return $payload;
 			}
 		] );
+
+		return $mutation;
 
 	}
 
