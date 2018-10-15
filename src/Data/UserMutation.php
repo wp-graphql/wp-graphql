@@ -303,7 +303,7 @@ class UserMutation {
 		     && get_current_user_id() === $user_id
 		     && ! $potential_role->has_cap( 'edit_users' )
 		) {
-			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you are not allowed to give users that role.', 'wp-graphql' ) );
+			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you cannot remove user editing permissions for your own account.', 'wp-graphql' ) );
 		}
 
 		/**
