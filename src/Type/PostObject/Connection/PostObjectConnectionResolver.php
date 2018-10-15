@@ -232,8 +232,8 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Set whether there is or is not another page
 		 */
-		$has_previous_page = ( ! empty( $args['last'] ) && ( $info['total_items'] >= self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
-		$has_next_page     = ( ! empty( $args['first'] ) && ( $info['total_items'] >= self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
+		$has_previous_page = ( ! empty( $args['last'] ) && ( $info['total_items'] > self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
+		$has_next_page     = ( ! empty( $args['first'] ) && ( $info['total_items'] > self::get_query_amount( $source, $args, $context, $info ) ) ) ? true : false;
 
 		/**
 		 * Slice the array to the amount of items that were requested
