@@ -116,6 +116,8 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 						default:
 							$array_slice[] = $item;
 					}
+				} elseif ( is_array( $item ) ) {
+					$array_slice[] = $item;
 				}
 			}
 		}
