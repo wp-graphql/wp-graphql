@@ -113,10 +113,8 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							break;
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:
-							$array_slice[] = $item;
-							break;
 						default:
-							$array_slice = $items;
+							$array_slice[] = $item;
 					}
 				}
 			}
@@ -298,6 +296,9 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 					$query_info['total_items'] = ! empty( $query->get_total() ) ? $query->get_total() : count( $query->get_results() );
 					$query_info['items']       = $query->get_results();
 					break;
+				case is_array( $query ):
+					$query_info['total_items'] = ! empty ( $query ) ? count( $query ) : null;
+					$query_info['items'] = $query;
 			}
 		}
 
