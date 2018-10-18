@@ -257,7 +257,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
-		query {
+ 		query {
 			post(id: \"{$global_id}\") {
 				slug
 			}
@@ -296,7 +296,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testP0stQueryWithoutFeaturedImage
+	 * testPostQueryWithoutFeaturedImage
 	 * 
 	 * This tests querying featuredImage on a post wihtout one.
 	 * 
@@ -319,7 +319,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			post(id: \"{$global_id}\") {
-        id
+				id
 				featuredImage {
 					altText
 					author {
@@ -330,9 +330,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					commentStatus
 					comments {
 						edges {
-						  node {
-							  id
-						  }
+							node {
+								id
+							}
 						}
 					}
 					content
@@ -352,29 +352,29 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					id
 					link
 					mediaDetails {
-					  file
+						file
 						height
 						meta {
-              aperture
-              credit
-              camera
-              caption
-              createdTimestamp
-              copyright
-              focalLength
-              iso
-              shutterSpeed
-              title
-              orientation
-              keywords
-					  }
+							aperture
+							credit
+							camera
+							caption
+							createdTimestamp
+							copyright
+							focalLength
+							iso
+							shutterSpeed
+							title
+							orientation
+							keywords
+						}
 						sizes {
-              name
-              file
-              width
-              height
-              mimeType
-              sourceUrl
+							name
+							file
+							width
+							height
+							mimeType
+							sourceUrl
 						}
 						width
 					}
@@ -386,7 +386,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					modifiedGmt
 					parent {
 						...on Post {
-						  id
+							id
 						}
 					}
 					pingStatus
