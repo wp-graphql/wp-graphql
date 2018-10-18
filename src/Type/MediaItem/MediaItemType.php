@@ -121,9 +121,12 @@ class MediaItemType {
 				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
 				'resolve'     => function ( \WP_Post $post, $args, $context, ResolveInfo $info ) {
 					$media_details       = wp_get_attachment_metadata( $post->ID );
-					$media_details['ID'] = $post->ID;
+					if(!empty($media_details)) {
+						$media_details['ID'] = $post->ID;
+						return $media_details;
+					}
 
-					return $media_details;
+					return null;
 				},
 			],
 
