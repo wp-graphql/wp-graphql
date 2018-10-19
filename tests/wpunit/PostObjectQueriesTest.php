@@ -257,7 +257,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
-		query {
+ 		query {
 			post(id: \"{$global_id}\") {
 				slug
 			}
@@ -293,6 +293,125 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * testPostQueryWithoutFeaturedImage
+	 * 
+	 * This tests querying featuredImage on a post wihtout one.
+	 * 
+	 * @since 0.0.34
+	 */
+	public function testPostQueryWithoutFeaturedImage()
+	{
+		/**
+		 * Create Post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post'
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		$query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				featuredImage {
+					altText
+					author {
+						id
+					}
+					caption
+					commentCount
+					commentStatus
+					comments {
+						edges {
+							node {
+								id
+							}
+						}
+					}
+					content
+					date
+					dateGmt
+					description
+					desiredSlug
+					editLast {
+						userId
+					}
+					editLock {
+						editTime
+					}
+					enclosure
+					excerpt
+					guid
+					id
+					link
+					mediaDetails {
+						file
+						height
+						meta {
+							aperture
+							credit
+							camera
+							caption
+							createdTimestamp
+							copyright
+							focalLength
+							iso
+							shutterSpeed
+							title
+							orientation
+							keywords
+						}
+						sizes {
+							name
+							file
+							width
+							height
+							mimeType
+							sourceUrl
+						}
+						width
+					}
+					mediaItemId
+					mediaType
+					menuOrder
+					mimeType
+					modified
+					modifiedGmt
+					parent {
+						...on Post {
+							id
+						}
+					}
+					pingStatus
+					slug
+					sourceUrl
+					status
+					title
+					toPing
+				}
+			}
+		}
+    ";
+    
+    $actual = do_graphql_request( $query );
+
+    $expected = [
+      "data" => [
+        "post" => [
+          "id" => $global_id,
+          "featuredImage" => null
+        ]
+      ]
+    ];
+
+    $this->assertEquals( $expected, $actual );
 	}
 
 	/**
