@@ -1,9 +1,9 @@
 <?php
+
 namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
 
 function register_post_object_types( $post_type_object ) {
 
@@ -11,19 +11,19 @@ function register_post_object_types( $post_type_object ) {
 
 	register_graphql_object_type( $single_name, [
 		'description' => __( sprintf( 'The %s type', $single_name ), 'wp-graphql' ),
-		'interfaces' => [ WPObjectType::node_interface() ],
-		'fields' => get_post_object_fields( $post_type_object ),
-	]);
+		'interfaces'  => [ WPObjectType::node_interface() ],
+		'fields'      => get_post_object_fields( $post_type_object ),
+	] );
 
 	if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 
 		register_graphql_field( $post_type_object->graphql_single_name, 'commentCount', [
-			'type' => 'Int',
+			'type'        => 'Int',
 			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
 			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
 				return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
 			}
-		]);
+		] );
 	}
 
 	if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
@@ -33,10 +33,10 @@ function register_post_object_types( $post_type_object ) {
 			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
 				$thumbnail_id = get_post_thumbnail_id( $post->ID );
 
-				return isset( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : get_post( absint( $thumbnail_id ) );
+				return ! empty( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : null;
 
 			},
-		]);
+		] );
 	}
 
 	/**
@@ -91,10 +91,15 @@ function register_post_object_types( $post_type_object ) {
 			'type'        => 'MediaDetails',
 			'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
 			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-				$media_details       = wp_get_attachment_metadata( $post->ID );
-				$media_details['ID'] = $post->ID;
+				$media_details = wp_get_attachment_metadata( $post->ID );
 
-				return $media_details;
+				if ( ! empty( $media_details ) ) {
+					$media_details['ID'] = $post->ID;
+
+					return $media_details;
+				}
+
+				return null;
 			},
 		],
 
@@ -105,7 +110,7 @@ function register_post_object_types( $post_type_object ) {
 function get_post_object_fields( $post_type_object ) {
 
 	$single_name = $post_type_object->graphql_single_name;
-	$fields = [
+	$fields      = [
 		'id'                => [
 			'type'        => [
 				'non_null' => 'ID',
