@@ -126,8 +126,10 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
     - You can specify which tests to run like: 
         - `vendor/bin/codecept run wpunit`
         - `vendor/bin/codecept run functional`
-        - `vendor/bin/codecept run unit`
         - `vendor/bin/codecept run acceptance`
+    - If you're working on a class, or with a specific test, you can run that class/test with:
+        - `vendor/bin/codecept run tests/wpunit/NodesTest.php`
+        - `vendor/bin/codecept run tests/wpunit/NodesTest.php:testPluginNodeQuery`
 
 
 ### Using Docker
