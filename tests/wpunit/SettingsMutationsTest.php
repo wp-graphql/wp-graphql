@@ -452,18 +452,18 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		 */
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->updateSettingsMutation();
+		/*
+		 * start updating settings with start_of_week=2, then set to 0 and check
+		 */
+		$this->updateSettingsMutation();
 
 		$this->update_variables['input']['generalSettingsStartOfWeek'] = 0;
 
 		$actual = $this->updateSettingsMutation();
 
-		\Codeception\Util\Debug::debug($actual);
-
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 
 		$this->assertEquals( 0, $start_of_week);
-
 	}
 
 }
