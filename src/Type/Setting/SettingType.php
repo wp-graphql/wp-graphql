@@ -124,6 +124,7 @@ class SettingType extends WPObjectType {
 									break;
 								case 'string':
 									$option = (string) $option;
+									$option = ! empty( $option ) ? $option : '';
 									break;
 								case 'boolean':
 									$option = (boolean) $option;
@@ -133,7 +134,7 @@ class SettingType extends WPObjectType {
 									break;
 							}
 
-							return ! empty( $option ) ? $option : '';
+							return $option;
 						},
 					];
 

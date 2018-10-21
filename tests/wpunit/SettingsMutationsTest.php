@@ -437,4 +437,33 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 
 	}
 
+	/**
+	 * This function tests whether we can update and successfully retrieve
+	 * StartOfWeek = 0 (Sunday)
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:63
+	 * @access public
+	 * @return void
+	 */
+	public function testUpdateSettingsStartOfWeekMutation() {
+		/**
+		 * Set the current user as the admin role so we
+		 * successfully run the mutation
+		 */
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updateSettingsMutation();
+
+		$this->update_variables['input']['generalSettingsStartOfWeek'] = 0;
+
+		$actual = $this->updateSettingsMutation();
+
+		\Codeception\Util\Debug::debug($actual);
+
+		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
+
+		$this->assertEquals( 0, $start_of_week);
+
+	}
+
 }
