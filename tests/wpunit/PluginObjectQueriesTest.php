@@ -83,7 +83,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * and we don't care to maintain the exact match, we just want to make sure we are
 		 * properly getting a plugin back in the query
 		 */
-		$this->assertNotEmpty( $actual['data']['plugin']['id'] );
+		$this->assertNotEmpty( $actual['data']['plugin']['id'], "Verify you have the plugin Hello Dolly in your WordPress." );
 		$this->assertNotEmpty( $actual['data']['plugin']['name'] );
 
 		$plugin_id = $actual['data']['plugin']['id'];
