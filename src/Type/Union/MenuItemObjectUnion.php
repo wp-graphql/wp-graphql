@@ -4,8 +4,13 @@ namespace WPGraphQL\Type;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
+/**
+ * The possible types for MenuItems should be just the TermObjects and PostTypeObjects that are
+ * registered to "show_in_graphql" and "show_in_nav_menus"
+ */
 $args = [
 	'show_in_graphql' => true,
+	'show_in_nav_menus' => true,
 ];
 
 $possible_types = [];
@@ -21,7 +26,7 @@ foreach ( get_taxonomies( $args ) as $type ) {
 }
 
 // Add the custom link type (which is just a menu item).
-$possible_types['MenuItem'] = Types::menu_item();
+$possible_types['MenuItem'] = TypeRegistry::get_type( 'MenuItem' );
 
 register_graphql_union_type( 'MenuItemObjectUnion', [
 	'types'       => $possible_types,
