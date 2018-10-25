@@ -1,6 +1,6 @@
-# This Dockerfile assumes WORDPRESS_DOCKER_IMAGE refers to a Debian+Apache variant of WordPress.
-ARG WORDPRESS_DOCKER_IMAGE
-FROM ${WORDPRESS_DOCKER_IMAGE}
+# This Dockerfile assumes BASE_DOCKER_IMAGE refers to a Debian+Apache variant of WordPress.
+ARG BASE_DOCKER_IMAGE
+FROM ${BASE_DOCKER_IMAGE}
 
 # Install PHP Composer, WP-CLI, xdebug (only for PHP 7.X), PHP MySQL driver, etc
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
@@ -32,9 +32,25 @@ USER root
 COPY . /tmp/project/
 RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
   && cp -a /tmp/project/* /project/ \
+  && rm -rf /tmp/project \
   && curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /project/c3.php \
   && chown -R www-data:www-data /project \
-  && rm -rf /tmp/project
+  && cp -a /project /usr/src/wordpress/wp-content/plugins/wp-graphql
+
+ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
+  WP_TEST_CORE_DIR=/tmp/dfmedia-wordpress/ \
+  WP_TESTS_DIR=/tmp/wordpress-tests-lib/ \
+  WP_TESTS_TAG=tags/$WORDPRESS_VERSION
+
+# Install WP test framework
+RUN cp -a "${PRISTINE_WP_DIR}" "${WP_TEST_CORE_DIR}" \
+  && mkdir -p "${WP_TESTS_DIR}" \
+  && svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/" "${WP_TESTS_DIR}/includes" \
+  && svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/" "${WP_TESTS_DIR}/data" \
+  && curl -Lsv "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php" > "${WP_TESTS_DIR}/wp-tests-config.php" \
+  && curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${WP_TEST_CORE_DIR}/wp-content/db.php"
 
 # Copy docker-entrypoints to a directory that's already in the environment PATH
-COPY docker-entrypoints/docker-entrypoint*.sh /usr/local/bin/
+COPY docker-entrypoints/*.sh /usr/local/bin/
+
+RUN cp -a /usr/src/wordpress/ /tmp/wordpress
