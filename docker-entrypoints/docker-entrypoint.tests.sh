@@ -55,7 +55,8 @@ run_tests() {
 }
 
 main() {
-  cd /project
+  #cd /project
+  cd "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
   edit_wp_test_suite_db_config
   wait_for_database_connection
   configure_wordpress
