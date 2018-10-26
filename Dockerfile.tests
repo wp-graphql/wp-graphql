@@ -63,4 +63,6 @@ ARG CONTAINER_GROUP_ID
 
 RUN groupadd --gid "${CONTAINER_USER_ID}" tester \
   && useradd --uid "${CONTAINER_GROUP_ID}" --gid tester --shell /bin/bash --create-home tester \
-  && chown -R "${CONTAINER_USER_ID}:${CONTAINER_GROUP_ID}" "${WP_TESTS_DIR}" "${WP_TEST_CORE_DIR}"
+  && chown -R "${CONTAINER_USER_ID}:${CONTAINER_GROUP_ID}" "${WP_TESTS_DIR}" "${WP_TEST_CORE_DIR}" \
+  && echo 'composer install' >> /home/tester/.bashrc \
+  && echo 'initialize-wp-test-environment.sh' >> /home/tester/.bashrc

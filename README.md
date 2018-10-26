@@ -146,6 +146,33 @@ of the set up and configuration tasks performed by a developer.
    sudo docker-compose --version
    ```
 #### Running tests with Docker
+##### For developers
+You'll need two terminal windows for this. The first one is just to start the Docker environment for running tests. The
+second one is where you log into a running Docker container (which has OS dependencies already installed) and run 
+your tests as you make code changes.
+
+1. In the first terminal window, start up a pristine Docker testing environment by running this command:
+   ```
+   ./run-docker-tests-shell.sh
+   ```
+1. In the second terminal window, access the Docker container shell from which you can run tests:
+   ```
+   ./run-docker-shell.sh 'wp-graphql'
+   ```
+   At this point `composer install` will automatically be run and some extra test initialization will be done. You
+   should eventually see a prompt like this:
+   ```
+   tester@f70bf1310eda:/project$
+   ```   
+1. Now you are ready to work in your IDE and test your changes by running commands (in the second terminal window) like
+the following:
+   ```
+   ./vendor/bin/codecept run 'wpunit' --env docker
+   ./vendor/bin/codecept run 'functional' --env docker
+   ./vendor/bin/codecept run 'acceptance' --env docker   
+   ``` 
+
+##### For Travis (or any other CI tool)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
    sudo ./run-docker-tests.sh wpunit

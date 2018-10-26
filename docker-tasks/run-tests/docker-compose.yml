@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 
 services:
   main:
@@ -15,6 +15,7 @@ services:
       WP_VERSION: "${WP_VERSION}"
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
+    working_dir: '/project'
     entrypoint:
       [ "docker-entrypoint.tests.sh" ]
 
