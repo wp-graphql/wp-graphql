@@ -1,6 +1,8 @@
 # This Dockerfile assumes BASE_DOCKER_IMAGE refers to a Debian+Apache variant of WordPress.
+
+# ----------------------- STAGE ------------------
 ARG BASE_DOCKER_IMAGE
-FROM ${BASE_DOCKER_IMAGE}
+FROM ${BASE_DOCKER_IMAGE} as test-environment
 
 ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   WP_TEST_CORE_DIR=/tmp/wordpress/ \
@@ -52,3 +54,13 @@ COPY docker-entrypoints/*.sh /usr/local/bin/
 # Copy the plugin code to the WordPress directory and the WordPress test framework directory
 RUN ln -s /project "${PRISTINE_WP_DIR}/wp-content/plugins/wp-graphql" \
   && ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
+
+
+# ----------------------- STAGE ------------------
+FROM test-environment as tests-shell-environment
+ARG CONTAINER_USER_ID
+ARG CONTAINER_GROUP_ID
+
+RUN groupadd --gid "${CONTAINER_USER_ID}" tester \
+  && useradd --uid "${CONTAINER_GROUP_ID}" --gid tester --shell /bin/bash --create-home tester \
+  && chown -R "${CONTAINER_USER_ID}:${CONTAINER_GROUP_ID}" "${WP_TESTS_DIR}" "${WP_TEST_CORE_DIR}"

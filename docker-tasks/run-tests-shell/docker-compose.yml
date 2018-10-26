@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 
 services:
   main:
@@ -15,9 +15,10 @@ services:
       WP_VERSION: "${WP_VERSION}"
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
+    user: "${CONTAINER_USER_ID}"
     working_dir: '/project'
-   # volumes:
-   #   - "${PWD}:/project:ro"
+    volumes:
+      - "${PWD}:/project:delegated"
     entrypoint:
       [ "sleep", "9999d" ]
 
@@ -36,13 +37,13 @@ services:
     build:
       context: '../../.'
       dockerfile: 'Dockerfile.tests'
+      target: 'tests-shell-environment'
       args:
         BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+        CONTAINER_USER_ID: "${CONTAINER_USER_ID}"
+        CONTAINER_GROUP_ID: "${CONTAINER_GROUP_ID}"
     # Setting the 'image' option to only rebuild Docker layers when necessary
     image: 'wpgraphql-cache'
-    entrypoint:
-      # This is a workaround to prevent the docker compose invocation from exiting prematurely
-      [ "sleep", "9999d" ]
 
   mysql_test:
     image: "${MYSQL_DOCKER_IMAGE}"

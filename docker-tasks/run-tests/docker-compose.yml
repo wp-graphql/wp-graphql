@@ -33,6 +33,7 @@ services:
     build:
       context: '../../.'
       dockerfile: 'Dockerfile.tests'
+      target: 'test-environment'
       args:
         BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
     # Setting the 'image' option to only rebuild Docker layers when necessary

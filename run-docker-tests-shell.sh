@@ -6,7 +6,7 @@ source_docker_env() {
 }
 
 run_app() {
-  env DOCKER_TASK='run-local-testing-app' docker-tasks/run-docker-compose-up.sh --build
+  env DOCKER_TASK='run-tests-shell' CONTAINER_USER_ID="$(id -u)" CONTAINER_GROUP_ID="$(id -g)" docker-tasks/run-docker-compose-up.sh --build
 }
 
 main() {
