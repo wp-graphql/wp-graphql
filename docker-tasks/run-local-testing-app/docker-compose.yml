@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  main:
+    image: 'wpgraphql-cache'
+    depends_on:
+      - 'image-builder'
+    # This option is used by 'run-docker-compose-up.sh' to copy coverage data out of the container onto the Docker host
+    container_name: 'wp-graphql'
+    environment:
+      DB_SERVE_NAME: 'wpgraphql_test'
+      DB_HOST: 'mysql_test'
+      DB_USER: 'root'
+      DB_PASSWORD: 'testing'
+      WP_VERSION: "${WP_VERSION}"
+      TEST_TYPE: "${TEST_TYPE}"
+      COVERAGE: "${COVERAGE}"
+    working_dir: '/project'
+   # volumes:
+   #   - "${PWD}:/project:ro"
+    entrypoint:
+      [ "sleep", "9999d" ]
+
+  wpgraphql.test:
+    image: 'wpgraphql-cache'
+    depends_on:
+      - 'image-builder'
+    environment:
+      WORDPRESS_DB_HOST: 'mysql_test'
+      WORDPRESS_DB_NAME: 'wpgraphql_test'
+      WORDPRESS_DB_USER: 'root'
+      WORDPRESS_DB_PASSWORD: 'testing'
+
+  # This configuration ensures the custom image is built exactly once before it's used
+  image-builder:
+    build:
+      context: '../../.'
+      dockerfile: 'Dockerfile.tests'
+      args:
+        BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+    # Setting the 'image' option to only rebuild Docker layers when necessary
+    image: 'wpgraphql-cache'
+    entrypoint:
+      # This is a workaround to prevent the docker compose invocation from exiting prematurely
+      [ "sleep", "9999d" ]
+
+  mysql_test:
+    image: "${MYSQL_DOCKER_IMAGE}"
+    environment:
+      MYSQL_DATABASE: 'wpgraphql_test'
+      MYSQL_ROOT_PASSWORD: 'testing'
