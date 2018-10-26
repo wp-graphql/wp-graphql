@@ -146,6 +146,7 @@ of the set up and configuration tasks performed by a developer.
    sudo docker-compose --version
    ```
 #### Running tests with Docker
+
 ##### For developers
 You'll need two terminal windows for this. The first one is just to start the Docker environment for running tests. The
 second one is where you log into a running Docker container (which has OS dependencies already installed) and run 
@@ -155,6 +156,8 @@ your tests as you make code changes.
    ```
    ./run-docker-tests-shell.sh
    ```
+   This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
+   be cached so you won't have to wait as long the next time you run it.
 1. In the second terminal window, access the Docker container shell from which you can run tests:
    ```
    ./run-docker-shell.sh 'wp-graphql'
