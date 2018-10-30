@@ -4,22 +4,26 @@ services:
   main:
     build:
       context: '../../.'
-      target: 'tester-environment'
+      target: 'tester-shell-environment'
       args:
         BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
-    image: 'tester-cache'
-    # This option is used by 'run-docker-compose-up.sh' to copy coverage data out of the container onto the Docker host
-    container_name: "${CONTAINER_NAME}"
+        CONTAINER_USER_ID: "${CONTAINER_USER_ID}"
+        CONTAINER_GROUP_ID: "${CONTAINER_GROUP_ID}"
+    image: 'tester-shell-cache'
+    container_name: 'wp-graphql'
     environment:
       DB_SERVE_NAME: 'wpgraphql_test'
       DB_HOST: 'mysql_test'
       DB_USER: 'root'
       DB_PASSWORD: 'testing'
-      WP_VERSION: "${WP_VERSION}"
-      TEST_TYPE: "${TEST_TYPE}"
-      COVERAGE: "${COVERAGE}"
+    volumes:
+      # Using "delegated" option to improve disk performance for "Docker for Mac" users:
+      # https://docs.docker.com/docker-for-mac/osxfs-caching/#delegated
+      - "${PWD}:/project:delegated"
     entrypoint:
-      [ "docker-entrypoint.tests.sh" ]
+      # Doing this to prevent the container exiting prematurely. This service needs to hang around for someone to access
+      # its shell.
+      [ "sleep", "9999d" ]
 
   wpgraphql.test:
     build:
