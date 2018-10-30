@@ -19,7 +19,7 @@ cache:
 
 # Set the global environment variables
 env:
-- DOCKER_COMPOSE_VERSION=1.21.2
+  - DOCKER_COMPOSE_VERSION=1.21.2
   matrix:
     # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
     - PHP_VERSION=5.6
