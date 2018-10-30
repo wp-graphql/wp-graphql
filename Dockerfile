@@ -43,7 +43,8 @@ ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   WP_TESTS_TAG=tags/$WORDPRESS_VERSION
 
 # Install wp-cli and pdo_mysql
-RUN curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
+RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
   && mv wp-cli.phar /usr/local/bin/wp \
   && apt-get update -y \

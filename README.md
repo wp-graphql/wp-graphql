@@ -145,6 +145,9 @@ of the set up and configuration tasks performed by a developer.
    ```
    sudo docker-compose --version
    ```
+1. (Optional, but handy) How to use Docker without having to type, `sudo`.   
+   * https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
+   
 #### Running tests with Docker
 
 ##### For developers
@@ -184,23 +187,23 @@ Notes:
 * Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
 * Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
 try these solutions:
-   * Run this command: `sudo docker system prune`
+   * Run this command: `docker system prune`
    * https://docs.docker.com/config/pruning/#prune-containers
 
 
 ##### For Travis (or any other CI tool)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
-   sudo ./run-docker-tests.sh wpunit
-   sudo ./run-docker-tests.sh functional
-   sudo ./run-docker-tests.sh acceptance
+   ./run-docker-tests.sh wpunit
+   ./run-docker-tests.sh functional
+   ./run-docker-tests.sh acceptance
    ```
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   sudo env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
-   sudo env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
-   sudo env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
+   env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
+   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
+   env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 
@@ -211,7 +214,7 @@ Notes:
 #### Running Wordpress + wp-graphql plugin with Docker
 1. Start a local instance of WordPress. This will run the instance in the foreground:
    ```
-   sudo ./run-docker-local-app.sh
+   ./run-docker-local-app.sh
    ```
 1. Visit http://localhost:80.
    
