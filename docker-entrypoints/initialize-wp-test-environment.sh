@@ -27,7 +27,6 @@ wait_for_database_connection() {
   set -ex
 }
 
-
 configure_wordpress() {
   wp --allow-root --path="${WP_TEST_CORE_DIR}" config create --dbname="${DB_SERVE_NAME}" --dbuser="${DB_USER}" --dbpass="${DB_PASSWORD}" --dbhost="${DB_HOST}" --skip-check --force=true
   wp --allow-root --path="${WP_TEST_CORE_DIR}" core install --url=wpgraphql.test --title='WPGraphQL Tests' --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
@@ -45,17 +44,7 @@ activate_plugin() {
   wp --allow-root --path="${WP_TEST_CORE_DIR}" db export "$(pwd)/tests/_data/dump.sql"
 }
 
-
-run_tests() {
-  if [[ "${COVERAGE}" == 'true' ]]; then
-    phpdbg -qrr ./vendor/bin/codecept run "${TEST_TYPE}" --env docker --coverage --coverage-xml
-  else
-    ./vendor/bin/codecept run "${TEST_TYPE}" --env docker
-  fi
-}
-
 main() {
-#  cd "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
   edit_wp_test_suite_db_config
   wait_for_database_connection
   configure_wordpress
