@@ -16,13 +16,21 @@ branches:
 cache:
   apt: true
 
+
 # Set the global environment variables
 env:
+- DOCKER_COMPOSE_VERSION=1.21.2
   matrix:
     # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
     - PHP_VERSION=5.6
     - PHP_VERSION=7.1
     - PHP_VERSION=7.2 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
+
+before_install:
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
 
 script:
   - ./run-docker-tests.sh wpunit
