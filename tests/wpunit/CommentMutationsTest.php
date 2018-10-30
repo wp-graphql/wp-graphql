@@ -127,6 +127,8 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
         ] );
         
         $actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
+
+
         
         $expected = [
 			'data' => [

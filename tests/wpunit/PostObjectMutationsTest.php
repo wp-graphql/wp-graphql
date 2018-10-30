@@ -241,8 +241,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public function testDeletePageMutation() {
 
 		/**
-		 * Set the current user as the admin role so we
-		 * can test the mutation
+		 * Set the current user as the subscriber role so we
+		 * can test the mutation and assert that it failed
 		 */
 		wp_set_current_user( $this->subscriber );
 

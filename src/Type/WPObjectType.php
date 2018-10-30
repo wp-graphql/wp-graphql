@@ -102,6 +102,7 @@ class WPObjectType extends ObjectType {
 		}
 
 		if ( empty( self::$prepared_fields[ $type_name ] ) ) {
+
 			/**
 			 * Filter all object fields, passing the $typename as a param
 			 *
