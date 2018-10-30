@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.0.34
+ * Version: 0.1.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.0.34
+ * @version  0.1.0
  */
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -167,7 +167,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.0.34' );
+				define( 'WPGRAPHQL_VERSION', '0.1.0' );
 			}
 
 			// Plugin Folder Path.
@@ -308,16 +308,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Setup filters
 		 */
 		private function filters() {
-
-			/**
-			 * mediaItems are the attachment postObject, but they have a different schema shape
-			 * than postObjects out of the box, so this filter adjusts the core mediaItem
-			 * shape of data
-			 */
-			add_filter( 'graphql_mediaItem_fields', [
-				'\WPGraphQL\Type\MediaItem\MediaItemType',
-				'fields'
-			], 10, 1 );
 
 			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
@@ -506,16 +496,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
+			/**
+			 * Initialize the TypeRegistry
+			 */
+			\WPGraphQL\TypeRegistry::init();
+			\WPGraphQL\SchemaRegistry::init();
+
 			if ( null === self::$schema ) {
 
 				/**
-				 * Create an executable Schema from the registered
-				 * root_Query and root_mutation
+				 * Filter the Active Schema, allowing for custom Schemas to be active instead
+				 * of the core schema
 				 */
-				$executable_schema = [
-					'query'    => \WPGraphQL\Types::root_query(),
-					'mutation' => \WPGraphQL\Types::root_mutation(),
-				];
+				$active_schema = apply_filters( 'graphql_active_schema', 'core' );
+				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
 
 				/**
 				 * Generate the Schema
