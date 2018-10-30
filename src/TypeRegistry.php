@@ -35,7 +35,6 @@ use WPGraphQL\Mutation\UserUpdate;
 use function WPGraphQL\Type\register_post_object_types;
 use function WPGraphQL\Type\register_settings_group;
 use function WPGraphQL\Type\register_taxonomy_object_type;
-use WPGraphQL\Type\RootQuery;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
@@ -553,6 +552,7 @@ class TypeRegistry {
 				//@TODO: Wondering if this description should be dynamic to include the name of the connection these args are for?
 				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 				'fields'      => $connection_args,
+				'queryClass' => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
 			] );
 
 			$where_args = [
