@@ -22,7 +22,7 @@ run_tests() {
   echo "Going to run with WP version: ${WP_VERSION} and PHP version: ${PHP_VERSION}"
 
   env DOCKER_TASK='run-tests' \
-    CONTAINER_DATA_PATH=/project/tests/_output/ \
+    CONTAINER_DATA_PATH=/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_output/ \
     HOST_DATA_PATH="${TEST_RESULTS_DIR}" \
     TEST_TYPE="${TEST_TYPE}" \
     docker-tasks/run-docker-compose-up.sh --build --exit-code-from 'main'

@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
+
 set -e
 
-install_wp_test_framework() {
-  env WP_CLI_ARGS='--allow-root' bin/install-wp-tests.sh 'ignored' "${DB_USER}" "${DB_PASSWORD}" "${DB_HOST}" "${WP_VERSION}" 'true'
-}
-
-run_codeception() {
+run_tests() {
   if [[ "${COVERAGE}" == 'true' ]]; then
     phpdbg -qrr ./vendor/bin/codecept run "${TEST_TYPE}" --env docker --coverage --coverage-xml
   else
@@ -14,9 +11,8 @@ run_codeception() {
 }
 
 main() {
-  cd /project
-  install_wp_test_framework
-  run_codeception
+  initialize-wp-test-environment.sh
+  run_tests
 }
 
 main

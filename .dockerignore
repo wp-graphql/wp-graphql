@@ -9,9 +9,7 @@ img
 .travis.yml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
-docker-compose.dev.yml
-docker-compose.yml
-Dockerfile
+Dockerfile*
 ISSUE_TEMPLATE.md
 LICENSE
 PULL_REQUEST_TEMPLATE.md

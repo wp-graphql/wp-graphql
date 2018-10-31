@@ -145,36 +145,76 @@ of the set up and configuration tasks performed by a developer.
    ```
    sudo docker-compose --version
    ```
+1. (Optional, but handy) How to use Docker without having to type, `sudo`.   
+   * https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
+   
 #### Running tests with Docker
+
+##### For developers
+You'll need two terminal windows for this. The first window is to start the Docker containers needed for running tests. The
+second window is where you'll log into one of the running Docker containers (which will have OS dependencies already installed) and run 
+your tests as you make code changes.
+
+1. In the first terminal window, start up a pristine Docker testing environment by running this command:
+   ```
+   ./run-docker-test-environment.sh
+   ```
+   This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
+   be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step when you
+   see output similar to the following:
+   ```
+   wpgraphql.test_1  | [Tue Oct 30 15:04:33.917067 2018] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
+   
+   ```
+1. In the second terminal window, access the Docker container shell from which you can run tests:
+   ```
+   ./run-docker-shell.sh 'wp-graphql'
+   ```
+   At this point `composer install` will automatically be run and some extra test initialization will be done. You
+   should eventually see a prompt like this:
+   ```
+   tester@f70bf1310eda:/project$
+   ```   
+1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
+terminal window):
+   ```
+   ./vendor/bin/codecept run 'wpunit' --env docker
+   ./vendor/bin/codecept run 'functional' --env docker
+   ./vendor/bin/codecept run 'acceptance' --env docker   
+   ``` 
+Notes:
+* Leave the container shell (the second terminal window) by typing `exit`.
+* Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
+* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
+try these solutions:
+   * Run this command: `docker system prune`
+   * https://docs.docker.com/config/pruning/#prune-containers
+
+
+##### For Travis (or any other CI tool)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
-   sudo ./run-docker-tests.sh wpunit
-   sudo ./run-docker-tests.sh functional
-   sudo ./run-docker-tests.sh acceptance
+   ./run-docker-tests.sh wpunit
+   ./run-docker-tests.sh functional
+   ./run-docker-tests.sh acceptance
    ```
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   sudo env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
-   sudo env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
-   sudo env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
+   env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
+   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
+   env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 
 
 Notes:
 * Code coverage for `functional` and `acceptance` tests is only supported for PHP 7.X. 
-* It may take several minutes for the `./run-docker-tests.sh` script to run the first time it is run. After that,
-some of the processing steps will be cached and it should run more quickly afterwards.
-* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
-try these solutions:
-   * Run this command: `sudo docker system prune`
-   * https://docs.docker.com/config/pruning/#prune-containers
 
 #### Running Wordpress + wp-graphql plugin with Docker
 1. Start a local instance of WordPress. This will run the instance in the foreground:
    ```
-   sudo ./run-docker-local-app.sh
+   ./run-docker-local-app.sh
    ```
 1. Visit http://localhost:80.
    
