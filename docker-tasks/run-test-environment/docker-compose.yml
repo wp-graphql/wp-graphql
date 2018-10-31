@@ -8,8 +8,6 @@ services:
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"
-        CONTAINER_USER_ID: "${CONTAINER_USER_ID}"
-        CONTAINER_GROUP_ID: "${CONTAINER_GROUP_ID}"
     image: 'tester-shell-cache'
     container_name: 'wp-graphql'
     environment:
