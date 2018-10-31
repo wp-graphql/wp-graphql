@@ -1,12 +1,12 @@
-# This Dockerfile assumes BASE_DOCKER_IMAGE refers to a Debian+Apache variant of WordPress.
-
 # -------------------- STAGE ---------------
-ARG BASE_DOCKER_IMAGE
-FROM ${BASE_DOCKER_IMAGE} as base-test-environment
+# Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
+ARG DESIRED_WP_VERSION
+ARG DESIRED_PHP_VERSION
+ARG BASE_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
+FROM ${BASE_DOCKER_IMAGE} as project-files
 
-# Install xdebug and composer
-RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40109bfbec0f9b8b39f12f260fb6e80befa/web/installer' | php -- --quiet \
+# Install composer
+RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40109bfbec0f9b8b39f12f260fb6e80befa/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && mkdir /project
@@ -28,14 +28,16 @@ RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
   && rm -rf /tmp/project
 
 # -------------------- STAGE ---------------
-FROM base-test-environment as wordpress-sut-environment
+FROM ${BASE_DOCKER_IMAGE} as wordpress-sut-environment
 
-# Copy the c3.php file for code coverage and add plugin code to WordPress
-RUN curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /project/c3.php \
-  && ln -s /project "/usr/src/wordpress/wp-content/plugins/wp-graphql"
+COPY --chown=www-data:www-data --from='project-files' /project/ /usr/src/wordpress/wp-content/plugins/wp-graphql/
+
+# Install xdebug and code coverage support
+RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
+  && curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /usr/src/wordpress/wp-content/plugins/wp-graphql/c3.php
 
 # -------------------- STAGE ---------------
-FROM base-test-environment as tester-environment
+FROM ${BASE_DOCKER_IMAGE} as base-tester-environment
 
 ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   WP_TEST_CORE_DIR=/tmp/wordpress/ \
@@ -64,14 +66,19 @@ RUN cp -a "${PRISTINE_WP_DIR}" "${WP_TEST_CORE_DIR}" \
 # Copy docker-entrypoints to a directory that's already in the environment PATH
 COPY docker-entrypoints/*.sh /usr/local/bin/
 
-# Add plugin code to the WordPress test framework
-RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
-
-WORKDIR /project
 USER www-data
 
+WORKDIR "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
+
+
 # -------------------- STAGE ---------------
-FROM tester-environment as tester-shell-environment
+FROM base-tester-environment as tester-environment
+
+# Add plugin code to the WordPress test framework
+COPY --chown=www-data:www-data --from='project-files' /project/ "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
+
+# -------------------- STAGE ---------------
+FROM base-tester-environment as tester-shell-environment
 ARG CONTAINER_USER_ID
 ARG CONTAINER_GROUP_ID
 

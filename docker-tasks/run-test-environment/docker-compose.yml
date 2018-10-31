@@ -6,7 +6,8 @@ services:
       context: '../../.'
       target: 'tester-shell-environment'
       args:
-        BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+        DESIRED_WP_VERSION: "${WP_VERSION}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION}"
         CONTAINER_USER_ID: "${CONTAINER_USER_ID}"
         CONTAINER_GROUP_ID: "${CONTAINER_GROUP_ID}"
     image: 'tester-shell-cache'
@@ -30,7 +31,8 @@ services:
       context: '../../.'
       target: 'wordpress-sut-environment'
       args:
-        BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+        DESIRED_WP_VERSION: "${WP_VERSION}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION}"
     image: 'wordpress-sut-cache'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'

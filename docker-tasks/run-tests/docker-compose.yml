@@ -6,7 +6,8 @@ services:
       context: '../../.'
       target: 'tester-environment'
       args:
-        BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+        DESIRED_WP_VERSION: "${WP_VERSION}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION}"
     image: 'tester-cache'
     # This option is used by 'run-docker-compose-up.sh' to copy coverage data out of the container onto the Docker host
     container_name: "${CONTAINER_NAME}"
@@ -26,7 +27,8 @@ services:
       context: '../../.'
       target: 'wordpress-sut-environment'
       args:
-        BASE_DOCKER_IMAGE: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+        DESIRED_WP_VERSION: "${WP_VERSION}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION}"
     image: 'wordpress-sut-cache'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
