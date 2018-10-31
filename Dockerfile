@@ -97,6 +97,7 @@ COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
 
 USER root
 
-RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
+RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql" \
+  && echo 'composer install && initialize-wp-test-environment.sh' >> /root/.bashrc
 
 WORKDIR /project
