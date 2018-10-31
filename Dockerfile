@@ -79,12 +79,12 @@ COPY docker-entrypoints/*.sh /usr/local/bin/
 
 USER www-data
 
+# -------------------- STAGE ---------------
+FROM base-tester-environment as tester-environment
+
 RUN mkdir "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
 
 WORKDIR "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
-
-# -------------------- STAGE ---------------
-FROM base-tester-environment as tester-environment
 
 # Add plugin code to the WordPress test framework
 COPY --chown='www-data:www-data' --from='project-files' /project/ "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
@@ -104,7 +104,9 @@ USER root
 RUN groupadd --gid "${CONTAINER_USER_ID}" 'tester' \
   && useradd --uid "${CONTAINER_GROUP_ID}" --gid 'tester' --shell /bin/bash --create-home 'tester' \
   && chown -R "${CONTAINER_USER_ID}:${CONTAINER_GROUP_ID}" "${WP_TESTS_DIR}" "${WP_TEST_CORE_DIR}" \
-  && echo 'composer install' >> /home/tester/.bashrc \
-  && echo 'initialize-wp-test-environment.sh' >> /home/tester/.bashrc
+  && echo 'composer install && initialize-wp-test-environment.sh' >> /home/tester/.bashrc
+
+RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
 
 USER tester
+WORKDIR /project
