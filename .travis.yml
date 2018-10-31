@@ -26,10 +26,21 @@ env:
     - PHP_VERSION=7.2 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
 
 before_install:
+# Updating Docker
+# https://docs.travis-ci.com/user/docker#installing-a-newer-docker-version
+- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+- sudo apt-get update
+- sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+- docker --version
+
+# Updating docker-compose
+# https://docs.travis-ci.com/user/docker#using-docker-compose
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-`uname -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+- docker-compose --version
 
 script:
   - ./run-docker-tests.sh wpunit
