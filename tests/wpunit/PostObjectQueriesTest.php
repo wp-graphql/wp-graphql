@@ -257,7 +257,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
-		query {
+ 		query {
 			post(id: \"{$global_id}\") {
 				slug
 			}
@@ -1028,7 +1028,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    ...pageData
 		  }
 		}
-		
+
 		fragment pageData on Page {
 		  __typename
 		  id

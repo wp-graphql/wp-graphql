@@ -253,7 +253,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual, "Verify you have the plugin Hello Dolly in your WordPress." );
 	}
 
 	/**
