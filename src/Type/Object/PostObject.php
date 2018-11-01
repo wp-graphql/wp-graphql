@@ -4,6 +4,7 @@ namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Types;
 
 function register_post_object_types( $post_type_object ) {
 

@@ -91,22 +91,13 @@ COPY --chown='www-data:www-data' --from='project-files' /project/ "${WP_TEST_COR
 
 # -------------------- STAGE ---------------
 FROM base-tester-environment as tester-shell-environment
-ARG CONTAINER_USER_ID
-ARG CONTAINER_GROUP_ID
 
 # Add PHP Composer
 COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
 
-# Create a user inside of the Docker image that has the same user and group id as the user invoking the Docker task.
-# This is for when developers log into a running container (as this user) to run the tests. This is ensures new files
-# are owned by the user invoking the Docker task.
 USER root
-RUN groupadd --gid "${CONTAINER_USER_ID}" 'tester' \
-  && useradd --uid "${CONTAINER_GROUP_ID}" --gid 'tester' --shell /bin/bash --create-home 'tester' \
-  && chown -R "${CONTAINER_USER_ID}:${CONTAINER_GROUP_ID}" "${WP_TESTS_DIR}" "${WP_TEST_CORE_DIR}" \
-  && echo 'composer install && initialize-wp-test-environment.sh' >> /home/tester/.bashrc
 
-RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
+RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql" \
+  && echo 'composer install && initialize-wp-test-environment.sh' >> /root/.bashrc
 
-USER tester
 WORKDIR /project

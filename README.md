@@ -173,7 +173,7 @@ your tests as you make code changes.
    At this point `composer install` will automatically be run and some extra test initialization will be done. You
    should eventually see a prompt like this:
    ```
-   tester@f70bf1310eda:/project$
+   root@f70bf1310eda:/project$
    ```   
 1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
 terminal window):
@@ -183,6 +183,9 @@ terminal window):
    ./vendor/bin/codecept run 'acceptance' --env docker   
    ``` 
 Notes:
+* Because of limitations with Docker bind mounts, the Docker container must be the `root` user. This means the files 
+  created by the container user will also be seen as being owned by `root` on the host OS. Thus, you may occasionally
+  need to use `chown` before you execute some file operations. The `vendor/` directory is most likely to have this issue.
 * Leave the container shell (the second terminal window) by typing `exit`.
 * Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
 * Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
