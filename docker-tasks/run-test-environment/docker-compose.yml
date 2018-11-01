@@ -8,8 +8,6 @@ services:
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"
-        CONTAINER_USER_ID: "${CONTAINER_USER_ID}"
-        CONTAINER_GROUP_ID: "${CONTAINER_GROUP_ID}"
     image: 'tester-shell-cache'
     container_name: 'wp-graphql'
     environment:
@@ -27,18 +25,14 @@ services:
       [ "sleep", "9999d" ]
 
   wpgraphql.test:
-    build:
-      context: '../../.'
-      target: 'wordpress-sut-environment'
-      args:
-        DESIRED_WP_VERSION: "${WP_VERSION}"
-        DESIRED_PHP_VERSION: "${PHP_VERSION}"
-    image: 'wordpress-sut-cache'
+    image: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
+    volumes:
+    - "${PWD}:/var/www/html/wp-content/plugins/wp-graphql:ro"
 
   mysql_test:
     image: "${MYSQL_DOCKER_IMAGE}"
