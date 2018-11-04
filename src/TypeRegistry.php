@@ -27,6 +27,7 @@ use WPGraphQL\Mutation\PostObjectUpdate;
 use WPGraphQL\Mutation\TermObjectCreate;
 use WPGraphQL\Mutation\TermObjectDelete;
 use WPGraphQL\Mutation\TermObjectUpdate;
+use WPGraphQL\Mutation\UpdateThemeMods;
 use WPGraphQL\Mutation\UpdateSettings;
 use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
@@ -113,6 +114,10 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/ThemeMods.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/CustomBackgroundInput.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/CustomHeaderInput.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/NavMenuLocationsInput.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php' );
@@ -220,6 +225,7 @@ class TypeRegistry {
 		MediaItemCreate::register_mutation();
 		MediaItemDelete::register_mutation();
 		MediaItemUpdate::register_mutation();
+		UpdateThemeMods::register_mutation();
 		UserCreate::register_mutation();
 		UserDelete::register_mutation();
 		UserUpdate::register_mutation();
