@@ -4,14 +4,12 @@ services:
   wpgraphql.test:
     image: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
     ports:
-      - '8000:80'
+      - '80:80'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
-      WORDPRESS_CONFIG_EXTRA: |
-        define( 'WP_DEBUG', true );
     volumes:
       - "${PWD}:/var/www/html/wp-content/plugins/wp-graphql:ro"
 
