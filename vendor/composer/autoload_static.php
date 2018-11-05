@@ -3393,7 +3393,7 @@ class ComposerStaticInit66c4826911a72a5b725e04123579db72
         'WPGraphQL\\Mutation\\TermObjectDelete' => __DIR__ . '/../..' . '/src/Mutation/TermObjectDelete.php',
         'WPGraphQL\\Mutation\\TermObjectUpdate' => __DIR__ . '/../..' . '/src/Mutation/TermObjectUpdate.php',
         'WPGraphQL\\Mutation\\UpdateSettings' => __DIR__ . '/../..' . '/src/Mutation/UpdateSettings.php',
-        'WPGraphQL\\Mutation\\UpdateThemeMods' => __DIR__ . '/../..' . '/src/Mutation/ThemeModsUpdate.php',
+        'WPGraphQL\\Mutation\\UpdateThemeMods' => __DIR__ . '/../..' . '/src/Mutation/UpdateThemeMods.php',
         'WPGraphQL\\Mutation\\UserCreate' => __DIR__ . '/../..' . '/src/Mutation/UserCreate.php',
         'WPGraphQL\\Mutation\\UserDelete' => __DIR__ . '/../..' . '/src/Mutation/UserDelete.php',
         'WPGraphQL\\Mutation\\UserRegister' => __DIR__ . '/../..' . '/src/Mutation/UserRegister.php',

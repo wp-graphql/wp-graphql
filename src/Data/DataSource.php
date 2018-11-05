@@ -347,14 +347,16 @@ class DataSource {
 		$theme_mods = array_merge(
 			get_theme_mods(),
 			[ 
-				'background_image' => get_theme_mod('background_image', get_theme_support( 'custom-background', 'default-image' ) ),
-				'background_color' => get_theme_mod('background_color', get_theme_support( 'custom-background', 'default-color' ) ),
+				'background_image' => get_theme_mod( 'background_image', get_theme_support( 'custom-background', 'default-image' ) ),
+				'background_color' => get_theme_mod( 'background_color', get_theme_support( 'custom-background', 'default-color' ) ),
 			]
 		);
+		
 		foreach( $theme_mods as $mod_name => $mod_data ){
-			if( gettype($mod_name) === 'integer' ) continue;
+			if( gettype($mod_name) === 'integer' ) continue; // Skip mods without keys
+			if( $mod_name === 'sidebars_widgets' ) continue; // Skip sidebars
+			
 			switch( $mod_name ) {
-	
 				/**
 				 * Custom CSS Post Id
 				 */
@@ -390,9 +392,11 @@ class DataSource {
 				 * Header Image
 				 */
 				case 'header_image_data':
+					if ( ! isset( $theme_mod_data[ 'header_image' ] ) ) $theme_mod_data[ 'header_image' ] = [];
 					$theme_mod_data[ 'header_image' ] += get_object_vars( $mod_data );
 				break;
 				case 'header_image':
+					\Codeception\Util\Debug::debug( attachment_url_to_postid( $mod_data ) );
 					$theme_mod_data[ 'header_image' ]['id'] = attachment_url_to_postid( (string) $mod_data );
 				break;
 

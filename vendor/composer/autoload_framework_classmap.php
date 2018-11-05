@@ -2868,7 +2868,7 @@ return array(
     'WPGraphQL\\Mutation\\TermObjectDelete' => $baseDir . '/src/Mutation/TermObjectDelete.php', 
     'WPGraphQL\\Mutation\\TermObjectUpdate' => $baseDir . '/src/Mutation/TermObjectUpdate.php', 
     'WPGraphQL\\Mutation\\UpdateSettings' => $baseDir . '/src/Mutation/UpdateSettings.php', 
-    'WPGraphQL\\Mutation\\UpdateThemeMods' => $baseDir . '/src/Mutation/ThemeModsUpdate.php', 
+    'WPGraphQL\\Mutation\\UpdateThemeMods' => $baseDir . '/src/Mutation/UpdateThemeMods.php', 
     'WPGraphQL\\Mutation\\UserCreate' => $baseDir . '/src/Mutation/UserCreate.php', 
     'WPGraphQL\\Mutation\\UserDelete' => $baseDir . '/src/Mutation/UserDelete.php', 
     'WPGraphQL\\Mutation\\UserRegister' => $baseDir . '/src/Mutation/UserRegister.php', 
