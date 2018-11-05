@@ -28,18 +28,22 @@ register_graphql_object_type( 'ThemeMods', [
 				return ( ! empty( $root['background_color'] ) ) ? $root['background_color'] : null;
 			}
 		],
-		'customCssPostId' => [ 
-			'type' 			=> 'Int',
-			'description'	=> __( 'custom theme logo' ),
+		'customCssPost' => [ 
+			'type' 			=> 'Post',
+			'description'	=> __( 'WP Post storing theme custom CSS' ),
 			'resolve'		=> function( $root, $args, $context, $info ) {
-				return ( ! empty( $root['custom_css_post_id'] ) ) ? $root['custom_css_post_id'] : null;
+				return ( ! empty( $root['custom_css_post_id'] ) ) ?
+					DataSource::resolve_post_object( absint( $root['custom_css_post_id'] ), 'post' ) :
+					null;
 			}
 		],
 		'customLogo' => [ 
-			'type' 			=> 'Int',
-			'description'	=> __( 'WP ID of customLogo mediaItem' ),
+			'type' 			=> 'MediaItem',
+			'description'	=> __( 'Site Custom Logo' ),
 			'resolve'		=> function( $root, $args, $context, $info ){
-				return ( ! empty( $root['custom_logo'] ) ) ? absint( $root['custom_logo'] ) : null;
+				return ( ! empty( $root['custom_logo'] ) ) ?
+					DataSource::resolve_post_object( absint( $root['custom_logo'] ), 'attachment' ) :
+					null;
 			}
 		],
 		'headerImage' => [ 

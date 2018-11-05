@@ -27,8 +27,8 @@ class ThemeModsMutation {
 		if ( ! empty( $input['backgroundColor'] ) ) {
 			$prepared_values['background_color'] = $input['backgroundColor'];
 		}
-		if ( ! empty( $input['customCssPostId'] ) ) {
-			$prepared_values['custom_css_post_id'] = $input['customCssPostId'];
+		if ( ! empty( $input['customCssPost'] ) ) {
+			$prepared_values['custom_css_post_id'] = $input['customCssPost'];
 		}
 		if ( ! empty( $input['customLogo'] ) ) {
 			$prepared_values['custom_logo'] = $input['customLogo'];

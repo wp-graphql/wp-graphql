@@ -45,7 +45,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
         ] );
         $this->custom_css_post_id = $this->createPostObject( [
 			'post_type'   => 'post',
-			'post_content' => 'some css',
+			'post_content' => '<p>some css</p>',
         ] );
         $this->nav_menu_id = wp_create_nav_menu( 'My Menu' );
         
@@ -114,7 +114,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                 $clientMutationId:  String!
                 $background:        CustomBackgroundInput,
                 $backgroundColor:   String,
-                $customCssPostId:   Int,
+                $customCssPost:   Int,
                 $customLogo:        Int,
                 $headerImage:       CustomHeaderInput,
                 $navMenuLocations:  NavMenuLocationsInput
@@ -123,7 +123,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                     clientMutationId:   $clientMutationId
                     background:         $background,
                     backgroundColor:    $backgroundColor,
-                    customCssPostId:    $customCssPostId,
+                    customCssPost:      $customCssPost,
                     customLogo:         $customLogo,
                     headerImage:        $headerImage,
                     navMenuLocations:   $navMenuLocations,
@@ -131,9 +131,14 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                     clientMutationId
                     themeMods {
                         backgroundColor
-                        customCssPostId
-                        customLogo
-                        navMenu(location: MY_MENU_LOCATION) {
+                        customCssPost {
+                            postId
+                            content
+                        }
+                        customLogo {
+                            mediaItemId
+                        }
+                        navMenu( location: MY_MENU_LOCATION ) {
                             menuId
                             name
                         }
@@ -152,7 +157,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                 'attachment'    => 'fixed',
             ],
             'backgroundColor'   => $this->background_color,
-            'customCssPostId'   => $this->custom_css_post_id,
+            'customCssPost'   => $this->custom_css_post_id,
             'customLogo'        => $this->logo_id,
             'headerImage'       => [
                 'imageId'   => $this->header_id,
@@ -174,8 +179,14 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                     'clientMutationId'  => $this->client_mutation_id,
                     'themeMods'         => [
                         'backgroundColor'   => $this->background_color,
-                        'customLogo'        => $this->logo_id,
-                        'customCssPostId'   => $this->custom_css_post_id,
+                        'customLogo'        => [
+                            'mediaItemId' => $this->logo_id,
+                        ],
+                        'customCssPost'   => [
+                            'postId'    => $this->custom_css_post_id,
+                            'content'   => '<p>some css</p>
+',
+                        ],
                         'navMenu'           => [
                             'menuId'    => $this->nav_menu_id,
                             'name'      => 'My Menu',
@@ -210,7 +221,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                 $clientMutationId:   String!
                 $background:        CustomBackgroundInput,
                 $backgroundColor:   String,
-                $customCssPostId:   Int,
+                $customCssPost:   Int,
                 $customLogo:        Int,
                 $headerImage:       CustomHeaderInput,
                 $navMenuLocations:  NavMenuLocationsInput
@@ -219,7 +230,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                     clientMutationId:   $clientMutationId
                     background:         $background,
                     backgroundColor:    $backgroundColor,
-                    customCssPostId:    $customCssPostId,
+                    customCssPost:      $customCssPost,
                     customLogo:         $customLogo,
                     headerImage:        $headerImage,
                     navMenuLocations:   $navMenuLocations,
@@ -230,8 +241,13 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                             mediaItemId
                         }
                         backgroundColor
-                        customCssPostId
-                        customLogo
+                        customCssPost {
+                            postId
+                            content
+                        }
+                        customLogo {
+                            mediaItemId
+                        }
                         headerImage {
                             mediaItemId
                         }
@@ -254,7 +270,7 @@ class ThemeModsMutationsTest extends \Codeception\TestCase\WPTestCase
                 'attachment'    => 'fixed',
             ],
             'backgroundColor'   => $this->background_color,
-            'customCssPostId'   => $this->custom_css_post_id,
+            'customCssPost'     => $this->custom_css_post_id,
             'customLogo'        => $this->logo_id,
             'headerImage'       => [
                 'imageId'   => $this->header_id,

@@ -26,11 +26,11 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
         ] );
         $this->logo_id = $this->createPostObject( [
 			'post_type'   => 'attachment',
-			'post_content' => 'some description',
+			'post_content' => '<p>some description</p>',
         ] );
         $this->custom_css_post_id = $this->createPostObject( [
 			'post_type'   => 'post',
-			'post_content' => 'some css',
+			'post_content' => '<p>some css</p>',
         ] );
         $this->nav_menu_id = wp_create_nav_menu( 'My Menu' );
         add_theme_support( 'custom-background' );
@@ -106,8 +106,13 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
                         sourceUrl
                     }
                     backgroundColor
-                    customCssPostId
-                    customLogo
+                    customCssPost {
+                        postId
+                        content
+                    }
+                    customLogo {
+                        mediaItemId
+                    }
                     headerImage {
                         id
                         sourceUrl
@@ -131,8 +136,14 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
                 'themeMods'         => [
                     'background'        => null,
                     'backgroundColor'   => 'd4d4d4',
-                    'customLogo'        => $this->logo_id,
-                    'customCssPostId'   => $this->custom_css_post_id,
+                    'customLogo'        => [
+                        'mediaItemId' => $this->logo_id,
+                    ],
+                    'customCssPost'   => [
+                        'postId'    => $this->custom_css_post_id,
+                        'content'   => '<p>some css</p>
+',
+                    ],
                     'headerImage'       => null,
                     'navMenu'           => [
                         'menuId'    => $this->nav_menu_id,

@@ -70,7 +70,7 @@ class UpdateThemeMods {
 				'type'        => 'String',
 				'description' => __( 'The theme mod "background-color" hex color code', 'wp-graphql' ),
 			],
-			'customCssPostId'      => [
+			'customCssPost'      => [
 				'type'        => 'Int',
 				'description' => __( 'The theme mod "custom-css-post-id" post id', 'wp-graphql' ),
 			],
