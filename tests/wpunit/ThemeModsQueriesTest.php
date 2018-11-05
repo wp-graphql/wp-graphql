@@ -9,7 +9,7 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
     private $logo_id;
     private $custom_css_post_id;
     private $nav_menu_id;
-    
+
     public function setUp()
     {
 
@@ -40,6 +40,13 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $this->nav_menu_id ] );
 
     }
+
+    public function tearDown() {
+		// your tear down methods here
+
+		// then
+		parent::tearDown();
+	}
     
     public function createPostObject( $args ) {
 
