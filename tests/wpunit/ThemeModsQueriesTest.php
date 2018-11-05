@@ -106,10 +106,7 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
                         sourceUrl
                     }
                     backgroundColor
-                    customCssPost {
-                        postId
-                        content
-                    }
+                    customCssPost
                     customLogo {
                         mediaItemId
                     }
@@ -139,11 +136,7 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
                     'customLogo'        => [
                         'mediaItemId' => $this->logo_id,
                     ],
-                    'customCssPost'   => [
-                        'postId'    => $this->custom_css_post_id,
-                        'content'   => '<p>some css</p>
-',
-                    ],
+                    'customCssPost'   => $this->custom_css_post_id,
                     'headerImage'       => null,
                     'navMenu'           => [
                         'menuId'    => $this->nav_menu_id,

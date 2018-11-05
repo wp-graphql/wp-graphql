@@ -29,11 +29,11 @@ register_graphql_object_type( 'ThemeMods', [
 			}
 		],
 		'customCssPost' => [ 
-			'type' 			=> 'Post',
+			'type' 			=> 'ID',
 			'description'	=> __( 'WP Post storing theme custom CSS' ),
 			'resolve'		=> function( $root, $args, $context, $info ) {
-				return ( ! empty( $root['custom_css_post_id'] ) ) ?
-					DataSource::resolve_post_object( absint( $root['custom_css_post_id'] ), 'post' ) :
+				return ( ! empty( $root['custom_css_post_id'] ) ) ? 
+					absint( $root['custom_css_post_id'] ) :
 					null;
 			}
 		],
