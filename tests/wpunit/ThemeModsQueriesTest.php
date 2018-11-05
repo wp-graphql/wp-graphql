@@ -33,8 +33,10 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
 			'post_content' => 'some css',
         ] );
         $this->nav_menu_id = wp_create_nav_menu( 'My Menu' );
+        add_theme_support( 'custom-background' );
         register_nav_menu( 'my-menu-location', 'My Menu Location' );
         
+        set_theme_mod( 'background_color', 'd4d4d4' );
         set_theme_mod( 'custom_logo', $this->logo_id );
         set_theme_mod( 'custom_css_post_id', $this->custom_css_post_id );
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $this->nav_menu_id ] );
@@ -128,7 +130,7 @@ class ThemeModsQueriesTest extends \Codeception\TestCase\WPTestCase
             'data' => [
                 'themeMods'         => [
                     'background'        => null,
-                    'backgroundColor'   => 'f1f1f1',
+                    'backgroundColor'   => 'd4d4d4',
                     'customLogo'        => $this->logo_id,
                     'customCssPostId'   => $this->custom_css_post_id,
                     'headerImage'       => null,
