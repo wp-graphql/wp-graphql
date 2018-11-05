@@ -9,7 +9,7 @@ function get_fields() {
 	if ( ! empty( $locations ) ) {
 		foreach( $locations as $location ) {
 			$fields[ $location ] = [
-				'type' => 'Int',
+				'type' => 'ID',
 				'description' => __( 'The WP ID of the nav menu to be assigned to %s', 'wp-graphql', $location ),
 			];
 		}
