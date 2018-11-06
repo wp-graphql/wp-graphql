@@ -49,6 +49,13 @@ class TermObjects {
 					}
 				}
 
+				if ( true === $tax_object->hierarchical ) {
+					register_graphql_connection( self::get_connection_config( $tax_object, [
+						'fromType' => $tax_object->graphql_single_name,
+						'fromFieldName' => 'children',
+					] ));
+				}
+
 			}
 		}
 
