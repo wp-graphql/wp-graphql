@@ -2,7 +2,7 @@
 namespace WPGraphQL\Type;
 
 register_graphql_input_type( 'CustomHeaderInput', [
-	'description' => __( 'Custom header values' ),
+	'description' => __( 'Custom header values', 'wp-graphql' ),
 	'fields' => [
 		'imageId' => [
 			'type'        => 'ID',

@@ -5,12 +5,12 @@ namespace WPGraphQL\Type;
 use WPGraphQL\Data\DataSource;
 
 register_graphql_object_type( 'ThemeMods', [
-	'description' => __( 'All of registered theme modifications' ),
+	'description' => __( 'All of registered theme modifications', 'wp-graphql' ),
 	'interfaces'  => [ WPObjectType::node_interface() ],
 	'fields'  => [
 		'background' => [ 
 			'type' 			=> 'MediaItem',
-			'description'	=> __( 'custom background' ),
+			'description'	=> __( 'custom background', 'wp-graphql' ),
 			'resolve'		=> function( $root, $args, $context, $info ) {	
 				if( ! empty( $root['background'] ) ) { 
 					return ( ! empty( $root['background']['id'] ) ) ?
@@ -23,23 +23,32 @@ register_graphql_object_type( 'ThemeMods', [
 		],
 		'backgroundColor' => [ 
 			'type' 			=> 'String',
-			'description'	=> __( 'background color' ),
+			'description'	=> __( 'background color', 'wp-graphql' ),
 			'resolve'		=> function( $root, $args, $context, $info ) {
 				return ( ! empty( $root['background_color'] ) ) ? $root['background_color'] : null;
 			}
 		],
-		'customCssPost' => [ 
-			'type' 			=> 'ID',
-			'description'	=> __( 'WP Post storing theme custom CSS' ),
+		'customCssPostId' => [ 
+			'type' 			=> 'Int',
+			'description'	=> __( 'WP ID of WP Post storing theme custom CSS', 'wp-graphql' ),
 			'resolve'		=> function( $root, $args, $context, $info ) {
 				return ( ! empty( $root['custom_css_post_id'] ) ) ? 
 					absint( $root['custom_css_post_id'] ) :
 					null;
 			}
 		],
+		'customCss' => [ 
+			'type' 			=> 'Post',
+			'description'	=> __( 'WP Post storing theme custom CSS (temporary)', 'wp-graphql' ),
+			'resolve'		=> function( $root, $args, $context, $info ) {
+				return ( ! empty( $root['custom_css_post_id'] ) ) ? 
+					DataSource::resolve_post_object( absint( $root['custom_css_post_id'] ), 'post' ) :
+					null;
+			}
+		],
 		'customLogo' => [ 
 			'type' 			=> 'MediaItem',
-			'description'	=> __( 'Site Custom Logo' ),
+			'description'	=> __( 'Site Custom Logo', 'wp-graphql' ),
 			'resolve'		=> function( $root, $args, $context, $info ){
 				return ( ! empty( $root['custom_logo'] ) ) ?
 					DataSource::resolve_post_object( absint( $root['custom_logo'] ), 'attachment' ) :
@@ -48,7 +57,7 @@ register_graphql_object_type( 'ThemeMods', [
 		],
 		'headerImage' => [ 
 			'type' 			=> 'MediaItem',
-			'description'	=> __( 'custom header image' ),
+			'description'	=> __( 'custom header image', 'wp-graphql' ),
 			'resolve'		=> function( $root, $args, $context, $info ){
 				if( ! empty ( $root['header_image'] ) ) {
 					return ( ! empty( $root['header_image']['id'] ) ) ?

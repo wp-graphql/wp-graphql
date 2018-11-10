@@ -20,6 +20,6 @@ function get_fields() {
 
 
 register_graphql_input_type( 'NavMenuLocationsInput', [
-	'description' => __( 'Nav menu location values' ),
+	'description' => __( 'Nav menu location values', 'wp-graphql' ),
 	'fields' => get_fields(),
 ] );

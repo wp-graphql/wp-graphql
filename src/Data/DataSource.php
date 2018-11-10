@@ -396,7 +396,6 @@ class DataSource {
 					$theme_mod_data[ 'header_image' ] += get_object_vars( $mod_data );
 				break;
 				case 'header_image':
-					\Codeception\Util\Debug::debug( attachment_url_to_postid( $mod_data ) );
 					$theme_mod_data[ 'header_image' ]['id'] = attachment_url_to_postid( (string) $mod_data );
 				break;
 

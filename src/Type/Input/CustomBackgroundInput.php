@@ -2,7 +2,7 @@
 namespace WPGraphQL\Type;
 
 register_graphql_input_type( 'CustomBackgroundInput', [
-	'description' => __( 'Custom background values' ),
+	'description' => __( 'Custom background values', 'wp-graphql' ),
 	'fields' => [
 		'imageId' => [
 			'type'        => 'ID',
