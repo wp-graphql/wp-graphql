@@ -92,6 +92,17 @@ function register_graphql_enum_type( $type_name, $config ) {
 }
 
 /**
+ * Given a Type Name and a $config array, this adds an InterfaceType to the TypeRegistry
+ *
+ * @param string $type_name The name of the Type to register
+ * @param array  $config    The Type config
+ */
+function register_graphql_interface_type( $type_name, $config ) {
+	$config['kind'] = 'interface';
+	register_graphql_type( $type_name, $config );
+}
+
+/**
  * Given a Type Name, Field Name, and a $config array, this adds a Field to a registered Type in
  * the TypeRegistry
  *

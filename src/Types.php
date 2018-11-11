@@ -29,6 +29,15 @@ use WPGraphQL\Type\WPUnionType;
 class Types {
 
 	/**
+	 * Stores the archive group type enum object
+	 *
+	 * @var WPObjectType object $archive_group_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $archive_group_enum;
+
+	/**
 	 * Stores the avatar type object
 	 *
 	 * @var WPObjectType object $avatar
@@ -71,6 +80,24 @@ class Types {
 	 * @access private
 	 */
 	private static $edit_lock;
+
+	/**
+	 * Stores the image size type enum object
+	 *
+	 * @var WPObjectType object $image_size_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $image_size_enum;
+
+	/**
+	 * Stores the link to type enum object
+	 *
+	 * @var WPObjectType object $link_to_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $link_to_enum;
 
 	/**
 	 * Stores the mime type enum object
@@ -162,6 +189,15 @@ class Types {
 	private static $post_type;
 
 	/**
+	 * Stores the preload type enum object
+	 *
+	 * @var WPObjectType object $preload_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $preload_enum;
+
+	/**
 	 * Stores the relation enum type object
 	 *
 	 * @var WPEnumType object $relation_enum
@@ -169,6 +205,24 @@ class Types {
 	 * @access private
 	 */
 	private static $relation_enum;
+
+	/**
+	 * Stores the sort by type enum object
+	 *
+	 * @var WPObjectType object $sort_by_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $sort_by_enum;
+
+	/**
+	 * Stores the tag cloud type enum object
+	 *
+	 * @var WPObjectType object $tag_cloud_enum
+	 * @since  0.1.1
+	 * @access private
+	 */
+	private static $tag_cloud_enum;
 
 	/**
 	 * Stores the menu type
@@ -214,6 +268,14 @@ class Types {
 	 * @access private
 	 */
 	private static $root_query;
+
+	/**
+	 * Stores the sidebar object type
+	 *
+	 * @var WPObjectType object $sidebar
+	 * @access private
+	 */
+	private static $sidebar;
 
 	/**
 	 * Stores the setting object type
@@ -294,6 +356,26 @@ class Types {
 	private static $user_role;
 
 	/**
+	 * Stores the widget type interface definition
+	 *
+	 * @var WPInterfaceType object $widget_interface
+	 * @since 0.1.1
+	 * @access private
+	 */
+	private static $widget_interface;
+
+	/**
+	 * This returns the definition for the ArchiveGroupEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function archive_group_enum() {
+		return self::$archive_group_enum ? : ( self::$archive_group_enum = TypeRegistry::get_type( 'ArchiveGroupEnum' ) );
+	}
+
+	/**
 	 * This returns the definition for the AvatarType
 	 *
 	 * @return WPObjectType object
@@ -335,6 +417,28 @@ class Types {
 	 */
 	public static function comment_author_union() {
 		return self::$comment_author_union ? : ( self::$comment_author_union = TypeRegistry::get_type( 'CommentAuthorUnion' ) );
+	}
+
+	/**
+	 * This returns the definition for the ImageSizeEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function image_size_enum() {
+		return self::$image_size_enum ? : ( self::$image_size_enum = TypeRegistry::get_type( 'ImageSizeEnum' ) );
+	}
+
+	/**
+	 * This returns the definition for the LinkToEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function link_to_enum() {
+		return self::$link_to_enum ? : ( self::$link_to_enum = TypeRegistry::get_type( 'LinkToEnum' ) );
 	}
 
 	/**
@@ -514,6 +618,17 @@ class Types {
 	}
 
 	/**
+	 * This returns the definition for the PreloadEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function preload_enum() {
+		return self::$preload_enum ? : ( self::$preload_enum = TypeRegistry::get_type( 'PreloadEnum' ) );
+	}
+
+	/**
 	 * This returns the definition for the RelationEnum
 	 *
 	 * @return WPEnumType object
@@ -522,6 +637,28 @@ class Types {
 	 */
 	public static function relation_enum() {
 		return self::$relation_enum ? : ( self::$relation_enum = TypeRegistry::get_type( 'RelationEnum' ) );
+	}
+
+	/**
+	 * This returns the definition for the SortByEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function sort_by_enum() {
+		return self::$sort_by_enum ? : ( self::$sort_by_enum = TypeRegistry::get_type( 'SortByEnum' ) );
+	}
+
+	/**
+	 * This returns the definition for the TagCloudEnumType
+	 *
+	 * @return WPEnumType object
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function tag_cloud_enum() {
+		return self::$tag_cloud_enum ? : ( self::$tag_cloud_enum = TypeRegistry::get_type( 'TagCloudEnum' ) );
 	}
 
 	/**
@@ -567,6 +704,17 @@ class Types {
 	 */
 	public static function root_query() {
 		return self::$root_query ? : ( self::$root_query = TypeRegistry::get_type( 'RootQuery' ) );
+	}
+
+	/**
+	 * This returns the definition for the RootQueryType
+	 *
+	 * @return SidebarType object
+	 * @since  0.0.5
+	 * @access public
+	 */
+	public static function sidebar() {
+		return self::$sidebar ? : ( self::$sidebar = TypeRegistry::get_type( 'Sidebar' ) );
 	}
 
 	/**
@@ -656,6 +804,17 @@ class Types {
 	 */
 	public static function user_role() {
 		return self::$user_role ? : ( self::$user_role = TypeRegistry::get_type( 'UserRole' ) );
+	}
+
+	/**
+	 * Returns the definition for the WidgetUnionType
+	 *
+	 * @return WPObjectType
+	 * @since 0.1.1
+	 * @access public
+	 */
+	public static function widget_interface() {
+		return self::$widget_interface ? : ( self::$widget_interface = TypeRegistry::get_type( 'WidgetInteface' ) );
 	}
 
 	/**

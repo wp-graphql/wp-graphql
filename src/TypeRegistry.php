@@ -9,10 +9,12 @@ use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
+use WPGraphQL\Connection\Sidebars;
 use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Themes;
 use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
+use WPGraphQL\Connection\Widgets;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
@@ -37,6 +39,7 @@ use function WPGraphQL\Type\register_settings_group;
 use function WPGraphQL\Type\register_taxonomy_object_type;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
+use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
 
@@ -77,8 +80,15 @@ class TypeRegistry {
 		register_graphql_type( 'String', Types::string() );
 
 		/**
+		 * Register all Interface Types
+		 * Interfaces need to be registered before other types as they referenced by other Types
+		 */
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Interface/WidgetInterface.php' );
+
+		/**
 		 * Register core WPGRaphQL Types
 		 */
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/ArchiveGroupEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php' );
@@ -87,6 +97,8 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateInput.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/ImageSizeEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/LinkToEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php' );
@@ -109,7 +121,11 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootQuery.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PreloadEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Sidebar.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/SortByEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TagCloudEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php' );
@@ -119,6 +135,7 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Widgets.php' );
 
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php' );
@@ -205,10 +222,12 @@ class TypeRegistry {
 		MenuItems::register_connections();
 		Plugins::register_connections();
 		PostObjects::register_connections();
+		Sidebars::register_connections();
 		TermObjects::register_connections();
 		Themes::register_connections();
 		Users::register_connections();
 		UserRoles::register_connections();
+		Widgets::register_connections();
 
 		/**
 		 * Register core mutations
@@ -358,6 +377,20 @@ class TypeRegistry {
 				};
 			}
 
+			/**
+			 * Get Interface Definitions
+			 */
+			if( ! empty( $config[ 'interfaces' ] ) && is_array( 'interfaces' ) ) {
+				$prepared_interfaces = WPInterfaceType::prepare_interfaces( $config[ 'interfaces' ], $type_name );
+				$config[ 'interfaces' ] = function () use ( $config_interfaces ) {
+					$interfaces = [];
+					foreach( $prepared_interfaces as $interface ) {
+						$intefaces[] = self::get_type( $interface );
+					}
+					return $interfaces;
+				};
+			}
+
 			switch ( $kind ) {
 				case 'enum':
 					$prepared_type = new WPEnumType( $config );
@@ -367,6 +400,9 @@ class TypeRegistry {
 					break;
 				case 'union':
 					$prepared_type = new WPUnionType( $config );
+					break;
+				case 'interface':
+					$prepared_type = new WPInterfaceType( $config );
 					break;
 				case 'object':
 				default:
