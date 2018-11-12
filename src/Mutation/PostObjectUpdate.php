@@ -11,7 +11,7 @@ use WPGraphQL\Data\PostObjectMutation;
 class PostObjectUpdate {
 	public static function register_mutation( \WP_Post_Type $post_type_object ) {
 
-		$mutation_name = 'Update' . ucwords( $post_type_object->graphql_single_name );
+		$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
 
 		register_graphql_mutation( $mutation_name, [
 			'inputFields'         => array_merge(

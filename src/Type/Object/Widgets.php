@@ -2,7 +2,6 @@
 namespace WPGraphQL\Type;
 
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Types;
 
 /**
  * Defines a generic resolver function
@@ -73,6 +72,9 @@ register_graphql_object_type( 'ArchivesWidget', [
 			}
 		]
 	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'archives';
+	}
 ] );
 
 /**
@@ -102,7 +104,10 @@ register_graphql_object_type( 'AudioWidget', [
 			'description' => __( 'Play repeatly', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'loop', false )
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'media_audio';
+	}
 ] );
 
 /**
@@ -111,7 +116,10 @@ register_graphql_object_type( 'AudioWidget', [
 register_graphql_object_type( 'CalendarWidget', [
 	'description'  	=> __( 'A calendar widget object', 'wp-graphql' ),
 	'interfaces' 	=> [ 'WidgetInterface' ],
-	'fields'       	=> [ 'title' => title_field('Calendar') ]
+	'fields'       	=> [ 'title' => title_field('Calendar') ],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'calendar';
+	}
 ] );
 
 /**
@@ -137,7 +145,10 @@ register_graphql_object_type( 'CategoriesWidget', [
 			'description' => __( 'Show hierachy', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'hierarchical', false )
 		]
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'categories';
+	}
 ] );
 
 /**
@@ -153,7 +164,10 @@ register_graphql_object_type( 'CustomHTMLWidget', [
 			'description' => __( 'Content of custom html widget', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'content', '' )
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'custom_html';
+	}
 ] );
 
 /**
@@ -198,7 +212,10 @@ register_graphql_object_type( 'GalleryWidget', [
 				return null;
 			}
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'media_gallery';
+	}
 ] );
 
 /**
@@ -228,7 +245,10 @@ register_graphql_object_type( 'ImageWidget', [
 			'description' => __( 'Url of image link', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'link_url', '' ),
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'media_image';
+	}
 ] );
 
 /**
@@ -237,7 +257,10 @@ register_graphql_object_type( 'ImageWidget', [
 register_graphql_object_type( 'MetaWidget', [
 	'description' 	=> __( 'A meta widget object', 'wp-graphql' ),
 	'interfaces' 	=> [ 'WidgetInterface' ],
-	'fields'      	=> [ 'title' => title_field('Meta') ]
+	'fields'      	=> [ 'title' => title_field('Meta') ],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'meta';
+	}
 ] );
 
 /**
@@ -255,7 +278,10 @@ register_graphql_object_type( 'NavMenuWidget', [
 				return ( ! empty( $widget['nav_menu'] ) ) ? $widget['nav_menu'] : null;
 			}
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'nav_menu';
+	}
 ] );
 
 /**
@@ -280,7 +306,10 @@ register_graphql_object_type( 'PagesWidget', [
 				return ( ! empty( $widget[ 'exclude' ] ) ) ? explode(',', $widget[ 'exclude' ] ) : null;
 			}
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'pages';
+	}
 ] );
 
 /**
@@ -296,7 +325,10 @@ register_graphql_object_type( 'RecentCommentsWidget', [
 			'description' => __( 'Number of comments to display at one time', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'number', 5 ),
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'recent-comments';
+	}
 ] );
 
 /**
@@ -317,7 +349,10 @@ register_graphql_object_type( 'RecentPostsWidget', [
 			'description' => __( 'Show post date', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'show_date', false )
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'recent-posts';
+	}
 ] );
 
 /**
@@ -358,7 +393,10 @@ register_graphql_object_type( 'RSSWidget', [
 			'description' => __( 'Show item date', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'show_date', true )
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'rss';
+	}
 ] );
 
 /**
@@ -368,6 +406,9 @@ register_graphql_object_type( 'SearchWidget', [
 	'description' 	=> __( 'A search widget object', 'wp-graphql' ),
 	'interfaces' 	=> [ 'WidgetInterface' ],
 	'fields'      	=> [ 'title' => title_field('Search') ],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'search';
+	}
 ] );
 
 /**
@@ -411,7 +452,10 @@ register_graphql_object_type( 'TagCloudWidget', [
 				return ! empty( $tags ) ? $tags : null;
 			}
 		],
-  	]
+  	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'tag_cloud';
+	}
 ] );
 
 /**
@@ -436,7 +480,10 @@ register_graphql_object_type( 'TextWidget', [
 			'type'        => 'Boolean',
 			'resolve'     => resolve_field( 'visual', true )
 		]
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'text';
+	}
 ] );
 
 /**
@@ -466,6 +513,9 @@ register_graphql_object_type( 'VideoWidget', [
 			'description' => __( 'Play repeatly', 'wp-graphql' ),
 			'resolve'     => resolve_field( 'loop', false )
 		],
-	]
+	],
+	'isTypeOf' => function( array $widget ) {
+		return $widget[ 'type' ] === 'media_video';
+	}
 ] );
 

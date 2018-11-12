@@ -91,7 +91,11 @@ class SchemaRegistry {
 	 */
 	protected static function prepare_schema_config( $config ) {
 
-		$prepared_schema = [];
+		$prepared_schema = [
+			'typeLoader' => function ( $type ) {
+				return \WPGraphQL\TypeRegistry::get_type( $type );
+			}
+		];
 
 		if ( ! empty( $config ) && is_array( $config ) ) {
 			foreach ( $config as $field => $type ) {

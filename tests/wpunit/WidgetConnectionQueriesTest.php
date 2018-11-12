@@ -50,7 +50,7 @@ class WidgetConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
                     'nodes' => [
                         [
                             'basename' => 'meta',
-                            'title' => '',
+                            'title' => 'Meta',
                         ],
                     ],
                 ],

@@ -540,6 +540,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		/**
+         * use --debug flag to view
+         */
+		\Codeception\Util\Debug::debug( $actual );
+
 		$this->assertEquals( $expected, $actual );
 
 	}

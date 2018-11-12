@@ -21,7 +21,7 @@ class WPInterfaceType extends InterfaceType {
 	 *
 	 * @var array $prepared_types
 	 */
-	private static $prepared_fields;
+	private static $prepared_interfaces;
 
 	/**
 	 * WPInterfaceType constructor.
@@ -64,33 +64,42 @@ class WPInterfaceType extends InterfaceType {
 	 * @return array
 	 */
 	public static function prepare_interfaces( $interfaces, $type_name ) {
-		/**
-		 * Filter once with lowercase, once with uppercase for Back Compat.
-		 */
-		$lc_type_name = lcfirst( $type_name );
-		$uc_type_name = ucfirst( $type_name );
+		if ( null === self::$prepared_interfaces ) {
+			self::$prepared_interfaces = [];
+		}
 
-		/**
-		 * Filter the interfaces with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array $interfaces The array of intefaces for the object config
-		 */
-		$prepared_interfaces = apply_filters( "graphql_{$lc_type_name}_interfaces", $interfaces );
+		if ( empty( self::$prepared_interfaces[ $type_name ] ) ) {
 
-		/**
-		 * Filter the interfaces with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array $interfaces The array of interfaces for the object config
-		 */
-		$prepared_interfaces = apply_filters( "graphql_{$uc_type_name}_interfaces", $interfaces );
-	
-		return $prepared_interfaces;
+			/**
+			 * Filter once with lowercase, once with uppercase for Back Compat.
+			 */
+			$lc_type_name = lcfirst( $type_name );
+			$uc_type_name = ucfirst( $type_name );
+
+			/**
+			 * Filter the interfaces with the typename explicitly in the filter name
+			 *
+			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+			 * more specific overrides
+			 *
+			 * @param array $interfaces The array of intefaces for the object config
+			 */
+			$interfaces = apply_filters( "graphql_{$lc_type_name}_interfaces", $interfaces );
+
+			/**
+			 * Filter the interfaces with the typename explicitly in the filter name
+			 *
+			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+			 * more specific overrides
+			 *
+			 * @param array $interfaces The array of interfaces for the object config
+			 */
+			$interfaces = apply_filters( "graphql_{$uc_type_name}_interfaces", $interfaces );
+			
+			self::$prepared_interfaces[ $type_name ] = $interfaces;
+		}
+
+		return ! empty( self::$prepared_interfaces[ $type_name ] ) ? self::$prepared_interfaces[ $type_name ] : null;
 	}
 
 }

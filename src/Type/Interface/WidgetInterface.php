@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\TypeRegistry;
 
 $widget_types = [
@@ -59,7 +60,7 @@ register_graphql_interface_type( 'WidgetInterface', [
 		],
 	],
 	'resolveType' => function ( $source ) use ( $widget_types ) {
-		$types = apply_filter( 'graphql_widget_interface_types', $widget_types );
+		$types = apply_filters( 'graphql_widget_interface_types', $widget_types );
 		if( ! empty( $types[ $source[ 'type' ] ] ) ) {
 			return TypeRegistry::get_type( $types[ $source[ 'type' ] ] );
 		} else {  
@@ -90,7 +91,7 @@ register_graphql_field( 'RootQuery', 'widgetBy', [
 	],
 	'resolve' 		=> function( $source, array $args, $context, $info ) {
 		$widget = null;
-
+		
 		if( ! empty( $args[ 'id' ] ) ) {
 			$widget = DataSource::resolve_widget( $args[ 'id' ] );
 		}

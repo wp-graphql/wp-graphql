@@ -58,7 +58,7 @@ class WidgetQueriesTest extends \Codeception\TestCase\WPTestCase
                   'widgetId' => 'meta-2',
                   'name' => 'Meta',
                   'id' => $relay_id,
-                  'title' => ''
+                  'title' => 'Meta'
                 ]
             ]
         ];

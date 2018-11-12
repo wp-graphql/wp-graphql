@@ -145,7 +145,7 @@ class WidgetConnectionResolver extends ConnectionResolver {
 					/**
 					 * Create widget data object and add it to the query response
 					 */
-					$query[] = ExtraSource::create_widget_data_object( $valid[ $id ] );
+					$query[] = DataSource::create_widget_data_object( $valid[ $id ] );
 				}
 
 			}
@@ -156,7 +156,7 @@ class WidgetConnectionResolver extends ConnectionResolver {
 				/**
 				 * Create widget data object and add it to the query response
 				 */
-				$query[] = ExtraSource::create_widget_data_object( $valid_widget );
+				$query[] = DataSource::create_widget_data_object( $valid_widget );
 			}
 
 		}

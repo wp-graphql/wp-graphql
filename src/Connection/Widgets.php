@@ -41,12 +41,34 @@ class Widgets {
 			'fromType'			=> 'RootQuery',
 			'toType'			=> 'WidgetInterface',
 			'fromFieldName'		=> 'widgets',
-			'connectionArgs'	=> [],
+			'connectionArgs'	=> self::get_connection_args(),
 			'resolve'					=> function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_widgets_connection( $root, $args, $context, $info );
 			},
-    ];
+    	];
     
-    return array_merge( $defaults, $args );
+    	return array_merge( $defaults, $args );
+	}
+
+	/**
+	 * Returns the connection args for use in the connection
+	 *
+	 * @return array
+	 */
+	protected static function get_connection_args() {
+		return [
+			'id' => [
+				'type'        => 'Int',
+				'description' => __( 'The instance ID of the widget', 'wp-graphql' ),
+			],
+			'name' => [
+				'type'        => 'String',
+				'description' => __( 'Display name of the widget', 'wp-graphql' ),
+			],
+			'basename' => [
+				'type'        => 'String',
+				'description' => __( 'Display name of the widget', 'wp-graphql' ),
+			],
+		];
 	}
 }

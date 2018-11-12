@@ -86,7 +86,7 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Interface/WidgetInterface.php' );
 
 		/**
-		 * Register core WPGRaphQL Types
+		 * Register core WPGraphQL Types
 		 */
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/ArchiveGroupEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
@@ -347,6 +347,7 @@ class TypeRegistry {
 		if ( isset( self::$types[ self::format_key( $type_name ) ] ) ) {
 			return;
 		}
+		
 		$prepared_type = self::prepare_type( $type_name, $config );
 		if ( ! empty( $prepared_type ) ) {
 			self::$types[ self::format_key( $type_name ) ] = $prepared_type;
@@ -360,7 +361,7 @@ class TypeRegistry {
 	 * @param string $type_name Name of the type being registered
 	 * @param array  $config    Info about the type being registered
 	 *
-	 * @return null|WPEnumType|WPInputObjectType|WPObjectType|WPUnionType
+	 * @return null|WPEnumType|WPInputObjectType|WPObjectType|WPInterfaceType|WPUnionType
 	 */
 	protected static function prepare_type( $type_name, $config ) {
 
@@ -368,26 +369,38 @@ class TypeRegistry {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
 
-			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-				$config['fields'] = function () use ( $config, $type_name ) {
-					$prepared_fields = self::prepare_fields( $config['fields'], $type_name );
-					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+			/**
+			 * Get Interface Definitions and Fields
+			 */
+			$parent_fields = [];
+			if( ! empty( $config[ 'interfaces' ] ) && is_array( $config[ 'interfaces' ] ) ) {
+				$filtered_interfaces = WPInterfaceType::prepare_interfaces( $config[ 'interfaces' ], $type_name );
+				$prepared_interfaces = [];
+				foreach( $filtered_interfaces as $interface_name ) {
+					if ( is_string( $interface_name ) ) {
+						$interface = self::get_type( $interface_name );
+						$prepared_interfaces[] = $interface;
+						$parent_fields = array_merge(
+							$parent_fields,
+							$interface->getFields()
+						);
+						
+						continue;
+					}
 
-					return $prepared_fields;
-				};
+					$prepared_interfaces[] = $interface_name;
+				}
+				$config[ 'interfaces' ] = $prepared_interfaces;
 			}
 
-			/**
-			 * Get Interface Definitions
-			 */
-			if( ! empty( $config[ 'interfaces' ] ) && is_array( 'interfaces' ) ) {
-				$prepared_interfaces = WPInterfaceType::prepare_interfaces( $config[ 'interfaces' ], $type_name );
-				$config[ 'interfaces' ] = function () use ( $config_interfaces ) {
-					$interfaces = [];
-					foreach( $prepared_interfaces as $interface ) {
-						$intefaces[] = self::get_type( $interface );
-					}
-					return $interfaces;
+			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
+				$config['fields'] = function () use ( $config, $type_name, $parent_fields ) {
+					$prepared_fields = array_merge(
+						$parent_fields,
+						self::prepare_fields( $config['fields'], $type_name )
+					);
+					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+					return $prepared_fields;
 				};
 			}
 
@@ -513,7 +526,7 @@ class TypeRegistry {
 	 * @param string $type_name Name of the type to b e returned
 	 *
 	 * @access public
-	 * @return mixed|WPObjectType|WPUnionType|WPInputObjectType|WPEnumType
+	 * @return mixed|WPObjectType|WPUnionType|WPInputObjectType|WPInterfaceType|WPEnumType
 	 */
 	public static function get_type( $type_name ) {
 		return ( null !== self::$types[ self::format_key( $type_name ) ] ) ? ( self::$types[ self::format_key( $type_name ) ] ) : null;

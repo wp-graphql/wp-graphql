@@ -389,7 +389,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public function testUpdatePostWithInvalidId() {
 
 		$mutation = '
-		mutation updatePostWithInvalidId($input:updatePostInput!) {
+		mutation updatePostWithInvalidId($input:UpdatePostInput!) {
 			updatePost(input:$input) {
 				clientMutationId
 			}
