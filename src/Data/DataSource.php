@@ -323,17 +323,17 @@ class DataSource {
 	 */
 	public static function resolve_sidebar( $sidebar_id, $index = null ) {
 		global $wp_registered_sidebars;
-  
+
 		if ( empty( $wp_registered_sidebars ) ) {
 		  	throw new UserError( sprintf( __( 'No sidebars are registered', 'wp-graphql' ), $index ) );
 		}
-  
+
 		/**
 		 * Get registered sidebar data
 		 */
 		$sidebar = null;
 		if ( ! is_null( $index ) ) {
-  
+
 			foreach( $wp_registered_sidebars as $registered_sidebar ) {
 				if( $registered_sidebar[ $index ] === $sidebar_id ) {
 				$sidebar = $registered_sidebar;
@@ -344,9 +344,9 @@ class DataSource {
 			if ( ! $sidebar ) {
 				throw new UserError( sprintf( __( 'No sidebar was found with that %s', 'wp-graphql' ), $index ) );
 			}
-  
+
 		} else {
-		  
+
 			/**
 			 * Throw if requested sidebar not found
 			 */
@@ -355,14 +355,14 @@ class DataSource {
 			}
 
 		  	$sidebar = $wp_registered_sidebars[ $sidebar_id ];
-  
+
 		}
-		
+
 		/**
 		 * for nodeDefinitions
 		 */
 		$sidebar[ 'is_sidebar' ] = true;
-  
+
 		/**
 		 * Return requested sidebar array
 		 */
@@ -511,7 +511,7 @@ class DataSource {
 	 */
 	public static function resolve_widget( $widget_id, $index = null ) {
 		global $wp_registered_widgets;
-  
+
 		$id = null;
 		if ( ! is_null( $index ) ) {
 			/**
@@ -523,14 +523,14 @@ class DataSource {
 					break;
 				}
 			}
-	
+
 			/**
 			 * Throw if requested widget not found
 			 */
 			if ( ! $id ) {
 				throw new UserError( __( 'No widget was found with that %s', 'wp-graphql', $index ) );
 			}
-  
+
 		} else {
 			/**
 			 * Throw if requested widget not found
@@ -538,17 +538,17 @@ class DataSource {
 			if ( ! array_key_exists( $widget_id, $wp_registered_widgets ) ) {
 				throw new UserError( __( 'No widget was found with the that ID', 'wp-graphql' ) );
 			}
-	
+
 			$id = $widget_id;
 
 		}
-  
+
 		/**
 		 * Return requested widget data object
 		 */
 		return self::create_widget_data_object( $wp_registered_widgets[ $id ] );
 	}
-  
+
 	/**
 	 * Wrapper for WidgetConnectionResolver::resolve
 	 *
@@ -569,7 +569,7 @@ class DataSource {
 	 * Creates formatted widget data array
 	 *
 	 * @param array 	$widget - Raw widget data
-	 * 
+	 *
 	 * @return array
 	 * @since 0.1.1
 	 */
@@ -581,25 +581,25 @@ class DataSource {
 			'type' => $widget['callback'][0]->id_base,
 			'is_widget' => true,
 		];
-  
+
 		/**
 		 * The name of the option in the database is the name of the widget class.
 		 */
 		$option_name = $widget['callback'][0]->option_name;
-  
+
 		/**
 		 * Widget data is stored as an associative array. To get the right data we need to get the right key
 		 * which is stored in $wp_registered_widgets
 		 */
 		$key = $widget['params'][0]['number'];
-		
+
 		/**
 		 * Retrieve widget data if exist
 		 */
 		if ( $key > -1 ) {
 		  	$widget_data += get_option( $option_name )[ $key ];
 		}
-  
+
 		return $widget_data;
 	}
 
@@ -610,12 +610,12 @@ class DataSource {
 	 */
 	public static function get_active_widget_types() {
 		global $wp_registered_widgets;
-  
+
 		/**
 		 * Holds the query data to return
 		 */
 		$types = [];
-  
+
 		/**
 		 * Loop through registered widgets
 		 */
@@ -628,13 +628,13 @@ class DataSource {
 			unset( $widget_data['name'] );
 			unset( $widget_data['type'] );
 			unset( $widget_data['is_widget'] );
-			
+
 			$types[$type] = $widget_data;
 		}
-  
+
 		return $types;
 	}
-  
+
 	/**
 	 * Resolves an archive of post urls by specified type. Types are daily, weekly, monthly, yearly, postbypost, or alpha
 	 *
@@ -643,14 +643,14 @@ class DataSource {
 	 * @return array
 	 */
 	public static function resolve_archive_urls( $type = 'monthly', $absolute = false ) {
-  
-		/** 
+
+		/**
 		 * Get raw archives output
 		 */
 		$args = array(
 			'type'            	=> $type,
 			'limit'           	=> '',
-			'format'          	=> 'option', 
+			'format'          	=> 'option',
 			'before'          	=> '',
 			'after'           	=> '',
 			'show_post_count'	=> false,
@@ -659,46 +659,46 @@ class DataSource {
 			'post_type'     	=> 'post'
 		);
 		$raw_html_output = wp_get_archives( $args );
-  
+
 		/**
 		 * Strip site url if $full === true
 		 */
 		$homeUrl = ( false === $absolute ) ? preg_quote( home_url() . '/', '/' ) : '';
-  
+
 		preg_match_all("/<option value=(?:\"|\')(?:{$homeUrl})(.*)(?:\"|\')>.*<\/option>/", $raw_html_output, $urls);
-  
+
 		return $urls[1];
 	}
-  
+
 	/**
 	 * Resolves a tag cloud by taxonomy.
 	 *
-	 * @param string $taxonomy 	- Taxonomy used to create tag cloud 
+	 * @param string $taxonomy 	- Taxonomy used to create tag cloud
 	 * @param string $orderby	- Sorting order
-	 * 
+	 *
 	 * @return array
 	 * @since 0.1.1
 	 */
 	public static function resolve_tag_cloud( $taxonomy = 'post_tag', $orderby_name ) {
 		$args = array(
-			'orderby'	=> $orderby_name ? 'name' : 'count', 
+			'orderby'	=> $orderby_name ? 'name' : 'count',
 			'order'     => 'ASC',
-			'taxonomy'  => $taxonomy, 
+			'taxonomy'  => $taxonomy,
 			'echo'      => false,
 			'child_of'  => null,
 		);
-  
+
 		$raw_html_output = wp_tag_cloud($args);
-  
+
 		$homeUrl = preg_quote( home_url() . '/tag/', '/' );
-  
+
 		preg_match_all("/tag-link-([0-9]+) /", $raw_html_output, $ids);
-  
+
 		$term_ids = [];
 		foreach( $ids[1] as $id ) {
 		  	$term_ids[] = (int) $id;
 		}
-		
+
 		return $term_ids;
 	}
 
