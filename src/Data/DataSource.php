@@ -518,7 +518,7 @@ class DataSource {
 			 * Loop through registered widget and compare index value
 			 */
 			foreach( $wp_registered_widgets as $key => $registered_widget ) {
-				if( $registered_widget[ $index ] === $widget_id ) {
+				if ( $registered_widget[ $index ] === $widget_id ) {
 					$id = $key;
 					break;
 				}
@@ -623,7 +623,7 @@ class DataSource {
 			$widget_data = self::create_widget_data_object( $widget );
 			$type = $widget_data['type'];
 			if( ! empty( $types[$type] ) ) continue;
-			
+
 			unset( $widget_data['id'] );
 			unset( $widget_data['name'] );
 			unset( $widget_data['type'] );
