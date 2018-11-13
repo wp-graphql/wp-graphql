@@ -43,7 +43,6 @@ class SidebarConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
 		    edges {
 		      node {
                 sidebarId
-                description
 		      }
 		    }
 		    nodes {
@@ -61,15 +60,12 @@ class SidebarConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
                     'edges' => [
                         [ 'node' => [
                             'sidebarId'     => $this->default_id,
-                            'description'   => $this->default_description,
                         ] ],
                         [ 'node' => [
                             'sidebarId'     => $this->test_sidebar_one_id,
-                            'description'   => $this->description,
                         ] ],
                         [ 'node' => [
                             'sidebarId'     => $this->test_sidebar_two_id,
-                            'description'   => $this->description,
                         ] ],
                     ],
                     'nodes' => [ 

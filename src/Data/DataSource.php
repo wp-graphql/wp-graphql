@@ -310,18 +310,18 @@ class DataSource {
 	}
 
 	/**
-     * Returns an array of data about the first sidebar found that matches the params provided.
-     *
-     * @param string		$sidebar_id - ID of sidebar or value of specified sidebar property
-	 * @param null|string	$index		- Sidebar property used to identify specific sidebar. Uses
+	 * Returns an array of data about the first sidebar found that matches the params provided.
+	 *
+	 * @param string 		$sidebar_id - ID of sidebar or value of specified sidebar property
+	 * @param null|string 	$index - Sidebar property used to identify specific sidebar. Uses
 	 * sidebar_id if null
-     *
-     * @return null|array
-     * @throws \Exception
-     * @since  0.1.1
-     * @access public
-     */
-    public static function resolve_sidebar( $sidebar_id, $index = null ) {
+	 *
+	 * @return null|array
+	 * @throws \Exception
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function resolve_sidebar( $sidebar_id, $index = null ) {
 		global $wp_registered_sidebars;
   
 		if ( empty( $wp_registered_sidebars ) ) {
@@ -370,18 +370,18 @@ class DataSource {
 	}
 
 	/**
-     * Wrapper for SidebarConnectionResolver::resolve
-     *
-     * @param array    		$source  - sidebar object
-     * @param array       	$args    - Array of arguments to pass to reolve method
-     * @param AppContext  	$context - AppContext object passed down
-     * @param ResolveInfo	$info    - The ResolveInfo object
-     *
-     * @return array
-     * @since  0.1.1
-     * @access public
-     */
-    public static function resolve_sidebars_connection( $source, array $args, $context, $info ) {
+	 * Wrapper for SidebarConnectionResolver::resolve
+	 *
+	 * @param array    		$source  - sidebar object
+	 * @param array       	$args    - Array of arguments to pass to reolve method
+	 * @param AppContext  	$context - AppContext object passed down
+	 * @param ResolveInfo	$info    - The ResolveInfo object
+	 *
+	 * @return array
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function resolve_sidebars_connection( $source, array $args, $context, $info ) {
 		return SidebarConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
@@ -498,18 +498,18 @@ class DataSource {
 	}
 
 	/**
-     * Returns an array of data about the first widget found that matches the params provided.
-     *
-     * @param string		$widget_id 	- ID of widget or value of specified sidebar property
+	 * Returns an array of data about the first widget found that matches the params provided.
+	 *
+	 * @param string		$widget_id 	- ID of widget or value of specified sidebar property
 	 * @param null|string	$index		- Widget property used to identify specific widget. Uses
 	 * widget_id if null
-     *
-     * @return null|array
-     * @throws \Exception
-     * @since  0.1.1
-     * @access public
-     */
-    public static function resolve_widget( $widget_id, $index = null ) {
+	 *
+	 * @return null|array
+	 * @throws \Exception
+	 * @since  0.1.1
+	 * @access public
+	 */
+	public static function resolve_widget( $widget_id, $index = null ) {
 		global $wp_registered_widgets;
   
 		$id = null;
@@ -519,15 +519,15 @@ class DataSource {
 			 */
 			foreach( $wp_registered_widgets as $key => $registered_widget ) {
 				if( $registered_widget[ $index ] === $widget_id ) {
-				$id = $key;
-				break;
+					$id = $key;
+					break;
 				}
 			}
 	
 			/**
 			 * Throw if requested widget not found
 			 */
-			if( ! $id ) {
+			if ( ! $id ) {
 				throw new UserError( __( 'No widget was found with that %s', 'wp-graphql', $index ) );
 			}
   
@@ -566,14 +566,14 @@ class DataSource {
 	}
 
 	/**
-     * Creates formatted widget data array
-     *
-     * @param array 	$widget - Raw widget data
+	 * Creates formatted widget data array
+	 *
+	 * @param array 	$widget - Raw widget data
 	 * 
-     * @return array
-     * @since 0.1.1
-     */
-    public static function create_widget_data_object( $widget ) {
+	 * @return array
+	 * @since 0.1.1
+	 */
+	public static function create_widget_data_object( $widget ) {
 		$widget_data = [
 			'id' => $widget['id'],
 			'name' => $widget['name'],
@@ -596,7 +596,7 @@ class DataSource {
 		/**
 		 * Retrieve widget data if exist
 		 */
-		if( $key > -1 ) {
+		if ( $key > -1 ) {
 		  	$widget_data += get_option( $option_name )[ $key ];
 		}
   
@@ -604,11 +604,11 @@ class DataSource {
 	}
 
 	/**
-     * Returns an array of data for all active widget types
-     *
-     * @return array
-     */
-    public static function get_active_widget_types() {
+	 * Returns an array of data for all active widget types
+	 *
+	 * @return array
+	 */
+	public static function get_active_widget_types() {
 		global $wp_registered_widgets;
   
 		/**

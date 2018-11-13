@@ -51,6 +51,7 @@ register_graphql_object_type( 'ArchivesWidget', [
 				'group' => [ 
 					'type'        => 'ArchiveGroupEnum',
 					'description' => __( 'How archives should be group', 'wp-graphql' ),
+					'defaultValue'=> 'MONTHLY',
 				],
 				'absolute'  => [
 					'type'        => 'Boolean',
@@ -61,12 +62,7 @@ register_graphql_object_type( 'ArchivesWidget', [
 			'resolve'     => function( $root, $args ) {
 				$absolute = ( ! empty( $args['absolute'] ) ) ? $args['absolute'] : false;
 
-				// If group is set
-				if ( ! empty( $args['group'] ) ) { 
-					$urls = DataSource::resolve_archive_urls( strtolower( $args['group'] ), $absolute );
-				} else { 
-					$urls = DataSource::resolve_archive_urls( 'monthly', $absolute );
-				}
+				$urls = DataSource::resolve_archive_urls( $args['group'], $absolute );
 				
 				return ! empty ( $urls ) ? $urls : null;
 			}
@@ -96,7 +92,7 @@ register_graphql_object_type( 'AudioWidget', [
 			'type'        => 'PreloadEnum',
 			'description' => __( 'Sort style of widget', 'wp-graphql' ),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'preload' ] ) ) ? strtoupper( $widget[ 'preload' ] ) : 'METADATA';
+				return ( ! empty( $widget[ 'preload' ] ) ) ? $widget[ 'preload' ] : null;
 			}
 		],
 		'loop'    => [
@@ -187,14 +183,14 @@ register_graphql_object_type( 'GalleryWidget', [
 			'type'        => 'ImageSizeEnum',
 			'description' => __( 'Display size of gallery images', 'wp-graphql' ),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'size' ] ) ) ? strtoupper( $widget[ 'size' ] ) : 'THUMBNAIL';
+				return ( ! empty( $widget[ 'size' ] ) ) ? $widget[ 'size' ] : null;
 			},
 		],
 		'linkType'      => [
 			'type'        => 'LinkToEnum',
 			'description' => __( 'Link types of gallery images', 'wp-graphql'),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'link_type' ] ) ) ? strtoupper( $widget[ 'link_type' ] ) : 'NONE';
+				return ( ! empty( $widget[ 'link_type' ] ) ) ? $widget[ 'link_type' ] : null;
 			},
 		],
 		'orderbyRandom' => [
@@ -237,7 +233,7 @@ register_graphql_object_type( 'ImageWidget', [
 			'type'        => 'LinkToEnum',
 			'description' => __( 'Link types of images', 'wp-graphql'),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'link_type' ] ) ) ? strtoupper( $widget[ 'link_type' ] ) : 'NONE';
+				return ( ! empty( $widget[ 'link_type' ] ) ) ? $widget[ 'link_type' ] : null;
 			},
 		],
 		'linkUrl' => [
@@ -296,7 +292,7 @@ register_graphql_object_type( 'PagesWidget', [
 			'type'        => 'SortByEnum',
 			'description' => __( 'Sort style of widget', 'wp-graphql' ),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'sortby' ] ) ) ? strtoupper( $widget[ 'sortby' ] ) : 'MENU_ORDER';
+				return ( ! empty( $widget[ 'sortby' ] ) ) ? $widget[ 'sortby' ] : null;
 			}
 		],
 		'exclude' => [
@@ -428,7 +424,7 @@ register_graphql_object_type( 'TagCloudWidget', [
 			'type'        => 'TagCloudEnum',
 			'description' => __( 'Widget taxonomy type', 'wp-graphql' ),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'taxonomy' ] ) ) ? strtoupper( $widget[ 'taxonomy' ] ) : 'POST_TAG';
+				return ( ! empty( $widget[ 'taxonomy' ] ) ) ? $widget[ 'taxonomy' ] : null;
 			}
 		],
 		'tags'      => [
@@ -505,7 +501,7 @@ register_graphql_object_type( 'VideoWidget', [
 			'type'        => 'PreloadEnum',
 			'description' => __( 'Sort style of widget', 'wp-graphql' ),
 			'resolve'     => function( array $widget ) {
-				return ( ! empty( $widget[ 'preload' ] ) ) ? strtoupper( $widget[ 'preload' ] ) : 'METADATA';
+				return ( ! empty( $widget[ 'preload' ] ) ) ? $widget[ 'preload' ] : null;
 			}
 		],
 		'loop'    => [

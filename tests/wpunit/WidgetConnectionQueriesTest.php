@@ -35,6 +35,12 @@ class WidgetConnectionQueriesTest extends \Codeception\TestCase\WPTestCase
                         ... on MetaWidget {
                             title
                         }
+                        ... on ArchivesWidget {
+                            title
+                            count
+                            dropdown
+                            urls
+                        }
                     }
                 }
             }

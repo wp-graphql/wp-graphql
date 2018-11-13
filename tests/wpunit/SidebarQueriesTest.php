@@ -44,6 +44,19 @@ class SidebarQueriesTest extends \Codeception\TestCase\WPTestCase
                     sidebarId
                     beforeWidget
                     afterWidget
+                    widgets {
+                        nodes {
+                            widgetId
+                            name
+                            id
+                            ... on ArchivesWidget {
+                                title
+                                count
+                                dropdown
+                                urls
+                            }
+                        }
+                    }
                 }
             }
         ';
@@ -62,6 +75,11 @@ class SidebarQueriesTest extends \Codeception\TestCase\WPTestCase
                     'sidebarId' => $sidebar_id,
                     'beforeWidget' => '',
                     'afterWidget' => '',
+                    'widgets' => [
+                        'nodes' => [
+
+                        ]
+                    ]
                 ]
             ]
         ];

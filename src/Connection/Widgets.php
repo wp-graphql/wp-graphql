@@ -20,9 +20,9 @@ class Widgets {
 		/**
 		 * Register connection from RootQuery to Widget
 		 */
-    register_graphql_connection( self::get_connection_config() );
-    
-    /**
+		register_graphql_connection( self::get_connection_config() );
+		
+		/**
 		 * Register connection from Sidebar to Widgets
 		 */
 		register_graphql_connection( self::get_connection_config( [ 'fromType' => 'Sidebar' ] ) );
@@ -42,7 +42,7 @@ class Widgets {
 			'toType'			=> 'WidgetInterface',
 			'fromFieldName'		=> 'widgets',
 			'connectionArgs'	=> self::get_connection_args(),
-			'resolve'					=> function ( $root, $args, $context, $info ) {
+			'resolve'			=> function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_widgets_connection( $root, $args, $context, $info );
 			},
     	];

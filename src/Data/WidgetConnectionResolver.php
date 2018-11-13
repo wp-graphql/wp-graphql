@@ -160,7 +160,7 @@ class WidgetConnectionResolver extends ConnectionResolver {
 			}
 
 		}
-
+		\Codeception\Util\Debug::debug( $query );
 		return $query;
 
 	}
