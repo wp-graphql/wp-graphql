@@ -341,7 +341,7 @@ class DataSource {
 				}
 			}
 
-			if( ! $sidebar ) {
+			if ( ! $sidebar ) {
 				throw new UserError( sprintf( __( 'No sidebar was found with that %s', 'wp-graphql' ), $index ) );
 			}
   
@@ -350,7 +350,7 @@ class DataSource {
 			/**
 			 * Throw if requested sidebar not found
 			 */
-			if( ! array_key_exists( $sidebar_id, $wp_registered_sidebars ) ) {
+			if ( ! array_key_exists( $sidebar_id, $wp_registered_sidebars ) ) {
 				throw new UserError( sprintf( __( 'No sidebar was found with that sidebar_id', 'wp-graphql' ) ) );
 			}
 
@@ -535,7 +535,7 @@ class DataSource {
 			/**
 			 * Throw if requested widget not found
 			 */
-			if( ! array_key_exists( $widget_id, $wp_registered_widgets ) ) {
+			if ( ! array_key_exists( $widget_id, $wp_registered_widgets ) ) {
 				throw new UserError( __( 'No widget was found with the that ID', 'wp-graphql' ) );
 			}
 	
@@ -620,15 +620,16 @@ class DataSource {
 		 * Loop through registered widgets
 		 */
 		foreach( $wp_registered_widgets as $widget ) {
-		  $widget_data = self::create_widget_data_object( $widget );
-		  $type = $widget_data['type'];
-		  if( ! empty( $types[$type] ) ) continue;
-		  unset( $widget_data['id'] );
-		  unset( $widget_data['name'] );
-		  unset( $widget_data['type'] );
-		  unset( $widget_data['is_widget'] );
-		  
-		  $types[$type] = $widget_data;
+			$widget_data = self::create_widget_data_object( $widget );
+			$type = $widget_data['type'];
+			if( ! empty( $types[$type] ) ) continue;
+			
+			unset( $widget_data['id'] );
+			unset( $widget_data['name'] );
+			unset( $widget_data['type'] );
+			unset( $widget_data['is_widget'] );
+			
+			$types[$type] = $widget_data;
 		}
   
 		return $types;
