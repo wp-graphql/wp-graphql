@@ -33,11 +33,11 @@ class Sidebars {
 	 */
 	protected static function get_connection_config( $args = [] ) {
 		$defaults = [
-			'fromType'				=> 'RootQuery',
-			'toType'					=> 'Sidebar',
+			'fromType'			=> 'RootQuery',
+			'toType'			=> 'Sidebar',
 			'fromFieldName'		=> 'sidebars',
 			'connectionArgs'	=> [],
-			'resolve'					=> function ( $root, $args, $context, $info ) {
+			'resolve'			=> function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_sidebars_connection( $root, $args, $context, $info );
 			},
 		];
