@@ -205,7 +205,6 @@ try these solutions:
    ```
    env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
    env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
-   env PHP_VERSION='7.0' WP_VERSION='4.9.4' ./run-docker-tests.sh acceptance
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 

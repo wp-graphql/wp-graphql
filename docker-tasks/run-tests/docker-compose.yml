@@ -3,8 +3,8 @@ version: "3.4"
 services:
   main:
     build:
-      context: '../../.'
-      target: 'tester-environment'
+      context: '../..'
+      target: 'tester'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"
@@ -19,13 +19,11 @@ services:
       WP_VERSION: "${WP_VERSION}"
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
-    entrypoint:
-      [ "docker-entrypoint.tests.sh" ]
 
   wpgraphql.test:
     build:
-      context: '../../.'
-      target: 'wordpress-sut-environment'
+      context: '../..'
+      target: 'wordpress-sut-code-coverage'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"

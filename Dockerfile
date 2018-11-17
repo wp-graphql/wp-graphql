@@ -4,7 +4,8 @@ ARG DESIRED_PHP_VERSION
 ARG BASE_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
 # -------------------- STAGE ---------------
-FROM php:${DESIRED_PHP_VERSION} as php-composer-files
+# This contains PHP Composer executable
+FROM ${BASE_DOCKER_IMAGE} as php-composer-files
 
 # Install composer
 RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40109bfbec0f9b8b39f12f260fb6e80befa/web/installer' | php -- --quiet \
@@ -12,6 +13,7 @@ RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40
   && mv composer.phar /usr/local/bin/composer
 
 # -------------------- STAGE ---------------
+# This contains project files after "composer install" has been run.
 FROM ${BASE_DOCKER_IMAGE} as project-files
 
 # Add PHP Composer
@@ -39,7 +41,8 @@ RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
 RUN chown -R 'www-data:www-data' /project
 
 # -------------------- STAGE ---------------
-FROM ${BASE_DOCKER_IMAGE} as wordpress-sut-environment
+# This is for a container that acts as a Wordpress "system under test" (SUT) instance that has Code Coverage support
+FROM ${BASE_DOCKER_IMAGE} as wordpress-sut-code-coverage
 
 COPY --chown='www-data:www-data' --from='project-files' /project/ /usr/src/wordpress/wp-content/plugins/wp-graphql/
 
@@ -48,7 +51,8 @@ RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-
   && curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /usr/src/wordpress/wp-content/plugins/wp-graphql/c3.php
 
 # -------------------- STAGE ---------------
-FROM ${BASE_DOCKER_IMAGE} as base-tester-environment
+# This is a base image for test-related images
+FROM ${BASE_DOCKER_IMAGE} as base-tester
 
 ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   WP_TEST_CORE_DIR=/tmp/wordpress/ \
@@ -80,7 +84,8 @@ COPY docker-entrypoints/*.sh /usr/local/bin/
 USER www-data
 
 # -------------------- STAGE ---------------
-FROM base-tester-environment as tester-environment
+# This is for the container that initiates the tests.
+FROM base-tester as tester
 
 RUN mkdir "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
 
@@ -89,8 +94,11 @@ WORKDIR "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
 # Add plugin code to the WordPress test framework
 COPY --chown='www-data:www-data' --from='project-files' /project/ "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql"
 
+ENTRYPOINT [ "docker-entrypoint.tests.sh" ]
+
 # -------------------- STAGE ---------------
-FROM base-tester-environment as tester-shell-environment
+# This allows developers to log into a fully provisioned container to run tests.
+FROM base-tester as tester-shell
 
 # Add PHP Composer
 COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
@@ -101,3 +109,7 @@ RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql" \
   && echo 'composer install && initialize-wp-test-environment.sh' >> /root/.bashrc
 
 WORKDIR /project
+
+# Doing this to prevent the container exiting prematurely. This service needs to hang around for someone to access
+# its shell.
+ENTRYPOINT [ "sleep", "9999d" ]

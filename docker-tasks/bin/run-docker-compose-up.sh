@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# The master copy of this file is here: https://github.com/dfmedia/docker-cookbook
+# If this script requires changes please notify the maintainer(s) of the master copy.
+
 set -e
 
 show_usage() {
@@ -37,13 +40,6 @@ initialize_env_var() {
 
   readonly DOCKER_COMPOSE_PROJECT_NAME="$(build_docker_name 'docker-compose')"
   readonly CONTAINER_NAME="$(build_docker_name 'container')"
-
-  echo "Using Docker Compose file: ${DOCKER_COMPOSE_FILE}"
-  echo "Going to copy data from container path: ${CONTAINER_DATA_PATH}"
-  echo "Going to copy data to host dir: ${HOST_DATA_PATH}"
-  echo "Randomly generated project name for Docker Compose: ${DOCKER_COMPOSE_PROJECT_NAME}"
-  echo "Randomly generated container name for Docker Compose: ${CONTAINER_NAME}"
-  echo "Params to be passed to 'docker compose up' $@"
 }
 
 
@@ -73,7 +69,6 @@ main() {
 
   copy_data_from_docker_container_to_host
 
-  echo "Looks like docker compose is exiting with with code: ${exit_code}"
   exit $((exit_code))
 }
 

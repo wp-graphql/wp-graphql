@@ -3,8 +3,8 @@ version: "3.4"
 services:
   main:
     build:
-      context: '../../.'
-      target: 'tester-shell-environment'
+      context: '../..'
+      target: 'tester-shell'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"
@@ -19,10 +19,6 @@ services:
       # Using "delegated" option to improve disk performance for "Docker for Mac" users:
       # https://docs.docker.com/docker-for-mac/osxfs-caching/#delegated
       - "${PWD}:/project:delegated"
-    entrypoint:
-      # Doing this to prevent the container exiting prematurely. This service needs to hang around for someone to access
-      # its shell.
-      [ "sleep", "9999d" ]
 
   wpgraphql.test:
     image: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
