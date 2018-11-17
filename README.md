@@ -221,9 +221,10 @@ Notes:
    
 
 #### Updating WP Docker image
-Please make sure this file refers to the latest specific versions of WordPress and PHP that are available as a Docker image: 
+Please make sure this file refers to the latest specific versions of WordPress and PHP that are available as a Docker
+image. These values will serve as default values if no environment variables have been explicitly set. 
   ```
-  docker-tasks/common/env-files/env.sh
+  .env
   ```
 Please avoid using the `latest` tag because the WP Docker image is published a few days after the PHP code
 is made available and that can result in inaccurate test results.
