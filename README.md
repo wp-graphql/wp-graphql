@@ -177,6 +177,7 @@ your tests as you make code changes.
 terminal window):
    ```
    run-codeception.sh run 'wpunit' --env docker
+   run-codeception.sh run 'wpunit' 'WPGraphQLTest' --env docker
    run-codeception.sh run 'functional' --env docker
    run-codeception.sh run 'acceptance' --env docker   
    ``` 

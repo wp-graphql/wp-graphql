@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# The master copy of this file is here: https://github.com/dfmedia/docker-cookbook
-# If this script requires changes please notify the maintainer(s) of the master copy.
-
 set -e
 
 show_usage() {
