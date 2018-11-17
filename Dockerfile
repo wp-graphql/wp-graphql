@@ -100,15 +100,22 @@ ENTRYPOINT [ "docker-entrypoint.tests.sh" ]
 # This allows developers to log into a fully provisioned container to run tests.
 FROM base-tester as tester-shell
 
-# Add PHP Composer
-COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
-
 USER root
 
-RUN ln -s /project "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql" \
-  && echo 'composer install && initialize-wp-test-environment.sh' >> /root/.bashrc
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y rsync \
+  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /project
+# Add plugin code to the tester shells' working directory
+COPY --chown='www-data:www-data' --from='project-files' /project/ /tester-shell-dir/
+
+# Add plugin code to the tester shell's "pristine" directory
+COPY --chown='www-data:www-data' --from='project-files' /project/ /pristine-tester-plugin/
+
+RUN ln -s /tester-shell-dir "${WP_TEST_CORE_DIR}/wp-content/plugins/wp-graphql" \
+  && echo 'initialize-wp-test-environment.sh' >> /root/.bashrc
+
+WORKDIR /tester-shell-dir
 
 # Doing this to prevent the container exiting prematurely. This service needs to hang around for someone to access
 # its shell.

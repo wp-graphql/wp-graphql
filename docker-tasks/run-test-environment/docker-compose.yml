@@ -16,9 +16,7 @@ services:
       DB_USER: 'root'
       DB_PASSWORD: 'testing'
     volumes:
-      # Using "delegated" option to improve disk performance for "Docker for Mac" users:
-      # https://docs.docker.com/docker-for-mac/osxfs-caching/#delegated
-      - "${PWD}:/project:delegated"
+      - "${PWD}:/project:ro"
 
   wpgraphql.test:
     image: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
