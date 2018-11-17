@@ -12,7 +12,7 @@ services:
       WORDPRESS_DB_PASSWORD: 'testing'
     volumes:
       - "${PWD}:/var/www/html/wp-content/plugins/wp-graphql:ro"
-      - ./uploads.txt:/usr/local/etc/php/conf.d/uploads.ini
+      - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
 
   mysql_test:
     image: "${MYSQL_DOCKER_IMAGE}"
