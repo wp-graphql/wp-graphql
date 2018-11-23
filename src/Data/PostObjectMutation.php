@@ -57,9 +57,6 @@ class PostObjectMutation {
 
 		if ( ! empty( $input['status'] ) ) {
 			$insert_post_args['post_status'] = $input['status'];
-			if ( in_array( $post_type_object->name, [ 'revision', 'attachment' ], true ) ) {
-				$insert_post_args['post_status'] = 'inherit';
-			}
 		}
 
 		if ( ! empty( $input['commentStatus'] ) ) {
@@ -89,8 +86,6 @@ class PostObjectMutation {
 		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
 		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && absint( $parent_id_parts['id'] ) ) {
 			$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
-		} else if ( absint( $input['parentId'] ) ) {
-			$insert_post_args['post_parent'] = absint( $input['parentId'] );
 		}
 
 		if ( ! empty( $input['menuOrder'] ) ) {
