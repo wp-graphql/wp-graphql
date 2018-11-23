@@ -1,4 +1,4 @@
-![Logo](./img/logo.png | width=48)
+![Logo](./img/logo.png)
 
 # WPGraphQL 
 
