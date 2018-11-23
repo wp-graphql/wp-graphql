@@ -25,6 +25,7 @@ use WPGraphQL\Mutation\PostObjectCreate;
 use WPGraphQL\Mutation\PostObjectDelete;
 use WPGraphQL\Mutation\PostObjectUpdate;
 use WPGraphQL\Mutation\ResetUserPassword;
+use WPGraphQL\Mutation\SendPasswordResetEmail;
 use WPGraphQL\Mutation\TermObjectCreate;
 use WPGraphQL\Mutation\TermObjectDelete;
 use WPGraphQL\Mutation\TermObjectUpdate;
@@ -222,6 +223,7 @@ class TypeRegistry {
 		MediaItemDelete::register_mutation();
 		MediaItemUpdate::register_mutation();
 		ResetUserPassword::register_mutation();
+		SendPasswordResetEmail::register_mutation();
 		UserCreate::register_mutation();
 		UserDelete::register_mutation();
 		UserUpdate::register_mutation();
