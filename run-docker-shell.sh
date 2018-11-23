@@ -9,7 +9,7 @@ fi
 readonly CONTAINER_ID="${1}"
 
 main() {
-  sudo docker exec -it "${CONTAINER_ID}" /bin/bash
+  docker exec -it "${CONTAINER_ID}" /bin/bash
 }
 
 main
