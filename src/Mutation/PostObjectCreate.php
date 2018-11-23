@@ -10,18 +10,8 @@ use WPGraphQL\Data\PostObjectMutation;
 
 class PostObjectCreate {
 	public static function register_mutation( \WP_Post_Type $post_type_object ) {
-
-		$input_fields = self::get_input_fields( $post_type_object );
-
-		/**
-		 * For revisions, make sure the parentId is a required input
-		 */
-		if ( 'revision' === $post_type_object->name ) {
-			$input_fields['parentId']['type'] = [ 'non_null' => 'ID' ];
-		}
-
 		register_graphql_mutation( 'create' . ucfirst( $post_type_object->graphql_single_name ), [
-			'inputFields'         => $input_fields,
+			'inputFields'         => self::get_input_fields( $post_type_object ),
 			'outputFields'        => [
 				$post_type_object->graphql_single_name => [
 					'type'    => $post_type_object->graphql_single_name,
