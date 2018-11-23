@@ -214,6 +214,7 @@ return array(
     'WPGraphQL\\Mutation\\PostObjectCreate' => $baseDir . '/src/Mutation/PostObjectCreate.php', 
     'WPGraphQL\\Mutation\\PostObjectDelete' => $baseDir . '/src/Mutation/PostObjectDelete.php', 
     'WPGraphQL\\Mutation\\PostObjectUpdate' => $baseDir . '/src/Mutation/PostObjectUpdate.php', 
+    'WPGraphQL\\Mutation\\ResetUserPassword' => $baseDir . '/src/Mutation/ResetUserPassword.php', 
     'WPGraphQL\\Mutation\\TermObjectCreate' => $baseDir . '/src/Mutation/TermObjectCreate.php', 
     'WPGraphQL\\Mutation\\TermObjectDelete' => $baseDir . '/src/Mutation/TermObjectDelete.php', 
     'WPGraphQL\\Mutation\\TermObjectUpdate' => $baseDir . '/src/Mutation/TermObjectUpdate.php', 
