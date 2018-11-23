@@ -55,7 +55,7 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 							$option = absint( $option );
 							break;
 						case 'string':
-							$option = (string) $option;
+							$option = ! empty( $option ) ? (string) $option : '';
 							break;
 						case 'boolean':
 							$option = (boolean) $option;
