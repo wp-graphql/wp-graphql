@@ -6,6 +6,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $created_post_ids;
 	public $admin;
+	public $subscriber;
 
 	public function setUp() {
 		parent::setUp();
@@ -16,6 +17,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		$this->subscriber = $this->factory()->user->create([
+			'role' => 'subscriber'
+		]);
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
@@ -710,6 +714,127 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Make sure the author is equal to the user previously created
 		 */
 		$this->assertEquals( $user_id, $actual['author'] );
+
+	}
+
+	public function testUserWithProperCapsCanQueryRevisions() {
+
+		wp_set_current_user( $this->admin );
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post with revisions',
+		]);
+
+		$this->factory()->post->create_many( 10, [
+			'post_type' => 'revision',
+			'post_status' => 'inherit',
+			'post_parent' => $post_id
+		]);
+
+		$query = '
+		query GET_POST_AND_REVISIONS ($postId: ID){
+		  revisions {
+		    nodes {
+		      id
+		      title
+		    }
+		  }	
+		  postBy( postId: $postId ) {
+		    id
+		    postId
+		    title
+		    date 
+		    revisions {
+		      nodes {
+		        id
+		        revisionId
+		        title
+		        content
+		        parent {
+		          ...on Post {
+		            id
+		            postId
+		            title
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [ 'postId' => $post_id ];
+
+		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
+		$this->assertNotEmpty( $actual['data']['postBy']['revisions']['nodes'] );
+
+		/**
+		 * An admin SHOULD be able to see revisions
+		 */
+		$this->assertNotFalse( ( count( $actual['data']['revisions']['nodes'] ) === 10 ) );
+
+	}
+
+	public function testUserWithoutProperCapsCannotQueryRevisions() {
+
+		wp_set_current_user( $this->subscriber );
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post with revisions',
+		]);
+
+		$this->factory()->post->create_many( 10, [
+			'post_type' => 'revision',
+			'post_status' => 'inherit',
+			'post_parent' => $post_id
+		]);
+
+		$query = '
+		query GET_POST_AND_REVISIONS ($postId: ID){
+		  revisions {
+		    nodes {
+		      id
+		      title
+		    }
+		  }		  
+		  postBy( postId: $postId ) {
+		    id
+		    postId
+		    title
+		    date 
+		    revisions {
+		      nodes {
+		        id
+		        revisionId
+		        title
+		        content
+		        parent {
+		          ...on Post {
+		            id
+		            postId
+		            title
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [ 'postId' => $post_id ];
+
+		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
+		$this->assertNotEmpty( $actual['data']['postBy'] );
+		$this->assertEmpty( $actual['data']['postBy']['revisions']['nodes'] );
+
+		/**
+		 * A subscriber should not be able to see revisions
+		 */
+		$this->assertNotFalse( ( count( $actual['data']['revisions']['nodes'] ) === 0 ) );
 
 	}
 
