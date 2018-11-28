@@ -365,7 +365,7 @@ class TypeRegistry {
 			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
 				$config['fields'] = function () use ( $config, $type_name ) {
 					$prepared_fields = self::prepare_fields( $config['fields'], $type_name );
-					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name, $config );
 
 					return $prepared_fields;
 				};

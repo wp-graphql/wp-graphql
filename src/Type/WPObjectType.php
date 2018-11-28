@@ -3,6 +3,7 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Type\WPInputObjectType;
 
 /**
  * Class WPObjectType
@@ -91,11 +92,12 @@ class WPObjectType extends ObjectType {
 	 *
 	 * @param array  $fields
 	 * @param string $type_name
+	 * @param array $config
 	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( $fields, $type_name ) {
+	public static function prepare_fields( $fields, $type_name, $config = [] ) {
 
 		if ( null === self::$prepared_fields ) {
 			self::$prepared_fields = [];
@@ -139,6 +141,16 @@ class WPObjectType extends ObjectType {
 			 * @param array $fields The array of fields for the object config
 			 */
 			$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
+
+			/**
+			 * If the object defines input fields, apply a centralized filter for
+			 * input fields. This was previously handled by WPInputObjectType, but
+			 * the fields definition is now trapped in a closure so all filters need
+			 * to happen in one place.
+			 */
+			if ( isset( $config['kind'] ) && 'input' === $config['kind'] ) {
+				$fields = WPInputObjectType::prepare_fields( $fields, $type_name, $config );
+			}
 
 			/**
 			 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
