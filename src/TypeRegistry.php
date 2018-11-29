@@ -363,9 +363,17 @@ class TypeRegistry {
 			$config['name'] = ucfirst( $type_name );
 
 			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-				$config['fields'] = function () use ( $config, $type_name ) {
+				$config['fields'] = function () use ( $config, $kind, $type_name ) {
 					$prepared_fields = self::prepare_fields( $config['fields'], $type_name );
-					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name, $config );
+					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+
+					/**
+					 * If the object defines input fields, additionally apply a
+					 * centralized filter for all input fields.
+					 */
+					if ( 'input' === $kind ) {
+						$prepared_fields = WPInputObjectType::prepare_fields( $prepared_fields, $type_name, $config );
+					}
 
 					return $prepared_fields;
 				};
