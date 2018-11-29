@@ -3,7 +3,6 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Type\WPInputObjectType;
 
 /**
  * Class WPObjectType
