@@ -204,6 +204,7 @@ return array(
     'WPGraphQL\\Data\\UserConnectionResolver' => $baseDir . '/src/Data/UserConnectionResolver.php',
     'WPGraphQL\\Data\\UserMutation' => $baseDir . '/src/Data/UserMutation.php',
     'WPGraphQL\\Data\\UserRoleConnectionResolver' => $baseDir . '/src/Data/UserRoleConnectionResolver.php',
+    'WPGraphQL\\Model\\PostObject' => $baseDir . '/src/Model/PostObject.php',
     'WPGraphQL\\Mutation\\CommentCreate' => $baseDir . '/src/Mutation/CommentCreate.php',
     'WPGraphQL\\Mutation\\CommentDelete' => $baseDir . '/src/Mutation/CommentDelete.php',
     'WPGraphQL\\Mutation\\CommentRestore' => $baseDir . '/src/Mutation/CommentRestore.php',

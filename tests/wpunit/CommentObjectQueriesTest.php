@@ -232,6 +232,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Post object to assign comments to.
 		$post_id = $this->factory->post->create( [
 			'post_content' => 'Post object',
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 
 		// Parent comment.

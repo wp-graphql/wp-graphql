@@ -626,6 +626,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'orderby'                => array(
 				'author' => 'ASC',
 			),
+			'ignore_sticky_posts' => true,
 		);
 
 		/**
@@ -785,12 +786,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'post',
 			'post_status' => 'publish',
 			'post_title' => 'Post with revisions',
+			'post_author' => $this->admin
 		]);
 
 		$this->factory()->post->create_many( 10, [
 			'post_type' => 'revision',
 			'post_status' => 'inherit',
-			'post_parent' => $post_id
+			'post_parent' => $post_id,
+			'post_author' => $this->admin,
 		]);
 
 		$query = '
@@ -828,6 +831,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$variables = [ 'postId' => $post_id ];
 
 		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
+
 		$this->assertNotEmpty( $actual['data']['postBy'] );
 		$this->assertEmpty( $actual['data']['postBy']['revisions']['nodes'] );
 

@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\PostObject;
 use WPGraphQL\Types;
 
 /**
@@ -161,22 +162,21 @@ class DataSource {
 	 *
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @return \WP_Post
+	 * @return mixed null \WP_Post
 	 * @access public
 	 */
 	public static function resolve_post_object( $id, $post_type ) {
 
+		/**
+		 * Get the Post instance
+		 */
 		$post_object = \WP_Post::get_instance( $id );
-		if ( empty( $post_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $post_type, $id ) );
-		}
 
 		/**
-		 * Mimic core functionality for templates, as seen here:
-		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 * If no post_object can be found, throw an error
 		 */
-		if ( 'attachment' === $post_type ) {
-			remove_filter( 'the_content', 'prepend_attachment' );
+		if ( empty( $post_object ) ) {
+			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $post_type, $id ) );
 		}
 
 		/**
@@ -187,7 +187,16 @@ class DataSource {
 		$GLOBALS['post'] = $post_object;
 		setup_postdata( $post_object );
 
-		return $post_object;
+		/**
+		 * Mimic core functionality for templates, as seen here:
+		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 */
+		if ( 'attachment' === $post_object->post_type ) {
+			remove_filter( 'the_content', 'prepend_attachment' );
+		}
+
+		$post_object = new PostObject( $post_object );
+		return $post_object->get_instance();
 
 	}
 
@@ -355,11 +364,11 @@ class DataSource {
 	 */
 	public static function resolve_user( $id ) {
 
-		Loader::addOne( 'user', $id );
+		Loader::addOne( 'user', (int) $id );
 		$loader = function () use ( $id ) {
 			Loader::loadBuffered( 'user' );
 
-			return Loader::loadOne( 'user', $id );
+			return Loader::loadOne( 'user', (int) $id );
 		};
 
 		return new Deferred( $loader );

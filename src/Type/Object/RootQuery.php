@@ -221,10 +221,6 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
 				}
 
-				if ( ! $post_object instanceof \WP_Post ) {
-					throw new UserError( __( 'The queried resource is not valid', 'wp-graphql' ) );
-				}
-
 				if ( $post_type_object->name !== $post_object->post_type ) {
 					throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
 				}

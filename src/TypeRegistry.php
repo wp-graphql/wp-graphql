@@ -543,6 +543,7 @@ class TypeRegistry {
 			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
 		}
 
+
 		$from_type          = $config['fromType'];
 		$to_type            = $config['toType'];
 		$from_field_name    = $config['fromFieldName'];
@@ -554,6 +555,7 @@ class TypeRegistry {
 		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
 		$connection_name    = self::get_connection_name( $from_type, $to_type );
 		$where_args         = [];
+		$connection_field_config = ! empty( $config['connectionFieldConfig'] ) && is_array( $config['connectionFieldConfig'] ) ? $config['connectionFieldConfig'] : [];
 
 		/**
 		 * If there are any $connectionArgs,
@@ -621,7 +623,7 @@ class TypeRegistry {
 			], $connection_fields ),
 		] );
 
-		register_graphql_field( $from_type, $from_field_name, [
+		register_graphql_field( $from_type, $from_field_name, array_merge( [
 			'type'        => $connection_name,
 			'args'        => array_merge( [
 				'first'  => [
@@ -643,7 +645,7 @@ class TypeRegistry {
 			], $where_args ),
 			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
 			'resolve'     => $resolve_connection,
-		] );
+		], $connection_field_config ) );
 
 	}
 
