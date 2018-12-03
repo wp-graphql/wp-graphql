@@ -22,24 +22,39 @@ use WPGraphQL\Types;
 class PostObject {
 
 	/**
-	 * @var \WP_Post
+	 * @var \WP_Post Holds an instance of the current PostObjects original \WP_Post
 	 */
 	protected $post;
 
 	/**
-	 *
+	 * @var \WP_Post_Type Holds an instance of the current PostObjects Post Type
 	 */
 	protected $post_type_object;
 
 	/**
-	 * @var bool
+	 * "is_private" signifies that the current user should not even know this PostObject exists.
+	 * It should not be returned, even partially in responses.
+	 *
+	 * @var bool Whether the PostObject is private.
 	 */
 	protected $is_private = false;
 
 	/**
-	 * @var bool
+	 * "is_restricted" signifies that the current user should have limited access to data of
+	 * this PostObject.
+	 *
+	 * Only certain fields should be returned by default, and the others should not be returned.
+	 *
+	 * @var bool Whether the PostObject is restricted
 	 */
 	protected $is_restricted = false;
+
+	/**
+	 * The names of fields to be allowed on Restricted Posts
+	 *
+	 * @var array
+	 */
+	protected $allowed_restricted_fields = [];
 
 	/**
 	 * PostObject constructor.
@@ -68,16 +83,76 @@ class PostObject {
 		}
 
 		/**
-		 * Run permissions checks on the post
-		 */
-		$this->check_permissions();
-
-		/**
 		 * Return the post object
 		 */
 		$prepared = $this->get_instance();
 
 		return $prepared;
+
+	}
+
+	/**
+	 * Whether the PostObject should be considered private or not.
+	 *
+	 * @return bool
+	 */
+	protected function is_private() {
+
+		/**
+		 * If the current user is the author of the post, then
+		 * it should not be considered private, and we can return right now.
+		 */
+		if (
+			( isset( $this->post->post_author ) && (int) $this->post->post_author === (int) get_current_user_id() ) ||
+			( isset( $this->post->post_status ) && $this->post->post_status === 'publish' )
+		) {
+			$this->is_private = false;
+		} else {
+
+			/**
+			 * If the post_type isn't (not registered) or is not allowed in WPGraphQL,
+			 * mark the post as private
+			 */
+			if ( empty( $this->post_type_object ) || empty( $this->post_type_object->name ) || ! in_array( $this->post_type_object->name, \WPGraphQL::$allowed_post_types, true ) ) {
+				$this->is_private = true;
+			}
+
+			/**
+			 * Determine permissions based on post_status
+			 */
+			switch ( $this->post->post_status ) {
+				/**
+				 * Users cannot access private posts they are not the author of
+				 */
+				case 'private':
+					$this->is_private = true;
+					break;
+			}
+
+			/**
+			 * Determine permissions based on post_type
+			 */
+			switch ( $this->post->post_type ) {
+				case 'nav_menu_item':
+					$this->is_private = false;
+				case 'revision':
+					$parent               = get_post( (int) $this->post->post_parent );
+					$parent_post_type_obj = get_post_type_object( $parent->post_type );
+					if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $parent->ID ) ) {
+						$this->is_private = true;
+					}
+					break;
+			}
+
+		}
+
+
+		/**
+		 * Returns true if the PostObject is considered private. False otherwise.
+		 */
+		$this->is_private = apply_filters( 'graphql_post_object_is_private', $this->is_private, $this );
+
+		return $this->is_private;
 
 	}
 
@@ -90,17 +165,10 @@ class PostObject {
 	 * Restricted: return partial fields, as the user has access to know the post exists, but they
 	 * can't access all the fields
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	protected function check_permissions() {
+	protected function is_restricted() {
 
-		/**
-		 * If the post_type isn't (not registered) or is not allowed in WPGraphQL,
-		 * mark the post as private
-		 */
-		if ( empty( $this->post_type_object ) || ! in_array( $this->post_type_object->name, \WPGraphQL::$allowed_post_types, true ) ) {
-			$this->is_private = true;
-		}
 
 		/**
 		 * If the current user is the author of the post, it's not restricted
@@ -108,7 +176,7 @@ class PostObject {
 		 */
 		if ( (int) $this->post->post_author === (int) get_current_user_id() || $this->post->post_status === 'publish' ) {
 			$this->is_restricted = false;
-			$this->is_private    = false;
+
 			/**
 			 * If the current user is NOT the author of the post
 			 */
@@ -118,12 +186,7 @@ class PostObject {
 			 * Determine permissions based on post_status
 			 */
 			switch ( $this->post->post_status ) {
-				/**
-				 * Users cannot access private posts they are not the author of
-				 */
-				case 'private':
-					$this->is_private = true;
-					break;
+
 				/**
 				 * Users must have access to edit_others_posts to view
 				 */
@@ -141,24 +204,19 @@ class PostObject {
 					break;
 			}
 
+			/**
+			 * Determine permissions based on post_type
+			 */
 			switch ( $this->post->post_type ) {
 				case 'nav_menu_item':
-					$this->is_private = false;
 					$this->is_restricted = false;
-					break;
-				case 'revision':
-					$parent               = get_post( (int) $this->post->post_parent );
-					$parent_post_type_obj = get_post_type_object( $parent->post_type );
-					if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $parent->ID ) ) {
-						$this->is_private = true;
-					}
 					break;
 				default:
 					break;
 			}
 
 			// Check how to handle this. . .we need a way for password protected posts
-			// to accept a password argument to view the post
+			// to accept a password argument to view the post.
 			if ( ! empty( $this->post->post_password ) ) {
 				if ( ! current_user_can( $this->post_type_object->cap->edit_others_posts, $this->post->ID ) ) {
 					$this->is_restricted = true;
@@ -166,12 +224,12 @@ class PostObject {
 			}
 		}
 
-
 		/**
-		 *
+		 * Filter whether the PostObject should be considered restricted
 		 */
-		do_action( 'graphql_post_object_check_permissions', $this );
+		$this->is_restricted = apply_filters( 'graphql_post_object_is_restricted', $this->is_restricted, $this );
 
+		return $this->is_restricted;
 
 	}
 
@@ -183,15 +241,20 @@ class PostObject {
 	public function get_instance() {
 
 		/**
-		 * If the post is private, null it
+		 * If the post should be considered private, return null as if the post doesn't exist
 		 */
-		if ( true === $this->is_private ) {
+		if ( true === $this->is_private() ) {
 			return null;
 		}
 
-
 		/**
-		 * Setup the PostData that makes up a PostObject
+		 * Setup the PostData that makes up a PostObject.
+		 *
+		 * @todo I'm thinking this can be broken up into more granular bits to make this more readable,
+		 * but I think the main point here to keep in mind, is that for performance sake, we want all the fields
+		 * that aren't just properties of the Post object to be a callback so they're only processed
+		 * if the GraphQL query asks for them. We don't want to execute and process all theses fields
+		 * to build a PostObject every time a Post is needed, only if the fields were asked for.
 		 */
 		$post_fields = [
 			'ID'            => $this->post->ID,
@@ -322,7 +385,7 @@ class PostObject {
 
 				return ! empty( $uri ) ? $uri : null;
 			},
-			'terms'         => function ( $source, $args, $context, $info ) {
+			'terms'         => function ( $source, $args ) {
 
 				/**
 				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
@@ -475,15 +538,15 @@ class PostObject {
 		}
 
 		if ( isset( $this->post_type_object ) && isset( $this->post_type_object->graphql_single_name ) ) {
-			$type_id = $this->post_type_object->graphql_single_name . 'Id';
+			$type_id                 = $this->post_type_object->graphql_single_name . 'Id';
 			$post_fields[ $type_id ] = absint( $this->post->ID );
 		};
 
 		/**
-		 * If the post is restricted, filter out all fields other than those allowed
+		 * If the PostObject is restricted, set the restricted fields
 		 */
-		if ( $this->is_restricted ) {
-			$allowed_fields = apply_filters( 'graphql_restricted_post_object_allowed_fields', [
+		if ( true === $this->is_restricted() ) {
+			$fields                          = [
 				'id',
 				'title',
 				'slug',
@@ -491,10 +554,16 @@ class PostObject {
 				'status',
 				'post_status',
 				'isRestricted'
-			] );
+			];
+			$filtered                        = apply_filters( 'graphql_restricted_post_object_allowed_fields', $fields );
+			$this->allowed_restricted_fields = $filtered;
+		};
 
-			$post_fields = array_intersect_key( $post_fields, array_flip( $allowed_fields ) );
-
+		/**
+		 * If the post is restricted, filter out all fields other than the "allowed_restricted_fields"
+		 */
+		if ( $this->is_restricted ) {
+			$post_fields = array_intersect_key( $post_fields, array_flip( $this->allowed_restricted_fields ) );
 		}
 
 		/**

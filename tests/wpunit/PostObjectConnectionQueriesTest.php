@@ -17,9 +17,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->subscriber = $this->factory()->user->create([
+		$this->subscriber = $this->factory()->user->create( [
 			'role' => 'subscriber'
 		]);
+
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
@@ -780,20 +781,18 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testUserWithoutProperCapsCannotQueryRevisions() {
 
-		wp_set_current_user( $this->subscriber );
-
 		$post_id = $this->factory()->post->create([
 			'post_type' => 'post',
 			'post_status' => 'publish',
 			'post_title' => 'Post with revisions',
-			'post_author' => $this->admin
+			'post_author' => absint( $this->admin )
 		]);
 
 		$this->factory()->post->create_many( 10, [
 			'post_type' => 'revision',
 			'post_status' => 'inherit',
 			'post_parent' => $post_id,
-			'post_author' => $this->admin,
+			'post_author' => absint( $this->admin ),
 		]);
 
 		$query = '
@@ -829,6 +828,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$variables = [ 'postId' => $post_id ];
+
+		wp_set_current_user( $this->subscriber );
 
 		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
 
