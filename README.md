@@ -1,4 +1,4 @@
-![Logo](https://d2ffutrenqvap3.cloudfront.net/items/1i0F192I0j3F042t3S3R/logo-250.png)
+![Logo](./img/logo.png)
 
 # WPGraphQL 
 

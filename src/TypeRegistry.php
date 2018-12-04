@@ -24,6 +24,8 @@ use WPGraphQL\Mutation\MediaItemUpdate;
 use WPGraphQL\Mutation\PostObjectCreate;
 use WPGraphQL\Mutation\PostObjectDelete;
 use WPGraphQL\Mutation\PostObjectUpdate;
+use WPGraphQL\Mutation\ResetUserPassword;
+use WPGraphQL\Mutation\SendPasswordResetEmail;
 use WPGraphQL\Mutation\TermObjectCreate;
 use WPGraphQL\Mutation\TermObjectDelete;
 use WPGraphQL\Mutation\TermObjectUpdate;
@@ -220,6 +222,8 @@ class TypeRegistry {
 		MediaItemCreate::register_mutation();
 		MediaItemDelete::register_mutation();
 		MediaItemUpdate::register_mutation();
+		ResetUserPassword::register_mutation();
+		SendPasswordResetEmail::register_mutation();
 		UserCreate::register_mutation();
 		UserDelete::register_mutation();
 		UserUpdate::register_mutation();
@@ -350,9 +354,17 @@ class TypeRegistry {
 			$config['name'] = ucfirst( $type_name );
 
 			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-				$config['fields'] = function () use ( $config, $type_name ) {
+				$config['fields'] = function () use ( $config, $kind, $type_name ) {
 					$prepared_fields = self::prepare_fields( $config['fields'], $type_name );
 					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+
+					/**
+					 * If the object defines input fields, additionally apply a
+					 * centralized filter for all input fields.
+					 */
+					if ( 'input' === $kind ) {
+						$prepared_fields = WPInputObjectType::prepare_fields( $prepared_fields, $type_name, $config );
+					}
 
 					return $prepared_fields;
 				};

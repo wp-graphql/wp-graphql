@@ -46,7 +46,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * This filters the capabilities so that our test user can create/edit/delete users in multisite.
+	 * This filters the capabilities so that our test user can create/edit/delete users in
+	 * multisite.
 	 *
 	 * @param $caps
 	 * @param $cap
@@ -650,9 +651,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'registerUser' => [
 					'clientMutationId' => $this->client_mutation_id,
 					'user'             => [
-						'username'  => $username,
-						'email'     => $email,
-						'roles'     => [
+						'username' => $username,
+						'email'    => $email,
+						'roles'    => [
 							$default_role,
 						],
 					]
@@ -662,6 +663,287 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual );
 
+	}
+
+	public function resetUserPasswordMutation( $args ) {
+
+		$mutation = '
+		mutation resetUserPassword($input:ResetUserPasswordInput!) {
+			resetUserPassword(input:$input){
+				clientMutationId
+				user {
+					username
+					email
+					roles
+				}
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'key'              => $args['key'],
+				'login'            => $args['login'],
+				'password'         => $args['password'],
+			]
+		];
+
+		return do_graphql_request( $mutation, 'resetUserPassword', $variables );
+
+	}
+
+	public function testResetUserPasswordWithInvalidLoginAndKey() {
+
+		$args = [
+			'login'    => 'invalidLogin',
+			'key'      => 'invalidKey',
+			'password' => 'newPassword123',
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		/**
+		 * We're asserting that this will properly return an error
+		 * because an invalid login and reset key were provided.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testResetUserPasswordWithInvalidKey() {
+
+		$user  = get_userdata( $this->subscriber );
+		$login = $user->user_login;
+
+		$args = [
+			'key'      => 'invalidKey',
+			'login'    => $login,
+			'password' => 'newPassword123',
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		/**
+		 * We're asserting that this will properly return an error
+		 * because an invalid reset key was provided.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+
+	}
+
+	public function testResetUserPasswordResponse() {
+
+		$user         = get_userdata( $this->subscriber );
+		$key          = get_password_reset_key( $user );
+		$login        = $user->user_login;
+		$email        = $user->user_email;
+		$roles        = $user->roles;
+		$new_password = 'newPassword123';
+
+		$args = [
+			'key'      => $key,
+			'login'    => $login,
+			'password' => $new_password,
+		];
+
+		$actual = $this->resetUserPasswordMutation( $args );
+
+		$expected = [
+			'data' => [
+				'resetUserPassword' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user'             => [
+						'username' => $login,
+						'email'    => $email,
+						'roles'    => $roles,
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $actual, $expected );
+
+	}
+
+	public function testResetUserPassword() {
+
+		/**
+		 * Initialize old password to ensure it's different from
+		 * what we're resetting it to.
+		 */
+		wp_set_password( 'oldPassword123', $this->subscriber );
+
+		$user         = get_userdata( $this->subscriber );
+		$key          = get_password_reset_key( $user );
+		$login        = $user->user_login;
+		$new_password = 'newPassword123';
+
+		$args = [
+			'key'      => $key,
+			'login'    => $login,
+			'password' => $new_password,
+		];
+
+		$this->resetUserPasswordMutation( $args );
+
+		// Try to authenticate user using new password.
+		$authenticated_user   = wp_authenticate( $login, $new_password );
+		$was_reset_successful = ! is_wp_error( $authenticated_user );
+
+		/**
+		 * Assert that password was successfully reset.
+		 */
+		$this->assertTrue( $was_reset_successful );
+
+	}
+
+	public function sendPasswordResetEmailMutation( $username ) {
+		$mutation  = '
+		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
+			sendPasswordResetEmail( input: $input ) {
+				clientMutationId
+				user {
+					username
+					email
+					roles
+				} 
+			}
+		}
+		';
+		$variables = [
+			'input' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'username'         => $username,
+			],
+		];
+
+		return do_graphql_request( $mutation, 'sendPasswordResetEmail', $variables );
+	}
+
+	public function testSendPasswordResetEmailWithInvalidUsername() {
+		$username = 'userDoesNotExist';
+		// Run the mutation, passing in an invalid username.
+		$actual = $this->sendPasswordResetEmailMutation( $username );
+		/**
+		 * We're asserting that this will properly return an error
+		 * because this user does not exist.
+		 */
+		$this->assertNotEmpty( $actual['errors'] );
+	}
+
+	public function testSendPasswordResetEmailResponseWithUsername() {
+		$user     = get_userdata( $this->subscriber );
+		$username = $user->user_login;
+		// Run the mutation, passing in a valid username.
+		$actual   = $this->sendPasswordResetEmailMutation( $username );
+		$expected = $this->getSendPasswordResetEmailExpected();
+		/**
+		 * Assert that the expected user data was returned.
+		 */
+		$this->assertEquals( $expected, $actual );
+	}
+
+	public function testSendPasswordResetEmailResponseWithEmail() {
+		$user  = get_userdata( $this->subscriber );
+		$email = $user->user_email;
+		// Run the mutation, passing in a valid email address.
+		$actual   = $this->sendPasswordResetEmailMutation( $email );
+		$expected = $this->getSendPasswordResetEmailExpected();
+		/**
+		 * Assert that the expected user data was returned.
+		 */
+		$this->assertEquals( $expected, $actual );
+	}
+
+	public function getSendPasswordResetEmailExpected() {
+		$user     = get_userdata( $this->subscriber );
+		$username = $user->user_login;
+		$email    = $user->user_email;
+		$roles    = $user->roles;
+
+		return [
+			'data' => [
+				'sendPasswordResetEmail' => [
+					'clientMutationId' => $this->client_mutation_id,
+					'user'             => [
+						'username' => $username,
+						'email'    => $email,
+						'roles'    => $roles,
+					]
+				]
+			]
+		];
+	}
+
+	public function testSendPasswordResetEmailActivationKeyWithUsername() {
+		$user     = get_userdata( $this->subscriber );
+		$username = $user->user_login;
+		$old_key  = $this->get_user_activation_key( $username );
+		// Run the mutation, passing in a valid username.
+		$this->sendPasswordResetEmailMutation( $username );
+		$new_key = $this->get_user_activation_key( $username );
+		/**
+		 * Assert that the user activation key in the DB was updated.
+		 */
+		$this->assertNotEquals( $old_key, $new_key );
+	}
+
+	public function testSendPasswordResetEmailActivationKeyWithEmail() {
+		$user     = get_userdata( $this->subscriber );
+		$username = $user->user_login;
+		$email    = $user->user_email;
+		$old_key  = $this->get_user_activation_key( $username );
+		// Run the mutation, passing in a valid email.
+		$this->sendPasswordResetEmailMutation( $email );
+		$new_key = $this->get_user_activation_key( $username );
+		/**
+		 * Assert that the user activation key in the DB was updated.
+		 */
+		$this->assertNotEquals( $old_key, $new_key );
+	}
+
+	public function get_user_activation_key( $username ) {
+		global $wpdb;
+
+		/**
+		 * We can't use the WP_User object here, since it returns the cached
+		 * activation key. Run a fresh DB query instead.
+		 */
+		return $wpdb->get_var( $wpdb->prepare( 'SELECT user_activation_key FROM wp_users WHERE user_login = %s', $username ) );
+	}
+
+	public function testSendPasswordResetEmailSentWithUsername() {
+		$user     = get_userdata( $this->subscriber );
+		$username = $user->user_login;
+		// Run the mutation, passing in a valid username.
+		$email_sent = $this->runSendPasswordResetEmailSentTest( $username );
+		/**
+		 * Assert that the password reset email was sent (did not fail).
+		 */
+		$this->assertTrue( $email_sent );
+	}
+
+	public function testSendPasswordResetEmailSentWithEmail() {
+		$user  = get_userdata( $this->subscriber );
+		$email = $user->user_email;
+		// Run the mutation, passing in a valid email.
+		$email_sent = $this->runSendPasswordResetEmailSentTest( $email );
+		/**
+		 * Assert that the password reset email was sent (did not fail).
+		 */
+		$this->assertTrue( $email_sent );
+	}
+
+	public function runSendPasswordResetEmailSentTest( $mutation_arg ) {
+		$email_sent        = true;
+		$update_email_sent = function () use ( &$email_sent ) {
+			$email_sent = false;
+		};
+		add_action( 'wp_mail_failed', $update_email_sent );
+		$this->sendPasswordResetEmailMutation( $mutation_arg );
+		remove_action( 'wp_mail_failed', $update_email_sent );
+
+		return $email_sent;
 	}
 
 }
