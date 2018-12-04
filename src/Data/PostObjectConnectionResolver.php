@@ -153,6 +153,15 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
+		 * If the query is a search, the source is not another Post, and the parent input $arg is not
+		 * explicitly set in the query, unset the $query_args['post_parent'] so the search
+		 * can search all posts, not just top level posts.
+		 */
+		if ( ! $source instanceof \WP_Post && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
+			unset( $query_args['post_parent'] );
+		}
+
+		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
 		 if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
