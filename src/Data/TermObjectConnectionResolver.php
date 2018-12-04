@@ -152,10 +152,20 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If the connection is set to output in a flat list, unset the parent
 		 */
-		if ( $source instanceof \WP_Post && isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
+		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
 			unset( $query_args['parent'] );
-			$connected             = wp_get_object_terms( $source->ID, self::$taxonomy, [ 'fields' => 'ids' ] );
-			$query_args['include'] = ! empty( $connected ) ? $connected : [];
+			if ( $source instanceof \WP_Post ) {
+				$connected             = wp_get_object_terms( $source->ID, self::$taxonomy, [ 'fields' => 'ids' ] );
+				$query_args['include'] = ! empty( $connected ) ? $connected : [];
+			}
+		}
+
+		/**
+		 * If the query is a search, the source isn't another Term, and the parent $arg is not explicitly set in the query,
+		 * unset the $query_args['parent'] so the search can search all posts, not just top level posts.
+		 */
+		if ( ! $source instanceof \WP_Term && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
+			unset( $query_args['parent'] );
 		}
 
 		/**
