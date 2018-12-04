@@ -225,7 +225,7 @@ function get_post_object_fields( $post_type_object ) {
 		],
 		'excerpt'           => [
 			'type'        => 'String',
-			'description' => __( 'The excerpt of the post.', 'wp-graphql' ),
+			'description' => __( 'The excerpt of the post. This is currently just the raw excerpt. An amendment to support rendered excerpts needs to be made.', 'wp-graphql' ),
 			'args'        => [
 				'format' => [
 					'type'        => 'PostObjectFieldFormatEnum',

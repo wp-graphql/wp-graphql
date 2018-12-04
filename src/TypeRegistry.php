@@ -160,18 +160,9 @@ class TypeRegistry {
 				 * because they require different inputs
 				 */
 				if ( 'attachment' !== $post_type_object->name ) {
-
-					/**
-					 * Revisions are created behind the scenes as a side effect of post updates,
-					 * they aren't created manually.
-					 */
-					if ( 'revision' !== $post_type_object->name ) {
-						PostObjectCreate::register_mutation( $post_type_object );
-						PostObjectUpdate::register_mutation( $post_type_object );
-					}
-
+					PostObjectCreate::register_mutation( $post_type_object );
+					PostObjectUpdate::register_mutation( $post_type_object );
 					PostObjectDelete::register_mutation( $post_type_object );
-
 				}
 
 			}
