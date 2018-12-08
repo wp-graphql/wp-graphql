@@ -1,6 +1,8 @@
 <?php
 
 namespace WPGraphQL\Data;
+use GraphQL\Language\AST\NonNullType;
+use GraphQL\Type\Definition\ListOfType;
 
 /**
  * Class Config
@@ -21,7 +23,6 @@ class Config {
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
 		add_filter( 'comments_clauses', [ $this, 'graphql_wp_comments_query_cursor_pagination_support' ], 10, 2 );
-
 
 		/**
 		 * Filter the WP_Query to support cursor based pagination where a post ID can be used
@@ -68,7 +69,6 @@ class Config {
 
 				$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
 				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-				$compare_opposite = ( '<' === $compare ) ? '>' : '<';
 
 				// Get the $cursor_post
 				$cursor_post = get_post( $cursor_offset );

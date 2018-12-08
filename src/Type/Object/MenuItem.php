@@ -14,7 +14,7 @@ register_graphql_object_type( 'MenuItem', [
 			],
 			'description' => __( 'Relay ID of the menu item.', 'wp-graphql' ),
 			'resolve'     => function( \WP_Post $menu_item ) {
-				return ! empty( $menu_item->ID ) ? Relay::toGlobalId( 'MenuItem', $menu_item->ID ) : null;
+				return ! empty( $menu_item->ID ) ? Relay::toGlobalId( 'nav_menu_item', $menu_item->ID ) : null;
 			},
 		],
 		'cssClasses'       => [
@@ -32,6 +32,7 @@ register_graphql_object_type( 'MenuItem', [
 
 				return $menu_item->classes;
 			},
+
 		],
 		'description'      => [
 			'type'        => 'String',

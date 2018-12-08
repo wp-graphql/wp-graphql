@@ -372,6 +372,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_post_types['post']->graphql_plural_name = 'posts';
 			}
 
+			// Adds GraphQL support for posts
+			if ( isset( $wp_post_types['revision'] ) ) {
+				$wp_post_types['revision']->show_in_graphql     = true;
+				$wp_post_types['revision']->graphql_single_name = 'revision';
+				$wp_post_types['revision']->graphql_plural_name = 'revisions';
+			}
+
 			// Adds GraphQL support for categories
 			if ( isset( $wp_taxonomies['category'] ) ) {
 				$wp_taxonomies['category']->show_in_graphql     = true;

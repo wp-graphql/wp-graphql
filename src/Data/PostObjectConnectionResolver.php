@@ -59,6 +59,11 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		$first = ! empty( $args['first'] ) ? $args['first'] : null;
 
 		/**
+		 * Ignore sticky posts by default
+		 */
+		$query_args['ignore_sticky_posts'] = true;
+
+		/**
 		 * Set the post_type for the query based on the type of post being queried
 		 */
 		$query_args['post_type'] = ! empty( self::$post_type ) ? self::$post_type : 'post';
@@ -104,9 +109,9 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
+		 * If the post_type is "attachment" or "revision" set the default "post_status" $query_arg to "inherit"
 		 */
-		if ( 'attachment' === self::$post_type ) {
+		if ( in_array( self::$post_type, [ 'attachment', 'revision' ], true ) ) {
 			$query_args['post_status'] = 'inherit';
 
 			/**
@@ -114,6 +119,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			 * have a post_parent set by default
 			 */
 			unset( $query_args['post_parent'] );
+
 		}
 
 		/**
@@ -234,6 +240,18 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		$items = ! empty( $items ) && is_array( $items ) ? $items : [];
 
+		/**
+		 * Filter the items before resolving the connection
+		 *
+		 * @param array       $items   The array of items being connected
+		 * @param mixed       $query   The Query that was processed to get the connection data
+		 * @param array       $args    The $args that were passed to the query
+		 * @param mixed       $source  The source being passed down the resolve tree
+		 * @param AppContext  $context The AppContext being passed down the resolve tree
+		 * @param ResolveInfo $info    the ResolveInfo passed down the resolve tree
+		 */
+		$items = apply_filters( 'graphql_connection_items', $items, $query, $args, $source, $context, $info );
+
 		$info = self::get_query_info( $query );
 
 		/**
@@ -250,7 +268,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * Get the edges from the $items
 		 */
-		$edges = static::get_edges( $items, $source, $args, $context, $info );
+		$edges = array_filter( static::get_edges( $items, $source, $args, $context, $info ) );
 
 		/**
 		 * Find the first_edge and last_edge
@@ -258,6 +276,13 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		$first_edge      = $edges ? $edges[0] : null;
 		$last_edge       = $edges ? $edges[ count( $edges ) - 1 ] : null;
 		$edges_to_return = $edges;
+
+		/**
+		 * Prepare the nodes
+		 */
+		$nodes = array_filter( array_map( function( $edge ) {
+			return ! empty( $edge['node'] ) ? $edge['node'] : null;
+		}, $edges ) );
 
 		/**
 		 * Create the connection to return
@@ -270,7 +295,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				'startCursor'     => ! empty( $first_edge['cursor'] ) ? $first_edge['cursor'] : null,
 				'endCursor'       => ! empty( $last_edge['cursor'] ) ? $last_edge['cursor'] : null,
 			],
-			'nodes'    => $items,
+			'nodes'    => ! empty( $nodes ) ? $nodes : [],
 		];
 
 		return $connection;
@@ -297,10 +322,14 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
-				$edges[] = [
-					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-					'node'   => DataSource::resolve_post_object( $item->ID, $item->post_type ),
-				];
+				$node = DataSource::resolve_post_object( $item->ID, $item->post_type );
+
+				if ( ! empty( $node ) ) {
+					$edges[] = [
+						'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
+						'node'   => $node,
+					];
+				}
 			}
 		}
 
@@ -374,6 +403,8 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * @return array
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $args, $source, $all_args, $context, $info, self::$post_type );
+
+
 
 		/**
 		 * Return the Query Args

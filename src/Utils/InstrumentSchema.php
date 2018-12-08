@@ -4,7 +4,9 @@ namespace WPGraphQL\Utils;
 
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\NonNullType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -42,7 +44,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config['types'] = $new_types;
+				$schema->config['types'] = $new_types;
 		}
 
 		return $schema;
@@ -224,6 +226,7 @@ class InstrumentSchema {
 			 * execute the callback before continuing resolution
 			 */
 			if ( ! empty( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
+
 				return call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
 			}
 

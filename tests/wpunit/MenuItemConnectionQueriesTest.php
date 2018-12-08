@@ -21,7 +21,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// Create some Post menu items.
 		for ( $x = 1; $x <= $count; $x++ ) {
-			$post_id = $this->factory()->post->create();
+			$post_id = $this->factory()->post->create([
+				'post_status' => 'publish'
+			]);
 			$post_ids[] = $post_id;
 
 			$menu_item_ids[] = $this->createMenuItem(
@@ -130,6 +132,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
 
 		// Perform some common assertions.
 		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
@@ -248,6 +251,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
 
 		// Perform some common assertions. Slice the created IDs to the limit.
 		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );

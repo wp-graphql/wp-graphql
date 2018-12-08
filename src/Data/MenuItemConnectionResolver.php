@@ -28,6 +28,9 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @return array
 	 */
 	private static function get_menu_items( $source, array $args ) {
+
+
+
 		// Source object is a nav menu.
 		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
 			return wp_get_nav_menu_items( $source->slug );
@@ -82,6 +85,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @since  0.0.30
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
+
+
 
 		// Prevent the query from matching anything by default.
 		$query_args = [
@@ -162,7 +167,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 				 */
 				$edges[] = [
 					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-					'node'   => wp_setup_nav_menu_item( $item ),
+					'node'   => DataSource::resolve_post_object( $item->ID, 'nav_menu_item' ),
 				];
 			}
 		}

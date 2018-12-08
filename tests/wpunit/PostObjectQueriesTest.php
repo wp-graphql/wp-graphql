@@ -423,6 +423,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type' => 'post',
+			'post_status' => 'publish'
 		] );
 
 		// Create a comment and assign it to post.
@@ -759,11 +760,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostQueryWithCategories() {
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create a post
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+			'post_title' => 'test post',
 		] );
 
 		// Create a comment and assign it to post.
@@ -771,7 +777,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'name' => 'A category',
 		] );
 
-		wp_set_object_terms( $post_id, $category_id, 'category' );
+		wp_set_object_terms( $post_id, $category_id, 'category', false );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -801,6 +807,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -821,6 +828,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
+
+
 
 		$this->assertEquals( $expected, $actual );
 	}
@@ -997,9 +1006,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPageByQueries() {
 
+		wp_set_current_user( $this->admin );
+
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'page',
 			'post_title' => 'Page Dawg',
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 
 		$path      = get_page_uri( $post_id );
