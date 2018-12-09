@@ -200,13 +200,6 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php' );
 
-		if ( ! did_action( 'graphql_register_types' ) ) {
-
-			/**
-			 * Hook to extend the schema by registering new types
-			 */
-			do_action( 'graphql_register_types' );
-		}
 
 		/**
 		 * Register core connections
@@ -238,6 +231,13 @@ class TypeRegistry {
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
+
+		/**
+		 * Hook to register connections
+		 */
+		if ( ! did_action( 'graphql_register_types' ) ) {
+			do_action( 'graphql_register_types' );
+		}
 
 	}
 
