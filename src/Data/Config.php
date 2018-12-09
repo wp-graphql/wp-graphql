@@ -37,46 +37,7 @@ class Config {
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
 		add_filter( 'terms_clauses', [ $this, 'graphql_wp_term_query_cursor_pagination_support' ], 10, 3 );
-
-		/**
-		 * Filter the connection items and unset any that users don't have permission to interact with
-		 * @todo: this could be expanded greatly to allow/deny based on all sorts of contextual criteria. first case is removing revisions if users don't have proper caps to edit the parent post of the revision.
-		 */
-		add_filter( 'graphql_connection_items', [ $this, 'revision_permissions_check' ], 10, 6 );
-
-	}
-
-	/**
-	 * Check permissions of each item. If it's a revision, unset it before preparing the edges
-	 *
-	 * @param array       $items   The array of items being connected
-	 * @param mixed       $query   The Query that was processed to get the connection data
-	 * @param array       $args    The $args that were passed to the query
-	 * @param mixed       $source  The source being passed down the resolve tree
-	 * @param AppContext  $context The AppContext being passed down the resolve tree
-	 * @param ResolveInfo $info    the ResolveInfo passed down the resolve tree
-	 *
-	 * @return array
-	 */
-	public function revision_permissions_check( $items, $query, $source, $args, AppContext $context, ResolveInfo $info ) {
-
-		if ( ! empty( $items ) && is_array( $items ) ) {
-			/**
-			 * Unset revisions from the results
-			 */
-			foreach ( $items as $item ) {
-				if ( 'revision' === $item->post_type ) {
-					$parent = get_post( (int) $item->post_parent );
-					$parent_post_type_obj = get_post_type_object( $parent->post_type );
-					if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $parent->ID ) ) {
-						unset( $items[ $item->ID ] );
-					}
-				}
-			}
-		}
-
-		return $items;
-
+		
 	}
 
 	/**

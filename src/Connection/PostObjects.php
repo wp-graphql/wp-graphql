@@ -66,20 +66,6 @@ class PostObjects {
 					] ) );
 				}
 
-				/**
-				 * If the post_type has revisions enabled, add a connection from the Post Object to revisions
-				 */
-				if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
-					register_graphql_connection( [
-						'fromType'      => $post_type_object->graphql_single_name,
-						'toType'        => 'Revision',
-						'fromFieldName' => 'revisions',
-						'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
-							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
-						},
-					] );
-				}
-
 			}
 		}
 

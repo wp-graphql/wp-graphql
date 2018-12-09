@@ -104,9 +104,9 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
-		 * If the post_type is "attachment" or "revision" set the default "post_status" $query_arg to "inherit"
+		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
 		 */
-		if ( in_array( self::$post_type, [ 'attachment', 'revision' ], true ) ) {
+		if ( 'attachment' === self::$post_type ) {
 			$query_args['post_status'] = 'inherit';
 
 			/**
