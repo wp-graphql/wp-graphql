@@ -815,7 +815,6 @@ class Types {
         }
         // Return null if $date_gmt is empty/zeros.
         if ( '0000-00-00 00:00:00' === $date_gmt ) {
-        	var_dump( $date_gmt );
             return null;
         }
         // Return the formatted datetime.
