@@ -88,6 +88,10 @@ register_graphql_type( 'User', [
 			'type'        => 'Int',
 			'description' => __( 'The Id of the user. Equivelant to WP_User->ID', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Bool',
+			'description' => __( 'Whether or not the user is restricted', 'wp-graphql' ),
+		],
 		'avatar'            => [
 			'type'        => 'Avatar',
 			'description' => __( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),

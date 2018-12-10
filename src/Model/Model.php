@@ -30,7 +30,7 @@ abstract class Model {
 
 		$object = new \stdClass();
 
-		$object = new $object_type( $object );
+		//$object = new \WP_User( $object );
 
 		if ( ! empty( $object_fields ) && is_array( $object_fields ) ) {
 			foreach ( $object_fields as $key => $value ) {
