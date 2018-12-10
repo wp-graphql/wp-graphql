@@ -20,7 +20,7 @@ function register_post_object_types( $post_type_object ) {
 
 		register_graphql_field( $post_type_object->graphql_single_name, 'commentCount', [
 			'type'        => 'Int',
-			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
+			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
 			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
 				return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
 			}
