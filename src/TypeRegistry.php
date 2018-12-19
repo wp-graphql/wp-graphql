@@ -347,12 +347,6 @@ class TypeRegistry {
 	 */
 	public static function register_type( $type_name, $config ) {
 		if ( isset( self::$types[ self::format_key( $type_name ) ] ) ) {
-
-			if ( true === GRAPHQL_DEBUG ) {
-				// Translators: The placeholder is the name of the Type in the Schema
-				throw new InvariantViolation( sprintf( __( 'The type \'%s\' already exists and cannot be registered again. Please register a Type with a unique Type name', 'wp-graphql' ), $type_name ) );
-			}
-
 			return;
 		}
 		$prepared_type = self::prepare_type( $type_name, $config );
