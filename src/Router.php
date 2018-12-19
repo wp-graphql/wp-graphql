@@ -310,6 +310,7 @@ class Router {
 	 * @since  0.0.1
 	 * @access public
 	 * @return mixed
+	 * @throws \Throwable
 	 */
 	public static function process_http_request() {
 
@@ -466,7 +467,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error ) ];
+			$response['errors']     = [ FormattedError::createFromException( $error, GRAPHQL_DEBUG ) ];
 		} // End try().
 
 		/**

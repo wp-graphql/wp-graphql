@@ -6,6 +6,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $created_post_ids;
 	public $admin;
+	public $subscriber;
 
 	public function setUp() {
 		parent::setUp();
@@ -16,6 +17,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		$this->subscriber = $this->factory()->user->create([
+			'role' => 'subscriber'
+		]);
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
@@ -113,6 +117,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						postId
 						title
 						date
+						content
+						excerpt
 					}
 				}
 				nodes {
@@ -713,4 +719,35 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Test to assert that the global post object is being set correctly
+	 */
+	public function testPostExcerptsAreDifferent() {
+
+		$post_1_args = [
+			'post_content' => 'Post content 1',
+			'post_excerpt' => 'Post excerpt 1',
+		];
+
+		$post_2_args = [
+			'post_content' => 'Post content 2',
+			'post_excerpt' => 'Post excerpt 2',
+		];
+
+		$post_1_id = $this->createPostObject( $post_1_args );
+		$post_2_id = $this->createPostObject( $post_2_args );
+
+		$request = $this->postsQuery( [ 'where' => [ 'in' => [ $post_1_id, $post_2_id ] ] ] );
+
+		$this->assertNotEmpty( $request );
+		$this->assertArrayNotHasKey( 'errors', $request );
+
+		$edges = $request['data']['posts']['edges'];
+		$this->assertNotEmpty( $edges );
+
+		$this->assertNotEquals( $edges[0]['node']['excerpt'], $edges[1]['node']['excerpt'] );
+		$this->assertNotEquals( $edges[0]['node']['content'], $edges[1]['node']['content'] );
+
+	}
+	
 }
