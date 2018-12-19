@@ -188,7 +188,7 @@ class PostObjectCreate {
 			],
 			'commentCount'  => [
 				'type'        => 'INT',
-				'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
+				'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
 			],
 			'commentStatus' => [
 				'type'        => 'String',

@@ -23,7 +23,7 @@ env:
     # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
     - PHP_VERSION=5.6
     - PHP_VERSION=7.1
-    - PHP_VERSION=7.2 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
+    - PHP_VERSION=7.2 COVERAGE=true LINT_SCHEMA=true
 
 before_install:
 - sudo rm /usr/local/bin/docker-compose
@@ -54,25 +54,3 @@ after_success:
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
-  # Generate the APIGen Docs
-  #  - |
-  #    if [ $APIGEN_DOCS == true ]; then
-  #      cd $TRAVIS_BUILD_DIR
-  #      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
-  #    fi
-
-deploy:
-  # Deploy the Generated API docs to the wp-graphql-api-docs repo
-  - provider: pages
-    # This is set in the Travis CI dashboard
-    github_token: $APIGEN_GITHUB_TOKEN
-    local_dir: $TRAVIS_BUILD_DIR/apigen
-    repo: wp-graphql/wp-graphql-api-docs
-    target_branch: master
-    # Make sure this is true to ensure the files that were built in the previous step are not cleaned up before deploy
-    skip_cleanup: true
-    on:
-      # Probably switch this to master?
-      all_branches: develop
-      # Only deploy when APIGEN_DOCS are generated
-      condition: $APIGEN_DOCS == true

@@ -114,6 +114,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 			 * have a post_parent set by default
 			 */
 			unset( $query_args['post_parent'] );
+
 		}
 
 		/**
@@ -233,6 +234,18 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * Get the $posts from the query
 		 */
 		$items = ! empty( $items ) && is_array( $items ) ? $items : [];
+
+		/**
+		 * Filter the items before resolving the connection
+		 *
+		 * @param array       $items   The array of items being connected
+		 * @param mixed       $query   The Query that was processed to get the connection data
+		 * @param array       $args    The $args that were passed to the query
+		 * @param mixed       $source  The source being passed down the resolve tree
+		 * @param AppContext  $context The AppContext being passed down the resolve tree
+		 * @param ResolveInfo $info    the ResolveInfo passed down the resolve tree
+		 */
+		$items = apply_filters( 'graphql_connection_items', $items, $query, $args, $source, $context, $info );
 
 		$info = self::get_query_info( $query );
 

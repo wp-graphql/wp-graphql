@@ -82,6 +82,14 @@ class PostObjects {
 	 * @return array
 	 */
 	protected static function get_connection_config( $post_type_object, $args = [] ) {
+
+		$connection_args = self::get_connection_args();
+
+		if ( 'revision' === self::get_connection_args() ) {
+			unset( $connection_args['status'] );
+			unset( $connection_args['stati'] );
+		}
+
 		return array_merge( [
 			'fromType'         => 'RootQuery',
 			'toType'           => $post_type_object->graphql_single_name,
@@ -96,7 +104,7 @@ class PostObjects {
 				],
 			],
 			'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
-			'connectionArgs'   => self::get_connection_args(),
+			'connectionArgs'   => $connection_args,
 			'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
 				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
 			},

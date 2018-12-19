@@ -1,6 +1,9 @@
 <?php
 
 namespace WPGraphQL\Data;
+use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 
 /**
  * Class Config
@@ -34,7 +37,7 @@ class Config {
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
 		add_filter( 'terms_clauses', [ $this, 'graphql_wp_term_query_cursor_pagination_support' ], 10, 3 );
-
+		
 	}
 
 	/**
