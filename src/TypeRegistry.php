@@ -287,6 +287,10 @@ class TypeRegistry {
 		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name, $config ) {
 
 			if ( isset ( $fields[ $field_name ] ) ) {
+				if ( true === GRAPHQL_DEBUG ) {
+					throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+				}
+
 				return $fields;
 			}
 
@@ -320,6 +324,10 @@ class TypeRegistry {
 
 			if ( isset ( $fields[ $field_name ] ) ) {
 				unset( $fields[ $field_name ] );
+			} else {
+				if ( true === GRAPHQL_DEBUG ) {
+					throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
+				}
 			}
 
 			return $fields;
@@ -455,7 +463,7 @@ class TypeRegistry {
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
-			throw new InvariantViolation( __( 'The Field needs a Type defined', 'wp-graphql' ) );
+			throw new InvariantViolation( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ) );
 		}
 
 		if ( is_string( $field_config['type'] ) ) {
