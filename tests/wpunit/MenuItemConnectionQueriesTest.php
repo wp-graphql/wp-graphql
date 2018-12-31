@@ -249,9 +249,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		// Delete a menu item.
-		wp_delete_post( $created['menu_item_ids'][7] );
-
 		// Perform some common assertions. Slice the created IDs to the limit.
 		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
 		$post_ids = array_slice( $created['post_ids'], 0, $limit );

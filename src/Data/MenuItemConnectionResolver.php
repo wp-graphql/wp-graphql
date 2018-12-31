@@ -127,7 +127,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 * Set the order to match the menu order
 		 */
 		$query_args['order']   = 'ASC';
-		$query_args['orderby'] = 'menu_order';
+		$query_args['orderby'] = 'post__in';
 
 		/**
 		 * Set the posts_per_page, ensuring it doesn't exceed the amount set as the $max_query_amount
