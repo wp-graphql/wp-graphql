@@ -172,11 +172,11 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 
 		$post_by_args = [
 			'id'                                          => [
-				'type'        => 'String',
+				'type'        => 'ID',
 				'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			],
 			$post_type_object->graphql_single_name . 'Id' => [
-				'type'        => 'ID',
+				'type'        => 'Int',
 				'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			],
 			'uri'                                         => [
