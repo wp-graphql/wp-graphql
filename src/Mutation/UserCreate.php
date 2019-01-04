@@ -16,65 +16,11 @@ class UserCreate {
 					],
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => __( 'A string that contains the user\'s username for logging in.', 'wp-graphql' ),
-				]
-			], self::get_input_fields()),
-			'outputFields' => [
-				'user' => [
-					'type'    => 'User',
-					'resolve' => function ( $payload ) {
-						return get_user_by( 'ID', $payload['id'] );
-					},
 				],
-			],
-			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
-
-				if ( ! current_user_can( 'create_users' ) ) {
-					throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
-				}
-
-				/**
-				 * Map all of the args from GQL to WP friendly
-				 */
-				$user_args = UserMutation::prepare_user_object( $input, 'createUser' );
-
-				/**
-				 * Create the new user
-				 */
-				$user_id = wp_insert_user( $user_args );
-
-				/**
-				 * Throw an exception if the post failed to create
-				 */
-				if ( is_wp_error( $user_id ) ) {
-					$error_message = $user_id->get_error_message();
-					if ( ! empty( $error_message ) ) {
-						throw new UserError( esc_html( $error_message ) );
-					} else {
-						throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
-					}
-				}
-
-				/**
-				 * If the $post_id is empty, we should throw an exception
-				 */
-				if ( empty( $user_id ) ) {
-					throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
-				}
-
-				/**
-				 * Update additional user data
-				 */
-				UserMutation::update_additional_user_object_data( $user_id, $input, 'createUser', $context, $info );
-
-				/**
-				 * Return the new user ID
-				 */
-				return [
-					'id' => $user_id,
-				];
-
-			},
-		]);
+			], self::get_input_fields() ),
+			'outputFields'        => self::get_output_fields(),
+			'mutateAndGetPayload' => self::mutate_and_get_payload(),
+		] );
 	}
 
 	public static function get_input_fields() {
@@ -146,5 +92,65 @@ class UserCreate {
 				'description' => __( 'User\'s locale.', 'wp-graphql' ),
 			],
 		];
+	}
+	
+	public static function get_output_fields( $post_type_object ) {
+		return [
+			'user' => [
+				'type'    => 'User',
+				'resolve' => function ( $payload ) {
+					return get_user_by( 'ID', $payload['id'] );
+				},
+			],
+		];
+	}
+
+	public static function mutate_and_get_payload() {
+		return function ( $input, AppContext $context, ResolveInfo $info ) {
+			if ( ! current_user_can( 'create_users' ) ) {
+				throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
+			}
+
+			/**
+			 * Map all of the args from GQL to WP friendly
+			 */
+			$user_args = UserMutation::prepare_user_object( $input, 'createUser' );
+
+			/**
+			 * Create the new user
+			 */
+			$user_id = wp_insert_user( $user_args );
+
+			/**
+			 * Throw an exception if the post failed to create
+			 */
+			if ( is_wp_error( $user_id ) ) {
+				$error_message = $user_id->get_error_message();
+				if ( ! empty( $error_message ) ) {
+					throw new UserError( esc_html( $error_message ) );
+				} else {
+					throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+				}
+			}
+
+			/**
+			 * If the $post_id is empty, we should throw an exception
+			 */
+			if ( empty( $user_id ) ) {
+				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+			}
+
+			/**
+			 * Update additional user data
+			 */
+			UserMutation::update_additional_user_object_data( $user_id, $input, 'createUser', $context, $info );
+
+			/**
+			 * Return the new user ID
+			 */
+			return [
+				'id' => $user_id,
+			];
+		};
 	}
 }

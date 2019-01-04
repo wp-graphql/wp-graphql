@@ -8,62 +8,54 @@ use WPGraphQL\Data\DataSource;
 
 class PostObjectDelete {
 	public static function register_mutation( \WP_Post_Type $post_type_object ) {
-
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
 
 		register_graphql_mutation( $mutation_name, [
-			'inputFields'         => [
-				'id'          => [
-					'type'        => [
-						'non_null' => 'ID',
-					],
-					// translators: The placeholder is the name of the post's post_type being deleted
-					'description' => sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+			'inputFields'         => self::get_input_fields( $post_type_object ),
+			'outputFields'        => self::get_output_fields( $post_type_object ),
+			'mutateAndGetPayload' => self::mutate_and_get_payload( $post_type_object, $mutation_name ),
+		] );
+	}
+
+	public static function get_input_fields( $post_type_object ) {
+		return [
+			'id'          => [
+				'type'        => [
+					'non_null' => 'ID',
 				],
 				'forceDelete' => [
 					'type'        => 'Boolean',
 					'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 				],
 			],
-			'outputFields'        => [
-				'deletedId'                            => [
-					'type'        => 'Id',
-					'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) use ( $post_type_object ) {
-						$deleted = (object) $payload['postObject'];
+			'forceDelete' => [
+				'type'        => 'Boolean',
+				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
+			],
+		];
+	}
 
-						return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
-					},
-				],
-				$post_type_object->graphql_single_name => [
-					'type'        => $post_type_object->graphql_single_name,
-					'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) use ( $post_type_object ) {
-						$deleted = (object) $payload['postObject'];
+	public static function get_output_fields( $post_type_object ) {
+		return [
+			'deletedId'                            => [
+				'type'        => 'Id',
+				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
+				'resolve'     => function ( $payload ) use ( $post_type_object ) {
+					$deleted = (object) $payload['postObject'];
 
-						return ! empty( $deleted ) ? $deleted : null;
-					},
-				],
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
+				},
 			],
 			'mutateAndGetPayload' => function ( $input ) use ( $post_type_object, $mutation_name ) {
 
-				/**
-				 * Get the ID from the global ID
-				 */
-				$id_parts = Relay::fromGlobalId( $input['id'] );
+					return ! empty( $deleted ) ? $deleted : null;
+				},
+			],
+		];
+	}
 
-				/**
-				 * Stop now if a user isn't allowed to delete a post
-				 */
-				if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
-					// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-					throw new UserError( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
-				}
-
-				/**
-				 * Check if we should force delete or not
-				 */
-				$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
+		return function ( $input ) use ( $post_type_object, $mutation_name ) {
 
 				/**
 				 * Get the post object before deleting it
@@ -93,14 +85,12 @@ class PostObjectDelete {
 				 */
 				$post_before_delete->post_status = ( false !== $deleted && true !== $force_delete ) ? 'trash' : $post_before_delete->post_status;
 
-				/**
-				 * Return the deletedId and the object before it was deleted
-				 */
-				return [
-					'postObject' => $post_before_delete,
-				];
-
-			},
-		] );
+			/**
+			* Return the deletedId and the object before it was deleted
+			*/
+			return [
+				'postObject' => $post_before_delete,
+			];
+		};
 	}
 }

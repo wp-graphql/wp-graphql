@@ -8,67 +8,53 @@ use WPGraphQL\Data\DataSource;
 class MediaItemDelete {
 	public static function register_mutation() {
 		register_graphql_mutation( 'deleteMediaItem', [
-			'inputFields'         => [
-				'id'          => [
-					'type'        => [
-						'non_null' => 'ID',
-					],
-					'description' => __( 'The ID of the mediaItem to delete', 'wp-graphql' ),
+			'inputFields'         => self::get_input_fields(),
+			'outputFields'        => self::get_output_fields(),
+			'mutateAndGetPayload' => self::mutate_and_get_payload(),
+		]);
+	}
+
+	public static function get_input_fields() {
+		return [
+			'id'          => [
+				'type'        => [
+					'non_null' => 'ID',
 				],
 				'forceDelete' => [
 					'type'        => 'Boolean',
 					'description' => __( 'Whether the mediaItem should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 				],
 			],
-			'outputFields'        => [
-				'deletedId' => [
-					'type'        => 'ID',
-					'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) {
-						$deleted = (object) $payload['mediaItemObject'];
+			'forceDelete' => [
+				'type'        => 'Boolean',
+				'description' => __( 'Whether the mediaItem should be force deleted instead of being moved to the trash', 'wp-graphql' ),
+			],
+		];
+	}
 
-						return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'attachment', absint( $deleted->ID ) ) : null;
-					},
-				],
-				'mediaItem' => [
-					'type'        => 'MediaItem',
-					'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) {
-						$deleted = (object) $payload['mediaItemObject'];
+	public static function get_output_fields() {
+		return [
+			'deletedId' => [
+				'type'        => 'ID',
+				'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
+				'resolve'     => function ( $payload ) {
+					$deleted = (object) $payload['mediaItemObject'];
 
-						return ! empty( $deleted ) ? $deleted : null;
-					},
-				],
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'attachment', absint( $deleted->ID ) ) : null;
+				},
 			],
 			'mutateAndGetPayload' => function ( $input ) {
 
-				$post_type_object = get_post_type_object( 'attachment' );
-				$mutation_name = 'deleteMediaItem';
+					return ! empty( $deleted ) ? $deleted : null;
+				},
+			],
+		];
+	}
 
-				/**
-				 * Get the ID from the global ID
-				 */
-				$id_parts            = Relay::fromGlobalId( $input['id'] );
-				$existing_media_item = get_post( absint( $id_parts['id'] ) );
-
-				/**
-				 * If there's no existing mediaItem, throw an exception
-				 */
-				if ( empty( $existing_media_item ) ) {
-					throw new UserError( __( 'No mediaItem could be found to delete', 'wp-graphql' ) );
-				}
-
-				/**
-				 * Stop now if a user isn't allowed to delete a mediaItem
-				 */
-				if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
-					throw new UserError( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
-				}
-
-				/**
-				 * Check if we should force delete or not
-				 */
-				$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+	public static function mutate_and_get_payload() {
+		return function ( $input ) {
+			$post_type_object = get_post_type_object( 'attachment' );
+			$mutation_name = 'deleteMediaItem';
 
 				/**
 				 * Get the mediaItem object before deleting it
@@ -113,7 +99,6 @@ class MediaItemDelete {
 					'mediaItemObject' => $media_item_before_delete,
 				];
 
-			},
-		]);
+		};
 	}
 }

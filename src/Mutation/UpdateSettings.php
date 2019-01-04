@@ -10,73 +10,11 @@ class UpdateSettings {
 		register_graphql_mutation( 'updateSettings', [
 			'inputFields'         => self::get_input_fields(),
 			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => function ( $input ) {
-				/**
-				 * Check that the user can manage setting options
-				 */
-				if ( ! current_user_can( 'manage_options' ) ) {
-					throw new UserError( __( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
-				}
-
-				/**
-				 * The $updatable_settings_options will store all of the allowed
-				 * settings in a WP ready format
-				 */
-				$updatable_settings_options = [];
-
-				$allowed_settings = DataSource::get_allowed_settings();
-
-				/**
-				 * Loop through the $allowed_settings and build the insert options array
-				 */
-				foreach ( $allowed_settings as $key => $setting ) {
-
-					/**
-					 * Determine if the individual setting already has a
-					 * REST API name, if not use the option name.
-					 * Sanitize the field name to be camelcase
-					 */
-					if ( ! empty( $setting['show_in_rest']['name'] ) ) {
-						$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
-					} else {
-						$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
-					}
-
-					/**
-					 * Dynamically build the individual setting,
-					 * then add it to $updatable_settings_options
-					 */
-					$updatable_settings_options[ $individual_setting_key ] = [
-						'option' => $key,
-						'group'  => $setting['group'],
-					];
-
-				}
-
-				foreach ( $input as $key => $value ) {
-					/**
-					 * Throw an error if the input field is the site url,
-					 * as we do not want users changing it and breaking all
-					 * the things
-					 */
-					if ( 'generalSettingsUrl' === $key ) {
-						throw new UserError( __( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
-					}
-
-					/**
-					 * Check to see that the input field exists in settings, if so grab the option
-					 * name and update the option
-					 */
-					if ( array_key_exists( $key, $updatable_settings_options ) ) {
-						update_option( $updatable_settings_options[ $key ]['option'], $value );
-					}
-				}
-			},
+			'mutateAndGetPayload' => self::mutate_and_get_payload(),
 		] );
 	}
 
 	public static function get_input_fields() {
-
 		$allowed_settings = DataSource::get_allowed_settings();
 
 		$input_fields = [];
@@ -114,11 +52,9 @@ class UpdateSettings {
 		}
 
 		return $input_fields;
-
 	}
 
 	public static function get_output_fields() {
-
 		$output_fields = [];
 
 		/**
@@ -151,6 +87,70 @@ class UpdateSettings {
 		];
 
 		return $output_fields;
+	}
 
+	public static function mutate_and_get_payload() {
+		return function ( $input ) {
+			/**
+			 * Check that the user can manage setting options
+			 */
+			if ( ! current_user_can( 'manage_options' ) ) {
+				throw new UserError( __( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
+			}
+
+			/**
+			 * The $updatable_settings_options will store all of the allowed
+			 * settings in a WP ready format
+			 */
+			$updatable_settings_options = [];
+
+			$allowed_settings = DataSource::get_allowed_settings();
+
+			/**
+			 * Loop through the $allowed_settings and build the insert options array
+			 */
+			foreach ( $allowed_settings as $key => $setting ) {
+
+				/**
+				 * Determine if the individual setting already has a
+				 * REST API name, if not use the option name.
+				 * Sanitize the field name to be camelcase
+				 */
+				if ( ! empty( $setting['show_in_rest']['name'] ) ) {
+					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
+				} else {
+					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
+				}
+
+				/**
+				 * Dynamically build the individual setting,
+				 * then add it to $updatable_settings_options
+				 */
+				$updatable_settings_options[ $individual_setting_key ] = [
+					'option' => $key,
+					'group'  => $setting['group'],
+				];
+
+			}
+
+			foreach ( $input as $key => $value ) {
+				/**
+				 * Throw an error if the input field is the site url,
+				 * as we do not want users changing it and breaking all
+				 * the things
+				 */
+				if ( 'generalSettingsUrl' === $key ) {
+					throw new UserError( __( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
+				}
+
+				/**
+				 * Check to see that the input field exists in settings, if so grab the option
+				 * name and update the option
+				 */
+				if ( array_key_exists( $key, $updatable_settings_options ) ) {
+					update_option( $updatable_settings_options[ $key ]['option'], $value );
+				}
+			}
+		};
 	}
 }
