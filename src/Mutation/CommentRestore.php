@@ -20,6 +20,7 @@ class CommentRestore {
 				'type'        => [
 					'non_null' => 'ID',
 				],
+				'description' => __( 'The ID of the comment to be restored', 'wp-graphql' ),
 			],
 		];
 	}
@@ -35,11 +36,11 @@ class CommentRestore {
 					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
 				},
 			],
-			'mutateAndGetPayload' => function ( $input ) {
-				/**
-				 * Get the ID from the global ID
-				 */
-				$id_parts = Relay::fromGlobalId( $input['id'] );
+			'comment'    => [
+				'type'        => 'Comment',
+				'description' => __( 'The restored comment object', 'wp-graphql' ),
+				'resolve'     => function ( $payload ) {
+					$restore = ( object ) $payload['commentObject'];
 
 					return ! empty( $restore ) ? $restore : null;
 				},
@@ -54,9 +55,16 @@ class CommentRestore {
 				*/
 			$id_parts = Relay::fromGlobalId( $input['id'] );
 
-				return [
-					'commentObject' => $comment,
-				];
+			/**
+				* Get the post object before deleting it
+				*/
+			$comment_id = absint( $id_parts['id'] );
+
+			/**
+				* Stop now if a user isn't allowed to delete the comment
+				*/
+			if ( ! current_user_can( 'moderate_comments' ) ) {
+				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
 			}
 
 			/**

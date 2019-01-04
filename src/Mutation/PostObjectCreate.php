@@ -18,7 +18,7 @@ class PostObjectCreate {
 			'mutateAndGetPayload' => self::mutate_and_get_payload( $post_type_object, $mutation_name ),
 		] );
 	}
-
+	
 	public static function get_input_fields( $post_type_object ) {
 		$fields = [
 			'authorId'      => [
@@ -90,14 +90,14 @@ class PostObjectCreate {
 				'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
 			],
 		];
-
+		
 		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				// If the taxonomy is in the array of taxonomies registered to the post_type
 				if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 					$tax_object = get_taxonomy( $taxonomy );
-
+					
 					register_graphql_input_type( $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput', [
 						'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
 						'fields'      => [
@@ -118,7 +118,7 @@ class PostObjectCreate {
 								'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
 							],
 						],
-					] );
+						] );
 
 					register_graphql_input_type( ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input', [
 						'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),

@@ -23,14 +23,7 @@ class CommentUpdate {
 				'type'        => [
 					'non_null' => 'ID',
 				],
-			] ),
-			'outputFields'        => [
-				'comment' => [
-					'type'    => 'Comment',
-					'resolve' => function ( $payload ) {
-						return get_comment( $payload['id'] );
-					},
-				],
+				'description' => __( 'The ID of the comment being updated.', 'wp-graphql' ),
 			],
 		] );
 	}
@@ -55,13 +48,9 @@ class CommentUpdate {
 				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
 			}
 
-				/**
-				 * This updates additional data not part of the comments table ( commentmeta, other relations, etc )
-				 *
-				 * The input for the commentMutation will be passed, along with the $new_comment_id for the
-				 * comment that was created so that relations can be set, meta can be updated, etc.
-				 */
-				CommentMutation::update_additional_comment_data( $comment_id, $input, 'create', $context, $info );
+			$id_parts     = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+			$comment_id   = absint( $id_parts['id'] );
+			$comment_args = get_comment( $comment_id, ARRAY_A );
 
 
 			/**
