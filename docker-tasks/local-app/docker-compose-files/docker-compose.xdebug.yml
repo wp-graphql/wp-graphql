@@ -3,6 +3,12 @@ version: "3.4"
 
 services:
   wpgraphql.test:
+    build:
+      context: '../../../'
+      target: 'wordpress-xdebug'
+      args:
+        DESIRED_WP_VERSION: "${WP_VERSION}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION}"
     environment:
       # XDebug remote debugging: https://xdebug.org/docs/remote
       # Getting XDebug+Docker+PHPStorm working: https://serversforhackers.com/c/getting-xdebug-working

@@ -1,11 +1,11 @@
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
 ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION
-ARG BASE_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
+ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
 # -------------------- STAGE ---------------
 # This contains PHP Composer executable
-FROM ${BASE_DOCKER_IMAGE} as php-composer-files
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as php-composer-files
 
 # Install composer
 RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/d3e09029468023aa4e9dcd165e9b6f43df0a9999/web/installer' | php -- --quiet \
@@ -14,7 +14,7 @@ RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/d3e0902
 
 # -------------------- STAGE ---------------
 # This contains project files after "composer install" has been run.
-FROM ${BASE_DOCKER_IMAGE} as project-files
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as project-files
 
 # Add PHP Composer
 COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
@@ -40,19 +40,26 @@ RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
 
 RUN chown -R 'www-data:www-data' /project
 
+
+# -------------------- STAGE ---------------
+# Add xdebug to official docker image
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-xdebug
+
+# Install xdebug
+RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi
+
 # -------------------- STAGE ---------------
 # This is for a container that acts as a Wordpress "system under test" (SUT) instance that has Code Coverage support
-FROM ${BASE_DOCKER_IMAGE} as wordpress-sut-code-coverage
+FROM wordpress-xdebug as wordpress-sut-code-coverage
 
 COPY --chown='www-data:www-data' --from='project-files' /project/ /usr/src/wordpress/wp-content/plugins/wp-graphql/
 
-# Install xdebug and code coverage support
-RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
-  && curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /usr/src/wordpress/wp-content/plugins/wp-graphql/c3.php
+# Install code coverage support
+RUN curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > /usr/src/wordpress/wp-content/plugins/wp-graphql/c3.php
 
 # -------------------- STAGE ---------------
 # This is a base image for test-related images
-FROM ${BASE_DOCKER_IMAGE} as base-tester
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as base-tester
 
 ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   WP_TEST_CORE_DIR=/tmp/wordpress/ \
