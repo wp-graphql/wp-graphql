@@ -45,7 +45,7 @@ class MediaItemUpdate {
 	}
 
 	public static function mutate_and_get_payload() {
-		function ( $input, AppContext $context, ResolveInfo $info ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) {
 			$post_type_object = get_post_type_object( 'attachment' );
 			$mutation_name    = 'updateMediaItem';
 
