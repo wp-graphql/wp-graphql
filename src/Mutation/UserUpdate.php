@@ -27,7 +27,7 @@ class UserUpdate {
 			],
 		], UserCreate::get_input_fields() );
 	}
-		
+
 	public static function get_output_fields() {
 		return UserCreate::get_output_fields();
 	}
@@ -91,7 +91,7 @@ class UserUpdate {
 			 * Return the new user ID
 			 */
 			return [
-				'userId' => $user_id,
+				'id' => $user_id,
 			];
 		};
 	}
