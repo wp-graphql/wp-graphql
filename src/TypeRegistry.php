@@ -578,8 +578,8 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 			register_graphql_input_type( $connection_name . 'WhereArgs', [
-				//@TODO: Wondering if this description should be dynamic to include the name of the connection these args are for?
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				// Translators: Placeholder is the name of the connection
+				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
 				'fields'      => $connection_args,
 				'queryClass' => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
 			] );
