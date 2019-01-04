@@ -94,7 +94,7 @@ class UserCreate {
 		];
 	}
 	
-	public static function get_output_fields( $post_type_object ) {
+	public static function get_output_fields() {
 		return [
 			'user' => [
 				'type'    => 'User',

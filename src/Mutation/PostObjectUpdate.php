@@ -31,7 +31,7 @@ class PostObjectUpdate {
 					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				],
 			]
-			);
+		);
 	}
 
 	public static function get_output_fields( $post_type_object ) {
