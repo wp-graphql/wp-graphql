@@ -148,7 +148,7 @@ of the set up and configuration tasks performed by a developer.
    * https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
 
 
-#### Running Wordpress + wp-graphql plugin with Docker
+#### Running Wordpress + wp-graphql
 We use `make` to run various DevOps tasks. You can view the list of possible `make` targets by simply typing, `make`.
 
 1. Start a local instance of WordPress. This will run the instance in the foreground:
@@ -156,6 +156,27 @@ We use `make` to run various DevOps tasks. You can view the list of possible `ma
    make local-app
    ```
 1. Visit http://localhost:8000.
+
+#### Using PHPStorm/IntelliJ+XDebug
+
+1. Make sure PHPStorm/IntelliJ is listenting on port 9000 for incoming XDebug connections from the WP container (for more info on remote XDebug debugging, visit https://xdebug.org/docs/remote):
+   ![alt text](img/intellij-php-debug-config.png)
+   
+1. Create a PHP server mapping. This tells the debugger how to map a file path in the container to a file path on the host OS.
+   ![alt text](img/intellij-php-servers.png)
+
+1. Create a PHP Debug run configuration.
+   ![alt text](img/intellij-php-debug-run-config.png) 
+
+1. Run WordPress+the plugin with XDebug enabled. Here's an example:
+   ```
+   make local-app-xdebug
+   ```
+
+1. Start the debugger:
+   ![alt text](img/intellij-php-start-debug.png)
+   
+1. Now you can start debugging.           
    
 #### Running tests with Docker
 
@@ -226,10 +247,10 @@ Notes:
 Please make sure this file refers to the latest specific versions of WordPress and PHP that are available as a Docker
 image. These values will serve as default values if no environment variables have been explicitly set. 
   ```
-  .env
+  docker-tasks/common/env/docker-versions.sh
   ```
-Please avoid using the `latest` tag because the WP Docker image is published a few days after the PHP code
-is made available and that can result in inaccurate test results.
+Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
+check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
   
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 
