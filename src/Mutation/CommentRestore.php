@@ -39,20 +39,26 @@ class CommentRestore {
      * @return array
      */
     public static function get_output_fields() {
-        return array_merge(
-            CommentCreate::get_output_fields(),
-            [
-                'restoredId' => [
-                    'type'        => 'Id',
-                    'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
-                    'resolve'     => function ( $payload ) {
-                        $restore = ( object ) $payload['commentObject'];
+        return [
+            'restoredId' => [
+                'type'        => 'Id',
+                'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
+                'resolve'     => function ( $payload ) {
+                    $restore = ( object ) $payload['commentObject'];
 
-                        return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
-                    },
-                ],
-            ]
-        );
+                    return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
+                },
+            ],
+            'comment'    => [
+                'type'        => 'Comment',
+                'description' => __( 'The restored comment object', 'wp-graphql' ),
+                'resolve'     => function ( $payload ) {
+                    $restore = ( object ) $payload['commentObject'];
+
+                    return ! empty( $restore ) ? $restore : null;
+                },
+            ],
+        ];
     }
 
     /**

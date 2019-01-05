@@ -43,20 +43,26 @@ class CommentDelete {
      * @return array
      */
     public static function get_output_fields() {
-        return array_merge(
-            CommentCreate::get_output_fields(),
-            [
-                'deletedId' => [
-                    'type'        => 'Id',
-                    'description' => __( 'The deleted comment ID', 'wp-graphql' ),
-                    'resolve'     => function ( $payload ) {
-                        $deleted = ( object ) $payload['commentObject'];
+        return [
+            'deletedId' => [
+                'type'        => 'Id',
+                'description' => __( 'The deleted comment ID', 'wp-graphql' ),
+                'resolve'     => function ( $payload ) {
+                    $deleted = ( object ) $payload['commentObject'];
 
-                        return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
-                    },
-                ]
-            ]
-        );
+                    return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
+                },
+            ],
+            'comment'   => [
+                'type'        => 'Comment',
+                'description' => __( 'The deleted comment object', 'wp-graphql' ),
+                'resolve'     => function ( $payload ) {
+                    $deleted = ( object ) $payload['commentObject'];
+
+                    return ! empty( $deleted ) ? $deleted : null;
+                },
+            ],
+        ];
     }
 
     /**
