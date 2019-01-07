@@ -66,9 +66,30 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test the Apollo method of passing a persisted query ID.
+	 * Test parsing of batched POST request params.
 	 */
-	public function testApolloPersistedQueryId() {
+	public function testParseBatchPostRequestParams() {
+		$body_params = [
+			$this->get_example_params(),
+			$this->get_example_params(),
+		];
+
+		$helper = new WPHelper();
+		$batched_params = $helper->parseRequestParams( 'POST', $body_params, [] );
+
+		$this->assertEquals( true, is_array( $batched_params ) );
+		foreach( $batched_params as $index => $params ) {
+			$this->assertEquals( $body_params[ $index ]['operation'], $params->operation );
+			$this->assertEquals( $body_params[ $index ]['query'], $params->query );
+			$this->assertEquals( null, $params->queryId );
+			$this->assertEquals( $body_params[ $index ]['variables'], $params->variables );
+		}
+	}
+
+	/**
+	 * Test the Apollo method of passing a persisted query ID on POST.
+	 */
+	public function testApolloPersistedQueryIdOnPost() {
 		$body_params = [
 			'extensions' => [
 				'persistedQuery' => [
@@ -82,6 +103,24 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 		$params = $helper->parseRequestParams( 'POST', $body_params, [] );
 
 		$this->assertEquals( $body_params['operation'], $params->operation );
+		$this->assertEquals( null, $params->query );
+		$this->assertEquals( 'fake hash', $params->queryId );
+		$this->assertEquals( null, $params->variables );
+	}
+
+	/**
+	 * Test the Apollo method of passing a persisted query ID on GET.
+	 */
+	public function testApolloPersistedQueryIdOnGet() {
+		$query_params = [
+			'extensions' => '{"persistedQuery":{"sha256Hash":"fake hash"}}',
+			'operation'  => 'ApolloPersistedQueryIdTest',
+		];
+
+		$helper = new WPHelper();
+		$params = $helper->parseRequestParams( 'GET', [], $query_params );
+
+		$this->assertEquals( $query_params['operation'], $params->operation );
 		$this->assertEquals( null, $params->query );
 		$this->assertEquals( 'fake hash', $params->queryId );
 		$this->assertEquals( null, $params->variables );
