@@ -62,8 +62,7 @@ RUN chown -R 'www-data:www-data' "${PROJECT_DIR}"
 # Copy WordPress files to test core directory and add the db.php for WP tests
 RUN cp -a "${PRISTINE_WP_DIR}" "${WP_TEST_CORE_DIR}"
 
-#RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${WP_TEST_CORE_DIR}/wp-content/db.php" \
-RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php'
+RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${WP_TEST_CORE_DIR}/wp-content/db.php"
 
 # Copy docker-entrypoints to a directory that's already in the environment PATH
 COPY docker-entrypoint.tests.sh /usr/local/bin/
