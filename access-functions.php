@@ -29,7 +29,7 @@ function graphql_format_field_name( $field_name ) {
  *
  * @access public
  * @return array
- * @since  0.1.4
+ * @since  0.2.0
  */
 function graphql( $request_data = [] ) {
 	$request = new \WPGraphQL\Request( $request_data );

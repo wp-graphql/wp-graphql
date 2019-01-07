@@ -26,7 +26,7 @@ class WPHelper extends Helper {
 
 		/**
 		 * Allow the request data to be filtered. Previously this filter was only
-		 * applied to non-HTTP requests. Since 0.1.4, we will apply it to all
+		 * applied to non-HTTP requests. Since 0.2.0, we will apply it to all
 		 * requests.
 		 *
 		 * @param array $data An array containing the pieces of the data of the GraphQL request
