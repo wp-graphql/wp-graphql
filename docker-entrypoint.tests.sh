@@ -44,11 +44,20 @@ activate_plugin() {
   wp --allow-root --path="${WP_TEST_CORE_DIR}" db export "$(pwd)/tests/_data/dump.sql"
 }
 
+run_tests() {
+  if [[ "${COVERAGE}" == 'true' ]]; then
+    phpdbg -qrr ./vendor/bin/codecept run "${TEST_TYPE}" --env docker --coverage --coverage-xml
+  else
+    ./vendor/bin/codecept run "${TEST_TYPE}" --env docker
+  fi
+}
+
 main() {
   edit_wp_test_suite_db_config
   wait_for_database_connection
   configure_wordpress
   activate_plugin
+  run_tests
 }
 
 main

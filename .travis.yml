@@ -32,9 +32,9 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 
 script:
-  - make tests TEST_TYPE='wpunit'
-  - make tests TEST_TYPE='functional'
-  - make tests TEST_TYPE='acceptance'
+  - ./run-docker-tests.sh 'wpunit'
+  - ./run-docker-tests.sh 'functional'
+  - ./run-docker-tests.sh 'acceptance'
 
 after_success:
   # Upload coverage to codecov

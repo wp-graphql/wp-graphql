@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   wpgraphql.test:
-    image: "wordpress:${WP_VERSION}-php${PHP_VERSION}-apache"
+    image: "wordpress:${WP_VERSION:-5.0.2}-php${PHP_VERSION:-7.2}-apache"
     ports:
       - '8000:80'
     environment:
@@ -11,11 +11,11 @@ services:
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
     volumes:
-      - '../../../:/var/www/html/wp-content/plugins/wp-graphql:ro'
-      - '../bind-mount-files/uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
+      - './:/var/www/html/wp-content/plugins/wp-graphql:ro'
+      - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
 
   mysql_test:
-    image: "${MYSQL_DOCKER_IMAGE}"
+    image: 'mariadb:10.2.20-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'

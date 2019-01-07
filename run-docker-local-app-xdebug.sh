@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-cd_to_task_dir() {
-  cd "$( dirname "${BASH_SOURCE[0]}" )/.." >/dev/null
-}
-
 get_docker_host_os_ip() {
   if [[ "$(uname -s)" == 'Linux' ]]; then
     # HACK: For Linux, there's not a simple way to reliably get the IP of the host OS. For dev environments, the
@@ -16,13 +12,17 @@ get_docker_host_os_ip() {
   fi
 }
 
-run_app() {
-  env DOCKER_HOST_IP="$(get_docker_host_os_ip)" ../common/bin/docker-compose-up-wrapper.sh 'docker-compose-files/docker-compose.yml,docker-compose-files/docker-compose.xdebug.yml'
+run_app_xdebug() {
+  env DOCKER_HOST_IP="$(get_docker_host_os_ip)" docker-compose -f docker-compose.local-app.yml -f docker-compose.local-app-xdebug.yml up --build
+}
+
+cleanup_docker_artifacts() {
+  docker-compose -f docker-compose.local-app.yml -f docker-compose.local-app-xdebug.yml down -v --rmi local 2> /dev/null
 }
 
 main() {
-  cd_to_task_dir
-  run_app
+  trap cleanup_docker_artifacts EXIT
+  run_app_xdebug
 }
 
 main

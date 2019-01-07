@@ -149,11 +149,9 @@ of the set up and configuration tasks performed by a developer.
 
 
 #### Running Wordpress + wp-graphql
-We use `make` to run various DevOps tasks. You can view the list of possible `make` targets by simply typing, `make`.
-
 1. Start a local instance of WordPress. This will run the instance in the foreground:
    ```
-   make local-app
+   ./run-docker-local-app.sh
    ```
 1. Visit http://localhost:8000.
 
@@ -170,7 +168,7 @@ We use `make` to run various DevOps tasks. You can view the list of possible `ma
 
 1. Run WordPress+the plugin with XDebug enabled. Here's an example:
    ```
-   make local-app-xdebug
+   ./run-docker-local-app-xdebug.sh
    ```
 
 1. Start the debugger:
@@ -180,61 +178,18 @@ We use `make` to run various DevOps tasks. You can view the list of possible `ma
    
 #### Running tests with Docker
 
-##### For developers
-You'll need two terminal windows for this. The first window is to start the Docker containers needed for running tests. The
-second window is where you'll log into one of the running Docker containers (which will have OS dependencies already installed) and run 
-your tests as you make code changes.
 
-1. In the first terminal window, start up a pristine Docker testing environment by running this command:
-   ```
-   make test-environment
-   ```
-   This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
-   be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step when you
-   see output similar to the following:
-   ```
-   wpgraphql.test_1  | [Tue Oct 30 15:04:33.917067 2018] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
-   
-   ```
-1. In the second terminal window, access the Docker container shell from which you can run tests:
-   ```
-   make test-environment-shell
-   ```
-   At this point some extra test initialization will be done. You should eventually see a prompt like this:
-   ```
-   root@bb953c1da8d7:/tester-shell-dir
-   ```   
-1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
-terminal window):
-   ```
-   run-codeception.sh run 'wpunit' --env docker
-   run-codeception.sh run 'wpunit' 'WPGraphQLTest' --env docker
-   run-codeception.sh run 'functional' --env docker
-   run-codeception.sh run 'acceptance' --env docker   
-   ``` 
-Notes:
-* If you make a change that requires `composer install` to be rerun, shutdown the testing environment and restart it to 
-automatically rerun the `composer install` in the testing environment.
-* Leave the container shell (the second terminal window) by typing `exit`.
-* Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
-* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
-try these solutions:
-   * Run this command: `docker system prune`
-   * https://docs.docker.com/config/pruning/#prune-containers
-
-
-##### For Travis (or any other CI tool)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
-   make tests TEST_TYPE='wpunit'
-   make tests TEST_TYPE='functional'
-   make tests TEST_TYPE='acceptance'
+   ./run-docker-tests.sh 'wpunit'
+   ./run-docker-tests.sh 'functional'
+   ./run-docker-tests.sh 'acceptance'
    ```
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   env PHP_VERSION='7.1' make tests TEST_TYPE='wpunit'
-   env PHP_VERSION='7.1' COVERAGE='true' make tests TEST_TYPE='functional'
+   env PHP_VERSION='7.1' ./run-docker-tests.sh 'wpunit'
+   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh 'functional'
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 
@@ -244,11 +199,7 @@ Notes:
   
 
 #### Updating WP Docker image
-Please make sure this file refers to the latest specific versions of WordPress and PHP that are available as a Docker
-image. These values will serve as default values if no environment variables have been explicitly set. 
-  ```
-  docker-tasks/common/env/docker-versions.sh
-  ```
+Make sure the `docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker image.
 Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
 check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
   
