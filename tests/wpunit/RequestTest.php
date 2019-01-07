@@ -28,7 +28,6 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testConstructor() {
-		$this->assertEquals( false, defined( 'GRAPHQL_REQUEST' ) );
 		$this->assertEquals( 0, did_action( 'init_graphql_request' ) );
 
 		$this->create_example_request();
