@@ -565,9 +565,9 @@ class TypeRegistry {
 		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
 		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
 		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
+		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
+		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
+		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() { return null; };
 		$connection_name    = self::get_connection_name( $from_type, $to_type );
 		$where_args         = [];
 
@@ -578,8 +578,8 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 			register_graphql_input_type( $connection_name . 'WhereArgs', [
-				//@TODO: Wondering if this description should be dynamic to include the name of the connection these args are for?
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				// Translators: Placeholder is the name of the connection
+				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
 				'fields'      => $connection_args,
 				'queryClass' => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
 			] );
@@ -658,7 +658,38 @@ class TypeRegistry {
 				],
 			], $where_args ),
 			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
-			'resolve'     => $resolve_connection,
+			'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
+
+				/**
+				 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
+				 * numerous instances of the same connection within any given query. If the connection
+				 * has the same args, we can use the existing cached args instead of storing new context
+				 */
+				$connection_id = $connection_name . ':' . base64_encode( wp_json_encode( $args ) );
+
+				/**
+				 * Set the previous connection by getting the currentConnection
+				 */
+				$context->prevConnection = isset( $context->currentConnection ) ? $context->currentConnection : null;
+
+				/**
+				 * Set the currentConnection using the $connectionId
+				 */
+				$context->currentConnection = $connection_id;
+
+				/**
+				 * Set the connectionArgs if they haven't already been set
+				 * (it's possible, although rare, to have multiple connections in a single query with the same args)
+				 */
+				if ( ! isset( $context->connectionArgs[ $connection_id ] ) ) {
+					$context->connectionArgs[ $connection_id ] = $args;
+				}
+
+				/**
+				 * Return the results
+				 */
+				return call_user_func( $resolve_connection, $root, $args, $context, $info );
+			},
 		] );
 
 	}
