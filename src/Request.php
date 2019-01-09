@@ -200,7 +200,7 @@ class Request {
 	}
 
 	/**
-	 * Returns all registered Schemas
+	 * Execute an internal request (graphql() function call).
 	 *
 	 * @return array
 	 */
@@ -241,7 +241,7 @@ class Request {
 	}
 
 	/**
-	 * Returns all registered Schemas
+	 * Execute an HTTP request.
 	 *
 	 * @return array
 	 */
@@ -262,7 +262,7 @@ class Request {
 		 * Get the response.
 		 */
 		$server = $this->get_server();
-		$response = $server->executeRequest();
+		$response = $server->executeRequest( $this->params );
 
 		return $this->after_execute( $response );
 	}
@@ -290,6 +290,18 @@ class Request {
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
 			->setQueryBatching( true );
+
+		/**
+		 * Run an action when the server config is created. The config can be acted
+		 * upon directly to override default values or implement new features, e.g.,
+		 * $config->setValidationRules().
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param ServerConfig    $config Server config
+		 * @param OperationParams $params Request operation params
+		 */
+		do_action( 'graphql_server_config', $config, $this->params );
 
 		$server = new StandardServer( $config );
 
