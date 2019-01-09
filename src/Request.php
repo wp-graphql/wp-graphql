@@ -296,7 +296,7 @@ class Request {
 		 * upon directly to override default values or implement new features, e.g.,
 		 * $config->setValidationRules().
 		 *
-		 * @since 0.2.1
+		 * @since 0.2.0
 		 *
 		 * @param ServerConfig    $config Server config
 		 * @param OperationParams $params Request operation params
