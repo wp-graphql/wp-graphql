@@ -3,18 +3,27 @@ ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION
 ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
-FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
+
+# -----------------STAGE--------------------
+# Sets timezone to UTC and installs XDebug for PHP 7.X.
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-utc-xdebug
+
+RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi
+
+
+# -----------------STAGE--------------------
+# Installs dependencies to run a Wordpress+wp-graphql SUT (system-under-test)
+FROM wordpress-utc-xdebug as wordpress-wp-graphql-sut
 
 # Install wp-cli, pdo_mysql, xdebug (for PHP 7.X), PHP composer
-RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
-  && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
+RUN curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
   && mv wp-cli.phar /usr/local/bin/wp \
   && apt-get update -y \
   && apt-get install --no-install-recommends -y mysql-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && docker-php-ext-install pdo_mysql \
-  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
   && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/d3e09029468023aa4e9dcd165e9b6f43df0a9999/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer
@@ -64,5 +73,14 @@ RUN cp -a "${PRISTINE_WP_DIR}" "${WP_TEST_CORE_DIR}"
 
 RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${WP_TEST_CORE_DIR}/wp-content/db.php"
 
+
+# -----------------STAGE--------------------
+# Installs dependencies to run unit tests and integration tests against the Wordpress+wp-graphql SUT (system-under-test)
+FROM wordpress-wp-graphql-sut as wordpress-wp-graphql-tester
+
 # Copy docker-entrypoints to a directory that's already in the environment PATH
 COPY docker-entrypoint.tests.sh /usr/local/bin/
+
+WORKDIR /tmp/wordpress/wp-content/plugins/wp-graphql
+
+ENTRYPOINT [ "docker-entrypoint.tests.sh" ]

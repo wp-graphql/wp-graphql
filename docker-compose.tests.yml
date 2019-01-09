@@ -4,10 +4,11 @@ services:
   wpgraphql-tester:
     build:
       context: '.'
+      target: 'wordpress-wp-graphql-tester'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
-    image: 'wordpress-wp-graphql'
+    image: 'wordpress-wp-graphql-tester-cache'
     container_name: 'wpgraphql-tester'
     environment:
       DB_SERVE_NAME: 'wpgraphql_test'
@@ -17,16 +18,15 @@ services:
       WP_VERSION: "${WP_VERSION:-5.0.2}"
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
-    working_dir: /tmp/wordpress/wp-content/plugins/wp-graphql
-    entrypoint: [ "docker-entrypoint.tests.sh" ]
 
   wpgraphql.test:
     build:
       context: '.'
+      target: 'wordpress-wp-graphql-sut'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
-    image: 'wordpress-wp-graphql'
+    image: 'wordpress-wp-graphql-sut-cache'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'

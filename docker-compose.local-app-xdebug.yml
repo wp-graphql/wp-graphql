@@ -4,8 +4,8 @@ version: "3.4"
 services:
   wpgraphql.test:
     build:
-      dockerfile: 'Dockerfile.xdebug'
       context: '.'
+      target: 'wordpress-utc-xdebug'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
