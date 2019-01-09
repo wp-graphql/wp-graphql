@@ -72,7 +72,7 @@ class WPHelper extends Helper {
 		}
 
 		// Apollo server/client compatibility: look for the query id in extensions
-		if ( isset( $params['extensions']['persistedQuery']['sha256Hash'] ) && ! isset( $params['query'] ) ) {
+		if ( isset( $params['extensions']['persistedQuery']['sha256Hash'] ) && ! isset( $params['queryId'] ) ) {
 			$params['queryId'] = $params['extensions']['persistedQuery']['sha256Hash'];
 			unset( $params['extensions']['persistedQuery'] );
 		}
