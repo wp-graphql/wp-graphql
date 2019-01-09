@@ -13,11 +13,11 @@ get_docker_host_os_ip() {
 }
 
 run_app_xdebug() {
-  env DOCKER_HOST_IP="$(get_docker_host_os_ip)" docker-compose -f docker-compose.local-app.yml -f docker-compose.local-app-xdebug.yml up --build
+  env DOCKER_HOST_IP="$(get_docker_host_os_ip)" docker-compose -f docker/docker-compose.local-app.yml -f docker/docker-compose.local-app-xdebug.yml up --build
 }
 
 cleanup_docker_artifacts() {
-  docker-compose -f docker-compose.local-app.yml -f docker-compose.local-app-xdebug.yml down -v --rmi local 2> /dev/null
+  docker-compose -f docker-compose.local-app.yml -f docker/docker-compose.local-app.yml -f docker/docker-compose.local-app-xdebug.yml down -v --rmi local 2> /dev/null
 }
 
 main() {

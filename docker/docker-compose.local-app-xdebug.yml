@@ -4,7 +4,7 @@ version: "3.4"
 services:
   wpgraphql.test:
     build:
-      context: '.'
+      context: '../'
       target: 'wordpress-utc-xdebug'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"

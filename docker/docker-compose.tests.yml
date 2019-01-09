@@ -3,7 +3,7 @@ version: "3.4"
 services:
   wpgraphql-tester:
     build:
-      context: '.'
+      context: '../'
       target: 'wordpress-wp-graphql-tester'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
@@ -21,7 +21,7 @@ services:
 
   wpgraphql.test:
     build:
-      context: '.'
+      context: '../'
       target: 'wordpress-wp-graphql-sut'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"

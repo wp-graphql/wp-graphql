@@ -14,7 +14,7 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
 
 # -----------------STAGE--------------------
 # Installs dependencies to run a Wordpress+wp-graphql SUT (system-under-test)
-FROM wordpress-utc-xdebug as wordpress-wp-graphql-sut
+FROM wordpress-utc-xdebug as wordpress-wp-graphql-test-base
 
 # Install wp-cli, pdo_mysql, xdebug (for PHP 7.X), PHP composer
 RUN curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
@@ -75,12 +75,23 @@ RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${
 
 
 # -----------------STAGE--------------------
-# Installs dependencies to run unit tests and integration tests against the Wordpress+wp-graphql SUT (system-under-test)
-FROM wordpress-wp-graphql-sut as wordpress-wp-graphql-tester
+# Installs dependencies to run a Wordpress+wp-graphql SUT (system-under-test)
+FROM wordpress-wp-graphql-test-base as wordpress-wp-graphql-sut
 
-# Copy docker-entrypoints to a directory that's already in the environment PATH
-COPY docker-entrypoint.tests.sh /usr/local/bin/
+# Need this file to flush rewrite rules via wp-cli: https://developer.wordpress.org/cli/commands/rewrite/flush/
+COPY --chown='www-data:www-data' docker/wp-cli.yml /var/www/html/
+
+COPY docker/docker-entrypoint.sut.sh /usr/local/bin/
+
+ENTRYPOINT [ "docker-entrypoint.sut.sh" ]
+
+
+# -----------------STAGE--------------------
+# Installs dependencies to run unit tests and integration tests against the Wordpress+wp-graphql SUT (system-under-test)
+FROM wordpress-wp-graphql-test-base as wordpress-wp-graphql-tester
+
+COPY docker/docker-entrypoint.tester.sh /usr/local/bin/
 
 WORKDIR /tmp/wordpress/wp-content/plugins/wp-graphql
 
-ENTRYPOINT [ "docker-entrypoint.tests.sh" ]
+ENTRYPOINT [ "docker-entrypoint.tester.sh" ]

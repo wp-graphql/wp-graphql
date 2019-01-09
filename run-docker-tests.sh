@@ -12,7 +12,7 @@ recreate_report_dir() {
 run_tests() {
   # Run the Docker compose file and make note of the exit code. This will be used by the CI tool (e.g. Travis) to
   # determine if the build should fail.
-  env TEST_TYPE="${TEST_TYPE}" docker-compose -f docker-compose.tests.yml up --build --abort-on-container-exit --exit-code-from 'wpgraphql-tester'
+  env TEST_TYPE="${TEST_TYPE}" docker-compose -f docker/docker-compose.tests.yml up --build --abort-on-container-exit --exit-code-from 'wpgraphql-tester'
 }
 
 copy_data_from_docker_container_to_host() {
@@ -20,7 +20,7 @@ copy_data_from_docker_container_to_host() {
 }
 
 cleanup_docker_artifacts() {
-  docker-compose -f docker-compose.tests.yml down -v --rmi local 2> /dev/null
+  docker-compose -f docker/docker-compose.tests.yml down -v --rmi local 2> /dev/null
 }
 
 main() {
