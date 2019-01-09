@@ -29,6 +29,10 @@ class WPHelper extends Helper {
 		 * applied to non-HTTP requests. Since 0.2.0, we will apply it to all
 		 * requests.
 		 *
+		 * This is a great place to hook if you are interested in implementing
+		 * persisted queries (and ends up being a bit more flexible than
+		 * graphql-php's built-in persistentQueryLoader).
+		 *
 		 * @param array $data An array containing the pieces of the data of the GraphQL request
 		 */
 		$parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params );
