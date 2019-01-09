@@ -262,7 +262,7 @@ class Request {
 		 * Get the response.
 		 */
 		$server = $this->get_server();
-		$response = $server->executeRequest();
+		$response = $server->executeRequest( $this->params );
 
 		return $this->after_execute( $response );
 	}
