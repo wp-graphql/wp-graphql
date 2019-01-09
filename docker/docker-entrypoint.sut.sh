@@ -5,7 +5,7 @@ set -eu
 # The Official WordPress Docker file declares /var/www/html as a volume, so need to
 # populate it at container run-time and not image build-time.
 copy_wordpress_files() {
-  cp -a /usr/src/wordpress/* /var/www/html/
+  cp -a /usr/src/wordpress/* /var/www/html/ 2> /dev/null || true
 }
 
 wait_for_database() {

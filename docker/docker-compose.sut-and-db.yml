@@ -16,9 +16,9 @@ services:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
-      WORDPRESS_DB_PASSWORD: ''
-    #volumes:
-    #  - './:/var/www/html/wp-content/plugins/wp-graphql:ro'
+      WORDPRESS_DB_PASSWORD: 'testing'
+    volumes:
+      - '../:/var/www/html/wp-content/plugins/wp-graphql:ro'
 
   mysql_test:
     image: 'mariadb:10.2.20-bionic'
@@ -26,5 +26,4 @@ services:
       - '3306:3306'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
-      #MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      MYSQL_ROOT_PASSWORD: 'testing'
