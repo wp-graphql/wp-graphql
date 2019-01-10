@@ -7,7 +7,7 @@
 /PULL_REQUEST_TEMPLATE.md export-ignore
 #/changelog.md export-ignore
 #/readme.md export-ignore
-/vendor export-ignore
+#/vendor export-ignore
 /Dockerfile export-ignore
 /docker-entrypoints export-ignore
 /docker-tasks export-ignore
