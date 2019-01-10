@@ -1,5 +1,6 @@
 .git
 .idea
+bin
 docker-output
 docs
 img
@@ -8,7 +9,6 @@ img
 .travis.yml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
-docker-compose*.yml
 Dockerfile*
 ISSUE_TEMPLATE.md
 LICENSE
