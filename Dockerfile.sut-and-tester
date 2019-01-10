@@ -4,6 +4,7 @@ ARG DESIRED_PHP_VERSION
 ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
 # --------------------- STAGE -----------------------
+# This runs PHP Composer install on the project so it can be used by the SUT and tester Docker images
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wp-graphql-composer-dependencies
 
 # Install PHP composer
@@ -33,10 +34,10 @@ RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
 
 
 # --------------------- STAGE -----------------------
+# Creates Wordpress image + wp-graphql system-under-test (SUT)
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-wp-graphql-sut
 
 # Install XDebug and WP-CLI
-
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
@@ -61,16 +62,12 @@ COPY docker/docker-entrypoint.sut.sh /usr/local/bin/
 ENTRYPOINT [ "docker-entrypoint.sut.sh" ]
 
 
-
 # --------------------- STAGE -----------------------
+# Creates image from which plugin tests are invoked
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-wp-graphql-tester
 
-# Install wp-cli, pdo_mysql, xdebug (for PHP 7.X), PHP composer
+# Install mysql client, pdo_mysql, subversion
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
-  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
-  && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
-  && chmod +x wp-cli.phar \
-  && mv wp-cli.phar /usr/local/bin/wp \
   && apt-get update -y \
   && apt-get install --no-install-recommends -y mysql-client subversion \
   && rm -rf /var/lib/apt/lists/* \
