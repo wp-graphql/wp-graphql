@@ -11,10 +11,10 @@ $values = [];
  * of values for use in the enum type.
  */
 if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-	foreach ( $allowed_taxonomies as $taxonomy ) {
-		if ( ! isset( $values[ WPEnumType::get_safe_name( get_taxonomy( $taxonomy )->graphql_single_name ) ] ) ) {
-			$values[ WPEnumType::get_safe_name( get_taxonomy( $taxonomy )->graphql_single_name ) ] = [
-				'value' => $taxonomy,
+	foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
+		if ( ! isset( $values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] ) ) {
+			$values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] = [
+				'value' => $allowed_taxonomy,
 			];
 		}
 	}
