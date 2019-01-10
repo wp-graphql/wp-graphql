@@ -3,6 +3,8 @@
 namespace WPGraphQL\Server;
 
 use GraphQL\Server\Helper;
+use GraphQL\Server\OperationParams;
+use GraphQL\Server\RequestError;
 
 /**
  * Extends GraphQL\Server\Helper to apply filters and parse query extensions.
