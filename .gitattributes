@@ -1,0 +1,18 @@
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+phpcs.ruleset.xml  export-ignore
+/phpunit.xml.dist export-ignore
+ISSUE_TEMPLATE.md export-ignore
+PULL_REQUEST_TEMPLATE.md export-ignore
+#/changelog.md export-ignore
+#/readme.md export-ignore
+vendor export-ignore
+Dockerfile export-ignore
+docker-entrypoints export-ignore
+docker-tasks export-ignore
+run-docker-local-app.sh export-ignore
+run-docker-shell.sh export-ignore
+run-docker-test-environment.sh export-ignore
+run-docker-tests.sh export-ignore
+
