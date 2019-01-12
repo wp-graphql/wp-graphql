@@ -10,14 +10,12 @@ services:
     container_name: 'wpgraphql-tester-shell'
     volumes:
       - '../src:/tmp/wordpress/wp-content/plugins/wp-graphql/src:ro'
-      - '../tests:/tmp/wordpress/wp-content/plugins/wp-graphql/tests:ro'
-      - 'tests-output:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_output'
+      - '../tests/acceptance:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/acceptance:ro'
+      - '../tests/functional:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/functional:ro'
+      - '../tests/wpunit:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/wpunit:ro'
       - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
 
   wpgraphql.test:
     volumes:
       - '../src:/var/www/html/wp-content/plugins/wp-graphql/src:ro'
       - '../wp-graphql.php:/var/www/html/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
-
-volumes:
-  tests-output:
