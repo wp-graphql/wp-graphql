@@ -155,7 +155,7 @@ of the set up and configuration tasks performed by a developer.
    ```
 1. Visit http://localhost:8000.
 
-#### Using PHPStorm/IntelliJ+XDebug
+#### Using PHPStorm/IntelliJ+XDebug (Linux)
 
 1. Make sure PHPStorm/IntelliJ is listenting on port 9000 for incoming XDebug connections from the WP container (for more info on remote XDebug debugging, visit https://xdebug.org/docs/remote):
    ![alt text](img/intellij-php-debug-config.png)
@@ -174,7 +174,7 @@ of the set up and configuration tasks performed by a developer.
 1. Start the debugger:
    ![alt text](img/intellij-php-start-debug.png)
    
-1. Now you can start debugging.           
+1. Now when you visit http://localhost:8000 you can use the debugger.           
    
 #### Running tests with Docker
 
