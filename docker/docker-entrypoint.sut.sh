@@ -16,7 +16,7 @@ wait_for_database() {
   set -e
 }
 
-configure_wordpress() {
+configure_wordpress_and_plugin() {
   wp --allow-root config create --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}" --skip-check --force=true
   wp --allow-root core install --url='http://wpgraphql.test' --title='WPGraphQL Tests' --admin_user='admin' --admin_password='password' --admin_email='admin@wpgraphql.test' --skip-email
   wp --allow-root rewrite structure '/%year%/%monthnum%/%postname%/'
@@ -28,7 +28,7 @@ configure_wordpress() {
   wp --allow-root rewrite flush --hard
 
   # Export sql data for Codeception's use
-  # TODO: Enable this?
+  # TODO: Is this really needed?
   # wp --allow-root db export "$(pwd)/tests/_data/dump.sql"
 
   chown 'www-data:www-data' wp-config.php .htaccess
@@ -41,7 +41,7 @@ run_wordpress() {
 main() {
   copy_wordpress_files
   wait_for_database
-  configure_wordpress
+  configure_wordpress_and_plugin
   run_wordpress
 }
 

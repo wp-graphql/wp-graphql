@@ -15,7 +15,7 @@ services:
       - '../:/var/www/html/wp-content/plugins/wp-graphql:ro'
 
   mysql_test:
-    image: 'mariadb:10.2.20-bionic'
+    image: 'mariadb:10.2.21-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'

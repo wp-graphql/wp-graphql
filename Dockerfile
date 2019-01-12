@@ -3,6 +3,16 @@ ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION
 ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
+
+# --------------------- STAGE -----------------------
+# Sets timezone to UTC and install XDebug on top of official WordPress image
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-utc-xdebug
+
+# Set timezone to UTC and install XDebug for PHP 7.X.
+RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi
+
+
 # --------------------- STAGE -----------------------
 # This runs PHP Composer install on the project so it can be used by the SUT and tester Docker images
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wp-graphql-composer-dependencies
@@ -39,7 +49,7 @@ FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-wp-graphql-sut
 
 # Install XDebug and WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
-  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi \
+  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install 'xdebug' && docker-php-ext-enable xdebug; fi \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
   && mv wp-cli.phar /usr/local/bin/wp
@@ -94,8 +104,17 @@ RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${
 
 COPY --chown='www-data:www-data' --from='wp-graphql-composer-dependencies' /tmp/wp-graphql/ "${PROJECT_DIR}"/
 
-COPY docker/docker-entrypoint.tester.sh /usr/local/bin/
+COPY docker/edit-wp-test-suite-db-config.sh docker/docker-entrypoint.tester.sh /usr/local/bin/
 
 WORKDIR /tmp/wordpress/wp-content/plugins/wp-graphql
 
 ENTRYPOINT [ "docker-entrypoint.tester.sh" ]
+
+
+# --------------------- STAGE -----------------------
+# Allows developer to log into full-provisioned Docker container to run tests
+FROM wordpress-wp-graphql-tester as wordpress-wp-graphql-tester-shell
+
+COPY docker/docker-entrypoint.tester-shell.sh /usr/local/bin/
+
+ENTRYPOINT [ "docker-entrypoint.tester-shell.sh" ]

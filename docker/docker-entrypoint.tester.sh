@@ -2,16 +2,6 @@
 
 set -eu
 
-edit_wp_test_suite_db_config() {
-  local -r wp_test_core_dir_no_trailing_slash="$(echo ${WP_TEST_CORE_DIR} | sed 's:/\+$::')"
-
-  sed -i "s:dirname( __FILE__ ) . '/src/':'${wp_test_core_dir_no_trailing_slash}/':" "${WP_TESTS_DIR}/wp-tests-config.php"
-  sed -i "s/youremptytestdbnamehere/$DB_SERVE_NAME/" "${WP_TESTS_DIR}/wp-tests-config.php"
-  sed -i "s/yourusernamehere/$DB_USER/" "${WP_TESTS_DIR}/wp-tests-config.php"
-  sed -i "s/yourpasswordhere/$DB_PASSWORD/" "${WP_TESTS_DIR}/wp-tests-config.php"
-  sed -i "s|localhost|${DB_HOST}|" "${WP_TESTS_DIR}/wp-tests-config.php"
-}
-
 wait_for_database() {
   set +e
   while [[ true ]]; do
@@ -31,7 +21,7 @@ run_tests() {
 }
 
 main() {
-  edit_wp_test_suite_db_config
+  edit-wp-test-suite-db-config.sh
   wait_for_database
   run_tests
 }

@@ -178,7 +178,51 @@ of the set up and configuration tasks performed by a developer.
    
 #### Running tests with Docker
 
+##### For developers
+You'll need two terminal windows for this. The first window is to start the Docker containers needed for running tests. The
+second window is where you'll log into one of the running Docker containers (which will have OS dependencies already installed) and run 
+your tests as you make code changes.
 
+1. In the first terminal window, start up a pristine Docker testing environment by running this command:
+   ```
+   ./run-docker-test-environment.sh
+   ```
+   This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
+   be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step when you
+   see output similar to the following:
+   ```
+   wpgraphql.test_1  | [Tue Oct 30 15:04:33.917067 2018] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
+   
+   ```
+1. In the second terminal window, access the Docker container shell from which you can run tests:
+   ```
+   ./run-docker-test-environment-shell.sh
+   ```
+   You should eventually see a prompt like this:
+   ```
+   root@cd8e4375eb6f:/tmp/wordpress/wp-content/plugins/wp-graphql
+   ```   
+1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
+terminal window):
+   ```
+   vendor/bin/codecept run wpunit --env docker
+   vendor/bin/codecept run functional --env docker
+   vendor/bin/codecept run acceptance --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php:testPluginNodeQuery --env docker
+   ```
+Notes:
+* If you make a change that requires `composer install` to be rerun, shutdown the testing environment and restart it to 
+automatically rerun the `composer install` in the testing environment.
+* Leave the container shell (the second terminal window) by typing `exit`.
+* Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
+* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
+try these solutions:
+   * Run this command: `docker system prune`
+   * https://docs.docker.com/config/pruning/#prune-containers
+
+
+##### For CI tools (e.g. Travis)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
    ./run-docker-tests.sh 'wpunit'

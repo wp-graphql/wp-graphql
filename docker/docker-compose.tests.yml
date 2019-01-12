@@ -4,7 +4,6 @@ services:
   wpgraphql-tester:
     build:
       context: '../'
-      dockerfile: 'Dockerfile.sut-and-tester'
       target: 'wordpress-wp-graphql-tester'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
@@ -12,18 +11,16 @@ services:
     image: 'wordpress-wp-graphql-tester-cache'
     container_name: 'wpgraphql-tester'
     environment:
-      DB_SERVE_NAME: 'wpgraphql_test'
-      DB_HOST: 'mysql_test'
-      DB_USER: 'root'
-      DB_PASSWORD: 'testing'
-      WP_VERSION: "${WP_VERSION:-5.0.2}"
+      WORDPRESS_DB_NAME: 'wpgraphql_test'
+      WORDPRESS_DB_HOST: 'mysql_test'
+      WORDPRESS_DB_USER: 'root'
+      WORDPRESS_DB_PASSWORD: 'testing'
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
 
   wpgraphql.test:
     build:
       context: '../'
-      dockerfile: 'Dockerfile.sut-and-tester'
       target: 'wordpress-wp-graphql-sut'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
@@ -36,7 +33,7 @@ services:
       WORDPRESS_DB_PASSWORD: 'testing'
 
   mysql_test:
-    image: 'mariadb:10.2.20-bionic'
+    image: 'mariadb:10.2.21-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'
