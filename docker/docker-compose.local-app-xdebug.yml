@@ -7,7 +7,7 @@ services:
       context: '../'
       target: 'wordpress-utc-xdebug'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
     image: 'wordpress-utc-xdebug-cache'
     environment:

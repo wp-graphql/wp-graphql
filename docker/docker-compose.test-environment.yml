@@ -9,15 +9,18 @@ services:
     image: 'wordpress-wp-graphql-tester-shell-cache'
     container_name: 'wpgraphql-tester-shell'
     volumes:
-      - '../bin:/tmp/wordpress/wp-content/plugins/wp-graphql/bin:rw'
-      - '../cli:/tmp/wordpress/wp-content/plugins/wp-graphql/cli:rw'
-      - '../src:/tmp/wordpress/wp-content/plugins/wp-graphql/src:rw'
-      - '../tests:/tmp/wordpress/wp-content/plugins/wp-graphql/tests:rw'
-      - '../phpcs.ruleset.xml:/tmp/wordpress/wp-content/plugins/wp-graphql/phpcs.ruleset.xml:rw'
-      - '../phpunit.xml.dist:/tmp/wordpress/wp-content/plugins/wp-graphql/phpunit.xml.dist:rw'
-      - '../schema.graphql:/tmp/wordpress/wp-content/plugins/wp-graphql/schema.graphql:rw'
-      - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:rw'
+      - '../bin:/tmp/wordpress/wp-content/plugins/wp-graphql/bin:ro'
+      - '../cli:/tmp/wordpress/wp-content/plugins/wp-graphql/cli:ro'
+      - '../src:/tmp/wordpress/wp-content/plugins/wp-graphql/src:ro'
+      - '../tests:/tmp/wordpress/wp-content/plugins/wp-graphql/tests:ro'
+      - 'tests-output:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_output'
+      - '../phpcs.ruleset.xml:/tmp/wordpress/wp-content/plugins/wp-graphql/phpcs.ruleset.xml:ro'
+      - '../phpunit.xml.dist:/tmp/wordpress/wp-content/plugins/wp-graphql/phpunit.xml.dist:ro'
+      - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
 
   wpgraphql.test:
     volumes:
       - '../:/var/www/html/wp-content/plugins/wp-graphql:ro'
+
+volumes:
+  tests-output:

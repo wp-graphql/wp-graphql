@@ -6,7 +6,7 @@ services:
       context: '../'
       target: 'wordpress-wp-graphql-tester'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
     image: 'wordpress-wp-graphql-tester-cache'
     container_name: 'wpgraphql-tester'
@@ -17,6 +17,8 @@ services:
       WORDPRESS_DB_PASSWORD: 'testing'
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
+    volumes:
+      - 'codeception-test-data:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_data:ro'
 
   wpgraphql.test:
     build:
@@ -31,9 +33,14 @@ services:
       WORDPRESS_DB_NAME: 'wpgraphql_test'
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
+    volumes:
+      - 'codeception-test-data:/usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data'
 
   mysql_test:
     image: 'mariadb:10.2.21-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'
+
+volumes:
+  codeception-test-data:

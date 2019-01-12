@@ -7,13 +7,7 @@ copy_wordpress_files() {
 }
 
 wait_for_database() {
-  set +e
-  while [[ true ]]; do
-    if curl --fail --show-error --silent "${WORDPRESS_DB_HOST}:3306" > /dev/null 2>&1; then break; fi
-      echo "Waiting for database to be ready...."
-      sleep 2
-  done
-  set -e
+  wait-for-service.sh "${WORDPRESS_DB_HOST}:3306" 'Database'
 }
 
 configure_wordpress_and_plugin() {
@@ -28,8 +22,7 @@ configure_wordpress_and_plugin() {
   wp --allow-root rewrite flush --hard
 
   # Export sql data for Codeception's use
-  # TODO: Is this really needed?
-  # wp --allow-root db export "$(pwd)/tests/_data/dump.sql"
+  wp --allow-root db export /usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data/dump.sql
 
   chown 'www-data:www-data' wp-config.php .htaccess
 }

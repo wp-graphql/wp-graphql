@@ -47,8 +47,11 @@ RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
 # Creates Wordpress image + wp-graphql system-under-test (SUT)
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE} as wordpress-wp-graphql-sut
 
-# Install XDebug and WP-CLI
+# Install MySQL Client (to generate WP db dump file for Codeception), XDebug, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && apt-get update -y \
+  && apt-get install --no-install-recommends -y mysql-client \
+  && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install 'xdebug' && docker-php-ext-enable xdebug; fi \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
@@ -67,7 +70,7 @@ RUN curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > "${PROJECT_DIR}
 COPY --chown='www-data:www-data' --from='wp-graphql-composer-dependencies' /tmp/wp-graphql/ "${PROJECT_DIR}"/
 
 # Add Docker entrypoint script
-COPY docker/docker-entrypoint.sut.sh /usr/local/bin/
+COPY docker/wait-for-service.sh docker/docker-entrypoint.sut.sh /usr/local/bin/
 
 ENTRYPOINT [ "docker-entrypoint.sut.sh" ]
 
@@ -104,7 +107,7 @@ RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${
 
 COPY --chown='www-data:www-data' --from='wp-graphql-composer-dependencies' /tmp/wp-graphql/ "${PROJECT_DIR}"/
 
-COPY docker/edit-wp-test-suite-db-config.sh docker/docker-entrypoint.tester.sh /usr/local/bin/
+COPY docker/wait-for-service.sh docker/edit-wp-test-suite-db-config.sh docker/docker-entrypoint.tester.sh /usr/local/bin/
 
 WORKDIR /tmp/wordpress/wp-content/plugins/wp-graphql
 
