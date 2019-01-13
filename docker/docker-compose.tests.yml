@@ -4,11 +4,11 @@ services:
   wpgraphql-tester:
     build:
       context: '../'
-      target: 'wordpress-wp-graphql-tester'
+      dockerfile: 'Dockerfile.test-base'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
-    image: 'wordpress-wp-graphql-tester-cache'
+    image: 'wordpress-wp-graphql-test-base'
     container_name: 'wpgraphql-tester'
     environment:
       WORDPRESS_DB_NAME: 'wpgraphql_test'
@@ -19,15 +19,17 @@ services:
       COVERAGE: "${COVERAGE}"
     volumes:
       - 'codeception-test-data:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_data:ro'
+    working_dir: '/tmp/wordpress/wp-content/plugins/wp-graphql/'
+    entrypoint: [ "docker-entrypoint.tester.sh" ]
 
   wpgraphql.test:
     build:
       context: '../'
-      target: 'wordpress-wp-graphql-sut'
+      dockerfile: 'Dockerfile.test-base'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
-    image: 'wordpress-wp-graphql-sut-cache'
+    image: 'wordpress-wp-graphql-test-base'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
       WORDPRESS_DB_NAME: 'wpgraphql_test'
@@ -35,6 +37,7 @@ services:
       WORDPRESS_DB_PASSWORD: 'testing'
     volumes:
       - 'codeception-test-data:/usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data'
+    entrypoint: [ "docker-entrypoint.sut.sh" ]
 
   mysql_test:
     image: 'mariadb:10.2.21-bionic'

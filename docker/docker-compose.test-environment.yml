@@ -4,9 +4,6 @@ version: "3.4"
 services:
 
   wpgraphql-tester:
-    build:
-      target: 'wordpress-wp-graphql-tester-shell'
-    image: 'wordpress-wp-graphql-tester-shell-cache'
     container_name: 'wpgraphql-tester-shell'
     volumes:
       - '../src:/tmp/wordpress/wp-content/plugins/wp-graphql/src:ro'
@@ -14,6 +11,7 @@ services:
       - '../tests/functional:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/functional:ro'
       - '../tests/wpunit:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/wpunit:ro'
       - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
+    entrypoint: [ "docker-entrypoint.tester-shell.sh" ]
 
   wpgraphql.test:
     volumes:

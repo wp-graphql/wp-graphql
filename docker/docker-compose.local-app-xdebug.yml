@@ -5,7 +5,7 @@ services:
   wpgraphql.test:
     build:
       context: '../'
-      target: 'wordpress-utc-xdebug'
+      dockerfile: 'Dockerfile.xdebug'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.0.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
