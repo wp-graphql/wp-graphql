@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Language\AST;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 abstract class Node
@@ -99,10 +98,12 @@ abstract class Node
         } else {
             $tmp = (array) $this;
 
-            $tmp['loc'] = [
-                'start' => $this->loc->start,
-                'end' => $this->loc->end
-            ];
+            if ($this->loc) {
+                $tmp['loc'] = [
+                    'start' => $this->loc->start,
+                    'end' => $this->loc->end
+                ];
+            }
 
             return $tmp;
         }
@@ -116,14 +117,20 @@ abstract class Node
     {
         $result = [
             'kind' => $node->kind,
-            'loc' => [
+        ];
+
+        if ($node->loc) {
+            $result['loc'] = [
                 'start' => $node->loc->start,
                 'end' => $node->loc->end
-            ]
-        ];
+            ];
+        }
 
         foreach (get_object_vars($node) as $prop => $propValue) {
             if (isset($result[$prop]))
+                continue;
+
+            if ($propValue === null)
                 continue;
 
             if (is_array($propValue) || $propValue instanceof NodeList) {
