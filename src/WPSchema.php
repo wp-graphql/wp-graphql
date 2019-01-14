@@ -2,13 +2,7 @@
 
 namespace WPGraphQL;
 
-use GraphQL\Error\UserError;
-use GraphQL\Executor\Executor;
-use GraphQL\Schema;
-use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\Type\WPObjectType;
+use GraphQL\Type\Schema;
 
 /**
  * Class WPSchema
