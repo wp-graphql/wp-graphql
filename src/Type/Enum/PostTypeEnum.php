@@ -14,10 +14,10 @@ $allowed_post_types = \WPGraphQL::get_allowed_post_types();
  * of values for use in the enum type.
  */
 if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-	foreach ( $allowed_post_types as $post_type ) {
+	foreach ( $allowed_post_types as $allowed_post_type ) {
 
-		$values[ WPEnumType::get_safe_name( $post_type ) ] = [
-			'value' => $post_type,
+		$values[ WPEnumType::get_safe_name( $allowed_post_type ) ] = [
+			'value' => $allowed_post_type,
 		];
 	}
 }
