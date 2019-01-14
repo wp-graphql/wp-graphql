@@ -26,6 +26,7 @@
     "ivome/graphql-relay-php": "^0.3.1"
   },
   "require-dev": {
+    "phpunit/phpunit": "5.7.27",
     "lucatume/wp-browser": "~1.21.20"
   },
   "config": {
