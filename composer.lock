@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1255a66261a4d1a074a1533d2186362b",
+    "content-hash": "76e4835b4cf124fed667a182a11657a1",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -1220,16 +1220,16 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v5.7.20",
+            "version": "v5.7.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "758927e5e925c1d442a1faaa1356675ceba0194c"
+                "reference": "3d67e2d7c9087ae3a2a53d9b102697e5f482d6d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/758927e5e925c1d442a1faaa1356675ceba0194c",
-                "reference": "758927e5e925c1d442a1faaa1356675ceba0194c",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/3d67e2d7c9087ae3a2a53d9b102697e5f482d6d0",
+                "reference": "3d67e2d7c9087ae3a2a53d9b102697e5f482d6d0",
                 "shasum": ""
             },
             "require": {
@@ -1260,7 +1260,7 @@
             ],
             "description": "The Illuminate Contracts package.",
             "homepage": "https://laravel.com",
-            "time": "2018-11-15T13:49:08+00:00"
+            "time": "2019-01-09T10:34:49+00:00"
         },
         {
             "name": "illuminate/support",
@@ -1388,42 +1388,88 @@
             "time": "2019-01-14T23:55:14+00:00"
         },
         {
-            "name": "lucatume/wp-browser",
-            "version": "2.2.0",
+            "name": "lucatume/codeception-setup-local",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "b5da0c0eff915849faec11b23bbadc5052ed6925"
+                "url": "https://github.com/lucatume/codeception-setup-local.git",
+                "reference": "0020cb2d1756d7262782c5cfd966dd9a93188c79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/b5da0c0eff915849faec11b23bbadc5052ed6925",
-                "reference": "b5da0c0eff915849faec11b23bbadc5052ed6925",
+                "url": "https://api.github.com/repos/lucatume/codeception-setup-local/zipball/0020cb2d1756d7262782c5cfd966dd9a93188c79",
+                "reference": "0020cb2d1756d7262782c5cfd966dd9a93188c79",
+                "shasum": ""
+            },
+            "require": {
+                "codeception/codeception": "^2.1",
+                "lucatume/wp-browser-commons": "^1.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "^2.1",
+                "mikey179/vfsstream": "^1.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "tad\\Codeception\\Command\\": "src/Command",
+                    "tad\\Codeception\\Command\\Helpers\\": "src/Helpers"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luca Tumedei",
+                    "email": "luca@theaveragedev.com"
+                }
+            ],
+            "description": "Flexible local setup for Codeception",
+            "time": "2017-06-01T09:49:40+00:00"
+        },
+        {
+            "name": "lucatume/wp-browser",
+            "version": "1.24.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lucatume/wp-browser.git",
+                "reference": "d491b9f8e8d4dbd57074fd6f34ba073cb4462103"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/d491b9f8e8d4dbd57074fd6f34ba073cb4462103",
+                "reference": "d491b9f8e8d4dbd57074fd6f34ba073cb4462103",
                 "shasum": ""
             },
             "require": {
                 "antecedent/patchwork": "^2.0",
-                "codeception/codeception": "~2.5.0",
-                "ext-pdo": "*",
+                "codeception/codeception": "^2.3",
                 "gumlet/php-image-resize": "^1.6",
+                "lucatume/codeception-setup-local": "~1.0",
                 "lucatume/wp-browser-commons": "^1.2.5",
-                "php": ">=5.6.0",
                 "symfony/process": ">=2.7 <5.0",
                 "vlucas/phpdotenv": "^2.4",
                 "wp-cli/wp-cli": "^1.1"
             },
             "require-dev": {
                 "mikey179/vfsstream": "^1.6",
-                "ofbeaton/console-tester": "^1.1"
+                "ofbeaton/console-tester": "^1.1",
+                "site5/phantoman": "^1.1"
             },
+            "bin": [
+                "wpcept"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Codeception\\": "src/Codeception",
-                    "tad\\": "src/tad"
+                    "Codeception\\": "src\\Codeception",
+                    "tad\\": "src\\tad"
                 },
                 "files": [
-                    "src/tad/WPBrowser/functions.php"
+                    "src/tad/WPBrowser/functions.php",
+                    "shims.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1444,7 +1490,7 @@
                 "codeception",
                 "wordpress"
             ],
-            "time": "2018-11-29T13:58:24+00:00"
+            "time": "2018-08-01T15:06:14+00:00"
         },
         {
             "name": "lucatume/wp-browser-commons",
@@ -2319,16 +2365,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.1",
+            "version": "7.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c23d78776ad415d5506e0679723cb461d71f488f"
+                "reference": "7c89093bd00f7d5ddf0ab81dee04f801416b4944"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c23d78776ad415d5506e0679723cb461d71f488f",
-                "reference": "c23d78776ad415d5506e0679723cb461d71f488f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7c89093bd00f7d5ddf0ab81dee04f801416b4944",
+                "reference": "7c89093bd00f7d5ddf0ab81dee04f801416b4944",
                 "shasum": ""
             },
             "require": {
@@ -2399,7 +2445,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-12-12T07:20:32+00:00"
+            "time": "2019-01-15T08:19:08+00:00"
         },
         {
             "name": "psr/container",
