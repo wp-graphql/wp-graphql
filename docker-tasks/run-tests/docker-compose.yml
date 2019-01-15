@@ -28,6 +28,7 @@ services:
       args:
         DESIRED_WP_VERSION: "${WP_VERSION}"
         DESIRED_PHP_VERSION: "${PHP_VERSION}"
+        WP_BROWSER_VERSION: "${WP_BROWSER_VERSION}"
     image: 'wordpress-sut-cache'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'
