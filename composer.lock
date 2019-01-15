@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "367e420797dad0b19884bb20e7dac7b3",
+    "content-hash": "08fdc196dedea64b0e5f907e24e52446",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
