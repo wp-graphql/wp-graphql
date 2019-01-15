@@ -11,14 +11,6 @@ modules:
         - Asserts
         - \Helper\Functional
         - WPDb
-    coverage:
-      enabled: true
-      c3_url: 'http://wpgraphql.test/wp-content/plugins/wp-graphql/c3.php'
-      whitelist:
-        include:
-          - ./wp-graphql.php
-          - ./access-functions.php
-          - ./src/*.php
     config:
         REST:
           depends: WPBrowser
