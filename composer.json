@@ -26,7 +26,7 @@
     "ivome/graphql-relay-php": "^0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^1.21.20"
+    "lucatume/wp-browser": "^2.2."
   },
   "config": {
     "optimize-autoloader": true
