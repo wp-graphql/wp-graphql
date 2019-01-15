@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\Node;
+use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
 /**
@@ -27,20 +29,22 @@ class CustomScalarType extends ScalarType
         if (isset($this->config['parseValue'])) {
             return call_user_func($this->config['parseValue'], $value);
         } else {
-            return null;
+            return $value;
         }
     }
 
     /**
-     * @param $valueNode
+     * @param Node $valueNode
+     * @param array|null $variables
      * @return mixed
+     * @throws \Exception
      */
-    public function parseLiteral(/* GraphQL\Language\AST\ValueNode */ $valueNode)
+    public function parseLiteral(/* GraphQL\Language\AST\ValueNode */ $valueNode, array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
-            return call_user_func($this->config['parseLiteral'], $valueNode);
+            return call_user_func($this->config['parseLiteral'], $valueNode, $variables);
         } else {
-            return null;
+            return AST::valueFromASTUntyped($valueNode, $variables);
         }
     }
 

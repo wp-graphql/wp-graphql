@@ -1,5 +1,4 @@
 <?php
-
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
@@ -203,11 +202,21 @@ class QueryComplexity extends AbstractQuerySecurity
         $args = [];
 
         if ($fieldDef instanceof FieldDefinition) {
-            $variableValues = Values::getVariableValues(
+            $variableValuesResult = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
                 $rawVariableValues
             );
+
+            if ($variableValuesResult['errors']) {
+                throw new Error(implode("\n\n", array_map(
+                    function ($error) {
+                        return $error->getMessage();
+                    }
+                , $variableValuesResult['errors'])));
+            }
+            $variableValues = $variableValuesResult['coerced'];
+
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);
         }
 
@@ -220,11 +229,20 @@ class QueryComplexity extends AbstractQuerySecurity
                 return false;
             }
 
-            $variableValues = Values::getVariableValues(
+            $variableValuesResult = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
+
+            if ($variableValuesResult['errors']) {
+                throw new Error(implode("\n\n", array_map(
+                    function ($error) {
+                        return $error->getMessage();
+                    }
+                    , $variableValuesResult['errors'])));
+            }
+            $variableValues = $variableValuesResult['coerced'];
 
             if ($directiveNode->name->value === 'include') {
                 $directive = Directive::includeDirective();
