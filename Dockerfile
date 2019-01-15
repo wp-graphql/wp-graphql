@@ -31,7 +31,7 @@ COPY --chown='www-data:www-data' vendor/ /project/vendor/
 USER www-data
 RUN cd /project \
   && composer require "lucatume/wp-browser:${WP_BROWSER_VERSION}" --no-update \
-  && composer install
+  && composer update --prefer-source --no-interaction --dev
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root
