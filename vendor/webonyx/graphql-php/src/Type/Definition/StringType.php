@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -28,6 +27,7 @@ represent free-form human-readable text.';
     /**
      * @param mixed $value
      * @return mixed|string
+     * @throws Error
      */
     public function serialize($value)
     {
@@ -40,30 +40,49 @@ represent free-form human-readable text.';
         if ($value === null) {
             return 'null';
         }
-        if (!is_scalar($value)) {
-            throw new InvariantViolation("String cannot represent non scalar value: " . Utils::printSafe($value));
+        if (is_object($value) && method_exists($value, '__toString')) {
+            return (string) $value;
         }
-        return (string) $value;
+        if (!is_scalar($value)) {
+            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+        }
+        return $this->coerceString($value);
     }
 
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return is_string($value) ? $value : null;
+        return $this->coerceString($value);
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return null|string
+     * @throws \Exception
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof StringValueNode) {
-            return $ast->value;
+        if ($valueNode instanceof StringValueNode) {
+            return $valueNode->value;
         }
-        return null;
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
+    }
+
+    private function coerceString($value) {
+        if (is_array($value)) {
+            throw new Error(
+                'String cannot represent an array value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (string) $value;
     }
 }
