@@ -29,8 +29,8 @@ COPY --chown='www-data:www-data' vendor/ /project/vendor/
 
 USER www-data
 RUN cd /project \
-  && composer require "php:${PHP_VERSION}" \
-  && composer require "lucatume/wp-browser:${WP_BROWSER_VERSION}" \
+  && composer require php:${PHP_VERSION} \
+  && composer require lucatume/wp-browser:${WP_BROWSER_VERSION} \
   && composer install
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
