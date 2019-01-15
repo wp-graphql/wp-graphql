@@ -1,7 +1,6 @@
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
 ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION
-ARG WP_BROWSER_VERSION
 ARG BASE_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
 
 # -------------------- STAGE ---------------
@@ -16,6 +15,7 @@ RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40
 # -------------------- STAGE ---------------
 # This contains project files after "composer install" has been run.
 FROM ${BASE_DOCKER_IMAGE} as project-files
+ARG WP_BROWSER_VERSION
 
 # Add PHP Composer
 COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
