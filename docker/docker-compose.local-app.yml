@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   wpgraphql.test:
-    image: "wordpress:${WP_VERSION:-5.0.3}-php${PHP_VERSION:-7.2}-apache"
+    image: "wordpress:${WP_VERSION:-5.0.2}-php${PHP_VERSION:-7.2}-apache"
     ports:
       - '8000:80'
     environment:
