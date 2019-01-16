@@ -135,7 +135,7 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
 Docker can be used to run tests or a local application instance in an isolated environment. It can also take care of most
 of the set up and configuration tasks performed by a developer.   
 
-1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
+1. Verify [Docker CE](https://www.docker.com/community-edition) 17.09.0+ is installed:
    ```
    sudo docker --version
    ```
@@ -153,7 +153,7 @@ of the set up and configuration tasks performed by a developer.
    ```
    ./run-docker-local-app.sh
    ```
-1. Visit http://localhost:8000.
+1. Visit http://127.0.0.1:8000.
 
 #### Using PHPStorm/IntelliJ+XDebug (Linux)
 
@@ -174,7 +174,7 @@ of the set up and configuration tasks performed by a developer.
 1. Start the debugger:
    ![alt text](img/intellij-php-start-debug.png)
    
-1. Now when you visit http://localhost:8000 you can use the debugger.           
+1. Now when you visit http://127.0.0.1:8000 you can use the debugger.           
    
 #### Running tests with Docker
 

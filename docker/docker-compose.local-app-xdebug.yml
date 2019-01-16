@@ -15,6 +15,3 @@ services:
       # Getting XDebug+Docker+PHPStorm working: https://serversforhackers.com/c/getting-xdebug-working
       XDEBUG_CONFIG: "remote_enable=1 remote_autostart=1 remote_connect_back=0 idekey=wpgraphql remote_host=${DOCKER_HOST_IP}"
       PHP_IDE_CONFIG: 'serverName=wpgraphql'
-    volumes:
-      - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
-      - '../:/var/www/html/wp-content/plugins/wp-graphql:ro'

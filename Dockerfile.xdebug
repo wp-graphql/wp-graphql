@@ -1,3 +1,6 @@
+# This Docker image adds XDebug to the official WordPress Docker image so that developers can step through WordPress
+# plugin execution with a tool that supports XDebug.
+
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
 ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION

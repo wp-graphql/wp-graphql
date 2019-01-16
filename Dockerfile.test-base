@@ -1,3 +1,13 @@
+# This Docker image is used to run both "tester" containers (containers that invoke the unit/integration tests) and
+# System-Under-Test (SUT) containers (WordPress+plugin containers that are accessed by the integration tests).
+# Both types of containers are run from the same Docker image because they have similar OS dependencies and
+# both need PHP Composer install to be run (i.e. so that the tester can run Codeception and for the SUT to provide
+# Code coverage data). The difference of behavior between the two types of containers is because their Docker
+# entrypoints are different.
+
+# Updating Software used in this Dockerfile:
+# PHP Composer: https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md
+
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
 ARG DESIRED_WP_VERSION
 ARG DESIRED_PHP_VERSION
@@ -5,9 +15,10 @@ ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRE
 
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 
+# Set timezone, install XDebug, PHP Composer, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
-  && apt-get install --no-install-recommends -y mysql-client subversion \
+  && apt-get install --no-install-recommends -y git mysql-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install 'xdebug' && docker-php-ext-enable xdebug; fi \
   && docker-php-ext-install pdo_mysql \
@@ -17,7 +28,6 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
   && chmod +x wp-cli.phar \
   && mv wp-cli.phar /usr/local/bin/wp
-
 
 ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
   SUT_PLUGIN_DIR=/usr/src/wordpress/wp-content/plugins/wp-graphql/ \
@@ -47,11 +57,12 @@ COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
 # Run PHP Composer install so that Codeception dependencies are available
 USER www-data
 RUN cd "${SUT_PLUGIN_DIR}" \
-  && composer install
+  && composer update --prefer-source --no-interaction --dev
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root
 COPY --chown='www-data:www-data' . /tmp/project/
+
 RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
   && cp -a /tmp/project/* "${SUT_PLUGIN_DIR}" \
   && rm -rf /tmp/project

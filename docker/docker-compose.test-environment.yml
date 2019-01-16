@@ -6,14 +6,19 @@ services:
   wpgraphql-tester:
     container_name: 'wpgraphql-tester-shell'
     volumes:
+      # This list of bind mounts should only refer to source and test directories that a developer will likely change.
+      - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
+      - '../access-functions.php:/tmp/wordpress/wp-content/plugins/wp-graphql/access-functions.php:ro'
       - '../src:/tmp/wordpress/wp-content/plugins/wp-graphql/src:ro'
+
       - '../tests/acceptance:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/acceptance:ro'
       - '../tests/functional:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/functional:ro'
       - '../tests/wpunit:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/wpunit:ro'
-      - '../wp-graphql.php:/tmp/wordpress/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
     entrypoint: [ "docker-entrypoint.tester-shell.sh" ]
 
   wpgraphql.test:
     volumes:
-      - '../src:/var/www/html/wp-content/plugins/wp-graphql/src:ro'
+      # This list of bind mounts should only refer to source directories that a developer will likely change.
       - '../wp-graphql.php:/var/www/html/wp-content/plugins/wp-graphql/wp-graphql.php:ro'
+      - '../access-functions.php:/tmp/wordpress/wp-content/plugins/wp-graphql/access-functions.php:ro'
+      - '../src:/var/www/html/wp-content/plugins/wp-graphql/src:ro'

@@ -18,6 +18,7 @@ services:
       TEST_TYPE: "${TEST_TYPE}"
       COVERAGE: "${COVERAGE}"
     volumes:
+      # This container will read exported WordPress DB data from the volume so that Codeception can run properly.
       - 'codeception-test-data:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_data:ro'
     working_dir: '/tmp/wordpress/wp-content/plugins/wp-graphql/'
     entrypoint: [ "docker-entrypoint.tester.sh" ]
@@ -36,6 +37,8 @@ services:
       WORDPRESS_DB_USER: 'root'
       WORDPRESS_DB_PASSWORD: 'testing'
     volumes:
+      # This container will write exported WordPress DB data into the volume so that Codeception in the tester container
+      # can run properly.
       - 'codeception-test-data:/usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data'
     entrypoint: [ "docker-entrypoint.sut.sh" ]
 
