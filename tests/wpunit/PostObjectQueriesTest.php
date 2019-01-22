@@ -142,8 +142,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create additional image types
 		 */
 		 $meta_data = [
-			'width' => 300,
-			'height' => 300,
 			'file' => 'example.jpg',
 			'sizes' => [
 				'thumbnail' => [
@@ -161,7 +159,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'source_url' => 'example-full.jpg',
 				],
 			],
-			'image_meta' => array_merge( $default_image_meta, $image_meta ),
 		];
 
 		update_post_meta( $post_id, '_wp_attachment_metadata', $meta_data );
