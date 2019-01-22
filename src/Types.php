@@ -481,6 +481,16 @@ class Types {
 	}
 
 	/**
+	 * This returns the definition for the MediaItemSizeEnumType
+	 *
+	 * @return WPEnumType object
+	 * @access public
+	 */
+	public static function media_item_ssize_enum() {
+		return self::$media_item_ssize_enum ? : ( self::$media_item_size_enum = TypeRegistry::get_type( 'MediaItemSizeEnum' ) );
+	}
+
+	/**
 	 * This returns the definition for the MenuLocationEnumType
 	 *
 	 * @return WPEnumType object
