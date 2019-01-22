@@ -139,6 +139,35 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 
 		/**
+		 * Create additional image types
+		 */
+		 $meta_data = [
+			'width' => 300,
+			'height' => 300,
+			'file' => 'example.jpg',
+			'sizes' => [
+				'thumbnail' => [
+					'file' => 'example-thumbnail.jpg',
+					'width' => 150,
+					'height' => 150,
+					'mime-type' => 'image/jpeg',
+					'source_url' => 'example-thumbnail.jpg',
+				],
+				'full' => [
+					'file' => 'example-full.jpg',
+					'width' => 1500,
+					'height' => 1500,
+					'mime-type' => 'image/jpeg',
+					'source_url' => 'example-full.jpg',
+				],
+			],
+			'image_meta' => array_merge( $default_image_meta, $image_meta ),
+		];
+
+		update_post_meta( $post_id, '_wp_attachment_metadata', $meta_data );
+
+
+		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
@@ -183,6 +212,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				guid
 				featuredImage{
 					mediaItemId
+					small: sourceUrl(size: THUMBNAIL)
+					medium: sourceUrl(size: FULL)
+					sourceUrl
 				}
 			}
 		}";
@@ -232,6 +264,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [
 						'mediaItemId' => $featured_image_id,
+						'small' => 'example-thumnail.jpg',
+						'medium' => 'example-full.jpg',
+						'sourceUrl' => 'example.jpg'
 					],
 				],
 			],
