@@ -261,7 +261,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [
 						'mediaItemId' => $featured_image_id,
-						'small' => 'http://wpgraphql.test/example-thumnail.jpg',
+						'small' => 'http://wpgraphql.test/example-thumbnail.jpg',
 						'medium' => 'http://wpgraphql.test/example-full.jpg',
 						'sourceUrl' => 'http://wpgraphql.test/example.jpg'
 					],
