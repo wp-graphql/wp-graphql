@@ -161,7 +161,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		update_post_meta( $post_id, '_wp_attachment_metadata', $meta_data );
+		update_post_meta( $featured_image_id, '_wp_attachment_metadata', $meta_data );
 
 
 		/**
