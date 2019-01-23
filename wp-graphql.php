@@ -35,13 +35,6 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 }
 
 /**
- * If the wordpress settings patch exists, require it.
- */
-if ( file_exists( __DIR__ . '/settings-patch.php' ) ) {
-    require_once( __DIR__ . '/settings-patch.php' );
-}
-
-/**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
  *
  * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of
@@ -231,6 +224,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes
 			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
+
+			// Required wordpress core patches
+			require_once( WPGRAPHQL_PLUGIN_DIR . 'settings-patch.php' );
 
 		}
 
