@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
  * Class InputObjectType
  * @package GraphQL\Type\Definition
  */
-class InputObjectType extends Type implements InputType
+class InputObjectType extends Type implements InputType, NamedType
 {
     /**
      * @var InputObjectField[]
@@ -31,18 +31,7 @@ class InputObjectType extends Type implements InputType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name']);
-
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'fields' => Config::arrayOf([
-                'name' => Config::NAME | Config::REQUIRED,
-                'type' => Config::INPUT_TYPE | Config::REQUIRED,
-                'defaultValue' => Config::ANY,
-                'description' => Config::STRING
-            ], Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE),
-            'description' => Config::STRING
-        ]);
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->config = $config;
         $this->name = $config['name'];
@@ -90,42 +79,5 @@ class InputObjectType extends Type implements InputType
         }
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
         return $this->fields[$name];
-    }
-
-    /**
-     * @throws InvariantViolation
-     */
-    public function assertValid()
-    {
-        parent::assertValid();
-
-        $fields = $this->getFields();
-
-        Utils::invariant(
-            !empty($fields),
-            "{$this->name} fields must not be empty"
-        );
-
-        foreach ($fields as $field) {
-            try {
-                Utils::assertValidName($field->name);
-            } catch (InvariantViolation $e) {
-                throw new InvariantViolation("{$this->name}.{$field->name}: {$e->getMessage()}");
-            }
-
-            $fieldType = $field->type;
-            if ($fieldType instanceof WrappingType) {
-                $fieldType = $fieldType->getWrappedType(true);
-            }
-            Utils::invariant(
-                $fieldType instanceof InputType,
-                "{$this->name}.{$field->name} field type must be Input Type but got: %s.",
-                Utils::printSafe($field->type)
-            );
-            Utils::invariant(
-                !isset($field->config['resolve']),
-                "{$this->name}.{$field->name} field type has a resolve property, but Input Types cannot define resolvers."
-            );
-        }
     }
 }
