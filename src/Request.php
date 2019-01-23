@@ -160,7 +160,7 @@ class Request {
 	 *
 	 * @return array
 	 */
-	private function after_execute_actions( $response, $key ) {
+	private function after_execute_actions( $response, $key = null ) {
 
 		/**
 		 * Determine which params (batch or single request) to use when passing through to the actions
