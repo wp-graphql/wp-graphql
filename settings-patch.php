@@ -94,7 +94,8 @@
 				'thread_comments' => array(
 					'show_in_rest' => true,
 					'type' => 'boolean',
-					'description' => __( 'Enable threaded (nested) comments', 'wp-graphql' )
+					'description' => __( 'Enable threaded (nested) comments', 'wp-graphql' ),
+					'default' => false
 				),
 				'thread_comments_depth' => array(
 					'show_in_rest' => true,
@@ -104,7 +105,8 @@
 				'page_comments' => array(
 					'show_in_rest' => true,
 					'type' => 'boolean',
-					'description' => __( 'Break comments into pages', 'wp-graphql' )
+					'description' => __( 'Break comments into pages', 'wp-graphql' ),
+					'default' => false
 				),
 				'comments_per_page' => array(
 					'show_in_rest' => true,
@@ -132,7 +134,8 @@
 				'comment_registration' => array(
 					'show_in_rest' => true,
 					'type' => 'boolean',
-					'description' => __( 'Users must be registered and logged in to comment', 'wp-graphql' )
+					'description' => __( 'Users must be registered and logged in to comment', 'wp-graphql' ),
+					'default' => false
 				),
 				'show_comments_cookies_opt_in' => array(
 					'show_in_rest' => true,
@@ -199,6 +202,34 @@
 					'type' => 'boolean',
 					'description' => __( 'Organize my uploads into month- and year-based folders', 'wp-graphql' )
 				)
+			),
+			'permalink' => array(
+				'permalink_structure' => array(
+					'show_in_rest' => array(
+						'name' => 'structure'	
+					),
+					'type' => 'string',
+					'description' => __( 'Custom URL structures use for posts', 'wp-graphql' )
+				),
+				'category_base' => array(
+					'show_in_rest' => true,
+					'type' => 'string',
+					'description' => __( 'Base Category URLs', 'wp-graphql' )
+				),
+				'tag_base' => array(
+					'show_in_rest' => true,
+					'type' => 'string',
+					'description' => __( 'Base Tag URLs', 'wp-graphql' )
+				),
+			),
+			'privacy' => array(
+				'wp_page_for_privacy_policy' => array(
+					'show_in_rest' => array(
+						'name' => 'page'
+					),
+					'type' => 'string',
+					'description' => __( 'WP Page ID of Privacy Policy page', 'wp-graphql' )
+				),
 			),
 			'reading'    => array(
 				'posts_per_rss' => array(
