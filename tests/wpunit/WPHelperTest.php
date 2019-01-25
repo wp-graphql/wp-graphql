@@ -6,7 +6,7 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 
 	private function get_example_params() {
 		return [
-			'operation' => 'TestQuery',
+			'operationName' => 'TestQuery',
 			'query'     => "
 				query TestQuery {
 					posts {
@@ -44,7 +44,7 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'POST', $body_params, [] );
 
-		$this->assertEquals( $body_params['operation'], $params->operation );
+		$this->assertEquals( $body_params['operationName'], $params->operation );
 		$this->assertEquals( $body_params['query'], $params->query );
 		$this->assertEquals( null, $params->queryId );
 		$this->assertEquals( $body_params['variables'], $params->variables );
@@ -59,7 +59,7 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'GET', [], $query_params );
 
-		$this->assertEquals( $query_params['operation'], $params->operation );
+		$this->assertEquals( $query_params['operationName'], $params->operation );
 		$this->assertEquals( $query_params['query'], $params->query );
 		$this->assertEquals( null, $params->queryId );
 		$this->assertEquals( $query_params['variables'], $params->variables );
@@ -79,7 +79,7 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( true, is_array( $batched_params ) );
 		foreach( $batched_params as $index => $params ) {
-			$this->assertEquals( $body_params[ $index ]['operation'], $params->operation );
+			$this->assertEquals( $body_params[ $index ]['operationName'], $params->operation );
 			$this->assertEquals( $body_params[ $index ]['query'], $params->query );
 			$this->assertEquals( null, $params->queryId );
 			$this->assertEquals( $body_params[ $index ]['variables'], $params->variables );
@@ -96,13 +96,13 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 					'sha256Hash' => 'fake hash',
 				],
 			],
-			'operation'  => 'ApolloPersistedQueryIdTest',
+			'operationName'  => 'ApolloPersistedQueryIdTest',
 		];
 
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'POST', $body_params, [] );
 
-		$this->assertEquals( $body_params['operation'], $params->operation );
+		$this->assertEquals( $body_params['operationName'], $params->operation );
 		$this->assertEquals( null, $params->query );
 		$this->assertEquals( 'fake hash', $params->queryId );
 		$this->assertEquals( null, $params->variables );
@@ -114,13 +114,13 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	public function testApolloPersistedQueryIdOnGet() {
 		$query_params = [
 			'extensions' => '{"persistedQuery":{"sha256Hash":"fake hash"}}',
-			'operation'  => 'ApolloPersistedQueryIdTest',
+			'operationName'  => 'ApolloPersistedQueryIdTest',
 		];
 
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'GET', [], $query_params );
 
-		$this->assertEquals( $query_params['operation'], $params->operation );
+		$this->assertEquals( $query_params['operationName'], $params->operation );
 		$this->assertEquals( null, $params->query );
 		$this->assertEquals( 'fake hash', $params->queryId );
 		$this->assertEquals( null, $params->variables );
