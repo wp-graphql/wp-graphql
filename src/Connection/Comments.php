@@ -15,6 +15,8 @@ class Comments {
 
 	/**
 	 * Register connections to Comments
+	 *
+	 * @access public
 	 */
 	public static function register_connections() {
 
@@ -62,11 +64,12 @@ class Comments {
 	 * Given an array of $args, this returns the connection config, merging the provided args
 	 * with the defaults
 	 *
+	 * @access public
 	 * @param array $args
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_config( $args = [] ) {
+	public static function get_connection_config( $args = [] ) {
 		$defaults = [
 			'fromType'       => 'RootQuery',
 			'toType'         => 'Comment',
@@ -83,9 +86,10 @@ class Comments {
 	/**
 	 * This returns the connection args for the Comment connection
 	 *
+	 * @access public
 	 * @return array
 	 */
-	protected static function get_connection_args() {
+	public static function get_connection_args() {
 		return [
 			'authorEmail'        => [
 				'type'        => 'String',

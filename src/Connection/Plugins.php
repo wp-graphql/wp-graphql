@@ -12,6 +12,12 @@ use WPGraphQL\Data\DataSource;
  * @package WPGraphQL\Connection
  */
 class Plugins {
+
+	/**
+	 * Register connections to Plugins
+	 *
+	 * @access public
+	 */
 	public static function register_connections() {
 		register_graphql_connection( [
 			'fromType'      => 'RootQuery',
