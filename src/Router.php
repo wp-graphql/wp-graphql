@@ -337,9 +337,10 @@ class Router {
 
 			// Get the operation params from the request.
 			$params = $request->get_params();
-			$query = $params->query;
-			$operation_name = $params->operation;
-			$variables = $params->variables;
+			$query = isset( $params->query ) ? $params->query : '';
+			$operation_name = isset( $params->operation ) ? $params->operation : '';
+			$variables = isset( $params->variables ) ? $params->variables : null;
+
 		} catch ( \Exception $error ) {
 
 			/**
