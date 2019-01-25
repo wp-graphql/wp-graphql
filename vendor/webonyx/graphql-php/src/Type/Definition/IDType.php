@@ -2,8 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -31,6 +31,7 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function serialize($value)
     {
@@ -44,7 +45,7 @@ When expected as an input type, any string (such as `"4"`) or integer
             return 'null';
         }
         if (!is_scalar($value) && (!is_object($value) || !method_exists($value, '__toString'))) {
-            throw new InvariantViolation("ID type cannot represent non scalar value: " . Utils::printSafe($value));
+            throw new Error("ID type cannot represent non scalar value: " . Utils::printSafe($value));
         }
         return (string) $value;
     }
@@ -52,21 +53,30 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return (is_string($value) || is_int($value)) ? (string) $value : null;
+        if (is_string($value) || is_int($value)) {
+            return (string) $value;
+        }
+
+        throw new Error("Cannot represent value as ID: " . Utils::printSafe($value));
     }
 
     /**
-     * @param $ast
+     * @param Node $valueNode
+     * @param array|null $variables
      * @return null|string
+     * @throws \Exception
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof StringValueNode || $ast instanceof IntValueNode) {
-            return $ast->value;
+        if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
+            return $valueNode->value;
         }
-        return null;
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 }

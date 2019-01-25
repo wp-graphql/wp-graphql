@@ -172,23 +172,23 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 
 		$post_by_args = [
 			'id'                                          => [
-				'type'        => 'String',
-				'description' => sprintf( __( 'Get the object by it\'s global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'type'        => 'ID',
+				'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			],
 			$post_type_object->graphql_single_name . 'Id' => [
-				'type'        => 'ID',
-				'description' => sprintf( __( 'Get the %s by it\'s database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'type'        => 'Int',
+				'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			],
 			'uri'                                         => [
 				'type'        => 'String',
-				'description' => sprintf( __( 'Get the %s by it\'s uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			]
 		];
 
 		if ( false === $post_type_object->hierarchical ) {
 			$post_by_args['slug'] = [
 				'type'        => 'String',
-				'description' => sprintf( __( 'Get the %s by it\'s slug (only available for non-hierarchical types)', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description' => sprintf( __( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			];
 		}
 
