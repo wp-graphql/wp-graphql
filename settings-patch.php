@@ -145,12 +145,16 @@
 			),
 			'media' => array(
 				'thumbnail_size_w' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'thumbnail_size_width'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum width for thumbnail-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
 				'thumbnail_size_h' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'thumbnail_size_height'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum height for thumbnail-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
@@ -160,22 +164,30 @@
 					'description' => __( 'Crop thumbnail to exact dimensions (normally thumbnails are proportional)', 'wp-graphql' )
 				),
 				'medium_size_w' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'medium_size_width'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum width for medium-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
 				'medium_size_h' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'medium_size_height'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum height for medium-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
 				'large_size_w' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'large_size_width'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum width for large-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
 				'large_size_h' => array(
-					'show_in_rest' => true,
+					'show_in_rest' => array(
+						'name' => 'large_size_height'
+					),
 					'type' => 'integer',
 					'description' => __( 'Maximum height for large-sized content in pixels to use when adding an image to the Media Library', 'wp-graphql' )
 				),
