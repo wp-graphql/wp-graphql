@@ -299,13 +299,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testTermQueryWithHierarchy
+	 * testTermQueryWithChildTerm
 	 *
-	 * Tests queries for term ancestors and children
+	 * Tests query for term children
 	 *
 	 * @since 0.2.2
 	 */
-	public function testTermQueryWithHierarchy() {
+	public function testTermQueryWithChildTerm() {
 
 		$parent_id = $this->createTermObject( [
 			'name'     => 'Parent Category',
@@ -321,9 +321,65 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
 		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
 
-		/**
-		 * Test querying for term ancestors
-		 */
+		$query = "
+		query {
+			category(id: \"{$global_parent_id}\") {
+				id
+				categoryId
+				children {
+					nodes {
+						id
+						categoryId
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'category' => [
+					'id'         => $global_parent_id,
+					'categoryId' => $parent_id,
+					'children'   => [
+						'nodes' => [
+							[
+								'id'         => $global_child_id,
+								'categoryId' => $child_id,
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * testTermQueryWithParentTerm
+	 *
+	 * Tests query for term ancestors
+	 *
+	 */
+	public function testTermQueryWithParentTerm() {
+
+		$parent_id = $this->createTermObject( [
+			'name'     => 'Parent Category',
+			'taxonomy' => 'category',
+		] );
+
+		$child_id = $this->createTermObject( [
+			'name'     => 'Child category',
+			'taxonomy' => 'category',
+			'parent'   => $parent_id,
+		] );
+
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
 
 		$query = "
 		query {
@@ -349,46 +405,6 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'id'         => $global_parent_id,
 							'categoryId' => $parent_id,
-						],
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
-
-		/**
-		 * Test querying for term children
-		 */
-
-		$query = "
-		query {
-			category(id: \"{$global_parent_id}\") {
-				id
-				categoryId
-				children {
-					nodes {
-						id
-						categoryId
-					}
-				}
-			}
-		}
-		";
-
-		$actual = do_graphql_request( $query );
-
-		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_parent_id,
-					'categoryId' => $parent_id,
-					'children'  => [
-						'nodes' => [
-							[
-								'id'         => $global_child_id,
-								'categoryId' => $child_id,
-							],
 						],
 					],
 				],
