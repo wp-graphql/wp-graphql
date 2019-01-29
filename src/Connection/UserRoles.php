@@ -15,6 +15,8 @@ class UserRoles {
 
 	/**
 	 * Register the connections
+	 *
+	 * @access public
 	 */
 	public static function register_connections() {
 

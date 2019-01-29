@@ -81,7 +81,7 @@ class PostObjects {
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_config( $post_type_object, $args = [] ) {
+	public static function get_connection_config( $post_type_object, $args = [] ) {
 
 		$connection_args = self::get_connection_args();
 
@@ -114,11 +114,12 @@ class PostObjects {
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
+	 * @access public
 	 * @param array $args The args to modify the defaults
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_args( $args = [] ) {
+	public static function get_connection_args( $args = [] ) {
 
 		return array_merge( [
 

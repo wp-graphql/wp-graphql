@@ -15,6 +15,8 @@ class MenuItems {
 
 	/**
 	 * Register connections to MenuItems
+	 *
+	 * @access public
 	 */
 	public static function register_connections() {
 
@@ -44,11 +46,12 @@ class MenuItems {
 	/**
 	 * Given an array of $args, returns the args for the connection with the provided args merged
 	 *
+	 * @access public
 	 * @param array $args
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_config( $args = [] ) {
+	public static function get_connection_config( $args = [] ) {
 		return array_merge( [
 			'fromType'       => 'RootQuery',
 			'fromFieldName'  => 'menuItems',
