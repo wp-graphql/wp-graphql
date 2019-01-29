@@ -367,8 +367,10 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				id
 				categoryId
 				children {
-					id
-					categoryId
+					nodes {
+						id
+						categoryId
+					}
 				}
 			}
 		}
@@ -381,10 +383,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'category' => [
 					'id'         => $global_parent_id,
 					'categoryId' => $parent_id,
-					'ancestors'  => [
-						[
-							'id'         => $global_child_id,
-							'categoryId' => $child_id,
+					'children'  => [
+						'nodes' => [
+							[
+								'id'         => $global_child_id,
+								'categoryId' => $child_id,
+							],
 						],
 					],
 				],
