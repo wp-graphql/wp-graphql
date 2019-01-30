@@ -82,6 +82,7 @@ class TypeRegistry {
 		 * Register core WPGRaphQL Types
 		 */
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvailableLocalesEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/CommentsConnectionOrderbyEnum.php' );
