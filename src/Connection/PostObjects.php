@@ -173,6 +173,13 @@ class PostObjects {
 				'description' => __( 'Array of category IDs, used to display objects from one
 										category OR another', 'wp-graphql' ),
 			],
+			'categoryNotIn'   => [
+				'type'        => [
+					'list_of' => 'ID',
+				],
+				'description' => __( 'Array of category IDs, used to display objects from one
+										category OR another', 'wp-graphql' ),
+			],
 
 			/**
 			 * Tag $args
@@ -191,6 +198,13 @@ class PostObjects {
 			'tagIn'        => [
 				'type'        => [
 					'list_of' => 'ID',
+				],
+				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
+							another', 'wp-graphql' ),
+			],
+			'tagNotIn'      => [
+				'type'         => [
+					'list_of' => 'ID'
 				],
 				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
 							another', 'wp-graphql' ),
