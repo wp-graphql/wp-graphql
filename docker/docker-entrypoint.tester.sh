@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu
+
+wait_for_wordpress_sut() {
+  wait-for-service.sh 'wpgraphql.test:80/graphql' 'Wordpress system-under-test'
+}
 
 run_tests() {
   if [[ "${COVERAGE}" == 'true' ]]; then
@@ -11,7 +15,8 @@ run_tests() {
 }
 
 main() {
-  initialize-wp-test-environment.sh
+  edit-wp-test-suite-db-config.sh
+  wait_for_wordpress_sut
   run_tests
 }
 
