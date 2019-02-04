@@ -86,7 +86,7 @@ register_graphql_type( 'User', [
 		],
 		'userId'            => [
 			'type'        => 'Int',
-			'description' => __( 'The Id of the user. Equivelant to WP_User->ID', 'wp-graphql' ),
+			'description' => __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' ),
 		],
 		'isRestricted' => [
 			'type' => 'Bool',
