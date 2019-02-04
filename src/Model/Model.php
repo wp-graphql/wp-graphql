@@ -158,39 +158,30 @@ abstract class Model {
 
 		$clean_array = [];
 		foreach ( $fields as $key => $callback ) {
-			$clean_array[ $key ] = $this->return_field( $key, $callback );
+
+			if ( ! is_callable( $callback ) ) {
+				continue;
+			}
+
+			$clean_array[ $key ] = function() use ( $key, $callback ) {
+				/**
+				 * @TODO: Revisit all of the filter/hook context here.
+				 */
+				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->model_name );
+
+				if ( ! is_null( $pre ) ) {
+					$result = $pre;
+				} else {
+					$result = apply_filters( 'graphql_return_field_from_model', call_user_func( $callback ), $key, $this->model_name );
+				}
+
+				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name );
+
+				return $result;
+			};
 		}
 
 		return $clean_array;
-
-	}
-
-	/**
-	 * Callback wrapper for the return field
-	 *
-	 * @param string   $field_name Name of the field
-	 * @param callable $callback   The callback to resolve the data
-	 *
-	 * @access private
-	 * @return mixed
-	 */
-	private function return_field( $field_name, $callback ) {
-
-		/**
-		 * @TODO: Revisit all of the filter/hook context here.
-		 * @TODO: Also rethink how we are returning the callback here. We can't really filter the _results_ of the callback, only override the callback
-		 */
-		$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $field_name, $this->model_name );
-
-		if ( ! is_null( $pre ) ) {
-			$result = $pre;
-		} else {
-			$result = apply_filters( 'graphql_return_field_from_model', $callback, $field_name, $this->model_name );
-		}
-
-		do_action( 'graphql_after_return_field_from_model', $result, $field_name, $this->model_name );
-
-		return $result;
 
 	}
 
@@ -223,7 +214,7 @@ abstract class Model {
 	 * @return array
 	 */
 	private function add_model_data( $fields ) {
-		$fields['__model'] = $this->model_name;
+		$fields['__model'] = function() { return $this->model_name; };
 		return $fields;
 	}
 
