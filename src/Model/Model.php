@@ -69,7 +69,7 @@ abstract class Model {
 	 * Model constructor.
 	 *
 	 * @param string   $name                      Name of the data being passed in for hook/filter context
-	 * @param array    $data                      The data passed to the child class before it's
+	 * @param mixed    $data                      The data passed to the child class before it's
 	 *                                            transformed for hook/filter context
 	 * @param string   $restricted_cap            The capability to check against to determine if
 	 *                                            the data should be restricted or not
