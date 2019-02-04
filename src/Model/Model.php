@@ -206,11 +206,25 @@ abstract class Model {
 		/**
 		 * @TODO: potentially abstract this out into a more central spot
 		 */
-		$fields['isPublic'] = function() { return ( 'public' === $this->get_visibility() ) ? true : false; };
+		$fields['isPublic']     = function() { return ( 'public' === $this->get_visibility() ) ? true : false;};
 		$fields['isRestricted'] = function() { return ( 'restricted' === $this->get_visibility() ) ? true : false; };
-		$fields['isPrivate'] = function() { return ( 'private' === $this->get_visibility() ) ? true : false; };
+		$fields['isPrivate']    = function() { return ( 'private' === $this->get_visibility() ) ? true : false; };
+
 		return $fields;
 
+	}
+
+	/**
+	 * Add the info about the model to the data
+	 *
+	 * @param array $fields Field definitions for the data
+	 *
+	 * @access private
+	 * @return array
+	 */
+	private function add_model_data( $fields ) {
+		$fields['__model'] = $this->model_name;
+		return $fields;
 	}
 
 	/**
@@ -249,6 +263,7 @@ abstract class Model {
 
 		$data = $this->prepare_fields( $data );
 		$data = $this->add_model_visibility( $data );
+		$data = $this->add_model_data( $data );
 
 		return apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->owner, $this->current_user );
 
