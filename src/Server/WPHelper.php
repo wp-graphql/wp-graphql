@@ -23,8 +23,11 @@ class WPHelper extends Helper {
 	 * @throws RequestError
 	 */
 	public function parseRequestParams( $method, array $bodyParams, array $queryParams ) {
+		// Apply wp_unslash to query (GET) variables to undo wp_magic_quotes. We
+		// don't need to do this for POST variables because graphql-php reads the
+		// HTTP body directly.
 		$parsed_body_params = $this->parse_params( $bodyParams );
-		$parsed_query_params = $this->parse_extensions( $queryParams );
+		$parsed_query_params = $this->parse_extensions( wp_unslash( $queryParams ) );
 
 		/**
 		 * Allow the request data to be filtered. Previously this filter was only
@@ -67,7 +70,7 @@ class WPHelper extends Helper {
 	 */
 	private function parse_extensions( $params ) {
 		if ( isset( $params['extensions'] ) && is_string( $params['extensions'] ) ) {
-			$tmp = json_decode( stripslashes( $params['extensions'] ), true );
+			$tmp = json_decode( $params['extensions'], true );
 			if ( ! json_last_error() ) {
 				$params['extensions'] = $tmp;
 			}
