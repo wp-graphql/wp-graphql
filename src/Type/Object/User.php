@@ -110,7 +110,7 @@ register_graphql_type( 'User', [
 				],
 
 			],
-			'resolve'     => function( \WP_User $user, $args, $context, $info ) {
+			'resolve'     => function( $user, $args, $context, $info ) {
 
 				$avatar_args = [];
 				if ( is_numeric( $args['size'] ) ) {
