@@ -496,9 +496,10 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a user
 		 */
+		$email = 'test@test.com';
 		$user_id = $this->createUserObject(
 			[
-				'user_email' => 'test@test.com',
+				'user_email' => $email,
 			]
 		);
 
@@ -518,6 +519,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  node{
 				    id
 				    userId
+				    email
 				  }
 				}
 			}
@@ -539,6 +541,172 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							'node' => [
 								'id' => $global_id,
 								'userId' => $user_id,
+								'email' => $email,
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testQueryAllUsersAsAdmin() {
+
+		$user_1 = [
+			'user_email' => 'user1@email.com',
+			'user_login' => 'user1',
+			'user_url' => 'https://test1.com',
+			'first_name' => 'User1',
+			'last_name' => 'Test',
+		];
+
+		$user_2 = [
+			'user_email' => 'user2@email.com',
+			'user_login' => 'user2',
+			'user_url' => 'https://test2.com',
+			'first_name' => 'User2',
+			'last_name' => 'Test',
+		];
+
+		$user_1_id = $this->createUserObject( $user_1 );
+		$user_2_id = $this->createUserObject( $user_2 );
+		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+
+		wp_set_current_user( $admin );
+
+		$query = '
+		query {
+			users(first:2) {
+				edges{
+				  node{
+				    userId
+				    username
+				    email
+				    firstName
+				    lastName
+				    url
+				  }
+				}
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'users' => [
+					'edges' => [
+						[
+							'node' => [
+								'userId' => $user_2_id,
+								'username' => $user_2['user_login'],
+								'email' => $user_2['user_email'],
+								'firstName' => $user_2['first_name'],
+								'lastName' => $user_2['last_name'],
+								'url' => $user_2['user_url'],
+							],
+						],
+						[
+							'node' => [
+								'userId' => $user_1_id,
+								'username' => $user_1['user_login'],
+								'email' => $user_1['user_email'],
+								'firstName' => $user_1['first_name'],
+								'lastName' => $user_1['last_name'],
+								'url' => $user_1['user_url'],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testQueryAllUsersAsSubscriber() {
+
+		$user_1 = [
+			'user_email' => 'user1@email.com',
+			'user_login' => 'user1',
+			'user_url' => 'https://test1.com',
+			'first_name' => 'User1',
+			'last_name' => 'Test',
+			'role' => 'subscriber',
+			'description' => 'User 1 Test',
+		];
+
+		$user_2 = [
+			'user_email' => 'user2@email.com',
+			'user_login' => 'user2',
+			'user_url' => 'https://test2.com',
+			'first_name' => 'User2',
+			'last_name' => 'Test',
+			'role' => 'subscriber',
+			'description' => 'User 2 test',
+		];
+
+		$user_1_id = $this->createUserObject( $user_1 );
+		$user_2_id = $this->createUserObject( $user_2 );
+
+		wp_set_current_user( $user_2_id );
+
+		$query = '
+		query {
+			users(first:2) {
+				edges{
+				  node{
+				    userId
+				    username
+				    email
+				    firstName
+				    lastName
+				    url
+				    description
+				    isPublic
+				    isRestricted
+				    isPrivate
+				  }
+				}
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'users' => [
+					'edges' => [
+						[
+							'node' => [
+								'userId' => $user_2_id,
+								'username' => $user_2['user_login'],
+								'email' => $user_2['user_email'],
+								'firstName' => $user_2['first_name'],
+								'lastName' => $user_2['last_name'],
+								'url' => $user_2['user_url'],
+								'description' => $user_2['description'],
+								'isPublic' => true,
+								'isRestricted' => false,
+								'isPrivate' => false,
+							],
+						],
+						[
+							'node' => [
+								'userId' => $user_1_id,
+								'username' => null,
+								'email' => null,
+								'firstName' => null,
+								'lastName' => null,
+								'url' => null,
+								'description' => $user_1['description'],
+								'isPublic' => false,
+								'isRestricted' => true,
+								'isPrivate' => false,
 							],
 						],
 					],
