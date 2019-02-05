@@ -5,6 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\UserMutation;
+use WPGraphQL\Model\User;
 
 class UserCreate {
 	public static function register_mutation() {
@@ -22,7 +23,10 @@ class UserCreate {
 				'user' => [
 					'type'    => 'User',
 					'resolve' => function ( $payload ) {
-						return get_user_by( 'ID', $payload['id'] );
+						$user = get_user_by( 'ID', $payload['id'] );
+						$user_obj = new User( $user );
+						$user_obj->init();
+						return $user_obj;
 					},
 				],
 			],
