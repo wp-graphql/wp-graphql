@@ -5,19 +5,63 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
+/**
+ * Class User - Models the data for the User object type
+ *
+ * @property string $id
+ * @property array  $capabilities
+ * @property string $capKey
+ * @property array  $roles
+ * @property string $email
+ * @property string $firstName
+ * @property string $lastName
+ * @property array  $extraCapabilities
+ * @property string $description
+ * @property string $username
+ * @property string $name
+ * @property string $registeredDate
+ * @property string $nickname
+ * @property string $url
+ * @property string $slug
+ * @property string $nicename
+ * @property string $locale
+ * @property int    $userId
+ *
+ * @package WPGraphQL\Model
+ */
 class User extends Model {
 
+	/**
+	 * Stores the WP_User object for the incoming data
+	 *
+	 * @var \WP_User $user
+	 * @access protected
+	 */
 	protected $user;
 
-	public $fields;
+	/**
+	 * Stores the fields for the User model
+	 *
+	 * @var array $fields
+	 * @access public
+	 */
+	public $fields = [];
 
+	/**
+	 * User constructor.
+	 *
+	 * @param \WP_User $user The incoming WP_User object that needs modeling
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public function __construct( \WP_User $user ) {
 
 		if ( empty( $user ) ) {
 			return;
 		}
 
-		// Explicitly remove the user_pass so it doesn't show up in filters/hooks
+		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
 		$this->user = $user;
 
@@ -32,7 +76,19 @@ class User extends Model {
 
 	}
 
-	public function init( $fields = null ) {
+	/**
+	 * Initialize the User object
+	 *
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function init( $filter = null ) {
 
 		if ( 'private' === $this->get_visibility() || is_null( $this->user ) ) {
 			return null;
@@ -109,7 +165,7 @@ class User extends Model {
 			];
 		}
 
-		$this->fields = parent::prepare_fields( $this->fields, $fields );
+		$this->fields = parent::prepare_fields( $this->fields, $filter );
 
 	}
 
