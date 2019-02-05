@@ -639,7 +639,7 @@ class TypeRegistry {
 			], $connection_fields ),
 		] );
 
-		register_graphql_field( $from_type, $from_field_name, array_merge( [
+		register_graphql_field( $from_type, $from_field_name, [
 			'type'        => $connection_name,
 			'args'        => array_merge( [
 				'first'  => [
