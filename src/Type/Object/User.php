@@ -92,6 +92,14 @@ register_graphql_type( 'User', [
 			'type' => 'Bool',
 			'description' => __( 'Whether or not the user is restricted', 'wp-graphql' ),
 		],
+		'isPublic' => [
+			'type' => 'Bool',
+			'description' => __( 'Whether or not the user is public', 'wp-graphql' ),
+		],
+		'isPrivate' => [
+			'type' => 'Bool',
+			'description' => __( 'Whether or not the user is private', 'wp-graphql' ),
+		],
 		'avatar'            => [
 			'type'        => 'Avatar',
 			'description' => __( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
