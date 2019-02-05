@@ -128,7 +128,7 @@ register_graphql_type( 'User', [
 					$avatar_args['rating'] = esc_sql( $args['rating'] );
 				}
 
-				$avatar = get_avatar_data( absint( $user['id'] ), $avatar_args );
+				$avatar = get_avatar_data( absint( $user->userId ), $avatar_args );
 
 				return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
 			},
