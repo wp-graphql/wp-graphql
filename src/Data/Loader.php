@@ -3,7 +3,7 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
-use WPGraphQL\Model\UserObject;
+use WPGraphQL\Model\User;
 
 /**
  * Class Loader
@@ -143,8 +143,9 @@ class Loader {
 			if ( ! empty( $query->get_results() ) && is_array( $query->get_results() ) ) {
 				foreach ( $query->get_results() as $user ) {
 					if ( $user instanceof \WP_User ) {
-						$user_object = new UserObject( $user );
-						self::$loaded[ $type ][ $user->ID ] = $user_object->get_instance();
+						$user_object = new User( $user );
+						$user_object->init();
+						self::$loaded[ $type ][ $user->ID ] = $user_object;
 					}
 				}
 			}

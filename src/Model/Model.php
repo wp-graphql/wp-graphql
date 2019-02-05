@@ -90,6 +90,55 @@ abstract class Model {
 	}
 
 	/**
+	 * Magic method to re-map the isset check on the child class looking for properties when
+	 * resolving the fields
+	 *
+	 * @param string $key The name of the field you are trying to retrieve
+	 *
+	 * @access public
+	 * @return bool
+	 */
+	public function __isset( $key ) {
+		return isset( $this->fields[ $key ] );
+	}
+
+	/**
+	 * Magic method to re-map setting new properties to the class inside of the $fields prop rather
+	 * than on the class in unique properties
+	 *
+	 * @param string                    $key   Name of the key to set the data to
+	 * @param callable|int|string|mixed $value The value to set to the key
+	 *
+	 * @access publid
+	 * @return void
+	 */
+	public function __set( $key, $value ) {
+		$this->fields[ $key ] = $value;
+	}
+
+	/**
+	 * Magic method to re-map where external calls go to look for properties on the child objects.
+	 * This is crucial to let objects modeled through this class work with the default field
+	 * resolver.
+	 *
+	 * @param string $key Name of the property that is trying to be accessed
+	 *
+	 * @access public
+	 * @return mixed|null
+	 */
+	public function __get( $key ) {
+		if ( ! empty( $this->fields[ $key ] ) ) {
+			if ( is_callable( $this->fields[ $key ] ) ) {
+				return call_user_func( $this->fields[ $key ] );
+			} else {
+				return $this->fields[ $key ];
+			}
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	 * Return the visibility state for the current piece of data
 	 *
 	 * @return string
@@ -150,7 +199,7 @@ abstract class Model {
 	 * @access protected
 	 * @return array
 	 */
-	protected function prepare_fields( $fields ) {
+	protected function wrap_fields( $fields ) {
 
 		if ( ! is_array( $fields ) || empty( $fields ) ) {
 			return $fields;
@@ -158,10 +207,6 @@ abstract class Model {
 
 		$clean_array = [];
 		foreach ( $fields as $key => $callback ) {
-
-			if ( ! is_callable( $callback ) ) {
-				continue;
-			}
 
 			$clean_array[ $key ] = function() use ( $key, $callback ) {
 				/**
@@ -172,7 +217,12 @@ abstract class Model {
 				if ( ! is_null( $pre ) ) {
 					$result = $pre;
 				} else {
-					$result = apply_filters( 'graphql_return_field_from_model', call_user_func( $callback ), $key, $this->model_name );
+					if ( is_callable( $callback ) ) {
+						$field = call_user_func( $callback );
+					} else {
+						$field = $callback;
+					}
+					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->model_name );
 				}
 
 				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name );
@@ -206,20 +256,37 @@ abstract class Model {
 	}
 
 	/**
-	 * Add the info about the model to the data
+	 * Returns instance of the data fully modeled
 	 *
-	 * @param array $fields Field definitions for the data
+	 * @param array $data The data with field definitions to be modeled
+	 * @param null  $filter The fields to pluck from the instance of data
 	 *
-	 * @access private
+	 * @access protected
 	 * @return array
 	 */
-	private function add_model_data( $fields ) {
-		$fields['__model'] = function() { return $this->model_name; };
-		return $fields;
+	protected function prepare_fields( $data, $filter = null ) {
+
+		if ( 'restricted' === $this->get_visibility() ) {
+			$data = $this->restrict_fields( $data );
+		}
+
+		if ( is_string( $filter ) ) {
+			$filter = [ $filter ];
+		}
+
+		if ( is_array( $filter ) ) {
+			$data = array_intersect_key( $data, array_flip( $filter ) );
+		}
+
+		$data = $this->wrap_fields( $data );
+		$data = $this->add_model_visibility( $data );
+
+		return apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->owner, $this->current_user );
+
 	}
 
 	/**
-	 * Method to retrieve the instance of the data
+	 * Method to initialize the object
 	 *
 	 * @param null|array|string $fields Options to filter the result by returning a subset of
 	 *                                  fields or a single field from the model
@@ -227,37 +294,6 @@ abstract class Model {
 	 * @abstract
 	 * @return mixed
 	 */
-	abstract function get_instance( $fields = null );
-
-	/**
-	 * Returns instance of the data fully modeled
-	 *
-	 * @param array $data The data with field definitions to be modeled
-	 * @param null  $fields The fields to pluck from the instance of data
-	 *
-	 * @access protected
-	 * @return array
-	 */
-	protected function return_instance( $data, $fields = null ) {
-
-		if ( 'restricted' === $this->get_visibility() ) {
-			$data = $this->restrict_fields( $data );
-		}
-
-		if ( is_string( $fields ) ) {
-			$fields = [ $fields ];
-		}
-
-		if ( is_array( $fields ) ) {
-			$data = array_intersect_key( $data, array_flip( $fields ) );
-		}
-
-		$data = $this->prepare_fields( $data );
-		$data = $this->add_model_visibility( $data );
-		$data = $this->add_model_data( $data );
-
-		return apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->owner, $this->current_user );
-
-	}
+	abstract function init( $fields = null );
 
 }

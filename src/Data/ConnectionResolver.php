@@ -5,7 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\UserObject;
+use WPGraphQL\Model\User;
 
 /**
  * Class Connections
@@ -114,8 +114,9 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							break;
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:
-							$user_obj = new UserObject( $item );
-							$array_slice[] = $user_obj->get_instance();
+							$user_obj = new User( $item );
+							$user_obj->init();
+							$array_slice[] = $user_obj;
 							break;
 						default:
 							$array_slice = $items;

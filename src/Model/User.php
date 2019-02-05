@@ -5,11 +5,11 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
-class UserObject extends Model {
+class User extends Model {
 
 	protected $user;
 
-	protected $fields;
+	public $fields;
 
 	public function __construct( \WP_User $user ) {
 
@@ -17,11 +17,14 @@ class UserObject extends Model {
 			return;
 		}
 
+		// Explicitly remove the user_pass so it doesn't show up in filters/hooks
+		$user->user_pass = null;
 		$this->user = $user;
 
 		$allowed_restricted_fields = [
 			'isRestricted',
 			'id',
+			'userId',
 			'url',
 		];
 
@@ -29,9 +32,9 @@ class UserObject extends Model {
 
 	}
 
-	public function get_instance( $fields = null ) {
+	public function init( $fields = null ) {
 
-		if ( 'private' === $this->get_visibility() ) {
+		if ( 'private' === $this->get_visibility() || is_null( $this->user ) ) {
 			return null;
 		}
 
@@ -102,13 +105,11 @@ class UserObject extends Model {
 					$user_locale = get_user_locale( $this->user );
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
-				'userId' => function() {
-					return ! empty( $this->user->ID ) ? absint( $this->user->ID ) : null;
-				},
+				'userId' => ! empty( $this->user->ID ) ? absint( $this->user->ID ) : null,
 			];
 		}
 
-		return parent::return_instance( $this->fields, $fields );
+		$this->fields = parent::prepare_fields( $this->fields, $fields );
 
 	}
 
