@@ -15,6 +15,7 @@ RUN curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/4d2ef40
 # -------------------- STAGE ---------------
 # This contains project files after "composer install" has been run.
 FROM ${BASE_DOCKER_IMAGE} as project-files
+ARG WP_BROWSER_VERSION
 
 # Add PHP Composer
 COPY --from='php-composer-files' /usr/local/bin/composer /usr/local/bin/composer
@@ -29,7 +30,7 @@ COPY --chown='www-data:www-data' vendor/ /project/vendor/
 
 USER www-data
 RUN cd /project \
-  && composer install
+  && composer update --prefer-source --no-interaction --dev
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root

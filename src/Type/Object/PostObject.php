@@ -18,7 +18,10 @@ function register_post_object_types( $post_type_object ) {
 
 		register_graphql_field( $post_type_object->graphql_single_name, 'commentCount', [
 			'type'        => 'Int',
-			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatability.', 'wp-graphql' ),
+			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
+			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+				return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
+			}
 		] );
 
 	}
@@ -33,39 +36,77 @@ function register_post_object_types( $post_type_object ) {
 	}
 
 	/**
-	 * Register fields custom to the MediaItem Type
+	 * Register fields to the Type used for attachments (MediaItem)
 	 */
-	register_graphql_fields( 'MediaItem', [
-		'caption'      => [
-			'type'        => 'String',
-			'description' => __( 'The caption for the resource', 'wp-graphql' ),
-		],
-		'altText'      => [
-			'type'        => 'String',
-			'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
-		],
-		'description'  => [
-			'type'        => 'String',
-			'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
-		],
-		'mediaType'    => [
-			'type'        => 'String',
-			'description' => __( 'Type of resource', 'wp-graphql' ),
-		],
-		'sourceUrl'    => [
-			'type'        => 'String',
-			'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
-		],
-		'mimeType'     => [
-			'type'        => 'String',
-			'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
-		],
-		'mediaDetails' => [
-			'type'        => 'MediaDetails',
-			'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
-		],
+	if ( 'attachment' === $post_type_object->name && true === $post_type_object->show_in_graphql && isset( $post_type_object->graphql_single_name ) ) {
 
-	] );
+		/**
+		 * Register fields custom to the MediaItem Type
+		 */
+		register_graphql_fields( $post_type_object->graphql_single_name, [
+			'caption'      => [
+				'type'        => 'String',
+				'description' => __( 'The caption for the resource', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
+
+					return ! empty( $caption ) ? $caption : null;
+				},
+			],
+			'altText'      => [
+				'type'        => 'String',
+				'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					return get_post_meta( $post->ID, '_wp_attachment_image_alt', true );
+				},
+			],
+			'description'  => [
+				'type'        => 'String',
+				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					return apply_filters( 'the_content', $post->post_content );
+				},
+			],
+			'mediaType'    => [
+				'type'        => 'String',
+				'description' => __( 'Type of resource', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					return wp_attachment_is_image( $post->ID ) ? 'image' : 'file';
+				},
+			],
+			'sourceUrl'    => [
+				'type'        => 'String',
+				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					return wp_get_attachment_url( $post->ID );
+				},
+			],
+			'mimeType'     => [
+				'type'        => 'String',
+				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
+				},
+			],
+			'mediaDetails' => [
+				'type'        => 'MediaDetails',
+				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
+				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					$media_details = wp_get_attachment_metadata( $post->ID );
+
+					if ( ! empty( $media_details ) ) {
+						$media_details['ID'] = $post->ID;
+
+						return $media_details;
+					}
+
+					return null;
+				},
+			],
+
+		] );
+
+	}
 
 }
 
