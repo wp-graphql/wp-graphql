@@ -150,8 +150,32 @@ abstract class Model {
 
 		if ( null === $this->visibility ) {
 
-			$protected_cap = apply_filters( 'graphql_protected_data_cap', $this->restricted_cap, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
-			$is_private = apply_filters( 'graphql_data_is_private', false, $this->data, $this->model_name, $this->visibility, $this->owner, $this->current_user );
+			/**
+			 * Filter for the capability to check against for restricted data
+			 *
+			 * @param string      $restricted_cap The capability to check against
+			 * @param string      $model_name     Name of the model the filter is currently being executed in
+			 * @param mixed       $data           The un-modeled incoming data
+			 * @param string|null $visibility     The visibility that has currently been set for the data at this point
+			 * @param null|int    $owner          The user ID for the owner of this piece of data
+			 * @param \WP_User    $current_user   The current user for the session
+			 *
+			 * @return string
+			 */
+			$protected_cap = apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+
+			/**
+			 * Filter to determine if the data should be considered private or not
+			 *
+			 * @param string      $model_name     Name of the model the filter is currently being executed in
+			 * @param mixed       $data           The un-modeled incoming data
+			 * @param string|null $visibility     The visibility that has currently been set for the data at this point
+			 * @param null|int    $owner          The user ID for the owner of this piece of data
+			 * @param \WP_User    $current_user   The current user for the session
+			 *
+			 * @return bool
+			 */
+			$is_private = apply_filters( 'graphql_data_is_private', false, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
 				$this->visibility = 'public';
@@ -165,6 +189,17 @@ abstract class Model {
 
 		}
 
+		/**
+		 * Filter the visibility name to be returned
+		 *
+		 * @param string|null $visibility     The visibility that has currently been set for the data at this point
+		 * @param string      $model_name     Name of the model the filter is currently being executed in
+		 * @param mixed       $data           The un-modeled incoming data
+		 * @param null|int    $owner          The user ID for the owner of this piece of data
+		 * @param \WP_User    $current_user   The current user for the session
+		 *
+		 * @return string
+		 */
 		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->model_name, $this->data, $this->owner, $this->current_user );
 
 	}
@@ -189,6 +224,19 @@ abstract class Model {
 	 */
 	protected function restrict_fields( $fields ) {
 		return array_intersect_key( $fields, array_flip(
+
+			/**
+			 * Filter for the allowed restricted fields
+			 *
+			 * @param array       $allowed_restricted_fields The fields to allow when the data is designated as restricted to the current user
+			 * @param string      $model_name                Name of the model the filter is currently being executed in
+			 * @param mixed       $data                      The un-modeled incoming data
+			 * @param string|null $visibility                The visibility that has currently been set for the data at this point
+			 * @param null|int    $owner                     The user ID for the owner of this piece of data
+			 * @param \WP_User    $current_user              The current user for the session
+			 *
+			 * @return array
+			 */
 			apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user )
 		) );
 	}
@@ -212,6 +260,20 @@ abstract class Model {
 
 			$clean_array[ $key ] = function() use ( $key, $callback ) {
 
+				/**
+				 * Filter to short circuit the callback for any field on a type. Returning anything
+				 * other than null will stop the callback for the field from executing, and will
+				 * return your data or execute your callback instead.
+				 *
+				 * @param string   $key          The name of the field on the type
+				 * @param string   $model_name   Name of the model the filter is currently being executed in
+				 * @param mixed    $data         The un-modeled incoming data
+				 * @param string   $visibility   The visibility setting for this piece of data
+				 * @param null|int $owner        The user ID for the owner of this piece of data
+				 * @param \WP_User $current_user The current user for the session
+				 *
+				 * @return null|callable|int|string|array|mixed
+				 */
 				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				if ( ! is_null( $pre ) ) {
@@ -222,9 +284,34 @@ abstract class Model {
 					} else {
 						$field = $callback;
 					}
+
+					/**
+					 * Filter the data returned by the default callback for the field
+					 *
+					 * @param string   $field        The data returned from the callback
+					 * @param string   $key          The name of the field on the type
+					 * @param string   $model_name   Name of the model the filter is currently being executed in
+					 * @param mixed    $data         The un-modeled incoming data
+					 * @param string   $visibility   The visibility setting for this piece of data
+					 * @param null|int $owner        The user ID for the owner of this piece of data
+					 * @param \WP_User $current_user The current user for the session
+					 *
+					 * @return mixed
+					 */
 					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 				}
 
+				/**
+				 * Hook that fires after the data is returned for the field
+				 *
+				 * @param string   $result       The returned data for the field
+				 * @param string   $key          The name of the field on the type
+				 * @param string   $model_name   Name of the model the filter is currently being executed in
+				 * @param mixed    $data         The un-modeled incoming data
+				 * @param string   $visibility   The visibility setting for this piece of data
+				 * @param null|int $owner        The user ID for the owner of this piece of data
+				 * @param \WP_User $current_user The current user for the session
+				 */
 				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				return $result;
@@ -278,6 +365,17 @@ abstract class Model {
 			$data = array_intersect_key( $data, array_flip( $filter ) );
 		}
 
+		/**
+		 * Filter the array of fields for the Model before the object is hydrated with it
+		 *
+		 * @param array    $data         The array of fields for the model
+		 * @param string   $model_name   Name of the model the filter is currently being executed in
+		 * @param string   $visibility   The visibility setting for this piece of data
+		 * @param null|int $owner        The user ID for the owner of this piece of data
+		 * @param \WP_User $current_user The current user for the session
+		 *
+		 * @return array
+		 */
 		$data = apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->visibility, $this->owner, $this->current_user );
 		$data = $this->wrap_fields( $data );
 		$data = $this->add_model_visibility( $data );
