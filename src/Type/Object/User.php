@@ -2,9 +2,6 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQLRelay\Relay;
-
-
 register_graphql_type( 'User', [
 	'description' => __( 'A User object', 'wp-graphql' ),
 	'fields'      => [
