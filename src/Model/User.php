@@ -69,7 +69,8 @@ class User extends Model {
 			'isRestricted',
 			'id',
 			'userId',
-			'url',
+			'name',
+			'slug',
 		];
 
 		parent::__construct( 'UserObject', $user, 'list_users', $allowed_restricted_fields, $user->ID );
