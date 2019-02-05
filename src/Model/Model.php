@@ -109,7 +109,7 @@ abstract class Model {
 	 * @param string                    $key   Name of the key to set the data to
 	 * @param callable|int|string|mixed $value The value to set to the key
 	 *
-	 * @access publid
+	 * @access public
 	 * @return void
 	 */
 	public function __set( $key, $value ) {
