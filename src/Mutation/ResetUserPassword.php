@@ -5,6 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use function Patchwork\Utils\args;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\User;
 
 class ResetUserPassword {
 	public static function register_mutation() {
@@ -30,6 +31,8 @@ class ResetUserPassword {
 						$user = null;
 						if ( ! empty( $payload['id'] ) ) {
 							$user = get_user_by( 'ID', absint( $payload['id'] ) );
+							$user = new User( $user );
+							$user->init();
 						}
 						return $user;
 					},

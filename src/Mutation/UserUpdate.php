@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\UserMutation;
+use WPGraphQL\Model\User;
 
 class UserUpdate {
 	public static function register_mutation() {
@@ -24,7 +25,10 @@ class UserUpdate {
 					'type'        => 'User',
 					'description' => __( 'The updated user', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) {
-						return get_user_by( 'ID', $payload['userId'] );
+						$user = get_user_by( 'ID', $payload['userId'] );
+						$user_obj = new User( $user );
+						$user_obj->init();
+						return $user_obj;
 					},
 				],
 			],

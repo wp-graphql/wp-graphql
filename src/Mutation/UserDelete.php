@@ -3,6 +3,7 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Model\User;
 
 class UserDelete {
 	public static function register_mutation() {
@@ -33,9 +34,9 @@ class UserDelete {
 					'type'        => 'User',
 					'description' => __( 'The user object for the user you are trying to delete', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) {
-						$deleted = (object) $payload['userObject'];
-
-						return ( ! empty( $deleted ) ) ? $deleted : null;
+						$user_obj = new User( $payload['userObject'] );
+						$user_obj->init();
+						return $user_obj;
 					},
 				],
 			],
