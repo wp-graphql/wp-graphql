@@ -61,6 +61,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 		$user    = get_user_by( 'id', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -195,6 +196,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -259,6 +261,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -323,6 +326,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -387,6 +391,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -501,6 +506,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
