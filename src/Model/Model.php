@@ -129,7 +129,9 @@ abstract class Model {
 	public function __get( $key ) {
 		if ( ! empty( $this->fields[ $key ] ) ) {
 			if ( is_callable( $this->fields[ $key ] ) ) {
-				return call_user_func( $this->fields[ $key ] );
+				$data = call_user_func( $this->fields[ $key ] );
+				$this->$key = $data;
+				return $data;
 			} else {
 				return $this->fields[ $key ];
 			}
@@ -149,7 +151,7 @@ abstract class Model {
 		if ( null === $this->visibility ) {
 
 			$protected_cap = apply_filters( 'graphql_protected_data_cap', $this->restricted_cap, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
-			$is_private = apply_filters( 'graphql_data_is_private', false, $this->data, $this->model_name, $this->owner, $this->current_user );
+			$is_private = apply_filters( 'graphql_data_is_private', false, $this->data, $this->model_name, $this->visibility, $this->owner, $this->current_user );
 
 			if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
 				$this->visibility = 'public';
@@ -163,7 +165,7 @@ abstract class Model {
 
 		}
 
-		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->model_name, $this->data, $this->owner, $this->current_user );
 
 	}
 
@@ -187,7 +189,7 @@ abstract class Model {
 	 */
 	protected function restrict_fields( $fields ) {
 		return array_intersect_key( $fields, array_flip(
-			apply_filters( 'graphql_allowed_field_on_restricted_type', $this->allowed_restricted_fields, $this->model_name, $this->current_user )
+			apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user )
 		) );
 	}
 
@@ -209,10 +211,8 @@ abstract class Model {
 		foreach ( $fields as $key => $callback ) {
 
 			$clean_array[ $key ] = function() use ( $key, $callback ) {
-				/**
-				 * @TODO: Revisit all of the filter/hook context here.
-				 */
-				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->model_name );
+
+				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				if ( ! is_null( $pre ) ) {
 					$result = $pre;
@@ -222,10 +222,10 @@ abstract class Model {
 					} else {
 						$field = $callback;
 					}
-					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->model_name );
+					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 				}
 
-				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name );
+				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				return $result;
 			};
@@ -278,10 +278,11 @@ abstract class Model {
 			$data = array_intersect_key( $data, array_flip( $filter ) );
 		}
 
+		$data = apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->visibility, $this->owner, $this->current_user );
 		$data = $this->wrap_fields( $data );
 		$data = $this->add_model_visibility( $data );
 
-		return apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->owner, $this->current_user );
+		return $data;
 
 	}
 
