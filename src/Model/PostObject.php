@@ -169,7 +169,6 @@ class PostObject {
 	 */
 	protected function is_restricted() {
 
-
 		/**
 		 * If the current user is the author of the post, it's not restricted
 		 * or private;

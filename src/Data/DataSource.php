@@ -9,6 +9,7 @@ use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\PostObject;
+use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -678,7 +679,7 @@ class DataSource {
 							case $node instanceof \WP_Theme:
 								$type = 'Theme';
 								break;
-							case $node instanceof \WP_User:
+							case $node instanceof User:
 								$type = 'User';
 								break;
 							default:
