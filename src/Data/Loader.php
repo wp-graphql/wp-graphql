@@ -143,9 +143,7 @@ class Loader {
 			if ( ! empty( $query->get_results() ) && is_array( $query->get_results() ) ) {
 				foreach ( $query->get_results() as $user ) {
 					if ( $user instanceof \WP_User ) {
-						$user_object = new User( $user );
-						$user_object->init();
-						self::$loaded[ $type ][ $user->ID ] = $user_object;
+						self::$loaded[ $type ][ $user->ID ] = new User( $user );
 					}
 				}
 			}

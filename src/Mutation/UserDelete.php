@@ -57,10 +57,7 @@ class UserDelete {
 				'type'        => 'User',
 				'description' => __( 'The deleted user object', 'wp-graphql' ),
 				'resolve'     => function( $payload ) {
-					$deleted_user = $payload['userObject'];
-					$user         = new User( $deleted_user );
-					$user->init();
-					return $user;
+					return new User( $payload['userObject'] );
 				},
 			],
 		];

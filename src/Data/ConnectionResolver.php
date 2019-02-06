@@ -114,9 +114,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							break;
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:
-							$user_obj = new User( $item );
-							$user_obj->init();
-							$array_slice[] = $user_obj;
+							$array_slice[] = new User( $item );
 							break;
 						default:
 							$array_slice = $items;

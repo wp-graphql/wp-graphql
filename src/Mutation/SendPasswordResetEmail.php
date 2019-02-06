@@ -25,9 +25,7 @@ class SendPasswordResetEmail {
 					'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) {
 						$user = get_user_by( 'ID', absint( $payload['id'] ) );
-						$user = new User( $user );
-						$user->init();
-						return $user;
+						return new User( $user );
 					},
 				],
 			],

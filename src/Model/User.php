@@ -50,15 +50,21 @@ class User extends Model {
 	/**
 	 * User constructor.
 	 *
-	 * @param \WP_User $user The incoming WP_User object that needs modeling
+	 * @param \WP_User          $user   The incoming WP_User object that needs modeling
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
 	 *
 	 * @access public
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user ) {
+	public function __construct( \WP_User $user, $filter = null ) {
 
 		if ( empty( $user ) ) {
-			return;
+			throw new \Exception( __( 'An empty WP_User object was used to initialize this object', 'wp-graphql' ) );
 		}
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
@@ -77,6 +83,8 @@ class User extends Model {
 		];
 
 		parent::__construct( 'UserObject', $user, 'list_users', $allowed_restricted_fields, $user->ID );
+
+		$this->init( $filter );
 
 	}
 

@@ -114,9 +114,7 @@ class UserCreate {
                 'type'    => 'User',
                 'resolve' => function ( $payload ) {
                     $user = get_user_by( 'ID', $payload['id'] );
-                    $user = new User( $user );
-                    $user->init();
-                    return $user;
+                    return new User( $user );
                 },
             ],
         ];
