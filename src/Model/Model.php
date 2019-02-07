@@ -177,12 +177,12 @@ abstract class Model {
 			 */
 			$is_private = apply_filters( 'graphql_data_is_private', false, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
-			if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
+			if ( true === $is_private ) {
+				$this->visibility = 'private';
+			} else if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
 				$this->visibility = 'public';
 			} else if ( empty( $protected_cap ) || current_user_can( $protected_cap ) ) {
 				$this->visibility = 'public';
-			} else if ( true === $is_private ) {
-				$this->visibility = 'private';
 			} else {
 				$this->visibility = 'restricted';
 			}
