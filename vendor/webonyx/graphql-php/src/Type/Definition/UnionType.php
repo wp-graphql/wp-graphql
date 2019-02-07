@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
  * Class UnionType
  * @package GraphQL\Type\Definition
  */
-class UnionType extends Type implements AbstractType, OutputType, CompositeType
+class UnionType extends Type implements AbstractType, OutputType, CompositeType, NamedType
 {
     /**
      * @var UnionTypeDefinitionNode
@@ -36,14 +36,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name']);
-
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'types' => Config::arrayOf(Config::OBJECT_TYPE, Config::MAYBE_THUNK | Config::REQUIRED),
-            'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
-            'description' => Config::STRING
-        ]);
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
@@ -54,15 +47,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
-    }
-
-    /**
-     * @return ObjectType[]
-     */
-    public function getPossibleTypes()
-    {
-        trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::getTypes()', E_USER_DEPRECATED);
-        return $this->getTypes();
     }
 
     /**
@@ -81,7 +65,8 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
 
             if (!is_array($types)) {
                 throw new InvariantViolation(
-                    "{$this->name} types must be an Array or a callable which returns an Array."
+                    "Must provide Array of types or a callable which returns " .
+                    "such an array for Union {$this->name}"
                 );
             }
 
@@ -133,40 +118,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     {
         parent::assertValid();
 
-        $types = $this->getTypes();
-        Utils::invariant(
-            !empty($types),
-            "{$this->name} types must not be empty"
-        );
-
         if (isset($this->config['resolveType'])) {
             Utils::invariant(
                 is_callable($this->config['resolveType']),
                 "{$this->name} must provide \"resolveType\" as a function."
             );
-        }
-
-        $includedTypeNames = [];
-        foreach ($types as $objType) {
-            Utils::invariant(
-                $objType instanceof ObjectType,
-                "{$this->name} may only contain Object types, it cannot contain: %s.",
-                Utils::printSafe($objType)
-            );
-            Utils::invariant(
-                !isset($includedTypeNames[$objType->name]),
-                "{$this->name} can include {$objType->name} type only once."
-            );
-            $includedTypeNames[$objType->name] = true;
-            if (!isset($this->config['resolveType'])) {
-                Utils::invariant(
-                    isset($objType->config['isTypeOf']) && is_callable($objType->config['isTypeOf']),
-                    "Union type \"{$this->name}\" does not provide a \"resolveType\" " .
-                    "function and possible type \"{$objType->name}\" does not provide an " .
-                    '"isTypeOf" function. There is no way to resolve this possible type ' .
-                    'during execution.'
-                );
-            }
         }
     }
 }

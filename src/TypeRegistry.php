@@ -200,13 +200,6 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php' );
 
-		if ( ! did_action( 'graphql_register_types' ) ) {
-
-			/**
-			 * Hook to extend the schema by registering new types
-			 */
-			do_action( 'graphql_register_types' );
-		}
 
 		/**
 		 * Register core connections
@@ -238,6 +231,13 @@ class TypeRegistry {
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
+
+		/**
+		 * Hook to register connections
+		 */
+		if ( ! did_action( 'graphql_register_types' ) ) {
+			do_action( 'graphql_register_types' );
+		}
 
 	}
 
@@ -287,6 +287,10 @@ class TypeRegistry {
 		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name, $config ) {
 
 			if ( isset ( $fields[ $field_name ] ) ) {
+				if ( true === GRAPHQL_DEBUG ) {
+					throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+				}
+
 				return $fields;
 			}
 
@@ -320,6 +324,10 @@ class TypeRegistry {
 
 			if ( isset ( $fields[ $field_name ] ) ) {
 				unset( $fields[ $field_name ] );
+			} else {
+				if ( true === GRAPHQL_DEBUG ) {
+					throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
+				}
 			}
 
 			return $fields;
@@ -455,7 +463,7 @@ class TypeRegistry {
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
-			throw new InvariantViolation( __( 'The Field needs a Type defined', 'wp-graphql' ) );
+			throw new InvariantViolation( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ) );
 		}
 
 		if ( is_string( $field_config['type'] ) ) {
@@ -558,9 +566,9 @@ class TypeRegistry {
 		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
 		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
 		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) ? $config['resolve'] : null;
+		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
+		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
+		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() { return null; };
 		$connection_name    = self::get_connection_name( $from_type, $to_type );
 		$where_args         = [];
 		$connection_field_config = ! empty( $config['connectionFieldConfig'] ) && is_array( $config['connectionFieldConfig'] ) ? $config['connectionFieldConfig'] : [];
@@ -572,8 +580,8 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 			register_graphql_input_type( $connection_name . 'WhereArgs', [
-				//@TODO: Wondering if this description should be dynamic to include the name of the connection these args are for?
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				// Translators: Placeholder is the name of the connection
+				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
 				'fields'      => $connection_args,
 				'queryClass' => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
 			] );
@@ -631,7 +639,7 @@ class TypeRegistry {
 			], $connection_fields ),
 		] );
 
-		register_graphql_field( $from_type, $from_field_name, array_merge( [
+		register_graphql_field( $from_type, $from_field_name, [
 			'type'        => $connection_name,
 			'args'        => array_merge( [
 				'first'  => [
@@ -652,8 +660,39 @@ class TypeRegistry {
 				],
 			], $where_args ),
 			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
-			'resolve'     => $resolve_connection,
-		], $connection_field_config ) );
+			'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
+
+				/**
+				 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
+				 * numerous instances of the same connection within any given query. If the connection
+				 * has the same args, we can use the existing cached args instead of storing new context
+				 */
+				$connection_id = $connection_name . ':' . base64_encode( wp_json_encode( $args ) );
+
+				/**
+				 * Set the previous connection by getting the currentConnection
+				 */
+				$context->prevConnection = isset( $context->currentConnection ) ? $context->currentConnection : null;
+
+				/**
+				 * Set the currentConnection using the $connectionId
+				 */
+				$context->currentConnection = $connection_id;
+
+				/**
+				 * Set the connectionArgs if they haven't already been set
+				 * (it's possible, although rare, to have multiple connections in a single query with the same args)
+				 */
+				if ( ! isset( $context->connectionArgs[ $connection_id ] ) ) {
+					$context->connectionArgs[ $connection_id ] = $args;
+				}
+
+				/**
+				 * Return the results
+				 */
+				return call_user_func( $resolve_connection, $root, $args, $context, $info );
+			},
+		] );
 
 	}
 

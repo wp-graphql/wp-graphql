@@ -19,6 +19,49 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
         parent::tearDown();
     }
 
+	/**
+	 * This registers a field that's already been registered, and asserts that
+	 * an exception is being thrown.
+	 */
+	public function testRegisterDuplicateFieldShouldThrowException() {
+
+		register_graphql_field( 'ExampleType', 'example', [
+			'description' => 'Duplicate field, should throw exception'
+		] );
+
+		$this->expectException( \GraphQL\Error\InvariantViolation::class );
+		apply_filters( 'graphql_ExampleType_fields', [ 'example' => [] ] );
+
+    }
+
+	/**
+	 * This registers a field without a type defined, and asserts that
+	 * an exception is being thrown.
+	 */
+	public function testRegisterFieldWithoutTypeShouldThrowException() {
+
+
+		register_graphql_field( 'RootQuery', 'newFieldWithoutTypeDefined', [
+			'description' => 'Field without type, should throw exception'
+		] );
+
+		$this->expectException( \GraphQL\Error\InvariantViolation::class );
+		apply_filters( 'graphql_RootQuery_fields', [] );
+
+	}
+
+	/**
+	 * This tries to deregister a non-existend field, and asserts that
+	 * an exception is being thrown.
+	 */
+	public function testDeRegisterNonExistentFieldShouldThrowException() {
+
+		deregister_graphql_field( 'RootQuery', 'nonExistentFieldThatShouldCauseException' );
+		$this->expectException( \GraphQL\Error\InvariantViolation::class );
+		apply_filters( 'graphql_RootQuery_fields', [] );
+
+	}
+
 	public function testMapInput() {
 
 		/**

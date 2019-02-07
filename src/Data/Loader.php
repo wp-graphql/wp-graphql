@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
+use WPGraphQL\Model\User;
 
 /**
  * Class Loader
@@ -142,7 +143,7 @@ class Loader {
 			if ( ! empty( $query->get_results() ) && is_array( $query->get_results() ) ) {
 				foreach ( $query->get_results() as $user ) {
 					if ( $user instanceof \WP_User ) {
-						self::$loaded[ $type ][ $user->ID ] = $user;
+						self::$loaded[ $type ][ $user->ID ] = new User( $user );
 					}
 				}
 			}

@@ -3,14 +3,29 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 /**
  * Class InterfaceType
  * @package GraphQL\Type\Definition
  */
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NamedType
 {
+    /**
+     * @param mixed $type
+     * @return self
+     */
+    public static function assertInterfaceType($type)
+    {
+        Utils::invariant(
+            $type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Interface type.'
+        );
+
+        return $type;
+    }
+
     /**
      * @var FieldDefinition[]
      */
@@ -22,6 +37,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public $astNode;
 
     /**
+     * @var InterfaceTypeExtensionNode[]
+     */
+    public $extensionASTNodes;
+
+    /**
      * InterfaceType constructor.
      * @param array $config
      */
@@ -31,21 +51,12 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name']);
-
-        Config::validate($config, [
-            'name' => Config::NAME,
-            'fields' => Config::arrayOf(
-                FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
-            ),
-            'resolveType' => Config::CALLBACK, // function($value, $context, ResolveInfo $info) => ObjectType
-            'description' => Config::STRING
-        ]);
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->extensionASTNodes = isset($config['extensionASTNodes']) ? $config['extensionASTNodes'] : null;
         $this->config = $config;
     }
 
@@ -99,23 +110,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     {
         parent::assertValid();
 
-        $fields = $this->getFields();
-
         Utils::invariant(
             !isset($this->config['resolveType']) || is_callable($this->config['resolveType']),
             "{$this->name} must provide \"resolveType\" as a function."
         );
-
-        Utils::invariant(
-            !empty($fields),
-            "{$this->name} fields must not be empty"
-        );
-
-        foreach ($fields as $field) {
-            $field->assertValid($this);
-            foreach ($field->args as $arg) {
-                $arg->assertValid($field, $this);
-            }
-        }
     }
 }

@@ -5,6 +5,9 @@ paths:
     support: tests/_support
     envs: tests/_envs
 actor_suffix: Tester
+settings:
+    colors: true
+    memory_limit: 1024M
 coverage:
     enabled: true
     whitelist:
@@ -12,7 +15,6 @@ coverage:
         - wp-graphql.php
         - access-functions.php
         - src/*.php
-
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
@@ -24,5 +26,3 @@ extensions:
         - Codeception\Command\GenerateWPAjax
         - Codeception\Command\GenerateWPCanonical
         - Codeception\Command\GenerateWPXMLRPC
-        - Codeception\Command\DbSnapshot
-        - tad\Codeception\Command\SearchReplace

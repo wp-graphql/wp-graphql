@@ -118,6 +118,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						postId
 						title
 						date
+						content
+						excerpt
 					}
 				}
 				nodes {
@@ -719,127 +721,34 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testUserWithProperCapsCanQueryRevisions() {
+	/**
+	 * Test to assert that the global post object is being set correctly
+	 */
+	public function testPostExcerptsAreDifferent() {
 
-		wp_set_current_user( $this->admin );
+		$post_1_args = [
+			'post_content' => 'Post content 1',
+			'post_excerpt' => 'Post excerpt 1',
+		];
 
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Post with revisions',
-		]);
+		$post_2_args = [
+			'post_content' => 'Post content 2',
+			'post_excerpt' => 'Post excerpt 2',
+		];
 
-		$this->factory()->post->create_many( 10, [
-			'post_type' => 'revision',
-			'post_status' => 'inherit',
-			'post_parent' => $post_id
-		]);
+		$post_1_id = $this->createPostObject( $post_1_args );
+		$post_2_id = $this->createPostObject( $post_2_args );
 
-		$query = '
-		query GET_POST_AND_REVISIONS ($postId: ID){
-		  revisions {
-		    nodes {
-		      id
-		      title
-		    }
-		  }	
-		  postBy( postId: $postId ) {
-		    id
-		    postId
-		    title
-		    date 
-		    revisions {
-		      nodes {
-		        id
-		        revisionId
-		        title
-		        content
-		        parent {
-		          ...on Post {
-		            id
-		            postId
-		            title
-		          }
-		        }
-		      }
-		    }
-		  }
-		}
-		';
+		$request = $this->postsQuery( [ 'where' => [ 'in' => [ $post_1_id, $post_2_id ] ] ] );
 
-		$variables = [ 'postId' => $post_id ];
+		$this->assertNotEmpty( $request );
+		$this->assertArrayNotHasKey( 'errors', $request );
 
-		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
-		$this->assertNotEmpty( $actual['data']['postBy']['revisions']['nodes'] );
+		$edges = $request['data']['posts']['edges'];
+		$this->assertNotEmpty( $edges );
 
-		/**
-		 * An admin SHOULD be able to see revisions
-		 */
-		$this->assertNotFalse( ( count( $actual['data']['revisions']['nodes'] ) === 10 ) );
-
-	}
-
-	public function testUserWithoutProperCapsCannotQueryRevisions() {
-
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Post with revisions',
-			'post_author' => absint( $this->admin )
-		]);
-
-		$this->factory()->post->create_many( 10, [
-			'post_type' => 'revision',
-			'post_status' => 'inherit',
-			'post_parent' => $post_id,
-			'post_author' => absint( $this->admin ),
-		]);
-
-		$query = '
-		query GET_POST_AND_REVISIONS ($postId: ID){
-		  revisions {
-		    nodes {
-		      id
-		      title
-		    }
-		  }		  
-		  postBy( postId: $postId ) {
-		    id
-		    postId
-		    title
-		    date 
-		    revisions {
-		      nodes {
-		        id
-		        revisionId
-		        title
-		        content
-		        parent {
-		          ...on Post {
-		            id
-		            postId
-		            title
-		          }
-		        }
-		      }
-		    }
-		  }
-		}
-		';
-
-		$variables = [ 'postId' => $post_id ];
-
-		wp_set_current_user( $this->subscriber );
-
-		$actual = do_graphql_request( $query, 'GET_POST_AND_REVISIONS', $variables );
-
-		$this->assertNotEmpty( $actual['data']['postBy'] );
-		$this->assertEmpty( $actual['data']['postBy']['revisions']['nodes'] );
-
-		/**
-		 * A subscriber should not be able to see revisions
-		 */
-		$this->assertNotFalse( ( count( $actual['data']['revisions']['nodes'] ) === 0 ) );
+		$this->assertNotEquals( $edges[0]['node']['excerpt'], $edges[1]['node']['excerpt'] );
+		$this->assertNotEquals( $edges[0]['node']['content'], $edges[1]['node']['content'] );
 
 	}
 
