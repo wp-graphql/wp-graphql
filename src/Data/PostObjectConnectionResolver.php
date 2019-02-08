@@ -325,12 +325,11 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
-				$node = DataSource::resolve_post_object( $item->ID, $item->post_type );
 
-				if ( ! empty( $node ) ) {
+				if ( ! empty( $item ) ) {
 					$edges[] = [
 						'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-						'node'   => $node,
+						'node'   => $item,
 					];
 				}
 			}

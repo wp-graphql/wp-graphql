@@ -161,7 +161,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 				 */
 				$edges[] = [
 					'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
-					'node'   => DataSource::resolve_post_object( $item->ID, 'nav_menu_item' ),
+					'node'   => $item,
 				];
 			}
 		}
