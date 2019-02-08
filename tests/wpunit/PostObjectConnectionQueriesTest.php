@@ -133,6 +133,20 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	private function getReturnField( $data, $post, $field = '' ) {
+
+		$data = ( isset( $data['data']['posts']['edges'][ $post ]['node'] ) ) ? $data['data']['posts']['edges'][ $post ]['node'] : null;
+
+		if ( empty( $field ) ) {
+			return $data;
+		} else if ( ! empty( $data )) {
+			$data = $data[ $field ];
+		}
+
+		return $data;
+
+	}
+
 	public function testFirstPost() {
 
 		/**
@@ -304,6 +318,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		wp_set_current_user( $this->admin );
 		$request = $this->postsQuery( $variables );
 
 		$this->assertNotEmpty( $request );
@@ -751,5 +766,117 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEquals( $edges[0]['node']['content'], $edges[1]['node']['content'] );
 
 	}
+
+	public function testPrivatePostsWithoutProperCaps() {
+
+		$private_post = $this->createPostObject( [
+			'post_status' => 'private',
+		] );
+		$public_post = $this->createPostObject( [
+			'post_status' => 'publish',
+		] );
+
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $private_post, $public_post ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$this->assertCount( 1, $actual['data']['posts']['edges'] );
+		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
+		$this->assertEmpty( $this->getReturnField( $actual, 1 ) );
+
+	}
+
+	public function testPrivatePostsWithProperCaps() {
+
+		$post_args = [
+			'post_title' => 'Private post WITH caps',
+			'post_status' => 'private',
+			'post_author' => $this->subscriber,
+		];
+
+		$post_id = $this->createPostObject( $post_args );
+
+		wp_set_current_user( $this->admin );
+		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
+
+	}
+
+	public function testPrivatePostsForCurrentUser() {
+
+		$post_args = [
+			'post_title' => 'Private post WITH caps',
+			'post_status' => 'private',
+			'post_author' => $this->subscriber,
+		];
+
+		$post_id = $this->createPostObject( $post_args );
+
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
+
+	}
+
+	/**
+	 * @dataProvider dataProviderRevisions
+	 */
+	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
+
+		$parent_post = $this->createPostObject( [] );
+		$revision = $this->createPostObject( [
+			'post_type' => 'revision',
+			'post_parent' => $parent_post,
+			'post_status' => 'inherit',
+		] );
+
+		$query = "
+		{
+		  posts( where:{in:[\"{$parent_post}\"]}){
+		    edges{
+		      node{
+		        postId
+		        id
+		        title
+		        content
+		        revisions{
+		          edges {
+		            node{
+		              id
+		              revisionId
+		              title
+		              content
+		            }
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+		";
+
+		wp_set_current_user( $this->{$role} );
+		$actual = do_graphql_request( $query );
+		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+
+		if ( true === $show_revisions ) {
+			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['revisionId'] );
+		} else {
+			$this->assertEmpty( $actual['data']['posts']['edges'][0]['node']['revisions']['edges'] );
+		}
+
+	}
+
+	public function dataProviderRevisions() {
+		return [
+			[
+				'subscriber',
+				false,
+			],
+			[
+				'admin',
+				true,
+			]
+		];
+	}
+
 
 }
