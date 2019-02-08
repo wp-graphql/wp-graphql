@@ -211,7 +211,7 @@ abstract class Model {
 	 * @access private
 	 */
 	protected function owner_matches_current_user() {
-		return ( $this->owner === $this->current_user->ID ) ? true : false;
+		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
 	}
 
 	/**
