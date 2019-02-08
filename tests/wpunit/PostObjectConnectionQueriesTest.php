@@ -595,7 +595,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$test_post = $this->factory->post->create();
 
-		$source = get_post( $test_post );
+		$source = new \WPGraphQL\Model\Post( get_post( $test_post ) );
 
 		/**
 		 * New page
@@ -659,7 +659,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_type = 'attachment';
 
-		$source = get_post( $child_id );
+		$source = new \WPGraphQL\Model\Post( get_post( $child_id ) );
 
 		/**
 		 * New post type attachment
@@ -708,7 +708,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$user_id = $this->factory->user->create();
 
-		$source = get_user_by( 'ID', $user_id );
+		$source = new \WPGraphQL\Model\User( get_user_by( 'ID', $user_id ) );
 
 		$mock_args = array();
 
