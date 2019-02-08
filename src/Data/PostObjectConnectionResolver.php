@@ -113,7 +113,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		/**
 		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
 		 */
-		if ( 'attachment' === self::$post_type ) {
+		if ( 'attachment' === self::$post_type || 'revision' === self::$post_type ) {
 			$query_args['post_status'] = 'inherit';
 
 			/**
@@ -326,7 +326,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
 
-				if ( ! empty( $item ) ) {
+				if ( ! empty( $item->fields ) ) {
 					$edges[] = [
 						'cursor' => ArrayConnection::offsetToCursor( $item->ID ),
 						'node'   => $item,
