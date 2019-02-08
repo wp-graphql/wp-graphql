@@ -26,7 +26,7 @@ class Post extends Model {
 
 		$allowed_restricted_fields = [
 			'id',
-			'title',
+			'titleRendered',
 			'slug',
 			'post_type',
 			'status',
@@ -36,9 +36,11 @@ class Post extends Model {
 			'isPublic',
 		];
 
-		$restricted_cap = '';
+		$allowed_restricted_fields[] = $post->post_type . 'Id';
 
-		add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1 );
+		$restricted_cap = $this->get_restricted_cap();
+
+		add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 
 		parent::__construct( 'PostObject', $post, $restricted_cap, $allowed_restricted_fields, $post->post_author );
 
@@ -48,10 +50,58 @@ class Post extends Model {
 
 	protected function get_restricted_cap() {
 
+		if ( ! empty( $this->post->post_password ) ) {
+			return $this->post_type_object->cap->edit_others_posts;
+		}
+
+		switch ( $this->post->post_status ) {
+			case 'trash':
+				$cap = $this->post_type_object->cap->edit_posts;
+				break;
+			case 'draft':
+				$cap = $this->post_type_object->cap->edit_others_posts;
+				break;
+			default:
+				$cap = '';
+				break;
+		}
+
+		return $cap;
+
 	}
 
-	public function is_private( $private ) {
+	public function is_private( $private, $model_name, $data ) {
+
+		if ( 'PostObject' !== $model_name ) {
+			return $private;
+		}
+
+		if ( true === $this->owner_matches_current_user() || 'publish' === $data->post_status ) {
+			return false;
+		}
+
+		/**
+		 * If the post_type isn't (not registered) or is not allowed in WPGraphQL,
+		 * mark the post as private
+		 */
+		if ( empty( $this->post_type_object ) || empty( $this->post_type_object->name ) || ! in_array( $this->post_type_object->name, \WPGraphQL::$allowed_post_types, true ) ) {
+			return true;
+		}
+
+		if ( 'private' === $data->post_status && ! current_user_can( $this->post_type_object->cap->read_private_posts ) ) {
+			return true;
+		}
+
+		if ( 'revision' === $data->post_type ) {
+			$parent               = get_post( (int) $data->post_parent );
+			$parent_post_type_obj = get_post_type_object( $parent->post_type );
+			if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $parent->ID ) ) {
+				return true;
+			}
+		}
+
 		return $private;
+
 	}
 
 	public function init( $filter = null ) {
