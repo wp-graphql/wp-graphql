@@ -76,7 +76,7 @@ class Post extends Model {
 			return $private;
 		}
 
-		if ( true === $this->owner_matches_current_user() || 'publish' === $data->post_status ) {
+		if ( ( true === $this->owner_matches_current_user() || 'publish' === $data->post_status ) && 'revision' !== $data->post_type ) {
 			return false;
 		}
 
