@@ -146,7 +146,7 @@ abstract class Model {
 	 * @return string
 	 * @access protected
 	 */
-	protected function get_visibility() {
+	public function get_visibility() {
 
 		if ( null === $this->visibility ) {
 
@@ -210,7 +210,7 @@ abstract class Model {
 	 * @return bool
 	 * @access private
 	 */
-	private function owner_matches_current_user() {
+	protected function owner_matches_current_user() {
 		return ( $this->owner === $this->current_user->ID ) ? true : false;
 	}
 
