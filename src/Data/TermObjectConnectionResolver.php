@@ -5,6 +5,7 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Types;
 
 /**
@@ -124,7 +125,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		global $post;
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
-				case $source instanceof \WP_Post:
+				case $source instanceof Post:
 					$post                                  = $source;
 					$post->shouldOnlyIncludeConnectedItems = isset( $input_fields['shouldOnlyIncludeConnectedItems'] ) ? $input_fields['shouldOnlyIncludeConnectedItems'] : true;
 					$query_args['object_ids']              = $source->ID;
@@ -154,7 +155,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 */
 		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
 			unset( $query_args['parent'] );
-			if ( $source instanceof \WP_Post ) {
+			if ( $source instanceof Post ) {
 				$connected             = wp_get_object_terms( $source->ID, self::$taxonomy, [ 'fields' => 'ids' ] );
 				$query_args['include'] = ! empty( $connected ) ? $connected : [];
 			}

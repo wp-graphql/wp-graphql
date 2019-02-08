@@ -5,6 +5,8 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -130,7 +132,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
-				case $source instanceof \WP_Post:
+				case $source instanceof Post:
 					$query_args['post_parent'] = $source->ID;
 					break;
 				case $source instanceof \WP_Post_Type:
@@ -145,8 +147,8 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 						],
 					];
 					break;
-				case $source instanceof \WP_User:
-					$query_args['author'] = $source->ID;
+				case $source instanceof User:
+					$query_args['author'] = $source->userId;
 					break;
 			}
 		}

@@ -5,6 +5,7 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\MenuItem;
 
 /**
  * Class MenuItemConnectionResolver
@@ -29,18 +30,13 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	private static function get_menu_items( $source, array $args ) {
 
-
-
 		// Source object is a nav menu.
 		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
 			return wp_get_nav_menu_items( $source->slug );
 		}
 
 		// Source object is a nav menu item via childItems or found via where arg.
-		if (
-			$source instanceof \WP_Post &&
-			'nav_menu_item' === get_post_type( $source )
-		) {
+		if ( $source instanceof MenuItem ) {
 			// Get the nav menu that this nav menu item belongs to.
 			if ( isset( $source->menu ) ) {
 				if ( $source->menu instanceof \WP_Term && ! empty( $source->menu->slug ) ) {
@@ -49,7 +45,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 					return self::get_menu_items( $source->menu, $args );
 				}
 			} else {
-				$menu = get_the_terms( $source, 'nav_menu' );
+				$menu = get_the_terms( $source->menuItemId, 'nav_menu' );
 				if ( ! is_wp_error( $menu ) && ! empty( $menu ) && $menu[0] instanceof \WP_Term ) {
 					return wp_get_nav_menu_items( $menu[0]->slug );
 				}
@@ -86,8 +82,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
-
-
 		// Prevent the query from matching anything by default.
 		$query_args = [
 			'post_type' => 'nav_menu_item',
@@ -109,7 +103,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Filter the menu items on whether they match a parent ID, if we are
 		// inside a request for child items. If parent ID is 0, that corresponds to
 		// a top-level menu item.
-		$parent_id     = ( $source instanceof \WP_Post && 'childItems' === $info->fieldName ) ? $source->ID : 0;
+		$parent_id     = ( $source instanceof MenuItem && 'childItems' === $info->fieldName ) ? $source->menuItemId : 0;
 		$matched_items = array_filter( $menu_items, function ( $item ) use ( $parent_id ) {
 			return $parent_id === intval( $item->menu_item_parent );
 		} );
