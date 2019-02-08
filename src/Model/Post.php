@@ -40,7 +40,9 @@ class Post extends Model {
 
 		$restricted_cap = $this->get_restricted_cap();
 
-		add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
+		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
+			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
+		}
 
 		parent::__construct( 'PostObject', $post, $restricted_cap, $allowed_restricted_fields, $post->post_author );
 
