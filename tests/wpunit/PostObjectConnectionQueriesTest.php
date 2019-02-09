@@ -817,7 +817,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * @dataProvider dataProviderRevisions
+	 * @dataProvider dataProviderUserVariance
 	 */
 	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
 
@@ -865,7 +865,71 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function dataProviderRevisions() {
+	/**
+	 * @dataProvider dataProviderUserVariance
+	 */
+	public function testDraftPosts( $role, $show_draft ) {
+
+		$public_post = $this->createPostObject( [] );
+		$draft_args = [
+			'post_title' => 'Draft Title',
+			'post_content' => 'Draft Post Content Here',
+			'post_status' => 'draft',
+		];
+		$draft_post = $this->createPostObject( $draft_args );
+
+		wp_set_current_user( $this->{$role} );
+
+		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'DRAFT' ] ] ] );
+		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+		$this->assertCount( 2, $actual['data']['posts']['edges'] );
+		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+		$content_field =  $this->getReturnField( $actual, 1, 'content' );
+		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+		if ( true === $show_draft ) {
+			$this->assertNotNull( $content_field );
+			$this->assertNotNull( $excerpt_field );
+		} else {
+			$this->assertNull( $content_field );
+			$this->assertNull( $excerpt_field );
+		}
+
+	}
+
+	/**
+	 * @dataProvider dataProviderUserVariance
+	 */
+	public function testTrashPosts( $role, $show_trash ) {
+
+		$public_post = $this->createPostObject( [] );
+		$draft_args = [
+			'post_title' => 'Trash Title',
+			'post_content' => 'Trash Post Content Here',
+			'post_status' => 'trash',
+		];
+		$draft_post = $this->createPostObject( $draft_args );
+
+		wp_set_current_user( $this->{$role} );
+
+		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'TRASH' ] ] ] );
+		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+		$this->assertCount( 2, $actual['data']['posts']['edges'] );
+		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+		$content_field =  $this->getReturnField( $actual, 1, 'content' );
+		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+		if ( true === $show_trash ) {
+			$this->assertNotNull( $content_field );
+			$this->assertNotNull( $excerpt_field );
+		} else {
+			$this->assertNull( $content_field );
+			$this->assertNull( $excerpt_field );
+		}
+
+	}
+
+	public function dataProviderUserVariance() {
 		return [
 			[
 				'subscriber',
