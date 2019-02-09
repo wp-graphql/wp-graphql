@@ -7,14 +7,93 @@ use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Types;
 
+/**
+ * Class Post - Models data for the Post object type
+ *
+ * @property int    $ID
+ * @property string $post_author
+ * @property string $id
+ * @property string $post_type
+ * @property array  $ancestors
+ * @property string $author
+ * @property string $date
+ * @property string $dateGmt
+ * @property string $contentRendered
+ * @property string $contentRaw
+ * @property string $titleRendered
+ * @property string $titleRaw
+ * @property string $excerptRendered
+ * @property string $excerptRaw
+ * @property string $post_status
+ * @property string $status
+ * @property string $commentStatus
+ * @property string $pingStatus
+ * @property string $slug
+ * @property string $toPing
+ * @property string $pinged
+ * @property string $modified
+ * @property string $modifiedGmt
+ * @property int    $parent
+ * @property User   $editLast
+ * @property array  $editLock
+ * @property string $enclosure
+ * @property string $guid
+ * @property int    $menuOrder
+ * @property string $link
+ * @property string $uri
+ * @property int    $commentCount
+ * @property Post   $featuredImage
+ *
+ * @property string $caption
+ * @property string $altText
+ * @property string $description
+ * @property string $mediaType
+ * @property string $sourceUrl
+ * @property string $mimeType
+ * @property array  $mediaDetails
+ *
+ * @package WPGraphQL\Model
+ */
 class Post extends Model {
 
+	/**
+	 * Stores the incoming post data
+	 *
+	 * @var \WP_Post $post
+	 * @access protected
+	 */
 	protected $post;
 
+	/**
+	 * Stores the incoming post type object for the post being modeled
+	 *
+	 * @var null|\WP_Post_Type $post_type_object
+	 * @access protected
+	 */
 	protected $post_type_object;
 
+	/**
+	 * Stores the fields for the object
+	 *
+	 * @var array $fields
+	 * @access public
+	 */
 	public $fields = [];
 
+	/**
+	 * Post constructor.
+	 *
+	 * @param \WP_Post          $post   The incoming WP_Post object that needs modeling
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Post $post, $filter = null ) {
 
 		if ( empty( $post ) ) {
@@ -50,6 +129,12 @@ class Post extends Model {
 
 	}
 
+	/**
+	 * Retrieve the cap to check if the data should be restricted for the post
+	 *
+	 * @access protected
+	 * @return string
+	 */
 	protected function get_restricted_cap() {
 
 		if ( ! empty( $this->post->post_password ) ) {
@@ -72,6 +157,17 @@ class Post extends Model {
 
 	}
 
+	/**
+	 * Callback for the graphql_data_is_private filter to determine if the post should be
+	 * considered private
+	 *
+	 * @param bool   $private    True or False value if the data should be private
+	 * @param string $model_name Name of the model for the data currently being modeled
+	 * @param mixed  $data       The Data currently being modeled
+	 *
+	 * @access public
+	 * @return bool
+	 */
 	public function is_private( $private, $model_name, $data ) {
 
 		if ( 'PostObject' !== $model_name ) {
@@ -106,6 +202,18 @@ class Post extends Model {
 
 	}
 
+	/**
+	 * Initialize the Post object
+	 *
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public function init( $filter = null ) {
 
 		if ( 'private' === parent::get_visibility() ) {

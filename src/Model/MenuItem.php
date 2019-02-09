@@ -5,12 +5,54 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
+/**
+ * Class MenuItem - Models the data for the MenuItem object type
+ *
+ * @property string   $id
+ * @property array    $cassClasses
+ * @property string   $description
+ * @property string   $label
+ * @property string   $linkRelationship
+ * @property int      $menuItemId
+ * @property string   $target
+ * @property string   $title
+ * @property string   $url
+ * @property \WP_Post $menu
+ *
+ * @package WPGraphQL\Model
+ */
 class MenuItem extends Model {
 
+	/**
+	 * Stores the incoming post data
+	 *
+	 * @var \WP_Post $post
+	 * @access protected
+	 */
 	public $post;
 
+	/**
+	 * Stores the fields for the object
+	 *
+	 * @var array $fields
+	 * @access public
+	 */
 	public $fields;
 
+	/**
+	 * MenuItem constructor.
+	 *
+	 * @param \WP_Post          $post   The incoming WP_Post object that needs modeling
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Post $post, $filter = null ) {
 
 		if ( empty( $post ) ) {
@@ -25,6 +67,18 @@ class MenuItem extends Model {
 
 	}
 
+	/**
+	 * Initialize the Post object
+	 *
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public function init( $filter = null ) {
 
 		if ( empty( $fields ) ) {
