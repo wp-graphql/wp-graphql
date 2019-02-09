@@ -144,7 +144,7 @@ abstract class Model {
 	 * Return the visibility state for the current piece of data
 	 *
 	 * @return string
-	 * @access protected
+	 * @access public
 	 */
 	public function get_visibility() {
 
@@ -208,7 +208,7 @@ abstract class Model {
 	 * Whether or not the owner of the data matches the current user
 	 *
 	 * @return bool
-	 * @access private
+	 * @access protected
 	 */
 	protected function owner_matches_current_user() {
 		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
