@@ -385,7 +385,7 @@ class Post extends Model {
 					'altText' => function() {
 						return get_post_meta( $this->post->ID, '_wp_attachment_image_alt', true );
 					},
-					'description' => function() {
+					'descriptionRendered' => function() {
 						return ! empty( $this->post->post_content ) ? apply_filters( 'the_content', $this->post->post_content ) : null;
 					},
 					'descriptionRaw' => function() {
