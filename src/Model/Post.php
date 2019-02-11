@@ -255,49 +255,34 @@ class Post extends Model {
 					$content = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
-				'contentRaw' => function() {
-
-					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
-						$content = null;
-					} else {
-						$content = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
-					}
-
-					return $content;
-
-				},
+				'contentRaw' => [
+					'callback' => function() {
+						return ! empty( $this->post->post_content ) ? $this->post->post_content : null;
+					},
+					'capability' => $this->post_type_object->cap->edit_posts
+				],
 				'titleRendered' => function() {
 					$id    = ! empty( $this->post->ID ) ? $this->post->ID : null;
 					$title = ! empty( $this->post->post_title ) ? $this->post->post_title : null;
 					return apply_filters( 'the_title', $title, $id );
 				},
-				'titleRaw' => function() {
-
-					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
-						$title = null;
-					} else {
-						$title = ! empty( $this->post->post_title ) ? $this->post->post_title : null;
-					}
-
-					return $title;
-
-				},
+				'titleRaw' => [
+					'callback' => function() {
+						return ! empty( $this->post->post_title ) ? $this->post->post_title : null;
+					},
+					'capability' => $this->post_type_object->cap->edit_posts,
+				],
 				'excerptRendered' => function() {
 					$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->post );
 					return apply_filters( 'the_excerpt', $excerpt );
 				},
-				'excerptRaw' => function() {
-
-					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
-						$excerpt = null;
-					} else {
-						$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
-					}
-
-					return $excerpt;
-
-				},
+				'excerptRaw' => [
+					'callback' => function() {
+						return ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
+					},
+					'capability' => $this->post_type_object->cap->edit_posts,
+				],
 				'post_status'   => function() {
 					return ! empty( $this->post->post_status ) ? $this->post->post_status : null;
 				},
@@ -371,34 +356,24 @@ class Post extends Model {
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->post->post_excerpt, $this->post ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
-					'captionRaw' => function() {
-
-						if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
-							$caption = null;
-						} else {
-							$caption = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
-						}
-
-						return $caption;
-
-					},
+					'captionRaw' => [
+						'callback' => function() {
+							return ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
+						},
+						'capability' => $this->post_type_object->cap->edit_posts,
+					],
 					'altText' => function() {
 						return get_post_meta( $this->post->ID, '_wp_attachment_image_alt', true );
 					},
 					'descriptionRendered' => function() {
 						return ! empty( $this->post->post_content ) ? apply_filters( 'the_content', $this->post->post_content ) : null;
 					},
-					'descriptionRaw' => function() {
-
-						if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
-							$caption = null;
-						} else {
-							$caption = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
-						}
-
-						return $caption;
-
-					},
+					'descriptionRaw' => [
+						'callback' => function() {
+							return ! empty( $this->post->post_content ) ? $this->post->post_content : null;
+						},
+						'capability' => $this->post_type_object->cap->edit_posts,
+					],
 					'mediaType' => function() {
 						return wp_attachment_is_image( $this->post->ID ) ? 'image' : 'file';
 					},
