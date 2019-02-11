@@ -44,9 +44,11 @@ use WPGraphQL\Types;
  * @property int    $commentCount
  * @property Post   $featuredImage
  *
- * @property string $caption
+ * @property string $captionRaw
+ * @property string $captionRendered
  * @property string $altText
- * @property string $description
+ * @property string $descriptionRaw
+ * @property string $descriptionRendered
  * @property string $mediaType
  * @property string $sourceUrl
  * @property string $mimeType
@@ -254,7 +256,15 @@ class Post extends Model {
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
 				'contentRaw' => function() {
-					return ! empty( $this->post->post_content ) ? $this->post->post_content : null;
+
+					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+						$content = null;
+					} else {
+						$content = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
+					}
+
+					return $content;
+
 				},
 				'titleRendered' => function() {
 					$id    = ! empty( $this->post->ID ) ? $this->post->ID : null;
@@ -262,7 +272,15 @@ class Post extends Model {
 					return apply_filters( 'the_title', $title, $id );
 				},
 				'titleRaw' => function() {
-					return ! empty( $this->post->post_title ) ? $this->post->post_title : null;
+
+					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+						$title = null;
+					} else {
+						$title = ! empty( $this->post->post_title ) ? $this->post->post_title : null;
+					}
+
+					return $title;
+
 				},
 				'excerptRendered' => function() {
 					$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
@@ -270,7 +288,15 @@ class Post extends Model {
 					return apply_filters( 'the_excerpt', $excerpt );
 				},
 				'excerptRaw' => function() {
-					return ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
+
+					if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+						$excerpt = null;
+					} else {
+						$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
+					}
+
+					return $excerpt;
+
 				},
 				'post_status'   => function() {
 					return ! empty( $this->post->post_status ) ? $this->post->post_status : null;
@@ -341,15 +367,37 @@ class Post extends Model {
 
 			if ( 'attachment' === $this->post->post_type ) {
 				$attachment_fields = [
-					'caption' => function() {
+					'captionRendered' => function() {
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->post->post_excerpt, $this->post ) );
 						return ! empty( $caption ) ? $caption : null;
+					},
+					'captionRaw' => function() {
+
+						if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+							$caption = null;
+						} else {
+							$caption = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
+						}
+
+						return $caption;
+
 					},
 					'altText' => function() {
 						return get_post_meta( $this->post->ID, '_wp_attachment_image_alt', true );
 					},
 					'description' => function() {
 						return ! empty( $this->post->post_content ) ? apply_filters( 'the_content', $this->post->post_content ) : null;
+					},
+					'descriptionRaw' => function() {
+
+						if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+							$caption = null;
+						} else {
+							$caption = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
+						}
+
+						return $caption;
+
 					},
 					'mediaType' => function() {
 						return wp_attachment_is_image( $this->post->ID ) ? 'image' : 'file';

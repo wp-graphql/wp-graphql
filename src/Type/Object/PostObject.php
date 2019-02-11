@@ -44,6 +44,19 @@ function register_post_object_types( $post_type_object ) {
 			'caption'      => [
 				'type'        => 'String',
 				'description' => __( 'The caption for the resource', 'wp-graphql' ),
+				'args'        => [
+					'format' => [
+						'type'        => 'PostObjectFieldFormatEnum',
+						'description' => __( 'Format of the field output', 'wp-graphql' ),
+					],
+				],
+				'resolve' => function( $source, $args ) {
+					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+						return $source->captionRaw;
+					} else {
+						return $source->captionRendered;
+					}
+				}
 			],
 			'altText'      => [
 				'type'        => 'String',
@@ -52,6 +65,19 @@ function register_post_object_types( $post_type_object ) {
 			'description'  => [
 				'type'        => 'String',
 				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
+				'args'        => [
+					'format' => [
+						'type'        => 'PostObjectFieldFormatEnum',
+						'description' => __( 'Format of the field output', 'wp-graphql' ),
+					],
+				],
+				'resolve' => function( $source, $args ) {
+					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+						return $source->descriptionRaw;
+					} else {
+						return $source->descriptionRendered;
+					}
+				}
 			],
 			'mediaType'    => [
 				'type'        => 'String',
