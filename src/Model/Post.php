@@ -348,6 +348,12 @@ class Post extends Model {
 					$thumbnail_id = get_post_thumbnail_id( $this->post->ID );
 					return ! empty( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : null;
 				},
+				'password' => [
+					'callback' => function() {
+						return ! empty( $this->post->post_password ) ? $this->post->post_password : null;
+					},
+					'capability' => $this->post_type_object->cap->edit_others_posts,
+				]
 			];
 
 			if ( 'attachment' === $this->post->post_type ) {
