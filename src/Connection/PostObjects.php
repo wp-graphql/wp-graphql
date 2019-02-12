@@ -102,7 +102,6 @@ class PostObjects {
 		if ( 'revision' === $post_type_object->name ) {
 			unset( $connection_args['status'] );
 			unset( $connection_args['stati'] );
-
 		}
 
 		return array_merge( [

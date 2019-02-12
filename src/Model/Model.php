@@ -144,9 +144,9 @@ abstract class Model {
 	 * Return the visibility state for the current piece of data
 	 *
 	 * @return string
-	 * @access protected
+	 * @access public
 	 */
-	protected function get_visibility() {
+	public function get_visibility() {
 
 		if ( null === $this->visibility ) {
 
@@ -177,12 +177,12 @@ abstract class Model {
 			 */
 			$is_private = apply_filters( 'graphql_data_is_private', false, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
 
-			if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
+			if ( true === $is_private ) {
+				$this->visibility = 'private';
+			} else if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
 				$this->visibility = 'public';
 			} else if ( empty( $protected_cap ) || current_user_can( $protected_cap ) ) {
 				$this->visibility = 'public';
-			} else if ( true === $is_private ) {
-				$this->visibility = 'private';
 			} else {
 				$this->visibility = 'restricted';
 			}
@@ -208,10 +208,10 @@ abstract class Model {
 	 * Whether or not the owner of the data matches the current user
 	 *
 	 * @return bool
-	 * @access private
+	 * @access protected
 	 */
-	private function owner_matches_current_user() {
-		return ( $this->owner === $this->current_user->ID ) ? true : false;
+	protected function owner_matches_current_user() {
+		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
 	}
 
 	/**
@@ -256,9 +256,35 @@ abstract class Model {
 		}
 
 		$clean_array = [];
-		foreach ( $fields as $key => $callback ) {
+		foreach ( $fields as $key => $data ) {
 
-			$clean_array[ $key ] = function() use ( $key, $callback ) {
+			$clean_array[ $key ] = function() use ( $key, $data ) {
+
+				if ( is_array( $data ) ) {
+					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
+
+					/**
+					 * Capability to check required for the field
+					 *
+					 * @param string   $capability   The capability to check against to return the field
+					 * @param string   $key          The name of the field on the type
+					 * @param string   $model_name   Name of the model the filter is currently being executed in
+					 * @param mixed    $data         The un-modeled incoming data
+					 * @param string   $visibility   The visibility setting for this piece of data
+					 * @param null|int $owner        The user ID for the owner of this piece of data
+					 * @param \WP_User $current_user The current user for the session
+					 *
+					 * @return string
+					 */
+					$cap_check = ( ! empty( $data['capability'] ) ) ? apply_filters( 'graphql_model_field_capability', $data['capability'], $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user ) : '';
+					if ( ! empty( $cap_check ) ) {
+						if ( ! current_user_can( $data['capability'] ) ) {
+							$callback = null;
+						}
+					}
+				} else {
+					$callback = $data;
+				}
 
 				/**
 				 * Filter to short circuit the callback for any field on a type. Returning anything

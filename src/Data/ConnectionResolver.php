@@ -110,7 +110,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							$array_slice[ $item->term_id ] = $item;
 							break;
 						case $item instanceof \WP_Post:
-							$array_slice[ $item->ID ] = $item;
+							$array_slice[ $item->ID ] = DataSource::resolve_post_object( $item->ID, $item->post_type );
 							break;
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:

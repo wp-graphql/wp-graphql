@@ -8,7 +8,8 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\PostObject;
+use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
@@ -196,8 +197,11 @@ class DataSource {
 			remove_filter( 'the_content', 'prepend_attachment' );
 		}
 
-		$post_object = new PostObject( $post_object );
-		return $post_object->get_instance();
+		if ( 'nav_menu_item' === $post_type ) {
+			return new MenuItem( $post_object );
+		} else {
+			return new Post( $post_object );
+		}
 
 	}
 
@@ -661,7 +665,7 @@ class DataSource {
 					if ( true === is_object( $node ) ) {
 
 						switch ( true ) {
-							case $node instanceof \WP_Post:
+							case $node instanceof Post:
 								$type = Types::post_object( $node->post_type );
 								break;
 							case $node instanceof \WP_Term:

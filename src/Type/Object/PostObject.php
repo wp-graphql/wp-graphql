@@ -19,9 +19,6 @@ function register_post_object_types( $post_type_object ) {
 		register_graphql_field( $post_type_object->graphql_single_name, 'commentCount', [
 			'type'        => 'Int',
 			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
-			'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-				return ! empty( $post->comment_count ) ? absint( $post->comment_count ) : null;
-			}
 		] );
 
 	}
@@ -47,61 +44,56 @@ function register_post_object_types( $post_type_object ) {
 			'caption'      => [
 				'type'        => 'String',
 				'description' => __( 'The caption for the resource', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ) );
-
-					return ! empty( $caption ) ? $caption : null;
-				},
+				'args'        => [
+					'format' => [
+						'type'        => 'PostObjectFieldFormatEnum',
+						'description' => __( 'Format of the field output', 'wp-graphql' ),
+					],
+				],
+				'resolve' => function( $source, $args ) {
+					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+						return $source->captionRaw;
+					} else {
+						return $source->captionRendered;
+					}
+				}
 			],
 			'altText'      => [
 				'type'        => 'String',
 				'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					return get_post_meta( $post->ID, '_wp_attachment_image_alt', true );
-				},
 			],
 			'description'  => [
 				'type'        => 'String',
 				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					return apply_filters( 'the_content', $post->post_content );
-				},
+				'args'        => [
+					'format' => [
+						'type'        => 'PostObjectFieldFormatEnum',
+						'description' => __( 'Format of the field output', 'wp-graphql' ),
+					],
+				],
+				'resolve' => function( $source, $args ) {
+					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+						return $source->descriptionRaw;
+					} else {
+						return $source->descriptionRendered;
+					}
+				}
 			],
 			'mediaType'    => [
 				'type'        => 'String',
 				'description' => __( 'Type of resource', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					return wp_attachment_is_image( $post->ID ) ? 'image' : 'file';
-				},
 			],
 			'sourceUrl'    => [
 				'type'        => 'String',
 				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					return wp_get_attachment_url( $post->ID );
-				},
 			],
 			'mimeType'     => [
 				'type'        => 'String',
 				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					return ! empty( $post->post_mime_type ) ? $post->post_mime_type : null;
-				},
 			],
 			'mediaDetails' => [
 				'type'        => 'MediaDetails',
 				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
-				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
-					$media_details = wp_get_attachment_metadata( $post->ID );
-
-					if ( ! empty( $media_details ) ) {
-						$media_details['ID'] = $post->ID;
-
-						return $media_details;
-					}
-
-					return null;
-				},
 			],
 
 		] );
@@ -139,6 +131,22 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
 				],
 			],
+			'resolve' => function( $source, $args ) {
+				$ancestor_ids = $source->ancestors;
+				if ( ! empty( $ancestor_ids ) && is_array( $ancestor_ids ) ) {
+					$types        = ! empty( $args['types'] ) ? $args['types'] : [ $source->post_type ];
+					$ancestors = [];
+					foreach ( $ancestor_ids as $ancestor_id ) {
+						$ancestor_obj = get_post( $ancestor_id );
+						if ( in_array( $ancestor_obj->post_type, $types, true ) ) {
+							$ancestors[] = DataSource::resolve_post_object( $ancestor_obj->ID, $ancestor_obj->post_type );
+						}
+					}
+				} else {
+					$ancestors = null;
+				}
+				return $ancestors;
+			}
 		],
 		'author'            => [
 			'type'        => 'User',
@@ -161,6 +169,13 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
+			'resolve' => function( $source, $args ) {
+				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					return $source->contentRaw;
+				} else {
+					return $source->contentRendered;
+				}
+			}
 		],
 		'title'             => [
 			'type'        => 'String',
@@ -171,6 +186,13 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
+			'resolve' => function( $source, $args ) {
+				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					return $source->titleRaw;
+				} else {
+					return $source->titleRendered;
+				}
+			}
 		],
 		'excerpt'           => [
 			'type'        => 'String',
@@ -181,6 +203,13 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
+			'resolve' => function( $source, $args ) {
+				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					return $source->excerptRaw;
+				} else {
+					return $source->excerptRendered;
+				}
+			}
 		],
 		'status'            => [
 			'type'        => 'String',
@@ -266,6 +295,42 @@ function get_post_object_fields( $post_type_object ) {
 			],
 			// Translators: placeholder is the name of the post_type
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+			'resolve' => function ( $source, $args ) {
+
+				/**
+				 * @TODO eventually use a loader here to grab the taxonomies and pass them through the term model
+				 */
+
+				/**
+				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+				 * otherwise use the default $allowed_taxonomies passed down
+				 */
+				$taxonomies = [];
+				if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+					$taxonomies = $args['taxonomies'];
+				} else {
+					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+					foreach ( $connected_taxonomies as $taxonomy ) {
+						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+							$taxonomies[] = $taxonomy;
+						}
+					}
+				}
+
+				$tax_terms = [];
+				if ( ! empty( $taxonomies ) ) {
+
+					$term_query = new \WP_Term_Query( [
+						'taxonomy'   => $taxonomies,
+						'object_ids' => $source->ID,
+					] );
+
+					$tax_terms = $term_query->get_terms();
+
+				}
+
+				return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
+			}
 		],
 		'termNames'         => [
 			'type'        => [ 'list_of' => 'String' ],
@@ -279,6 +344,38 @@ function get_post_object_fields( $post_type_object ) {
 			],
 			// Translators: placeholder is the name of the post_type
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+			'resolve' => function( $source, $args ) {
+				/**
+				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+				 * otherwise use the default $allowed_taxonomies passed down
+				 */
+				$taxonomies = [];
+				if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+					$taxonomies = $args['taxonomies'];
+				} else {
+					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+					foreach ( $connected_taxonomies as $taxonomy ) {
+						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+							$taxonomies[] = $taxonomy;
+						}
+					}
+				}
+
+				$tax_terms = [];
+				if ( ! empty( $taxonomies ) ) {
+
+					$term_query = new \WP_Term_Query( [
+						'taxonomy'   => $taxonomies,
+						'object_ids' => [ $source->ID ],
+					] );
+
+					$tax_terms = $term_query->get_terms();
+
+				}
+				$term_names = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'name' ) : [];
+
+				return ! empty( $term_names ) ? $term_names : null;
+			}
 		],
 		'termSlugs'         => [
 			'type'        => [ 'list_of' => 'String' ],
@@ -292,6 +389,38 @@ function get_post_object_fields( $post_type_object ) {
 			],
 			// Translators: placeholder is the name of the post_type
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
+			'resolve' => function( $source, $args ) {
+				/**
+				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+				 * otherwise use the default $allowed_taxonomies passed down
+				 */
+				$taxonomies = [];
+				if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+					$taxonomies = $args['taxonomies'];
+				} else {
+					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+					foreach ( $connected_taxonomies as $taxonomy ) {
+						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+							$taxonomies[] = $taxonomy;
+						}
+					}
+				}
+
+				$tax_terms = [];
+				if ( ! empty( $taxonomies ) ) {
+
+					$term_query = new \WP_Term_Query( [
+						'taxonomy'   => $taxonomies,
+						'object_ids' => [ $source->ID ],
+					] );
+
+					$tax_terms = $term_query->get_terms();
+
+				}
+				$term_slugs = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'slug' ) : [];
+
+				return ! empty( $term_slugs ) ? $term_slugs : null;
+			}
 		],
 		'isRestricted' => [
 			'type' => 'Boolean',

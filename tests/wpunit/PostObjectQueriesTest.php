@@ -1233,6 +1233,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the same query but request the fields in raw form.
 		 */
+		wp_set_current_user( $this->admin );
 		$graphql_query = "
 		query {
 			post(id: \"{$global_id}\") {

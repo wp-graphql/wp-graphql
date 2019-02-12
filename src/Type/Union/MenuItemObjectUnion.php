@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Post;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
@@ -32,12 +34,12 @@ register_graphql_union_type( 'MenuItemObjectUnion', [
 	'types'       => $possible_types,
 	'resolveType' => function ( $object ) {
 		// Custom link / menu item
-		if ( $object instanceof \WP_Post && 'nav_menu_item' === $object->post_type ) {
+		if ( $object instanceof MenuItem ) {
 			return TypeRegistry::get_type( 'MenuItem' );
 		}
 
 		// Post object
-		if ( $object instanceof \WP_Post && ! empty( $object->post_type ) ) {
+		if ( $object instanceof Post && ! empty( $object->post_type ) ) {
 			return Types::post_object( $object->post_type );
 		}
 

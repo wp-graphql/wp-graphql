@@ -78,6 +78,8 @@ class User extends Model {
 			'id',
 			'userId',
 			'name',
+			'firstName',
+			'lastName',
 			'description',
 			'slug',
 		];
@@ -106,7 +108,7 @@ class User extends Model {
 			return null;
 		}
 
-		if ( null == $this->fields ) {
+		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
 					return ( ! empty( $this->user->ID ) ) ? Relay::toGlobalId( 'user', $this->user->ID ) : null;
