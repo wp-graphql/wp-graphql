@@ -6,14 +6,64 @@ namespace WPGraphQL\Model;
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class Term - Models data for Terms
+ *
+ * @property string       $id
+ * @property int          $term_id
+ * @property int          $count
+ * @property string       $description
+ * @property string       $name
+ * @property string       $slug
+ * @property int          $termGroupId
+ * @property int          $termTaxonomyId
+ * @property \WP_Taxonomy $taxonomy
+ * @property string       $link
+ * @property \WP_Term     $parent
+ * @property array        $ancestors
+ *
+ * @package WPGraphQL\Model
+ */
 class Term extends Model {
 
+	/**
+	 * Stores the incoming WP_Term object
+	 *
+	 * @var \WP_Term $term
+	 * @access protected
+	 */
 	protected $term;
 
+	/**
+	 * Stores the fields for the object
+	 *
+	 * @var null|array $fields
+	 * @access protected
+	 */
 	protected $fields;
 
+	/**
+	 * Stores the taxonomy object for the term being modeled
+	 *
+	 * @var null|\WP_Taxonomy $taxonomy_object
+	 * @access protected
+	 */
 	protected $taxonomy_object;
 
+	/**
+	 * Term constructor.
+	 *
+	 * @param \WP_Term          $term   The incoming WP_Term object that needs modeling
+	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Term $term, $filter = null ) {
 
 		if ( empty( $term ) ) {
@@ -28,6 +78,18 @@ class Term extends Model {
 
 	}
 
+	/**
+	 * Initializes the Term object
+	 *
+	 * @param null|string|array $fields The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
+	 *
+	 * @access public
+	 * @return void
+	 */
 	public function init( $fields = null ) {
 
 		if ( null === $this->fields ) {
