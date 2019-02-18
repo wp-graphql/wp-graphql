@@ -10,6 +10,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
@@ -299,7 +300,7 @@ class DataSource {
 			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
 		}
 
-		return $term_object;
+		return new Term( $term_object );
 
 	}
 
@@ -668,7 +669,7 @@ class DataSource {
 							case $node instanceof Post:
 								$type = Types::post_object( $node->post_type );
 								break;
-							case $node instanceof \WP_Term:
+							case $node instanceof Term:
 								$type = Types::term_object( $node->taxonomy );
 								break;
 							case $node instanceof \WP_Comment:
