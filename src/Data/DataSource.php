@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
@@ -300,7 +301,11 @@ class DataSource {
 			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
 		}
 
-		return new Term( $term_object );
+		if ( 'nav_menu' === $taxonomy ) {
+			return new Menu( $term_object );
+		} else {
+			return new Term( $term_object );
+		}
 
 	}
 
