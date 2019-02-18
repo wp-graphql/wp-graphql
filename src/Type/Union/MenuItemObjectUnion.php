@@ -3,6 +3,7 @@ namespace WPGraphQL\Type;
 
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\TypeRegistry;
 use WPGraphQL\Types;
 
@@ -44,7 +45,7 @@ register_graphql_union_type( 'MenuItemObjectUnion', [
 		}
 
 		// Taxonomy term
-		if ( $object instanceof \WP_Term && ! empty( $object->taxonomy ) ) {
+		if ( $object instanceof Term && ! empty( $object->taxonomy ) ) {
 			return Types::term_object( $object->taxonomy );
 		}
 

@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Types;
 
 /**
@@ -130,7 +131,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 					$post->shouldOnlyIncludeConnectedItems = isset( $input_fields['shouldOnlyIncludeConnectedItems'] ) ? $input_fields['shouldOnlyIncludeConnectedItems'] : true;
 					$query_args['object_ids']              = $source->ID;
 					break;
-				case $source instanceof \WP_Term:
+				case $source instanceof Term:
 
 					if ( is_a( $GLOBALS['post'], 'WP_Post' ) && isset( $GLOBALS['post']->ID ) ) {
 						$query_args['object_ids'] = $GLOBALS['post']->ID;
@@ -165,7 +166,7 @@ class TermObjectConnectionResolver extends ConnectionResolver {
 		 * If the query is a search, the source isn't another Term, and the parent $arg is not explicitly set in the query,
 		 * unset the $query_args['parent'] so the search can search all posts, not just top level posts.
 		 */
-		if ( ! $source instanceof \WP_Term && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
+		if ( ! $source instanceof Term && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
 			unset( $query_args['parent'] );
 		}
 

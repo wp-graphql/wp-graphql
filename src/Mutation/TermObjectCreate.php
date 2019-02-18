@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\TermObjectMutation;
 
 class TermObjectCreate {
@@ -83,7 +84,7 @@ class TermObjectCreate {
                 // translators: Placeholder is the name of the taxonomy
                 'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
                 'resolve'     => function ( $payload ) use ( $taxonomy ) {
-                    return get_term( $payload['termId'], $taxonomy->name );
+                    return DataSource::resolve_term_object( absint( $payload['termId'] ), $taxonomy->name );
                 },
             ],
         ];

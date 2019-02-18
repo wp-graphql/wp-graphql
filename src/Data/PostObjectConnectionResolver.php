@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
@@ -138,10 +139,10 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				case $source instanceof \WP_Post_Type:
 					$query_args['post_type'] = $source->name;
 					break;
-				case $source instanceof \WP_Term:
+				case $source instanceof Term:
 					$query_args['tax_query'] = [
 						[
-							'taxonomy' => $source->taxonomy,
+							'taxonomy' => $source->taxonomy->name,
 							'terms'    => [ $source->term_id ],
 							'field'    => 'term_id',
 						],

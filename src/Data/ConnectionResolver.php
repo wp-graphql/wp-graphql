@@ -107,7 +107,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							$array_slice[ $item->comment_ID ] = $item;
 							break;
 						case $item instanceof \WP_Term:
-							$array_slice[ $item->term_id ] = $item;
+							$array_slice[ $item->term_id ] = DataSource::resolve_term_object( $item->term_id, $item->taxonomy );
 							break;
 						case $item instanceof \WP_Post:
 							$array_slice[ $item->ID ] = DataSource::resolve_post_object( $item->ID, $item->post_type );
