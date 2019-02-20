@@ -29,57 +29,38 @@ class MenuItem extends Model {
 	 * @var \WP_Post $post
 	 * @access protected
 	 */
-	public $post;
+	protected $post;
 
 	/**
 	 * Stores the fields for the object
 	 *
 	 * @var array $fields
-	 * @access public
+	 * @access protected
 	 */
-	public $fields;
+	protected $fields;
 
 	/**
 	 * MenuItem constructor.
 	 *
-	 * @param \WP_Post          $post   The incoming WP_Post object that needs modeling
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
+	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
 	 *
 	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Post $post, $filter = null ) {
-
-		if ( empty( $post ) ) {
-			throw new \Exception( __( 'An empty WP_Post object was used to initialize this object', 'wp-graphql' ) );
-		}
-
+	public function __construct( \WP_Post $post ) {
 		$this->post = $post;
-
 		parent::__construct( 'menuItem', $post );
-
-		$this->init( $filter );
-
+		$this->init();
 	}
 
 	/**
 	 * Initialize the Post object
 	 *
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
-	 *
 	 * @access public
 	 * @return void
 	 */
-	public function init( $filter = null ) {
+	public function init() {
 
 		if ( empty( $fields ) ) {
 			$this->fields = [
@@ -123,9 +104,11 @@ class MenuItem extends Model {
 					$this->post->menu;
 				};
 			}
+
+			parent::prepare_fields();
+
 		}
 
-		parent::prepare_fields( $this->fields, $filter );
 	}
 
 }

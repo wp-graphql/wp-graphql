@@ -53,46 +53,28 @@ class Term extends Model {
 	/**
 	 * Term constructor.
 	 *
-	 * @param \WP_Term          $term   The incoming WP_Term object that needs modeling
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
+	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Term $term, $filter = null ) {
-
-		if ( empty( $term ) ) {
-			throw new \Exception( __( 'An empty WP_Term object was used to initialize this object', 'wp-graphql' ) );
-		}
-
+	public function __construct( \WP_Term $term ) {
 		$this->term = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
 		parent::__construct( 'TermObject', $term );
-
-		$this->init( $filter );
-
+		$this->init();
 	}
 
 	/**
 	 * Initializes the Term object
 	 *
-	 * @param null|string|array $fields The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
-	 *
 	 * @access public
 	 * @return void
 	 */
-	public function init( $fields = null ) {
+	public function init() {
 
-		if ( null === $this->fields ) {
+		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
 					return ( ! empty( $this->term->taxonomy ) && ! empty( $this->term->term_id ) ) ? Relay::toGlobalId( $this->term->taxonomy, $this->term->term_id ) : null;
@@ -151,9 +133,11 @@ class Term extends Model {
 				};
 
 			}
+
+			parent::prepare_fields();
+
 		}
 
-		parent::prepare_fields( $this->fields, $fields );
 	}
 
 }
