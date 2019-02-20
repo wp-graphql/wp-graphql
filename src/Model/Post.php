@@ -182,10 +182,17 @@ class Post extends Model {
 			return true;
 		}
 
-		if ( 'revision' === $data->post_type ) {
+		if ( 'revision' === $data->post_type || 'auto-draft' === $data->post_status ) {
 			$parent               = get_post( (int) $data->post_parent );
 			$parent_post_type_obj = get_post_type_object( $parent->post_type );
-			if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $parent->ID ) ) {
+
+			if ( 'private' === $parent->post_status ) {
+				$cap = $parent_post_type_obj->cap->read_private_posts;
+			} else {
+				$cap = $parent_post_type_obj->cap->edit_post;
+			}
+
+			if ( ! current_user_can( $cap, $parent->ID ) ) {
 				return true;
 			}
 		}
