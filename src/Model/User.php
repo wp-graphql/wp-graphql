@@ -45,27 +45,18 @@ class User extends Model {
 	 * @var array $fields
 	 * @access public
 	 */
-	public $fields = [];
+	protected $fields;
 
 	/**
 	 * User constructor.
 	 *
-	 * @param \WP_User          $user   The incoming WP_User object that needs modeling
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
+	 * @param \WP_User $user The incoming WP_User object that needs modeling
 	 *
 	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user, $filter = null ) {
-
-		if ( empty( $user ) ) {
-			throw new \Exception( __( 'An empty WP_User object was used to initialize this object', 'wp-graphql' ) );
-		}
+	public function __construct( \WP_User $user) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
@@ -85,24 +76,17 @@ class User extends Model {
 		];
 
 		parent::__construct( 'UserObject', $user, 'list_users', $allowed_restricted_fields, $user->ID );
-
-		$this->init( $filter );
+		$this->init();
 
 	}
 
 	/**
 	 * Initialize the User object
 	 *
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
-	 *
 	 * @access public
 	 * @return void
 	 */
-	public function init( $filter = null ) {
+	public function init() {
 
 		if ( 'private' === $this->get_visibility() || is_null( $this->user ) ) {
 			return null;
@@ -177,9 +161,10 @@ class User extends Model {
 				},
 				'userId' => ! empty( $this->user->ID ) ? absint( $this->user->ID ) : null,
 			];
-		}
 
-		$this->fields = parent::prepare_fields( $this->fields, $filter );
+			parent::prepare_fields();
+
+		}
 
 	}
 

@@ -66,6 +66,14 @@ abstract class Model {
 	protected $visibility;
 
 	/**
+	 * The fields for the modeled object. This will be populated in the child class
+	 *
+	 * @var array $fields
+	 * @access protected
+	 */
+	protected $fields;
+
+	/**
 	 * Model constructor.
 	 *
 	 * @param string   $name                      Name of the data being passed in for hook/filter context
@@ -79,14 +87,21 @@ abstract class Model {
 	 *
 	 * @access protected
 	 * @return void
+	 * @throws \Exception
 	 */
 	protected function __construct( $name, $data, $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
+
+		if ( empty( $data ) ) {
+			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $name ) );
+		}
+
 		$this->model_name = $name;
 		$this->data = $data;
 		$this->restricted_cap = $restricted_cap;
 		$this->allowed_restricted_fields = $allowed_restricted_fields;
 		$this->owner = $owner;
 		$this->current_user = wp_get_current_user();
+
 	}
 
 	/**
@@ -217,13 +232,11 @@ abstract class Model {
 	/**
 	 * Restricts fields for the data to only return the allowed fields if the data is restricted
 	 *
-	 * @param array $fields Fields for the data
-	 *
 	 * @access protected
-	 * @return array
+	 * @return void
 	 */
-	protected function restrict_fields( $fields ) {
-		return array_intersect_key( $fields, array_flip(
+	protected function restrict_fields() {
+		$this->fields = array_intersect_key( $this->fields, array_flip(
 
 			/**
 			 * Filter for the allowed restricted fields
@@ -244,19 +257,17 @@ abstract class Model {
 	/**
 	 * Wraps all fields with another callback layer so we can inject hooks & filters into them
 	 *
-	 * @param array $fields Fields for the data
-	 *
 	 * @access protected
-	 * @return array
+	 * @return void
 	 */
-	protected function wrap_fields( $fields ) {
+	protected function wrap_fields() {
 
-		if ( ! is_array( $fields ) || empty( $fields ) ) {
-			return $fields;
+		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
+			return;
 		}
 
 		$clean_array = [];
-		foreach ( $fields as $key => $data ) {
+		foreach ( $this->fields as $key => $data ) {
 
 			$clean_array[ $key ] = function() use ( $key, $data ) {
 
@@ -344,57 +355,42 @@ abstract class Model {
 			};
 		}
 
-		return $clean_array;
+		$this->fields = $clean_array;
 
 	}
 
 	/**
 	 * Adds the model visibility fields to the data
 	 *
-	 * @param array $fields Field definitions for the data
-	 *
-	 * @return mixed
+	 * @return void
 	 */
-	private function add_model_visibility( $fields ) {
+	private function add_model_visibility() {
 
 		/**
 		 * @TODO: potentially abstract this out into a more central spot
 		 */
-		$fields['isPublic']     = function() { return ( 'public' === $this->get_visibility() ) ? true : false;};
-		$fields['isRestricted'] = function() { return ( 'restricted' === $this->get_visibility() ) ? true : false; };
-		$fields['isPrivate']    = function() { return ( 'private' === $this->get_visibility() ) ? true : false; };
-
-		return $fields;
+		$this->fields['isPublic']     = function() { return ( 'public' === $this->get_visibility() ) ? true : false;};
+		$this->fields['isRestricted'] = function() { return ( 'restricted' === $this->get_visibility() ) ? true : false; };
+		$this->fields['isPrivate']    = function() { return ( 'private' === $this->get_visibility() ) ? true : false; };
 
 	}
 
 	/**
 	 * Returns instance of the data fully modeled
 	 *
-	 * @param array $data The data with field definitions to be modeled
-	 * @param null  $filter The fields to pluck from the instance of data
-	 *
 	 * @access protected
-	 * @return array
+	 * @return void
 	 */
-	protected function prepare_fields( $data, $filter = null ) {
+	protected function prepare_fields() {
 
 		if ( 'restricted' === $this->get_visibility() ) {
-			$data = $this->restrict_fields( $data );
-		}
-
-		if ( is_string( $filter ) ) {
-			$filter = [ $filter ];
-		}
-
-		if ( is_array( $filter ) ) {
-			$data = array_intersect_key( $data, array_flip( $filter ) );
+			$this->restrict_fields();
 		}
 
 		/**
 		 * Filter the array of fields for the Model before the object is hydrated with it
 		 *
-		 * @param array    $data         The array of fields for the model
+		 * @param array    $fields       The array of fields for the model
 		 * @param string   $model_name   Name of the model the filter is currently being executed in
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param null|int $owner        The user ID for the owner of this piece of data
@@ -402,23 +398,34 @@ abstract class Model {
 		 *
 		 * @return array
 		 */
-		$data = apply_filters( 'graphql_return_modeled_data', $data, $this->model_name, $this->visibility, $this->owner, $this->current_user );
-		$data = $this->wrap_fields( $data );
-		$data = $this->add_model_visibility( $data );
-
-		return $data;
+		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->model_name, $this->visibility, $this->owner, $this->current_user );
+		$this->wrap_fields();
+		$this->add_model_visibility();
 
 	}
 
 	/**
-	 * Method to initialize the object
+	 * Filter the fields returned for the object
 	 *
-	 * @param null|array|string $fields Options to filter the result by returning a subset of
-	 *                                  fields or a single field from the model
+	 * @param null|string|array $fields The field or fields to build in the modeled object. You can
+	 *                                  pass null to build all of the fields, a string to only
+	 *                                  build an object with one field, or an array of field keys
+	 *                                  to build an object with those keys and their respective
+	 *                                  values.
 	 *
-	 * @abstract
-	 * @return mixed
+	 * @access public
+	 * @return void
 	 */
-	abstract function init( $fields = null );
+	public function filter( $fields ) {
+
+		if ( is_string( $fields ) ) {
+			$fields = [ $fields ];
+		}
+
+		if ( is_array( $fields ) ) {
+			$this->fields = array_intersect_key( $this->fields, array_flip( $fields ) );
+		}
+
+	}
 
 }

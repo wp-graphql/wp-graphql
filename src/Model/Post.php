@@ -80,27 +80,18 @@ class Post extends Model {
 	 * @var array $fields
 	 * @access public
 	 */
-	public $fields = [];
+	public $fields;
 
 	/**
 	 * Post constructor.
 	 *
-	 * @param \WP_Post          $post   The incoming WP_Post object that needs modeling
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
+	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
 	 *
 	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Post $post, $filter = null ) {
-
-		if ( empty( $post ) ) {
-			throw new \Exception( __( 'An empty WP_Post object was used to initialize this object', 'wp-graphql' ) );
-		}
+	public function __construct( \WP_Post $post ) {
 
 		$this->post = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
@@ -126,8 +117,7 @@ class Post extends Model {
 		}
 
 		parent::__construct( 'PostObject', $post, $restricted_cap, $allowed_restricted_fields, $post->post_author );
-
-		$this->init( $filter );
+		$this->init();
 
 	}
 
@@ -207,16 +197,10 @@ class Post extends Model {
 	/**
 	 * Initialize the Post object
 	 *
-	 * @param null|string|array $filter The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
-	 *
 	 * @access public
 	 * @return void
 	 */
-	public function init( $filter = null ) {
+	public function init() {
 
 		if ( 'private' === parent::get_visibility() ) {
 			return null;
@@ -410,9 +394,9 @@ class Post extends Model {
 				$this->fields[ $type_id ] = absint( $this->post->ID );
 			};
 
-		}
+			parent::prepare_fields();
 
-		$this->fields = parent::prepare_fields( $this->fields, $filter );
+		}
 
 	}
 
