@@ -125,12 +125,12 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'data' => [
 				'comment' => [
-					'agent'       => '',
+					'agent'       => null,
 					'approved'    => '1',
 					'author'      => [
 						'userId' => $this->admin,
 					],
-					'authorIp'    => '',
+					'authorIp'    => null,
 					'children'    => [
 						'edges' => [],
 					],
@@ -140,7 +140,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'date'        => $this->current_date,
 					'dateGmt'     => $this->current_date_gmt,
 					'id'          => $global_id,
-					'karma'       => 0,
+					'karma'       => null,
 					'parent'      => null,
 					'type'        => null,
 				],
