@@ -5,6 +5,9 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Comment;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -111,13 +114,13 @@ class CommentConnectionResolver extends ConnectionResolver {
 		 */
 		if ( true === is_object( $source ) ) {
 			switch ( true ) {
-				case $source instanceof \WP_Post:
+				case $source instanceof Post:
 					$query_args['post_id'] = absint( $source->ID );
 					break;
-				case $source instanceof \WP_User:
+				case $source instanceof User:
 					$query_args['user_id'] = absint( $source->ID );
 					break;
-				case $source instanceof \WP_Comment:
+				case $source instanceof Comment:
 					$query_args['parent'] = absint( $source->comment_ID );
 					break;
 				default:
@@ -225,10 +228,12 @@ class CommentConnectionResolver extends ConnectionResolver {
 		}
 		if ( ! empty( $items ) && is_array( $items ) ) {
 			foreach ( $items as $item ) {
-				$edges[] = [
-					'cursor' => ArrayConnection::offsetToCursor( $item->comment_ID ),
-					'node'   => ! empty( $item->comment_id ) ? DataSource::resolve_comment( $item->comment_id ) : $item,
-				];
+				if ( ! empty( $item ) ) {
+					$edges[] = [
+						'cursor' => ArrayConnection::offsetToCursor( $item->comment_ID ),
+						'node'   => ! empty( $item->comment_id ) ? DataSource::resolve_comment( $item->comment_id ) : $item,
+					];
+				}
 			}
 		}
 

@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
@@ -43,7 +44,7 @@ class DataSource {
 	 *
 	 * @param int $id ID of the comment we want to get the object for
 	 *
-	 * @return \WP_Comment object
+	 * @return Comment object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
@@ -55,7 +56,7 @@ class DataSource {
 			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
 		}
 
-		return $comment;
+		return new Comment( $comment );
 
 	}
 
@@ -677,7 +678,7 @@ class DataSource {
 							case $node instanceof Term:
 								$type = Types::term_object( $node->taxonomy );
 								break;
-							case $node instanceof \WP_Comment:
+							case $node instanceof Comment:
 								$type = 'Comment';
 								break;
 							case $node instanceof \WP_Post_Type:

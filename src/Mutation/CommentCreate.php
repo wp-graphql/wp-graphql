@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\CommentMutation;
+use WPGraphQL\Data\DataSource;
 
 class CommentCreate {
     /**
@@ -88,7 +89,7 @@ class CommentCreate {
                 'type'        => 'Comment',
                 'description' => __( 'The comment that was created', 'wp-graphql' ),
                 'resolve'     => function ( $payload ) {
-                    return get_comment( $payload['id'] );
+        	        return DataSource::resolve_comment( absint( $payload['id'] ) );
                 },
             ]
         ];

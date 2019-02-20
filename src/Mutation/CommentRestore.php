@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 
 class CommentRestore {
     /**
@@ -53,9 +54,7 @@ class CommentRestore {
                 'type'        => 'Comment',
                 'description' => __( 'The restored comment object', 'wp-graphql' ),
                 'resolve'     => function ( $payload ) {
-                    $restore = ( object ) $payload['commentObject'];
-
-                    return ! empty( $restore ) ? $restore : null;
+	                return DataSource::resolve_comment( absint( $payload['commentObject']->comment_ID ) );
                 },
             ],
         ];
