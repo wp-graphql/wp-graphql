@@ -24,11 +24,19 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function createCommentObject( $args = [] ) {
 
+		$post_id = $this->factory->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post for commenting...'
+		]);
+
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_author'   => $this->admin,
+			'comment_post_id' => $post_id,
+			'comment_parent'   => 0,
+			'comment_author'   => get_user_by( 'id', $this->admin )->user_email,
 			'comment_content'  => 'Test comment content',
 			'comment_approved' => 1,
 			'comment_date'     => $this->current_date,
@@ -66,9 +74,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a comment
 		 */
-		$comment_id = $this->createCommentObject( [
-			'user_id' => $this->admin,
-		] );
+		wp_set_current_user( $this->admin );
+		$comment_id = $this->createCommentObject();
 
 		/**
 		 * Create the global ID based on the comment_type and the created $id
@@ -84,19 +91,24 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				agent
 				approved
 				author{
+				    __typename
 					...on User {
 					  userId
 					}
 				}
 				authorIp
+				commentId
 				children {
 					edges {
 						node {
 							id
+							commentId
+							parent {
+								commentId
+							}
 						}
 					}
 				}
-				commentId
 				commentedOn {
 					... on Post {
 						id
@@ -119,6 +131,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		\Codeception\Util\Debug::debug( $actual );
+
+
+
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -128,7 +145,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'agent'       => null,
 					'approved'    => '1',
 					'author'      => [
-						'userId' => $this->admin,
+						'__typename' => 'CommentAuthor',
 					],
 					'authorIp'    => null,
 					'children'    => [

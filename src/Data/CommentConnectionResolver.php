@@ -118,10 +118,10 @@ class CommentConnectionResolver extends ConnectionResolver {
 					$query_args['post_id'] = absint( $source->ID );
 					break;
 				case $source instanceof User:
-					$query_args['user_id'] = absint( $source->ID );
+					$query_args['user_id'] = absint( $source->userId );
 					break;
 				case $source instanceof Comment:
-					$query_args['parent'] = absint( $source->comment_ID );
+					$query_args['parent'] = absint( $source->commentId );
 					break;
 				default:
 					break;
