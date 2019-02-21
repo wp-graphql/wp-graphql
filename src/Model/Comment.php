@@ -6,12 +6,44 @@ namespace WPGraphQL\Model;
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class Comment - Models data for Comments
+ *
+ * @property string     $id
+ * @property int        $commentId
+ * @property int        $comment_ID
+ * @property Post       $commentedOn
+ * @property User|array $author
+ * @property string     $authorIp
+ * @property string     $date
+ * @property string     $dateGmt
+ * @property string     $contentRaw
+ * @property string     $contentRendered
+ * @property string     $karma
+ * @property int        $approved
+ * @property string     $agent
+ * @property string     $type
+ * @property Comment    $parent
+ *
+ * @package WPGraphQL\Model
+ */
 class Comment extends Model {
 
+	/**
+	 * Stores the incoming WP_Comment object to be modeled
+	 *
+	 * @var \WP_Comment $comment
+	 * @access protected
+	 */
 	protected $comment;
 
-	protected $fields;
-
+	/**
+	 * Comment constructor.
+	 *
+	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
+	 *
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Comment $comment ) {
 
 		$allowed_restricted_fields = [
@@ -43,6 +75,17 @@ class Comment extends Model {
 
 	}
 
+	/**
+	 * Callback for the graphql_data_is_private filter for determining if the object should be
+	 * considered private or not
+	 *
+	 * @param bool        $private    Whether or not to consider the object private
+	 * @param string      $model_name Name of the model currently being processed
+	 * @param \WP_Comment $data       The data currently being modeled
+	 *
+	 * @access public
+	 * @return bool
+	 */
 	public function is_private( $private, $model_name, $data ) {
 
 		if ( 'commentObject' !== $model_name ) {
@@ -57,7 +100,13 @@ class Comment extends Model {
 
 	}
 
-	public function init() {
+	/**
+	 * Initializes the object
+	 *
+	 * @access protected
+	 * @return void
+	 */
+	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
 			$this->comment = null;
