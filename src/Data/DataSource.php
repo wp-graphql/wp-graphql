@@ -11,6 +11,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
@@ -232,7 +233,7 @@ class DataSource {
 	 *
 	 * @param string $post_type Name of the post type you want to retrieve the object for
 	 *
-	 * @return \WP_Post_Type object
+	 * @return PostType object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
@@ -248,7 +249,7 @@ class DataSource {
 		 * If the $post_type is one of the allowed_post_types
 		 */
 		if ( in_array( $post_type, $allowed_post_types, true ) ) {
-			return get_post_type_object( $post_type );
+			return new PostType( get_post_type_object( $post_type ) );
 		} else {
 			throw new UserError( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
 		}
@@ -680,7 +681,7 @@ class DataSource {
 							case $node instanceof \WP_Comment:
 								$type = 'Comment';
 								break;
-							case $node instanceof \WP_Post_Type:
+							case $node instanceof PostType:
 								$type = 'PostType';
 								break;
 							case $node instanceof \WP_Taxonomy:
