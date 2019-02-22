@@ -217,6 +217,7 @@ return array(
     'WPGraphQL\\Model\\MenuItem' => $baseDir . '/src/Model/MenuItem.php',
     'WPGraphQL\\Model\\Model' => $baseDir . '/src/Model/Model.php',
     'WPGraphQL\\Model\\Post' => $baseDir . '/src/Model/Post.php',
+    'WPGraphQL\\Model\\PostType' => $baseDir . '/src/Model/PostType.php',
     'WPGraphQL\\Model\\Term' => $baseDir . '/src/Model/Term.php',
     'WPGraphQL\\Model\\User' => $baseDir . '/src/Model/User.php',
     'WPGraphQL\\Mutation\\CommentCreate' => $baseDir . '/src/Mutation/CommentCreate.php',
