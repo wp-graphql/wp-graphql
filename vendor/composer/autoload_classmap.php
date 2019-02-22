@@ -216,6 +216,7 @@ return array(
     'WPGraphQL\\Model\\Menu' => $baseDir . '/src/Model/Menu.php',
     'WPGraphQL\\Model\\MenuItem' => $baseDir . '/src/Model/MenuItem.php',
     'WPGraphQL\\Model\\Model' => $baseDir . '/src/Model/Model.php',
+    'WPGraphQL\\Model\\Plugin' => $baseDir . '/src/Model/Plugin.php',
     'WPGraphQL\\Model\\Post' => $baseDir . '/src/Model/Post.php',
     'WPGraphQL\\Model\\Term' => $baseDir . '/src/Model/Term.php',
     'WPGraphQL\\Model\\User' => $baseDir . '/src/Model/User.php',
