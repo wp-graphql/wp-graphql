@@ -35,14 +35,6 @@ class Term extends Model {
 	protected $term;
 
 	/**
-	 * Stores the fields for the object
-	 *
-	 * @var null|array $fields
-	 * @access protected
-	 */
-	protected $fields;
-
-	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
 	 * @var null|\WP_Taxonomy $taxonomy_object

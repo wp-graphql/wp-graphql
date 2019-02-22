@@ -75,14 +75,6 @@ class Post extends Model {
 	protected $post_type_object;
 
 	/**
-	 * Stores the fields for the object
-	 *
-	 * @var array $fields
-	 * @access public
-	 */
-	public $fields;
-
-	/**
 	 * Post constructor.
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling

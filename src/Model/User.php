@@ -40,14 +40,6 @@ class User extends Model {
 	protected $user;
 
 	/**
-	 * Stores the fields for the User model
-	 *
-	 * @var array $fields
-	 * @access public
-	 */
-	protected $fields;
-
-	/**
 	 * User constructor.
 	 *
 	 * @param \WP_User $user The incoming WP_User object that needs modeling

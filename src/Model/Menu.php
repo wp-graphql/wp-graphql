@@ -27,14 +27,6 @@ class Menu extends Model {
 	protected $menu;
 
 	/**
-	 * Stores the fields for the object
-	 *
-	 * @var null|array $fields
-	 * @access protected
-	 */
-	protected $fields;
-
-	/**
 	 * Menu constructor.
 	 *
 	 * @param \WP_Term $term The incoming WP_Term object that needs modeling

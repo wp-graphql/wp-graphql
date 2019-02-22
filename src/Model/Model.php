@@ -69,9 +69,9 @@ abstract class Model {
 	 * The fields for the modeled object. This will be populated in the child class
 	 *
 	 * @var array $fields
-	 * @access protected
+	 * @access public
 	 */
-	protected $fields;
+	public $fields;
 
 	/**
 	 * Model constructor.
