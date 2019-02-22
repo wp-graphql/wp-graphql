@@ -4,6 +4,7 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Plugin;
 
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
@@ -34,7 +35,10 @@ class PluginConnectionResolver {
 		$plugins_array = [];
 		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
 			foreach ( $plugins as $plugin ) {
-				$plugins_array[] = $plugin;
+				$plugin_object = new Plugin( $plugin );
+				if ( 'private' !== $plugin_object->get_visibility() ) {
+					$plugins_array[] = $plugin_object;
+				}
 			}
 		}
 
