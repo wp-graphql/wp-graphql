@@ -10,6 +10,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
@@ -136,7 +137,7 @@ class DataSource {
 		 * Return the plugin, or throw an exception
 		 */
 		if ( ! empty( $plugin ) ) {
-			return $plugin;
+			return new Plugin( $plugin );
 		} else {
 			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
 		}
@@ -692,6 +693,9 @@ class DataSource {
 							case $node instanceof User:
 								$type = 'User';
 								break;
+							case $node instanceof Plugin:
+								$type = 'Plugin';
+								break;
 							default:
 								$type = null;
 						}
@@ -700,9 +704,6 @@ class DataSource {
 					} elseif ( is_array( $node ) ) {
 
 						switch ( $node ) {
-							case array_key_exists( 'PluginURI', $node ):
-								$type = 'Plugin';
-								break;
 							case array_key_exists( 'is_comment_author', $node ):
 								$type = 'CommentAuthor';
 								break;
