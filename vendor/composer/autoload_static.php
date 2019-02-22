@@ -241,6 +241,7 @@ class ComposerStaticInit5861927d8ec2d38ee25dd07b7fdfd61a
         'WPGraphQL\\Model\\Model' => __DIR__ . '/../..' . '/src/Model/Model.php',
         'WPGraphQL\\Model\\Post' => __DIR__ . '/../..' . '/src/Model/Post.php',
         'WPGraphQL\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php',
+        'WPGraphQL\\Model\\Theme' => __DIR__ . '/../..' . '/src/Model/Theme.php',
         'WPGraphQL\\Model\\User' => __DIR__ . '/../..' . '/src/Model/User.php',
         'WPGraphQL\\Mutation\\CommentCreate' => __DIR__ . '/../..' . '/src/Mutation/CommentCreate.php',
         'WPGraphQL\\Mutation\\CommentDelete' => __DIR__ . '/../..' . '/src/Mutation/CommentDelete.php',

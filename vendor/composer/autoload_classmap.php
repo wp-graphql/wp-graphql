@@ -218,6 +218,7 @@ return array(
     'WPGraphQL\\Model\\Model' => $baseDir . '/src/Model/Model.php',
     'WPGraphQL\\Model\\Post' => $baseDir . '/src/Model/Post.php',
     'WPGraphQL\\Model\\Term' => $baseDir . '/src/Model/Term.php',
+    'WPGraphQL\\Model\\Theme' => $baseDir . '/src/Model/Theme.php',
     'WPGraphQL\\Model\\User' => $baseDir . '/src/Model/User.php',
     'WPGraphQL\\Mutation\\CommentCreate' => $baseDir . '/src/Mutation/CommentCreate.php',
     'WPGraphQL\\Mutation\\CommentDelete' => $baseDir . '/src/Mutation/CommentDelete.php',
