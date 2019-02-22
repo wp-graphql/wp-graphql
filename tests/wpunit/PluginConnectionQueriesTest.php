@@ -71,6 +71,34 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Assert that no plugins are returned when the user does not have the `update_plugins` cap
+	 */
+	public function testPluginsQueryWithoutAuth() {
+
+		wp_set_current_user( 0 );
+
+		$query = '
+		{
+		  plugins {
+		    edges {
+		      node {
+		        id
+		        name
+		      }
+		    }
+		    nodes {
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+		$this->assertNull( $actual['data']['plugins'] );
+
+	}
+
+	/**
 	 * testPluginQuery
 	 * @since 0.0.5
 	 */
