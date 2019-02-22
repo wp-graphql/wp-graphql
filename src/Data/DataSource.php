@@ -10,6 +10,7 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
@@ -96,50 +97,54 @@ class DataSource {
 	}
 
 	/**
-	 * Returns an array of data about the plugin you are requesting
+	 * Returns the Plugin model for the plugin you are requesting
 	 *
-	 * @param string $name Name of the plugin you want info for
+	 * @param string|array $info Name of the plugin you want info for, or the array of data for the plugin
 	 *
-	 * @return null|array
+	 * @return Plugin
 	 * @throws \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_plugin( $name ) {
+	public static function resolve_plugin( $info ) {
 
-		// Puts input into a url friendly slug format.
-		$slug   = sanitize_title( $name );
-		$plugin = null;
+		if ( ! is_array( $info ) ) {
+			// Puts input into a url friendly slug format.
+			$slug   = sanitize_title( $info );
+			$plugin = null;
 
-		// The file may have not been loaded yet.
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			// The file may have not been loaded yet.
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-		/**
-		 * NOTE: This is missing must use and drop in plugins.
-		 */
-		$plugins = apply_filters( 'all_plugins', get_plugins() );
+			/**
+			 * NOTE: This is missing must use and drop in plugins.
+			 */
+			$plugins = apply_filters( 'all_plugins', get_plugins() );
 
-		/**
-		 * Loop through the plugins and find the matching one
-		 *
-		 * @since 0.0.5
-		 */
-		foreach ( $plugins as $path => $plugin_data ) {
-			if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
-				$plugin         = $plugin_data;
-				$plugin['path'] = $path;
-				// Exit early when plugin is found.
-				break;
+			/**
+			 * Loop through the plugins and find the matching one
+			 *
+			 * @since 0.0.5
+			 */
+			foreach ( $plugins as $path => $plugin_data ) {
+				if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
+					$plugin         = $plugin_data;
+					$plugin['path'] = $path;
+					// Exit early when plugin is found.
+					break;
+				}
 			}
+		} else {
+			$plugin = $info;
 		}
 
 		/**
 		 * Return the plugin, or throw an exception
 		 */
 		if ( ! empty( $plugin ) ) {
-			return $plugin;
+			return new Plugin( $plugin );
 		} else {
-			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $name ) );
+			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $info ) );
 		}
 	}
 
@@ -693,6 +698,9 @@ class DataSource {
 							case $node instanceof User:
 								$type = 'User';
 								break;
+							case $node instanceof Plugin:
+								$type = 'Plugin';
+								break;
 							default:
 								$type = null;
 						}
@@ -701,9 +709,6 @@ class DataSource {
 					} elseif ( is_array( $node ) ) {
 
 						switch ( $node ) {
-							case array_key_exists( 'PluginURI', $node ):
-								$type = 'Plugin';
-								break;
 							case array_key_exists( 'is_comment_author', $node ):
 								$type = 'CommentAuthor';
 								break;

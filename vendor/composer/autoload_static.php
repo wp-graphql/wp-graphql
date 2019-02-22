@@ -239,6 +239,7 @@ class ComposerStaticInit5861927d8ec2d38ee25dd07b7fdfd61a
         'WPGraphQL\\Model\\Menu' => __DIR__ . '/../..' . '/src/Model/Menu.php',
         'WPGraphQL\\Model\\MenuItem' => __DIR__ . '/../..' . '/src/Model/MenuItem.php',
         'WPGraphQL\\Model\\Model' => __DIR__ . '/../..' . '/src/Model/Model.php',
+        'WPGraphQL\\Model\\Plugin' => __DIR__ . '/../..' . '/src/Model/Plugin.php',
         'WPGraphQL\\Model\\Post' => __DIR__ . '/../..' . '/src/Model/Post.php',
         'WPGraphQL\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php',
         'WPGraphQL\\Model\\Theme' => __DIR__ . '/../..' . '/src/Model/Theme.php',
