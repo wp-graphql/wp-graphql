@@ -702,7 +702,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get post type object
 		 */
-		$source = get_post_type_object( 'post' );
+		$source = new \WPGraphQL\Model\PostType( get_post_type_object( 'post' ) );
 
 		$mock_args = array();
 

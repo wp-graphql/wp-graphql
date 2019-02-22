@@ -169,7 +169,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'publiclyQueryable' => true,
 						'restBase' => 'posts',
 						'restControllerClass' => 'WP_REST_Posts_Controller',
-						'showInAdminBar' => false,
+						'showInAdminBar' => true,
 						'showInGraphql' => true,
 						'showInMenu' => true,
 						'showInNavMenus' => true,
@@ -265,7 +265,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'publiclyQueryable' => false,
 						'restBase' => 'pages',
 						'restControllerClass' => 'WP_REST_Posts_Controller',
-						'showInAdminBar' => false,
+						'showInAdminBar' => true,
 						'showInGraphql' => true,
 						'showInMenu' => true,
 						'showInNavMenus' => true,
@@ -361,16 +361,17 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'publiclyQueryable' => true,
 						'restBase' => 'media',
 						'restControllerClass' => 'WP_REST_Attachments_Controller',
-						'showInAdminBar' => false,
+						'showInAdminBar' => true,
 						'showInGraphql' => true,
 						'showInMenu' => true,
-						'showInNavMenus' => null,
+						'showInNavMenus' => false,
 						'showInRest' => true,
 						'showUi' => true,
 					],
 				],
 			],
 		];
+
 
 		$this->assertEquals( $expected, $actual );
 	}
