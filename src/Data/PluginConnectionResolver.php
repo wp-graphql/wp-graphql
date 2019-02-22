@@ -35,7 +35,7 @@ class PluginConnectionResolver {
 		$plugins_array = [];
 		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
 			foreach ( $plugins as $plugin ) {
-				$plugin_object = new Plugin( $plugin );
+				$plugin_object = DataSource::resolve_plugin( $plugin );
 				if ( 'private' !== $plugin_object->get_visibility() ) {
 					$plugins_array[] = $plugin_object;
 				}
