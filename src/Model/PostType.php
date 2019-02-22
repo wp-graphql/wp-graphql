@@ -5,19 +5,67 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
+/**
+ * Class PostType - Models data for PostTypes
+ *
+ * @property string $id
+ * @property string $name
+ * @property object $labels
+ * @property string $description
+ * @property bool   $public
+ * @property bool   $hierarchical
+ * @property bool   $excludeFromSearch
+ * @property bool   $publiclyQueryable
+ * @property bool   $showUi
+ * @property bool   $showInMenu
+ * @property bool   $showInNavMenus
+ * @property bool   $showInAdminBar
+ * @property int    $menuPosition
+ * @property string $menuIcon
+ * @property bool   $hasArchive
+ * @property bool   $canExport
+ * @property bool   $deleteWithUser
+ * @property bool   $showInRest
+ * @property string $restBase
+ * @property string $restControllerClass
+ * @property bool   $showInGraphql
+ * @property string $graphqlSingleName
+ * @property string $graphql_single_name
+ * @property string $graphqlPluralName
+ * @property string $graphql_plural_name
+ *
+ * @package WPGraphQL\Model
+ */
 class PostType extends Model {
 
+	/**
+	 * Stores the incoming WP_Post_Type to be modeled
+	 *
+	 * @var \WP_Post_Type $post_type
+	 * @access protected
+	 */
 	protected $post_type;
 
+	/**
+	 * PostType constructor.
+	 *
+	 * @param \WP_Post_Type $post_type The incoming post type to model
+	 *
+	 * @access public
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Post_Type $post_type ) {
-
 		$this->post_type = $post_type;
-
 		parent::__construct( 'PostTypeObject', $this->post_type );
 		$this->init();
-
 	}
 
+	/**
+	 * Initializes the object
+	 *
+	 * @access protected
+	 * @return void
+	 */
 	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
@@ -108,6 +156,7 @@ class PostType extends Model {
 			];
 
 			parent::prepare_fields();
+
 		}
 	}
 }
