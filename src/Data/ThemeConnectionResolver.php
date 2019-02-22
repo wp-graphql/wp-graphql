@@ -30,7 +30,11 @@ class ThemeConnectionResolver {
 		$themes = wp_get_themes();
 		if ( is_array( $themes ) && ! empty( $themes ) ) {
 			foreach ( $themes as $theme ) {
-				$themes_array[] = $theme;
+				$theme_obj = DataSource::resolve_theme( $theme->get_stylesheet() );
+				if ( 'private' !== $theme_obj->get_visibility() ) {
+					$themes_array[] = $theme_obj;
+				}
+
 			}
 		}
 
