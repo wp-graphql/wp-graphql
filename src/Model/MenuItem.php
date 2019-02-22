@@ -32,14 +32,6 @@ class MenuItem extends Model {
 	protected $post;
 
 	/**
-	 * Stores the fields for the object
-	 *
-	 * @var array $fields
-	 * @access protected
-	 */
-	protected $fields;
-
-	/**
 	 * MenuItem constructor.
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
