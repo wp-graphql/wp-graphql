@@ -5,10 +5,41 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
+/**
+ * Class Theme - Models data for themes
+ *
+ * @property string     $id
+ * @property string     $slug
+ * @property string     $name
+ * @property string     $screenshot
+ * @property string     $themeUri
+ * @property string     $description
+ * @property string     $author
+ * @property string     $authorUri
+ * @property array      $tags
+ * @property string|int $version
+ *
+ * @package WPGraphQL\Model
+ */
 class Theme extends Model {
 
+	/**
+	 * Stores the incoming WP_Theme to be modeled
+	 *
+	 * @var \WP_Theme $theme
+	 * @access protected
+	 */
 	protected $theme;
 
+	/**
+	 * Theme constructor.
+	 *
+	 * @param \WP_Theme $theme The incoming WP_Theme to be modeled
+	 *
+	 * @return void
+	 * @access public
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Theme $theme ) {
 
 		$this->theme = $theme;
@@ -22,6 +53,19 @@ class Theme extends Model {
 
 	}
 
+	/**
+	 * Callback for the graphql_data_is_private filter to determine if the post should be
+	 * considered private. The theme should be considered private unless it is the current active
+	 * theme. The current active theme is public because all of the information can be retrieved by
+	 * viewing source on the site and looking for the style.css file.
+	 *
+	 * @param bool   $private    True or False value if the data should be private
+	 * @param string $model_name Name of the model for the data currently being modeled
+	 * @param mixed  $data       The Data currently being modeled
+	 *
+	 * @access public
+	 * @return bool
+	 */
 	public function is_private( $private, $model_name, $data ) {
 
 		if ( 'ThemeObject' !== $model_name ) {
@@ -40,10 +84,15 @@ class Theme extends Model {
 
 	}
 
+	/**
+	 * Initialize the object
+	 *
+	 * @access protected
+	 * @return void
+	 */
 	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
-			$this->theme = null;
 			return;
 		}
 
