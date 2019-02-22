@@ -12,6 +12,7 @@ use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
+use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
@@ -334,7 +335,7 @@ class DataSource {
 	 *
 	 * @param string $stylesheet Directory name for the theme.
 	 *
-	 * @return \WP_Theme object
+	 * @return Theme object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
@@ -342,7 +343,7 @@ class DataSource {
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
 		if ( $theme->exists() ) {
-			return $theme;
+			return new Theme( $theme );
 		} else {
 			throw new UserError( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
 		}
@@ -686,7 +687,7 @@ class DataSource {
 							case $node instanceof \WP_Taxonomy:
 								$type = 'Taxonomy';
 								break;
-							case $node instanceof \WP_Theme:
+							case $node instanceof Theme:
 								$type = 'Theme';
 								break;
 							case $node instanceof User:
