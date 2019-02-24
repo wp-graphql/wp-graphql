@@ -104,7 +104,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 				if ( true === is_object( $item ) ) {
 					switch ( true ) {
 						case $item instanceof \WP_Comment:
-							$array_slice[ $item->comment_ID ] = $item;
+							$array_slice[ $item->comment_ID ] = DataSource::resolve_comment( $item->comment_ID );
 							break;
 						case $item instanceof \WP_Term:
 							$array_slice[ $item->term_id ] = DataSource::resolve_term_object( $item->term_id, $item->taxonomy );

@@ -236,6 +236,7 @@ class ComposerStaticInit5861927d8ec2d38ee25dd07b7fdfd61a
         'WPGraphQL\\Data\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Data/UserConnectionResolver.php',
         'WPGraphQL\\Data\\UserMutation' => __DIR__ . '/../..' . '/src/Data/UserMutation.php',
         'WPGraphQL\\Data\\UserRoleConnectionResolver' => __DIR__ . '/../..' . '/src/Data/UserRoleConnectionResolver.php',
+        'WPGraphQL\\Model\\Comment' => __DIR__ . '/../..' . '/src/Model/Comment.php',
         'WPGraphQL\\Model\\Menu' => __DIR__ . '/../..' . '/src/Model/Menu.php',
         'WPGraphQL\\Model\\MenuItem' => __DIR__ . '/../..' . '/src/Model/MenuItem.php',
         'WPGraphQL\\Model\\Model' => __DIR__ . '/../..' . '/src/Model/Model.php',

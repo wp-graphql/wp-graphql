@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 
 class CommentDelete {
     /**
@@ -57,9 +58,7 @@ class CommentDelete {
                 'type'        => 'Comment',
                 'description' => __( 'The deleted comment object', 'wp-graphql' ),
                 'resolve'     => function ( $payload ) {
-                    $deleted = ( object ) $payload['commentObject'];
-
-                    return ! empty( $deleted ) ? $deleted : null;
+	                return DataSource::resolve_comment( absint( $payload['commentObject']->comment_ID ) );
                 },
             ],
         ];
