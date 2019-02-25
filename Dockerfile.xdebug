@@ -12,4 +12,11 @@ ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRE
 FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 
 # Install XDebug for PHP 7.X.
-RUN if echo "${PHP_VERSION}" | grep '^7.'; then pecl install xdebug; docker-php-ext-enable xdebug; fi
+RUN if echo "${PHP_VERSION}" | grep '^7'; then \
+      if echo "${PHP_VERSION}" | grep '^7.3'; then \
+        pecl install 'xdebug-2.7.0RC2'; \
+      else \
+        pecl install xdebug; \
+      fi; \
+      docker-php-ext-enable xdebug; \
+    fi
