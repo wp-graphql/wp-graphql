@@ -19,7 +19,7 @@ services:
       - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
 
   mysql_test:
-    image: 'mariadb:10.2.21-bionic'
+    image: 'mariadb:10.2.22-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'

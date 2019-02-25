@@ -242,10 +242,21 @@ Notes:
 * Code coverage for `functional` and `acceptance` tests is only supported for PHP 7.X. 
   
 
-#### Updating WP Docker image
+#### Updating WP Docker software versions
 Make sure the `docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
 Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
 check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
+
+List of software versions to check:
+* Travis config `.travis.yml`
+* Test base Dockerfile (`Dockerfile.test-base`)
+   * XDebug
+   * Official WordPress/PHP Docker image
+   * PHP Composer
+
+* XDebug Dockerfile (`Dockerfile.xdebug`)
+   * XDebug
+
   
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 

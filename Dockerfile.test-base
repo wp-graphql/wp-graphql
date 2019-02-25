@@ -20,9 +20,16 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
   && apt-get install --no-install-recommends -y mysql-client subversion \
   && rm -rf /var/lib/apt/lists/* \
-  && if echo "${PHP_VERSION}" | grep '^7.'; then pecl install 'xdebug' && docker-php-ext-enable xdebug; fi \
+  && if echo "${PHP_VERSION}" | grep '^7'; then \
+        if echo "${PHP_VERSION}" | grep '^7.3'; then \
+          pecl install 'xdebug-2.7.0RC2'; \
+        else \
+          pecl install xdebug; \
+        fi; \
+        docker-php-ext-enable xdebug; \
+     fi \
   && docker-php-ext-install pdo_mysql \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/d3e09029468023aa4e9dcd165e9b6f43df0a9999/web/installer' | php -- --quiet \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/cb19f2aa3aeaa2006c0cd69a7ef011eb31463067/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
