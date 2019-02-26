@@ -1531,4 +1531,63 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Anonymous users must not be able to read drafts
+	 */
+	public function testDraftsWithAnonymous() {
+		$post_id = $this->createPostObject( [
+			'post_type'    => 'post',
+			'post_status'  => 'draft',
+		] );
+
+		$query = "
+		{
+			postBy(postId: $post_id) {
+			  title
+			  status
+			}
+		}	
+		";
+
+		$actual = do_graphql_request( $query );
+		$this->assertArrayNotHasKey(
+			'data',
+			$actual,
+			'Draft data for the post must not be returned'
+		);
+	}
+
+	/**
+	 * Admins can read drafts
+	 */
+	public function testDraftsWithAdmin() {
+		$post_id = $this->createPostObject( [
+			'post_type'    => 'post',
+			'post_status'  => 'draft',
+		] );
+
+		$query = "
+		{
+			postBy(postId: $post_id) {
+			  title
+			  status
+			}
+		}	
+		";
+
+		wp_set_current_user($this->admin);
+
+		$actual = do_graphql_request( $query );
+		$expected = [ 
+  			'data' => [ 
+    			'postBy' => [ 
+      				'title' => 'Test Title',
+      				'status' => 'draft',
+  				],
+  			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
 }
