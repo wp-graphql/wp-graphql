@@ -144,6 +144,14 @@ class Types {
 	private static $media_item_status_enum;
 
 	/**
+	 * Stores the media item (attachment) size enum type object
+	 *
+	 * @var WPEnumType object $media_item_size_enum
+	 * @access private
+	 */
+	private static $media_item_size_enum;
+
+	/**
 	 * Stores the post type enum type object
 	 *
 	 * @var WPEnumType object $post_type_enum
@@ -478,6 +486,16 @@ class Types {
 	 */
 	public static function media_item_status_enum() {
 		return self::$media_item_status_enum ? : ( self::$media_item_status_enum = TypeRegistry::get_type( 'MediaItemStatusEnum' ) );
+	}
+
+	/**
+	 * This returns the definition for the MediaItemSizeEnumType
+	 *
+	 * @return WPEnumType object
+	 * @access public
+	 */
+	public static function media_item_size_enum() {
+		return self::$media_item_size_enum ? : ( self::$media_item_size_enum = TypeRegistry::get_type( 'MediaItemSizeEnum' ) );
 	}
 
 	/**
