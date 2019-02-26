@@ -2,7 +2,7 @@
 
 # WPGraphQL 
 
-<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wpgraphql.com/docs/getting-started/about/" target="_blank">Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
+<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://docs.wpgraphql.com/" target="_blank">Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Join Slack</a>
 
 GraphQL API for WordPress.
 
@@ -16,7 +16,7 @@ Download and install like any WordPress plugin.
 
 ## Documentation
 
-Documentation is being moved [here](https://wpgraphql.com/docs/getting-started/about), but some can still be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
+Documentation can be found [here](https://docs.wpgraphql.com). The repository where the Documentation content lives is [here](https://github.com/wp-graphql/wpgraphql.com)
 
 - Requires PHP 5.5+
 - Requires WordPress 4.7+
@@ -135,7 +135,7 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
 Docker can be used to run tests or a local application instance in an isolated environment. It can also take care of most
 of the set up and configuration tasks performed by a developer.   
 
-1. Verify [Docker CE](https://www.docker.com/community-edition) is installed:
+1. Verify [Docker CE](https://www.docker.com/community-edition) 17.09.0+ is installed:
    ```
    sudo docker --version
    ```
@@ -146,6 +146,35 @@ of the set up and configuration tasks performed by a developer.
    ```
 1. (Optional, but handy) How to use Docker without having to type, `sudo`.   
    * https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
+
+
+#### Running Wordpress + wp-graphql
+1. Start a local instance of WordPress. This will run the instance in the foreground:
+   ```
+   ./run-docker-local-app.sh
+   ```
+1. Visit http://127.0.0.1:8000.
+
+#### Using PHPStorm/IntelliJ+XDebug (Linux)
+
+1. Make sure PHPStorm/IntelliJ is listenting on port 9000 for incoming XDebug connections from the WP container (for more info on remote XDebug debugging, visit https://xdebug.org/docs/remote):
+   ![alt text](img/intellij-php-debug-config.png)
+   
+1. Create a PHP server mapping. This tells the debugger how to map a file path in the container to a file path on the host OS.
+   ![alt text](img/intellij-php-servers.png)
+
+1. Create a PHP Debug run configuration.
+   ![alt text](img/intellij-php-debug-run-config.png) 
+
+1. Run WordPress+the plugin with XDebug enabled. Here's an example:
+   ```
+   ./run-docker-local-app-xdebug.sh
+   ```
+
+1. Start the debugger:
+   ![alt text](img/intellij-php-start-debug.png)
+   
+1. Now when you visit http://127.0.0.1:8000 you can use the debugger.           
    
 #### Running tests with Docker
 
@@ -167,20 +196,21 @@ your tests as you make code changes.
    ```
 1. In the second terminal window, access the Docker container shell from which you can run tests:
    ```
-   ./run-docker-shell.sh 'wp-graphql'
+   ./run-docker-test-environment-shell.sh
    ```
-   At this point some extra test initialization will be done. You should eventually see a prompt like this:
+   You should eventually see a prompt like this:
    ```
-   root@bb953c1da8d7:/tester-shell-dir
+   root@cd8e4375eb6f:/tmp/wordpress/wp-content/plugins/wp-graphql
    ```   
 1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
 terminal window):
    ```
-   run-codeception.sh run 'wpunit' --env docker
-   run-codeception.sh run 'wpunit' 'WPGraphQLTest' --env docker
-   run-codeception.sh run 'functional' --env docker
-   run-codeception.sh run 'acceptance' --env docker   
-   ``` 
+   vendor/bin/codecept run wpunit --env docker
+   vendor/bin/codecept run functional --env docker
+   vendor/bin/codecept run acceptance --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php:testPluginNodeQuery --env docker
+   ```
 Notes:
 * If you make a change that requires `composer install` to be rerun, shutdown the testing environment and restart it to 
 automatically rerun the `composer install` in the testing environment.
@@ -192,41 +222,41 @@ try these solutions:
    * https://docs.docker.com/config/pruning/#prune-containers
 
 
-##### For Travis (or any other CI tool)
+##### For CI tools (e.g. Travis)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
-   ./run-docker-tests.sh wpunit
-   ./run-docker-tests.sh functional
-   ./run-docker-tests.sh acceptance
+   ./run-docker-tests.sh 'wpunit'
+   ./run-docker-tests.sh 'functional'
+   ./run-docker-tests.sh 'acceptance'
    ```
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   env PHP_VERSION='7.1' ./run-docker-tests.sh wpunit
-   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh functional
+   env PHP_VERSION='7.1' ./run-docker-tests.sh 'wpunit'
+   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh 'functional'
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 
 
 Notes:
 * Code coverage for `functional` and `acceptance` tests is only supported for PHP 7.X. 
+  
 
-#### Running Wordpress + wp-graphql plugin with Docker
-1. Start a local instance of WordPress. This will run the instance in the foreground:
-   ```
-   ./run-docker-local-app.sh
-   ```
-1. Visit http://localhost:8000.
-   
+#### Updating WP Docker software versions
+Make sure the `docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
+Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
+check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
 
-#### Updating WP Docker image
-Please make sure this file refers to the latest specific versions of WordPress and PHP that are available as a Docker
-image. These values will serve as default values if no environment variables have been explicitly set. 
-  ```
-  .env
-  ```
-Please avoid using the `latest` tag because the WP Docker image is published a few days after the PHP code
-is made available and that can result in inaccurate test results.
+List of software versions to check:
+* Travis config `.travis.yml`
+* Test base Dockerfile (`Dockerfile.test-base`)
+   * XDebug
+   * Official WordPress/PHP Docker image
+   * PHP Composer
+
+* XDebug Dockerfile (`Dockerfile.xdebug`)
+   * XDebug
+
   
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 

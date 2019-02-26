@@ -143,6 +143,22 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test that POST request can access query params
+	 */
+	public function testRequestContext() {
+		$body_params = $this->get_example_params();
+
+		add_filter( 'graphql_request_data', function( $params, $context ) {
+			return [ 'query' => $context['query_params']['querything'] ];
+		}, 10, 2 );
+
+		$helper = new WPHelper();
+		$params = $helper->parseRequestParams( 'POST', $body_params, [ 'querything' => 'queryvalue' ] );
+
+		$this->assertEquals( 'queryvalue', $params->query );
+	}
+
+	/**
 	 * Test that GET params can be filtered with graphql_request_data.
 	 */
 	public function testRequestGetDataFilter() {

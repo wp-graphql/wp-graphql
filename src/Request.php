@@ -165,11 +165,17 @@ class Request {
 		/**
 		 * Determine which params (batch or single request) to use when passing through to the actions
 		 */
+		$params = null;
+
 		if ( ! $key && $this->params ) {
 			$params = $this->params;
 		} else if ( is_array( $this->params ) && isset( $this->params[ $key ] ) ) {
 			$params = $this->params[ $key ];
 		}
+
+		$operation = isset( $params->operation ) ? $params->operation : '';
+		$query = isset( $params->query ) ? $params->query : '';
+		$variables = isset( $params->variables ) ? $params->variables : null;
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
@@ -182,7 +188,7 @@ class Request {
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL query
 		 */
-		do_action( 'graphql_execute', $response, $this->schema, $params->operation, $params->query, $params->variables );
+		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables );
 
 		/**
 		 * Filter the $response of the GraphQL execution. This allows for the response to be filtered
@@ -206,7 +212,7 @@ class Request {
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL request
 		 */
-		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $params->operation, $params->query, $params->variables );
+		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables );
 
 		/**
 		 * Run an action after the response has been filtered, as the response is being returned.
@@ -219,7 +225,7 @@ class Request {
 		 * @param string              $query             The query that GraphQL executed
 		 * @param array|null          $variables         Variables to passed to your GraphQL query
 		 */
-		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $params->operation, $params->query, $params->variables );
+		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables );
 
 		return $filtered_response;
 	}
