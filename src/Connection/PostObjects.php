@@ -3,6 +3,7 @@
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\PostType;
 
 /**
  * Class PostObjects
@@ -25,7 +26,7 @@ class PostObjects {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 
-				$post_type_object = get_post_type_object( $post_type );
+				$post_type_object = DataSource::resolve_post_type( $post_type );
 
 				/**
 				 * Registers the RootQuery connection for each post_type
@@ -89,7 +90,7 @@ class PostObjects {
 	 * Given the Post Type Object and an array of args, this returns an array of args for use in
 	 * registering a connection.
 	 *
-	 * @param \WP_Post_Type $post_type_object The post type object for the post_type having a
+	 * @param PostType $post_type_object The post type object for the post_type having a
 	 *                                        connection registered to it
 	 * @param array         $args             The custom args to modify the connection registration
 	 *
