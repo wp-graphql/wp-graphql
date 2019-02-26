@@ -21,6 +21,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown() {
 		// your tear down methods here
+		wp_set_current_user(0);
 
 		// then
 		parent::tearDown();
@@ -107,6 +108,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		/**
@@ -237,6 +239,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		/**
@@ -333,6 +336,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		/**
