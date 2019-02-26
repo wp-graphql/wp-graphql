@@ -130,12 +130,17 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'post',
 		] );
 
+		add_filter('upload_dir', function( $param ) {
+			$dir = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
+			$param['path'] = $dir;
+			return $param;
+		});
+
 		/**
 		 * Create a featured image and attach it to the post
 		 */
-		$featured_image_id = $this->createPostObject( [
-			'post_type' => 'attachment',
-		] );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 
 		/**
@@ -183,9 +188,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				guid
 				featuredImage{
 					mediaItemId
+					thumbnail: sourceUrl(size: THUMBNAIL)
+					medium: sourceUrl(size: MEDIUM)
+					full: sourceUrl(size: LARGE)
+					sourceUrl
 				}
 			}
 		}";
+
 
 		/**
 		 * Run the GraphQL query
@@ -206,7 +216,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentStatus' => 'open',
 					'content'       => apply_filters( 'the_content', 'Test page content' ),
 					'date'          => $this->current_date,
-					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
+					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'desiredSlug'   => null,
 					'editLast'      => [
 						'userId' => $this->admin,
@@ -227,17 +237,24 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'toPing'        => null,
 					'pinged'        => null,
 					'modified'      => get_post( $post_id )->post_modified,
-					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
+					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'title'         => apply_filters( 'the_title', 'Test Title' ),
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [
 						'mediaItemId' => $featured_image_id,
+						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
+						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
+						'full' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0],
+						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
 					],
 				],
 			],
 		];
 
+		wp_delete_attachment( $featured_image_id, true );
+
 		$this->assertEquals( $expected, $actual );
+
 	}
 
 	/**

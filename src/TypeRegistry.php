@@ -90,6 +90,7 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemSizeEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaSize.php' );

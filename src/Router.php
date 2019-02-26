@@ -205,6 +205,7 @@ class Router {
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
+			'Access-Control-Max-Age'       => 600, // cache the result of preflight requests (600 is the upper limit for Chromium)
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
@@ -337,9 +338,10 @@ class Router {
 
 			// Get the operation params from the request.
 			$params = $request->get_params();
-			$query = $params->query;
-			$operation_name = $params->operation;
-			$variables = $params->variables;
+			$query = isset( $params->query ) ? $params->query : '';
+			$operation_name = isset( $params->operation ) ? $params->operation : '';
+			$variables = isset( $params->variables ) ? $params->variables : null;
+
 		} catch ( \Exception $error ) {
 
 			/**

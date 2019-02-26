@@ -82,7 +82,21 @@ function register_post_object_types( $post_type_object ) {
 			'sourceUrl'    => [
 				'type'        => 'String',
 				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+				'args'        => [
+					'size' => [
+						'type'        => 'MediaItemSizeEnum',
+						'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+					],
+				],
 				'resolve'     => function ( \WP_Post $post, $args, $context, $info ) {
+					if ( ! empty( $args['size'] ) ) {
+						$image_src = wp_get_attachment_image_src( $post->ID, $args['size'] );
+	
+						if ( ! empty( $image_src ) ) {
+							return $image_src[0];
+						}
+					}
+					
 					return wp_get_attachment_url( $post->ID );
 				},
 			],
