@@ -202,8 +202,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		/**
 		 * Establish the expectation for the output of the query
 		 */
