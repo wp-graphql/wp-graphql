@@ -56,8 +56,51 @@ class PostType extends Model {
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
 		$this->post_type = $post_type;
-		parent::__construct( 'PostTypeObject', $this->post_type );
+
+		$allowed_restricted_fields = [
+			'id',
+			'name',
+			'description',
+			'hierarchical',
+			'slug',
+			'taxonomies',
+			'graphql_single_name',
+			'graphqlSingleName',
+			'graphql_plural_name',
+			'graphqlPluralName',
+			'showInGraphql',
+		];
+
+		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
+			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
+		}
+
+		parent::__construct( 'PostTypeObject', $this->post_type, $post_type->cap->edit_posts, $allowed_restricted_fields );
 		$this->init();
+	}
+
+	/**
+	 * Callback for the graphql_data_is_private filter to determine if the PostType is private or not.
+	 *
+	 * @param bool          $private    True or False value if the data should be private
+	 * @param string        $model_name Name of the model for the data currently being modeled
+	 * @param \WP_Post_Type $data       The Data currently being modeled
+	 *
+	 * @access public
+	 * @return bool
+	 */
+	public function is_private( $private, $model_name, $data ) {
+
+		if ( 'PostTypeObject' !== $model_name ) {
+			return $private;
+		}
+
+		if ( false === $data->public && ! current_user_can( $data->cap->edit_posts ) ) {
+			return true;
+		}
+
+		return $private;
+
 	}
 
 	/**
@@ -128,6 +171,10 @@ class PostType extends Model {
 				},
 				'deleteWithUser' => function() {
 					return ( true === $this->post_type->delete_with_user ) ? true : false;
+				},
+				'taxonomies' => function() {
+					$object_taxonomies = get_object_taxonomies( $this->post_type->name );
+					return ( ! empty( $object_taxonomies ) ) ? $object_taxonomies : null;
 				},
 				'showInRest' => function() {
 					return ( true === $this->post_type->show_in_rest ) ? true : false;
