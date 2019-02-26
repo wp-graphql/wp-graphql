@@ -133,36 +133,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a featured image and attach it to the post
 		 */
-		$featured_image_id = $this->createPostObject( [
-			'post_type' => 'attachment',
-		] );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
+		wp_update_attachment_metadata( $featured_image_id, wp_generate_attachment_metadata( $featured_image_id, $filename ) );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
-
-		/**
-		 * Create additional image types
-		 */
-		 $meta_data = [
-			'file' => 'example.jpg',
-			'sizes' => [
-				'thumbnail' => [
-					'file' => 'example-thumbnail.jpg',
-					'width' => 150,
-					'height' => 150,
-					'mime-type' => 'image/jpeg',
-					'source_url' => 'example-thumbnail.jpg',
-				],
-				'full' => [
-					'file' => 'example-full.jpg',
-					'width' => 1500,
-					'height' => 1500,
-					'mime-type' => 'image/jpeg',
-					'source_url' => 'example-full.jpg',
-				],
-			],
-		];
-
-		update_post_meta( $featured_image_id, '_wp_attachment_metadata', $meta_data );
-
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -209,8 +183,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				guid
 				featuredImage{
 					mediaItemId
-					small: sourceUrl(size: THUMBNAIL)
-					medium: sourceUrl(size: FULL)
+					thumbnail: sourceUrl(size: THUMBNAIL)
+					medium: sourceUrl(size: MEDIUM)
+					full: sourceUrl(size: FULL)
 					sourceUrl
 				}
 			}
@@ -235,7 +210,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentStatus' => 'open',
 					'content'       => apply_filters( 'the_content', 'Test page content' ),
 					'date'          => $this->current_date,
-					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
+					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'desiredSlug'   => null,
 					'editLast'      => [
 						'userId' => $this->admin,
@@ -256,20 +231,24 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'toPing'        => null,
 					'pinged'        => null,
 					'modified'      => get_post( $post_id )->post_modified,
-					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $this->attachment_id )->post_modified_gmt ),
+					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'title'         => apply_filters( 'the_title', 'Test Title' ),
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [
 						'mediaItemId' => $featured_image_id,
-						'small' => 'http://wpgraphql.test/example-thumbnail.jpg',
-						'medium' => 'http://wpgraphql.test/example-full.jpg',
-						'sourceUrl' => 'http://wpgraphql.test/example.jpg'
+						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
+						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
+						'full' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0],
+						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
 					],
 				],
 			],
 		];
 
+		wp_delete_attachment( $featured_image_id, true );
+
 		$this->assertEquals( $expected, $actual );
+
 	}
 
 	/**
