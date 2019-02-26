@@ -4,7 +4,9 @@ namespace WPGraphQL\Type;
 
 $values = [];
 
-$image_sizes = [
+$sizes = get_intermediate_image_sizes();
+
+$image_sizes = ! empty( $sizes ) && is_array( $sizes ) ? $sizes : [
     'thumbnail',
     'medium',
     'medium_large',
