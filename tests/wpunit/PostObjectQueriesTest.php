@@ -130,12 +130,17 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'post',
 		] );
 
+		add_filter('upload_dir', function( $param ) {
+			$dir = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
+			$param['path'] = $dir;
+			return $param;
+		});
+
 		/**
 		 * Create a featured image and attach it to the post
 		 */
 		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
 		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
-		wp_update_attachment_metadata( $featured_image_id, wp_generate_attachment_metadata( $featured_image_id, $filename ) );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 
 		/**
