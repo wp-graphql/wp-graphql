@@ -96,7 +96,7 @@ class PostObjects {
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_config( $post_type_object, $args = [] ) {
+	public static function get_connection_config( $post_type_object, $args = [] ) {
 
 		$connection_args = self::get_connection_args();
 
@@ -129,11 +129,12 @@ class PostObjects {
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
+	 * @access public
 	 * @param array $args The args to modify the defaults
 	 *
 	 * @return array
 	 */
-	protected static function get_connection_args( $args = [] ) {
+	public static function get_connection_args( $args = [] ) {
 
 		return array_merge( [
 
@@ -187,6 +188,13 @@ class PostObjects {
 				'description' => __( 'Array of category IDs, used to display objects from one
 										category OR another', 'wp-graphql' ),
 			],
+			'categoryNotIn'   => [
+				'type'        => [
+					'list_of' => 'ID',
+				],
+				'description' => __( 'Array of category IDs, used to display objects from one
+										category OR another', 'wp-graphql' ),
+			],
 
 			/**
 			 * Tag $args
@@ -205,6 +213,13 @@ class PostObjects {
 			'tagIn'        => [
 				'type'        => [
 					'list_of' => 'ID',
+				],
+				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
+							another', 'wp-graphql' ),
+			],
+			'tagNotIn'      => [
+				'type'         => [
+					'list_of' => 'ID'
 				],
 				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
 							another', 'wp-graphql' ),

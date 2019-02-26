@@ -21,20 +21,21 @@ cache:
 env:
   matrix:
     # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
-    - PHP_VERSION=5.6 WP_BROWSER_VERSION="^2.2."
-    - PHP_VERSION=7.1 WP_BROWSER_VERSION="^2.2."
-    - PHP_VERSION=7.2 WP_BROWSER_VERSION="^2.2." COVERAGE=true LINT_SCHEMA=true
+    - WP_VERSION=5.0.2 PHP_VERSION=5.6
+    - WP_VERSION=5.0.3 PHP_VERSION=7.1
+    - WP_VERSION=5.0.3 PHP_VERSION=7.2
+    - WP_VERSION=5.0.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
 
 before_install:
 - sudo rm /usr/local/bin/docker-compose
-- curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-`uname -s`-`uname -m` > docker-compose
+- curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-compose-`uname -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
 
 script:
-  - ./run-docker-tests.sh wpunit
-  - ./run-docker-tests.sh functional
-  - ./run-docker-tests.sh acceptance
+  - ./run-docker-tests.sh 'wpunit'
+  - ./run-docker-tests.sh 'functional'
+  - ./run-docker-tests.sh 'acceptance'
 
 after_success:
   # Upload coverage to codecov

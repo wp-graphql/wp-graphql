@@ -206,8 +206,8 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 						throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 					}
 					$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
-				} elseif ( ! empty( $args[ $post_type_object->graphql_single_name . 'Id' ] ) ) {
-					$id          = $args[ $post_type_object->graphql_single_name . 'Id' ];
+				} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
+					$id          = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
 					$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
 				} elseif ( ! empty( $args['uri'] ) ) {
 					$uri         = esc_html( $args['uri'] );

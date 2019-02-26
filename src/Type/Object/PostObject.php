@@ -86,6 +86,15 @@ function register_post_object_types( $post_type_object ) {
 			'sourceUrl'    => [
 				'type'        => 'String',
 				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+				'args'        => [
+					'size' => [
+						'type'        => 'MediaItemSizeEnum',
+						'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+					],
+				],
+				'resolve'     => function ( $image, $args, $context, $info ) {
+					return ! empty( $args['size'] ) ? $image->sourceUrlsBySize[ $args['size'] ] : $image->sourceUrl;
+				},
 			],
 			'mimeType'     => [
 				'type'        => 'String',

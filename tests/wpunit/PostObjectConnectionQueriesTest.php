@@ -421,9 +421,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testSanitizeInputFieldsCategoryArgs() {
 		$mock_args = [
-			'categoryId'   => 1,
-			'categoryName' => 'testCategory',
-			'categoryIn'   => [ 4, 5, 6 ],
+			'categoryId'    => 1,
+			'categoryName'  => 'testCategory',
+			'categoryIn'    => [ 4, 5, 6 ],
+			'categoryNotIn' => [ 6, 5, 4 ],
 		];
 
 		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
@@ -434,6 +435,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 1, $actual['cat'] );
 		$this->assertEquals( 'testCategory', $actual['category_name'] );
 		$this->assertEquals( [ 4, 5, 6 ], $actual['category__in'] );
+		$this->assertEquals( [ 6, 5, 4 ], $actual['category__not_in'] );
 
 		/**
 		 * Make sure the query didn't return these array values
@@ -441,6 +443,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'categoryId', $actual );
 		$this->assertArrayNotHasKey( 'categoryName', $actual );
 		$this->assertArrayNotHasKey( 'categoryIn', $actual );
+		$this->assertArrayNotHasKey( 'categoryNotIn', $actual );
 	}
 
 	public function testSanitizeInputFieldsTagArgs() {
@@ -449,7 +452,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'tagIds'     => [ 1, 2, 3 ],
 			'tagSlugAnd' => [ 4, 5, 6 ],
 			'tagSlugIn'  => [ 6, 7, 8 ],
-			'tagIn'      => [ 9, 8, 7 ]
+			'tagIn'      => [ 9, 8, 7 ],
+			'tagNotIn'   => [ 6, 5, 4 ],
 		];
 
 		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
@@ -462,6 +466,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( [ 4, 5, 6 ], $actual['tag_slug__and'] );
 		$this->assertEquals( [ 6, 7, 8 ], $actual['tag_slug__in'] );
 		$this->assertEquals( [ 9, 8, 7 ], $actual['tag__in'] );
+		$this->assertEquals( [ 6, 5, 4 ], $actual['tag__not_in'] );
 
 		/**
 		 * Make sure the query didn't return these array values
@@ -471,6 +476,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'tagSlugAnd', $actual );
 		$this->assertArrayNotHasKey( 'tagSlugIn', $actual );
 		$this->assertArrayNotHasKey( 'tagIn', $actual );
+		$this->assertArrayNotHasKey( 'tagNotIn', $actual );
 	}
 
 	public function testSanitizeInputFieldsSearchArgs() {

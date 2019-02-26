@@ -366,8 +366,26 @@ class Post extends Model {
 					'mediaType' => function() {
 						return wp_attachment_is_image( $this->post->ID ) ? 'image' : 'file';
 					},
-					'sourceUrl' => function() {
-						return wp_get_attachment_url( $this->post->ID );
+					'sourceUrl' => function( $size = 'full' ) {
+						if ( ! empty( $size ) ) {
+							$image_src = wp_get_attachment_image_src( $this->post->ID, $size );
+
+							if ( ! empty( $image_src ) ) {
+								return $image_src[0];
+							}
+						}
+
+						return wp_get_attachment_image_src( $this->post->ID, $size );
+					},
+					'sourceUrlsBySize' => function() {
+						$sizes = get_intermediate_image_sizes();
+						$urls = [];
+						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
+							foreach( $sizes as $size ) {
+								$urls[ $size ] = wp_get_attachment_image_src( $this->post->ID, $size )[0];
+							}
+						}
+						return $urls;
 					},
 					'mimeType' => function() {
 						return ! empty( $this->post->post_mime_type ) ? $this->post->post_mime_type : null;
