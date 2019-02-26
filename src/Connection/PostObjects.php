@@ -26,7 +26,7 @@ class PostObjects {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 
-				$post_type_object = DataSource::resolve_post_type( $post_type );
+				$post_type_object = get_post_type_object( $post_type );
 
 				/**
 				 * Registers the RootQuery connection for each post_type
@@ -75,7 +75,7 @@ class PostObjects {
 						'fromType'      => $post_type_object->graphql_single_name,
 						'toType'        => 'Revision',
 						'fromFieldName' => 'revisions',
-						'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
+						'resolve'          => function ( $root, $args, $context, $info ) {
 							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 						},
 					] ) );
@@ -90,7 +90,7 @@ class PostObjects {
 	 * Given the Post Type Object and an array of args, this returns an array of args for use in
 	 * registering a connection.
 	 *
-	 * @param PostType $post_type_object The post type object for the post_type having a
+	 * @param \WP_Post_Type $post_type_object The post type object for the post_type having a
 	 *                                        connection registered to it
 	 * @param array         $args             The custom args to modify the connection registration
 	 *
@@ -114,7 +114,7 @@ class PostObjects {
 					'type'        => 'PostType',
 					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
 					'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
-						return $post_type_object;
+						return DataSource::resolve_post_type( $post_type_object->name );
 					},
 				],
 			],
