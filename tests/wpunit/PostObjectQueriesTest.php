@@ -190,16 +190,19 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					mediaItemId
 					thumbnail: sourceUrl(size: THUMBNAIL)
 					medium: sourceUrl(size: MEDIUM)
-					full: sourceUrl(size: FULL)
+					full: sourceUrl(size: LARGE)
 					sourceUrl
 				}
 			}
 		}";
 
+
 		/**
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
