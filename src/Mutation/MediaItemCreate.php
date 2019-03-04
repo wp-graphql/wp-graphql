@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -95,8 +96,15 @@ class MediaItemCreate {
         return [
             'mediaItem' => [
                 'type'    => 'MediaItem',
-                'resolve' => function ( $payload ) {
-                    return DataSource::resolve_post_object( $payload['postObjectId'], 'attachment' );
+                'resolve' => function ( $payload, $args, AppContext $context ) {
+	                if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
+		                return null;
+	                }
+	                $post_id = absint( $payload['postObjectId'] );
+	                $context->PostObjectLoader->buffer( [ $post_id ] );
+	                return new Deferred( function() use ( $post_id, $context ) {
+		                return $context->PostObjectLoader->load( $post_id );
+	                });
                 },
             ]
         ];

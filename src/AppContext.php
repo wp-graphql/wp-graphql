@@ -1,5 +1,8 @@
 <?php
 namespace WPGraphQL;
+use WPGraphQL\Data\Loader\MenuItemLoader;
+use WPGraphQL\Data\Loader\PostObjectLoader;
+use WPGraphQL\Model\MenuItem;
 
 /**
  * Class AppContext
@@ -7,7 +10,7 @@ namespace WPGraphQL;
  * This class gets instantiated and populated in the main WPGraphQL class.
  *
  * The context is passed to each resolver during execution.
- * 
+ *
  * Resolvers have the ability to read and write to context to pass info to nested resolvers.
  *
  * @package WPGraphQL
@@ -58,9 +61,21 @@ class AppContext {
 	public $connectionArgs = [];
 
 	/**
+	 * @var PostObjectLoader
+	 */
+	public $PostObjectLoader;
+
+	/**
+	 * @var MenuItemLoader
+	 */
+	public $MenuItemLoader;
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
+		$this->MenuItemLoader = new MenuItemLoader();
+		$this->PostObjectLoader = new PostObjectLoader();
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
 	}
 

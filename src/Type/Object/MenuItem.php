@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\MenuItem;
 
@@ -59,44 +62,49 @@ register_graphql_object_type( 'MenuItem', [
 				// case for custom links.
 				$resolved_object = $menu_item;
 
-				switch ( $object_type ) {
-					// Post object
-					case 'post_type':
-						$resolved_object = get_post( $object_id );
-						$resolved_object = isset( $resolved_object->post_type ) && isset( $resolved_object->ID ) ? DataSource::resolve_post_object( $resolved_object->ID, $resolved_object->post_type ) : $resolved_object;
-						break;
+				$post_id = absint( $object_id );
+				$context->PostObjectLoader->buffer( [ $post_id ] );
+				return new Deferred( function() use ( $object_id, $resolved_object, $object_type, $context, $args, $info ) {
 
-					// Taxonomy term
-					case 'taxonomy':
-						$resolved_object = get_term( $object_id );
-						$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
-						break;
-				}
+					switch ( $object_type ) {
+						// Post object
+						case 'post_type':
+							$resolved_object = $context->PostObjectLoader->load( $object_id );
+							break;
 
-				/**
-				 * Allow users to override how nav menu items are resolved.
-				 * This is useful since we often add taxonomy terms to menus
-				 * but would prefer to represent the menu item in other ways,
-				 * e.g., a linked post object (or vice-versa).
-				 *
-				 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
-				 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
-				 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
-				 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
-				 * @param int               $object_id       Post or term ID of connected object
-				 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
-				 *
-				 * @since 0.0.30
-				 */
-				return apply_filters(
-					'graphql_resolve_menu_item',
-					$resolved_object,
-					$args,
-					$context,
-					$info,
-					$object_id,
-					$object_type
-				);
+						// Taxonomy term
+						case 'taxonomy':
+							$resolved_object = get_term( $object_id );
+							$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
+							break;
+					}
+
+					/**
+					 * Allow users to override how nav menu items are resolved.
+					 * This is useful since we often add taxonomy terms to menus
+					 * but would prefer to represent the menu item in other ways,
+					 * e.g., a linked post object (or vice-versa).
+					 *
+					 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
+					 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
+					 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
+					 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
+					 * @param int               $object_id       Post or term ID of connected object
+					 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
+					 *
+					 * @since 0.0.30
+					 */
+					return apply_filters(
+						'graphql_resolve_menu_item',
+						$resolved_object,
+						$args,
+						$context,
+						$info,
+						$object_id,
+						$object_type
+					);
+
+				});
 			},
 		]
 	]

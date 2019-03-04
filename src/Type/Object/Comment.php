@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
@@ -26,13 +27,14 @@ register_graphql_object_type( 'Comment', [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The object the comment was added to', 'wp-graphql' ),
 			'resolve' => function( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-				$post_object = null;
-				if ( ! empty( $comment->comment_post_ID ) ) {
-					$post_object = get_post( $comment->comment_post_ID );
-					$post_object = isset( $post_object->post_type ) && isset( $post_object->ID ) ? DataSource::resolve_post_object( $post_object->ID, $post_object->post_type ) : null;
+				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
+					return null;
 				}
-
-				return $post_object;
+				$comment_id = absint( $comment->comment_post_ID );
+				$context->PostObjectLoader->buffer( [ absint( $comment_id ) ] );
+				return new Deferred( function() use ( $comment_id, $context ) {
+					return $context->PostObjectLoader->load( $comment_id );
+				});
 			}
 		],
 		'author'      => [

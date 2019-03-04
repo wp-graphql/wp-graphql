@@ -41,6 +41,15 @@ class MenuItem extends Model {
 	 */
 	public function __construct( \WP_Post $post ) {
 		$this->post = $post;
+
+		/**
+		 * Set the resolving post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 */
+		$GLOBALS['post'] = $this->post;
+		setup_postdata( $this->post );
+
 		parent::__construct( 'menuItem', $post );
 		$this->init();
 	}

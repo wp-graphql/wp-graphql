@@ -286,30 +286,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
-		 * Establish the expectation for the output of the query
+		 * There should be an internal server error when requesting a non-existent post
 		 */
-		$expected = [
-			'data'   => [
-				'post' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'No post was found with the ID: doesNotExist',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
-					],
-					'path'      => [
-						'post',
-					],
-					'category'  => 'user',
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertTrue( false !== array_search( 'Internal server error', $actual['errors' ][0] ) );
 	}
 
 	/**

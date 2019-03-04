@@ -2,8 +2,11 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 
 $node_definition = DataSource::get_node_definition();
@@ -61,10 +64,14 @@ register_graphql_object_type( 'RootQuery', [
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_post_object( $id_components['id'], 'nav_menu_item' );
+				$post_id = absint( $id_components['id'] );
+				$context->MenuItemLoader->buffer( [ $post_id ] );
+				return new Deferred( function() use ( $post_id, $context ) {
+					$object = $context->MenuItemLoader->load( $post_id );
+					return $object;
+				});
 			}
 		],
 		'plugin'      => [
@@ -162,10 +169,14 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
+				$post_id = absint( $id_components['id'] );
+				$context->PostObjectLoader->buffer( [ $post_id ] );
+				return new Deferred( function() use ( $post_id, $context ) {
+					$object = $context->PostObjectLoader->load( $post_id );
+					return $object;
+				});
 			},
 
 		] );
@@ -199,33 +210,40 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
 
 				$post_object = null;
-
+				$post_id = 0;
 				if ( ! empty( $args['id'] ) ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 					if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
 						throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 					}
-					$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
+					$post_id = absint( $id_components['id'] );
 				} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
 					$id          = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
-					$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
+					$post_id = absint( $id );
 				} elseif ( ! empty( $args['uri'] ) ) {
 					$uri         = esc_html( $args['uri'] );
 					$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
+					$post_id = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				} elseif ( ! empty( $args['slug'] ) ) {
 					$slug        = esc_html( $args['slug'] );
 					$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
+					$post_id = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				}
 
-				if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
-					throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
-				}
+				$context->PostObjectLoader->buffer( [ $post_id ] );
+				return new Deferred( function() use ( $post_id, $post_type_object, $args, $context, $info ) {
+					$post_object = $context->PostObjectLoader->load( $post_id );
 
-				if ( $post_type_object->name !== $post_object->post_type ) {
-					throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
-				}
+					if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
+						throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
+					}
 
-				return $post_object;
+					if ( $post_type_object->name !== $post_object->post_type ) {
+						throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
+					}
+
+					return $post_object;
+				});
 
 			},
 		] );

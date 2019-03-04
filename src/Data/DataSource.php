@@ -176,6 +176,8 @@ class DataSource {
 	 * @since  0.0.5
 	 * @return mixed null \WP_Post
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public static function resolve_post_object( $id, $post_type ) {
 
@@ -183,29 +185,6 @@ class DataSource {
 		 * Get the Post instance
 		 */
 		$post_object = \WP_Post::get_instance( $id );
-
-		/**
-		 * If no post_object can be found, throw an error
-		 */
-		if ( empty( $post_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $post_type, $id ) );
-		}
-
-		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
-
-		/**
-		 * Mimic core functionality for templates, as seen here:
-		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
-		 */
-		if ( 'attachment' === $post_object->post_type ) {
-			remove_filter( 'the_content', 'prepend_attachment' );
-		}
 
 		if ( 'nav_menu_item' === $post_type ) {
 			return new MenuItem( $post_object );
@@ -788,7 +767,7 @@ class DataSource {
 			}
 		}
 		if ( $post_id ) {
-			return self::resolve_post_object( $post_id, $post_type );
+			return get_post( absint( $post_id ) );
 		}
 
 		return null;
