@@ -4,16 +4,15 @@ namespace WPGraphQL\Model;
 
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\DataSource;
 
 /**
  * Class Comment - Models data for Comments
  *
  * @property string     $id
  * @property int        $commentId
+ * @property string     $commentAuthorEmail
  * @property int        $comment_ID
- * @property Post       $commentedOn
- * @property User|array $author
+ * @property int        $comment_parent_id
  * @property string     $authorIp
  * @property string     $date
  * @property string     $dateGmt
@@ -23,7 +22,7 @@ use WPGraphQL\Data\DataSource;
  * @property int        $approved
  * @property string     $agent
  * @property string     $type
- * @property Comment    $parent
+ * @property int        $userId
  *
  * @package WPGraphQL\Model
  */
@@ -55,10 +54,10 @@ class Comment extends Model {
 			'dateGmt',
 			'karma',
 			'type',
-			'author',
-			'commentedOn',
+			'commentedOnId',
+			'comment_post_ID',
 			'approved',
-			'parent',
+			'comment_parent_id',
 			'isRestricted',
 			'isPrivate',
 			'isPublic',
@@ -121,28 +120,17 @@ class Comment extends Model {
 				'commentId' => function() {
 					return ! empty( $this->comment->comment_ID ) ? $this->comment->comment_ID : 0;
 				},
+				'commentAuthorEmail' => function() {
+					return ! empty( $this->comment->comment_author_email ) ? $this->comment->comment_author_email : 0;
+				},
 				'comment_ID' => function() {
 					return ! empty( $this->comment->comment_ID ) ? $this->comment->comment_ID : 0;
 				},
-				'commentedOn' => function() {
-					$post_object = null;
-					if ( ! empty( $this->comment->comment_post_ID ) ) {
-						$post_object = get_post( $this->comment->comment_post_ID );
-						$post_object = isset( $post_object->post_type ) && isset( $post_object->ID ) ? DataSource::resolve_post_object( $post_object->ID, $post_object->post_type ) : null;
-					}
-
-					return $post_object;
+				'comment_post_ID' => function() {
+					return ! empty( $this->comment->comment_post_ID ) ? absint( $this->comment->comment_post_ID ) : null;
 				},
-				'author' => function() {
-					/**
-					 * If the comment has a user associated, use it to populate the author, otherwise return
-					 * the $comment and the Union will use that to hydrate the CommentAuthor Type
-					 */
-					if ( ! empty( $this->comment->user_id ) ) {
-						return DataSource::resolve_user( absint( $this->comment->user_id ) );
-					} else {
-						return DataSource::resolve_comment_author( $this->comment->comment_author_email );
-					}
+				'comment_parent_id' => function() {
+					return ! empty( $this->comment->comment_parent ) ? absint( $this->comment->comment_parent ) : 0;
 				},
 				'authorIp' => function() {
 					return ! empty( $this->comment->comment_author_IP ) ? $this->comment->comment_author_IP : null;
@@ -172,16 +160,9 @@ class Comment extends Model {
 				'type' => function() {
 					return ! empty( $this->comment->comment_type ) ? $this->comment->comment_type : null;
 				},
-				'parent' => function() {
-					$parent = null;
-					if ( ! empty( $this->comment->comment_parent ) ) {
-						$parent_obj = get_comment( $this->comment->comment_parent );
-						if ( is_a( $parent_obj, 'WP_Comment' ) ) {
-							$parent = new Comment( $parent_obj );
-						}
-					}
-					return $parent;
-				},
+				'userId' => function() {
+					return ! empty( $this->comment->user_id ) ? $this->comment->user_id : null;
+				}
 			];
 
 			parent::prepare_fields();

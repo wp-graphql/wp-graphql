@@ -19,7 +19,7 @@ use WPGraphQL\Data\DataSource;
  * @property int          $termTaxonomyId
  * @property \WP_Taxonomy $taxonomy
  * @property string       $link
- * @property \WP_Term     $parent
+ * @property int          $parentId
  * @property array        $ancestors
  *
  * @package WPGraphQL\Model
@@ -98,6 +98,9 @@ class Term extends Model {
 				'link' => function() {
 					$link = get_term_link( $this->term->term_id );
 					return ( ! is_wp_error( $link ) ) ? $link : null;
+				},
+				'parentId' => function() {
+					return ! empty( $this->term->parent ) ? $this->term->parent : null;
 				}
 			];
 
@@ -105,26 +108,6 @@ class Term extends Model {
 				$type_id                 = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->term->term_id );
 			};
-
-			if ( ! empty( $this->taxonomy_object->hierarchical ) && true === $this->taxonomy_object->hierarchical ) {
-
-				$this->fields['parent'] = function() {
-					return ! empty( $this->term->parent ) ? DataSource::resolve_term_object( $this->term->parent, $this->term->taxonomy ) : null;
-				};
-
-				$this->fields['ancestors'] = function() {
-					$ancestors    = [];
-					$ancestor_ids = get_ancestors( $this->term->term_id, $this->term->taxonomy );
-					if ( ! empty( $ancestor_ids ) ) {
-						foreach ( $ancestor_ids as $ancestor_id ) {
-							$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $this->term->taxonomy );
-						}
-					}
-
-					return ! empty( $ancestors ) ? $ancestors : null;
-				};
-
-			}
 
 			parent::prepare_fields();
 

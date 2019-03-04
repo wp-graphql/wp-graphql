@@ -196,6 +196,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -206,7 +208,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'count'          => null,
 					'description'    => 'just a description',
 					'id'             => $global_id,
-					'link'           => "http://wpgraphql.test/?cat={$term_id}",
+					'link'           => get_term_link($term_id),
 					'name'           => 'A Category',
 					'posts'          => [
 						'edges' => [],
@@ -410,6 +412,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
+
+
 
 		$this->assertEquals( $expected, $actual );
 

@@ -17,7 +17,6 @@ use GraphQLRelay\Relay;
  * @property string   $target
  * @property string   $title
  * @property string   $url
- * @property \WP_Post $menu
  *
  * @package WPGraphQL\Model
  */
@@ -90,12 +89,6 @@ class MenuItem extends Model {
 					return ! empty( $this->post->url ) ? $this->post->url : null;
 				},
 			];
-
-			if ( ! empty( $this->post->menu ) ) {
-				$this->fields['menu'] = function() {
-					$this->post->menu;
-				};
-			}
 
 			parent::prepare_fields();
 

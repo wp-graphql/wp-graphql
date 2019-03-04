@@ -4,6 +4,7 @@ namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Term;
 
 function register_taxonomy_object_type( $taxonomy_object ) {
 
@@ -62,6 +63,9 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 		register_graphql_field( $taxonomy_object->graphql_single_name, 'parent', [
 			'type'        => $taxonomy_object->graphql_single_name,
 			'description' => __( 'The parent object', 'wp-graphql' ),
+			'resolve' => function( Term $term, $args, $context, $info ) {
+				return ! empty( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $term->taxonomy->name ) : null;
+			}
 		] );
 
 		register_graphql_field( $taxonomy_object->graphql_single_name, 'ancestors', [
@@ -69,6 +73,18 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 				'list_of' => $taxonomy_object->graphql_single_name,
 			],
 			'description' => esc_html__( 'The ancestors of the object', 'wp-graphql' ),
+			'resolve' => function( Term $term, $args, $context, $info ) {
+				$ancestors    = [];
+
+				$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomy->name, 'taxonomy' );
+				if ( ! empty( $ancestor_ids ) ) {
+					foreach ( $ancestor_ids as $ancestor_id ) {
+						$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $term->taxonomy->name );
+					}
+				}
+
+				return ! empty( $ancestors ) ? $ancestors : null;
+			}
 		] );
 
 		// @todo

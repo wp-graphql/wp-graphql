@@ -88,6 +88,22 @@ class Post extends Model {
 		$this->post = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
 
+		/**
+		 * Set the resolving post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 */
+		$GLOBALS['post'] = $this->post;
+		setup_postdata( $this->post );
+
+		/**
+		 * Mimic core functionality for templates, as seen here:
+		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 */
+		if ( 'attachment' === $this->post->post_type ) {
+			remove_filter( 'the_content', 'prepend_attachment' );
+		}
+
 		$allowed_restricted_fields = [
 			'id',
 			'titleRendered',
