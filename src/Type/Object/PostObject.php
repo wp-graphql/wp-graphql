@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type;
 
+use function foo\func;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -32,6 +33,16 @@ function register_post_object_types( $post_type_object ) {
 		register_graphql_field( $post_type_object->graphql_single_name, 'featuredImage', [
 			'type'        => 'MediaItem',
 			'description' => __( 'The featured image for the object', 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
+					return null;
+				}
+				$image_id = absint( $post->featuredImageId );
+				$context->PostObjectLoader->buffer( [ $image_id ] );
+				return new Deferred( function() use ( $image_id, $context ) {
+					return $context->PostObjectLoader->load( $image_id );
+				});
+			}
 		] );
 
 	}

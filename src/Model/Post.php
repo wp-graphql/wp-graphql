@@ -41,7 +41,7 @@ use WPGraphQL\Types;
  * @property string $link
  * @property string $uri
  * @property int    $commentCount
- * @property Post   $featuredImage
+ * @property int   $featuredImageId
  *
  * @property string $captionRaw
  * @property string $captionRendered
@@ -335,9 +335,9 @@ class Post extends Model {
 				'commentCount'  => function () {
 					return ! empty( $this->post->comment_count ) ? absint( $this->post->comment_count ) : null;
 				},
-				'featuredImage' => function () {
+				'featuredImageId' => function () {
 					$thumbnail_id = get_post_thumbnail_id( $this->post->ID );
-					return ! empty( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : null;
+					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
 				'password' => [
 					'callback' => function() {

@@ -4,7 +4,6 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
