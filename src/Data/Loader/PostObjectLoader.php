@@ -23,7 +23,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			'post__in' => $keys,
 			'orderby' => 'post__in',
 			'no_found_rows' => true,
-			'split_the_query' => true,
+			'split_the_query' => false,
 			'ignore_sticky_posts' => true,
 		];
 
