@@ -14,8 +14,7 @@ use WPGraphQL\Types;
  * @property string $post_author
  * @property string $id
  * @property string $post_type
- * @property array  $ancestors
- * @property string $author
+ * @property string $authorId
  * @property string $date
  * @property string $dateGmt
  * @property string $contentRendered
@@ -235,14 +234,8 @@ class Post extends Model {
 				'post_type'     => function() {
 					return isset( $this->post->post_type ) ? $this->post->post_type : null;
 				},
-				'ancestors'     => function () {
-					$ancestor_ids = get_ancestors( $this->post->ID, $this->post->post_type );
-					return ( ! empty( $ancestor_ids ) ) ? $ancestor_ids : null;
-				},
-				'author'        => function () {
-					$id     = $this->post->post_author;
-					$author = isset( $id ) ? DataSource::resolve_user( absint( $this->post->post_author ) ) : null;
-					return $author;
+				'authorId'        => function () {
+					return isset( $this->post->post_author ) ? $this->post->post_author : null;
 				},
 				'date'          => function () {
 					return ! empty( $this->post->post_date ) && '0000-00-00 00:00:00' !== $this->post->post_date ? $this->post->post_date : null;
@@ -309,9 +302,8 @@ class Post extends Model {
 				'modifiedGmt'   => function () {
 					return ! empty( $this->post->post_modified_gmt ) ? Types::prepare_date_response( $this->post->post_modified_gmt ) : null;
 				},
-				'parent'        => function () {
-					$parent_post = ! empty( $this->post->post_parent ) ? get_post( $this->post->post_parent ) : null;
-					return isset( $parent_post->ID ) && isset( $parent_post->post_type ) ? DataSource::resolve_post_object( $parent_post->ID, $parent_post->post_type ) : $parent_post;
+				'parentId'        => function () {
+					return ! empty( $this->post->post_parent ) ? absint( $this->post->post_parent ) : null;
 				},
 				'editLast'      => function () {
 					$edit_last = get_post_meta( $this->post->ID, '_edit_last', true );

@@ -2,7 +2,11 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 
 function register_post_object_types( $post_type_object ) {
 
@@ -140,26 +144,24 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args ) {
-				$ancestor_ids = $source->ancestors;
-				if ( ! empty( $ancestor_ids ) && is_array( $ancestor_ids ) ) {
-					$types        = ! empty( $args['types'] ) ? $args['types'] : [ $source->post_type ];
-					$ancestors = [];
-					foreach ( $ancestor_ids as $ancestor_id ) {
-						$ancestor_obj = get_post( $ancestor_id );
-						if ( in_array( $ancestor_obj->post_type, $types, true ) ) {
-							$ancestors[] = DataSource::resolve_post_object( $ancestor_obj->ID, $ancestor_obj->post_type );
-						}
-					}
-				} else {
-					$ancestors = null;
+			'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
+				if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
+					return null;
 				}
-				return $ancestors;
+				$context->PostObjectLoader->buffer( $ancestor_ids );
+				return new Deferred( function() use ( $context, $ancestor_ids ) {
+					return $context->PostObjectLoader->loadKeys( $ancestor_ids );
+				});
 			}
 		],
 		'author'            => [
 			'type'        => 'User',
 			'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				$author = isset( $post->authorId ) ? DataSource::resolve_user( absint( $post->authorId ) ) : null;
+				return $author;
+			}
 		],
 		'date'              => [
 			'type'        => 'String',
@@ -255,6 +257,17 @@ function get_post_object_fields( $post_type_object ) {
 		'parent'            => [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
+					return null;
+				}
+				$post_id = absint( $post->parentId );
+				$context->PostObjectLoader->buffer( [ $post_id ] );
+				return new Deferred( function() use ( $post_id, $context ) {
+					$object = $context->PostObjectLoader->load( $post_id );
+					return $object;
+				});
+			}
 		],
 		'editLast'          => [
 			'type'        => 'User',

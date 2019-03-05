@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -169,8 +170,17 @@ class PostObjectCreate {
         return [
             $post_type_object->graphql_single_name => [
                 'type'    => $post_type_object->graphql_single_name,
-                'resolve' => function ( $payload ) use ( $post_type_object ) {
-                    return DataSource::resolve_post_object( $payload['postObjectId'], $post_type_object->name );
+                'resolve' => function ( $payload, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+
+        	        if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
+        	        	return null;
+	                }
+
+	                $post_id = absint( $payload['postObjectId'] );
+	                $context->PostObjectLoader->buffer( [ $post_id ] );
+	                return new Deferred( function() use ( $context, $post_id ) {
+		                return $context->PostObjectLoader->load( $post_id );
+	                });
                 },
             ],
         ];
