@@ -759,11 +759,30 @@ class DataSource {
 
 	}
 
-		/**
+	/**
      * Returns array of nav menu location names
      */
     public static function get_registered_nav_menu_locations() {
 			global $_wp_registered_nav_menus;
 			return array_keys( $_wp_registered_nav_menus );
+	}
+
+	/**
+	 * Get post object by its link.
+	 *
+	 * @param string $link from get_permalink() for example
+	 * @param string $post_type Optional. Post type; default is 'post'.
+	 *
+	 * @return \WP_Post|null WP_Post on success or null on failure
+	 * @see  https://codex.wordpress.org/Function_Reference/url_to_postid
+	 */
+	public static function get_post_object_by_link( $link, $post_type = 'post' ) {
+		$post_id = url_to_postid( $link );
+
+		if ( $post_id ) {
+			return self::resolve_post_object( $post_id, $post_type );
 		}
+
+		return null;
+	}
 }

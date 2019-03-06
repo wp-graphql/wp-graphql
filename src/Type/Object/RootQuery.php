@@ -182,6 +182,10 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			'uri'                                         => [
 				'type'        => 'String',
 				'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+			],
+			'link'                                         => [
+				'type'        => 'String',
+				'description' => sprintf( __( 'Get the %s by its link. Uses url_to_postid() to resolve the link.', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			]
 		];
 
@@ -215,6 +219,9 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 				} elseif ( ! empty( $args['slug'] ) ) {
 					$slug        = esc_html( $args['slug'] );
 					$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
+				} elseif ( ! empty( $args['link'] ) ) {
+					$link   = esc_html( $args['link'] );
+					$post_object = DataSource::get_post_object_by_link( $link, $post_type_object->name );
 				}
 
 				if ( empty( $post_object ) || is_wp_error( $post_object ) ) {

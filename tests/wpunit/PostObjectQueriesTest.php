@@ -1538,4 +1538,74 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Test post can be queried its permalink
+	 */
+	public function testPostByPermalinkQuery() {
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+			'post_title' => 'Post title',
+		] );
+
+		$permalink = get_permalink($post_id);
+
+		$query = "
+		{
+			postBy(link: \"$permalink\") {
+				title
+			}
+		}
+		";
+
+
+		$expected = [
+			'data' => [
+				'postBy' => [
+					'title' => 'Post title',
+				]
+			]
+		];
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Test wrong post type cannot be queried its permalink
+	 */
+	public function testPostByPermalinkQueryBadType() {
+
+		/** Create post of page type */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'page',
+			'post_title' => 'Page title',
+		] );
+
+		$permalink = get_permalink($post_id);
+
+		/**
+		 * Try to query it as a post
+		 */
+		$query = "
+		{
+				postBy(link: \"$permalink\") {
+					title
+				}
+		}
+		";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'The queried resource is not the correct type', $actual['errors'][0]['message'] );
+	}
+
 }
