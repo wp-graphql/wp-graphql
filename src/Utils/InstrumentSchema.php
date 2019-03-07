@@ -18,6 +18,12 @@ use WPGraphQL\Type\WPObjectType;
 class InstrumentSchema {
 
 	/**
+	* Cache post for the resolvers so we can call the setup_postdata only when the actual
+	* source post changes
+	*/
+	private static $cached_post = null;
+
+	/**
 	 * @param \WPGraphQL\WPSchema $schema
 	 *
 	 * @return \WPGraphQL\WPSchema
@@ -115,7 +121,8 @@ class InstrumentSchema {
 						 * This ensures that functions like get_the_content() work correctly
 						 * so graphql queries can be used in the loop without issues.
 						 */
-						if ( is_a( $source, 'WP_Post' ) ) {
+						if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
+							self::$cached_post = $source;
 							$GLOBALS['post'] = $source;
 							setup_postdata( $source );
 						}
