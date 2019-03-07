@@ -111,6 +111,16 @@ class InstrumentSchema {
 					$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
 						/**
+						 * Setup the global post to the current post (if a post)
+						 * This ensures that functions like get_the_content() work correctly
+						 * so graphql queries can be used in the loop without issues.
+						 */
+						if ( is_a( $source, 'WP_Post' ) ) {
+							$GLOBALS['post'] = $source;
+							setup_postdata( $source );
+						}
+
+						/**
 						 * Fire an action BEFORE the field resolves
 						 *
 						 * @param mixed           $source    The source passed down the Resolve Tree
