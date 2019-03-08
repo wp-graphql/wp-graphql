@@ -277,6 +277,12 @@
 					'type' => 'string',
 					'description' => __( 'WP Page ID of blog page', 'wp-graphql' )
 				),
+			        'page_for_posts_slug' => array(
+					'show_in_rest' => true,
+					'type' => 'string',
+					'description' => __( 'WP Page ID of blog page', 'wp-graphql' ),
+					'default' => get_page_uri( get_option( 'page_for_posts', '' ) )
+			        ),
 				'blog_public' => array(
 					'show_in_rest' => true,
 					'type' => 'boolean',
