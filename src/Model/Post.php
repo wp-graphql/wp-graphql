@@ -244,6 +244,7 @@ class Post extends Model {
 					return ! empty( $this->post->post_date_gmt ) ? Types::prepare_date_response( $this->post->post_date_gmt ) : null;
 				},
 				'contentRendered' => function() {
+					setup_postdata( $this->post );
 					$content = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
@@ -254,6 +255,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts
 				],
 				'titleRendered' => function() {
+					setup_postdata( $this->post );
 					$id    = ! empty( $this->post->ID ) ? $this->post->ID : null;
 					$title = ! empty( $this->post->post_title ) ? $this->post->post_title : null;
 					return apply_filters( 'the_title', $title, $id );
@@ -265,6 +267,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'excerptRendered' => function() {
+					setup_postdata( $this->post );
 					$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->post );
 					return apply_filters( 'the_excerpt', $excerpt );
@@ -350,6 +353,7 @@ class Post extends Model {
 			if ( 'attachment' === $this->post->post_type ) {
 				$attachment_fields = [
 					'captionRendered' => function() {
+						setup_postdata( $this->post );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->post->post_excerpt, $this->post ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
@@ -363,6 +367,7 @@ class Post extends Model {
 						return get_post_meta( $this->post->ID, '_wp_attachment_image_alt', true );
 					},
 					'descriptionRendered' => function() {
+						setup_postdata( $this->post );
 						return ! empty( $this->post->post_content ) ? apply_filters( 'the_content', $this->post->post_content ) : null;
 					},
 					'descriptionRaw' => [

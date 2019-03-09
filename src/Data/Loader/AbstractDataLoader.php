@@ -4,9 +4,26 @@ namespace WPGraphQL\Data\Loader;
 
 use GraphQL\Utils\Utils;
 
+/**
+ * Class AbstractDataLoader
+ *
+ * @package WPGraphQL\Data\Loader
+ */
 abstract class AbstractDataLoader {
+
+	/**
+	 * @var bool
+	 */
 	private $shouldCache = true;
+
+	/**
+	 * @var array
+	 */
 	private $cached = [];
+
+	/**
+	 * @var array
+	 */
 	private $buffer = [];
 
 	/**
