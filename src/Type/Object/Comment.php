@@ -48,11 +48,12 @@ register_graphql_object_type( 'Comment', [
 				 */
 				if ( ! empty( $comment->user_id ) ) {
 					$user_id = $comment->user_id;
-					$context->UserLoader->buffer( [ $user_id ] );
 
-					return new Deferred( function () use ( $user_id, $context ) {
-						return $context->UserLoader->load( $user_id );
-					} );
+					if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
+						return null;
+					}
+
+					return DataSource::resolve_user( $comment->userId, $context );
 
 				} else {
 					return DataSource::resolve_comment_author( $comment->commentAuthorEmail );

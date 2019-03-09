@@ -170,14 +170,10 @@ function get_post_object_fields( $post_type_object ) {
 			'type'        => 'User',
 			'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
 			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-				if ( ! isset( $post->authorId ) ) {
+				if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
 					return null;
 				};
-				$user_id = absint( $post->authorId );
-				$context->UserLoader->buffer( [ $user_id ] );
-				return new Deferred( function () use ( $user_id, $context ) {
-					return $context->UserLoader->load( $user_id );
-				} );
+				return DataSource::resolve_user( $post->authorId, $context );
 			}
 		],
 		'date'              => [
@@ -290,14 +286,11 @@ function get_post_object_fields( $post_type_object ) {
 			'type'        => 'User',
 			'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
 			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-				if ( empty( $post->editLastId ) ) {
+				if ( ! isset( $post->editLastId ) || ! absint( $post->editLastId ) ) {
 					return null;
 				}
-				$user_id = absint( $post->editLastId );
-				$context->UserLoader->buffer( [ $user_id ] );
-				return new Deferred( function () use ( $user_id, $context ) {
-					return $context->UserLoader->load( $user_id );
-				} );
+
+				return DataSource::resolve_user( $post->editLastId, $context );
 			},
 		],
 		'editLock'          => [

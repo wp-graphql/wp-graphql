@@ -223,6 +223,7 @@ class DataSource {
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_post_type( $post_type ) {
 

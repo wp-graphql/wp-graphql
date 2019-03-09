@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Deferred;
+use WPGraphQL\Data\DataSource;
 
 register_graphql_object_type( 'EditLock', [
 	'description' => __( 'Info on whether the object is locked by another user editing it', 'wp-graphql' ),
@@ -21,11 +22,10 @@ register_graphql_object_type( 'EditLock', [
 			'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
 			'resolve'     => function( $edit_lock, array $args, $context, $info ) {
 				$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
-
-				$context->UserLoader->buffer( [ absint( $user_id ) ] );
-				return new Deferred( function () use ( $user_id, $context ) {
-					return $context->UserLoader->load( $user_id );
-				} );
+				if ( empty( $user_id ) || ! absint( $user_id ) ) {
+					return null;
+				}
+				return DataSource::resolve_user( $user_id, $context );
 			},
 		],
 	],

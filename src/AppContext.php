@@ -5,7 +5,6 @@ namespace WPGraphQL;
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\UserLoader;
-use WPGraphQL\Model\MenuItem;
 
 /**
  * Class AppContext
