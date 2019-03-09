@@ -349,6 +349,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -464,27 +466,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data'   => [
 				'user' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'No user was found with the provided ID',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
-					],
-					'path'      => [
-						'user',
-					],
-					'category' => 'user',
-				],
 			],
 		];
 

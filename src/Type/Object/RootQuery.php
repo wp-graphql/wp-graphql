@@ -66,12 +66,14 @@ register_graphql_object_type( 'RootQuery', [
 			],
 			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-				$post_id = absint( $id_components['id'] );
+				$post_id       = absint( $id_components['id'] );
 				$context->MenuItemLoader->buffer( [ $post_id ] );
-				return new Deferred( function() use ( $post_id, $context ) {
+
+				return new Deferred( function () use ( $post_id, $context ) {
 					$object = $context->MenuItemLoader->load( $post_id );
+
 					return $object;
-				});
+				} );
 			}
 		],
 		'plugin'      => [
@@ -119,7 +121,7 @@ register_graphql_object_type( 'RootQuery', [
 			'resolve'     => function ( $source, array $args, $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_user( $id_components['id'] );
+				return DataSource::resolve_user( $id_components['id'], $context );
 			},
 		],
 		'userRole'    => [
@@ -148,7 +150,11 @@ register_graphql_object_type( 'RootQuery', [
 			'type'        => 'User',
 			'description' => __( 'Returns the current user', 'wp-graphql' ),
 			'resolve'     => function ( $source, array $args, $context, $info ) {
-				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID ) : null;
+				if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
+					throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
+				}
+
+				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 			},
 		],
 	],
@@ -171,12 +177,13 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			],
 			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-				$post_id = absint( $id_components['id'] );
+				$post_id       = absint( $id_components['id'] );
 				$context->PostObjectLoader->buffer( [ $post_id ] );
-				return new Deferred( function() use ( $post_id, $context ) {
+				return new Deferred( function () use ( $post_id, $context ) {
 					$object = $context->PostObjectLoader->load( $post_id );
+
 					return $object;
-				});
+				} );
 			},
 
 		] );
@@ -210,7 +217,7 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
 
 				$post_object = null;
-				$post_id = 0;
+				$post_id     = 0;
 				if ( ! empty( $args['id'] ) ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 					if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
@@ -218,20 +225,21 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					}
 					$post_id = absint( $id_components['id'] );
 				} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
-					$id          = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
+					$id      = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
 					$post_id = absint( $id );
 				} elseif ( ! empty( $args['uri'] ) ) {
 					$uri         = esc_html( $args['uri'] );
 					$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
-					$post_id = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+					$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				} elseif ( ! empty( $args['slug'] ) ) {
 					$slug        = esc_html( $args['slug'] );
 					$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
-					$post_id = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+					$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				}
 
 				$context->PostObjectLoader->buffer( [ $post_id ] );
-				return new Deferred( function() use ( $post_id, $post_type_object, $args, $context, $info ) {
+
+				return new Deferred( function () use ( $post_id, $post_type_object, $args, $context, $info ) {
 					$post_object = $context->PostObjectLoader->load( $post_id );
 
 					if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
@@ -243,7 +251,7 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					}
 
 					return $post_object;
-				});
+				} );
 
 			},
 		] );

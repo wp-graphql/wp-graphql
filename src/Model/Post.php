@@ -33,7 +33,7 @@ use WPGraphQL\Types;
  * @property string $modified
  * @property string $modifiedGmt
  * @property int    $parent
- * @property User   $editLast
+ * @property int    $editLastId
  * @property array  $editLock
  * @property string $enclosure
  * @property string $guid
@@ -41,7 +41,7 @@ use WPGraphQL\Types;
  * @property string $link
  * @property string $uri
  * @property int    $commentCount
- * @property int   $featuredImageId
+ * @property int    $featuredImageId
  *
  * @property string $captionRaw
  * @property string $captionRendered
@@ -308,9 +308,9 @@ class Post extends Model {
 				'parentId'        => function () {
 					return ! empty( $this->post->post_parent ) ? absint( $this->post->post_parent ) : null;
 				},
-				'editLast'      => function () {
+				'editLastId'      => function () {
 					$edit_last = get_post_meta( $this->post->ID, '_edit_last', true );
-					return ! empty( $edit_last ) ? DataSource::resolve_user( absint( $edit_last ) ) : null;
+					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
 				'editLock'      => function () {
 					$edit_lock       = get_post_meta( $this->post->ID, '_edit_lock', true );

@@ -285,11 +285,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * There should be an internal server error when requesting a non-existent post
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertTrue( false !== array_search( 'Internal server error', $actual['errors' ][0] ) );
 	}
 
 	/**

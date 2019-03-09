@@ -1,7 +1,10 @@
 <?php
+
 namespace WPGraphQL;
+
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
+use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Model\MenuItem;
 
 /**
@@ -43,6 +46,7 @@ class AppContext {
 
 	/**
 	 * Stores additional $config properties
+	 *
 	 * @var \mixed $config
 	 * @access public
 	 */
@@ -50,12 +54,14 @@ class AppContext {
 
 	/**
 	 * Passes context about the current connection being resolved
+	 *
 	 * @var mixed| String | null
 	 */
 	public $currentConnection = null;
 
 	/**
 	 * Passes context about the current connection
+	 *
 	 * @var array
 	 */
 	public $connectionArgs = [];
@@ -71,16 +77,23 @@ class AppContext {
 	public $MenuItemLoader;
 
 	/**
+	 * @var UserLoader
+	 */
+	public $UserLoader;
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
-		$this->MenuItemLoader = new MenuItemLoader();
+		$this->MenuItemLoader   = new MenuItemLoader();
 		$this->PostObjectLoader = new PostObjectLoader();
-		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
+		$this->UserLoader       = new UserLoader();
+		$this->config           = apply_filters( 'graphql_app_context_config', $this->config );
 	}
 
 	/**
 	 * Returns the $args for the connection the field is a part of
+	 *
 	 * @return array|mixed
 	 */
 	public function getConnectionArgs() {
@@ -89,6 +102,7 @@ class AppContext {
 
 	/**
 	 * Returns the current connection
+	 *
 	 * @return mixed|null|String
 	 */
 	public function getCurrentConnection() {
