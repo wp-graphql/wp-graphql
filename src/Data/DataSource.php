@@ -359,17 +359,18 @@ class DataSource {
 	 * @return Deferred
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
-	public static function resolve_user( $id ) {
+	public static function resolve_user( $id, AppContext $context ) {
 
-		Loader::addOne( 'user', (int) $id );
-		$loader = function () use ( $id ) {
-			Loader::loadBuffered( 'user' );
-
-			return Loader::loadOne( 'user', (int) $id );
-		};
-
-		return new Deferred( $loader );
+		if ( empty( $id ) ) {
+			return null;
+		}
+		$user_id = absint( $id );
+		$context->UserLoader->buffer( [ $user_id ] );
+		return new Deferred( function () use ( $user_id, $context ) {
+			return $context->UserLoader->load( $user_id );
+		} );
 	}
 
 	/**
@@ -560,7 +561,7 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 			// The ID fetcher definition
-				function ( $global_id ) {
+				function ( $global_id, $context, $info ) {
 
 					if ( empty( $global_id ) ) {
 						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
@@ -614,7 +615,11 @@ class DataSource {
 								$node = self::resolve_theme( $id_components['id'] );
 								break;
 							case 'user':
-								$node = self::resolve_user( $id_components['id'] );
+								$user_id = absint( $id_components['id'] );
+								$context->UserLoader->buffer( [ $user_id ] );
+								return new Deferred( function () use ( $user_id, $context ) {
+									return $context->UserLoader->load( $user_id );
+								} );
 								break;
 							default:
 								/**

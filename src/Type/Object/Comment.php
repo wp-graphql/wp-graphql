@@ -25,28 +25,35 @@ register_graphql_object_type( 'Comment', [
 		'commentedOn' => [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The object the comment was added to', 'wp-graphql' ),
-			'resolve' => function( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
 					return null;
 				}
 				$comment_id = absint( $comment->comment_post_ID );
 				$context->PostObjectLoader->buffer( [ absint( $comment_id ) ] );
-				return new Deferred( function() use ( $comment_id, $context ) {
+
+				return new Deferred( function () use ( $comment_id, $context ) {
 					return $context->PostObjectLoader->load( $comment_id );
-				});
+				} );
 			}
 		],
 		'author'      => [
 			'type'        => 'CommentAuthorUnion',
 			'description' => __( 'The author of the comment', 'wp-graphql' ),
-			'resolve' => function( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 
 				/**
 				 * If the comment has a user associated, use it to populate the author, otherwise return
 				 * the $comment and the Union will use that to hydrate the CommentAuthor Type
 				 */
 				if ( ! empty( $comment->user_id ) ) {
-					return DataSource::resolve_user( absint( $comment->user_id ) );
+					$user_id = $comment->user_id;
+					$context->UserLoader->buffer( [ $user_id ] );
+
+					return new Deferred( function () use ( $user_id, $context ) {
+						return $context->UserLoader->load( $user_id );
+					} );
+
 				} else {
 					return DataSource::resolve_comment_author( $comment->commentAuthorEmail );
 				}
@@ -73,7 +80,7 @@ register_graphql_object_type( 'Comment', [
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				]
 			],
-			'resolve'     => function( Comment $comment, $args ) {
+			'resolve'     => function ( Comment $comment, $args ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 					return $comment->contentRaw;
 				} else {
@@ -100,7 +107,7 @@ register_graphql_object_type( 'Comment', [
 		'parent'      => [
 			'type'        => 'Comment',
 			'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
-			'resolve' => function( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
 				$parent = null;
 				if ( ! empty( $comment->comment_parent_id ) ) {
 					$parent_obj = \WP_Comment::get_instance( $comment->comment_parent_id );
@@ -108,6 +115,7 @@ register_graphql_object_type( 'Comment', [
 						$parent = new Comment( $parent_obj );
 					}
 				}
+
 				return $parent;
 			}
 		],

@@ -42,6 +42,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create the query string to pass to the $query
 		 */
@@ -63,6 +65,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query, 'getPageByNode', $variables );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -316,6 +320,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 		$actual    = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$expected = [
 			'data' => [
