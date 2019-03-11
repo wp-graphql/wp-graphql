@@ -179,14 +179,6 @@ class DataSource {
 			remove_filter( 'the_content', 'prepend_attachment' );
 		}
 
-		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
-
 		return $post_object;
 
 	}
