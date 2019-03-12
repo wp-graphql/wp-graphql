@@ -1169,6 +1169,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * This should return an error as we tried to query for a post using a Page ID
 		 */

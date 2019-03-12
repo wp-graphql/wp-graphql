@@ -13,6 +13,8 @@ use WPGraphQL\Model\Post;
  */
 class PostObjectLoader extends AbstractDataLoader {
 
+	protected $loaded_posts;
+
 	/**
 	 * @var array
 	 */
@@ -85,7 +87,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * and if they don't exist we can throw an error, otherwise
 			 * we can proceed to resolve the object via the Model layer.
 			 */
-			$post_object = get_post( absint( $key ) );
+			$post_object = get_post( (int) $key );
 
 			$this->all_posts[ $key ] = new Deferred(function() use ( $post_object ) {
 				$author = DataSource::resolve_user( $post_object->post_author, $this->context );
@@ -95,11 +97,32 @@ class PostObjectLoader extends AbstractDataLoader {
 			});
 
 
+			/**
+			 * Return the instance through the Model to ensure we only
+			 * return fields the consumer has access to.
+			 */
+
+			$this->loaded_posts[ $key ] = new Deferred(function() use ( $post_object ) {
+
+				/**
+				 * If there's a Post Author connected to the post, we need to resolve the
+				 * user as it gets set in the globals via `setup_post_data()` and doing it this way
+				 * will batch the loading so when `setup_post_data()` is called the user
+				 * is already in the cache.
+				 */
+				if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
+					$author = DataSource::resolve_user( $post_object->post_author, $this->context );
+					return $author->then(function() use ( $post_object ) {
+						return new Post( $post_object );
+					});
+				} else {
+					return new Post( $post_object );
+				}
+			});
+
 		}
 
-
-
-		return $this->all_posts;
+		return ! empty( $this->loaded_posts ) ? $this->loaded_posts : [];
 
 	}
 
