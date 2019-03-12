@@ -5,6 +5,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 
 class PostObjectDelete {
     /**
@@ -108,8 +109,7 @@ class PostObjectDelete {
              * Get the post object before deleting it
              */
             $post_before_delete = get_post( absint( $id_parts['id'] ) );
-            $post_before_delete = isset( $post_before_delete->ID ) && isset( $post_before_delete->post_type ) ? DataSource::resolve_post_object( $post_before_delete->ID, $post_before_delete->post_type ) : $post_before_delete;
-
+            $post_before_delete = new Post( $post_before_delete );
 
             /**
              * If the post is already in the trash, and the forceDelete input was not passed,

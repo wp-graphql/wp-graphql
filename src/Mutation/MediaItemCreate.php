@@ -100,11 +100,7 @@ class MediaItemCreate {
 	                if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 		                return null;
 	                }
-	                $post_id = absint( $payload['postObjectId'] );
-	                $context->PostObjectLoader->buffer( [ $post_id ] );
-	                return new Deferred( function() use ( $post_id, $context ) {
-		                return $context->PostObjectLoader->load( $post_id );
-	                });
+	                return DataSource::resolve_post_object( $payload['postObjectId'], $context );
                 },
             ]
         ];

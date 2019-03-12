@@ -482,6 +482,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
+		codecept_debug( $actual );
+
 		$this->assertEquals( $expected, $actual );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 
@@ -603,6 +605,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Do the graphQL request using the above variables for input in the above mutation
 		 */
 		$actual = do_graphql_request( $default_mutation, 'createMediaItem', $default_variables );
+
+		codecept_debug( $actual );
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -884,6 +888,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
+
+		codecept_debug( $actual );
+
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
 		$update_variables['input']['authorId'] = false;

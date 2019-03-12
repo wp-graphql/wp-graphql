@@ -3,8 +3,11 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Comment;
 
 class CommentDelete {
     /**
@@ -57,8 +60,8 @@ class CommentDelete {
             'comment'   => [
                 'type'        => 'Comment',
                 'description' => __( 'The deleted comment object', 'wp-graphql' ),
-                'resolve'     => function ( $payload ) {
-	                return DataSource::resolve_comment( absint( $payload['commentObject']->comment_ID ) );
+                'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+	                return $payload['commentObject'] ? $payload['commentObject'] : null;
                 },
             ],
         ];
@@ -97,6 +100,8 @@ class CommentDelete {
              * Check if we should force delete or not
              */
             $force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+
+	        $comment_before_delete = new Comment( $comment_before_delete );
 
             /**
              * Delete the comment

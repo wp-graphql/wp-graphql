@@ -296,7 +296,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function testUntrashComment()
+	public function testRestoreComment()
 	{
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 		$new_post = $this->factory()->post->get_object_by_id( $post_id );
@@ -342,6 +342,8 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 
 		$actual = do_graphql_request( $mutation, 'restoreCommentTest', $variables );
+
+		codecept_debug( $actual );
 
 		$expected = [
 			'data' => [

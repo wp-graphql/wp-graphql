@@ -45,21 +45,26 @@ class DataSource {
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
-	 * @param int $id ID of the comment we want to get the object for
+	 * @param int        $id      ID of the comment we want to get the object for
+	 * @param AppContext $context The context of the request
 	 *
-	 * @return Comment object
+	 * @return Deferred object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
-	public static function resolve_comment( $id ) {
+	public static function resolve_comment( $id, $context ) {
 
-		$comment = \WP_Comment::get_instance( $id );
-		if ( empty( $comment ) ) {
-			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
+		$comment_id = absint( $id );
+		$context->CommentLoader->buffer( [ $comment_id ] );
 
-		return new Comment( $comment );
+		return new Deferred( function () use ( $comment_id, $context ) {
+			return $context->CommentLoader->load( $comment_id );
+		} );
 
 	}
 
@@ -101,7 +106,8 @@ class DataSource {
 	/**
 	 * Returns the Plugin model for the plugin you are requesting
 	 *
-	 * @param string|array $info Name of the plugin you want info for, or the array of data for the plugin
+	 * @param string|array $info Name of the plugin you want info for, or the array of data for the
+	 *                           plugin
 	 *
 	 * @return Plugin
 	 * @throws \Exception
@@ -169,8 +175,8 @@ class DataSource {
 	/**
 	 * Returns the post object for the ID and post type passed
 	 *
-	 * @param int    $id        ID of the post you are trying to retrieve
-	 * @param string $post_type Post type the post is attached to
+	 * @param int        $id      ID of the post you are trying to retrieve
+	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @throws UserError
 	 * @since  0.0.5
@@ -179,19 +185,37 @@ class DataSource {
 	 *
 	 * @throws \Exception
 	 */
-	public static function resolve_post_object( $id, $post_type ) {
+	public static function resolve_post_object( $id, AppContext $context ) {
 
-		/**
-		 * Get the Post instance
-		 */
-		$post_object = \WP_Post::get_instance( $id );
-
-		if ( 'nav_menu_item' === $post_type ) {
-			return new MenuItem( $post_object );
-		} else {
-			return new Post( $post_object );
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
+		$post_id = absint( $id );
+		$context->PostObjectLoader->buffer( [ $post_id ] );
 
+		return new Deferred( function () use ( $post_id, $context ) {
+			return $context->PostObjectLoader->load( $post_id );
+		} );
+
+	}
+
+	/**
+	 * @param int        $id      The ID of the menu item to load
+	 * @param AppContext $context The context of the GraphQL request
+	 *
+	 * @return Deferred|null
+	 * @throws \Exception
+	 */
+	public static function resolve_menu_item( $id, AppContext $context ) {
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
+		}
+		$menu_item_id = absint( $id );
+		$context->MenuItemLoader->buffer( [ $menu_item_id ] );
+
+		return new Deferred( function () use ( $menu_item_id, $context ) {
+			return $context->MenuItemLoader->load( $menu_item_id );
+		} );
 	}
 
 	/**
@@ -369,6 +393,7 @@ class DataSource {
 		}
 		$user_id = absint( $id );
 		$context->UserLoader->buffer( [ $user_id ] );
+
 		return new Deferred( function () use ( $user_id, $context ) {
 			return $context->UserLoader->load( $user_id );
 		} );
@@ -562,7 +587,7 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 			// The ID fetcher definition
-				function ( $global_id, $context, $info ) {
+				function ( $global_id, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $global_id ) ) {
 						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
@@ -592,13 +617,13 @@ class DataSource {
 
 						switch ( $id_components['type'] ) {
 							case in_array( $id_components['type'], $allowed_post_types, true ):
-								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_post_object( $id_components['id'], $context );
 								break;
 							case in_array( $id_components['type'], $allowed_taxonomies, true ):
 								$node = self::resolve_term_object( $id_components['id'], $id_components['type'] );
 								break;
 							case 'comment':
-								$node = self::resolve_comment( $id_components['id'] );
+								$node = self::resolve_comment( $id_components['id'], $context );
 								break;
 							case 'commentAuthor':
 								$node = self::resolve_comment_author( $id_components['id'] );
@@ -618,6 +643,7 @@ class DataSource {
 							case 'user':
 								$user_id = absint( $id_components['id'] );
 								$context->UserLoader->buffer( [ $user_id ] );
+
 								return new Deferred( function () use ( $user_id, $context ) {
 									return $context->UserLoader->load( $user_id );
 								} );

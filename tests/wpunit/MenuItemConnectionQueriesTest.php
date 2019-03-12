@@ -161,6 +161,8 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		// The returned menu items have the expected number.
 		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );
 

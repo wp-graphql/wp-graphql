@@ -2,6 +2,7 @@
 
 namespace WPGraphQL;
 
+use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\UserLoader;
@@ -66,14 +67,19 @@ class AppContext {
 	public $connectionArgs = [];
 
 	/**
-	 * @var PostObjectLoader
+	 * @var CommentLoader
 	 */
-	public $PostObjectLoader;
+	public $CommentLoader;
 
 	/**
 	 * @var MenuItemLoader
 	 */
 	public $MenuItemLoader;
+	
+	/**
+	 * @var PostObjectLoader
+	 */
+	public $PostObjectLoader;
 
 	/**
 	 * @var UserLoader
@@ -85,6 +91,7 @@ class AppContext {
 	 */
 	public function __construct() {
 		$this->MenuItemLoader   = new MenuItemLoader();
+		$this->CommentLoader    = new CommentLoader();
 		$this->PostObjectLoader = new PostObjectLoader();
 		$this->UserLoader       = new UserLoader();
 		$this->config           = apply_filters( 'graphql_app_context_config', $this->config );

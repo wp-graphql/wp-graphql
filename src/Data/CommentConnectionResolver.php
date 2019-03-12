@@ -158,14 +158,15 @@ class CommentConnectionResolver extends ConnectionResolver {
 	}
 
 	/**
-	 * @param array       $query The query that was processed to retrieve connection data
-	 * @param array       $items The array of connected items
-	 * @param mixed       $source The source being passed down the resolve tree
-	 * @param array       $args The Input args for the field
+	 * @param array       $query   The query that was processed to retrieve connection data
+	 * @param array       $items   The array of connected items
+	 * @param mixed       $source  The source being passed down the resolve tree
+	 * @param array       $args    The Input args for the field
 	 * @param AppContext  $context The AppContext passed down the resolve tree
-	 * @param ResolveInfo $info The ResolveInfo passed down the resolve tree
+	 * @param ResolveInfo $info    The ResolveInfo passed down the resolve tree
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function get_connection( $query, array $items, $source, array $args, AppContext $context, ResolveInfo $info ) {
 
@@ -214,8 +215,13 @@ class CommentConnectionResolver extends ConnectionResolver {
 	 * Takes an array of items and returns the edges
 	 *
 	 * @param $items
+	 * @param $source
+	 * @param $args
+	 * @param $context
+	 * @param $info
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function get_edges( $items, $source, $args, $context, $info ) {
 		$edges = [];
@@ -231,7 +237,7 @@ class CommentConnectionResolver extends ConnectionResolver {
 				if ( ! empty( $item ) ) {
 					$edges[] = [
 						'cursor' => ArrayConnection::offsetToCursor( $item->comment_ID ),
-						'node'   => ! empty( $item->comment_id ) ? DataSource::resolve_comment( $item->comment_id ) : $item,
+						'node'   => ! empty( $item->comment_id ) ? DataSource::resolve_comment( $item->comment_id, $context ) : $item,
 					];
 				}
 			}

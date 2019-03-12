@@ -5,6 +5,9 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Comment;
+use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Model\User;
 
 /**
@@ -33,7 +36,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 
 		$query_args  = static::get_query_args( $source, $args, $context, $info );
 		$query       = static::get_query( $query_args );
-		$array_slice = self::get_array_slice( $query, $args );
+		$array_slice = self::get_array_slice( $query, $args, $context, $info );
 		$connection  = static::get_connection( $query, $array_slice, $source, $args, $context, $info );
 		/**
 		 * Filter the connection, and provide heaps of info to make it easy to filter very specific cases
@@ -87,14 +90,16 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 	}
 
 	/**
-	 * This returns a slice of the query results based on the posts retrieved and the $args passed to the query
+	 * This returns a slice of the query results based on the posts retrieved and the $args passed
+	 * to the query
 	 *
 	 * @param mixed $query The query that was made to fetch the items
 	 * @param array $args  array of arguments input in the field as part of the GraphQL query
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
-	public static function get_array_slice( $query, array $args ) {
+	public static function get_array_slice( $query, array $args, AppContext $context, ResolveInfo $info ) {
 
 		$info        = self::get_query_info( $query );
 		$items       = $info['items'];
@@ -104,13 +109,17 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 				if ( true === is_object( $item ) ) {
 					switch ( true ) {
 						case $item instanceof \WP_Comment:
-							$array_slice[ $item->comment_ID ] = DataSource::resolve_comment( $item->comment_ID );
+							$array_slice[ $item->comment_ID ] = new Comment( $item );
 							break;
 						case $item instanceof \WP_Term:
 							$array_slice[ $item->term_id ] = DataSource::resolve_term_object( $item->term_id, $item->taxonomy );
 							break;
 						case $item instanceof \WP_Post:
-							$array_slice[ $item->ID ] = DataSource::resolve_post_object( $item->ID, $item->post_type );
+							if ( 'nav_menu_item' === $item->post_type ) {
+								$array_slice[ $item->ID ] = new MenuItem( $item );
+							} else {
+								$array_slice[ $item->ID ] = new Post( $item );
+							}
 							break;
 							// the \WP_User_Query doesn't have proper filters to allow for true cursor based pagination
 						case $item instanceof \WP_User:

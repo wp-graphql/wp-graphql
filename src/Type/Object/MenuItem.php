@@ -54,17 +54,14 @@ register_graphql_object_type( 'MenuItem', [
 		'connectedObject'  => [
 			'type'        => 'MenuItemObjectUnion',
 			'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-			'resolve'     => function( MenuItem $menu_item, array $args, $context, $info ) {
+			'resolve'     => function( $menu_item, array $args, $context, $info ) {
+
 				$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 				$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
 
-				// By default, resolve to the menu item itself. This is the
-				// case for custom links.
-				$resolved_object = $menu_item;
-
 				$post_id = absint( $object_id );
 				$context->PostObjectLoader->buffer( [ $post_id ] );
-				return new Deferred( function() use ( $object_id, $resolved_object, $object_type, $context, $args, $info ) {
+				return new Deferred( function() use ( $object_id, $menu_item, $object_type, $context, $args, $info ) {
 
 					switch ( $object_type ) {
 						// Post object
@@ -76,6 +73,9 @@ register_graphql_object_type( 'MenuItem', [
 						case 'taxonomy':
 							$resolved_object = get_term( $object_id );
 							$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
+							break;
+						default:
+							$resolved_object = $menu_item;
 							break;
 					}
 

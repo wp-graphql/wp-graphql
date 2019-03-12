@@ -90,7 +90,10 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		// If the user requested a specific ID, set the source object accordingly.
 		if ( ! empty( $args['where']['id'] ) ) {
-			$source = DataSource::resolve_post_object( intval( $args['where']['id'] ), 'nav_menu_item' );
+			$menu_item = get_post( intval( $args['where']['id'] ) );
+			if ( $menu_item ) {
+				$source = new MenuItem( $menu_item );
+			}
 		}
 
 		$menu_items = self::get_menu_items( $source, $args );

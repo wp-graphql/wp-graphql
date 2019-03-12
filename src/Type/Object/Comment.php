@@ -29,12 +29,8 @@ register_graphql_object_type( 'Comment', [
 				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
 					return null;
 				}
-				$comment_id = absint( $comment->comment_post_ID );
-				$context->PostObjectLoader->buffer( [ absint( $comment_id ) ] );
-
-				return new Deferred( function () use ( $comment_id, $context ) {
-					return $context->PostObjectLoader->load( $comment_id );
-				} );
+				$id = absint( $comment->comment_post_ID );
+				return DataSource::resolve_post_object( $id, $context );
 			}
 		],
 		'author'      => [

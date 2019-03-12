@@ -31,10 +31,10 @@ register_graphql_object_type( 'RootQuery', [
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_comment( $id_components['id'] );
+				return DataSource::resolve_comment( $id_components['id'], $context );
 			},
 		],
 		'node'        => $node_definition['nodeField'],
@@ -66,14 +66,8 @@ register_graphql_object_type( 'RootQuery', [
 			],
 			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-				$post_id       = absint( $id_components['id'] );
-				$context->MenuItemLoader->buffer( [ $post_id ] );
-
-				return new Deferred( function () use ( $post_id, $context ) {
-					$object = $context->MenuItemLoader->load( $post_id );
-
-					return $object;
-				} );
+				$id       = absint( $id_components['id'] );
+				return DataSource::resolve_menu_item( $id, $context );
 			}
 		],
 		'plugin'      => [
@@ -177,13 +171,13 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			],
 			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-				$post_id       = absint( $id_components['id'] );
-				$context->PostObjectLoader->buffer( [ $post_id ] );
-				return new Deferred( function () use ( $post_id, $context ) {
-					$object = $context->PostObjectLoader->load( $post_id );
 
-					return $object;
-				} );
+				if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+					throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+				}
+
+				$post_id       = absint( $id_components['id'] );
+				return DataSource::resolve_post_object( $post_id, $context );
 			},
 
 		] );

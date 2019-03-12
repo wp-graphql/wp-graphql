@@ -20,12 +20,12 @@ $possible_types = [];
 
 // Add post types that are allowed in WPGraphQL.
 foreach ( get_post_types( $args ) as $type ) {
-	$possible_types[ $type ] = Types::post_object( $type );
+	$possible_types[] = Types::post_object( $type );
 }
 
 // Add taxonomies that are allowed in WPGraphQL.
 foreach ( get_taxonomies( $args ) as $type ) {
-	$possible_types[ $type ] = Types::term_object( $type );
+	$possible_types[] = Types::term_object( $type );
 }
 
 // Add the custom link type (which is just a menu item).
@@ -34,6 +34,7 @@ $possible_types['MenuItem'] = TypeRegistry::get_type( 'MenuItem' );
 register_graphql_union_type( 'MenuItemObjectUnion', [
 	'types'       => $possible_types,
 	'resolveType' => function ( $object ) {
+
 		// Custom link / menu item
 		if ( $object instanceof MenuItem ) {
 			return TypeRegistry::get_type( 'MenuItem' );

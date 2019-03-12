@@ -37,11 +37,7 @@ function register_post_object_types( $post_type_object ) {
 				if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
 					return null;
 				}
-				$image_id = absint( $post->featuredImageId );
-				$context->PostObjectLoader->buffer( [ $image_id ] );
-				return new Deferred( function() use ( $image_id, $context ) {
-					return $context->PostObjectLoader->load( $image_id );
-				});
+				return DataSource::resolve_post_object( $post->featuredImageId, $context );
 			}
 		] );
 
@@ -274,12 +270,8 @@ function get_post_object_fields( $post_type_object ) {
 				if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
 					return null;
 				}
-				$post_id = absint( $post->parentId );
-				$context->PostObjectLoader->buffer( [ $post_id ] );
-				return new Deferred( function() use ( $post_id, $context ) {
-					$object = $context->PostObjectLoader->load( $post_id );
-					return $object;
-				});
+
+				return DataSource::resolve_post_object( $post->parentId, $context );
 			}
 		],
 		'editLast'          => [

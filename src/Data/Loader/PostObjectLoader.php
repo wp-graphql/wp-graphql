@@ -28,13 +28,6 @@ class PostObjectLoader extends AbstractDataLoader {
 	 */
 	public function loadKeys( array $keys ) {
 
-		/**
-		 * If there are no keys, return null and don't execute the query.
-		 */
-		if ( empty( $keys ) ) {
-			return null;
-		}
-
 		$all_posts = [];
 		if ( empty( $keys ) ) {
 			return $keys;
@@ -86,9 +79,10 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * we can proceed to resolve the object via the Model layer.
 			 */
 			$post_object = get_post( absint( $key ) );
+
 			if ( empty( $post_object ) ) {
 				throw new \Exception( sprintf( __( 'No post exists with id: %s', 'wp-graphql' ), $key ) );
-			}
+		}
 
 			/**
 			 * Return the instance through the Model to ensure we only
