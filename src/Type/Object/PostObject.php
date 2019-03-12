@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type;
 
-use function foo\func;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;

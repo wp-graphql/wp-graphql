@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use GraphQL\Deferred;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 /**
@@ -10,6 +12,8 @@ use WPGraphQL\Model\Post;
  * @package WPGraphQL\Data\Loader
  */
 class PostObjectLoader extends AbstractDataLoader {
+
+	protected $loaded_posts;
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -28,7 +32,6 @@ class PostObjectLoader extends AbstractDataLoader {
 	 */
 	public function loadKeys( array $keys ) {
 
-		$all_posts = [];
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -78,7 +81,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * and if they don't exist we can throw an error, otherwise
 			 * we can proceed to resolve the object via the Model layer.
 			 */
-			$post_object = get_post( absint( $key ) );
+			$post_object = get_post( (int) $key );
 
 			if ( empty( $post_object ) ) {
 				throw new \Exception( sprintf( __( 'No post exists with id: %s', 'wp-graphql' ), $key ) );
@@ -88,10 +91,28 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$all_posts[ $key ] = new Post( $post_object );
+
+			$this->loaded_posts[ $key ] = new Deferred(function() use ( $post_object ) {
+
+				/**
+				 * If there's a Post Author connected to the post, we need to resolve the
+				 * user as it gets set in the globals via `setup_post_data()` and doing it this way
+				 * will batch the loading so when `setup_post_data()` is called the user
+				 * is already in the cache.
+				 */
+				if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
+					$author = DataSource::resolve_user( $post_object->post_author, $this->context );
+					return $author->then(function() use ( $post_object ) {
+						return new Post( $post_object );
+					});
+				} else {
+					return new Post( $post_object );
+				}
+			});
+
 		}
 
-		return $all_posts;
+		return ! empty( $this->loaded_posts ) ? $this->loaded_posts : [];
 
 	}
 

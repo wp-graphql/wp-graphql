@@ -180,7 +180,7 @@ class DataSource {
 	 *
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @return mixed null \WP_Post
+	 * @return Deferred
 	 * @access public
 	 *
 	 * @throws \Exception
