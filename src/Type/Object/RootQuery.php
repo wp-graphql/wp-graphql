@@ -2,13 +2,11 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
 
 $node_definition = DataSource::get_node_definition();
 

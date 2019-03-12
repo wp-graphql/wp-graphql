@@ -668,7 +668,7 @@ class DataSource {
 						 *
 						 * @since 0.0.6
 						 */
-						if ( null === $node ) {
+						if ( ! $node ) {
 							throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
 						}
 

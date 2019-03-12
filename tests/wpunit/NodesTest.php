@@ -487,7 +487,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"Y29tbWVudDo5OTk5\"){
+		  node(id:\"nonExistentId\"){
 			...on Comment {
 			  id
 			}
@@ -496,6 +496,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		";
 
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$this->assertArrayHasKey( 'errors', $actual );
 
