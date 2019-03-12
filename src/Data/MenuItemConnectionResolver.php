@@ -83,6 +83,16 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
+		/**
+		 * Filter the $args to allow folks to customize query generation programmatically
+		 *
+		 * @param array       $args       The inputArgs on the field
+		 * @param mixed       $source     The source that's passed down the GraphQL queries
+		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
+		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 */
+		$args = apply_filters( 'graphql_menu_item_connection_args', $args, $source, $context, $info );
+
 		// Prevent the query from matching anything by default.
 		$query_args = [
 			'post_type' => 'nav_menu_item',
