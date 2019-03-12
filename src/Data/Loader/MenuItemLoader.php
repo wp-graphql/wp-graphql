@@ -73,15 +73,12 @@ class MenuItemLoader extends AbstractDataLoader {
 			 * we can proceed to resolve the object via the Model layer.
 			 */
 			$post_object = get_post( absint( $key ) );
-			if ( empty( $post_object ) ) {
-				throw new \Exception( sprintf( __( 'No post exists with id: %s', 'wp-graphql' ), $key ) );
-			}
 
 			/**
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$all_posts[ $key ] = new MenuItem( $post_object );
+			$all_posts[ $key ] = ! empty( $post_object ) ? new MenuItem( $post_object ) : null;
 		}
 
 		return $all_posts;

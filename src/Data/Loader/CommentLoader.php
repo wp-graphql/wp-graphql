@@ -39,11 +39,7 @@ class CommentLoader extends AbstractDataLoader {
 
 			$comment_object = ! empty( $comments_by_id[ $key ] ) ? $comments_by_id[ $key ] : null;
 
-			if ( empty( $comment_object ) ) {
-				throw new \Exception( sprintf( __( 'No post exists with id: %s', 'wp-graphql' ), $key ) );
-			}
-
-			$all_comments[ $key ] = new Comment( $comment_object );
+			$all_comments[ $key ] = ! empty( $comment_object ) ? new Comment( $comment_object ) : null;
 
 		}
 

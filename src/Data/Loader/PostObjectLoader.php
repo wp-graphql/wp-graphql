@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use GraphQL\Deferred;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 /**
@@ -10,6 +12,11 @@ use WPGraphQL\Model\Post;
  * @package WPGraphQL\Data\Loader
  */
 class PostObjectLoader extends AbstractDataLoader {
+
+	/**
+	 * @var array
+	 */
+	protected $all_posts;
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -28,7 +35,6 @@ class PostObjectLoader extends AbstractDataLoader {
 	 */
 	public function loadKeys( array $keys ) {
 
-		$all_posts = [];
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -42,13 +48,13 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * in the same order the keys were provided in.
 		 */
 		$args = [
-			'post_type' => 'any',
-			'post_status' => 'any',
-			'posts_per_page' => count( $keys ),
-			'post__in' => $keys,
-			'orderby' => 'post__in',
-			'no_found_rows' => true,
-			'split_the_query' => false,
+			'post_type'           => 'any',
+			'post_status'         => 'any',
+			'posts_per_page'      => count( $keys ),
+			'post__in'            => $keys,
+			'orderby'             => 'post__in',
+			'no_found_rows'       => true,
+			'split_the_query'     => false,
 			'ignore_sticky_posts' => true,
 		];
 
@@ -59,6 +65,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			if ( false === $query->get( 'split_the_query' ) ) {
 				return false;
 			}
+
 			return $split;
 		}, 10, 2 );
 
@@ -80,18 +87,19 @@ class PostObjectLoader extends AbstractDataLoader {
 			 */
 			$post_object = get_post( absint( $key ) );
 
-			if ( empty( $post_object ) ) {
-				throw new \Exception( sprintf( __( 'No post exists with id: %s', 'wp-graphql' ), $key ) );
+			$this->all_posts[ $key ] = new Deferred(function() use ( $post_object ) {
+				$author = DataSource::resolve_user( $post_object->post_author, $this->context );
+				return $author->then(function() use ( $post_object ) {
+					return new Post( $post_object );
+				});
+			});
+
+
 		}
 
-			/**
-			 * Return the instance through the Model to ensure we only
-			 * return fields the consumer has access to.
-			 */
-			$all_posts[ $key ] = new Post( $post_object );
-		}
 
-		return $all_posts;
+
+		return $this->all_posts;
 
 	}
 

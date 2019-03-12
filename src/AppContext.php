@@ -75,7 +75,7 @@ class AppContext {
 	 * @var MenuItemLoader
 	 */
 	public $MenuItemLoader;
-	
+
 	/**
 	 * @var PostObjectLoader
 	 */
@@ -90,10 +90,10 @@ class AppContext {
 	 * AppContext constructor.
 	 */
 	public function __construct() {
-		$this->MenuItemLoader   = new MenuItemLoader();
-		$this->CommentLoader    = new CommentLoader();
-		$this->PostObjectLoader = new PostObjectLoader();
-		$this->UserLoader       = new UserLoader();
+		$this->MenuItemLoader   = new MenuItemLoader( $this );
+		$this->CommentLoader    = new CommentLoader( $this );
+		$this->PostObjectLoader = new PostObjectLoader( $this );
+		$this->UserLoader       = new UserLoader( $this );
 		$this->config           = apply_filters( 'graphql_app_context_config', $this->config );
 	}
 

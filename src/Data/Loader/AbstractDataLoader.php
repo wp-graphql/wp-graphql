@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data\Loader;
 
 use GraphQL\Utils\Utils;
+use WPGraphQL\AppContext;
 
 /**
  * Class AbstractDataLoader
@@ -25,6 +26,15 @@ abstract class AbstractDataLoader {
 	 * @var array
 	 */
 	private $buffer = [];
+
+	/**
+	 * @var AppContext
+	 */
+	protected $context;
+
+	public function __construct( AppContext $context ) {
+		$this->context = $context;
+	}
 
 	/**
 	 * Add keys to buffer to be loaded in single batch later.
