@@ -145,6 +145,17 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$pagination_increase          = ! empty( $args['first'] ) && ( empty( $args['after'] ) && empty( $args['before'] ) ) ? 0 : 1;
 		$query_args['posts_per_page'] = self::get_query_amount( $source, $args, $context, $info ) + absint( $pagination_increase );
 
+		/**
+		 * Filter the $query args to allow folks to customize queries programmatically
+		 *
+		 * @param array       $query_args The args that will be passed to the WP_Query
+		 * @param mixed       $source     The source that's passed down the GraphQL queries
+		 * @param array       $args       The inputArgs on the field
+		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
+		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 */
+		$query_args = apply_filters( 'graphql_menu_item_connection_query_args', $query_args, $source, $args, $context, $info );
+
 		return $query_args;
 	}
 
