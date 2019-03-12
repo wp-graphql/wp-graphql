@@ -805,4 +805,12 @@ class DataSource {
 		return null;
 
 	}
+
+		/**
+     * Returns array of nav menu location names
+     */
+    public static function get_registered_nav_menu_locations() {
+			global $_wp_registered_nav_menus;
+			return array_keys( $_wp_registered_nav_menus );
+		}
 }

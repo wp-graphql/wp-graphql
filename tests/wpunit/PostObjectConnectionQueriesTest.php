@@ -749,12 +749,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_1_args = [
 			'post_content' => 'Post content 1',
-			'post_excerpt' => 'Post excerpt 1',
+			'post_excerpt' => '',
 		];
 
 		$post_2_args = [
 			'post_content' => 'Post content 2',
-			'post_excerpt' => 'Post excerpt 2',
+			'post_excerpt' => '',
 		];
 
 		$post_1_id = $this->createPostObject( $post_1_args );
