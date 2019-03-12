@@ -201,6 +201,7 @@ return array(
     'WPGraphQL\\Data\\ConnectionResolverInterface' => $baseDir . '/src/Data/ConnectionResolverInterface.php', 
     'WPGraphQL\\Data\\DataSource' => $baseDir . '/src/Data/DataSource.php', 
     'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => $baseDir . '/src/Data/Loader/AbstractDataLoader.php', 
+    'WPGraphQL\\Data\\Loader\\CommentLoader' => $baseDir . '/src/Data/Loader/CommentLoader.php', 
     'WPGraphQL\\Data\\Loader\\MenuItemLoader' => $baseDir . '/src/Data/Loader/MenuItemLoader.php', 
     'WPGraphQL\\Data\\Loader\\PostObjectLoader' => $baseDir . '/src/Data/Loader/PostObjectLoader.php', 
     'WPGraphQL\\Data\\Loader\\UserLoader' => $baseDir . '/src/Data/Loader/UserLoader.php', 

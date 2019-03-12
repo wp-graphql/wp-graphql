@@ -224,6 +224,7 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
         'WPGraphQL\\Data\\ConnectionResolverInterface' => __DIR__ . '/../..' . '/src/Data/ConnectionResolverInterface.php',
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
         'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => __DIR__ . '/../..' . '/src/Data/Loader/AbstractDataLoader.php',
+        'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
         'WPGraphQL\\Data\\Loader\\MenuItemLoader' => __DIR__ . '/../..' . '/src/Data/Loader/MenuItemLoader.php',
         'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php',
         'WPGraphQL\\Data\\Loader\\UserLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserLoader.php',
