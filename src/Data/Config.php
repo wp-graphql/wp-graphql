@@ -127,8 +127,9 @@ class Config {
 		$compare_left = "{$wpdb->postmeta}.meta_value";
 
 		if ( $meta_type ) {
-			$compare_right = "CAST(%s AS $meta_type)";
+			$meta_type = $this->get_cast_for_type( $meta_type );
 			$compare_left = "CAST({$wpdb->postmeta}.meta_value AS $meta_type)";
+			$compare_right = "CAST(%s AS $meta_type)";
 		}
 
 		$where .= $wpdb->prepare(
@@ -138,6 +139,32 @@ class Config {
 		);
 
 		return $where;
+	}
+
+	/**
+	 * Copied from https://github.com/WordPress/WordPress/blob/c4f8bc468db56baa2a3bf917c99cdfd17c3391ce/wp-includes/class-wp-meta-query.php#L272-L296
+	 *
+	 * It's an intance method. No way to call it without creating the instance?
+	 *
+	 * Return the appropriate alias for the given meta type if applicable.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param string $type MySQL type to cast meta_value.
+	 * @return string MySQL type.
+	 */
+	public function get_cast_for_type( $type = '' ) {
+		if ( empty( $type ) ) {
+			return 'CHAR';
+		}
+		$meta_type = strtoupper( $type );
+		if ( ! preg_match( '/^(?:BINARY|CHAR|DATE|DATETIME|SIGNED|UNSIGNED|TIME|NUMERIC(?:\(\d+(?:,\s?\d+)?\))?|DECIMAL(?:\(\d+(?:,\s?\d+)?\))?)$/', $meta_type ) ) {
+			return 'CHAR';
+		}
+		if ( 'NUMERIC' == $meta_type ) {
+			$meta_type = 'SIGNED';
+		}
+		return $meta_type;
 	}
 
 	/**
