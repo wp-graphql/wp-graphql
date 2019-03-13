@@ -760,22 +760,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		return sprintf('%08d', $num);
 	}
 
-	public function testPostOrderingByStringMetaKey() {
-
-		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
-		}
-
-		// Move number 19 to the second page when ordering by test_meta
-		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
-
-		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) {
-			$query_args['orderby'] = [ 'meta_value' => 'ASC', ];
-			$query_args['meta_key'] = 'test_meta';
-			return $query_args;
-		}, 10, 1 );
-
+	private function getSecondPostsPage() {
 		// Must use dummy where args here to force
 		// graphql_map_input_fields_to_wp_query to be executes
 		$query = "
@@ -795,7 +780,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );
 		$cursor = $first['data']['posts']['pageInfo']['endCursor'];
-		$second = do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
+		return do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
+	}
+
+	public function testPostOrderingByStringMetaKey() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+
+		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) {
+			$query_args['orderby'] = [ 'meta_value' => 'ASC', ];
+			$query_args['meta_key'] = 'test_meta';
+			return $query_args;
+		}, 10, 1 );
+
+		$second = $this->getSecondPostsPage();
 
 		$actual = array_map( function( $edge ) {
 			return $edge['node']['title'];
