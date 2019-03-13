@@ -822,5 +822,44 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	public function testPostOrderingByNumberMetaKey() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $index );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
+
+		$meta_fields = [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'UNSIGNED',
+		];
+
+		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
+			return array_merge( $query_args, $meta_fields );
+		}, 10, 1 );
+
+		$second = $this->getSecondPostsPage();
+
+		$actual = array_map( function( $edge ) {
+			return $edge['node']['title'];
+		}, $second['data']['posts']['edges']);
+
+		// Make correspondig WP_Query
+		$q = new WP_Query( array_merge( $meta_fields, [
+			'post_status' => 'publish',
+			'post_type' => 'post',
+			'post_author' => $this->admin,
+			'posts_per_page' => 5,
+			'paged' => 2,
+		] ) );
+
+		$expected = wp_list_pluck($q->posts, 'post_title');
+
+		$this->assertEquals( $expected, $actual );
+	}
 
 }
