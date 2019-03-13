@@ -120,10 +120,19 @@ class Config {
 	private function add_meta_query_and_operator( $where, $cursor_offset, $order_compare, \WP_Query $query ) {
 		global $wpdb;
 		$meta_key = $query->query_vars["meta_key"];
+		$meta_type = $query->query_vars["meta_type"];
 		$meta_value = get_post_meta($cursor_offset, $meta_key , true);
 
+		$compare_right = '%s';
+		$compare_left = "{$wpdb->postmeta}.meta_value";
+
+		if ( ! empty( $meta_type ) ) {
+			$compare_right = "CAST(%s AS $meta_type)";
+			$compare_left = "CAST({$wpdb->postmeta}.meta_value AS $meta_type)";
+		}
+
 		$where .= $wpdb->prepare(
-			" AND {$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value {$order_compare} %s ",
+			" AND {$wpdb->postmeta}.meta_key = %s AND $compare_left {$order_compare} $compare_right ",
 			$meta_key,
 			$meta_value
 		);
