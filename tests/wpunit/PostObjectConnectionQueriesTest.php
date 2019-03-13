@@ -760,6 +760,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		return sprintf('%08d', $num);
 	}
 
+	private function numberToMysqlDate($num) {
+		return sprintf('2019-03-%02d', $num);
+	}
+
 	public function assertMetaQuery( $meta_fields ) {
 
 		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
@@ -821,6 +825,40 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'meta_key' => 'test_meta',
 		] );
 
+	}
+
+
+	public function testPostOrderingByDateMetaKey() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'DATE',
+		] );
+	}
+
+	public function testPostOrderingByDateMetaKeyDESC() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
+		}
+
+		update_post_meta( $this->created_post_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'DESC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'DATE',
+		] );
 	}
 
 	public function testPostOrderingByNumberMetaKey() {
