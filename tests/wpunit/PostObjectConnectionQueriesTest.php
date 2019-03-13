@@ -764,6 +764,24 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		return sprintf('2019-03-%02d', $num);
 	}
 
+	private function deleteByMetaKey( $key, $value ) {
+		$args = array(
+			'meta_query' => array(
+				array(
+					'key' => $key,
+					'value' => $value,
+					'compare' => '=',
+				)
+			)
+		 );
+
+		 $query = new WP_Query($args);
+
+		 foreach ( $query->posts as $post ) {
+			wp_delete_post( $post->ID, true );
+		 }
+	}
+
 	public function assertMetaQuery( $meta_fields ) {
 
 		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
@@ -818,6 +836,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
 		$this->assertMetaQuery( [
@@ -836,6 +855,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 6 ) );
 		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
 		$this->assertMetaQuery( [
@@ -852,6 +872,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
 		}
 
+		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 14 ) );
 		update_post_meta( $this->created_post_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
 
 		$this->assertMetaQuery( [
@@ -869,6 +890,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
 
 		$this->assertMetaQuery( [
@@ -885,6 +907,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			update_post_meta( $post_id, 'test_meta', $index );
 		}
 
+		$this->deleteByMetaKey( 'test_meta', 14 );
 		update_post_meta( $this->created_post_ids[2], 'test_meta', 14 );
 
 		$this->assertMetaQuery( [
