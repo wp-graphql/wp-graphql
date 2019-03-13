@@ -878,4 +878,20 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
+	public function testPostOrderingByNumberMetaKeyDESC() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta( $post_id, 'test_meta', $index );
+		}
+
+		update_post_meta( $this->created_post_ids[2], 'test_meta', 14 );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'DESC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'UNSIGNED',
+		] );
+	}
+
 }
