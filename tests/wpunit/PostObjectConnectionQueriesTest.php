@@ -793,10 +793,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Move number 19 to the second page when ordering by test_meta
 		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
-		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) {
-			$query_args['orderby'] = [ 'meta_value' => 'ASC', ];
-			$query_args['meta_key'] = 'test_meta';
-			return $query_args;
+		$meta_fields = [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+		];
+
+		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
+			return array_merge( $query_args, $meta_fields );
 		}, 10, 1 );
 
 		$second = $this->getSecondPostsPage();
@@ -806,20 +809,18 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
-		$q = new WP_Query( [
+		$q = new WP_Query( array_merge( $meta_fields, [
 			'post_status' => 'publish',
 			'post_type' => 'post',
 			'post_author' => $this->admin,
-
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
 			'posts_per_page' => 5,
 			'paged' => 2,
-		] );
+		] ) );
 
 		$expected = wp_list_pluck($q->posts, 'post_title');
 
 		$this->assertEquals( $expected, $actual );
 	}
+
 
 }
