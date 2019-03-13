@@ -87,7 +87,15 @@ class Config {
 						foreach ( $orderby as $by => $order ) {
 							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 							$value = $cursor_post->{$by};
-							if ( ! empty( $by ) && ! empty( $value ) ) {
+							if ($by === 'meta_value') {
+								$meta_value = get_post_meta($cursor_offset, $query->query_vars["meta_key"], true);
+
+								$where .= $wpdb->prepare(
+									" AND {$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value {$order_compare} %s ",
+									$query->query_vars["meta_key"],
+									$meta_value
+								);
+							} else if ( ! empty( $by ) && ! empty( $value ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
 							}
 						}
