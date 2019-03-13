@@ -88,13 +88,7 @@ class Config {
 							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 							$value = $cursor_post->{$by};
 							if ($by === 'meta_value') {
-								$meta_value = get_post_meta($cursor_offset, $query->query_vars["meta_key"], true);
-
-								$where .= $wpdb->prepare(
-									" AND {$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value {$order_compare} %s ",
-									$query->query_vars["meta_key"],
-									$meta_value
-								);
+								$where .= $this->add_meta_query_and_operator( $where, $cursor_offset, $order_compare, $query );
 							} else if ( ! empty( $by ) && ! empty( $value ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
 							}
@@ -111,6 +105,30 @@ class Config {
 
 		return $where;
 
+	}
+
+	/**
+	 * Implement the AND operators for paginating with meta queries
+	 *
+	 * @param string    $where The WHERE clause of the query.
+	 * @param number    $cursor_offset the current post id
+	 * @param string    $order_compare The comparison string
+	 * @param \WP_Query $query The WP_Query instance (passed by reference).
+	 *
+	 * @return string
+	 */
+	private function add_meta_query_and_operator( $where, $cursor_offset, $order_compare, \WP_Query $query ) {
+		global $wpdb;
+		$meta_key = $query->query_vars["meta_key"];
+		$meta_value = get_post_meta($cursor_offset, $meta_key , true);
+
+		$where .= $wpdb->prepare(
+			" AND {$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value {$order_compare} %s ",
+			$meta_key,
+			$meta_value
+		);
+
+		return $where;
 	}
 
 	/**
