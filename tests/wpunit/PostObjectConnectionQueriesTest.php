@@ -755,5 +755,56 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEquals( $edges[0]['node']['content'], $edges[1]['node']['content'] );
 
 	}
-	
+
+	private function formatNumber($num) {
+		return sprintf('%08d', $num);
+	}
+
+	public function testPostOrderingByStringMetaKey() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+
+		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) {
+			$query_args['orderby'] = [ 'meta_value' => 'ASC', ];
+			$query_args['meta_key'] = 'test_meta';
+			return $query_args;
+		}, 10, 1 );
+
+		// Must use dummy where args here to force
+		// graphql_map_input_fields_to_wp_query to be executes
+		$query = "
+		query getPosts(\$cursor: String) {
+			posts(after: \$cursor, first: 5, where: {author: {$this->admin}}) {
+			  pageInfo {
+				endCursor
+			  }
+			  edges {
+				node {
+				  title
+				}
+			  }
+			}
+		  }
+		";
+
+		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );
+		$cursor = $first['data']['posts']['pageInfo']['endCursor'];
+		$second = do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
+
+		$actual = array_map( function( $edge ) {
+			return $edge['node']['title'];
+		}, $second['data']['posts']['edges']);
+
+		// Note the 19 here
+		$expected = [ 6, 19, 7, 8, 9 ];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
 }
