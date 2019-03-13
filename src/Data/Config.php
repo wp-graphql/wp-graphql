@@ -119,9 +119,9 @@ class Config {
 	 */
 	private function add_meta_query_and_operator( $where, $cursor_offset, $order_compare, \WP_Query $query ) {
 		global $wpdb;
-		$meta_key = $query->query_vars["meta_key"];
-		$meta_type = $query->query_vars["meta_type"];
-		$meta_value = get_post_meta($cursor_offset, $meta_key , true);
+		$meta_key = esc_sql( $query->query_vars["meta_key"] );
+		$meta_type = esc_sql( $query->query_vars["meta_type"] );
+		$meta_value = esc_sql( get_post_meta($cursor_offset, $meta_key , true) );
 
 		$compare_right = '%s';
 		$compare_left = "{$wpdb->postmeta}.meta_value";
