@@ -227,6 +227,7 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
         'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
         'WPGraphQL\\Data\\Loader\\MenuItemLoader' => __DIR__ . '/../..' . '/src/Data/Loader/MenuItemLoader.php',
         'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php',
+        'WPGraphQL\\Data\\Loader\\TermObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TermObjectLoader.php',
         'WPGraphQL\\Data\\Loader\\UserLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserLoader.php',
         'WPGraphQL\\Data\\MediaItemMutation' => __DIR__ . '/../..' . '/src/Data/MediaItemMutation.php',
         'WPGraphQL\\Data\\MenuConnectionResolver' => __DIR__ . '/../..' . '/src/Data/MenuConnectionResolver.php',

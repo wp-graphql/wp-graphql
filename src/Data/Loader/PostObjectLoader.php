@@ -13,12 +13,10 @@ use WPGraphQL\Model\Post;
  */
 class PostObjectLoader extends AbstractDataLoader {
 
-	protected $loaded_posts;
-
 	/**
 	 * @var array
 	 */
-	protected $all_posts;
+	protected $loaded_posts;
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -88,14 +86,6 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * we can proceed to resolve the object via the Model layer.
 			 */
 			$post_object = get_post( (int) $key );
-
-			$this->all_posts[ $key ] = new Deferred(function() use ( $post_object ) {
-				$author = DataSource::resolve_user( $post_object->post_author, $this->context );
-				return $author->then(function() use ( $post_object ) {
-					return new Post( $post_object );
-				});
-			});
-
 
 			/**
 			 * Return the instance through the Model to ensure we only

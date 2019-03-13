@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**

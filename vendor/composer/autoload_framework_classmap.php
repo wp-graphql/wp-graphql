@@ -204,6 +204,7 @@ return array(
     'WPGraphQL\\Data\\Loader\\CommentLoader' => $baseDir . '/src/Data/Loader/CommentLoader.php', 
     'WPGraphQL\\Data\\Loader\\MenuItemLoader' => $baseDir . '/src/Data/Loader/MenuItemLoader.php', 
     'WPGraphQL\\Data\\Loader\\PostObjectLoader' => $baseDir . '/src/Data/Loader/PostObjectLoader.php', 
+    'WPGraphQL\\Data\\Loader\\TermObjectLoader' => $baseDir . '/src/Data/Loader/TermObjectLoader.php', 
     'WPGraphQL\\Data\\Loader\\UserLoader' => $baseDir . '/src/Data/Loader/UserLoader.php', 
     'WPGraphQL\\Data\\MediaItemMutation' => $baseDir . '/src/Data/MediaItemMutation.php', 
     'WPGraphQL\\Data\\MenuConnectionResolver' => $baseDir . '/src/Data/MenuConnectionResolver.php', 
