@@ -119,14 +119,14 @@ class Config {
 	 */
 	private function add_meta_query_and_operator( $where, $cursor_offset, $order_compare, \WP_Query $query ) {
 		global $wpdb;
-		$meta_key = esc_sql( $query->query_vars["meta_key"] );
-		$meta_type = esc_sql( $query->query_vars["meta_type"] );
+		$meta_key = ! empty( $query->query_vars["meta_key"] ) ? esc_sql( $query->query_vars["meta_key"] ) : null;
+		$meta_type = ! empty( $query->query_vars["meta_type"] ) ? esc_sql( $query->query_vars["meta_type"] ) : null;
 		$meta_value = esc_sql( get_post_meta($cursor_offset, $meta_key , true) );
 
 		$compare_right = '%s';
 		$compare_left = "{$wpdb->postmeta}.meta_value";
 
-		if ( ! empty( $meta_type ) ) {
+		if ( $meta_type ) {
 			$compare_right = "CAST(%s AS $meta_type)";
 			$compare_left = "CAST({$wpdb->postmeta}.meta_value AS $meta_type)";
 		}
