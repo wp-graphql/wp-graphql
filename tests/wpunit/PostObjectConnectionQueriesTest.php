@@ -805,8 +805,19 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			return $edge['node']['title'];
 		}, $second['data']['posts']['edges']);
 
-		// Note the 19 here
-		$expected = [ 6, 19, 7, 8, 9 ];
+		// Make correspondig WP_Query
+		$q = new WP_Query( [
+			'post_status' => 'publish',
+			'post_type' => 'post',
+			'post_author' => $this->admin,
+
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'posts_per_page' => 5,
+			'paged' => 2,
+		] );
+
+		$expected = wp_list_pluck($q->posts, 'post_title');
 
 		$this->assertEquals( $expected, $actual );
 	}
