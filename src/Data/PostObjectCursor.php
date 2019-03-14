@@ -1,9 +1,6 @@
 <?php
 
 namespace WPGraphQL\Data;
-use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
 
 /**
  * Post Cursor
