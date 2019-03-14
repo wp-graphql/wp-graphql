@@ -165,7 +165,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
 	}
 
-	public function testPostOrderingByStringMetaKey() {
+	public function testPostOrderingByString() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -184,7 +184,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 
-	public function testPostOrderingByDateMetaKey() {
+	public function testPostOrderingByDate() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -202,7 +202,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByDateMetaKeyDESC() {
+	public function testPostOrderingByDateDESC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -219,7 +219,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByNumberMetaKey() {
+	public function testPostOrderingByNumber() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -237,7 +237,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByNumberMetaKeyDESC() {
+	public function testPostOrderingByNumberDESC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
