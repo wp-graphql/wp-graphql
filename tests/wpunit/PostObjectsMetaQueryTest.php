@@ -267,16 +267,17 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertMetaQuery( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
-            'meta_type' => 'UNSIGNED',
-            'meta_query' => [
-                [
-                    'key'     => 'test_meta',
-                    'compare' => '>',
-                    'value'   => 10,
-                    'type'    => 'UNSIGNED',
-                ],
-            ]
-            ], 3 );
+			'meta_type' => 'UNSIGNED',
+			'meta_query' => [
+				[
+					'key'     => 'test_meta',
+					'compare' => '>',
+					'value'   => 10,
+					'type'    => 'UNSIGNED',
+				],
+			]
+			], 3 );
 
 	}
+
 }
