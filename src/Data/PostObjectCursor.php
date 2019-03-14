@@ -126,7 +126,7 @@ class PostObjectCursor {
 		$post_field = 'post_' . $by;
 		$value = $this->cursor_post->{$post_field};
 
-		if ( ! empty( $by ) && ! empty( $value ) ) {
+		if ( ! empty( $value ) ) {
 			return $this->compare_with_post_field( $post_field, $value, $order_compare );
 		}
 
