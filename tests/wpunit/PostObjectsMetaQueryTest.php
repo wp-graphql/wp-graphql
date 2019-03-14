@@ -118,7 +118,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 }
 	}
 
-	public function assertMetaQuery( $meta_fields ) {
+	public function assertMetaQuery( $meta_fields, $posts_per_page = 5 ) {
 
 		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
 			return array_merge( $query_args, $meta_fields );
@@ -128,7 +128,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// graphql_map_input_fields_to_wp_query to be executes
 		$query = "
 		query getPosts(\$cursor: String) {
-			posts(after: \$cursor, first: 5, where: {author: {$this->admin}}) {
+			posts(after: \$cursor, first: $posts_per_page, where: {author: {$this->admin}}) {
 			  pageInfo {
 				endCursor
 			  }
@@ -154,7 +154,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_status' => 'publish',
 			'post_type' => 'post',
 			'post_author' => $this->admin,
-			'posts_per_page' => 5,
+			'posts_per_page' => $posts_per_page,
 			'paged' => 2,
 		] ) );
 
