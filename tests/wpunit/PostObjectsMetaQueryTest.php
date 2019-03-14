@@ -280,4 +280,25 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testPostOrderingByQueryClause() {
+
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
+		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'test_clause' => 'ASC', ],
+			'meta_query' => [
+				'test_clause' => [
+					'key' => 'test_meta',
+					'compare' => 'EXISTS',
+				]
+			]
+		] );
+
+	}
 }
