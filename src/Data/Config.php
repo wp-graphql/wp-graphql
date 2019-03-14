@@ -87,130 +87,15 @@ class Config {
 			 */
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
-				$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-				$compare_opposite = ( '<' === $compare ) ? '>' : '<';
+				$post_cursor = new PostCursor( $cursor_offset, $query );
+				$where .= $post_cursor->get_where();
 
-				// Get the $cursor_post
-				$cursor_post = get_post( $cursor_offset );
-
-				/**
-				 * If the $cursor_post exists (hasn't been deleted), modify the query to compare based on the ID and post_date values
-				 * But if the $cursor_post no longer exists, we're forced to just compare with the ID
-				 *
-				 */
-				if ( ! empty( $cursor_post ) && ! empty( $cursor_post->post_date ) ) {
-					$orderby = $query->get( 'orderby' );
-					if ( ! empty( $orderby ) && is_array( $orderby ) ) {
-						foreach ( $orderby as $by => $order ) {
-							$where .= $this->add_and_operator( $where, $cursor_offset, $by, $order, $cursor_post, $query );
-						}
-					} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
-							$order = ! empty( $query->query_vars['order'] ) ? $query->query_vars['order'] : 'DESC' ;
-							$where .= $this->add_and_operator( $where, $cursor_offset, $orderby, $order, $cursor_post, $query );
-					} else {
-						$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_date {$compare}= %s AND {$wpdb->posts}.ID != %d", esc_sql( $cursor_post->post_date ), absint( $cursor_offset ) );
-					}
-				} else {
-					$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID {$compare} %d", $cursor_offset );
-				}
 			}
 		}
 
 		return $where;
 	}
 
-	private function add_and_operator( $where, $cursor_offset, $by, $order, $cursor_post, $query ) {
-		$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-		$value = $cursor_post->{$by};
-		$meta_key =  $this->get_meta_key( $by, $query );
-
-		if ( $meta_key ) {
-			$where .= $this->add_meta_query_and_operator( $meta_key, $where, $cursor_offset, $order_compare, $query );
-		} else if ( ! empty( $by ) && ! empty( $value ) ) {
-			$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
-		}
-
-
-		return $where;
-	}
-
-	private function get_meta_key( $by, \WP_Query $query ) {
-
-		if ( 'meta_value' === $by ) {
-			return ! empty( $query->query_vars["meta_key"] ) ? esc_sql( $query->query_vars["meta_key"] ) : null;
-		}
-
-		// Look for meta clause
-		if ( ! isset( $query->query_vars['meta_query'][ $by ] ) ) {
-			return null;
-		}
-
-		$clause = $query->query_vars["meta_query"][ $by ];
-
-		return empty( $clause['key'] ) ? null : $clause['key'];
-	}
-
-	/**
-	 * Implement the AND operators for paginating with meta queries
-	 *
-	 * @param string    $meta_key
-	 * @param string    $where The WHERE clause of the query.
-	 * @param number    $cursor_offset the current post id
-	 * @param string    $order_compare The comparison string
-	 * @param \WP_Query $query The WP_Query instance (passed by reference).
-	 *
-	 * @return string
-	 */
-	private function add_meta_query_and_operator( $meta_key, $where, $cursor_offset, $order_compare, \WP_Query $query ) {
-		global $wpdb;
-
-		$meta_type = ! empty( $query->query_vars["meta_type"] ) ? esc_sql( $query->query_vars["meta_type"] ) : null;
-		$meta_value = esc_sql( get_post_meta( $cursor_offset, $meta_key, true ) );
-
-		$compare_right = '%s';
-		$compare_left = "{$wpdb->postmeta}.meta_value";
-
-		if ( $meta_type ) {
-			$meta_type = $this->get_cast_for_type( $meta_type );
-			$compare_left = "CAST({$wpdb->postmeta}.meta_value AS $meta_type)";
-			$compare_right = "CAST(%s AS $meta_type)";
-		}
-
-		$where .= $wpdb->prepare(
-			" AND {$wpdb->postmeta}.meta_key = %s AND $compare_left {$order_compare} $compare_right ",
-			$meta_key,
-			$meta_value
-		);
-
-		return $where;
-	}
-
-	/**
-	 * Copied from https://github.com/WordPress/WordPress/blob/c4f8bc468db56baa2a3bf917c99cdfd17c3391ce/wp-includes/class-wp-meta-query.php#L272-L296
-	 *
-	 * It's an intance method. No way to call it without creating the instance?
-	 *
-	 * Return the appropriate alias for the given meta type if applicable.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param string $type MySQL type to cast meta_value.
-	 * @return string MySQL type.
-	 */
-	public function get_cast_for_type( $type = '' ) {
-		if ( empty( $type ) ) {
-			return 'CHAR';
-		}
-		$meta_type = strtoupper( $type );
-		if ( ! preg_match( '/^(?:BINARY|CHAR|DATE|DATETIME|SIGNED|UNSIGNED|TIME|NUMERIC(?:\(\d+(?:,\s?\d+)?\))?|DECIMAL(?:\(\d+(?:,\s?\d+)?\))?)$/', $meta_type ) ) {
-			return 'CHAR';
-		}
-		if ( 'NUMERIC' == $meta_type ) {
-			$meta_type = 'SIGNED';
-		}
-		return $meta_type;
-	}
 
 	/**
 	 * This filters the term_clauses in the WP_Term_Query to support cursor based pagination, where we can
