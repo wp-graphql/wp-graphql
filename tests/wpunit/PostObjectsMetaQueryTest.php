@@ -254,4 +254,29 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
+	public function testPostOrderingWithFiltering() {
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $index );
+		}
+
+		// Move number 2 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', 15 );
+		update_post_meta($this->created_post_ids[2], 'test_meta', 15 );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+            'meta_type' => 'UNSIGNED',
+            'meta_query' => [
+                [
+                    'key'     => 'test_meta',
+                    'compare' => '>',
+                    'value'   => 10,
+                    'type'    => 'UNSIGNED',
+                ],
+            ]
+            ], 3 );
+
+	}
 }
