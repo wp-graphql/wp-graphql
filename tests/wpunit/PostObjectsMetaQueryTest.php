@@ -338,4 +338,25 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 	}
+
+	/**
+	 * Test support for meta_value_num
+	 */
+	public function testPostOrderingByMetaValueNum() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $index );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', 6 );
+		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
+
+		$this->assertMetaQuery( [
+			'orderby' => 'meta_value_num',
+			'order' => 'ASC',
+			'meta_key' => 'test_meta',
+		] );
+	}
 }
