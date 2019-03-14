@@ -180,6 +180,26 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
+	/**
+	 * Simple title ordering test by ASC
+	 */
+	public function testPostOrderingByPostTitleASC() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'title',
+			'order' => 'ASC',
+		] );
+	}
+
+	/**
+	 * Simple title ordering test by ASC
+	 */
+	public function testPostOrderingByPostTitleDESC() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'title',
+			'order' => 'DESC',
+		] );
+	}
+
 	public function testPostOrderingByString() {
 
 		// Add post meta to created posts
