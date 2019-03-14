@@ -103,15 +103,11 @@ class Config {
 					$orderby = $query->get( 'orderby' );
 					if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 						foreach ( $orderby as $by => $order ) {
-							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-							$value = $cursor_post->{$by};
-							$meta_key =  $this->get_meta_key( $by, $query );
-							if ( $meta_key ) {
-								$where .= $this->add_meta_query_and_operator( $meta_key, $where, $cursor_offset, $order_compare, $query );
-							} else if ( ! empty( $by ) && ! empty( $value ) ) {
-								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
-							}
+							$where .= $this->add_and_operator( $where, $cursor_offset, $by, $order, $cursor_post, $query );
 						}
+					} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+							$order = ! empty( $query->query_vars['order'] ) ? $query->query_vars['order'] : 'DESC' ;
+							$where .= $this->add_and_operator( $where, $cursor_offset, $orderby, $order, $cursor_post, $query );
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_date {$compare}= %s AND {$wpdb->posts}.ID != %d", esc_sql( $cursor_post->post_date ), absint( $cursor_offset ) );
 					}
@@ -121,9 +117,22 @@ class Config {
 			}
 		}
 
+		return $where;
+	}
+
+	private function add_and_operator( $where, $cursor_offset, $by, $order, $cursor_post, $query ) {
+		$order_compare = ( 'ASC' === $order ) ? '>' : '<';
+		$value = $cursor_post->{$by};
+		$meta_key =  $this->get_meta_key( $by, $query );
+
+		if ( $meta_key ) {
+			$where .= $this->add_meta_query_and_operator( $meta_key, $where, $cursor_offset, $order_compare, $query );
+		} else if ( ! empty( $by ) && ! empty( $value ) ) {
+			$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
+		}
+
 
 		return $where;
-
 	}
 
 	private function get_meta_key( $by, \WP_Query $query ) {
