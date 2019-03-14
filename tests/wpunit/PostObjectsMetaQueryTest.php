@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
