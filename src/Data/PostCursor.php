@@ -122,10 +122,11 @@ class PostCursor {
 		global $wpdb;
 		$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 
-		$value = $this->cursor_post->{$by};
+		$post_field = 'post_' . $by;
+		$value = $this->cursor_post->{$post_field};
 
 		if ( ! empty( $by ) && ! empty( $value ) ) {
-			return $this->compare_with_post_field( $by, $value );
+			return $this->compare_with_post_field( $post_field, $value, $order_compare );
 		}
 
 		$meta_key = $this->get_meta_key( $by );
@@ -145,7 +146,7 @@ class PostCursor {
 	 *
 	 * @return string
 	 */
-	private function compare_with_post_field( $by, $value ) {
+	private function compare_with_post_field( $by, $value, $order_compare ) {
 		global $wpdb;
 		return $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
 	}
