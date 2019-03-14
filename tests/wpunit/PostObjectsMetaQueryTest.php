@@ -142,8 +142,11 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		";
 
 		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );
+		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
+
 		$cursor = $first['data']['posts']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
+		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$actual = array_map( function( $edge ) {
 			return $edge['node']['title'];
