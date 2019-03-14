@@ -157,6 +157,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->postsQuery( $variables );
 
+		codecept_debug( $results );
 
 		/**
 		 * Let's query the first post in our data set so we can test against it
@@ -186,6 +187,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'last' => 1,
 		];
 		$results   = $this->postsQuery( $variables );
+
+		codecept_debug( $results );
 
 		/**
 		 * Let's query the last post in our data set so we can test against it
@@ -784,6 +787,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $private_post, $public_post ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+
+		codecept_debug( $actual );
+
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
 		$this->assertEmpty( $this->getReturnField( $actual, 1 ) );

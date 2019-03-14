@@ -94,6 +94,10 @@ class PostObjectLoader extends AbstractDataLoader {
 
 			$this->loaded_posts[ $key ] = new Deferred(function() use ( $post_object ) {
 
+				if ( ! $post_object instanceof \WP_Post ) {
+					return null;
+				}
+
 				/**
 				 * If there's a Post Author connected to the post, we need to resolve the
 				 * user as it gets set in the globals via `setup_post_data()` and doing it this way

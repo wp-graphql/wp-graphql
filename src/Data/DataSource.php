@@ -233,9 +233,13 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
-		$resolver = new PostObjectConnectionResolver( $post_type );
+//		$resolver = new PostObjectConnectionResolver( $post_type );
+//
+//		return $resolver->resolve( $source, $args, $context, $info );
 
-		return $resolver->resolve( $source, $args, $context, $info );
+		$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+		$connection = $resolver->get_connection();
+		return $connection;
 	}
 
 	/**
