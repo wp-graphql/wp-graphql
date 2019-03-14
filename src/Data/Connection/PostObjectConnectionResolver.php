@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
@@ -48,6 +49,11 @@ class PostObjectConnectionResolver {
 	 * @var \WP_Query
 	 */
 	protected $query;
+
+	/**
+	 * @var array
+	 */
+	protected $items;
 
 	/**
 	 * @var array
@@ -122,14 +128,49 @@ class PostObjectConnectionResolver {
 		$this->query_args = $this->get_query_args();
 
 		/**
+		 * Check if the connection should execute. If conditions are met that should prevent
+		 * the execution, we can bail from resolving early, before the query is executed.
+		 */
+		$should_execute = $this->should_execute();
+		if ( ! $should_execute ) {
+			return [];
+		}
+
+		/**
 		 * Set the query for the resolver, for use as reference in filters, etc
 		 */
 		$this->query = new \WP_Query( $this->query_args );
 
 		/**
+		 * The items returned from the query
+		 */
+		$this->items = $this->query->posts;
+
+		/**
 		 * Set the items. These are the "nodes" that make up the connection.
 		 */
 		$this->nodes = $this->get_nodes();
+	}
+
+	public function should_execute() {
+
+		$should_execute = true;
+
+		/**
+		 * For revisions, we only want to execute the connection query if the user
+		 * has access to edit the parent post.
+		 *
+		 * If the user doesn't have permission to edit the parent post, then we shouldn't
+		 * even execute the connection
+		 */
+		if ( isset( $this->post_type ) && 'revision' === $this->post_type && $this->source instanceof Post ) {
+			$parent_post_type_obj = get_post_type_object( $this->source->post_type );
+			if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
+				$should_execute = false;
+			}
+		}
+
+		return apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
 	}
 
 	/**
@@ -157,6 +198,7 @@ class PostObjectConnectionResolver {
 	 * @return mixed
 	 */
 	public function get_edges() {
+		$this->edges = [];
 		if ( ! empty( $this->nodes ) ) {
 			foreach ( $this->nodes as $node ) {
 				$this->edges[] = [
@@ -179,7 +221,6 @@ class PostObjectConnectionResolver {
 	public function get_query_args() {
 		$query_args           = $this->map_query_args();
 		$query_args['fields'] = 'ids';
-
 		return $query_args;
 	}
 
@@ -228,14 +269,18 @@ class PostObjectConnectionResolver {
 	}
 
 	/**
-	 * @return array
+	 * @return Deferred
 	 */
 	public function get_connection() {
-		return [
-			'edges'    => $this->get_edges(),
-			'pageInfo' => $this->get_page_info(),
-			'nodes'    => $this->get_nodes(),
-		];
+		$connection = new Deferred(function() {
+			return [
+				'edges'    => $this->get_edges(),
+				'pageInfo' => $this->get_page_info(),
+				'nodes'    => $this->get_nodes(),
+			];
+		});
+		$connection->promise;
+		return $connection;
 	}
 
 	/**
@@ -478,6 +523,10 @@ class PostObjectConnectionResolver {
 		 */
 		$query_args = Types::map_input( $where_args, $arg_mapping );
 
+		if ( ! empty( $query_args['post_status'] ) ) {
+			$query_args['post_status'] = $this->sanitize_post_stati( $query_args['post_status'] );
+		}
+
 		/**
 		 * Filter the input fields
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
@@ -501,6 +550,38 @@ class PostObjectConnectionResolver {
 		 */
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Limit the status of posts a user can query.
+	 *
+	 * By default, published posts are public, and other statuses require permission to access.
+	 *
+	 * This strips the status from the query_args if the user doesn't have permission to query for
+	 * posts of that status.
+	 *
+	 * @param $stati
+	 *
+	 * @return array|null
+	 */
+	public function sanitize_post_stati( $stati ) {
+		if ( empty( $stati ) ) {
+			$stati = [ 'publish' ];
+		}
+		$statuses = wp_parse_slug_list( $stati );
+		$post_type_obj = get_post_type_object( $this->post_type );
+		$allowed_statuses = array_filter( array_map(function( $status ) use ( $post_type_obj ) {
+			if ( $status === 'publish' ) {
+				return $status;
+			}
+			if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
+				return $status;
+			} else {
+				return null;
+			}
+		}, $statuses ) );
+
+		return $allowed_statuses;
 	}
 
 	/**

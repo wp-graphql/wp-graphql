@@ -199,6 +199,7 @@ return array(
     'WPGraphQL\\Data\\Config' => $baseDir . '/src/Data/Config.php', 
     'WPGraphQL\\Data\\ConnectionResolver' => $baseDir . '/src/Data/ConnectionResolver.php', 
     'WPGraphQL\\Data\\ConnectionResolverInterface' => $baseDir . '/src/Data/ConnectionResolverInterface.php', 
+    'WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver' => $baseDir . '/src/Data/Connection/PostObjectConnectionResolver.php', 
     'WPGraphQL\\Data\\DataSource' => $baseDir . '/src/Data/DataSource.php', 
     'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => $baseDir . '/src/Data/Loader/AbstractDataLoader.php', 
     'WPGraphQL\\Data\\Loader\\CommentLoader' => $baseDir . '/src/Data/Loader/CommentLoader.php', 

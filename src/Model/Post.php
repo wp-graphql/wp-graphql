@@ -32,7 +32,7 @@ use WPGraphQL\Types;
  * @property string $pinged
  * @property string $modified
  * @property string $modifiedGmt
- * @property int    $parent
+ * @property int    $parentId
  * @property int    $editLastId
  * @property array  $editLock
  * @property string $enclosure

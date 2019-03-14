@@ -824,7 +824,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
-		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
+
+		/**
+		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
+		 * created the post, cannot access it.
+		 *
+		 * NOTE: Core handles this a bit different than the REST API.
+		 *
+		 * With core, a user can create a "private" post as an editor or admin, then the user can be
+		 * demoted to a subscriber, and if that user is logged in, the subscriber can still visit
+		 * the post and see the content on the front-end, but cannot visit the post in the back-end.
+		 *
+		 * The REST API however prevents subscribers (or non authenticated users) from querying
+		 * posts with a "private" status at all.
+		 *
+		 * We're going in the direction of the REST API here. Where certain statuses can only be
+		 * queried by users with certain capabilities.
+		 *
+		 */
+		$this->assertEmpty( $actual['data']['posts']['edges'] );
+		$this->assertEmpty( $actual['data']['posts']['nodes'] );
 
 	}
 
@@ -865,8 +884,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 
+		codecept_debug( $role );
 		wp_set_current_user( $this->{$role} );
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
 		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 		if ( true === $show_revisions ) {
@@ -893,18 +916,36 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'DRAFT' ] ] ] );
-		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
-		$this->assertCount( 2, $actual['data']['posts']['edges'] );
-		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
-		$content_field =  $this->getReturnField( $actual, 1, 'content' );
-		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
 
-		if ( true === $show_draft ) {
-			$this->assertNotNull( $content_field );
-			$this->assertNotNull( $excerpt_field );
-		} else {
-			$this->assertNull( $content_field );
-			$this->assertNull( $excerpt_field );
+		codecept_debug( $role );
+		codecept_debug( $actual );
+
+		if ( 'admin' === $role ) {
+
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+
+			/**
+			 * The admin should have access to 2 posts, one public and one draft
+			 */
+			$this->assertCount( 2, $actual['data']['posts']['edges'] );
+			$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+			$content_field = $this->getReturnField( $actual, 1, 'content' );
+			$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+			if ( true === $show_draft ) {
+				$this->assertNotNull( $content_field );
+				$this->assertNotNull( $excerpt_field );
+			} else {
+				$this->assertNull( $content_field );
+				$this->assertNull( $excerpt_field );
+			}
+		} else if ( 'subscriber' === $role ) {
+
+			/**
+			 * The subscriber should only have access to 1 post, the public one.
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
 
 	}
@@ -925,18 +966,30 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'TRASH' ] ] ] );
-		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
-		$this->assertCount( 2, $actual['data']['posts']['edges'] );
-		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
-		$content_field =  $this->getReturnField( $actual, 1, 'content' );
-		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
 
-		if ( true === $show_trash ) {
-			$this->assertNotNull( $content_field );
-			$this->assertNotNull( $excerpt_field );
-		} else {
-			$this->assertNull( $content_field );
-			$this->assertNull( $excerpt_field );
+		if ( 'admin' === $role ) {
+			/**
+			 * The admin should be able to see 2 posts, the public post and the trashed post
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 2, $actual['data']['posts']['edges'] );
+			$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+			$content_field =  $this->getReturnField( $actual, 1, 'content' );
+			$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+			if ( true === $show_trash ) {
+				$this->assertNotNull( $content_field );
+				$this->assertNotNull( $excerpt_field );
+			} else {
+				$this->assertNull( $content_field );
+				$this->assertNull( $excerpt_field );
+			}
+		} else if ( 'subscriber' === $role ) {
+			/**
+			 * The subscriber should only be able to see 1 post, the public one, not the trashed post.
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
 
 	}

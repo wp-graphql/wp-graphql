@@ -8,9 +8,9 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Menu;
-use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -233,13 +233,10 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
-//		$resolver = new PostObjectConnectionResolver( $post_type );
-//
-//		return $resolver->resolve( $source, $args, $context, $info );
-
-		$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
-		$connection = $resolver->get_connection();
+		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+		$connection =  $resolver->get_connection();
 		return $connection;
+
 	}
 
 	/**
