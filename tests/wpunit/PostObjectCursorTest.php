@@ -200,7 +200,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByString() {
+	public function testPostOrderingByMetaString() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -219,7 +219,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 
-	public function testPostOrderingByDate() {
+	public function testPostOrderingByMetaDate() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -237,7 +237,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByDateDESC() {
+	public function testPostOrderingByMetaDateDESC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -254,7 +254,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByNumber() {
+	public function testPostOrderingByMetaNumber() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -272,7 +272,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByNumberDESC() {
+	public function testPostOrderingByMetaNumberDESC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -289,7 +289,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingWithFiltering() {
+	public function testPostOrderingWithMetaFiltering() {
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
 			update_post_meta($post_id, 'test_meta', $index );
@@ -315,7 +315,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testPostOrderingByQueryClause() {
+	public function testPostOrderingByMetaQueryClause() {
 
 		foreach ($this->created_post_ids as $index => $post_id) {
 			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
@@ -336,7 +336,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByQueryClauseString() {
+	public function testPostOrderingByMetaQueryClauseString() {
 
 		foreach ($this->created_post_ids as $index => $post_id) {
 			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
