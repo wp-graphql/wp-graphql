@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
@@ -118,7 +118,10 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		 }
 	}
 
-	public function assertMetaQuery( $meta_fields, $posts_per_page = 5 ) {
+	/**
+	 * Assert given query fields in a GraphQL post cursor against a plain WP Query
+	 */
+	public function assertQueryInCursor( $meta_fields, $posts_per_page = 5 ) {
 
 		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
 			return array_merge( $query_args, $meta_fields );
@@ -179,7 +182,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 		] );
@@ -198,7 +201,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 6 ) );
 		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'DATE',
@@ -215,7 +218,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 14 ) );
 		update_post_meta( $this->created_post_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'DESC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'DATE',
@@ -233,7 +236,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'UNSIGNED',
@@ -250,7 +253,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 14 );
 		update_post_meta( $this->created_post_ids[2], 'test_meta', 14 );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'DESC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'UNSIGNED',
@@ -267,7 +270,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 15 );
 		update_post_meta($this->created_post_ids[2], 'test_meta', 15 );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'UNSIGNED',
@@ -293,7 +296,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'test_clause' => 'ASC', ],
 			'meta_query' => [
 				'test_clause' => [
@@ -314,7 +317,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => 'test_clause',
 			'order' => 'ASC',
 			'meta_query' => [
@@ -340,7 +343,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'DATE',
@@ -348,7 +351,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		update_post_meta( $this->created_post_ids[17], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'DATE',
@@ -356,7 +359,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		update_post_meta( $this->created_post_ids[18], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
 			'meta_key' => 'test_meta',
 			'meta_type' => 'DATE',
@@ -378,7 +381,7 @@ class PostObjectsMetaQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
 
-		$this->assertMetaQuery( [
+		$this->assertQueryInCursor( [
 			'orderby' => 'meta_value_num',
 			'order' => 'ASC',
 			'meta_key' => 'test_meta',
