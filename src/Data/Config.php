@@ -87,7 +87,7 @@ class Config {
 			 */
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
-				$post_cursor = new PostCursor( $cursor_offset, $query );
+				$post_cursor = new PostObjectCursor( $cursor_offset, $query );
 				$where .= $post_cursor->get_where();
 
 			}

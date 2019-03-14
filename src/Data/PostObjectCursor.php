@@ -12,7 +12,7 @@ use WPGraphQL\AppContext;
  *
  * @package WPGraphQL\Data
  */
-class PostCursor {
+class PostObjectCursor {
 
 	/**
 	 * The WP_Query instance
