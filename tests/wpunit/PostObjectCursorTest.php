@@ -171,6 +171,15 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
 	}
 
+	/**
+	 * Simple title ordering test
+	 */
+	public function testPostOrderingByPostTitle() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'title',
+		] );
+	}
+
 	public function testPostOrderingByString() {
 
 		// Add post meta to created posts
