@@ -15,6 +15,13 @@ use WPGraphQL\AppContext;
 class PostObjectCursor {
 
 	/**
+	 * The global wpdb instance
+	 *
+	 * @var $wpdb
+	 */
+	public $wpdb;
+
+	/**
 	 * The WP_Query instance
 	 *
 	 * @var $query
@@ -50,6 +57,8 @@ class PostObjectCursor {
 	 * @param \WP_Query $query The WP_Query instance
 	 */
 	public function __construct( $cursor_offset, $query ) {
+		global $wpdb;
+		$this->wpdb = $wpdb;
 		$this->cursor_offset = $cursor_offset;
 		$this->query = $query;
 
@@ -64,11 +73,6 @@ class PostObjectCursor {
 	 * Return the additional AND operations for the where statement
 	 */
 	public function get_where() {
-		/**
-		 * Access the global $wpdb object
-		 */
-		global $wpdb;
-
 		if ( ! $this->cursor_post ) {
 			return $this->compare_with_id();
 		}
@@ -94,17 +98,15 @@ class PostObjectCursor {
 	 * Get AND operator for ID based comparison
 	 */
 	private function compare_with_id() {
-		global $wpdb;
-		return $wpdb->prepare( " AND {$wpdb->posts}.ID {$this->compare} %d", $this->cursor_offset );
+		return $this->wpdb->prepare( " AND {$this->wpdb->posts}.ID {$this->compare} %d", $this->cursor_offset );
 	}
 
 	/**
 	 * Get AND operator for post date based comparison
 	 */
 	private function compare_with_date() {
-		global $wpdb;
-		return $wpdb->prepare(
-			" AND {$wpdb->posts}.post_date {$this->compare}= %s AND {$wpdb->posts}.ID != %d",
+		return $this->wpdb->prepare(
+			" AND {$this->wpdb->posts}.post_date {$this->compare}= %s AND {$this->wpdb->posts}.ID != %d",
 			esc_sql( $this->cursor_post->post_date ),
 			absint( $this->cursor_offset )
 		);
@@ -119,7 +121,6 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with( $by, $order ) {
-		global $wpdb;
 		$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 
 		$post_field = 'post_' . $by;
@@ -147,8 +148,7 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with_post_field( $by, $value, $order_compare ) {
-		global $wpdb;
-		return $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
+		return $this->wpdb->prepare( " AND {$this->wpdb->posts}.{$by} {$order_compare} %s", $value );
 	}
 
 	/**
@@ -160,22 +160,20 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order_compare ) {
-		global $wpdb;
-
 		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? esc_sql( $this->query->query_vars["meta_type"] ) : null;
 		$meta_value = esc_sql( get_post_meta( $this->cursor_offset, $meta_key, true ) );
 
 		$compare_right = '%s';
-		$compare_left = "{$wpdb->postmeta}.meta_value";
+		$compare_left = "{$this->wpdb->postmeta}.meta_value";
 
 		if ( $meta_type ) {
 			$meta_type = $this->get_cast_for_type( $meta_type );
-			$compare_left = "CAST({$wpdb->postmeta}.meta_value AS $meta_type)";
+			$compare_left = "CAST({$this->wpdb->postmeta}.meta_value AS $meta_type)";
 			$compare_right = "CAST(%s AS $meta_type)";
 		}
 
-		return $wpdb->prepare(
-			" AND {$wpdb->postmeta}.meta_key = %s AND $compare_left {$order_compare} $compare_right ",
+		return $this->wpdb->prepare(
+			" AND {$this->wpdb->postmeta}.meta_key = %s AND $compare_left {$order_compare} $compare_right ",
 			$meta_key,
 			$meta_value
 		);
