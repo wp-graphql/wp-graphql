@@ -87,8 +87,8 @@ class Config {
 						foreach ( $orderby as $by => $order ) {
 							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 							$value = $cursor_post->{$by};
-							if ($by === 'meta_value') {
-								$where .= $this->add_meta_query_and_operator( $where, $cursor_offset, $order_compare, $query );
+							if ( $by === 'meta_value' || $this->get_meta_key( $by, $query ) ) {
+								$where .= $this->add_meta_query_and_operator( $by, $where, $cursor_offset, $order_compare, $query );
 							} else if ( ! empty( $by ) && ! empty( $value ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
 							}
@@ -107,9 +107,20 @@ class Config {
 
 	}
 
+	private function get_meta_key( $by, \WP_Query $query ) {
+		if ( ! isset( $query->query_vars['meta_query'][ $by ] ) ) {
+			return null;
+		}
+
+		$clause = $query->query_vars["meta_query"][ $by ];
+
+		return empty( $clause['key'] ) ? null : $clause['key'];
+	}
+
 	/**
 	 * Implement the AND operators for paginating with meta queries
 	 *
+	 * @param string    $by
 	 * @param string    $where The WHERE clause of the query.
 	 * @param number    $cursor_offset the current post id
 	 * @param string    $order_compare The comparison string
@@ -117,11 +128,16 @@ class Config {
 	 *
 	 * @return string
 	 */
-	private function add_meta_query_and_operator( $where, $cursor_offset, $order_compare, \WP_Query $query ) {
+	private function add_meta_query_and_operator( $by, $where, $cursor_offset, $order_compare, \WP_Query $query ) {
 		global $wpdb;
 		$meta_key = ! empty( $query->query_vars["meta_key"] ) ? esc_sql( $query->query_vars["meta_key"] ) : null;
 		$meta_type = ! empty( $query->query_vars["meta_type"] ) ? esc_sql( $query->query_vars["meta_type"] ) : null;
-		$meta_value = esc_sql( get_post_meta($cursor_offset, $meta_key , true) );
+
+		if ( ! $meta_key ) {
+			$meta_key = $this->get_meta_key( $by, $query );
+		}
+
+		$meta_value = esc_sql( get_post_meta( $cursor_offset, $meta_key, true ) );
 
 		$compare_right = '%s';
 		$compare_left = "{$wpdb->postmeta}.meta_value";
