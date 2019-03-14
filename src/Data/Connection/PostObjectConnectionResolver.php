@@ -14,109 +14,233 @@ use WPGraphQL\Types;
 
 class PostObjectConnectionResolver {
 
+	/**
+	 * @var string
+	 */
 	protected $post_type;
+
+	/**
+	 * @var mixed
+	 */
 	protected $source;
+
+	/**
+	 * @var array
+	 */
 	protected $args;
+
+	/**
+	 * @var AppContext
+	 */
 	protected $context;
+
+	/**
+	 * @var ResolveInfo
+	 */
 	protected $info;
+
+	/**
+	 * @var array array
+	 */
 	protected $query_args;
+
+	/**
+	 * @var \WP_Query
+	 */
 	protected $query;
-	protected $items;
+
+	/**
+	 * @var array
+	 */
+	protected $nodes;
+
+	/**
+	 * @var array
+	 */
 	protected $edges;
+
+	/**
+	 * @var int
+	 */
 	protected $query_amount;
 
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
-	 * @param $post_type
+	 * @param mixed       $source    The object passed down from the previous level in the Resolve
+	 *                               tree
+	 * @param array       $args      The input arguments for the query
+	 * @param AppContext  $context   The context of the request
+	 * @param ResolveInfo $info      The resolve info passed down the Resolve tree
+	 * @param string      $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
 	 */
 	public function __construct( $source, $args, $context, $info, $post_type ) {
+
+		/**
+		 * Set the post type for the resolver
+		 */
 		$this->post_type = $post_type;
+
+		/**
+		 * Set the source (the root object) for the resolver
+		 */
 		$this->source = $source;
+
+		/**
+		 * Set the args for the resolver
+		 */
 		$this->args = $args;
+
+		/**
+		 * Set the context of the resolver
+		 */
 		$this->context = $context;
+
+		/**
+		 * Set the resolveInfo for the resolver
+		 */
 		$this->info = $info;
+
+		/**
+		 * Determine the query amount for the resolver.
+		 *
+		 * This is the amount of items to query from the database. We determine this by
+		 * determining how many items were asked for (first/last), then compare with the
+		 * max amount allowed to query (default is 100), and then we fetch 1 more than
+		 * that amount, so we know whether hasNextPage/hasPreviousPage should be true.
+		 *
+		 * If there are more items than were asked for, then there's another page.
+		 */
 		$this->query_amount = $this->get_query_amount();
+
+		/**
+		 * Get the Query Args. This accepts the input args and maps it to how it should be
+		 * used in the WP_Query
+		 */
 		$this->query_args = $this->get_query_args();
+
+		/**
+		 * Set the query for the resolver, for use as reference in filters, etc
+		 */
 		$this->query = new \WP_Query( $this->query_args );
-		$this->items = $this->query->posts;
+
+		/**
+		 * Set the items. These are the "nodes" that make up the connection.
+		 */
+		$this->nodes = $this->get_nodes();
+	}
+
+	/**
+	 * Get the nodes from the query.
+	 *
+	 * We slice the array to match the amount of items that was asked for, as we over-fetched
+	 * by 1 item to calculate pageInfo.
+	 *
+	 * For backward pagination, we reverse the order of nodes.
+	 *
+	 * @return array
+	 */
+	public function get_nodes() {
+		if ( empty( $this->query->posts ) ) {
+			return [];
+		}
+		$nodes = array_slice( $this->query->posts, 0, $this->query_amount );
+
+		return empty( $this->args['last'] ) ? array_reverse( $nodes ) : $nodes;
+	}
+
+	/**
+	 * This iterates over the items returned
+	 *
+	 * @return mixed
+	 */
+	public function get_edges() {
+		if ( ! empty( $this->nodes ) ) {
+			foreach ( $this->nodes as $node ) {
+				$this->edges[] = [
+					'cursor' => base64_encode( 'arrayconnection:' . $node ),
+					'node'   => $node,
+				];
+			}
+		}
+
+		return $this->edges;
+	}
+
+	/**
+	 * Here, we map the args from the input, then we make sure that we're only querying
+	 * for IDs. The IDs are then passed down the resolve tree, and deferred resolvers
+	 * handle batch resolution of the posts.
+	 *
+	 * @return array
+	 */
+	public function get_query_args() {
+		$query_args           = $this->map_query_args();
+		$query_args['fields'] = 'ids';
+
+		return $query_args;
+	}
+
+	/**
+	 * @return mixed string|null
+	 */
+	public function get_start_cursor() {
+		$first_edge = $this->edges ? $this->edges[0] : null;
+
+		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
+	}
+
+	/**
+	 * @return mixed string|null
+	 */
+	public function get_end_cursor() {
+		$last_edge = $this->edges ? $this->edges[ count( $this->edges ) - 1 ] : null;
+
+		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function has_next_page() {
+		return ! empty( $this->args['first'] ) && ( $this->items > $this->query_amount ) ? true : false;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function has_previous_page() {
+		return ! empty( $this->args['last'] ) && ( $this->items > $this->query_amount ) ? true : false;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function get_query_args() {
-		$query_args = $this->map_query_args();
-		$query_args['fields'] = 'ids';
-		return $query_args;
+	public function get_page_info() {
+		return [
+			'startCursor'     => $this->get_start_cursor(),
+			'endCursor'       => $this->get_end_cursor(),
+			'hasNextPage'     => $this->has_next_page(),
+			'hasPreviousPage' => $this->has_previous_page(),
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_connection() {
+		return [
+			'edges'    => $this->get_edges(),
+			'pageInfo' => $this->get_page_info(),
+			'nodes'    => $this->get_nodes(),
+		];
 	}
 
 	/**
 	 * @return mixed
 	 */
-	public function get_edges() {
-		$items = array_slice( $this->items, 0, $this->query_amount );
-		$items = ! empty( $this->args['last'] ) ? array_reverse( $items ) : $items;
-		if ( ! empty( $items ) ) {
-			foreach ( $items as $item ) {
-				$this->edges[] = [
-					'cursor' => base64_encode( 'arrayconnection:' . $item ),
-					'node' => $item,
-				];
-			}
-		}
-		return $this->edges;
-	}
-
-	public function get_start_cursor() {
-		$first_edge = $this->edges ? $this->edges[0] : null;
-		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
-	}
-
-	public function get_end_cursor() {
-		$last_edge = $this->edges ? $this->edges[ count( $this->edges ) - 1 ] : null;
-		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
-	}
-	public function has_next_page() {
-		return ! empty( $this->args['first'] ) && ( $this->items > $this->query_amount ) ? true : false;
-	}
-	public function has_previous_page() {
-		return ! empty( $this->args['last'] ) && ( $this->items > $this->query_amount ) ? true : false;
-	}
-
-	public function get_page_info() {
-		return [
-			'startCursor' => $this->get_start_cursor(),
-			'endCursor' => $this->get_end_cursor(),
-			'hasNextPage' => $this->has_next_page(),
-			'hasPreviousPage' => $this->has_previous_page(),
-		];
-	}
-
-	public function get_nodes() {
-		$nodes = [];
-		if ( ! empty( $this->edges ) && is_array( $this->edges ) ) {
-			foreach ( $this->edges as $edge ) {
-				$nodes[] = $edge['node'];
-			}
-		}
-		return $nodes;
-	}
-
-	public function get_connection() {
-		return [
-			'edges' => $this->get_edges(),
-			'pageInfo' => $this->get_page_info(),
-			'nodes' => $this->get_nodes(),
-		];
-	}
-
 	public function map_query_args() {
 
 		/**
@@ -243,7 +367,11 @@ class PostObjectConnectionResolver {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
-				if ( in_array( $orderby_input['field'], [ 'post__in', 'post_name__in', 'post_parent__in' ], true ) ) {
+				if ( in_array( $orderby_input['field'], [
+					'post__in',
+					'post_name__in',
+					'post_parent__in'
+				], true ) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} else if ( ! empty( $orderby_input['field'] ) ) {
 					$query_args['orderby'] = [
@@ -270,12 +398,14 @@ class PostObjectConnectionResolver {
 		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
 		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
+
 		return $query_args;
 
 	}
 
 	/**
-	 * This returns the offset to be used in the $query_args based on the $args passed to the GraphQL query.
+	 * This returns the offset to be used in the $query_args based on the $args passed to the
+	 * GraphQL query.
 	 *
 	 * @return int|mixed
 	 */
@@ -315,32 +445,32 @@ class PostObjectConnectionResolver {
 	public function sanitize_input_fields( $where_args ) {
 
 		$arg_mapping = [
-			'authorName'   => 'author_name',
-			'authorIn'     => 'author__in',
-			'authorNotIn'  => 'author__not_in',
-			'categoryId'   => 'cat',
-			'categoryName' => 'category_name',
-			'categoryIn'   => 'category__in',
-			'categoryNotIn'=> 'category__not_in',
-			'tagId'        => 'tag_id',
-			'tagIds'       => 'tag__and',
-			'tagIn'        => 'tag__in',
-			'tagNotIn'     => 'tag__not_in',
-			'tagSlugAnd'   => 'tag_slug__and',
-			'tagSlugIn'    => 'tag_slug__in',
-			'search'       => 's',
-			'id'           => 'p',
-			'parent'       => 'post_parent',
-			'parentIn'     => 'post_parent__in',
-			'parentNotIn'  => 'post_parent__not_in',
-			'in'           => 'post__in',
-			'notIn'        => 'post__not_in',
-			'nameIn'       => 'post_name__in',
-			'hasPassword'  => 'has_password',
-			'password'     => 'post_password',
-			'status'       => 'post_status',
-			'stati'        => 'post_status',
-			'dateQuery'    => 'date_query',
+			'authorName'    => 'author_name',
+			'authorIn'      => 'author__in',
+			'authorNotIn'   => 'author__not_in',
+			'categoryId'    => 'cat',
+			'categoryName'  => 'category_name',
+			'categoryIn'    => 'category__in',
+			'categoryNotIn' => 'category__not_in',
+			'tagId'         => 'tag_id',
+			'tagIds'        => 'tag__and',
+			'tagIn'         => 'tag__in',
+			'tagNotIn'      => 'tag__not_in',
+			'tagSlugAnd'    => 'tag_slug__and',
+			'tagSlugIn'     => 'tag_slug__in',
+			'search'        => 's',
+			'id'            => 'p',
+			'parent'        => 'post_parent',
+			'parentIn'      => 'post_parent__in',
+			'parentNotIn'   => 'post_parent__not_in',
+			'in'            => 'post__in',
+			'notIn'         => 'post__not_in',
+			'nameIn'        => 'post_name__in',
+			'hasPassword'   => 'has_password',
+			'password'      => 'post_password',
+			'status'        => 'post_status',
+			'stati'         => 'post_status',
+			'dateQuery'     => 'date_query',
 		];
 
 		/**
@@ -379,7 +509,7 @@ class PostObjectConnectionResolver {
 	 * Returns the max between what was requested and what is defined as the $max_query_amount to
 	 * ensure that queries don't exceed unwanted limits when querying data.
 	 *
-	 * @return mixed
+	 * @return int
 	 * @throws \Exception
 	 */
 	public function get_query_amount() {
