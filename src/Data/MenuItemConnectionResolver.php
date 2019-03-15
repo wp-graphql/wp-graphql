@@ -5,7 +5,10 @@ namespace WPGraphQL\Data;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 
 /**
  * Class MenuItemConnectionResolver
@@ -30,18 +33,21 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	private static function get_menu_items( $source, array $args ) {
 
+
 		// Source object is a nav menu.
-		if ( $source instanceof \WP_Term && ! empty( $source->slug ) ) {
+		if ( $source instanceof Menu || $source instanceof \WP_Term && ! empty( $source->slug ) ) {
 			return wp_get_nav_menu_items( $source->slug );
 		}
 
 		// Source object is a nav menu item via childItems or found via where arg.
 		if ( $source instanceof MenuItem ) {
+
 			// Get the nav menu that this nav menu item belongs to.
 			if ( isset( $source->menu ) ) {
-				if ( $source->menu instanceof \WP_Term && ! empty( $source->menu->slug ) ) {
-					return wp_get_nav_menu_items( $source->menu->slug );
-				} else if ( $source->menu instanceof \WP_Post ) {
+				if ( $source->menu instanceof Menu && ! empty( $source->menu->slug ) ) {
+					$items = wp_get_nav_menu_items( $source->menu->slug );
+					return $items;
+				} else if ( $source->menu instanceof MenuItem ) {
 					return self::get_menu_items( $source->menu, $args );
 				}
 			} else {
@@ -82,6 +88,16 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
+		/**
+		 * Filter the $args to allow folks to customize query generation programmatically
+		 *
+		 * @param array       $args       The inputArgs on the field
+		 * @param mixed       $source     The source that's passed down the GraphQL queries
+		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
+		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 */
+		$args = apply_filters( 'graphql_menu_item_connection_args', $args, $source, $context, $info );
+
 		// Prevent the query from matching anything by default.
 		$query_args = [
 			'post_type' => 'nav_menu_item',
@@ -90,10 +106,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		// If the user requested a specific ID, set the source object accordingly.
 		if ( ! empty( $args['where']['id'] ) ) {
-			$menu_item = get_post( intval( $args['where']['id'] ) );
-			if ( $menu_item ) {
-				$source = new MenuItem( $menu_item );
-			}
+			$source = get_post( (int) $args['where']['id'] );
+			$source = new MenuItem( $source );
 		}
 
 		$menu_items = self::get_menu_items( $source, $args );

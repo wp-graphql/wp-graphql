@@ -30,10 +30,6 @@ class MenuItemLoader extends AbstractDataLoader {
 		/**
 		 * If there are no keys, return null and don't execute the query.
 		 */
-		if ( empty( $keys ) ) {
-			return null;
-		}
-
 		$all_posts = [];
 		if ( empty( $keys ) ) {
 			return $keys;
