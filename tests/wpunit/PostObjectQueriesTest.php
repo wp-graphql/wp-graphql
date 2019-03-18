@@ -1355,9 +1355,15 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		do_graphql_request( $graphql_query );
 
 		/**
-		 * Asset that the query has been reset to the main query.
+		 * Assert that the query has been reset to the main query.
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
+
+		// setup_postdata sets the global $id too so assert it is reset back to
+		// original
+		// https://github.com/WordPress/WordPress/blob/b5542c6b1b41d69b4e5c26ef8280c6e85de67224/wp-includes/class-wp-query.php#L4158
+		$this->assertEquals( $main_query_post_id, $GLOBALS['id'] );
+
 	}
 
 	/**

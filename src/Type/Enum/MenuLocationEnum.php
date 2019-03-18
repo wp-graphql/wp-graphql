@@ -1,12 +1,14 @@
 <?php
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Data\DataSource;
+
 $values = [];
 
-$locations = array_keys( get_nav_menu_locations() );
+$locations = DataSource::get_registered_nav_menu_locations();
 
 if ( ! empty( $locations ) && is_array( $locations ) ) {
-	foreach ( array_keys( get_nav_menu_locations() ) as $location ) {
+	foreach ( $locations as $location ) {
 		$values[ WPEnumType::get_safe_name( $location ) ] = [
 			'value' => $location,
 		];
