@@ -179,14 +179,6 @@ class DataSource {
 			remove_filter( 'the_content', 'prepend_attachment' );
 		}
 
-		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
-
 		return $post_object;
 
 	}
@@ -766,4 +758,12 @@ class DataSource {
 		return null;
 
 	}
+
+		/**
+     * Returns array of nav menu location names
+     */
+    public static function get_registered_nav_menu_locations() {
+			global $_wp_registered_nav_menus;
+			return array_keys( $_wp_registered_nav_menus );
+		}
 }

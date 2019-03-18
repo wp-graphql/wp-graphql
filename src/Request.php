@@ -139,9 +139,14 @@ class Request {
 		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
 		 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
 		 * the same.
+		 *
+		 * We cannot use wp_reset_postdata here because it just resets the post from the global query which can
+		 * be anything the because the resolvers themself can set it to whatever. So we just manually reset the
+		 * post with setup_postdata we cached before this request.
 		 */
 		if ( ! empty( $this->global_post ) ) {
 			$GLOBALS['post'] = $this->global_post;
+			setup_postdata( $this->global_post );
 		}
 
 		/**
