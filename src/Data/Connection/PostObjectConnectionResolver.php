@@ -13,37 +13,17 @@ use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
-class PostObjectConnectionResolver {
+/**
+ * Class PostObjectConnectionResolver
+ *
+ * @package WPGraphQL\Data\Connection
+ */
+class PostObjectConnectionResolver extends ConnectionResolver {
 
 	/**
 	 * @var string
 	 */
 	protected $post_type;
-
-	/**
-	 * @var mixed
-	 */
-	protected $source;
-
-	/**
-	 * @var array
-	 */
-	protected $args;
-
-	/**
-	 * @var AppContext
-	 */
-	protected $context;
-
-	/**
-	 * @var ResolveInfo
-	 */
-	protected $info;
-
-	/**
-	 * @var array array
-	 */
-	protected $query_args;
 
 	/**
 	 * @var \WP_Query
@@ -85,29 +65,14 @@ class PostObjectConnectionResolver {
 	public function __construct( $source, $args, $context, $info, $post_type ) {
 
 		/**
+		 * Call the parent construct to setup class data
+		 */
+		parent::__construct( $source, $args, $context, $info );
+
+		/**
 		 * Set the post type for the resolver
 		 */
 		$this->post_type = $post_type;
-
-		/**
-		 * Set the source (the root object) for the resolver
-		 */
-		$this->source = $source;
-
-		/**
-		 * Set the args for the resolver
-		 */
-		$this->args = $args;
-
-		/**
-		 * Set the context of the resolver
-		 */
-		$this->context = $context;
-
-		/**
-		 * Set the resolveInfo for the resolver
-		 */
-		$this->info = $info;
 
 		/**
 		 * Determine the query amount for the resolver.
