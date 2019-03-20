@@ -303,7 +303,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy the term is in
 	 *
 	 * @return mixed
-	 * @throws UserError
+	 * @throws \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */

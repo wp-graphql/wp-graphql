@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 
 function register_post_object_types( $post_type_object ) {
 
@@ -357,8 +358,13 @@ function get_post_object_fields( $post_type_object ) {
 						'object_ids' => $source->ID,
 					] );
 
-					$tax_terms = $term_query->get_terms();
-
+					$fetched_terms = $term_query->get_terms();
+					$tax_terms = [];
+					if ( ! empty( $fetched_terms ) ) {
+						foreach ( $fetched_terms as $tax_term ) {
+							$tax_terms[ $tax_term->term_id ] = new Term( $tax_term );
+						}
+					}
 				}
 
 				return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;

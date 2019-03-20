@@ -340,7 +340,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 				case $this->source instanceof Term:
 					$query_args['tax_query'] = [
 						[
-							'taxonomy' => $this->source->taxonomy->name,
+							'taxonomy' => $this->source->taxonomyName,
 							'terms'    => [ $this->source->term_id ],
 							'field'    => 'term_id',
 						],

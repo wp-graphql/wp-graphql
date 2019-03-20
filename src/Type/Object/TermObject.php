@@ -51,6 +51,9 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 			'taxonomy'          => [
 				'type'        => 'Taxonomy',
 				'description' => __( 'The name of the taxonomy this term belongs to', 'wp-graphql' ),
+				'resolve'     => function( $source, $args, $context, $info ) {
+					return DataSource::resolve_taxonomy( $source->taxonomyName );
+				}
 			],
 			'link'              => [
 				'type'        => 'String',
@@ -64,7 +67,7 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 			'type'        => $taxonomy_object->graphql_single_name,
 			'description' => __( 'The parent object', 'wp-graphql' ),
 			'resolve' => function( Term $term, $args, $context, $info ) {
-				return ! empty( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $term->taxonomy->name ) : null;
+				return isset( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $term->taxonomyName ) : null;
 			}
 		] );
 
@@ -76,10 +79,10 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 			'resolve' => function( Term $term, $args, $context, $info ) {
 				$ancestors    = [];
 
-				$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomy->name, 'taxonomy' );
+				$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
 				if ( ! empty( $ancestor_ids ) ) {
 					foreach ( $ancestor_ids as $ancestor_id ) {
-						$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $term->taxonomy->name );
+						$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $term->taxonomyName );
 					}
 				}
 
