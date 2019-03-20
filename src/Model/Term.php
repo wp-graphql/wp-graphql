@@ -17,7 +17,7 @@ use WPGraphQL\Data\DataSource;
  * @property string       $slug
  * @property int          $termGroupId
  * @property int          $termTaxonomyId
- * @property \WP_Taxonomy $taxonomy
+ * @property string       $taxonomyName
  * @property string       $link
  * @property int          $parentId
  * @property array        $ancestors
@@ -92,8 +92,8 @@ class Term extends Model {
 				'termTaxonomyId' => function() {
 					return ! empty( $this->term->term_taxonomy_id ) ? absint( $this->term->term_taxonomy_id ) : null;
 				},
-				'taxonomy' => function() {
-					return ! empty( $this->taxonomy_object ) ? $this->taxonomy_object : null;
+				'taxonomyName' => function() {
+					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
 				},
 				'link' => function() {
 					$link = get_term_link( $this->term->term_id );
