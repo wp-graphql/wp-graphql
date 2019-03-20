@@ -759,11 +759,14 @@ class DataSource {
 
 	}
 
-		/**
-     * Returns array of nav menu location names
-     */
-    public static function get_registered_nav_menu_locations() {
-			global $_wp_registered_nav_menus;
-			return array_keys( $_wp_registered_nav_menus );
-		}
+	/**
+	 * Returns array of nav menu location names
+	 *
+	 * @return array
+	 */
+	public static function get_registered_nav_menu_locations() {
+		global $_wp_registered_nav_menus;
+
+		return ! empty( $_wp_registered_nav_menus ) && is_array( $_wp_registered_nav_menus ) ? array_keys( $_wp_registered_nav_menus ) : [];
+	}
 }
