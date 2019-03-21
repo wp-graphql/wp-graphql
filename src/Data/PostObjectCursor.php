@@ -110,7 +110,7 @@ class PostObjectCursor {
 	 */
 	private function compare_with_date() {
 		return $this->wpdb->prepare(
-			" AND {$this->wpdb->posts}.post_date {$this->compare}= %s AND {$this->wpdb->posts}.ID != %d",
+			" AND {$this->wpdb->posts}.post_date {$this->compare} %s AND {$this->wpdb->posts}.ID != %d",
 			esc_sql( $this->cursor_post->post_date ),
 			absint( $this->cursor_offset )
 		);
