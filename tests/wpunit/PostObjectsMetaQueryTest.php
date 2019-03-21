@@ -301,4 +301,41 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 	}
+
+	/**
+	* When ordering posts with the same meta value the returned order can vary if
+	* there isn't a second ordering field. This test does not fail every time
+	* so it tries to execute the assertion multiple times to make happen more often
+	*/
+	public function testPostOrderingStability() {
+
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
+		}
+
+		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'DATE',
+		] );
+
+		update_post_meta( $this->created_post_ids[17], 'test_meta', $this->numberToMysqlDate( 6 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'DATE',
+		] );
+
+		update_post_meta( $this->created_post_ids[18], 'test_meta', $this->numberToMysqlDate( 6 ) );
+
+		$this->assertMetaQuery( [
+			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+			'meta_type' => 'DATE',
+		] );
+
+	}
 }
