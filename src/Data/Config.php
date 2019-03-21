@@ -110,7 +110,7 @@ class Config {
 							}
 						}
 					} else {
-						$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_date {$compare}= %s AND {$wpdb->posts}.ID != %d", esc_sql( $cursor_post->post_date ), absint( $cursor_offset ) );
+						$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_date {$compare} %s AND {$wpdb->posts}.ID != %d", esc_sql( $cursor_post->post_date ), absint( $cursor_offset ) );
 					}
 				} else {
 					$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID {$compare} %d", $cursor_offset );
