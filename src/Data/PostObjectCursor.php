@@ -72,10 +72,10 @@ class PostObjectCursor {
 	public function get_where() {
 
 		/**
-		 * If we have no cursor just compare with the ids
+		 * If we have no cursor just compare with post_date like wp core
 		 */
 		if ( ! $this->cursor_post ) {
-			return $this->compare_with_id();
+			return $this->compare_with_date();
 		}
 
 		$orderby = $this->query->get( 'orderby' );
@@ -98,19 +98,9 @@ class PostObjectCursor {
 		}
 
 		/**
-		 * Default to comparing by ids if no ordering is set
+		 * No custom comparing. Use the default date
 		 */
-		return $this->compare_with_id();
-
-	}
-
-	/**
-	 * Get AND operator for ID based comparison
-	 *
-	 * @return string
-	 */
-	private function compare_with_id() {
-		return $this->wpdb->prepare( " AND {$this->wpdb->posts}.ID {$this->compare} %d", $this->cursor_offset );
+		return $this->compare_with_date();
 	}
 
 	/**
