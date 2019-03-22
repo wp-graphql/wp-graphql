@@ -2,13 +2,19 @@
 
 namespace WPGraphQL\Data;
 
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-
+/**
+ * Generic class for building AND&OR operators for cursor based paginators
+ */
 class CursorBuilder {
 
+	/**
+	 * The field by which the cursor should order the results
+	 */
 	public $fields;
 
+	/**
+	 * Default comparison operator. < or >
+	 */
 	public $compare = null;
 
 	public function __construct( $compare = '>') {
@@ -16,6 +22,16 @@ class CursorBuilder {
 		$this->fields = [];
 	}
 
+	/**
+	* Add ordering field. The order you call this method matters. First field
+	* will be the primary field and latters ones will be used if the primary
+	* field has duplicate values
+	 *
+	 * @param string    $key database colum
+	 * @param string    $value value from the current cursor
+	 * @param string    $type type cast
+	 * @param string    $order custom order
+	 */
 	public function add_field( $key, $value, $type = null, $order = null ) {
 		$this->fields[] = [
 			'key' => $key,
@@ -25,10 +41,20 @@ class CursorBuilder {
 		];
 	}
 
+	/**
+	 * Returns true at least one ordering field has been added
+	 *
+	 * @return boolean
+	 */
 	public function has_fields() {
 		return count( $this->fields ) > 0;
 	}
 
+	/**
+	 * Generate the final SQL string to be appended to WHERE claise
+	 *
+	 * @return string
+	 */
 	public function to_sql( $fields = null ) {
 		if ( null === $fields ) {
 			$fields = $this->fields;
@@ -48,7 +74,6 @@ class CursorBuilder {
 		$compare = $this->compare;
 
 		if ( null !== $order ) {
-			error_log("\n\nUSing custom order\n\n");
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
 
@@ -96,11 +121,3 @@ class CursorBuilder {
 		return $meta_type;
 	}
 }
-
-
-// $ding = new CursorBuilder();
-// $ding->add_field('c1', ':lrv1');
-// $ding->add_field('c2', ':lrv2');
-// $ding->add_field('c3', ':lrv3', 'NUMERIC');
-
-// error_log("select * from " . $ding->to_sql());
