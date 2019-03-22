@@ -51,7 +51,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * @return \WP_Query
 	 */
-	protected function get_query() {
+	public function get_query() {
 		return new \WP_Query( $this->get_query_args() );
 	}
 
@@ -60,7 +60,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	protected function get_items() {
+	public function get_items() {
 		return ! empty( $this->query->posts ) ? $this->query->posts : [];
 	}
 
@@ -73,7 +73,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return bool
 	 */
-	protected function should_execute() {
+	public function should_execute() {
 
 		$should_execute = true;
 
@@ -101,7 +101,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	protected function get_query_args() {
+	public function get_query_args() {
 		/**
 		 * Prepare for later use
 		 */

@@ -38,9 +38,12 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$roles = wp_roles();
 		foreach ( $roles->roles as $role_name => $data ) {
 
-			$data['id'] = \GraphQLRelay\Relay::toGlobalId( 'role', $role_name );
-			$data['capabilities'] = array_keys( $data['capabilities'], true, true );
-			$nodes[]['node'] = $data;
+			$node = \WPGraphQL\Data\DataSource::resolve_user_role( $role_name );
+			$node['id'] = base64_encode( 'role:' . $role_name );
+			$node['capabilities'] = array_keys( $data['capabilities'] );
+
+			$nodes[]['node'] = $node;
+
 
 		}
 

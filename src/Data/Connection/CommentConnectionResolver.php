@@ -20,7 +20,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function get_query_args() {
+	public function get_query_args() {
 
 		/**
 		 * Prepare for later use
@@ -151,7 +151,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return mixed|\WP_Comment_Query
 	 * @throws \Exception
 	 */
-	protected function get_query() {
+	public function get_query() {
 		return new \WP_Comment_Query( $this->get_query_args() );
 	}
 
@@ -159,7 +159,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function get_items() {
+	public function get_items() {
 		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
 	}
 
@@ -173,7 +173,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return boolean
 	 */
-	protected function should_execute() {
+	public function should_execute() {
 		return true;
 	}
 

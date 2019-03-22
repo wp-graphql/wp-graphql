@@ -155,7 +155,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * The items returned from the query
 		 */
-		$this->items = $this->get_items();
+		$this->items = ! empty( $this->get_items() ) ? $this->get_items() : 0;
 
 		/**
 		 * Set the items. These are the "nodes" that make up the connection.
@@ -175,7 +175,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	abstract protected function get_query_args();
+	abstract public function get_query_args();
 
 	/**
 	 * get_query
@@ -188,7 +188,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed
 	 */
-	abstract protected function get_query();
+	abstract public function get_query();
 
 	/**
 	 * get_items
@@ -200,7 +200,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	abstract protected function get_items();
+	abstract public function get_items();
 
 	/**
 	 * should_execute
@@ -218,7 +218,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return bool
 	 */
-	abstract protected function should_execute();
+	abstract public function should_execute();
 
 	/**
 	 * get_query_amount
@@ -369,7 +369,7 @@ abstract class AbstractConnectionResolver {
 	 * @return mixed string|null
 	 */
 	public function get_start_cursor() {
-		$first_edge = $this->edges ? $this->edges[0] : null;
+		$first_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[0] : null;
 
 		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
 	}
@@ -382,7 +382,7 @@ abstract class AbstractConnectionResolver {
 	 * @return mixed string|null
 	 */
 	public function get_end_cursor() {
-		$last_edge = $this->edges ? $this->edges[ count( $this->edges ) - 1 ] : null;
+		$last_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[ count( $this->edges ) - 1 ] : null;
 
 		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
 	}
@@ -403,9 +403,19 @@ abstract class AbstractConnectionResolver {
 		if ( empty( $this->items ) ) {
 			return [];
 		}
-		$nodes = array_slice( $this->items, 0, $this->query_amount );
+		$nodes = array_slice( array_values( $this->items ), 0, $this->query_amount );
 
 		return ! empty( $this->args['last'] ) ? array_reverse( $nodes ) : $nodes;
+	}
+
+	/**
+	 * @param $node
+	 * @param $key
+	 *
+	 * @return string
+	 */
+	protected function get_cursor_for_node( $node, $key = null ) {
+		return base64_encode( 'arrayconnection:' . $node );
 	}
 
 	/**
@@ -418,12 +428,7 @@ abstract class AbstractConnectionResolver {
 	public function get_edges() {
 		$this->edges = [];
 		if ( ! empty( $this->nodes ) ) {
-			foreach ( $this->nodes as $node ) {
-
-				/**
-				 * The cursor for use in the edge
-				 */
-				$cursor = base64_encode( 'arrayconnection:' . $node );
+			foreach ( $this->nodes as $key => $node ) {
 
 				/**
 				 * Create the edge, pass it through a filter.
@@ -431,7 +436,7 @@ abstract class AbstractConnectionResolver {
 				 * @param object $this Instance of the connection resolver class
 				 */
 				$edge = apply_filters( 'graphql_connection_edge', [
-					'cursor' => $cursor,
+					'cursor' => $this->get_cursor_for_node( $node, $key ),
 					'node'   => $node,
 				], $this );
 
@@ -442,6 +447,8 @@ abstract class AbstractConnectionResolver {
 					$this->edges[] = $edge;
 				}
 			}
+
+
 		}
 
 		/**
@@ -476,11 +483,13 @@ abstract class AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_connection() {
-		return [
+		$connection = [
 			'edges'    => $this->get_edges(),
 			'pageInfo' => $this->get_page_info(),
 			'nodes'    => $this->get_nodes(),
 		];
+
+		return $connection;
 	}
 
 }

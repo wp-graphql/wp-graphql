@@ -42,7 +42,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function get_query_args() {
+	public function get_query_args() {
 
 		/**
 		 * Set the taxonomy for the $args
@@ -191,7 +191,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return mixed|\WP_Term_Query
 	 * @throws \Exception
 	 */
-	protected function get_query() {
+	public function get_query() {
 		$query = new \WP_Term_Query( $this->get_query_args() );
 
 		return $query;
@@ -200,14 +200,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * @return array
 	 */
-	protected function get_items() {
+	public function get_items() {
 		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function should_execute() {
+	public function should_execute() {
 		return true;
 	}
 
@@ -220,7 +220,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 * @access public
 	 */
-	protected function sanitize_input_fields() {
+	public function sanitize_input_fields() {
 
 		$arg_mapping = [
 			'objectIds'           => 'object_ids',

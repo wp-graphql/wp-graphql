@@ -14,7 +14,7 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 	 *
 	 * @return array
 	 */
-	protected function get_query_args() {
+	public function get_query_args() {
 		$term_args = [
 			'hide_empty' => false,
 			'include'    => [],

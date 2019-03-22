@@ -27,6 +27,9 @@ class UserRoles {
 			'fromType'      => 'RootQuery',
 			'toType'        => 'UserRole',
 			'fromFieldName' => 'userRoles',
+			'resolveNode'   => function( $name ) {
+				return DataSource::resolve_user_role( $name );
+			},
 			'resolve'       => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_user_role_connection( $root, $args, $context, $info );
 			}

@@ -467,10 +467,15 @@ class DataSource {
 	 * @param AppContext  $context The AppContext passed down to the query
 	 * @param ResolveInfo $info    The ResloveInfo object
 	 *
+	 * @throws \Exception
 	 * @return array
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+//		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+
+		$resolver = new \WPGraphQL\Data\Connection\UserRoleConnectionResolver( $source, $args, $context, $info );
+		return $resolver->get_connection();
+
 	}
 
 	/**

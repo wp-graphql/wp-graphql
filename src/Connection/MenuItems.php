@@ -68,7 +68,7 @@ class MenuItems {
 				],
 			],
 			'resolveNode' => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_menu_item( $id, $context );
+				return ! empty( $id ) ? DataSource::resolve_menu_item( $id, $context ) : null;
 			},
 			'resolve'        => function ( $source, $args, $context, $info ) {
 				$resolver = new MenuItemConnectionResolver( $source, $args, $context, $info );

@@ -88,7 +88,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @throws \Exception
 	 * @since  0.0.30
 	 */
-	protected function get_query_args() {
+	public function get_query_args() {
+
 
 		/**
 		 * Filter the $this->args to allow folks to customize query generation programmatically
@@ -103,8 +104,10 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Prevent the query from matching anything by default.
 		$query_args = [
 			'post_type' => 'nav_menu_item',
-			'post__in'  => array( 0 ),
+			'post__in' => [ 0 ],
 		];
+
+		$source = $this->source;
 
 		// If the user requested a specific ID, set the source object accordingly.
 		if ( ! empty( $args['where']['id'] ) ) {
@@ -112,7 +115,13 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			$source = new MenuItem( $source );
 		}
 
-		$menu_items = $this->get_menu_items( $this->source, $args );
+		$menu_items = $this->get_menu_items( $source, $args );
+
+		/**
+		 * We need to query just the IDs so that the deferred resolution can handle fulfilling the
+		 * objects either from the cache or via a follow-up query.
+		 */
+		$query_args['fields'] = 'ids';
 
 		// No menu items? Nothing to do.
 		if ( empty( $menu_items ) ) {
@@ -122,7 +131,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Filter the menu items on whether they match a parent ID, if we are
 		// inside a request for child items. If parent ID is 0, that corresponds to
 		// a top-level menu item.
-		$parent_id     = ( $this->source instanceof MenuItem && 'childItems' === $this->info->fieldName ) ? $this->source->menuItemId : 0;
+		$parent_id     = ( $source instanceof MenuItem && 'childItems' === $this->info->fieldName ) ? $source->menuItemId : 0;
 		$matched_items = array_filter( $menu_items, function ( $item ) use ( $parent_id ) {
 			return $parent_id === intval( $item->menu_item_parent );
 		} );
