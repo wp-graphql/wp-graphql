@@ -160,8 +160,8 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order ) {
-		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? esc_sql( $this->query->query_vars["meta_type"] ) : null;
-		$meta_value = esc_sql( get_post_meta( $this->cursor_offset, $meta_key, true ) );
+		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? $this->query->query_vars["meta_type"] : null;
+		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
 
 		$key = "{$this->wpdb->postmeta}.meta_value";
 
@@ -188,7 +188,7 @@ class PostObjectCursor {
 	private function get_meta_key( $by ) {
 
 		if ( 'meta_value' === $by ) {
-			return ! empty( $this->query->query_vars["meta_key"] ) ? esc_sql( $this->query->query_vars["meta_key"] ) : null;
+			return ! empty( $this->query->query_vars["meta_key"] ) ? $this->query->query_vars["meta_key"] : null;
 		}
 
 		/**

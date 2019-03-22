@@ -33,11 +33,15 @@ class CursorBuilder {
 	 * @param string    $order custom order
 	 */
 	public function add_field( $key, $value, $type = null, $order = null ) {
+		/**
+		 * This only input for variables which are used in the SQL generation. So
+		 * escape them here.
+		 */
 		$this->fields[] = [
-			'key' => $key,
-			'value' => $value,
-			'type' => $type,
-			'order' => $order,
+			'key' => esc_sql( $key ),
+			'value' => esc_sql( $value ),
+			'type' => esc_sql( $type ),
+			'order' => esc_sql( $order ),
 		];
 	}
 
