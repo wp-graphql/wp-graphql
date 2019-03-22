@@ -7,10 +7,14 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
+use Illuminate\Support\Facades\App;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\PluginConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
+use WPGraphQL\Data\Connection\ThemeConnectionResolver;
+use WPGraphQL\Data\Connection\UserConnectionResolver;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
@@ -169,6 +173,8 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
@@ -312,17 +318,6 @@ class DataSource {
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
 
-//		$term_object = \WP_Term::get_instance( $id );
-//		if ( empty( $term_object ) ) {
-//			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
-//		}
-//
-//		if ( 'nav_menu' === $taxonomy ) {
-//			return new Menu( $term_object );
-//		} else {
-//			return new Term( $term_object );
-//		}
-
 		if ( empty( $id ) || ! absint( $id ) ) {
 			return null;
 		}
@@ -389,6 +384,7 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
 		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
@@ -398,6 +394,7 @@ class DataSource {
 	 * Gets the user object for the user ID specified
 	 *
 	 * @param int $id ID of the user you want the object for
+	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
 	 * @since  0.0.5
@@ -431,7 +428,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return UserConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+		return $resolver->get_connection();
+
 	}
 
 	/**

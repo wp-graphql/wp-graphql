@@ -1,10 +1,10 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Plugin;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects

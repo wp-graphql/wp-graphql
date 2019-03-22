@@ -1,5 +1,5 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -8,50 +8,34 @@ use WPGraphQL\Types;
 /**
  * Class UserConnectionResolver
  *
- * @package WPGraphQL\Data\Resolvers
- * @since 0.5.0
+ * @package WPGraphQL\Data\Connection
  */
-class UserConnectionResolver extends ConnectionResolver {
+class UserConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * This runs the query and returns the repsonse
-	 *
-	 * @param $query_args
-	 *
-	 * @return \WP_User_Query
+	 * @return bool
 	 */
-	public static function get_query( $query_args ) {
-		$query = new \WP_User_Query( $query_args );
-		return $query;
+	public function should_execute() {
+		return true;
 	}
 
 	/**
-	 * This returns the $query_args that should be used when querying for posts in the postObjectConnectionResolver.
-	 * This checks what input $args are part of the query, combines them with various filters, etc and returns an
-	 * array of $query_args to be used in the \WP_Query call
-	 *
-	 * @param mixed       $source    The query source being passed down to the resolver
-	 * @param array       $args      The arguments that were provided to the query
-	 * @param AppContext  $context   Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info      Info about fields passed down the resolve tree
-	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function get_query_args( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
+	public function get_query_args() {
 		/**
 		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['count_total'] = false;
-		$query_args['offset'] = self::get_offset( $args );
-		$query_args['order'] = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
+		$query_args['offset'] = $this->get_offset();
+		$query_args['order'] = ! empty( $this->args['last'] ) ? 'ASC' : 'DESC';
 
 		/**
 		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so
 		 * we need to run the query with count_total set to true.
 		 */
-		$field_selection = $info->getFieldSelection( 2 );
+		$field_selection = $this->info->getFieldSelection( 2 );
 		if ( ! empty( $field_selection['pageInfo'] ) ) {
 			$query_args['count_total'] = true;
 		}
@@ -59,15 +43,15 @@ class UserConnectionResolver extends ConnectionResolver {
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$query_args['number'] = self::get_query_amount( $source, $args, $context, $info );
+		$query_args['number'] = $this->get_query_amount();
 
 		/**
 		 * Take any of the input $args (under the "where" input) that were part of the GraphQL query and map and
 		 * sanitize their GraphQL input to apply to the WP_Query
 		 */
 		$input_fields = [];
-		if ( ! empty( $args['where'] ) ) {
-			$input_fields = self::sanitize_input_fields( $args['where'], $source, $args, $context, $info );
+		if ( ! empty( $this->args['where'] ) ) {
+			$input_fields = $this->sanitize_input_fields( $this->args['where'] );
 		}
 
 		/**
@@ -78,6 +62,11 @@ class UserConnectionResolver extends ConnectionResolver {
 		if ( ! empty( $input_fields ) ) {
 			$query_args = array_merge( $query_args, $input_fields );
 		}
+
+		/**
+		 * Only query the IDs and let deferred resolution query the nodes
+		 */
+		$query_args['fields'] = 'ID';
 
 		/**
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
@@ -91,10 +80,26 @@ class UserConnectionResolver extends ConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$query_args = apply_filters( 'graphql_user_connection_query_args', $query_args, $source, $args, $context, $info );
+		$query_args = apply_filters( 'graphql_user_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 
 		return $query_args;
+	}
 
+	/**
+	 * @return mixed|\WP_User_Query
+	 * @throws \Exception
+	 */
+	public function get_query() {
+		return new \WP_User_Query( $this->get_query_args() );
+	}
+
+	/**
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function get_items() {
+		$results = $this->get_query()->get_results();
+		return ! empty( $results ) ? $results : [];
 	}
 
 	/**
@@ -105,16 +110,12 @@ class UserConnectionResolver extends ConnectionResolver {
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
 	 * @param array       $args     The query "where" args
-	 * @param mixed       $source   The query results of the query calling this relation
-	 * @param array       $all_args Array of all the query args (not just the "where" args)
-	 * @param AppContext  $context  The AppContext object
-	 * @param ResolveInfo $info     The ResolveInfo object
 	 *
 	 * @since  0.0.5
 	 * @return array
-	 * @access private
+	 * @access protected
 	 */
-	public static function sanitize_input_fields( array $args, $source, array $all_args, AppContext $context, ResolveInfo $info ) {
+	protected function sanitize_input_fields( array $args ) {
 
 		$arg_mapping = [
 			'roleIn'            => 'role__in',
@@ -148,10 +149,9 @@ class UserConnectionResolver extends ConnectionResolver {
 		 * @since 0.0.5
 		 * @return array
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $source, $all_args, $context, $info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
 	}
-
 }
