@@ -86,13 +86,8 @@ class Config {
 			 * Ensure the cursor_offset is a positive integer
 			 */
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
-
 				$post_cursor = new PostObjectCursor( $cursor_offset, $query );
-				$custom = $post_cursor->get_where();
-				error_log("\n\nWHERE $custom ENDWERE\n");
-
-				$where .= $custom;
-
+				$where .= $post_cursor->get_where();
 			}
 		}
 

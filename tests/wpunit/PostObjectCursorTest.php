@@ -165,7 +165,6 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] ) );
 
 		$expected = wp_list_pluck($q->posts, 'post_title');
-		// error_log(print_r($expected, true));
 
 		// Aserting like this we get more readable assertion fail message
 		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
