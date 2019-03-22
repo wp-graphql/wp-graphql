@@ -44,6 +44,7 @@ class PostObjectCursor {
 	 */
 	public $builder;
 
+	public $meta_join_alias = 0;
 
 	/**
 	 * PostCursor constructor.
@@ -162,7 +163,19 @@ class PostObjectCursor {
 		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? esc_sql( $this->query->query_vars["meta_type"] ) : null;
 		$meta_value = esc_sql( get_post_meta( $this->cursor_offset, $meta_key, true ) );
 
-		$this->builder->add_field( "{$this->wpdb->postmeta}.meta_value", $meta_value, $meta_type, $order );
+		$key = "{$this->wpdb->postmeta}.meta_value";
+
+		/**
+		 * wp uses mt1, mt2 etc. style aliases for additional meta value joins.
+		 */
+		if ( $this->meta_join_alias !== 0 ) {
+			$key = "mt{$this->meta_join_alias}.meta_value";
+
+		}
+
+		$this->meta_join_alias++;
+
+		$this->builder->add_field($key , $meta_value, $meta_type, $order );
 	}
 
 	/**
