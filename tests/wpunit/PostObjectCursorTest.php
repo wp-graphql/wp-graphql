@@ -200,7 +200,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByMetaString() {
+	public function testPostOrderingByMetaStringASC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
@@ -213,6 +213,24 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertQueryInCursor( [
 			'orderby' => [ 'meta_value' => 'ASC', ],
+			'meta_key' => 'test_meta',
+		] );
+
+	}
+
+	public function testPostOrderingByMetaStringDESC() {
+
+		// Add post meta to created posts
+		foreach ($this->created_post_ids as $index => $post_id) {
+			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		}
+
+		// Move number 19 to the second page when ordering by test_meta
+		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
+		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+
+		$this->assertQueryInCursor( [
+			'orderby' => [ 'meta_value' => 'DESC', ],
 			'meta_key' => 'test_meta',
 		] );
 
@@ -254,7 +272,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function testPostOrderingByMetaNumber() {
+	public function testPostOrderingByMetaNumberASC() {
 
 		// Add post meta to created posts
 		foreach ($this->created_post_ids as $index => $post_id) {
