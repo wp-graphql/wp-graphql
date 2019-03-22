@@ -449,6 +449,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -458,7 +460,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			'errors' => [
 				[
-					'message'   => 'No category was found with the ID: doesNotExist',
+					'message'   => 'The ID input is invalid',
 					'locations' => [
 						[
 							'line'   => 3,

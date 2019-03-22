@@ -3,6 +3,9 @@
 namespace WPGraphQL\Data\Loader;
 
 use GraphQL\Deferred;
+use GraphQL\Error\UserError;
+use WPGraphQL\Model\Menu;
+use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Term;
 
 /**
@@ -37,17 +40,55 @@ class TermObjectLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
+		/**
+		 * Prepare the args for the query. We're provided a specific set of IDs for terms,
+		 * so we want to query as efficiently as possible with as little overhead as possible.
+		 */
 		$args = [
 			'include' => $keys,
 			'number'  => count( $keys ),
 		];
 
+		/**
+		 * Execute the query. This adds the terms to the cache
+		 */
 		$query = new \WP_Term_Query( $args );
 		$query->get_terms();
 
+		/**
+		 * Loop over the keys and return an array of loaded_terms, where the key is the ID and the value is
+		 * the Term passed through the Model layer
+		 */
 		foreach ( $keys as $key ) {
-			$term_object                = get_term_by( 'id', $key );
+
+			/**
+			 * The query above has added our objects to the cache, so now we can pluck
+			 * them from the cache to pass through the model layer, or return null if the
+			 * object isn't in the cache, meaning it didn't come back when queried.
+			 */
+			$term_object                = get_term_by( 'term_taxonomy_id', $key );
+
+			if ( empty( $term_object ) ) {
+				return null;
+			}
+
+			/**
+			 * Return the instance through the Model to ensure we only
+			 * return fields the consumer has access to.
+			 */
 			$this->loaded_terms[ $key ] = new Deferred( function () use ( $term_object ) {
+
+				if ( ! $term_object instanceof \WP_Term ) {
+					return null;
+				}
+
+				/**
+				 * For nav_menu_item terms, we want to pass through a different model
+				 */
+				if ( 'nav_menu' === $term_object->taxonomy ) {
+					return new Menu( $term_object );
+				}
+
 				return new Term( $term_object );
 			} );
 		}

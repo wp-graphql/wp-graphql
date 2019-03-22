@@ -9,8 +9,9 @@ use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
+use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Model\Comment;
-use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -59,6 +60,7 @@ class DataSource {
 		if ( empty( $id ) || ! absint( $id ) ) {
 			return null;
 		}
+
 		$comment_id = absint( $id );
 		$context->CommentLoader->buffer( [ $comment_id ] );
 
@@ -98,9 +100,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		$resolver = new CommentConnectionResolver();
-
-		return $resolver->resolve( $source, $args, $context, $info );
+		$resolver   = new CommentConnectionResolver( $source, $args, $context, $info );
+		$connection = $resolver->get_connection();
+		return $connection;
 	}
 
 	/**
@@ -233,8 +235,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
-		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
-		$connection =  $resolver->get_connection();
+		$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+		$connection = $resolver->get_connection();
+
 		return $connection;
 
 	}
@@ -299,26 +302,37 @@ class DataSource {
 	/**
 	 * Get the term object for a term
 	 *
-	 * @param int    $id       ID of the term you are trying to retrieve the object for
-	 * @param string $taxonomy Name of the taxonomy the term is in
+	 * @param int        $id      ID of the term you are trying to retrieve the object for
+	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @return mixed
 	 * @throws \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_term_object( $id, $taxonomy ) {
+	public static function resolve_term_object( $id, AppContext $context ) {
 
-		$term_object = \WP_Term::get_instance( $id, $taxonomy );
-		if ( empty( $term_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
+//		$term_object = \WP_Term::get_instance( $id );
+//		if ( empty( $term_object ) ) {
+//			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
+//		}
+//
+//		if ( 'nav_menu' === $taxonomy ) {
+//			return new Menu( $term_object );
+//		} else {
+//			return new Term( $term_object );
+//		}
+
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
 
-		if ( 'nav_menu' === $taxonomy ) {
-			return new Menu( $term_object );
-		} else {
-			return new Term( $term_object );
-		}
+		$term_id = absint( $id );
+		$context->TermObjectLoader->buffer( [ $id ] );
+
+		return new Deferred( function () use ( $term_id, $context ) {
+			return $context->TermObjectLoader->load( $term_id );
+		} );
 
 	}
 
@@ -337,9 +351,10 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
-		$resolver = new TermObjectConnectionResolver( $taxonomy );
+		$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomy );
+		$connection = $resolver->get_connection();
 
-		return $resolver->resolve( $source, $args, $context, $info );
+		return $connection;
 	}
 
 	/**
@@ -351,6 +366,8 @@ class DataSource {
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
@@ -621,7 +638,7 @@ class DataSource {
 								$node = self::resolve_post_object( $id_components['id'], $context );
 								break;
 							case in_array( $id_components['type'], $allowed_taxonomies, true ):
-								$node = self::resolve_term_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_term_object( $id_components['id'], $context );
 								break;
 							case 'comment':
 								$node = self::resolve_comment( $id_components['id'], $context );
@@ -807,11 +824,12 @@ class DataSource {
 
 	}
 
-		/**
-     * Returns array of nav menu location names
-     */
-    public static function get_registered_nav_menu_locations() {
-			global $_wp_registered_nav_menus;
-			return array_keys( $_wp_registered_nav_menus );
-		}
+	/**
+	 * Returns array of nav menu location names
+	 */
+	public static function get_registered_nav_menu_locations() {
+		global $_wp_registered_nav_menus;
+
+		return array_keys( $_wp_registered_nav_menus );
+	}
 }

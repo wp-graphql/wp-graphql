@@ -50,7 +50,7 @@ register_graphql_object_type( 'RootQuery', [
 			'resolve'     => function ( $source, array $args, $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_term_object( $id_components['id'], 'nav_menu' );
+				return DataSource::resolve_term_object( $id_components['id'], $context );
 			},
 		],
 		'menuItem'    => [
@@ -258,7 +258,11 @@ if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			'resolve'     => function ( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_term_object( $id_components['id'], $taxonomy_object->name );
+				if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+					throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+				}
+
+				return DataSource::resolve_term_object( $id_components['id'], $context );
 			},
 		] );
 

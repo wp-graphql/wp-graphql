@@ -67,7 +67,7 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 			'type'        => $taxonomy_object->graphql_single_name,
 			'description' => __( 'The parent object', 'wp-graphql' ),
 			'resolve' => function( Term $term, $args, $context, $info ) {
-				return isset( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $term->taxonomyName ) : null;
+				return isset( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $context ) : null;
 			}
 		] );
 
@@ -82,7 +82,7 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 				$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
 				if ( ! empty( $ancestor_ids ) ) {
 					foreach ( $ancestor_ids as $ancestor_id ) {
-						$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $term->taxonomyName );
+						$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $context );
 					}
 				}
 

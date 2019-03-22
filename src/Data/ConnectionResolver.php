@@ -8,6 +8,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 
 /**
@@ -15,6 +16,7 @@ use WPGraphQL\Model\User;
  *
  * This class is meant to be extended by ConnectionResolvers
  *
+ * @deprecated deprecated since version v0.3.0 in favor of \WPGraphQL\Data\Connection\ConnectionResolver
  * @package WPGraphQL\Data
  */
 abstract class ConnectionResolver implements ConnectionResolverInterface {
@@ -112,7 +114,7 @@ abstract class ConnectionResolver implements ConnectionResolverInterface {
 							$array_slice[ $item->comment_ID ] = new Comment( $item );
 							break;
 						case $item instanceof \WP_Term:
-							$array_slice[ $item->term_id ] = DataSource::resolve_term_object( $item->term_id, $item->taxonomy );
+							$array_slice[ $item->term_id ] = new Term( $item );
 							break;
 						case $item instanceof \WP_Post:
 							if ( 'nav_menu_item' === $item->post_type ) {

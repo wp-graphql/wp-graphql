@@ -2,10 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Deferred;
-use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -18,37 +15,12 @@ use WPGraphQL\Types;
  *
  * @package WPGraphQL\Data\Connection
  */
-class PostObjectConnectionResolver extends ConnectionResolver {
+class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * @var string
 	 */
 	protected $post_type;
-
-	/**
-	 * @var \WP_Query
-	 */
-	protected $query;
-
-	/**
-	 * @var array
-	 */
-	protected $items;
-
-	/**
-	 * @var array
-	 */
-	protected $nodes;
-
-	/**
-	 * @var array
-	 */
-	protected $edges;
-
-	/**
-	 * @var int
-	 */
-	protected $query_amount;
 
 	/**
 	 * PostObjectConnectionResolver constructor.
@@ -65,59 +37,43 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	public function __construct( $source, $args, $context, $info, $post_type ) {
 
 		/**
-		 * Call the parent construct to setup class data
-		 */
-		parent::__construct( $source, $args, $context, $info );
-
-		/**
 		 * Set the post type for the resolver
 		 */
 		$this->post_type = $post_type;
 
 		/**
-		 * Determine the query amount for the resolver.
-		 *
-		 * This is the amount of items to query from the database. We determine this by
-		 * determining how many items were asked for (first/last), then compare with the
-		 * max amount allowed to query (default is 100), and then we fetch 1 more than
-		 * that amount, so we know whether hasNextPage/hasPreviousPage should be true.
-		 *
-		 * If there are more items than were asked for, then there's another page.
+		 * Call the parent construct to setup class data
 		 */
-		$this->query_amount = $this->get_query_amount();
+		parent::__construct( $source, $args, $context, $info );
 
-		/**
-		 * Get the Query Args. This accepts the input args and maps it to how it should be
-		 * used in the WP_Query
-		 */
-		$this->query_args = $this->get_query_args();
-
-		/**
-		 * Check if the connection should execute. If conditions are met that should prevent
-		 * the execution, we can bail from resolving early, before the query is executed.
-		 */
-		$should_execute = $this->should_execute();
-		if ( ! $should_execute ) {
-			return [];
-		}
-
-		/**
-		 * Set the query for the resolver, for use as reference in filters, etc
-		 */
-		$this->query = new \WP_Query( $this->query_args );
-
-		/**
-		 * The items returned from the query
-		 */
-		$this->items = $this->query->posts;
-
-		/**
-		 * Set the items. These are the "nodes" that make up the connection.
-		 */
-		$this->nodes = $this->get_nodes();
 	}
 
-	public function should_execute() {
+	/**
+	 * @return \WP_Query
+	 */
+	protected function get_query() {
+		return new \WP_Query( $this->get_query_args() );
+	}
+
+	/**
+	 * Return an array of items from the query
+	 *
+	 * @return array
+	 */
+	protected function get_items() {
+		return ! empty( $this->query->posts ) ? $this->query->posts : [];
+	}
+
+	/**
+	 * Determine whether the Query should execute. If it's determined that the query should
+	 * not be run based on context such as, but not limited to, who the user is, where in the
+	 * ResolveTree the Query is, the relation to the node the Query is connected to, etc
+	 *
+	 * Return false to prevent the query from executing.
+	 *
+	 * @return bool
+	 */
+	protected function should_execute() {
 
 		$should_execute = true;
 
@@ -139,120 +95,13 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	}
 
 	/**
-	 * Get the nodes from the query.
-	 *
-	 * We slice the array to match the amount of items that was asked for, as we over-fetched
-	 * by 1 item to calculate pageInfo.
-	 *
-	 * For backward pagination, we reverse the order of nodes.
-	 *
-	 * @return array
-	 */
-	public function get_nodes() {
-		if ( empty( $this->query->posts ) ) {
-			return [];
-		}
-		$nodes = array_slice( $this->query->posts, 0, $this->query_amount );
-
-		return empty( $this->args['last'] ) ? array_reverse( $nodes ) : $nodes;
-	}
-
-	/**
-	 * This iterates over the items returned
-	 *
-	 * @return mixed
-	 */
-	public function get_edges() {
-		$this->edges = [];
-		if ( ! empty( $this->nodes ) ) {
-			foreach ( $this->nodes as $node ) {
-				$this->edges[] = [
-					'cursor' => base64_encode( 'arrayconnection:' . $node ),
-					'node'   => $node,
-				];
-			}
-		}
-
-		return $this->edges;
-	}
-
-	/**
 	 * Here, we map the args from the input, then we make sure that we're only querying
 	 * for IDs. The IDs are then passed down the resolve tree, and deferred resolvers
 	 * handle batch resolution of the posts.
 	 *
 	 * @return array
 	 */
-	public function get_query_args() {
-		$query_args           = $this->map_query_args();
-		$query_args['fields'] = 'ids';
-		return $query_args;
-	}
-
-	/**
-	 * @return mixed string|null
-	 */
-	public function get_start_cursor() {
-		$first_edge = $this->edges ? $this->edges[0] : null;
-
-		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
-	}
-
-	/**
-	 * @return mixed string|null
-	 */
-	public function get_end_cursor() {
-		$last_edge = $this->edges ? $this->edges[ count( $this->edges ) - 1 ] : null;
-
-		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function has_next_page() {
-		return ! empty( $this->args['first'] ) && ( $this->items > $this->query_amount ) ? true : false;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function has_previous_page() {
-		return ! empty( $this->args['last'] ) && ( $this->items > $this->query_amount ) ? true : false;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_page_info() {
-		return [
-			'startCursor'     => $this->get_start_cursor(),
-			'endCursor'       => $this->get_end_cursor(),
-			'hasNextPage'     => $this->has_next_page(),
-			'hasPreviousPage' => $this->has_previous_page(),
-		];
-	}
-
-	/**
-	 * @return Deferred
-	 */
-	public function get_connection() {
-		$connection = new Deferred(function() {
-			return [
-				'edges'    => $this->get_edges(),
-				'pageInfo' => $this->get_page_info(),
-				'nodes'    => $this->get_nodes(),
-			];
-		});
-		$connection->promise;
-		return $connection;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function map_query_args() {
-
+	protected function get_query_args() {
 		/**
 		 * Prepare for later use
 		 */
@@ -399,6 +248,12 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}
 
 		/**
+		 * NOTE: Only IDs should be queried here as the Deferred resolution will handle
+		 * fetching the full objects, either from cache of from a follow-up query to the DB
+		 */
+		$query_args['fields'] = 'ids';
+
+		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
 		 * @param array       $query_args The args that will be passed to the WP_Query
@@ -409,37 +264,10 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 */
 		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 
+		/**
+		 * Return the $query_args
+		 */
 		return $query_args;
-
-	}
-
-	/**
-	 * This returns the offset to be used in the $query_args based on the $args passed to the
-	 * GraphQL query.
-	 *
-	 * @return int|mixed
-	 */
-	public function get_offset() {
-
-		/**
-		 * Defaults
-		 */
-		$offset = 0;
-
-		/**
-		 * Get the $after offset
-		 */
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = ArrayConnection::cursorToOffset( $this->args['after'] );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = ArrayConnection::cursorToOffset( $this->args['before'] );
-		}
-
-		/**
-		 * Return the higher of the two values
-		 */
-		return max( 0, $offset );
-
 	}
 
 	/**
@@ -547,86 +375,6 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		}, $statuses ) );
 
 		return $allowed_statuses;
-	}
-
-	/**
-	 * get_query_amount
-	 *
-	 * Returns the max between what was requested and what is defined as the $max_query_amount to
-	 * ensure that queries don't exceed unwanted limits when querying data.
-	 *
-	 * @return int
-	 * @throws \Exception
-	 */
-	public function get_query_amount() {
-
-		/**
-		 * Filter the maximum number of posts per page that should be quried. The default is 100 to prevent queries from
-		 * being exceedingly resource intensive, however individual systems can override this for their specific needs.
-		 *
-		 * This filter is intentionally applied AFTER the query_args filter, as
-		 *
-		 * @param array       $query_args array of query_args being passed to the
-		 * @param mixed       $source     source passed down from the resolve tree
-		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-		 * @param ResolveInfo $info       Info about fields passed down the resolve tree
-		 *
-		 * @since 0.0.6
-		 */
-		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
-
-		return min( $max_query_amount, absint( $this->get_amount_requested() ) );
-
-	}
-
-	/**
-	 * This checks the $args to determine the amount requested, and if
-	 *
-	 * @return int|null
-	 * @throws \Exception
-	 */
-	public function get_amount_requested() {
-
-		/**
-		 * Set the default amount
-		 */
-		$amount_requested = 10;
-
-		/**
-		 * If both first & last are used in the input args, throw an exception as that won't
-		 * work properly
-		 */
-		if ( ! empty( $this->args['first'] ) && ! empty( $this->args['last'] ) ) {
-			throw new UserError( esc_html__( 'first and last cannot be used together. For forward pagination, use first & after. For backward pagination, use last & before.', 'wp-graphql' ) );
-		}
-
-		/**
-		 * If first is set, and is a positive integer, use it for the $amount_requested
-		 * but if it's set to anything that isn't a positive integer, throw an exception
-		 */
-		if ( ! empty( $this->args['first'] ) && is_int( $this->args['first'] ) ) {
-			if ( 0 > $this->args['first'] ) {
-				throw new UserError( esc_html__( 'first must be a positive integer.', 'wp-graphql' ) );
-			} else {
-				$amount_requested = $this->args['first'];
-			}
-		}
-
-		/**
-		 * If last is set, and is a positive integer, use it for the $amount_requested
-		 * but if it's set to anything that isn't a positive integer, throw an exception
-		 */
-		if ( ! empty( $this->args['last'] ) && is_int( $this->args['last'] ) ) {
-			if ( 0 > $this->args['last'] ) {
-				throw new UserError( esc_html__( 'last must be a positive integer.', 'wp-graphql' ) );
-			} else {
-				$amount_requested = $this->args['last'];
-			}
-		}
-
-		return max( 0, $amount_requested );
-
 	}
 
 }

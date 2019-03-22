@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use GraphQL\Deferred;
 use WPGraphQL\Model\Comment;
 
 /**
@@ -32,8 +33,13 @@ class CommentLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
-		$all_comments = [];
-		$comments_by_id = [];
+		$loaded = [];
+
+		/**
+		 * Prepare the args for the query. We're provided a specific set of IDs of comments
+		 * so we want to query as efficiently as possible with as little overhead to get the comment
+		 * objects. No need to count the rows, etc.
+		 */
 		$args = [
 			'comment__in' => $keys,
 			'orderby' => 'comment__in',
@@ -42,22 +48,34 @@ class CommentLoader extends AbstractDataLoader {
 			'count' => false,
 		];
 
+		/**
+		 * Execute the query. Call get_comments() to add them to the cache.
+		 */
 		$query = new \WP_Comment_Query( $args );
-		$comments = $query->get_comments();
+		$query->get_comments();
 
-		foreach ( $comments as $comment ) {
-			$comments_by_id[ $comment->comment_ID ] = $comment;
-		}
 
+		/**
+		 * Loop pver the keys and return an array of loaded_terms, where the key is the IDand the value
+		 * is the comment object, passed through the Model layer
+		 */
 		foreach ( $keys as $key ) {
 
-			$comment_object = ! empty( $comments_by_id[ $key ] ) ? $comments_by_id[ $key ] : null;
+			/**
+			 * Get the comment from the cache
+			 */
+			$comment_object = \WP_Comment::get_instance( $key );
 
-			$all_comments[ $key ] = ! empty( $comment_object ) ? new Comment( $comment_object ) : null;
-
+			/**
+			 * Return the instance through the Model Layer to ensure we only return
+			 * values the consumer has access to.
+			 */
+			$loaded[ $key ] = new Deferred( function() use ( $comment_object ) {
+				return new Comment( $comment_object );
+			});
 		}
 
-		return $all_comments;
+		return $loaded;
 
 	}
 

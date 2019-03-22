@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data\Loader;
 
 use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
@@ -87,11 +88,14 @@ class PostObjectLoader extends AbstractDataLoader {
 			 */
 			$post_object = get_post( (int) $key );
 
+			if ( empty( $post_object ) ) {
+				throw new UserError( sprintf( __( 'No item was found with ID %s', 'wp-graphql' ), $key ) );
+			}
+
 			/**
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-
 			$this->loaded_posts[ $key ] = new Deferred(function() use ( $post_object ) {
 
 				if ( ! $post_object instanceof \WP_Post ) {

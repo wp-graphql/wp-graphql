@@ -32,6 +32,11 @@ abstract class AbstractDataLoader {
 	 */
 	protected $context;
 
+	/**
+	 * AbstractDataLoader constructor.
+	 *
+	 * @param AppContext $context
+	 */
 	public function __construct( AppContext $context ) {
 		$this->context = $context;
 	}

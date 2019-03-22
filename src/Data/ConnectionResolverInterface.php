@@ -9,6 +9,7 @@ use WPGraphQL\AppContext;
  *
  * This class provides some helper methods to make creating connections easier.
  *
+ * @deprecated deprecated since version v0.3.0
  * @package WPGraphQL\Data
  */
 interface ConnectionResolverInterface {
