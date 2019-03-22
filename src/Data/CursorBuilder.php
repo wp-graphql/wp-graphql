@@ -58,7 +58,7 @@ class CursorBuilder {
 			if ( 'CHAR' === $cast ) {
 				$value = "'$value'";
 			} else if ( $cast ) {
-				$key = "CAST( '$key' as $cast )";
+				$key = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
 			}
 		}
