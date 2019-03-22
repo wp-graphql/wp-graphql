@@ -223,6 +223,7 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 	 */
 	public static function get_query( $query_args ) {
 		$query = new \WP_Query( $query_args );
+		\error_log( \print_r( $query->request, true ) );
 
 		return $query;
 	}

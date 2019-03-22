@@ -40,11 +40,9 @@ class PostObjectCursor {
 	public $cursor_post;
 
 	/**
-	 * Default compare for id or date ordering. < or >
-	 *
-	 * @var $compare
+	 * @var \WPGraphQL\Data\CursorBuilder
 	 */
-	public $compare;
+	public $builder;
 
 
 	/**
@@ -60,10 +58,16 @@ class PostObjectCursor {
 		$this->query = $query;
 
 		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+
+		$this->builder = new CursorBuilder( $compare );
 
 		// Get the $cursor_post
 		$this->cursor_post = get_post( $cursor_offset );
+	}
+
+	public function to_sql() {
+		return ' AND ' . $this->builder->to_sql();
 	}
 
 	/**
@@ -75,45 +79,43 @@ class PostObjectCursor {
 		 * If we have no cursor just compare with post_date like wp core
 		 */
 		if ( ! $this->cursor_post ) {
-			return $this->compare_with_date();
+			$this->compare_with_date();
+			return $this->to_sql();
 		}
 
 		$orderby = $this->query->get( 'orderby' );
+		$order = $this->query->get( 'order' );
 
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 			/**
 			 * Loop through all order keys if it is an array
 			 */
-			$where = '';
 			foreach ( $orderby as $by => $order ) {
-				$where .= $this->compare_with( $by, $order );
+				$this->compare_with( $by, $order );
 			}
-			return $where;
 		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
 			/**
-			 * If $orderby is just a string just compare with it directly
+			 * If $orderby is just a string just compare with it directly as DESC
 			 */
-			$order = ! empty( $this->query->query_vars['order'] ) ? $this->query->query_vars['order'] : 'DESC' ;
-			return $this->compare_with( $orderby, $order );
+			$this->compare_with( $orderby, $order );
 		}
 
 		/**
 		 * No custom comparing. Use the default date
 		 */
-		return $this->compare_with_date();
+		if ( ! $this->builder->has_fields() ) {
+			$this->compare_with_date();
+		}
+
+		return $this->to_sql();
 	}
 
 	/**
-	 * Get AND operator for post date based comparison
-	 *
-	 * @return string
+	 * Use post date based comparison
 	 */
 	private function compare_with_date() {
-		return $this->wpdb->prepare(
-			" AND {$this->wpdb->posts}.post_date {$this->compare} %s AND {$this->wpdb->posts}.ID != %d",
-			esc_sql( $this->cursor_post->post_date ),
-			absint( $this->cursor_offset )
-		);
+		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->cursor_post->post_date, 'DATE' );
+		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
 	}
 
 	/**
@@ -125,7 +127,6 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with( $by, $order ) {
-		$order_compare = ( 'ASC' === $order ) ? '>' : '<';
 
 		$post_field = 'post_' . $by;
 		$value = $this->cursor_post->{$post_field};
@@ -134,7 +135,8 @@ class PostObjectCursor {
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
-			return $this->compare_with_post_field( $post_field, $value, $order_compare );
+			$this->builder->add_field( "{$this->wpdb->posts}.post_{$by}", $value, null, $order );
+			return;
 		}
 
 		/**
@@ -142,24 +144,10 @@ class PostObjectCursor {
 		 */
 		$meta_key = $this->get_meta_key( $by );
 		if ( $meta_key ) {
-			return $this->compare_with_meta_field( $meta_key, $order_compare );
+			$this->compare_with_meta_field( $meta_key );
+			return;
 		}
 
-		// Default to date compare if no field matches
-		return $this->compare_with_date();
-	}
-
-	/**
-	 * Compare using post field
-	 *
-	 * @param string    $by Post field key
-	 * @param string    $value Value from the post object
-	 * @param string    $order_compare comparison string < or >
-	 *
-	 * @return string
-	 */
-	private function compare_with_post_field( $by, $value, $order_compare ) {
-		return $this->wpdb->prepare( " AND {$this->wpdb->posts}.{$by} {$order_compare} %s", $value );
 	}
 
 	/**
@@ -170,28 +158,11 @@ class PostObjectCursor {
 	 *
 	 * @return string
 	 */
-	private function compare_with_meta_field( $meta_key, $order_compare ) {
+	private function compare_with_meta_field( $meta_key ) {
 		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? esc_sql( $this->query->query_vars["meta_type"] ) : null;
 		$meta_value = esc_sql( get_post_meta( $this->cursor_offset, $meta_key, true ) );
 
-		$compare_right = '%s';
-		$compare_left = "{$this->wpdb->postmeta}.meta_value";
-
-		/**
-		 * Cast the compared values if the query has explicit type set
-		 */
-		if ( $meta_type ) {
-			$meta_type = $this->get_cast_for_type( $meta_type );
-			$compare_left = "CAST({$this->wpdb->postmeta}.meta_value AS $meta_type)";
-			$compare_right = "CAST(%s AS $meta_type)";
-		}
-
-		return $this->wpdb->prepare(
-			" AND {$this->wpdb->postmeta}.meta_key = %s AND $compare_left {$order_compare} $compare_right ",
-			$meta_key,
-			$meta_value
-		);
-
+		$this->builder->add_field( "{$this->wpdb->postmeta}.meta_value", $meta_value, $meta_type );
 	}
 
 	/**
