@@ -36,10 +36,10 @@ before_script:
   # Install PHP CodeSniffer and WPCS.
   - |
     if [[ ( "$PHPCS" == "true" ) && ( "$PHP_VERSION" == "7.3" ) ]]; then
+      composer require dealerdirect/phpcodesniffer-composer-installer
       composer require squizlabs/php_codesniffer
       composer require phpcompatibility/phpcompatibility-wp
       composer require wp-coding-standards/wpcs
-      composer dealerdirect/phpcodesniffer-composer-installer
       composer install
 
       phpenv rehash
