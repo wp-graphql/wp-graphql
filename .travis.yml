@@ -35,7 +35,7 @@ before_install:
 before_script:
   # Install PHP CodeSniffer and WPCS.
   - |
-    if [[ "$PHPCS" == "true" AND "$PHP_VERSION" == "7.3" ]]; then
+    if [[ ( "$PHPCS" == "true" ) && ( "$PHP_VERSION" == "7.3" ) ]]; then
       composer require squizlabs/php_codesniffer
       composer require phpcompatibility/phpcompatibility-wp
       composer require wp-coding-standards/wpcs
@@ -52,7 +52,7 @@ script:
   - ./run-docker-tests.sh 'wpunit'
   - ./run-docker-tests.sh 'functional'
   - ./run-docker-tests.sh 'acceptance'
-  - if [[ "$PHPCS" == "true" AND "$PHP_VERSION" == "7.3" ]]; then ./vendor/bin/phpcs wp-graphql.php --standard=WordPress; fi
+  - if [[ ( "$PHPCS" == "true" ) && ( "$PHP_VERSION" == "7.3" ) ]]; then ./vendor/bin/phpcs wp-graphql.php --standard=WordPress; fi
 
 after_success:
   # Upload coverage to codecov
