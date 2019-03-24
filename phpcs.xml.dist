@@ -7,7 +7,7 @@
 	<rule ref="WordPress" />
 
 	<!-- What to scan -->
-	 <file>wp-graphql.php</file>
+	 <file>src</file>
 
 	<!-- What to exclude -->
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
