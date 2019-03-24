@@ -3,6 +3,11 @@ sudo: required
 services:
   - docker
 
+language: php
+
+php:
+  - 7.3
+
 notifications:
   email:
     on_success: never
@@ -15,7 +20,6 @@ branches:
 
 cache:
   apt: true
-
 
 # Set the global environment variables
 env:
@@ -31,6 +35,13 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - |
+    # Remove Xdebug for a huge performance increase:
+    if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
+      phpenv config-rm xdebug.ini
+    else
+      echo "xdebug.ini does not exist"
+    fi 
 
 before_script:
   # Install PHP CodeSniffer and WPCS.
