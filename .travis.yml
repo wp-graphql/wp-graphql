@@ -65,7 +65,7 @@ script:
   - ./run-docker-tests.sh 'wpunit'
   - ./run-docker-tests.sh 'functional'
   - ./run-docker-tests.sh 'acceptance'
-  - if [[ "$PHPCS" == "true" ) ]]; then ./vendor/bin/phpcs; fi
+  - if [[ "$PHPCS" == "true" ]]; then ./vendor/bin/phpcs; fi
 
 after_success:
   # Upload coverage to codecov
