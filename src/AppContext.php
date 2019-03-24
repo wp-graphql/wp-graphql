@@ -93,15 +93,36 @@ class AppContext {
 	public $UserLoader;
 
 	/**
+	 * @var array
+	 */
+	private $additionalLoaders = [];
+
+	/**
+	 * Getter for retrieving loader
+	 */
+	public function __get( $name ) {
+		if ( array_key_exists( $name, $this->additionalLoaders ) ) {
+			return $this->additionalLoaders[ $name ];
+		}
+		return $this->{$name};
+	}
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
-		$this->CommentLoader    = new CommentLoader( $this );
-		$this->MenuItemLoader   = new MenuItemLoader( $this );
-		$this->PostObjectLoader = new PostObjectLoader( $this );
-		$this->TermObjectLoader = new TermObjectLoader( $this );
-		$this->UserLoader       = new UserLoader( $this );
-		$this->config           = apply_filters( 'graphql_app_context_config', $this->config );
+		$this->CommentLoader     = new CommentLoader( $this );
+		$this->MenuItemLoader    = new MenuItemLoader( $this );
+		$this->PostObjectLoader  = new PostObjectLoader( $this );
+		$this->TermObjectLoader  = new TermObjectLoader( $this );
+		$this->UserLoader        = new UserLoader( $this );
+		$this->config            = apply_filters( 'graphql_app_context_config', $this->config );
+		do_action(
+			'graphql_app_context_additional_loaders',
+			function( $name, $class ) {
+				$this->additionalLoaders[ $name ] = new $class( $this );
+			}
+		);
 	}
 
 	/**

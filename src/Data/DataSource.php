@@ -193,17 +193,21 @@ class DataSource {
 	 *
 	 * @throws \Exception
 	 */
-	public static function resolve_post_object( $id, AppContext $context ) {
+	public static function resolve_post_object( $id, AppContext $context, $post_type = 'post' ) {
 
 		if ( empty( $id ) || ! absint( $id ) ) {
 			return null;
 		}
 		$post_id = absint( $id );
-		$context->PostObjectLoader->buffer( [ $post_id ] );
 
-		return new Deferred( function () use ( $post_id, $context ) {
-			return $context->PostObjectLoader->load( $post_id );
-		} );
+		$loader = apply_filters( 'resolve_post_object_loader', 'PostObjectLoader', $post_id, $context, $post_type );
+		$context->{$loader}->buffer( [ $post_id ] );
+
+		return new Deferred(
+			function () use ( $loader, $post_id, $context ) {
+				return $context->{$loader}->load( $post_id );
+			}
+		);
 
 	}
 

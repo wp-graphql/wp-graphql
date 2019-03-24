@@ -176,7 +176,7 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 				}
 
 				$post_id       = absint( $id_components['id'] );
-				return DataSource::resolve_post_object( $post_id, $context );
+				return DataSource::resolve_post_object( $post_id, $context, $post_type_object->name );
 			},
 
 		] );
@@ -229,8 +229,8 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
 					$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				}
-				$post = DataSource::resolve_post_object( $post_id, $context );
-				if ( get_post($post_id)->post_type !== $post_type_object->name ) {
+				$post = DataSource::resolve_post_object( $post_id, $context, $post_type_object->name );
+				if ( get_post( $post_id )->post_type !== $post_type_object->name ) {
 					throw new UserError( sprintf( __( 'No %1$s exists with this id: %2$s' ), $post_type_object->graphql_single_name, $args['id'] ) );
 				}
 				return $post;
