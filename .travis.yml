@@ -28,7 +28,12 @@ env:
     - WP_VERSION=5.0.2 PHP_VERSION=5.6
     - WP_VERSION=5.0.3 PHP_VERSION=7.1
     - WP_VERSION=5.0.3 PHP_VERSION=7.2
-    - WP_VERSION=5.0.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true PHPCS=true
+    - WP_VERSION=5.0.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
+    - PHPCS=true
+  
+matrix:
+  allow_failures:
+    - env: PHPCS=true
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -63,7 +68,7 @@ script:
   - ./run-docker-tests.sh 'wpunit'
   - ./run-docker-tests.sh 'functional'
   - ./run-docker-tests.sh 'acceptance'
-  - if [[ ( "$PHPCS" == "true" ) && ( "$PHP_VERSION" == "7.3" ) ]]; then ./vendor/bin/phpcs wp-graphql.php --standard=WordPress; fi
+  - if [[ ( "$PHPCS" == "true" ) && ( "$PHP_VERSION" == "7.3" ) ]]; then ./vendor/bin/phpcs; fi
 
 after_success:
   # Upload coverage to codecov

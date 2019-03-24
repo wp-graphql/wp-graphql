@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This file should only exist locally or when CI bootstraps the environment for testing
  */
 if ( file_exists( __DIR__ . '/c3.php' ) ) {
-    require_once( __DIR__ . '/c3.php' );
+    require_once __DIR__ . '/c3.php';
 }
 
 /**
@@ -218,12 +218,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
 				// Autoload Required Classes
-				require_once( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' );
+				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
 			}
 
 
 			// Required non-autoloaded classes
-			require_once( WPGRAPHQL_PLUGIN_DIR . 'access-functions.php' );
+			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
 
 		}
 
