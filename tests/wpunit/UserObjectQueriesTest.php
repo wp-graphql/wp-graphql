@@ -496,7 +496,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
+
+		/**
+		 * Set the current user to nobody (unauthenticated)
+		 */
+		wp_set_current_user( 0 );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -520,6 +524,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
+		 * The user has no published posts, so there should be no results publicly
+		 * returned to an unauthenticated user
+		 */
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
@@ -538,6 +548,20 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		/**
+		 * Set the current user to the created user we're querying and
+		 * try the query again
+		 */
+		wp_set_current_user( $user_id );
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * The authenticated user should see their own user in the result
+		 */
 		$this->assertEquals( $expected, $actual );
 
 	}
@@ -716,7 +740,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'role' => 'administrator',
 		]);
 
-		$this->factory->user->create([
+		$admin = $this->factory->user->create([
 			'role' => 'administrator',
 		]);
 
@@ -738,6 +762,20 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		  }
 		}
 		';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Results should be empty for a non-authenticated request because the
+		 * users have no published posts and are not considered public
+		 */
+		$this->assertEmpty( $actual['data']['users']['pageInfo']['hasNextPage'] );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		/**
+		 * Set the current user and retry the request
+		 */
+		wp_set_current_user( $admin );
 
 		$actual = do_graphql_request( $query );
 

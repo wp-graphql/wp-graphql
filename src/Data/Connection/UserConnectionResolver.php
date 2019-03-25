@@ -69,6 +69,14 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ID';
 
 		/**
+		 * If the request is not authenticated, limit the query to users that have
+		 * published posts, as they're considered publicly facing users.
+		 */
+		if ( ! is_user_logged_in() ) {
+			$query_args['has_published_posts'] = true;
+		}
+
+		/**
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
 		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
 		 *
