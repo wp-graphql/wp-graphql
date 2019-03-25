@@ -118,8 +118,8 @@ class PostObjects {
 					},
 				],
 			],
-			'resolveNode'      => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_post_object( $id, $context );
+			'resolveNode'      => function( $id, $args, $context, $info ) use ( $post_type_object ) {
+				return DataSource::resolve_post_object( $id, $context, $post_type_object->name );
 			},
 			'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
 			'connectionArgs'   => $connection_args,
