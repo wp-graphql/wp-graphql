@@ -71,11 +71,16 @@ class CommentLoader extends AbstractDataLoader {
 			 * values the consumer has access to.
 			 */
 			$loaded[ $key ] = new Deferred( function() use ( $comment_object ) {
+
+				if ( ! $comment_object instanceof \WP_Comment ) {
+					return null;
+				}
+
 				return new Comment( $comment_object );
 			});
 		}
 
-		return $loaded;
+		return ! empty( $loaded ) ? $loaded : [];
 
 	}
 
