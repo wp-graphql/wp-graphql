@@ -22,9 +22,9 @@ env:
   matrix:
     # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
     - WP_VERSION=5.0.2 PHP_VERSION=5.6
-    - WP_VERSION=5.0.3 PHP_VERSION=7.1
-    - WP_VERSION=5.0.3 PHP_VERSION=7.2
-    - WP_VERSION=5.0.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
+    - WP_VERSION=5.1.1 PHP_VERSION=7.1
+    - WP_VERSION=5.1.1 PHP_VERSION=7.2
+    - WP_VERSION=5.1.1 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
 
 before_install:
 - sudo rm /usr/local/bin/docker-compose
