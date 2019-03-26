@@ -54,7 +54,7 @@ class Menus {
 				],
 			],
 			'resolveNode'      => function ( $id, $args, $context, $info ) {
-				return DataSource::resolve_term_object( $id, $context );
+				return DataSource::resolve_term_object( $id, $context, 'nav_menu' );
 			},
 			'resolve'          => function ( $source, $args, $context, $info ) {
 				$resolver   = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
