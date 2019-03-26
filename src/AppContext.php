@@ -2,6 +2,7 @@
 
 namespace WPGraphQL;
 
+use GraphQL\Error\UserError;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
@@ -95,17 +96,7 @@ class AppContext {
 	/**
 	 * @var array
 	 */
-	private $additionalLoaders = [];
-
-	/**
-	 * Getter for retrieving loader
-	 */
-	public function __get( $name ) {
-		if ( array_key_exists( $name, $this->additionalLoaders ) ) {
-			return $this->additionalLoaders[ $name ];
-		}
-		return $this->{$name};
-	}
+	private $loaders;
 
 	/**
 	 * AppContext constructor.
@@ -116,13 +107,41 @@ class AppContext {
 		$this->PostObjectLoader  = new PostObjectLoader( $this );
 		$this->TermObjectLoader  = new TermObjectLoader( $this );
 		$this->UserLoader        = new UserLoader( $this );
-		$this->config            = apply_filters( 'graphql_app_context_config', $this->config );
-		do_action(
-			'graphql_app_context_additional_loaders',
-			function( $name, $class ) {
-				$this->additionalLoaders[ $name ] = new $class( $this );
+
+		$this->loaders = [
+			'comment'   => &$this->CommentLoader,
+			'menu_item' => &$this->MenuItemLoader,
+			'user'      => &$this->UserLoader,
+		];
+		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$this->loaders[ $post_type ] = &$this->PostObjectLoader;
 			}
-		);
+		}
+
+		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		if ( ! empty( $allowed_taxonomies && is_array( $allowed_taxonomies ) ) ) {
+			foreach ( $allowed_taxonomies as $taxonomy ) {
+				$this->loaders[ $taxonomy ] = &$this->TermObjectLoader;
+			}
+		}
+
+		$this->loaders = apply_filters( 'graphql_data_loaders', $this->loaders, $this );
+		$this->config  = apply_filters( 'graphql_app_context_config', $this->config );
+	}
+
+	/**
+	 * Retrieves loader assigned to $key
+	 *
+	 * @return mixed
+	 */
+	public function getLoader( $key ) {
+		if ( ! array_key_exists( $key, $this->loaders ) ) {
+			throw new UserError( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) );
+		}
+
+		return $this->loaders[ $key ];
 	}
 
 	/**

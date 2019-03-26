@@ -262,7 +262,7 @@ if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
 				}
 
-				return DataSource::resolve_term_object( $id_components['id'], $context );
+				return DataSource::resolve_term_object( $id_components['id'], $context, $taxonomy_object->name );
 			},
 		] );
 

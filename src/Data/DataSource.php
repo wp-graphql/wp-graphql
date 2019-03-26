@@ -66,11 +66,14 @@ class DataSource {
 		}
 
 		$comment_id = absint( $id );
-		$context->CommentLoader->buffer( [ $comment_id ] );
+		$loader     = $context->getLoader( 'comment' );
+		$loader->buffer( [ $comment_id ] );
 
-		return new Deferred( function () use ( $comment_id, $context ) {
-			return $context->CommentLoader->load( $comment_id );
-		} );
+		return new Deferred(
+			function () use ( $loader, $comment_id ) {
+				return $loader->load( $comment_id );
+			}
+		);
 
 	}
 
@@ -199,13 +202,12 @@ class DataSource {
 			return null;
 		}
 		$post_id = absint( $id );
-
-		$loader = apply_filters( 'resolve_post_object_loader', 'PostObjectLoader', $post_id, $context, $post_type );
-		$context->{$loader}->buffer( [ $post_id ] );
+		$loader  = $context->getLoader( $post_type );
+		$loader->buffer( [ $post_id ] );
 
 		return new Deferred(
-			function () use ( $loader, $post_id, $context ) {
-				return $context->{$loader}->load( $post_id );
+			function () use ( $loader, $post_id ) {
+				return $loader->load( $post_id );
 			}
 		);
 
@@ -223,11 +225,14 @@ class DataSource {
 			return null;
 		}
 		$menu_item_id = absint( $id );
-		$context->MenuItemLoader->buffer( [ $menu_item_id ] );
+		$loader       = $context->getLoader( 'menu_item' );
+		$loader->buffer( [ $menu_item_id ] );
 
-		return new Deferred( function () use ( $menu_item_id, $context ) {
-			return $context->MenuItemLoader->load( $menu_item_id );
-		} );
+		return new Deferred(
+			function () use ( $loader, $menu_item_id ) {
+				return $loader->load( $menu_item_id );
+			}
+		);
 	}
 
 	/**
@@ -320,18 +325,21 @@ class DataSource {
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_term_object( $id, AppContext $context ) {
+	public static function resolve_term_object( $id, AppContext $context, $taxonomy_name ) {
 
 		if ( empty( $id ) || ! absint( $id ) ) {
 			return null;
 		}
 
 		$term_id = absint( $id );
-		$context->TermObjectLoader->buffer( [ $id ] );
+		$loader  = $context->getLoader( $taxonomy_name );
+		$loader->buffer( [ $id ] );
 
-		return new Deferred( function () use ( $term_id, $context ) {
-			return $context->TermObjectLoader->load( $term_id );
-		} );
+		return new Deferred(
+			function () use ( $loader, $term_id ) {
+				return $loader->load( $term_id );
+			}
+		);
 
 	}
 
@@ -411,11 +419,14 @@ class DataSource {
 			return null;
 		}
 		$user_id = absint( $id );
-		$context->UserLoader->buffer( [ $user_id ] );
+		$loader  = $context->getLoader( 'user' );
+		$loader->buffer( [ $user_id ] );
 
-		return new Deferred( function () use ( $user_id, $context ) {
-			return $context->UserLoader->load( $user_id );
-		} );
+		return new Deferred(
+			function () use ( $loader, $user_id ) {
+				return $loader->load( $user_id );
+			}
+		);
 	}
 
 	/**

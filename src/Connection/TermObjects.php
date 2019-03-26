@@ -91,12 +91,12 @@ class TermObjects {
 					},
 				],
 			],
-			'resolveNode'      => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_term_object( $id, $context );
+			'resolveNode'      => function( $id, $args, $context, $info ) use ( $tax_object ) {
+				return DataSource::resolve_term_object( $id, $context, $tax_object->name );
 			},
 			'resolve'          => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
-			}
+			},
 		];
 
 		return array_merge( $defaults, $args );
