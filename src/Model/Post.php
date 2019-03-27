@@ -74,6 +74,14 @@ class Post extends Model {
 	protected $post_type_object;
 
 	/**
+	 * The ID used to identify the fields' origin.
+	 *
+	 * @var array $fields
+	 * @access public
+	 */
+	protected $fields_id_name = 'post';
+
+	/**
 	 * Post constructor.
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
@@ -83,7 +91,6 @@ class Post extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post $post ) {
-
 		$this->post = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
 
@@ -125,6 +132,7 @@ class Post extends Model {
 
 		parent::__construct( 'PostObject', $post, $restricted_cap, $allowed_restricted_fields, $post->post_author );
 		$this->init();
+		parent::prepare_fields();
 
 	}
 
@@ -430,8 +438,6 @@ class Post extends Model {
 					return absint( $this->post->ID );
 				};
 			};
-
-			parent::prepare_fields();
 
 		}
 
