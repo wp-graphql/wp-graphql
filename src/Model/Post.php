@@ -124,7 +124,6 @@ class Post extends Model {
 
 		parent::__construct( 'PostObject', $post, $restricted_cap, $allowed_restricted_fields, $post->post_author );
 		$this->init();
-		parent::prepare_fields();
 
 	}
 
@@ -430,6 +429,8 @@ class Post extends Model {
 					return absint( $this->post->ID );
 				};
 			};
+
+			parent::prepare_fields();
 
 		}
 
