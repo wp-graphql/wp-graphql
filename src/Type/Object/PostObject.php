@@ -156,9 +156,9 @@ function get_post_object_fields( $post_type_object ) {
 				if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
 					return null;
 				}
-				$context->PostObjectLoader->buffer( $ancestor_ids );
+				$context->getLoader( 'post_object' )->buffer( $ancestor_ids );
 				return new Deferred( function() use ( $context, $ancestor_ids ) {
-					return $context->PostObjectLoader->loadMany( $ancestor_ids );
+					return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
 				});
 			}
 		],

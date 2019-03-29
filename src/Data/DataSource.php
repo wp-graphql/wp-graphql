@@ -66,10 +66,10 @@ class DataSource {
 		}
 
 		$comment_id = absint( $id );
-		$context->CommentLoader->buffer( [ $comment_id ] );
+		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
 
 		return new Deferred( function () use ( $comment_id, $context ) {
-			return $context->CommentLoader->load( $comment_id );
+			return $context->getLoader( 'comment' )->load( $comment_id );
 		} );
 
 	}
@@ -199,10 +199,10 @@ class DataSource {
 			return null;
 		}
 		$post_id = absint( $id );
-		$context->PostObjectLoader->buffer( [ $post_id ] );
+		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
 
 		return new Deferred( function () use ( $post_id, $context ) {
-			return $context->PostObjectLoader->load( $post_id );
+			return $context->getLoader( 'post_object' )->load( $post_id );
 		} );
 
 	}
@@ -219,10 +219,10 @@ class DataSource {
 			return null;
 		}
 		$menu_item_id = absint( $id );
-		$context->MenuItemLoader->buffer( [ $menu_item_id ] );
+		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
 
 		return new Deferred( function () use ( $menu_item_id, $context ) {
-			return $context->MenuItemLoader->load( $menu_item_id );
+			return $context->getLoader( 'menu_item' )->load( $menu_item_id );
 		} );
 	}
 
@@ -323,10 +323,10 @@ class DataSource {
 		}
 
 		$term_id = absint( $id );
-		$context->TermObjectLoader->buffer( [ $id ] );
+		$context->getLoader( 'term_object' )->buffer( [ $id ] );
 
 		return new Deferred( function () use ( $term_id, $context ) {
-			return $context->TermObjectLoader->load( $term_id );
+			return $context->getLoader( 'term_object' )->load( $term_id );
 		} );
 
 	}
@@ -407,10 +407,10 @@ class DataSource {
 			return null;
 		}
 		$user_id = absint( $id );
-		$context->UserLoader->buffer( [ $user_id ] );
+		$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 		return new Deferred( function () use ( $user_id, $context ) {
-			return $context->UserLoader->load( $user_id );
+			return $context->getLoader( 'user' )->load( $user_id );
 		} );
 	}
 
@@ -662,10 +662,10 @@ class DataSource {
 								break;
 							case 'user':
 								$user_id = absint( $id_components['id'] );
-								$context->UserLoader->buffer( [ $user_id ] );
+								$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 								return new Deferred( function () use ( $user_id, $context ) {
-									return $context->UserLoader->load( $user_id );
+									return $context->getLoader( 'user' )->load( $user_id );
 								} );
 								break;
 							default:
