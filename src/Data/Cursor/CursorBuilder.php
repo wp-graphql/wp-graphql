@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Cursor;
 
 /**
  * Generic class for building AND&OR operators for cursor based paginators

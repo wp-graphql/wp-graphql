@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Cursor;
 
 /**
  * Post Cursor
@@ -33,7 +33,7 @@ class PostObjectCursor {
 	public $cursor_offset;
 
 	/**
-	 * @var \WPGraphQL\Data\CursorBuilder
+	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
 	 */
 	public $builder;
 
@@ -56,14 +56,14 @@ class PostObjectCursor {
 	 */
 	public function __construct( $query ) {
 		global $wpdb;
-		$this->wpdb = $wpdb;
-		$this->query = $query;
+		$this->wpdb       = $wpdb;
+		$this->query      = $query;
 		$this->query_vars = $this->query->query_vars;
 
 		/**
 		 * Get the cursor offset if any
 		 */
-		$offset = $this->get_query_var( 'graphql_cursor_offset' );
+		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
 		$this->cursor_offset = ! empty( $offset ) ? $offset : 0;
 
 		/**
@@ -81,7 +81,7 @@ class PostObjectCursor {
 	 *
 	 * This is cached internally so it does not generate extra queries
 	 *
-	 * @return WP_Post|null
+	 * @return mixed WP_Post|null
 	 */
 	public function get_cursor_post() {
 		if ( ! $this->cursor_offset ) {
@@ -119,7 +119,7 @@ class PostObjectCursor {
 		}
 
 		$orderby = $this->get_query_var( 'orderby' );
-		$order = $this->get_query_var( 'order' );
+		$order   = $this->get_query_var( 'order' );
 
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 			/**
@@ -156,21 +156,22 @@ class PostObjectCursor {
 	/**
 	 * Get AND operator for given order by key
 	 *
-	 * @param string    $by The order by key
-	 * @param string    $order The order direction ASC or DESC
+	 * @param string $by    The order by key
+	 * @param string $order The order direction ASC or DESC
 	 *
 	 * @return string
 	 */
 	private function compare_with( $by, $order ) {
 
 		$post_field = 'post_' . $by;
-		$value = $this->get_cursor_post()->{$post_field};
+		$value      = $this->get_cursor_post()->{$post_field};
 
 		/**
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
 			$this->builder->add_field( "{$this->wpdb->posts}.post_{$by}", $value, null, $order );
+
 			return;
 		}
 
@@ -180,6 +181,7 @@ class PostObjectCursor {
 		$meta_key = $this->get_meta_key( $by );
 		if ( $meta_key ) {
 			$this->compare_with_meta_field( $meta_key, $order );
+
 			return;
 		}
 
@@ -188,13 +190,13 @@ class PostObjectCursor {
 	/**
 	 * Compare with meta key field
 	 *
-	 * @param string    $meta_key post meta key
-	 * @param string    $order_compare The comparison string
+	 * @param string $meta_key post meta key
+	 * @param string $order    The comparison string
 	 *
 	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order ) {
-		$meta_type = $this->get_query_var( 'meta_type' );
+		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
 
 		$key = "{$this->wpdb->postmeta}.meta_value";
@@ -207,15 +209,15 @@ class PostObjectCursor {
 
 		}
 
-		$this->meta_join_alias++;
+		$this->meta_join_alias ++;
 
-		$this->builder->add_field( $key , $meta_value, $meta_type, $order );
+		$this->builder->add_field( $key, $meta_value, $meta_type, $order );
 	}
 
 	/**
 	 * Get the actual meta key if any
 	 *
-	 * @param string    $by The order by key
+	 * @param string $by The order by key
 	 *
 	 * @return string|null
 	 */

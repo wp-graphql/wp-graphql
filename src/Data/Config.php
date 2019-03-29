@@ -1,8 +1,7 @@
 <?php
 
 namespace WPGraphQL\Data;
-use GraphQL\Language\AST\NonNullType;
-use GraphQL\Type\Definition\ListOfType;
+use WPGraphQL\Data\Cursor\PostObjectCursor;
 
 /**
  * Class Config
@@ -48,7 +47,7 @@ class Config {
 	 * the meta values have same values multiple times. This filter adds a
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
-	 * @param string    $where The ORDER BY clause of the query.
+	 * @param string    $orderby The ORDER BY clause of the query.
 	 *
 	 * @return string
 	 */
@@ -66,11 +65,6 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_query_cursor_pagination_support( $where, \WP_Query $query ) {
-
-		/**
-		 * Access the global $wpdb object
-		 */
-		global $wpdb;
 
 		/**
 		 * If there's a graphql_cursor_offset in the query, we should check to see if
