@@ -26,8 +26,8 @@ env:
     - WP_VERSION=5.0.3 PHP_VERSION=7.1
     - WP_VERSION=5.0.3 PHP_VERSION=7.2
     - WP_VERSION=5.0.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
-    - PHPCS=true
-  
+    - PHPCS=true RUN_TESTS=false
+
 matrix:
   allow_failures:
     - env: PHPCS=true
@@ -43,7 +43,7 @@ before_install:
       phpenv config-rm xdebug.ini
     else
       echo "xdebug.ini does not exist"
-    fi 
+    fi
 
 before_script:
   # Install PHP CodeSniffer and WPCS.
@@ -62,9 +62,9 @@ before_script:
     fi
 
 script:
-  - ./run-docker-tests.sh 'wpunit'
-  - ./run-docker-tests.sh 'functional'
-  - ./run-docker-tests.sh 'acceptance'
+  - if [[ "$PHPCS" != "false" ]]; then ./run-docker-tests.sh 'wpunit'; fi
+  - if [[ "$PHPCS" != "false" ]]; then ./run-docker-tests.sh 'functional' fi
+  - if [[ "$PHPCS" != "false" ]]; then ./run-docker-tests.sh 'acceptance' fi
   - if [[ "$PHPCS" == "true" ]]; then ./vendor/bin/phpcs; fi
 
 after_success:
