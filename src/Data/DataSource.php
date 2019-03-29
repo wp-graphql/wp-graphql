@@ -14,6 +14,7 @@ use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
@@ -469,9 +470,7 @@ class DataSource {
 	 * @return array
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-//		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
-
-		$resolver = new \WPGraphQL\Data\Connection\UserRoleConnectionResolver( $source, $args, $context, $info );
+		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
 		return $resolver->get_connection();
 
 	}
