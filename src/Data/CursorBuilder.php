@@ -77,7 +77,7 @@ class CursorBuilder {
 
 		$compare = $this->compare;
 
-		if ( null !== $order ) {
+		if ( $order ) {
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
 
