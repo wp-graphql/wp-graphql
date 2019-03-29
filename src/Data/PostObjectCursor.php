@@ -47,6 +47,11 @@ class PostObjectCursor {
 	public $meta_join_alias = 0;
 
 	/**
+	 * Copy of query vars so we can modify them safely
+	 */
+	public $query_vars = null;
+
+	/**
 	 * PostCursor constructor.
 	 *
 	 * @param integer $cursor_offset the post id
@@ -57,6 +62,7 @@ class PostObjectCursor {
 		$this->wpdb = $wpdb;
 		$this->cursor_offset = $cursor_offset;
 		$this->query = $query;
+		$this->query_vars = $this->query->query_vars;
 
 		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
 		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
@@ -69,6 +75,10 @@ class PostObjectCursor {
 
 	public function to_sql() {
 		return ' AND ' . $this->builder->to_sql();
+	}
+
+	public function get_query_var( $name ) {
+		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
 	}
 
 	/**
@@ -84,8 +94,8 @@ class PostObjectCursor {
 			return $this->to_sql();
 		}
 
-		$orderby = $this->query->get( 'orderby' );
-		$order = $this->query->get( 'order' );
+		$orderby = $this->get_query_var( 'orderby' );
+		$order = $this->get_query_var( 'order' );
 
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 			/**
@@ -160,7 +170,7 @@ class PostObjectCursor {
 	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order ) {
-		$meta_type = ! empty( $this->query->query_vars["meta_type"] ) ? $this->query->query_vars["meta_type"] : null;
+		$meta_type = $this->get_query_var( 'meta_type' );
 		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
 
 		$key = "{$this->wpdb->postmeta}.meta_value";
@@ -188,18 +198,18 @@ class PostObjectCursor {
 	private function get_meta_key( $by ) {
 
 		if ( 'meta_value' === $by ) {
-			return ! empty( $this->query->query_vars["meta_key"] ) ? $this->query->query_vars["meta_key"] : null;
+			return $this->get_query_var( 'meta_key' );
 		}
 
 		/**
 		 * Check for the WP 4.2+ style meta clauses
 		 * https://make.wordpress.org/core/2015/03/30/query-improvements-in-wp-4-2-orderby-and-meta_query/
 		 */
-		if ( ! isset( $this->query->query_vars['meta_query'][ $by ] ) ) {
+		if ( ! isset( $this->query_vars['meta_query'][ $by ] ) ) {
 			return null;
 		}
 
-		$clause = $this->query->query_vars["meta_query"][ $by ];
+		$clause = $this->query_vars['meta_query'][ $by ];
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
 	}
