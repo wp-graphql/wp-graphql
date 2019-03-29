@@ -147,16 +147,30 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
+		$first_page_actual = array_map( function( $edge ) {
+			return $edge['node']['title'];
+		}, $first['data']['posts']['edges']);
+
+
+
 		$cursor = $first['data']['posts']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
-		$actual = array_map( function( $edge ) {
+		$second_page_actual = array_map( function( $edge ) {
 			return $edge['node']['title'];
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
-		$q = new WP_Query( array_merge( $meta_fields, [
+		$first_page = new WP_Query( array_merge( $meta_fields, [
+			'post_status' => 'publish',
+			'post_type' => 'post',
+			'post_author' => $this->admin,
+			'posts_per_page' => $posts_per_page,
+			'paged' => 1,
+		] ) );
+
+		$second_page = new WP_Query( array_merge( $meta_fields, [
 			'post_status' => 'publish',
 			'post_type' => 'post',
 			'post_author' => $this->admin,
@@ -164,11 +178,13 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'paged' => 2,
 		] ) );
 
-		$expected = wp_list_pluck($q->posts, 'post_title');
-		// error_log(print_r($expected, true));
+
+		$first_page_expected = wp_list_pluck($first_page->posts, 'post_title');
+		$second_page_expected = wp_list_pluck($second_page->posts, 'post_title');
 
 		// Aserting like this we get more readable assertion fail message
-		$this->assertEquals( implode(',', $expected), implode(',', $actual), 'Second page' );
+		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
+		$this->assertEquals( implode(',', $second_page_expected), implode(',', $second_page_actual), 'Second page' );
 	}
 
 	/**
