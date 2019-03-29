@@ -56,9 +56,9 @@ abstract class AbstractConnectionResolver {
 	 * The Query class/array/object used to fetch the data.
 	 *
 	 * Examples:
-	 *   return new WP_Query( $this->get_query_args() );
-	 *   return new WP_Comment_Query( $this->get_query_args() );
-	 *   return new WP_Term_Query( $this->get_query_args(); );
+	 *   return new WP_Query( $this->query_args );
+	 *   return new WP_Comment_Query( $this->query_args );
+	 *   return new WP_Term_Query( $this->query_args );
 	 *
 	 * Whatever it is will be passed through filters so that fields throughout
 	 * have context from what was queried and can make adjustments as needed, such
@@ -135,32 +135,76 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Get the Query Args. This accepts the input args and maps it to how it should be
 		 * used in the WP_Query
+		 *
+		 * Filters the args
+		 *
+		 * @param array                      $query_args The query args to be used with the executable query to get data.
+		 *                                               This should take in the GraphQL args and return args for use in fetching the data.
+		 * @param AbstractConnectionResolver $this       Instance of the ConnectionResolver
 		 */
-		$this->query_args = $this->get_query_args();
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this );
 
 		/**
 		 * Check if the connection should execute. If conditions are met that should prevent
 		 * the execution, we can bail from resolving early, before the query is executed.
+		 *
+		 * Filter whether the connection should execute.
+		 *
+		 * @param bool                       $should_execute Whether the connection should execute
+		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
 		 */
-		$should_execute = $this->should_execute();
+		$should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
 		if ( ! $should_execute ) {
 			return [];
 		}
 
 		/**
 		 * Set the query for the resolver, for use as reference in filters, etc
+		 *
+		 * Filter the query. For core data, the query is typically an instance of:
+		 *
+		 *   WP_Query
+		 *   WP_Comment_Query
+		 *   WP_User_Query
+		 *   WP_Term_Query
+		 *   ...
+		 *
+		 * But in some cases, the actual mechanism for querying data should be overridden. For
+		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
+		 * the query to that instead of a native WP_Query class. You could override this with a
+		 * query to that datasource instead.
 		 */
-		$this->query = $this->get_query();
+		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
 
 		/**
-		 * The items returned from the query
+		 * The items returned from the query. This array of items will be passed
+		 * to `get_nodes`
+		 *
+		 * Filter the items.
+		 *
+		 * @param array                      $items The items returned from the query
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
 		 */
-		$this->items = ! empty( $this->get_items() ) ? $this->get_items() : 0;
+		$items       = ! empty( $this->get_items() ) ? $this->get_items() : [];
+		$this->items = apply_filters( 'graphql_connection_items', $items, $this );
 
 		/**
 		 * Set the items. These are the "nodes" that make up the connection.
+		 *
+		 * Filters the nodes in the connection
+		 *
+		 * @param array                      $nodes The nodes in the connection
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
 		 */
-		$this->nodes = $this->get_nodes();
+		$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+
+		/**
+		 * Filters the edges in the connection
+		 *
+		 * @param array                      $nodes The nodes in the connection
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+		 */
+		$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
 	}
 
@@ -426,7 +470,7 @@ abstract class AbstractConnectionResolver {
 	 * @return mixed
 	 */
 	public function get_edges() {
-		$this->edges = [];
+		$edges = [];
 		if ( ! empty( $this->nodes ) ) {
 			foreach ( $this->nodes as $key => $node ) {
 
@@ -444,19 +488,14 @@ abstract class AbstractConnectionResolver {
 				 * If not empty, add the edge to the edges
 				 */
 				if ( ! empty( $edge ) ) {
-					$this->edges[] = $edge;
+					$edges[] = $edge;
 				}
 			}
 
 
 		}
 
-		/**
-		 * Filter the edges prior to returning. This allows for edges to be filtered
-		 *
-		 * @param object $this Instance of the connection resolver class
-		 */
-		return apply_filters( 'graphql_connection_edges', $this->edges, $this );
+		return $edges;
 	}
 
 	/**
@@ -467,12 +506,45 @@ abstract class AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_page_info() {
-		return [
+
+		$page_info = [
 			'startCursor'     => $this->get_start_cursor(),
 			'endCursor'       => $this->get_end_cursor(),
 			'hasNextPage'     => $this->has_next_page(),
 			'hasPreviousPage' => $this->has_previous_page(),
 		];
+
+		/**
+		 * Filter the pageInfo that is returned to the connection.
+		 *
+		 * This filter allows for additional fields to be filtered into the pageInfo
+		 * of a connection, such as "totalCount", etc, because the filter has enough
+		 * context of the query, args, request, etc to be able to calcuate and return
+		 * that information.
+		 *
+		 * example:
+		 *
+		 * You would want to register a "total" field to the PageInfo type, then filter
+		 * the pageInfo to return the total for the query, something to this tune:
+		 *
+		 * add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) {
+		 *
+		 *   $page_info['total'] = null;
+		 *
+		 *   if ( $connection->query instanceof WP_Query ) {
+		 *      if ( isset( $connection->query->found_posts ) {
+		 *          $page_info['total'] = (int) $connection->query->found_posts;
+		 *      }
+		 *   }
+		 *
+		 *   return $page_info;
+		 *
+		 * });
+		 *
+		 *
+		 */
+		return apply_filters( 'graphql_connection_page_info', $page_info, $this );
+
 	}
 
 	/**
@@ -483,13 +555,23 @@ abstract class AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_connection() {
+
 		$connection = [
 			'edges'    => $this->get_edges(),
 			'pageInfo' => $this->get_page_info(),
 			'nodes'    => $this->get_nodes(),
 		];
 
-		return $connection;
+		/**
+		 * Filter the connection. In some cases, connections will want to provide
+		 * additional information other than edges, nodes, and pageInfo
+		 *
+		 * This filter allows additional fields to be returned to the connection resolver
+		 *
+		 * @param array                      $connection The connection data being returned
+		 * @param AbstractConnectionResolver $this       The instance of the connection resolver
+		 */
+		return apply_filters( 'graphql_connection', $connection, $this );
 	}
 
 }

@@ -13,6 +13,11 @@ use WPGraphQL\Types;
 class UserConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * Determines whether the query should execute at all. It's possible that in some
+	 * situations we may want to prevent the underlying query from executing at all.
+	 *
+	 * In those cases, this would be set to false.
+	 *
 	 * @return bool
 	 */
 	public function should_execute() {
@@ -20,6 +25,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Converts the args that were input to the connection into args that can be executed
+	 * by WP_User_Query
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -69,36 +77,34 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ID';
 
 		/**
-		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
-		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
-		 *
-		 * @param array       $query_args array of query_args being passed to the
-		 * @param mixed       $source     source passed down from the resolve tree
-		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param AppContext  $context    object passed down zthe resolve tree
-		 * @param ResolveInfo $info       info about fields passed down the resolve tree
-		 *
-		 * @since 0.0.6
+		 * If the request is not authenticated, limit the query to users that have
+		 * published posts, as they're considered publicly facing users.
 		 */
-		$query_args = apply_filters( 'graphql_user_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
+		if ( ! is_user_logged_in() ) {
+			$query_args['has_published_posts'] = true;
+		}
 
 		return $query_args;
 	}
 
 	/**
+	 * Return an instance of the WP_User_Query with the args for the connection being executed
+	 *
 	 * @return mixed|\WP_User_Query
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_User_Query( $this->get_query_args() );
+		return new \WP_User_Query( $this->query_args );
 	}
 
 	/**
+	 * Returns an array of items from the query being executed.
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
 	public function get_items() {
-		$results = $this->get_query()->get_results();
+		$results = $this->query->get_results();
 		return ! empty( $results ) ? $results : [];
 	}
 

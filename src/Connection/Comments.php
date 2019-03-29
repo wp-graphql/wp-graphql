@@ -128,7 +128,7 @@ class Comments {
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Array of author IDs to include comments for.', 'wp-graphql' ),
+				'description' => __( 'Array of IDs or email addresses of users whose unapproved comments will be returned by the query regardless of $status. Default empty', 'wp-graphql' ),
 			],
 			'karma'              => [
 				'type'        => 'Int',

@@ -103,6 +103,15 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 				'role' => $user['role'],
 			]);
 
+			/**
+			 * Create a post published by the user
+			 */
+			$this->factory()->post->create([
+				'post_title' => 'Post by ' . $user['role'],
+				'post_status' => 'publish',
+				'post_author' => $id
+			]);
+
 			$this->userIds[] = $id;
 			$user['user_data']['ID'] = $id;
 

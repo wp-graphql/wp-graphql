@@ -117,8 +117,6 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->categoriesQuery( $variables );
 
-		codecept_debug( $results );
-
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
@@ -131,8 +129,6 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'hide_empty' => false,
 		] );
 		$terms = $query->get_terms();
-
-		codecept_debug( $terms );
 
 		$first_term_id   = $terms[0]->term_id;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_term_id );

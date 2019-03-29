@@ -102,17 +102,19 @@ class AppContext {
 	 * AppContext constructor.
 	 */
 	public function __construct() {
-		$this->CommentLoader     = new CommentLoader( $this );
-		$this->MenuItemLoader    = new MenuItemLoader( $this );
-		$this->PostObjectLoader  = new PostObjectLoader( $this );
-		$this->TermObjectLoader  = new TermObjectLoader( $this );
-		$this->UserLoader        = new UserLoader( $this );
+
+		$this->CommentLoader    = new CommentLoader( $this );
+		$this->MenuItemLoader   = new MenuItemLoader( $this );
+		$this->PostObjectLoader = new PostObjectLoader( $this );
+		$this->TermObjectLoader = new TermObjectLoader( $this );
+		$this->UserLoader       = new UserLoader( $this );
 
 		$this->loaders = [
 			'comment'   => &$this->CommentLoader,
 			'menu_item' => &$this->MenuItemLoader,
 			'user'      => &$this->UserLoader,
 		];
+
 		$allowed_post_types = \WPGraphQL::$allowed_post_types;
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
@@ -127,8 +129,26 @@ class AppContext {
 			}
 		}
 
+		/**
+		 * This filters the data loaders, allowing for additional loaders to be
+		 * added to the AppContext or for existing loaders to be replaced if
+		 * needed.
+		 *
+		 * @params array $loaders The loaders accessible in the AppContext
+		 * @params AppContext $this The AppContext
+		 */
 		$this->loaders = apply_filters( 'graphql_data_loaders', $this->loaders, $this );
-		$this->config  = apply_filters( 'graphql_app_context_config', $this->config );
+
+		/**
+		 * This filters the config for the AppContext.
+		 *
+		 * This can be used to store additional context config, which is available to resolvers
+		 * throughout the resolution of a GraphQL request.
+		 *
+		 * @params array $config The config array of the AppContext object
+		 * @params AppContext $this The AppContext
+		 */
+		$this->config = apply_filters( 'graphql_app_context_config', $this->config, $this );
 	}
 
 	/**
