@@ -410,6 +410,9 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
 
+		$this->deleteByMetaKey( 'test_meta', 16 );
+		update_post_meta($this->created_post_ids[2], 'test_meta', 16 );
+
 		$this->assertQueryInCursor( [
 			'orderby' => 'meta_value_num',
 			'order' => 'ASC',
