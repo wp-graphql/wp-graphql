@@ -96,7 +96,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$this->loaded_posts[ $key ] = new Deferred(function() use ( $post_object ) {
+			$this->loaded_posts[ $key ] = new Deferred( function () use ( $post_object ) {
 
 				if ( ! $post_object instanceof \WP_Post ) {
 					return null;
@@ -110,13 +110,14 @@ class PostObjectLoader extends AbstractDataLoader {
 				 */
 				if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
 					$author = DataSource::resolve_user( $post_object->post_author, $this->context );
-					return $author->then(function() use ( $post_object ) {
+
+					return $author->then( function () use ( $post_object ) {
 						return new Post( $post_object );
-					});
+					} );
 				} else {
 					return new Post( $post_object );
 				}
-			});
+			} );
 
 		}
 
