@@ -13,21 +13,32 @@ use WPGraphQL\AppContext;
 abstract class AbstractDataLoader {
 
 	/**
+	 * Whether the loader should cache results or not. In some cases the loader may be used to just
+	 * get content but not bother with caching it.
+	 *
+	 * Default: true
+	 *
 	 * @var bool
 	 */
 	private $shouldCache = true;
 
 	/**
+	 * This stores an array of items that have already been loaded
+	 *
 	 * @var array
 	 */
 	private $cached = [];
 
 	/**
+	 * This stores an array of IDs that need to be loaded
+	 *
 	 * @var array
 	 */
 	private $buffer = [];
 
 	/**
+	 * This stores a reference to the AppContext for the loader to make use of
+	 *
 	 * @var AppContext
 	 */
 	protected $context;
@@ -177,7 +188,7 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * Given a list of keys, this yields normalized entries
+	 * Given an array of keys, this yields the object from the cached results
 	 *
 	 * @param $keys
 	 * @param $result
@@ -192,8 +203,9 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * This checks the buffer to see if any items need to be loaded, then attempts to
-	 * load them using the Loaders loadKeys method
+	 * This checks to see if any items are in the buffer, and if there are this
+	 * executes the loaders `loadKeys` method to load the items and adds them
+	 * to the cache if necessary
 	 *
 	 * @return array
 	 * @throws \Exception
@@ -231,7 +243,7 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * This method helps ensure null values aren't being loaded
+	 * This helps to ensure null values aren't being loaded by accident.
 	 *
 	 * @param $key
 	 *
@@ -246,10 +258,10 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * This method allows loaders to override the method and provide their own
-	 * method for converting a key to scalar. For example, if we wanted to support input of Relay
-	 * Global IDs, the loader could handle the conversion from the encoded ID to the scalar
-	 * ID by overriding this method, and doing the decoding in this method.
+	 * For loaders that need to decode keys, this method can help with that.
+	 * For example, if we wanted to accept a list of RELAY style global IDs and pass them
+	 * to the loader, we could have the loader centrally decode the keys into their
+	 * integer values in the PostObjectLoader by overriding this method.
 	 *
 	 * @param $key
 	 *
@@ -260,8 +272,8 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * In some cases, there may need to be transformation on the entry prior to returning.
-	 * Specific loaders can handle that transformation here by overriding this method.
+	 * If the loader needs to do any tweaks between getting raw data from the DB and caching,
+	 * this can be overridden by the specific loader and used for transformations, etc.
 	 *
 	 * @param $entry
 	 * @param $key
