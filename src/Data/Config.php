@@ -36,6 +36,24 @@ class Config {
 		 */
 		add_filter( 'terms_clauses', [ $this, 'graphql_wp_term_query_cursor_pagination_support' ], 10, 3 );
 
+		/**
+		 * Filter WP_Query order by add some stability to meta query ordering
+		 */
+		add_filter( 'posts_orderby', [ $this, 'graphql_wp_query_cursor_pagination_stability' ], 10, 2 );
+
+	}
+
+	/**
+	 * When posts are ordered by a meta query the order might be random when
+	 * the meta values have same values multiple times. This filter adds a
+	 * secondary ordering by the post ID which forces stable order in such cases.
+	 *
+	 * @param string    $where The ORDER BY clause of the query.
+	 *
+	 * @return string
+	 */
+	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
+		return $orderby . ', wp_posts.ID DESC ';
 	}
 
 	/**
