@@ -168,7 +168,14 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		// error_log(print_r($expected, true));
 
 		// Aserting like this we get more readable assertion fail message
-		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
+		$this->assertEquals( implode(',', $expected), implode(',', $actual), 'Second page' );
+	}
+
+	/**
+	 * Test default order
+	 */
+	public function testDefaultPostOrdering() {
+		$this->assertQueryInCursor( [ ] );
 	}
 
 	/**
