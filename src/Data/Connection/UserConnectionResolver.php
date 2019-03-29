@@ -40,15 +40,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['order'] = ! empty( $this->args['last'] ) ? 'ASC' : 'DESC';
 
 		/**
-		 * If "pageInfo" is in the fieldSelection, we need to calculate the pagination details, so
-		 * we need to run the query with count_total set to true.
-		 */
-		$field_selection = $this->info->getFieldSelection( 2 );
-		if ( ! empty( $field_selection['pageInfo'] ) ) {
-			$query_args['count_total'] = true;
-		}
-
-		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
 		$query_args['number'] = $this->get_query_amount();

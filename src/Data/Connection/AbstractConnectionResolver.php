@@ -388,7 +388,7 @@ abstract class AbstractConnectionResolver {
 	 * @return boolean
 	 */
 	public function has_next_page() {
-		return ! empty( $this->args['first'] ) && ( $this->items > $this->query_amount ) ? true : false;
+		return ! empty( $this->args['first'] ) && ( count( $this->items ) > $this->query_amount ) ? true : false;
 	}
 
 	/**
@@ -402,7 +402,7 @@ abstract class AbstractConnectionResolver {
 	 * @return boolean
 	 */
 	public function has_previous_page() {
-		return ! empty( $this->args['last'] ) && ( $this->items > $this->query_amount ) ? true : false;
+		return ! empty( $this->args['last'] ) && ( count( $this->items ) > $this->query_amount ) ? true : false;
 	}
 
 	/**
@@ -510,8 +510,8 @@ abstract class AbstractConnectionResolver {
 		$page_info = [
 			'startCursor'     => $this->get_start_cursor(),
 			'endCursor'       => $this->get_end_cursor(),
-			'hasNextPage'     => $this->has_next_page(),
-			'hasPreviousPage' => $this->has_previous_page(),
+			'hasNextPage'     => (bool) $this->has_next_page(),
+			'hasPreviousPage' => (bool) $this->has_previous_page(),
 		];
 
 		/**
