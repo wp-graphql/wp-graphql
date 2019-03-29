@@ -33,17 +33,15 @@ class PostObjectCursor {
 	public $cursor_offset;
 
 	/**
-	 * The current post instance
-	 *
-	 * @var $compare
-	 */
-	public $cursor_post;
-
-	/**
 	 * @var \WPGraphQL\Data\CursorBuilder
 	 */
 	public $builder;
 
+	/**
+	 * Counter for meta value joins
+	 *
+	 * @var integer
+	 */
 	public $meta_join_alias = 0;
 
 	/**
@@ -54,23 +52,43 @@ class PostObjectCursor {
 	/**
 	 * PostCursor constructor.
 	 *
-	 * @param integer $cursor_offset the post id
 	 * @param \WP_Query $query The WP_Query instance
 	 */
-	public function __construct( $cursor_offset, $query ) {
+	public function __construct( $query ) {
 		global $wpdb;
 		$this->wpdb = $wpdb;
-		$this->cursor_offset = $cursor_offset;
 		$this->query = $query;
 		$this->query_vars = $this->query->query_vars;
 
+		/**
+		 * Get the cursor offset if any
+		 */
+		$offset = $this->get_query_var( 'graphql_cursor_offset' );
+		$this->cursor_offset = ! empty( $offset ) ? $offset : 0;
+
+		/**
+		 * Get the direction for the query builder
+		 */
 		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
 		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 		$this->builder = new CursorBuilder( $compare );
 
-		// Get the $cursor_post
-		$this->cursor_post = get_post( $cursor_offset );
+	}
+
+	/**
+	 * Get post instance for the cursor.
+	 *
+	 * This is cached internally so it does not generate extra queries
+	 *
+	 * @return WP_Post|null
+	 */
+	public function get_cursor_post() {
+		if ( ! $this->cursor_offset ) {
+			return null;
+		}
+
+		return \WP_Post::get_instance( $this->cursor_offset );
 	}
 
 	public function to_sql() {
@@ -87,11 +105,17 @@ class PostObjectCursor {
 	public function get_where() {
 
 		/**
-		 * If we have no cursor just compare with post_date like wp core
+		 * Ensure the cursor_offset is a positive integer
 		 */
-		if ( ! $this->cursor_post ) {
-			$this->compare_with_date();
-			return $this->to_sql();
+		if ( ! is_integer( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
+			return '';
+		}
+
+		/**
+		 * If we have bad cursor just skip...
+		 */
+		if ( ! $this->get_cursor_post() ) {
+			return '';
 		}
 
 		$orderby = $this->get_query_var( 'orderby' );
@@ -125,7 +149,7 @@ class PostObjectCursor {
 	 * Use post date based comparison
 	 */
 	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->cursor_post->post_date, 'DATETIME' );
+		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->get_cursor_post()->post_date, 'DATETIME' );
 		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
 	}
 
@@ -140,7 +164,7 @@ class PostObjectCursor {
 	private function compare_with( $by, $order ) {
 
 		$post_field = 'post_' . $by;
-		$value = $this->cursor_post->{$post_field};
+		$value = $this->get_cursor_post()->{$post_field};
 
 		/**
 		 * Compare by the post field if the key matches an value
@@ -185,7 +209,7 @@ class PostObjectCursor {
 
 		$this->meta_join_alias++;
 
-		$this->builder->add_field($key , $meta_value, $meta_type, $order );
+		$this->builder->add_field( $key , $meta_value, $meta_type, $order );
 	}
 
 	/**

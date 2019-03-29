@@ -77,18 +77,8 @@ class Config {
 		 * it should be applied to the query
 		 */
 		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
-
-			$cursor_offset = ! empty( $query->query_vars['graphql_cursor_offset'] ) ? $query->query_vars['graphql_cursor_offset'] : 0;
-
-			/**
-			 * Ensure the cursor_offset is a positive integer
-			 */
-			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
-
-				$post_cursor = new PostObjectCursor( $cursor_offset, $query );
-				$where .= $post_cursor->get_where();
-
-			}
+			$post_cursor = new PostObjectCursor( $query );
+			return $where . $post_cursor->get_where();
 		}
 
 		return $where;
