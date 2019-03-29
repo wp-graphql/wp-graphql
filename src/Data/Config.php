@@ -85,40 +85,15 @@ class Config {
 			 */
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
-				$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+				$post_cursor = new PostObjectCursor( $cursor_offset, $query );
+				$where .= $post_cursor->get_where();
 
-				// Get the $cursor_post
-				$cursor_post = get_post( $cursor_offset );
-
-				/**
-				 * If the $cursor_post exists (hasn't been deleted), modify the query to compare based on the ID and post_date values
-				 * But if the $cursor_post no longer exists, we're forced to just compare with the ID
-				 *
-				 */
-				if ( ! empty( $cursor_post ) && ! empty( $cursor_post->post_date ) ) {
-					$orderby = $query->get( 'orderby' );
-					if ( ! empty( $orderby ) && is_array( $orderby ) ) {
-						foreach ( $orderby as $by => $order ) {
-							$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-							$value = $cursor_post->{$by};
-							if ( ! empty( $by ) && ! empty( $value ) ) {
-								$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$by} {$order_compare} %s", $value );
-							}
-						}
-					} else {
-						$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_date {$compare}= %s AND {$wpdb->posts}.ID != %d", esc_sql( $cursor_post->post_date ), absint( $cursor_offset ) );
-					}
-				} else {
-					$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID {$compare} %d", $cursor_offset );
-				}
 			}
 		}
 
-
 		return $where;
-
 	}
+
 
 	/**
 	 * This filters the term_clauses in the WP_Term_Query to support cursor based pagination, where we can
