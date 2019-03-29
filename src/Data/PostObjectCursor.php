@@ -125,7 +125,7 @@ class PostObjectCursor {
 	 * Use post date based comparison
 	 */
 	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->cursor_post->post_date, 'DATE' );
+		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->cursor_post->post_date, 'DATETIME' );
 		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
 	}
 
