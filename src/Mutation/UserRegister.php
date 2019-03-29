@@ -24,7 +24,7 @@ class UserRegister {
      * @return array
      */
     public static function get_input_fields() {
-        return array_merge( UserCreate::get_input_fields(), [
+        $input_fields = array_merge( UserCreate::get_input_fields(), [
             'username' => [
                 'type'        => [
                     'non_null' => 'String'
@@ -37,6 +37,15 @@ class UserRegister {
                 'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
             ],
         ] );
+
+	    /**
+	     * make sure we don't allow input for role or roles
+	     */
+        unset( $input_fields['role'] );
+	    unset( $input_fields['roles'] );
+
+        return $input_fields;
+
     }
 
     /**
@@ -101,6 +110,11 @@ class UserRegister {
              * Set the ID of the user to be used in the update
              */
             $user_args['ID'] = absint( $user_id );
+
+	        /**
+	         * Make sure we don't accept any role input during registration
+	         */
+	        unset( $user_args['role'] );
 
             /**
              * Update the registered user with the additional input (firstName, lastName, etc) from the mutation
