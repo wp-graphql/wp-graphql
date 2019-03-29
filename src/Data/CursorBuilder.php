@@ -17,20 +17,20 @@ class CursorBuilder {
 	 */
 	public $compare = null;
 
-	public function __construct( $compare = '>') {
+	public function __construct( $compare = '>' ) {
 		$this->compare = $compare;
-		$this->fields = [];
+		$this->fields  = [];
 	}
 
 	/**
-	* Add ordering field. The order you call this method matters. First field
-	* will be the primary field and latters ones will be used if the primary
-	* field has duplicate values
+	 * Add ordering field. The order you call this method matters. First field
+	 * will be the primary field and latters ones will be used if the primary
+	 * field has duplicate values
 	 *
-	 * @param string    $key database colum
-	 * @param string    $value value from the current cursor
-	 * @param string    $type type cast
-	 * @param string    $order custom order
+	 * @param string $key   database colum
+	 * @param string $value value from the current cursor
+	 * @param string $type  type cast
+	 * @param string $order custom order
 	 */
 	public function add_field( $key, $value, $type = null, $order = null ) {
 		/**
@@ -38,9 +38,9 @@ class CursorBuilder {
 		 * escape them here.
 		 */
 		$this->fields[] = [
-			'key' => esc_sql( $key ),
+			'key'   => esc_sql( $key ),
 			'value' => esc_sql( $value ),
-			'type' => esc_sql( $type ),
+			'type'  => esc_sql( $type ),
 			'order' => esc_sql( $order ),
 		];
 	}
@@ -70,9 +70,9 @@ class CursorBuilder {
 
 		$field = $fields[0];
 
-		$key = $field['key'];
+		$key   = $field['key'];
 		$value = $field['value'];
-		$type = $field['type'];
+		$type  = $field['type'];
 		$order = $field['order'];
 
 		$compare = $this->compare;
@@ -87,7 +87,7 @@ class CursorBuilder {
 			if ( 'CHAR' === $cast ) {
 				$value = "'$value'";
 			} else if ( $cast ) {
-				$key = "CAST( $key as $cast )";
+				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
 			}
 		}
@@ -97,18 +97,21 @@ class CursorBuilder {
 		}
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );
+
 		return " {$key} {$compare}= {$value} AND ( {$key} {$compare} {$value} OR ( {$nest} ) ) ";
 	}
 
 
 	/**
-	 * Copied from https://github.com/WordPress/WordPress/blob/c4f8bc468db56baa2a3bf917c99cdfd17c3391ce/wp-includes/class-wp-meta-query.php#L272-L296
+	 * Copied from
+	 * https://github.com/WordPress/WordPress/blob/c4f8bc468db56baa2a3bf917c99cdfd17c3391ce/wp-includes/class-wp-meta-query.php#L272-L296
 	 *
-	 * It's an intance method. No way to call it without creating the instance?
+	 * It's an instance method. No way to call it without creating the instance?
 	 *
 	 * Return the appropriate alias for the given meta type if applicable.
 	 *
 	 * @param string $type MySQL type to cast meta_value.
+	 *
 	 * @return string MySQL type.
 	 */
 	public function get_cast_for_type( $type = '' ) {
@@ -122,6 +125,7 @@ class CursorBuilder {
 		if ( 'NUMERIC' == $meta_type ) {
 			$meta_type = 'SIGNED';
 		}
+
 		return $meta_type;
 	}
 }
