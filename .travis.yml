@@ -46,6 +46,11 @@ before_install:
     fi
 
 before_script:
+  # Install Coveralls
+  - |
+    if [[ "${COVERAGE}" == 'true' ]]; then
+      composer require php-coveralls/php-coveralls
+    fi
   # Install PHP CodeSniffer and WPCS.
   - |
     if [[ "$PHPCS" == "true" ]]; then
@@ -62,6 +67,7 @@ before_script:
     fi
 
 script:
+  - mkdir -p build/logs
   - ./run-docker-tests.sh 'wpunit'
   - ./run-docker-tests.sh 'functional'
   - ./run-docker-tests.sh 'acceptance'
@@ -72,6 +78,7 @@ after_success:
   - |
     if [[ "${COVERAGE}" == 'true' ]]; then
       bash <(curl -s https://codecov.io/bash)
+      travis_retry php vendor/bin/php-coveralls -v
     fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
