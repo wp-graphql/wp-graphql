@@ -34,9 +34,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['no_found_rows'] = true;
 
 		/**
-		 * Set the default comment_status for Comment Queries to be "approved"
+		 * Set the default comment_status for Comment Queries to be "comment_approved"
 		 */
-		$query_args['comment_status'] = 'approved';
+		$query_args['status'] = 'approve';
 
 		/**
 		 * Set the default comment_parent for Comment Queries to be "0" to only get top level comments
@@ -74,6 +74,17 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( ! empty( $input_fields ) ) {
 			$query_args = array_merge( $query_args, $input_fields );
+		}
+
+		/**
+		 * If the current user cannot moderate comments, do not include unapproved comments
+		 */
+		if ( ! current_user_can('moderate_comments' ) ) {
+			$query_args['status'] = ['approve'];
+			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
+			if ( empty( $query_args['include_unapproved'] ) ) {
+				unset( $query_args['include_unapproved'] );
+			}
 		}
 
 		/**
@@ -209,7 +220,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'contentParent'      => 'post_parent',
 			'contentStatus'      => 'post_status',
 			'contentType'        => 'post_type',
-			'includeUnapproved'  => 'includeUnapproved',
+			'includeUnapproved'  => 'include_unapproved',
 			'parentIn'           => 'parent__in',
 			'parentNotIn'        => 'parent__not_in',
 			'userId'             => 'user_id',

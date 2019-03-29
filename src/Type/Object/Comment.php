@@ -89,7 +89,7 @@ register_graphql_object_type( 'Comment', [
 			'description' => __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the "comment_karma" column in SQL.', 'wp-graphql' ),
 		],
 		'approved'    => [
-			'type'        => 'String',
+			'type'        => 'Boolean',
 			'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
 		],
 		'agent'       => [
