@@ -91,6 +91,9 @@ class TermObjects {
 					},
 				],
 			],
+			'resolveNode'      => function( $id, $args, $context, $info ) {
+				return DataSource::resolve_term_object( $id, $context );
+			},
 			'resolve'          => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
 			}

@@ -157,7 +157,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->postsQuery( $variables );
 
-
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
@@ -395,353 +394,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testSanitizeInputFieldsAuthorArgs() {
-		$mock_args = [
-			'authorName'  => 'testAuthorName',
-			'authorIn'    => [ 1, 2, 3 ],
-			'authorNotIn' => [ 4, 5, 6 ],
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( 'testAuthorName', $actual['author_name'] );
-		$this->assertEquals( [ 1, 2, 3 ], $actual['author__in'] );
-		$this->assertEquals( [ 4, 5, 6 ], $actual['author__not_in'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'authorName', $actual );
-		$this->assertArrayNotHasKey( 'authorIn', $actual );
-		$this->assertArrayNotHasKey( 'authorNotIn', $actual );
-	}
-
-	public function testSanitizeInputFieldsCategoryArgs() {
-		$mock_args = [
-			'categoryId'    => 1,
-			'categoryName'  => 'testCategory',
-			'categoryIn'    => [ 4, 5, 6 ],
-			'categoryNotIn' => [ 6, 5, 4 ],
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( 1, $actual['cat'] );
-		$this->assertEquals( 'testCategory', $actual['category_name'] );
-		$this->assertEquals( [ 4, 5, 6 ], $actual['category__in'] );
-		$this->assertEquals( [ 6, 5, 4 ], $actual['category__not_in'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'categoryId', $actual );
-		$this->assertArrayNotHasKey( 'categoryName', $actual );
-		$this->assertArrayNotHasKey( 'categoryIn', $actual );
-		$this->assertArrayNotHasKey( 'categoryNotIn', $actual );
-	}
-
-	public function testSanitizeInputFieldsTagArgs() {
-		$mock_args = [
-			'tagId'      => 1,
-			'tagIds'     => [ 1, 2, 3 ],
-			'tagSlugAnd' => [ 4, 5, 6 ],
-			'tagSlugIn'  => [ 6, 7, 8 ],
-			'tagIn'      => [ 9, 8, 7 ],
-			'tagNotIn'   => [ 6, 5, 4 ],
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( 1, $actual['tag_id'] );
-		$this->assertEquals( [ 1, 2, 3 ], $actual['tag__and'] );
-		$this->assertEquals( [ 4, 5, 6 ], $actual['tag_slug__and'] );
-		$this->assertEquals( [ 6, 7, 8 ], $actual['tag_slug__in'] );
-		$this->assertEquals( [ 9, 8, 7 ], $actual['tag__in'] );
-		$this->assertEquals( [ 6, 5, 4 ], $actual['tag__not_in'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'tagId', $actual );
-		$this->assertArrayNotHasKey( 'tagIds', $actual );
-		$this->assertArrayNotHasKey( 'tagSlugAnd', $actual );
-		$this->assertArrayNotHasKey( 'tagSlugIn', $actual );
-		$this->assertArrayNotHasKey( 'tagIn', $actual );
-		$this->assertArrayNotHasKey( 'tagNotIn', $actual );
-	}
-
-	public function testSanitizeInputFieldsSearchArgs() {
-		$mock_args = [
-			'search' => 'testSearchString',
-			'id'     => 1,
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( 'testSearchString', $actual['s'] );
-		$this->assertEquals( 1, $actual['p'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'search', $actual );
-		$this->assertArrayNotHasKey( 'id', $actual );
-	}
-
-	public function testSanitizeInputFieldsParentArgs() {
-		$mock_args = [
-			'parent'      => 2,
-			'parentIn'    => [ 3, 4, 5 ],
-			'parentNotIn' => [ 6, 7, 8 ],
-			'in'          => [ 9, 10, 11 ],
-			'notIn'       => [ 12, 13, 14 ],
-			'nameIn'      => [ 'testPost1', 'testPost2', 'testPost3' ],
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( 2, $actual['post_parent'] );
-		$this->assertEquals( [ 3, 4, 5 ], $actual['post_parent__in'] );
-		$this->assertEquals( [ 6, 7, 8 ], $actual['post_parent__not_in'] );
-		$this->assertEquals( [ 9, 10, 11 ], $actual['post__in'] );
-		$this->assertEquals( [ 12, 13, 14 ], $actual['post__not_in'] );
-		$this->assertEquals( [ 'testPost1', 'testPost2', 'testPost3' ], $actual['post_name__in'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'parent', $actual );
-		$this->assertArrayNotHasKey( 'parentIn', $actual );
-		$this->assertArrayNotHasKey( 'parentNotIn', $actual );
-		$this->assertArrayNotHasKey( 'in', $actual );
-		$this->assertArrayNotHasKey( 'notIn', $actual );
-		$this->assertArrayNotHasKey( 'nameIn', $actual );
-	}
-
-	public function testSanitizeInputFieldsMiscArgs() {
-		$mock_args = [
-			'hasPassword' => true,
-			'password'    => 'myPostPassword123',
-			'status'      => 'publish',
-			'dateQuery'   => array(
-				array(
-					'year'  => 2012,
-					'month' => 12,
-					'day'   => 12,
-				),
-			),
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertTrue( $actual['has_password'] );
-		$this->assertEquals( 'myPostPassword123', $actual['post_password'] );
-		$this->assertEquals( 'publish', $actual['post_status'] );
-		$this->assertEquals(
-			array(
-				array(
-					'year'  => 2012,
-					'month' => 12,
-					'day'   => 12,
-				),
-			)
-			, $actual['date_query'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'hasPassword', $actual );
-		$this->assertArrayNotHasKey( 'password', $actual );
-		$this->assertArrayNotHasKey( 'status', $actual );
-		$this->assertArrayNotHasKey( 'dateQuery', $actual );
-	}
-
-	public function testSanitizeInputFieldsListOfPostStatusEnum() {
-		$mock_args = [
-			'stati'      =>  [ 'publish', 'private' ],
-		];
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::sanitize_input_fields( $mock_args, null, [], $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the returned values are equal to mock args
-		 */
-		$this->assertEquals( ['publish', 'private'], $actual['post_status'] );
-
-		/**
-		 * Make sure the query didn't return these array values
-		 */
-		$this->assertArrayNotHasKey( 'status', $actual );
-	}
-
-	/**
-	 * @group get_query_args
-	 */
-	public function testGetQueryArgs() {
-		/**
-		 * Mock args
-		 */
-		$mock_args = array(
-			'orderby' => 'DESC',
-			'where'   => array(
-				'orderby' => array(
-					array(
-						'field' => 'author',
-						'order' => 'ASC',
-					),
-				),
-			),
-		);
-
-		/**
-		 * Create post
-		 */
-		$test_post = $this->factory->post->create();
-
-		$source = new \WPGraphQL\Model\Post( get_post( $test_post ) );
-
-		/**
-		 * New page
-		 */
-		$actual = new \WPGraphQL\Data\PostObjectConnectionResolver( 'page' );
-
-		$actual = $actual::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
-
-		/**
-		 * Expected result
-		 */
-		$expected = array(
-			'post_type'              => 'page',
-			'no_found_rows'          => true,
-			'post_status'            => 'publish',
-			'posts_per_page'         => 11,
-			'post_parent'            => $test_post,
-			'graphql_cursor_offset'  => 0,
-			'graphql_cursor_compare' => '<',
-			'graphql_args'           => array(
-				'orderby' => 'DESC',
-				'where'   => array(
-					'orderby' => array(
-						0 => array(
-							'field' => 'author',
-							'order' => 'ASC',
-						)
-					),
-				),
-			),
-			'orderby'                => array(
-				'author' => 'ASC',
-			),
-			'ignore_sticky_posts' => true,
-		);
-
-		/**
-		 * Make sure the expected result is equal to the response of $actual
-		 */
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * @group get_query_args
-	 */
-	public function testGetQueryArgsAttachment() {
-
-		/**
-		 * Mock args
-		 */
-		$mock_args = array(
-			'post_status' => 'publish',
-		);
-
-		/**
-		 * Create attachment
-		 */
-		$child_id = $this->factory->post->create( [
-			'post_type' => 'attachment',
-		] );
-
-		$post_type = 'attachment';
-
-		$source = new \WPGraphQL\Model\Post( get_post( $child_id ) );
-
-		/**
-		 * New post type attachment
-		 */
-		$actual = new \WPGraphQL\Data\PostObjectConnectionResolver( $post_type );
-
-		$actual = $actual->get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the post status is equal to inherit
-		 */
-		$this->assertEquals( 'inherit', $actual['post_status'] );
-
-		/**
-		 * Make sure get_query_args is setting the post id as post_parent
-		 */
-		$this->assertEquals( $child_id, $actual['post_parent'] );
-	}
-
-	/**
-	 * @group get_query_args
-	 */
-	public function testGetQueryArgsPostType() {
-
-		/**
-		 * Get post type object
-		 */
-		$source = new \WPGraphQL\Model\PostType( get_post_type_object( 'post' ) );
-
-		$mock_args = array();
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure that post type is equals to post
-		 */
-		$this->assertEquals( 'post', $actual['post_type'] );
-	}
-
-	/**
-	 * @group get_query_args
-	 */
-	public function testGetQueryArgsUser() {
-		/**
-		 * Create a user
-		 */
-		$user_id = $this->factory->user->create();
-
-		$source = new \WPGraphQL\Model\User( get_user_by( 'ID', $user_id ) );
-
-		$mock_args = array();
-
-		$actual = \WPGraphQL\Data\PostObjectConnectionResolver::get_query_args( $source, $mock_args, $this->app_context, $this->app_info );
-
-		/**
-		 * Make sure the author is equal to the user previously created
-		 */
-		$this->assertEquals( $user_id, $actual['author'] );
-
-	}
-
 	/**
 	 * Test to assert that the global post object is being set correctly
 	 */
@@ -749,12 +401,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_1_args = [
 			'post_content' => 'Post content 1',
-			'post_excerpt' => 'Post excerpt 1',
+			'post_excerpt' => '',
 		];
 
 		$post_2_args = [
 			'post_content' => 'Post content 2',
-			'post_excerpt' => 'Post excerpt 2',
+			'post_excerpt' => '',
 		];
 
 		$post_1_id = $this->createPostObject( $post_1_args );
@@ -784,6 +436,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $private_post, $public_post ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
 		$this->assertEmpty( $this->getReturnField( $actual, 1 ) );
@@ -818,7 +471,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->subscriber );
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
-		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
+
+		/**
+		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
+		 * created the post, cannot access it.
+		 *
+		 * NOTE: Core handles this a bit different than the REST API.
+		 *
+		 * With core, a user can create a "private" post as an editor or admin, then the user can be
+		 * demoted to a subscriber, and if that user is logged in, the subscriber can still visit
+		 * the post and see the content on the front-end, but cannot visit the post in the back-end.
+		 *
+		 * The REST API however prevents subscribers (or non authenticated users) from querying
+		 * posts with a "private" status at all.
+		 *
+		 * We're going in the direction of the REST API here. Where certain statuses can only be
+		 * queried by users with certain capabilities.
+		 *
+		 */
+		$this->assertEmpty( $actual['data']['posts']['edges'] );
+		$this->assertEmpty( $actual['data']['posts']['nodes'] );
 
 	}
 
@@ -861,6 +533,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$role} );
 		$actual = do_graphql_request( $query );
+
 		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 		if ( true === $show_revisions ) {
@@ -887,18 +560,33 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'DRAFT' ] ] ] );
-		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
-		$this->assertCount( 2, $actual['data']['posts']['edges'] );
-		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
-		$content_field =  $this->getReturnField( $actual, 1, 'content' );
-		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
 
-		if ( true === $show_draft ) {
-			$this->assertNotNull( $content_field );
-			$this->assertNotNull( $excerpt_field );
-		} else {
-			$this->assertNull( $content_field );
-			$this->assertNull( $excerpt_field );
+		if ( 'admin' === $role ) {
+
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+
+			/**
+			 * The admin should have access to 2 posts, one public and one draft
+			 */
+			$this->assertCount( 2, $actual['data']['posts']['edges'] );
+			$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+			$content_field = $this->getReturnField( $actual, 1, 'content' );
+			$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+			if ( true === $show_draft ) {
+				$this->assertNotNull( $content_field );
+				$this->assertNotNull( $excerpt_field );
+			} else {
+				$this->assertNull( $content_field );
+				$this->assertNull( $excerpt_field );
+			}
+		} else if ( 'subscriber' === $role ) {
+
+			/**
+			 * The subscriber should only have access to 1 post, the public one.
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
 
 	}
@@ -919,18 +607,30 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 
 		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'TRASH' ] ] ] );
-		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
-		$this->assertCount( 2, $actual['data']['posts']['edges'] );
-		$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
-		$content_field =  $this->getReturnField( $actual, 1, 'content' );
-		$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
 
-		if ( true === $show_trash ) {
-			$this->assertNotNull( $content_field );
-			$this->assertNotNull( $excerpt_field );
-		} else {
-			$this->assertNull( $content_field );
-			$this->assertNull( $excerpt_field );
+		if ( 'admin' === $role ) {
+			/**
+			 * The admin should be able to see 2 posts, the public post and the trashed post
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 2, $actual['data']['posts']['edges'] );
+			$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
+			$content_field =  $this->getReturnField( $actual, 1, 'content' );
+			$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
+
+			if ( true === $show_trash ) {
+				$this->assertNotNull( $content_field );
+				$this->assertNotNull( $excerpt_field );
+			} else {
+				$this->assertNull( $content_field );
+				$this->assertNull( $excerpt_field );
+			}
+		} else if ( 'subscriber' === $role ) {
+			/**
+			 * The subscriber should only be able to see 1 post, the public one, not the trashed post.
+			 */
+			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
+			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
 
 	}

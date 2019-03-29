@@ -1,9 +1,10 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class ThemeConnectionResolver
@@ -24,6 +25,7 @@ class ThemeConnectionResolver {
 	 * @since  0.5.0
 	 * @return array
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$themes_array = [];

@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 
 class MediaItemDelete {
     /**
@@ -103,8 +104,7 @@ class MediaItemDelete {
              * Get the mediaItem object before deleting it
              */
             $media_item_before_delete = get_post( absint( $id_parts['id'] ) );
-            $media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? DataSource::resolve_post_object( $media_item_before_delete->ID, $post_type_object->name ) : $media_item_before_delete;
-
+            $media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? new Post( $media_item_before_delete ) : $media_item_before_delete;
 
             /**
              * If the mediaItem isn't of the attachment post type, throw an error

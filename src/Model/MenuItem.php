@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -17,7 +16,6 @@ use GraphQLRelay\Relay;
  * @property string   $target
  * @property string   $title
  * @property string   $url
- * @property \WP_Post $menu
  *
  * @package WPGraphQL\Model
  */
@@ -41,7 +39,7 @@ class MenuItem extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post $post ) {
-		$this->post = $post;
+		$this->post = wp_setup_nav_menu_item( $post );
 		parent::__construct( 'menuItem', $post );
 		$this->init();
 	}
@@ -90,12 +88,6 @@ class MenuItem extends Model {
 					return ! empty( $this->post->url ) ? $this->post->url : null;
 				},
 			];
-
-			if ( ! empty( $this->post->menu ) ) {
-				$this->fields['menu'] = function() {
-					$this->post->menu;
-				};
-			}
 
 			parent::prepare_fields();
 

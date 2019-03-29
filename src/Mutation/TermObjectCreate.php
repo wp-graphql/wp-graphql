@@ -83,8 +83,8 @@ class TermObjectCreate {
                 'type'        => $taxonomy->graphql_single_name,
                 // translators: Placeholder is the name of the taxonomy
                 'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-                'resolve'     => function ( $payload ) use ( $taxonomy ) {
-                    return DataSource::resolve_term_object( absint( $payload['termId'] ), $taxonomy->name );
+                'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy ) {
+                    return DataSource::resolve_term_object( absint( $payload['termId'] ), $context );
                 },
             ],
         ];

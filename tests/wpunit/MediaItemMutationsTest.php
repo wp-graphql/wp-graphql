@@ -884,6 +884,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
+
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
 		$update_variables['input']['authorId'] = false;

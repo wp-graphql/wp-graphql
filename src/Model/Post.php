@@ -14,8 +14,7 @@ use WPGraphQL\Types;
  * @property string $post_author
  * @property string $id
  * @property string $post_type
- * @property array  $ancestors
- * @property string $author
+ * @property string $authorId
  * @property string $date
  * @property string $dateGmt
  * @property string $contentRendered
@@ -33,8 +32,8 @@ use WPGraphQL\Types;
  * @property string $pinged
  * @property string $modified
  * @property string $modifiedGmt
- * @property int    $parent
- * @property User   $editLast
+ * @property int    $parentId
+ * @property int    $editLastId
  * @property array  $editLock
  * @property string $enclosure
  * @property string $guid
@@ -42,7 +41,7 @@ use WPGraphQL\Types;
  * @property string $link
  * @property string $uri
  * @property int    $commentCount
- * @property Post   $featuredImage
+ * @property int    $featuredImageId
  *
  * @property string $captionRaw
  * @property string $captionRendered
@@ -88,6 +87,22 @@ class Post extends Model {
 		$this->post = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
 
+		/**
+		 * Set the resolving post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 */
+		$GLOBALS['post'] = $this->post;
+		setup_postdata( $this->post );
+
+		/**
+		 * Mimic core functionality for templates, as seen here:
+		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
+		 */
+		if ( 'attachment' === $this->post->post_type ) {
+			remove_filter( 'the_content', 'prepend_attachment' );
+		}
+
 		$allowed_restricted_fields = [
 			'id',
 			'titleRendered',
@@ -100,7 +115,7 @@ class Post extends Model {
 			'isPublic',
 		];
 
-		$allowed_restricted_fields[] = $post->post_type . 'Id';
+		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
 
 		$restricted_cap = $this->get_restricted_cap();
 
@@ -206,6 +221,11 @@ class Post extends Model {
 		}
 
 		if ( empty( $this->fields ) ) {
+
+			$this->fields[ $this->post_type_object->graphql_single_name . 'Id' ] = function() {
+				return absint( $this->post->ID );
+			};
+
 			$this->fields = [
 				'ID' => function() {
 					return $this->post->ID;
@@ -219,14 +239,8 @@ class Post extends Model {
 				'post_type'     => function() {
 					return isset( $this->post->post_type ) ? $this->post->post_type : null;
 				},
-				'ancestors'     => function () {
-					$ancestor_ids = get_ancestors( $this->post->ID, $this->post->post_type );
-					return ( ! empty( $ancestor_ids ) ) ? $ancestor_ids : null;
-				},
-				'author'        => function () {
-					$id     = $this->post->post_author;
-					$author = isset( $id ) ? DataSource::resolve_user( absint( $this->post->post_author ) ) : null;
-					return $author;
+				'authorId'        => function () {
+					return isset( $this->post->post_author ) ? $this->post->post_author : null;
 				},
 				'date'          => function () {
 					return ! empty( $this->post->post_date ) && '0000-00-00 00:00:00' !== $this->post->post_date ? $this->post->post_date : null;
@@ -235,6 +249,7 @@ class Post extends Model {
 					return ! empty( $this->post->post_date_gmt ) ? Types::prepare_date_response( $this->post->post_date_gmt ) : null;
 				},
 				'contentRendered' => function() {
+					setup_postdata( $this->post );
 					$content = ! empty( $this->post->post_content ) ? $this->post->post_content : null;
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
@@ -245,6 +260,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts
 				],
 				'titleRendered' => function() {
+					setup_postdata( $this->post );
 					$id    = ! empty( $this->post->ID ) ? $this->post->ID : null;
 					$title = ! empty( $this->post->post_title ) ? $this->post->post_title : null;
 					return apply_filters( 'the_title', $title, $id );
@@ -256,6 +272,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'excerptRendered' => function() {
+					setup_postdata( $this->post );
 					$excerpt = ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->post );
 					return apply_filters( 'the_excerpt', $excerpt );
@@ -293,13 +310,12 @@ class Post extends Model {
 				'modifiedGmt'   => function () {
 					return ! empty( $this->post->post_modified_gmt ) ? Types::prepare_date_response( $this->post->post_modified_gmt ) : null;
 				},
-				'parent'        => function () {
-					$parent_post = ! empty( $this->post->post_parent ) ? get_post( $this->post->post_parent ) : null;
-					return isset( $parent_post->ID ) && isset( $parent_post->post_type ) ? DataSource::resolve_post_object( $parent_post->ID, $parent_post->post_type ) : $parent_post;
+				'parentId'        => function () {
+					return ! empty( $this->post->post_parent ) ? absint( $this->post->post_parent ) : null;
 				},
-				'editLast'      => function () {
+				'editLastId'      => function () {
 					$edit_last = get_post_meta( $this->post->ID, '_edit_last', true );
-					return ! empty( $edit_last ) ? DataSource::resolve_user( absint( $edit_last ) ) : null;
+					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
 				'editLock'      => function () {
 					$edit_lock       = get_post_meta( $this->post->ID, '_edit_lock', true );
@@ -327,9 +343,9 @@ class Post extends Model {
 				'commentCount'  => function () {
 					return ! empty( $this->post->comment_count ) ? absint( $this->post->comment_count ) : null;
 				},
-				'featuredImage' => function () {
+				'featuredImageId' => function () {
 					$thumbnail_id = get_post_thumbnail_id( $this->post->ID );
-					return ! empty( $thumbnail_id ) ? DataSource::resolve_post_object( $thumbnail_id, 'attachment' ) : null;
+					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
 				'password' => [
 					'callback' => function() {
@@ -342,6 +358,7 @@ class Post extends Model {
 			if ( 'attachment' === $this->post->post_type ) {
 				$attachment_fields = [
 					'captionRendered' => function() {
+						setup_postdata( $this->post );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->post->post_excerpt, $this->post ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
@@ -355,6 +372,7 @@ class Post extends Model {
 						return get_post_meta( $this->post->ID, '_wp_attachment_image_alt', true );
 					},
 					'descriptionRendered' => function() {
+						setup_postdata( $this->post );
 						return ! empty( $this->post->post_content ) ? apply_filters( 'the_content', $this->post->post_content ) : null;
 					},
 					'descriptionRaw' => [
@@ -408,7 +426,9 @@ class Post extends Model {
 			 */
 			if ( isset( $this->post_type_object ) && isset( $this->post_type_object->graphql_single_name ) ) {
 				$type_id                 = $this->post_type_object->graphql_single_name . 'Id';
-				$this->fields[ $type_id ] = absint( $this->post->ID );
+				$this->fields[ $type_id ] = function() {
+					return absint( $this->post->ID );
+				};
 			};
 
 			parent::prepare_fields();

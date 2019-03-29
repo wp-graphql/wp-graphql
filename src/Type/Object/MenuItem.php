@@ -2,8 +2,13 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\MenuItem;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 
 register_graphql_object_type( 'MenuItem', [
 	'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
@@ -51,25 +56,23 @@ register_graphql_object_type( 'MenuItem', [
 		'connectedObject'  => [
 			'type'        => 'MenuItemObjectUnion',
 			'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-			'resolve'     => function( MenuItem $menu_item, array $args, $context, $info ) {
+			'resolve'     => function( $menu_item, array $args, $context, $info ) {
+
 				$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 				$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
-
-				// By default, resolve to the menu item itself. This is the
-				// case for custom links.
-				$resolved_object = $menu_item;
 
 				switch ( $object_type ) {
 					// Post object
 					case 'post_type':
-						$resolved_object = get_post( $object_id );
-						$resolved_object = isset( $resolved_object->post_type ) && isset( $resolved_object->ID ) ? DataSource::resolve_post_object( $resolved_object->ID, $resolved_object->post_type ) : $resolved_object;
+						$resolved_object = DataSource::resolve_post_object( $object_id, $context );
 						break;
 
 					// Taxonomy term
 					case 'taxonomy':
-						$resolved_object = get_term( $object_id );
-						$resolved_object = isset( $resolved_object->term_id ) && isset( $resolved_object->taxonomy ) ? DataSource::resolve_term_object( $resolved_object->term_id, $resolved_object->taxonomy ) : $resolved_object;
+						$resolved_object = isset( $menu_item->term_id ) && isset( $menu_item->taxonomy ) ? DataSource::resolve_term_object( $menu_item->term_id, $context ) : $menu_item;
+						break;
+					default:
+						$resolved_object = $menu_item;
 						break;
 				}
 

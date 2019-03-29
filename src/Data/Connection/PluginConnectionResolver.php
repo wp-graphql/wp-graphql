@@ -1,10 +1,10 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Plugin;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
@@ -25,6 +25,7 @@ class PluginConnectionResolver {
 	 * @since  0.5.0
 	 * @return array
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 

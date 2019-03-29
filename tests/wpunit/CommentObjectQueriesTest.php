@@ -478,8 +478,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$user} );
 		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
 		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
-		codecept_debug( $admin_actual );
-		codecept_debug( $subscriber_actual );
 
 		if ( true === $should_display ) {
 			$this->assertArrayNotHasKey( 'errors', $admin_actual );

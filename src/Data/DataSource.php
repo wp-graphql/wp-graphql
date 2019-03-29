@@ -8,9 +8,14 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\PluginConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
+use WPGraphQL\Data\Connection\CommentConnectionResolver;
+use WPGraphQL\Data\Connection\ThemeConnectionResolver;
+use WPGraphQL\Data\Connection\UserConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Comment;
-use WPGraphQL\Model\Menu;
-use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -45,21 +50,27 @@ class DataSource {
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
-	 * @param int $id ID of the comment we want to get the object for
+	 * @param int        $id      ID of the comment we want to get the object for
+	 * @param AppContext $context The context of the request
 	 *
-	 * @return Comment object
+	 * @return Deferred object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
-	public static function resolve_comment( $id ) {
+	public static function resolve_comment( $id, $context ) {
 
-		$comment = \WP_Comment::get_instance( $id );
-		if ( empty( $comment ) ) {
-			throw new UserError( sprintf( __( 'No comment was found with ID %d', 'wp-graphql' ), absint( $id ) ) );
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
 
-		return new Comment( $comment );
+		$comment_id = absint( $id );
+		$context->CommentLoader->buffer( [ $comment_id ] );
+
+		return new Deferred( function () use ( $comment_id, $context ) {
+			return $context->CommentLoader->load( $comment_id );
+		} );
 
 	}
 
@@ -93,15 +104,16 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		$resolver = new CommentConnectionResolver();
-
-		return $resolver->resolve( $source, $args, $context, $info );
+		$resolver   = new CommentConnectionResolver( $source, $args, $context, $info );
+		$connection = $resolver->get_connection();
+		return $connection;
 	}
 
 	/**
 	 * Returns the Plugin model for the plugin you are requesting
 	 *
-	 * @param string|array $info Name of the plugin you want info for, or the array of data for the plugin
+	 * @param string|array $info Name of the plugin you want info for, or the array of data for the
+	 *                           plugin
 	 *
 	 * @return Plugin
 	 * @throws \Exception
@@ -161,6 +173,8 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
@@ -169,50 +183,47 @@ class DataSource {
 	/**
 	 * Returns the post object for the ID and post type passed
 	 *
-	 * @param int    $id        ID of the post you are trying to retrieve
-	 * @param string $post_type Post type the post is attached to
+	 * @param int        $id      ID of the post you are trying to retrieve
+	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @return mixed null \WP_Post
+	 * @return Deferred
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
-	public static function resolve_post_object( $id, $post_type ) {
+	public static function resolve_post_object( $id, AppContext $context ) {
 
-		/**
-		 * Get the Post instance
-		 */
-		$post_object = \WP_Post::get_instance( $id );
-
-		/**
-		 * If no post_object can be found, throw an error
-		 */
-		if ( empty( $post_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $post_type, $id ) );
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
+		$post_id = absint( $id );
+		$context->PostObjectLoader->buffer( [ $post_id ] );
 
-		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $post_object;
-		setup_postdata( $post_object );
+		return new Deferred( function () use ( $post_id, $context ) {
+			return $context->PostObjectLoader->load( $post_id );
+		} );
 
-		/**
-		 * Mimic core functionality for templates, as seen here:
-		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
-		 */
-		if ( 'attachment' === $post_object->post_type ) {
-			remove_filter( 'the_content', 'prepend_attachment' );
+	}
+
+	/**
+	 * @param int        $id      The ID of the menu item to load
+	 * @param AppContext $context The context of the GraphQL request
+	 *
+	 * @return Deferred|null
+	 * @throws \Exception
+	 */
+	public static function resolve_menu_item( $id, AppContext $context ) {
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
+		$menu_item_id = absint( $id );
+		$context->MenuItemLoader->buffer( [ $menu_item_id ] );
 
-		if ( 'nav_menu_item' === $post_type ) {
-			return new MenuItem( $post_object );
-		} else {
-			return new Post( $post_object );
-		}
-
+		return new Deferred( function () use ( $menu_item_id, $context ) {
+			return $context->MenuItemLoader->load( $menu_item_id );
+		} );
 	}
 
 	/**
@@ -230,9 +241,11 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
-		$resolver = new PostObjectConnectionResolver( $post_type );
+		$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+		$connection = $resolver->get_connection();
 
-		return $resolver->resolve( $source, $args, $context, $info );
+		return $connection;
+
 	}
 
 	/**
@@ -244,6 +257,7 @@ class DataSource {
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_post_type( $post_type ) {
 
@@ -294,26 +308,26 @@ class DataSource {
 	/**
 	 * Get the term object for a term
 	 *
-	 * @param int    $id       ID of the term you are trying to retrieve the object for
-	 * @param string $taxonomy Name of the taxonomy the term is in
+	 * @param int        $id      ID of the term you are trying to retrieve the object for
+	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @return mixed
-	 * @throws UserError
+	 * @throws \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function resolve_term_object( $id, $taxonomy ) {
+	public static function resolve_term_object( $id, AppContext $context ) {
 
-		$term_object = \WP_Term::get_instance( $id, $taxonomy );
-		if ( empty( $term_object ) ) {
-			throw new UserError( sprintf( __( 'No %1$s was found with the ID: %2$s', 'wp-graphql' ), $taxonomy, $id ) );
+		if ( empty( $id ) || ! absint( $id ) ) {
+			return null;
 		}
 
-		if ( 'nav_menu' === $taxonomy ) {
-			return new Menu( $term_object );
-		} else {
-			return new Term( $term_object );
-		}
+		$term_id = absint( $id );
+		$context->TermObjectLoader->buffer( [ $id ] );
+
+		return new Deferred( function () use ( $term_id, $context ) {
+			return $context->TermObjectLoader->load( $term_id );
+		} );
 
 	}
 
@@ -332,9 +346,10 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
-		$resolver = new TermObjectConnectionResolver( $taxonomy );
+		$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomy );
+		$connection = $resolver->get_connection();
 
-		return $resolver->resolve( $source, $args, $context, $info );
+		return $connection;
 	}
 
 	/**
@@ -346,6 +361,8 @@ class DataSource {
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
@@ -367,6 +384,7 @@ class DataSource {
 	 * @return array
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
 		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
@@ -376,21 +394,24 @@ class DataSource {
 	 * Gets the user object for the user ID specified
 	 *
 	 * @param int $id ID of the user you want the object for
+	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
 	 * @since  0.0.5
 	 * @access public
+	 * @throws \Exception
 	 */
-	public static function resolve_user( $id ) {
+	public static function resolve_user( $id, AppContext $context ) {
 
-		Loader::addOne( 'user', (int) $id );
-		$loader = function () use ( $id ) {
-			Loader::loadBuffered( 'user' );
+		if ( empty( $id ) ) {
+			return null;
+		}
+		$user_id = absint( $id );
+		$context->UserLoader->buffer( [ $user_id ] );
 
-			return Loader::loadOne( 'user', (int) $id );
-		};
-
-		return new Deferred( $loader );
+		return new Deferred( function () use ( $user_id, $context ) {
+			return $context->UserLoader->load( $user_id );
+		} );
 	}
 
 	/**
@@ -407,7 +428,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
-		return UserConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+		return $resolver->get_connection();
+
 	}
 
 	/**
@@ -443,10 +466,13 @@ class DataSource {
 	 * @param AppContext  $context The AppContext passed down to the query
 	 * @param ResolveInfo $info    The ResloveInfo object
 	 *
+	 * @throws \Exception
 	 * @return array
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
+		return $resolver->get_connection();
+
 	}
 
 	/**
@@ -581,7 +607,7 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 			// The ID fetcher definition
-				function ( $global_id ) {
+				function ( $global_id, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $global_id ) ) {
 						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
@@ -611,13 +637,13 @@ class DataSource {
 
 						switch ( $id_components['type'] ) {
 							case in_array( $id_components['type'], $allowed_post_types, true ):
-								$node = self::resolve_post_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_post_object( $id_components['id'], $context );
 								break;
 							case in_array( $id_components['type'], $allowed_taxonomies, true ):
-								$node = self::resolve_term_object( $id_components['id'], $id_components['type'] );
+								$node = self::resolve_term_object( $id_components['id'], $context );
 								break;
 							case 'comment':
-								$node = self::resolve_comment( $id_components['id'] );
+								$node = self::resolve_comment( $id_components['id'], $context );
 								break;
 							case 'commentAuthor':
 								$node = self::resolve_comment_author( $id_components['id'] );
@@ -635,7 +661,12 @@ class DataSource {
 								$node = self::resolve_theme( $id_components['id'] );
 								break;
 							case 'user':
-								$node = self::resolve_user( $id_components['id'] );
+								$user_id = absint( $id_components['id'] );
+								$context->UserLoader->buffer( [ $user_id ] );
+
+								return new Deferred( function () use ( $user_id, $context ) {
+									return $context->UserLoader->load( $user_id );
+								} );
 								break;
 							default:
 								/**
@@ -657,7 +688,7 @@ class DataSource {
 						 *
 						 * @since 0.0.6
 						 */
-						if ( null === $node ) {
+						if ( ! $node ) {
 							throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
 						}
 
@@ -788,10 +819,19 @@ class DataSource {
 			}
 		}
 		if ( $post_id ) {
-			return self::resolve_post_object( $post_id, $post_type );
+			return get_post( absint( $post_id ) );
 		}
 
 		return null;
 
+	}
+
+	/**
+	 * Returns array of nav menu location names
+	 */
+	public static function get_registered_nav_menu_locations() {
+		global $_wp_registered_nav_menus;
+
+		return array_keys( $_wp_registered_nav_menus );
 	}
 }

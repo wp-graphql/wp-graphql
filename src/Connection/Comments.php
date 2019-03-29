@@ -46,15 +46,11 @@ class Comments {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					register_graphql_connection( [
-						'fromType'       => $post_type_object->graphql_single_name,
-						'toType'         => 'Comment',
-						'fromFieldName'  => 'comments',
-						'connectionArgs' => self::get_connection_args(),
-						'resolve'        => function ( $root, $args, $context, $info ) {
-							return DataSource::resolve_comments_connection( $root, $args, $context, $info );
-						},
-					] );
+					register_graphql_connection( self::get_connection_config( [
+						'fromType'      => $post_type_object->graphql_single_name,
+						'toType'        => 'Comment',
+						'fromFieldName' => 'comments',
+					] ) );
 				}
 			}
 		}
@@ -65,6 +61,7 @@ class Comments {
 	 * with the defaults
 	 *
 	 * @access public
+	 *
 	 * @param array $args
 	 *
 	 * @return array
@@ -75,6 +72,9 @@ class Comments {
 			'toType'         => 'Comment',
 			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
+			'resolveNode'    => function ( $id, $args, $context, $info ) {
+				return DataSource::resolve_comment( $id, $context );
+			},
 			'resolve'        => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},

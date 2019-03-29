@@ -2,7 +2,12 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 
 function register_post_object_types( $post_type_object ) {
 
@@ -28,6 +33,12 @@ function register_post_object_types( $post_type_object ) {
 		register_graphql_field( $post_type_object->graphql_single_name, 'featuredImage', [
 			'type'        => 'MediaItem',
 			'description' => __( 'The featured image for the object', 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
+					return null;
+				}
+				return DataSource::resolve_post_object( $post->featuredImageId, $context );
+			}
 		] );
 
 	}
@@ -140,26 +151,26 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args ) {
-				$ancestor_ids = $source->ancestors;
-				if ( ! empty( $ancestor_ids ) && is_array( $ancestor_ids ) ) {
-					$types        = ! empty( $args['types'] ) ? $args['types'] : [ $source->post_type ];
-					$ancestors = [];
-					foreach ( $ancestor_ids as $ancestor_id ) {
-						$ancestor_obj = get_post( $ancestor_id );
-						if ( in_array( $ancestor_obj->post_type, $types, true ) ) {
-							$ancestors[] = DataSource::resolve_post_object( $ancestor_obj->ID, $ancestor_obj->post_type );
-						}
-					}
-				} else {
-					$ancestors = null;
+			'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+				$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
+				if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
+					return null;
 				}
-				return $ancestors;
+				$context->PostObjectLoader->buffer( $ancestor_ids );
+				return new Deferred( function() use ( $context, $ancestor_ids ) {
+					return $context->PostObjectLoader->loadMany( $ancestor_ids );
+				});
 			}
 		],
 		'author'            => [
 			'type'        => 'User',
 			'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
+					return null;
+				};
+				return DataSource::resolve_user( $post->authorId, $context );
+			}
 		],
 		'date'              => [
 			'type'        => 'String',
@@ -255,11 +266,24 @@ function get_post_object_fields( $post_type_object ) {
 		'parent'            => [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
+					return null;
+				}
+
+				return DataSource::resolve_post_object( $post->parentId, $context );
+			}
 		],
 		'editLast'          => [
 			'type'        => 'User',
 			'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
+			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				if ( ! isset( $post->editLastId ) || ! absint( $post->editLastId ) ) {
+					return null;
+				}
 
+				return DataSource::resolve_user( $post->editLastId, $context );
+			},
 		],
 		'editLock'          => [
 			'type'        => 'EditLock',
@@ -334,8 +358,13 @@ function get_post_object_fields( $post_type_object ) {
 						'object_ids' => $source->ID,
 					] );
 
-					$tax_terms = $term_query->get_terms();
-
+					$fetched_terms = $term_query->get_terms();
+					$tax_terms = [];
+					if ( ! empty( $fetched_terms ) ) {
+						foreach ( $fetched_terms as $tax_term ) {
+							$tax_terms[ $tax_term->term_id ] = new Term( $tax_term );
+						}
+					}
 				}
 
 				return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;

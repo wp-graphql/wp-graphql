@@ -471,21 +471,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'data'   => [
 				'user' => null,
 			],
-			'errors' => [
-				[
-					'message'   => 'No user was found with the provided ID',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
-					],
-					'path'      => [
-						'user',
-					],
-					'category' => 'user',
-				],
-			],
 		];
 
 		$this->assertEquals( $expected, $actual );

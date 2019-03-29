@@ -42,6 +42,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create the query string to pass to the $query
 		 */
@@ -481,7 +483,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"Y29tbWVudDo5OTk5\"){
+		  node(id:\"nonExistentId\"){
 			...on Comment {
 			  id
 			}

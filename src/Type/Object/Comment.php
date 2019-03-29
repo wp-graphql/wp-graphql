@@ -2,8 +2,11 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQLRelay\Relay;
+use GraphQL\Deferred;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Comment;
 
 register_graphql_object_type( 'Comment', [
 	'description' => __( 'A Comment object', 'wp-graphql' ),
@@ -22,10 +25,35 @@ register_graphql_object_type( 'Comment', [
 		'commentedOn' => [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The object the comment was added to', 'wp-graphql' ),
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
+					return null;
+				}
+				$id = absint( $comment->comment_post_ID );
+				return DataSource::resolve_post_object( $id, $context );
+			}
 		],
 		'author'      => [
 			'type'        => 'CommentAuthorUnion',
 			'description' => __( 'The author of the comment', 'wp-graphql' ),
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+
+				/**
+				 * If the comment has a user associated, use it to populate the author, otherwise return
+				 * the $comment and the Union will use that to hydrate the CommentAuthor Type
+				 */
+				if ( ! empty( $comment->user_id ) ) {
+
+					if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
+						return null;
+					}
+
+					return DataSource::resolve_user( $comment->userId, $context );
+
+				} else {
+					return DataSource::resolve_comment_author( $comment->commentAuthorEmail );
+				}
+			}
 		],
 		'authorIp'    => [
 			'type'        => 'String',
@@ -48,7 +76,7 @@ register_graphql_object_type( 'Comment', [
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				]
 			],
-			'resolve'     => function( $comment, $args ) {
+			'resolve'     => function ( Comment $comment, $args ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 					return $comment->contentRaw;
 				} else {
@@ -75,6 +103,17 @@ register_graphql_object_type( 'Comment', [
 		'parent'      => [
 			'type'        => 'Comment',
 			'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
+			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+				$parent = null;
+				if ( ! empty( $comment->comment_parent_id ) ) {
+					$parent_obj = \WP_Comment::get_instance( $comment->comment_parent_id );
+					if ( is_a( $parent_obj, 'WP_Comment' ) ) {
+						$parent = new Comment( $parent_obj );
+					}
+				}
+
+				return $parent;
+			}
 		],
 	]
 ] );

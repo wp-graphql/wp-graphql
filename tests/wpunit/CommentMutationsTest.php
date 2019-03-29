@@ -296,7 +296,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function testUntrashComment()
+	public function testRestoreComment()
 	{
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 		$new_post = $this->factory()->post->get_object_by_id( $post_id );

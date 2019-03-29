@@ -3,7 +3,9 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 
 $node_definition = DataSource::get_node_definition();
@@ -28,10 +30,10 @@ register_graphql_object_type( 'RootQuery', [
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_comment( $id_components['id'] );
+				return DataSource::resolve_comment( $id_components['id'], $context );
 			},
 		],
 		'node'        => $node_definition['nodeField'],
@@ -48,7 +50,7 @@ register_graphql_object_type( 'RootQuery', [
 			'resolve'     => function ( $source, array $args, $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_term_object( $id_components['id'], 'nav_menu' );
+				return DataSource::resolve_term_object( $id_components['id'], $context );
 			},
 		],
 		'menuItem'    => [
@@ -61,10 +63,10 @@ register_graphql_object_type( 'RootQuery', [
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
-
-				return DataSource::resolve_post_object( $id_components['id'], 'nav_menu_item' );
+				$id       = absint( $id_components['id'] );
+				return DataSource::resolve_menu_item( $id, $context );
 			}
 		],
 		'plugin'      => [
@@ -112,7 +114,7 @@ register_graphql_object_type( 'RootQuery', [
 			'resolve'     => function ( $source, array $args, $context, $info ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_user( $id_components['id'] );
+				return DataSource::resolve_user( $id_components['id'], $context );
 			},
 		],
 		'userRole'    => [
@@ -141,7 +143,11 @@ register_graphql_object_type( 'RootQuery', [
 			'type'        => 'User',
 			'description' => __( 'Returns the current user', 'wp-graphql' ),
 			'resolve'     => function ( $source, array $args, $context, $info ) {
-				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID ) : null;
+				if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
+					throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
+				}
+
+				return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 			},
 		],
 	],
@@ -162,10 +168,15 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 					],
 				],
 			],
-			'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
+			'resolve'     => function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_post_object( $id_components['id'], $post_type_object->name );
+				if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+					throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+				}
+
+				$post_id       = absint( $id_components['id'] );
+				return DataSource::resolve_post_object( $post_id, $context );
 			},
 
 		] );
@@ -199,33 +210,30 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
 
 				$post_object = null;
-
+				$post_id     = 0;
 				if ( ! empty( $args['id'] ) ) {
 					$id_components = Relay::fromGlobalId( $args['id'] );
 					if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
 						throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
 					}
-					$post_object = DataSource::resolve_post_object( absint( $id_components['id'] ), $post_type_object->name );
+					$post_id = absint( $id_components['id'] );
 				} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
-					$id          = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
-					$post_object = DataSource::resolve_post_object( $id, $post_type_object->name );
+					$id      = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
+					$post_id = absint( $id );
 				} elseif ( ! empty( $args['uri'] ) ) {
 					$uri         = esc_html( $args['uri'] );
 					$post_object = DataSource::get_post_object_by_uri( $uri, 'OBJECT', $post_type_object->name );
+					$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				} elseif ( ! empty( $args['slug'] ) ) {
 					$slug        = esc_html( $args['slug'] );
 					$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
+					$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 				}
-
-				if ( empty( $post_object ) || is_wp_error( $post_object ) ) {
-					throw new UserError( __( 'No resource could be found', 'wp-graphql' ) );
+				$post = DataSource::resolve_post_object( $post_id, $context );
+				if ( get_post($post_id)->post_type !== $post_type_object->name ) {
+					throw new UserError( sprintf( __( 'No %1$s exists with this id: %2$s' ), $post_type_object->graphql_single_name, $args['id'] ) );
 				}
-
-				if ( $post_type_object->name !== $post_object->post_type ) {
-					throw new UserError( __( 'The queried resource is not the correct type', 'wp-graphql' ) );
-				}
-
-				return $post_object;
+				return $post;
 
 			},
 		] );
@@ -250,7 +258,11 @@ if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			'resolve'     => function ( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
 				$id_components = Relay::fromGlobalId( $args['id'] );
 
-				return DataSource::resolve_term_object( $id_components['id'], $taxonomy_object->name );
+				if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+					throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+				}
+
+				return DataSource::resolve_term_object( $id_components['id'], $context );
 			},
 		] );
 

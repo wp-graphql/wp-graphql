@@ -88,8 +88,11 @@ class CommentCreate {
             'comment' => [
                 'type'        => 'Comment',
                 'description' => __( 'The comment that was created', 'wp-graphql' ),
-                'resolve'     => function ( $payload ) {
-        	        return DataSource::resolve_comment( absint( $payload['id'] ) );
+                'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+        	        if ( ! isset( $payload['id'] ) || ! absint( $payload['id'] ) ) {
+		                return null;
+	                }
+        	        return DataSource::resolve_comment( absint( $payload['id'] ), $context );
                 },
             ]
         ];
@@ -102,6 +105,7 @@ class CommentCreate {
      */
     public static function mutate_and_get_payload() {
         return function ( $input, AppContext $context, ResolveInfo $info ) {
+
             /**
              * Throw an exception if there's no input
              */
@@ -112,7 +116,7 @@ class CommentCreate {
             /**
              * Stop if post not open to comments
              */
-            if ( get_post( $input['postId'] )->post_status === 'closed' ) {
+            if ( empty( $input['postId'] ) || get_post( $input['postId'] )->post_status === 'closed' ) {
                 throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
             }
 
@@ -140,6 +144,7 @@ class CommentCreate {
              * Throw an exception if the comment failed to be created
              */
             if ( is_wp_error( $comment_id ) ) {
+
                 $error_message = $comment_id->get_error_message();
                 if ( ! empty( $error_message ) ) {
                     throw new UserError( esc_html( $error_message ) );
