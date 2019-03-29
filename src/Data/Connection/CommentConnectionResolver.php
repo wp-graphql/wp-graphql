@@ -152,7 +152,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_Comment_Query( $this->get_query_args() );
+		return new \WP_Comment_Query( $this->query_args );
 	}
 
 	/**

@@ -96,11 +96,21 @@ class AppContext {
 	 * AppContext constructor.
 	 */
 	public function __construct() {
+
 		$this->CommentLoader    = new CommentLoader( $this );
 		$this->MenuItemLoader   = new MenuItemLoader( $this );
 		$this->PostObjectLoader = new PostObjectLoader( $this );
 		$this->TermObjectLoader = new TermObjectLoader( $this );
 		$this->UserLoader       = new UserLoader( $this );
+
+		/**
+		 * This filters the config for the AppContext.
+		 *
+		 * This can be used to store additional context config, which is available to resolvers
+		 * throughout the resolution of a GraphQL request.
+		 *
+		 * @params array $config The config array of the AppContext object
+		 */
 		$this->config           = apply_filters( 'graphql_app_context_config', $this->config );
 	}
 

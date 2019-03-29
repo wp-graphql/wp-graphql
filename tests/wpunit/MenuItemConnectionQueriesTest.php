@@ -103,8 +103,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		// The query should return no menu items since no where args were specified.
 		$this->assertEquals( 0, count( $actual['data']['menuItems']['edges'] ) );
 	}
@@ -135,8 +133,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 
 		// Perform some common assertions.
 		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
@@ -164,8 +160,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
 
 		// The returned menu items have the expected number.
 		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );
@@ -224,14 +218,10 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 
 		// The fourth menu item has the expected number of child items.
-		codecept_debug( $child_count );
-
 		$this->assertEquals( $child_count, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 

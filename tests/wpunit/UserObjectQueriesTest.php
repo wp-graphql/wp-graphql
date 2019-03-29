@@ -349,8 +349,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -465,8 +463,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query

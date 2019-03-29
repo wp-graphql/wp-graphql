@@ -52,7 +52,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return \WP_Query
 	 */
 	public function get_query() {
-		return new \WP_Query( $this->get_query_args() );
+		return new \WP_Query( $this->query_args );
 	}
 
 	/**
@@ -361,10 +361,10 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( empty( $stati ) ) {
 			$stati = [ 'publish' ];
 		}
-		$statuses = wp_parse_slug_list( $stati );
-		$post_type_obj = get_post_type_object( $this->post_type );
-		$allowed_statuses = array_filter( array_map(function( $status ) use ( $post_type_obj ) {
-			if ( $status === 'publish' ) {
+		$statuses         = wp_parse_slug_list( $stati );
+		$post_type_obj    = get_post_type_object( $this->post_type );
+		$allowed_statuses = array_filter( array_map( function( $status ) use ( $post_type_obj ) {
+			if ( 'publish' === $status  ) {
 				return $status;
 			}
 			if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {

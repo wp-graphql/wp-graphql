@@ -177,6 +177,8 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * Given a list of keys, this yields normalized entries
+	 *
 	 * @param $keys
 	 * @param $result
 	 *
@@ -190,6 +192,9 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * This checks the buffer to see if any items need to be loaded, then attempts to
+	 * load them using the Loaders loadKeys method
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -226,6 +231,8 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * This method helps ensure null values aren't being loaded
+	 *
 	 * @param $key
 	 *
 	 * @return string
@@ -239,6 +246,11 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * This method allows loaders to override the method and provide their own
+	 * method for converting a key to scalar. For example, if we wanted to support input of Relay
+	 * Global IDs, the loader could handle the conversion from the encoded ID to the scalar
+	 * ID by overriding this method, and doing the decoding in this method.
+	 *
 	 * @param $key
 	 *
 	 * @return mixed
@@ -248,6 +260,9 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * In some cases, there may need to be transformation on the entry prior to returning.
+	 * Specific loaders can handle that transformation here by overriding this method.
+	 *
 	 * @param $entry
 	 * @param $key
 	 *

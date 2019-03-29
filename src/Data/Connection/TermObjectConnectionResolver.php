@@ -168,6 +168,10 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			unset( $query_args['parent'] );
 		}
 
+		/**
+		 * NOTE: We query for JUST the IDs here as deferred resolution of the nodes gets the full
+		 * object from the cache or a follow-up request for the full object if it's not cached.
+		 */
 		$query_args['fields'] = 'ids';
 
 		/**
@@ -188,16 +192,21 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return an instance of WP_Term_Query with the args mapped to the query
+	 *
 	 * @return mixed|\WP_Term_Query
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		$query = new \WP_Term_Query( $this->get_query_args() );
+		$query = new \WP_Term_Query( $this->query_args );
 
 		return $query;
 	}
 
 	/**
+	 * This gets the items from the query. Different queries return items in different ways, so this
+	 * helps normalize the items into an array for use by the get_nodes() function.
+	 *
 	 * @return array
 	 */
 	public function get_items() {
@@ -205,6 +214,10 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Whether the connection query should execute. Certain contexts _may_ warrant
+	 * restricting the query to execute at all. Default is true, meaning any time
+	 * a TermObjectConnection resolver is asked for, it will execute.
+	 *
 	 * @return bool
 	 */
 	public function should_execute() {

@@ -205,8 +205,6 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		/**
 		 * The avatar should be empty.
 		 */
