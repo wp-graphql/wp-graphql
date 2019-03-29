@@ -8,8 +8,6 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$menu_id = wp_create_nav_menu( 'my-test-menu' );
 		$post_id = $this->factory()->post->create();
 
-		codecept_debug( $post_id );
-
 		$menu_item_id = wp_update_nav_menu_item(
 			$menu_id,
 			0,
@@ -22,11 +20,7 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		codecept_debug( $menu_item_id );
-
 		$menu_item_relay_id = Relay::toGlobalId( 'nav_menu_item', $menu_item_id );
-
-		codecept_debug( $menu_item_relay_id );
 
 		$query = '
 		{
@@ -44,8 +38,6 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
 
 		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['menuItemId'] );
 		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );

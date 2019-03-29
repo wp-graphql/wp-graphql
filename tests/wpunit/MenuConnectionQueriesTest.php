@@ -29,8 +29,6 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][0]['node']['menuId'] );
 		$this->assertEquals( $menu_slug, $actual['data']['menus']['edges'][0]['node']['name'] );

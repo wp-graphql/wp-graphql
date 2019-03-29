@@ -343,8 +343,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$actual = do_graphql_request( $mutation, 'restoreCommentTest', $variables );
 
-		codecept_debug( $actual );
-
 		$expected = [
 			'data' => [
 				'restoreComment' => [

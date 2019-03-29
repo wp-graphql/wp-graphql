@@ -13,21 +13,32 @@ use WPGraphQL\AppContext;
 abstract class AbstractDataLoader {
 
 	/**
+	 * Whether the loader should cache results or not. In some cases the loader may be used to just
+	 * get content but not bother with caching it.
+	 *
+	 * Default: true
+	 *
 	 * @var bool
 	 */
 	private $shouldCache = true;
 
 	/**
+	 * This stores an array of items that have already been loaded
+	 *
 	 * @var array
 	 */
 	private $cached = [];
 
 	/**
+	 * This stores an array of IDs that need to be loaded
+	 *
 	 * @var array
 	 */
 	private $buffer = [];
 
 	/**
+	 * This stores a reference to the AppContext for the loader to make use of
+	 *
 	 * @var AppContext
 	 */
 	protected $context;
@@ -177,6 +188,8 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * Given an array of keys, this yields the object from the cached results
+	 *
 	 * @param $keys
 	 * @param $result
 	 *
@@ -190,6 +203,10 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * This checks to see if any items are in the buffer, and if there are this
+	 * executes the loaders `loadKeys` method to load the items and adds them
+	 * to the cache if necessary
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -226,6 +243,8 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * This helps to ensure null values aren't being loaded by accident.
+	 *
 	 * @param $key
 	 *
 	 * @return string
@@ -239,6 +258,11 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * For loaders that need to decode keys, this method can help with that.
+	 * For example, if we wanted to accept a list of RELAY style global IDs and pass them
+	 * to the loader, we could have the loader centrally decode the keys into their
+	 * integer values in the PostObjectLoader by overriding this method.
+	 *
 	 * @param $key
 	 *
 	 * @return mixed
@@ -248,6 +272,9 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
+	 * If the loader needs to do any tweaks between getting raw data from the DB and caching,
+	 * this can be overridden by the specific loader and used for transformations, etc.
+	 *
 	 * @param $entry
 	 * @param $key
 	 *

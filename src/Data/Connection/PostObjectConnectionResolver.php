@@ -52,7 +52,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return \WP_Query
 	 */
 	public function get_query() {
-		return new \WP_Query( $this->get_query_args() );
+		return new \WP_Query( $this->query_args );
 	}
 
 	/**
@@ -142,8 +142,17 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$query_args['graphql_cursor_offset']  = $this->get_offset();
+		$cursor_offset                        = $this->get_offset();
+		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		/**
+		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
+		 * trigger due to the page parameter not being set in the query_vars, fixes #732
+		 */
+		if ( 0 !== $cursor_offset ) {
+			$query_args['ignore_sticky_posts'] = true;
+		}
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -238,6 +247,19 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					];
 				}
 			}
+		}
+
+
+		/**
+		 * Convert meta_value_num to seperate meta_value value field which our
+		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
+		 */
+		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
+			$query_args['orderby'] = [
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+			];
+			unset( $query_args['order'] );
+			$query_args['meta_type'] = 'NUMERIC';
 		}
 
 		/**
@@ -361,10 +383,10 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( empty( $stati ) ) {
 			$stati = [ 'publish' ];
 		}
-		$statuses = wp_parse_slug_list( $stati );
-		$post_type_obj = get_post_type_object( $this->post_type );
-		$allowed_statuses = array_filter( array_map(function( $status ) use ( $post_type_obj ) {
-			if ( $status === 'publish' ) {
+		$statuses         = wp_parse_slug_list( $stati );
+		$post_type_obj    = get_post_type_object( $this->post_type );
+		$allowed_statuses = array_filter( array_map( function( $status ) use ( $post_type_obj ) {
+			if ( 'publish' === $status ) {
 				return $status;
 			}
 			if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {

@@ -43,7 +43,6 @@ register_graphql_object_type( 'Comment', [
 				 * the $comment and the Union will use that to hydrate the CommentAuthor Type
 				 */
 				if ( ! empty( $comment->user_id ) ) {
-					$user_id = $comment->user_id;
 
 					if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
 						return null;

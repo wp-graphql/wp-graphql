@@ -285,8 +285,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
-
 		/**
 		 * There should be an internal server error when requesting a non-existent post
 		 */
@@ -457,8 +455,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -1170,8 +1166,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the query
 		 */
 		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
 
 		/**
 		 * This should return an error as we tried to query for a post using a Page ID

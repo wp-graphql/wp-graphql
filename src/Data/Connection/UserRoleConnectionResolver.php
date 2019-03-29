@@ -27,7 +27,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|\WP_Roles
 	 */
 	public function get_items() {
-		return ! empty( $this->get_query()->get_names() ) ? array_keys( $this->get_query()->get_names() ) : [];
+		return ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
 	}
 
 	/**
@@ -44,37 +44,4 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		return true;
 	}
 
-//	/**
-//	 * We're overriding the default connection resolver (for now) and returning
-//	 * the shape we
-//	 * @return array|null
-//	 */
-//	public function get_connection() {
-//		$roles = $this->get_items();
-//		$clean_roles = [];
-//		if ( is_a( $roles, 'WP_Roles' ) && is_array( $roles->roles ) && ! empty( $roles->roles ) ) {
-//
-//			foreach ( $roles->roles as $role_name => $data ) {
-//				$data['id'] = $role_name;
-//				$clean_roles[] = $data;
-//			}
-//
-//			$connection = Relay::connectionFromArray( $clean_roles, $this->args );
-//
-//			$nodes = [];
-//
-//			if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
-//				foreach ( $connection['edges'] as $edge ) {
-//					$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
-//				}
-//			}
-//
-//			$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
-//
-//			return ! empty( $clean_roles ) ? $connection : null;
-//
-//		} else {
-//			throw new UserError( __( 'No user roles could be found given the input', 'wp-graphql' ) );
-//		}
-//	}
 }
