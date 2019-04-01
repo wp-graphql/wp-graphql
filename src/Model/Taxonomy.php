@@ -5,10 +5,51 @@ namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
 
+/**
+ * Class Taxonomy - Models data for taxonomies
+ *
+ * @property string $id
+ * @property array  $object_type
+ * @property string $name
+ * @property string $label
+ * @property string $description
+ * @property bool   $public
+ * @property bool   $hierarchical
+ * @property bool   $showUi
+ * @property bool   $showInMenu
+ * @property bool   $showInNavMenus
+ * @property bool   $showCloud
+ * @property bool   $showInQuickEdit
+ * @property bool   $showInAdminColumn
+ * @property bool   $showInRest
+ * @property string $restBase
+ * @property string $restControllerClass
+ * @property bool   $showInGraphql
+ * @property string $graphqlSingleName
+ * @property string $graphql_single_name
+ * @property string $graphqlPluralName
+ * @property string $graphql_plural_name
+ *
+ * @package WPGraphQL\Model
+ */
 class Taxonomy extends Model {
 
+	/**
+	 * Stores the incoming WP_Taxonomy object to be modeled
+	 *
+	 * @var \WP_Taxonomy $taxonomy
+	 * @access protected
+	 */
 	protected $taxonomy;
 
+	/**
+	 * Taxonomy constructor.
+	 *
+	 * @param \WP_Taxonomy $taxonomy The incoming Taxonomy to model
+	 *
+	 * @access public
+	 * @throws \Exception
+	 */
 	public function __construct( \WP_Taxonomy $taxonomy ) {
 
 		$this->taxonomy = $taxonomy;
@@ -37,7 +78,7 @@ class Taxonomy extends Model {
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the PostType is private or not.
+	 * Callback for the graphql_data_is_private filter to determine if the Taxonomy is private or not.
 	 *
 	 * @param bool          $private    True or False value if the data should be private
 	 * @param string        $model_name Name of the model for the data currently being modeled
@@ -60,6 +101,12 @@ class Taxonomy extends Model {
 
 	}
 
+	/**
+	 * Initializes the object
+	 *
+	 * @access protected
+	 * @return void
+	 */
 	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
