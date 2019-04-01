@@ -10,9 +10,54 @@ class Taxonomy extends Model {
 	protected $taxonomy;
 
 	public function __construct( \WP_Taxonomy $taxonomy ) {
+
 		$this->taxonomy = $taxonomy;
-		parent::__construct( 'TaxonomyObject', $this->taxonomy );
+
+		$allowed_restricted_fields = [
+			'id',
+			'name',
+			'description',
+			'hierarchical',
+			'object_type',
+			'restBase',
+			'graphql_single_name',
+			'graphqlSingleName',
+			'graphql_plural_name',
+			'graphqlPluralName',
+			'showInGraphql',
+		];
+
+		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
+			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
+		}
+
+		parent::__construct( 'TaxonomyObject', $this->taxonomy, $this->taxonomy->cap->edit_terms, $allowed_restricted_fields  );
 		$this->init();
+
+	}
+
+	/**
+	 * Callback for the graphql_data_is_private filter to determine if the PostType is private or not.
+	 *
+	 * @param bool          $private    True or False value if the data should be private
+	 * @param string        $model_name Name of the model for the data currently being modeled
+	 * @param \WP_Taxonomy $data       The Data currently being modeled
+	 *
+	 * @access public
+	 * @return bool
+	 */
+	public function is_private( $private, $model_name, $data ) {
+
+		if ( 'TaxonomyObject' !== $model_name ) {
+			return $private;
+		}
+
+		if ( false === $data->public && ! current_user_can( $data->cap->edit_terms ) ) {
+			return true;
+		}
+
+		return $private;
+
 	}
 
 	protected function init() {
