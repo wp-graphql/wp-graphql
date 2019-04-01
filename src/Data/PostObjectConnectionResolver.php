@@ -87,8 +87,17 @@ class PostObjectConnectionResolver extends ConnectionResolver {
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$query_args['graphql_cursor_offset']  = self::get_offset( $args );
+		$cursor_offset                        = self::get_offset( $args );
+		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		/**
+		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
+		 * trigger due to the page parameter not being set in the query_vars, fixes #732
+		 */
+		if ( 0 !== $cursor_offset ) {
+			$query_args['ignore_sticky_posts'] = true;
+		}
 
 		/**
 		 * Pass the graphql $args to the WP_Query
