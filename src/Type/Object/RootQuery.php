@@ -129,13 +129,9 @@ register_graphql_object_type( 'RootQuery', [
 			],
 			'resolve'     => function ( $source, array $args, $context, $info ) {
 
-				if ( current_user_can( 'list_users' ) ) {
-					$id_components = Relay::fromGlobalId( $args['id'] );
+				$id_components = Relay::fromGlobalId( $args['id'] );
 
-					return DataSource::resolve_user_role( $id_components['id'] );
-				} else {
-					throw new UserError( __( 'The current user does not have the proper privileges to query this data', 'wp-graphql' ) );
-				}
+				return DataSource::resolve_user_role( $id_components['id'] );
 
 			}
 		],
