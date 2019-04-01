@@ -43,7 +43,7 @@ services:
     entrypoint: [ "docker-entrypoint.sut.sh" ]
 
   mysql_test:
-    image: 'mariadb:10.2.22-bionic'
+    image: 'mariadb:10.2.23-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'
