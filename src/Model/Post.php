@@ -145,6 +145,8 @@ class Post extends Model {
 				$cap = $this->post_type_object->cap->edit_posts;
 				break;
 			case 'draft':
+			case 'future':
+			case 'pending':
 				$cap = $this->post_type_object->cap->edit_others_posts;
 				break;
 			default:
