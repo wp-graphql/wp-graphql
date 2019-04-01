@@ -1536,6 +1536,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test restricted posts returned on certain statuses
 	 * @dataProvider dataProviderRestrictedPosts
 	 */
 	public function testRestrictedPosts( $status, $author, $user, $restricted ) {
