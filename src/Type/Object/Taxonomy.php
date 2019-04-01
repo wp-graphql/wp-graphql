@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQLRelay\Relay;
+use WPGraphQL\Model\Taxonomy;
 
 $allowed_post_types = \WPGraphQL::$allowed_post_types;
 
@@ -14,9 +14,6 @@ register_graphql_object_type( 'Taxonomy', [
 			'type'    => [
 				'non_null' => 'ID',
 			],
-			'resolve' => function( $taxonomy, $args, $context, $info ) {
-				return ( ! empty( $info->parentType ) && ! empty( $taxonomy->name ) ) ? Relay::toGlobalId( 'taxonomy', $taxonomy->name ) : null;
-			},
 		],
 		'name'                   => [
 			'type'        => 'String',
@@ -42,86 +39,50 @@ register_graphql_object_type( 'Taxonomy', [
 		'showUi'                 => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to generate and allow a UI for managing terms in this taxonomy in the admin', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_ui ) ? true : false;
-			},
 		],
 		'showInMenu'             => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to show the taxonomy in the admin menu', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_in_menu ) ? true : false;
-			},
 		],
 		'showInNavMenus'         => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether the taxonomy is available for selection in navigation menus.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_in_nav_menus ) ? true : false;
-			},
 		],
 		'showCloud'              => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_tagcloud ) ? true : false;
-			},
 		],
 		'showInQuickEdit'        => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to show the taxonomy in the quick/bulk edit panel.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_in_quick_edit ) ? true : false;
-			},
 		],
 		'showInAdminColumn'      => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to display a column for the taxonomy on its post type listing screens.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_admin_column ) ? true : false;
-			},
 		],
 		'showInRest'             => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to add the post type route in the REST API "wp/v2" namespace.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_in_rest ) ? true : false;
-			},
 		],
 		'restBase'               => [
 			'type'        => 'String',
 			'description' => __( 'Name of content type to diplay in REST API "wp/v2" namespace.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : null;
-			},
 		],
 		'restControllerClass'    => [
 			'type'        => 'String',
 			'description' => __( 'The REST Controller class assigned to handling this content type.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ! empty( $taxonomy->rest_controller_class ) ? $taxonomy->rest_controller_class : null;
-			},
 		],
 		'showInGraphql'          => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether to add the post type to the GraphQL Schema.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ( true === $taxonomy->show_in_graphql ) ? true : false;
-			},
 		],
 		'graphqlSingleName'      => [
 			'type'        => 'String',
 			'description' => __( 'The singular name of the post type within the GraphQL Schema.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ! empty( $taxonomy->graphql_single_name ) ? $taxonomy->graphql_single_name : null;
-			},
 		],
 		'graphqlPluralName'      => [
 			'type'        => 'String',
 			'description' => __( 'The plural name of the post type within the GraphQL Schema.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) {
-				return ! empty( $taxonomy->graphql_plural_name ) ? $taxonomy->graphql_plural_name : null;
-			},
 		],
 		'connectedPostTypeNames' => [
 			'type'        => [
@@ -136,7 +97,7 @@ register_graphql_object_type( 'Taxonomy', [
 				],
 			],
 			'description' => __( 'A list of Post Types associated with the taxonomy', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) use ( $allowed_post_types ) {
+			'resolve'     => function( Taxonomy $taxonomy, array $args, $context, $info ) use ( $allowed_post_types ) {
 				$post_type_names = [];
 
 				/**
@@ -170,7 +131,7 @@ register_graphql_object_type( 'Taxonomy', [
 				],
 			],
 			'description' => __( 'List of Post Types connected to the Taxonomy', 'wp-graphql' ),
-			'resolve'     => function( \WP_Taxonomy $taxonomy, array $args, $context, $info ) use ( $allowed_post_types ) {
+			'resolve'     => function( Taxonomy $taxonomy, array $args, $context, $info ) use ( $allowed_post_types ) {
 
 				$post_type_objects = [];
 

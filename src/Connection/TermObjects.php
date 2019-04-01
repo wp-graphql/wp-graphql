@@ -87,7 +87,7 @@ class TermObjects {
 					'type'        => 'Taxonomy',
 					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
 					'resolve'     => function ( $source, array $args, $context, $info ) use ( $tax_object ) {
-						return $tax_object;
+						return DataSource::resolve_taxonomy( $tax_object->name );
 					},
 				],
 			],
