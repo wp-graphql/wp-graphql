@@ -220,6 +220,7 @@ return array(
     'WPGraphQL\\Data\\TermObjectMutation' => $baseDir . '/src/Data/TermObjectMutation.php',
     'WPGraphQL\\Data\\UserMutation' => $baseDir . '/src/Data/UserMutation.php',
     'WPGraphQL\\Model\\Comment' => $baseDir . '/src/Model/Comment.php',
+    'WPGraphQL\\Model\\CommentAuthor' => $baseDir . '/src/Model/CommentAuthor.php',
     'WPGraphQL\\Model\\Menu' => $baseDir . '/src/Model/Menu.php',
     'WPGraphQL\\Model\\MenuItem' => $baseDir . '/src/Model/MenuItem.php',
     'WPGraphQL\\Model\\Model' => $baseDir . '/src/Model/Model.php',
