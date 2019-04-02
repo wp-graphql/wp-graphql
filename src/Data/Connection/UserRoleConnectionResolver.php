@@ -1,8 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Error\UserError;
-use GraphQLRelay\Relay;
+use WPGraphQL\Model\User;
 
 class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
@@ -27,18 +26,34 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|\WP_Roles
 	 */
 	public function get_items() {
-		return ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
+
+		$current_user_roles = wp_get_current_user()->roles;
+
+		if ( $this->source instanceof User ) {
+			$roles = $this->source->roles;
+		} else {
+			$roles = ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
+		}
+
+		$roles = array_filter( array_map(function( $role ) use ( $current_user_roles ) {
+			if ( in_array( $role, $current_user_roles, true ) ) {
+				return $role;
+			}
+			return null;
+		}, $roles ) );
+
+		return $roles;
 	}
 
 	/**
-	 * If the request is not from an authenticated user with "list_users" capability, we can prevent
+	 * If the request is not from an authenticated user we can prevent
 	 * the connection query from being executed at all as we know they shouldn't have access
 	 * to the data.
 	 *
 	 * @return bool
 	 */
 	public function should_execute() {
-		if ( ! current_user_can( 'list_users' ) ) {
+		if ( ! is_user_logged_in() ) {
 			return false;
 		}
 		return true;
