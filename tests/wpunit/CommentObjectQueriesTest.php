@@ -45,6 +45,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_approved' => 1,
 			'comment_date'     => $this->current_date,
 			'comment_date_gmt' => $this->current_date_gmt,
+			'user_id'          => $this->admin,
 		];
 
 		/**
@@ -142,9 +143,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'data' => [
 				'comment' => [
 					'agent'       => null,
-					'approved'    => '1',
+					'approved'    => true,
 					'author'      => [
-						'__typename' => 'CommentAuthor',
+						'__typename' => 'User',
+						'userId' => $this->admin,
 					],
 					'authorIp'    => null,
 					'children'    => [
@@ -183,6 +185,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_author'       => 'Author Name',
 			'comment_author_email' => 'test@test.com',
 			'comment_author_url'   => 'http://example.com',
+			'user_id' => 0,
 		] );
 
 		/**

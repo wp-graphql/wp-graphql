@@ -377,6 +377,47 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test that a comment author can be retrieved in a single node
+	 */
+	public function testCommentAuthorQuery() {
+
+		$comment_args = [
+			'comment_author_email' => 'yoyoyo@wpgraphql.com',
+			'comment_author' => 'Test Author',
+			'comment_author_url' => 'wpgraphql.com',
+			'comment_content' => 'JsOnB00l smellz',
+		];
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_args['comment_author_email'] );
+
+		$query = "
+		query {
+			node(id: \"{$global_id}\") {
+				__typename
+				...on CommentAuthor {
+					id
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'node' => [
+					'__typename' => 'CommentAuthor',
+					'id' => $global_id,
+				]
+			]
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
 	 * Tests querying for a single post node
 	 */
 	public function testSuccessfulPostTypeResolver() {

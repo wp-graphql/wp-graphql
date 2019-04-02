@@ -15,13 +15,16 @@ use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
+use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
+use WPGraphQL\Model\CommentAuthor;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
+use WPGraphQL\Model\UserRole;
 use WPGraphQL\Types;
 
 /**
@@ -79,16 +82,14 @@ class DataSource {
 	 *
 	 * @param string $author_email The ID of the comment the comment author is associated with.
 	 *
-	 * @return array
+	 * @return CommentAuthor
 	 * @throws
 	 */
 	public static function resolve_comment_author( $author_email ) {
 		global $wpdb;
 		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
 		$comment_author                      = ! empty( $comment_author ) ? ( array ) $comment_author : [];
-		$comment_author['is_comment_author'] = true;
-
-		return $comment_author;
+		return new CommentAuthor( $comment_author );
 	}
 
 	/**
@@ -438,7 +439,7 @@ class DataSource {
 	 *
 	 * @param string $name Name of the user role you want info for
 	 *
-	 * @return null|array
+	 * @return UserRole
 	 * @throws \Exception
 	 * @since  0.0.30
 	 * @access public
@@ -453,8 +454,31 @@ class DataSource {
 			$role       = (array) $role;
 			$role['id'] = $name;
 
-			return $role;
+			return new UserRole( $role );
 		}
+
+	}
+
+	/**
+	 * Resolve the avatar for a user
+	 *
+	 * @param int   $user_id ID of the user to get the avatar data for
+	 * @param array $args    The args to pass to the get_avatar_data function
+	 *
+	 * @return array|null|Avatar
+	 * @throws \Exception
+	 */
+	public static function resolve_avatar( $user_id, $args ) {
+
+		$avatar = get_avatar_data( absint( $user_id ), $args );
+
+		if ( ! empty( $avatar ) ) {
+			$avatar = new Avatar( $avatar );
+		} else {
+			$avatar = null;
+		}
+
+		return $avatar;
 
 	}
 
@@ -734,20 +758,13 @@ class DataSource {
 							case $node instanceof Plugin:
 								$type = 'Plugin';
 								break;
-							default:
-								$type = null;
-						}
-
-						// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node ) ) {
-
-						switch ( $node ) {
-							case array_key_exists( 'is_comment_author', $node ):
+							case $node instanceof CommentAuthor:
 								$type = 'CommentAuthor';
 								break;
 							default:
 								$type = null;
 						}
+
 					}
 
 					/**

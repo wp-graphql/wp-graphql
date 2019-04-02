@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Data\DataSource;
+
 register_graphql_type( 'User', [
 	'description' => __( 'A User object', 'wp-graphql' ),
 	'fields'      => [
@@ -20,12 +22,6 @@ register_graphql_type( 'User', [
 		'capKey'            => [
 			'type'        => 'String',
 			'description' => __( 'User metadata option name. Usually it will be "wp_capabilities".', 'wp-graphql' ),
-		],
-		'roles'             => [
-			'type'        => [
-				'list_of' => 'String'
-			],
-			'description' => __( 'A list of roles that the user has. Roles can be used for querying for certain types of users, but should not be used in permissions checks.', 'wp-graphql' ),
 		],
 		'email'             => [
 			'type'        => 'String',
@@ -133,9 +129,9 @@ register_graphql_type( 'User', [
 					$avatar_args['rating'] = esc_sql( $args['rating'] );
 				}
 
-				$avatar = get_avatar_data( absint( $user->userId ), $avatar_args );
+				$avatar = DataSource::resolve_avatar( $user->userId, $avatar_args );
 
-				return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
+				return ( ! empty( $avatar ) && true === $avatar->foundAvatar ) ? $avatar : null;
 			},
 		],
 	],
