@@ -23,12 +23,6 @@ register_graphql_type( 'User', [
 			'type'        => 'String',
 			'description' => __( 'User metadata option name. Usually it will be "wp_capabilities".', 'wp-graphql' ),
 		],
-		'roles'             => [
-			'type'        => [
-				'list_of' => 'String'
-			],
-			'description' => __( 'A list of roles that the user has. Roles can be used for querying for certain types of users, but should not be used in permissions checks.', 'wp-graphql' ),
-		],
 		'email'             => [
 			'type'        => 'String',
 			'description' => __( 'Email of the user. This is equivalent to the WP_User->user_email property.', 'wp-graphql' ),

@@ -23,6 +23,7 @@ use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
+use WPGraphQL\Model\UserRole;
 use WPGraphQL\Types;
 
 /**
@@ -439,7 +440,7 @@ class DataSource {
 	 *
 	 * @param string $name Name of the user role you want info for
 	 *
-	 * @return null|array
+	 * @return UserRole
 	 * @throws \Exception
 	 * @since  0.0.30
 	 * @access public
@@ -454,7 +455,7 @@ class DataSource {
 			$role       = (array) $role;
 			$role['id'] = $name;
 
-			return $role;
+			return new UserRole( $role );
 		}
 
 	}

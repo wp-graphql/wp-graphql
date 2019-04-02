@@ -91,7 +91,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			user{
 			  firstName
 			  lastName
-			  roles
+			  roles {
+			    nodes {
+			      name
+			    }
+			  }
 			  email
 			  username
 			}
@@ -163,7 +167,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'firstName' => $this->first_name,
 						'lastName'  => $this->last_name,
 						'roles'     => [
-							'administrator',
+							'nodes' => [
+								[
+									'name' => 'administrator',
+								]
+							],
 						],
 						'email'     => $email,
 						'username'  => $username,
@@ -264,7 +272,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			user{
 			  firstName
 			  lastName
-			  roles
+			  roles {
+			    nodes {
+			      name
+			    }
+			  }
 			  username
 			  email
 			  userId
@@ -301,7 +313,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'firstName' => $updated_firstname,
 						'lastName'  => $updated_lastname,
 						'roles'     => [
-							'administrator',
+							'nodes' => [
+								[
+									'name' => 'administrator',
+								]
+							],
 						],
 						'username'  => $user_login,
 						'email'     => $updated_email,
@@ -669,7 +685,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				user {
 					username
 					email
-					roles
+					roles {
+					  nodes {
+					    name
+					  }
+					}
 				}
 			}
 		}';
@@ -745,6 +765,13 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = $this->resetUserPasswordMutation( $args );
 
+		$role_nodes = [];
+		foreach( $roles as $role ) {
+			$role_nodes[] = [
+				'name' => $role
+			];
+		}
+
 		$expected = [
 			'data' => [
 				'resetUserPassword' => [
@@ -752,7 +779,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'user'             => [
 						'username' => $login,
 						'email'    => $email,
-						'roles'    => $roles,
+						'roles'    => [
+							'nodes' => $role_nodes,
+						],
 					],
 				],
 			],

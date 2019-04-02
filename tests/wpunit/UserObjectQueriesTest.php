@@ -117,7 +117,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				registeredDate
-				roles
+				roles {
+				  nodes {
+				    name
+				  }
+				}
 				slug
 				url
 				userId
@@ -164,7 +168,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'edges' => [],
 					],
 					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
-					'roles'             => [ 'subscriber' ],
+					'roles'             => [
+						'nodes' => [
+							[
+								'name' => 'subscriber'
+							]
+						],
+					],
 					'slug'              => $user->data->user_nicename,
 					'url'               => null,
 					'userId'            => $user_id,
