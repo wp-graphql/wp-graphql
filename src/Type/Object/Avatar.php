@@ -25,9 +25,6 @@ register_graphql_type( 'Avatar', [
 		'forceDefault' => [
 			'type'        => 'Bool',
 			'description' => __( 'Whether to always show the default image, never the Gravatar.', 'wp-graphql' ),
-			'resolve'     => function( $avatar, array $args, $context, $info ) {
-				return ( ! empty( $avatar['force_default'] ) && true === $avatar['force_default'] ) ? true : false;
-			},
 		],
 		'rating'       => [
 			'type'        => 'String',
@@ -40,16 +37,10 @@ register_graphql_type( 'Avatar', [
 		'extraAttr'    => [
 			'type'        => 'String',
 			'description' => __( 'HTML attributes to insert in the IMG element. Is not sanitized.', 'wp-graphql' ),
-			'resolve'     => function( $avatar, array $args, $context, $info ) {
-				return ! empty( $avatar['extra_attr'] ) ? $avatar['extra_attr'] : null;
-			},
 		],
 		'foundAvatar'  => [
 			'type'        => 'Bool',
 			'description' => __( 'Whether the avatar was successfully found.', 'wp-graphql' ),
-			'resolve'     => function( $avatar, array $args, $context, $info ) {
-				return ! empty( $avatar['found_avatar'] && true === $avatar['found_avatar'] ) ? true : false;
-			},
 		],
 		'url'          => [
 			'type'        => 'String',
