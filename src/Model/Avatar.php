@@ -2,17 +2,52 @@
 
 namespace WPGraphQL\Model;
 
-
+/**
+ * Class Avatar - Models data for avatars
+ *
+ * @property int    $size
+ * @property int    $height
+ * @property int    $width
+ * @property string $default
+ * @property bool   $forceDefault
+ * @property string $rating
+ * @property string $scheme
+ * @property string $extraAttr
+ * @property bool   $foundAvatar
+ * @property string $url
+ *
+ * @package WPGraphQL\Model
+ */
 class Avatar extends Model {
 
+	/**
+	 * Stores the incoming avatar to be modeled
+	 *
+	 * @var array $avatar
+	 * @access protected
+	 */
 	protected $avatar;
 
+	/**
+	 * Avatar constructor.
+	 *
+	 * @param array $avatar The incoming avatar to be modeled
+	 *
+	 * @throws \Exception
+	 * @access public
+	 */
 	public function __construct( $avatar ) {
 		$this->avatar = $avatar;
 		parent::__construct( 'AvatarObject', $avatar );
 		$this->init();
 	}
 
+	/**
+	 * Initializes the object
+	 *
+	 * @access protected
+	 * @return void
+	 */
 	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
@@ -23,13 +58,13 @@ class Avatar extends Model {
 
 			$this->fields = [
 				'size' => function() {
-					return ! empty( $this->avatar['size'] ) ? $this->avatar['size'] : null;
+					return ! empty( $this->avatar['size'] ) ? absint( $this->avatar['size'] ) : null;
 				},
 				'height' => function() {
-					return ! empty( $this->avatar['height'] ) ? $this->avatar['height'] : null;
+					return ! empty( $this->avatar['height'] ) ? absint( $this->avatar['height'] ) : null;
 				},
 				'width' => function() {
-					return ! empty( $this->avatar['width'] ) ? $this->avatar['width'] : null;
+					return ! empty( $this->avatar['width'] ) ? absint( $this->avatar['width'] ) : null;
 				},
 				'default' => function() {
 					return ! empty( $this->avatar['default'] ) ? $this->avatar['default'] : null;
