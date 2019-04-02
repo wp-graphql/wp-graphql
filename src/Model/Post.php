@@ -175,7 +175,25 @@ class Post extends Model {
 			return $private;
 		}
 
-		if ( ( true === $this->owner_matches_current_user() || 'publish' === $data->post_status ) && 'revision' !== $data->post_type ) {
+		/**
+		 * Published content is public, not private
+		 */
+		if ( 'publish' === $data->post_status ) {
+			return false;
+		}
+
+		/**
+		 * If the status is NOT publish and the user does NOT have capabilities to edit posts,
+		 * consider the post private.
+		 */
+		if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+			return true;
+		}
+
+		/**
+		 * If the owner of the content is the current user
+		 */
+		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $data->post_type ) {
 			return false;
 		}
 
