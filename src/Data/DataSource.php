@@ -17,6 +17,7 @@ use WPGraphQL\Data\Connection\UserConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
+use WPGraphQL\Model\CommentAuthor;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -81,16 +82,14 @@ class DataSource {
 	 *
 	 * @param string $author_email The ID of the comment the comment author is associated with.
 	 *
-	 * @return array
+	 * @return CommentAuthor
 	 * @throws
 	 */
 	public static function resolve_comment_author( $author_email ) {
 		global $wpdb;
 		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
 		$comment_author                      = ! empty( $comment_author ) ? ( array ) $comment_author : [];
-		$comment_author['is_comment_author'] = true;
-
-		return $comment_author;
+		return new CommentAuthor( $comment_author );
 	}
 
 	/**
@@ -759,20 +758,13 @@ class DataSource {
 							case $node instanceof Plugin:
 								$type = 'Plugin';
 								break;
-							default:
-								$type = null;
-						}
-
-						// Some nodes might return an array instead of an object
-					} elseif ( is_array( $node ) ) {
-
-						switch ( $node ) {
-							case array_key_exists( 'is_comment_author', $node ):
+							case $node instanceof CommentAuthor:
 								$type = 'CommentAuthor';
 								break;
 							default:
 								$type = null;
 						}
+
 					}
 
 					/**
