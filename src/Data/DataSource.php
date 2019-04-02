@@ -15,6 +15,7 @@ use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
+use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
@@ -455,6 +456,29 @@ class DataSource {
 
 			return $role;
 		}
+
+	}
+
+	/**
+	 * Resolve the avatar for a user
+	 *
+	 * @param int   $user_id ID of the user to get the avatar data for
+	 * @param array $args    The args to pass to the get_avatar_data function
+	 *
+	 * @return array|null|Avatar
+	 * @throws \Exception
+	 */
+	public static function resolve_avatar( $user_id, $args ) {
+
+		$avatar = get_avatar_data( absint( $user_id ), $args );
+
+		if ( ! empty( $avatar ) ) {
+			$avatar = new Avatar( $avatar );
+		} else {
+			$avatar = null;
+		}
+
+		return $avatar;
 
 	}
 
