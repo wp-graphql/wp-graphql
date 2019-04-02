@@ -242,6 +242,7 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
         'WPGraphQL\\Data\\PostObjectMutation' => __DIR__ . '/../..' . '/src/Data/PostObjectMutation.php',
         'WPGraphQL\\Data\\TermObjectMutation' => __DIR__ . '/../..' . '/src/Data/TermObjectMutation.php',
         'WPGraphQL\\Data\\UserMutation' => __DIR__ . '/../..' . '/src/Data/UserMutation.php',
+        'WPGraphQL\\Model\\Avatar' => __DIR__ . '/../..' . '/src/Model/Avatar.php',
         'WPGraphQL\\Model\\Comment' => __DIR__ . '/../..' . '/src/Model/Comment.php',
         'WPGraphQL\\Model\\Menu' => __DIR__ . '/../..' . '/src/Model/Menu.php',
         'WPGraphQL\\Model\\MenuItem' => __DIR__ . '/../..' . '/src/Model/MenuItem.php',
