@@ -7,6 +7,7 @@
 
 # Updating Software used in this Dockerfile:
 # PHP Composer: https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md
+# XDebug: https://pecl.php.net/package/xdebug
 
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
 ARG DESIRED_WP_VERSION
@@ -21,11 +22,7 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get install --no-install-recommends -y mysql-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7'; then \
-        if echo "${PHP_VERSION}" | grep '^7.3'; then \
-          pecl install 'xdebug-2.7.0RC2'; \
-        else \
-          pecl install xdebug; \
-        fi; \
+        pecl install xdebug; \
         docker-php-ext-enable xdebug; \
      fi \
   && docker-php-ext-install pdo_mysql \
