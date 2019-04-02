@@ -36,6 +36,10 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$roles = array_filter( array_map(function( $role ) use ( $current_user_roles ) {
+			if (current_user_can( 'list_users' ) ) {
+				return $role;
+			}
+
 			if ( in_array( $role, $current_user_roles, true ) ) {
 				return $role;
 			}

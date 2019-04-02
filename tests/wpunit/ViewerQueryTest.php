@@ -20,7 +20,11 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		{
 		  viewer{
 		    userId
-		    roles
+		    roles {
+		        nodes {
+		          name
+		        }
+		    }
 		  }
 		}
 		';
@@ -41,7 +45,7 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-		$this->assertContains( 'administrator', $actual['data']['viewer']['roles'] );
+		$this->assertContains( 'administrator', $actual['data']['viewer']['roles']['nodes'][0]['name'] );
 
 	}
 
