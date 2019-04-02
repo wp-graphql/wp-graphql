@@ -219,6 +219,7 @@ return array(
     'WPGraphQL\\Data\\PostObjectMutation' => $baseDir . '/src/Data/PostObjectMutation.php',
     'WPGraphQL\\Data\\TermObjectMutation' => $baseDir . '/src/Data/TermObjectMutation.php',
     'WPGraphQL\\Data\\UserMutation' => $baseDir . '/src/Data/UserMutation.php',
+    'WPGraphQL\\Model\\Avatar' => $baseDir . '/src/Model/Avatar.php',
     'WPGraphQL\\Model\\Comment' => $baseDir . '/src/Model/Comment.php',
     'WPGraphQL\\Model\\Menu' => $baseDir . '/src/Model/Menu.php',
     'WPGraphQL\\Model\\MenuItem' => $baseDir . '/src/Model/MenuItem.php',

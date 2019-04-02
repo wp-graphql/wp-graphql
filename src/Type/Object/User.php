@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type;
 
+use WPGraphQL\Data\DataSource;
+
 register_graphql_type( 'User', [
 	'description' => __( 'A User object', 'wp-graphql' ),
 	'fields'      => [
@@ -133,9 +135,9 @@ register_graphql_type( 'User', [
 					$avatar_args['rating'] = esc_sql( $args['rating'] );
 				}
 
-				$avatar = get_avatar_data( absint( $user->userId ), $avatar_args );
+				$avatar = DataSource::resolve_avatar( $user->userId, $avatar_args );
 
-				return ( ! empty( $avatar ) && true === $avatar['found_avatar'] ) ? $avatar : null;
+				return ( ! empty( $avatar ) && true === $avatar->foundAvatar ) ? $avatar : null;
 			},
 		],
 	],
