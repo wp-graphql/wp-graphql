@@ -35,7 +35,7 @@ class CommentAuthor extends Model {
 	 */
 	public function __construct( $comment_author ) {
 		$this->comment_author = $comment_author;
-		parent::__construct( 'CommentAuthorObject', $comment_author );
+		parent::__construct( $comment_author );
 		$this->init();
 	}
 

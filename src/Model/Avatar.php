@@ -38,7 +38,7 @@ class Avatar extends Model {
 	 */
 	public function __construct( $avatar ) {
 		$this->avatar = $avatar;
-		parent::__construct( 'AvatarObject', $avatar );
+		parent::__construct( $avatar );
 		$this->init();
 	}
 

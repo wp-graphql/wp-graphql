@@ -54,7 +54,7 @@ class Term extends Model {
 	public function __construct( \WP_Term $term ) {
 		$this->term = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
-		parent::__construct( 'TermObject', $term );
+		parent::__construct( $term );
 		$this->init();
 	}
 

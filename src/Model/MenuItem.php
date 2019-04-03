@@ -40,7 +40,7 @@ class MenuItem extends Model {
 	 */
 	public function __construct( \WP_Post $post ) {
 		$this->post = wp_setup_nav_menu_item( $post );
-		parent::__construct( 'menuItem', $post );
+		parent::__construct( $post );
 		$this->init();
 	}
 
@@ -60,11 +60,11 @@ class MenuItem extends Model {
 				'cassClasses' => function() {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
-					if ( ! isset( $this->post->classes ) || ! is_array( $this->post->classes ) || empty( $this->post->classes ) || empty( $this->menu_item->classes[0] ) ) {
+					if ( ! isset( $this->post->classes ) || ! is_array( $this->post->classes ) || empty( $this->post->classes ) || empty( $this->post->classes[0] ) ) {
 						return [];
 					}
 
-					return $this->menu_item->classes;
+					return $this->post->classes;
 				},
 				'description' => function() {
 					return ( ! empty( $this->post->description ) ) ? $this->post->description : null;

@@ -48,7 +48,7 @@ class Theme extends Model {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( 'ThemeObject', $this->theme );
+		parent::__construct( $this->theme );
 		$this->init();
 
 	}
@@ -68,7 +68,7 @@ class Theme extends Model {
 	 */
 	public function is_private( $private, $model_name, $data ) {
 
-		if ( 'ThemeObject' !== $model_name ) {
+		if ( $this->get_model_name() !== $model_name ) {
 			return $private;
 		}
 

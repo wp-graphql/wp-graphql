@@ -76,7 +76,6 @@ abstract class Model {
 	/**
 	 * Model constructor.
 	 *
-	 * @param string   $name                      Name of the data being passed in for hook/filter context
 	 * @param mixed    $data                      The data passed to the child class before it's
 	 *                                            transformed for hook/filter context
 	 * @param string   $restricted_cap            The capability to check against to determine if
@@ -89,13 +88,14 @@ abstract class Model {
 	 * @return void
 	 * @throws \Exception
 	 */
-	protected function __construct( $name, $data, $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
+	protected function __construct( $data, $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
+
+		$name = $this->get_model_name();
 
 		if ( empty( $data ) ) {
 			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $name ) );
 		}
 
-		$this->model_name = $name;
 		$this->data = $data;
 		$this->restricted_cap = $restricted_cap;
 		$this->allowed_restricted_fields = $allowed_restricted_fields;
@@ -153,6 +153,27 @@ abstract class Model {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Returns the name of the model, built from the child className
+	 *
+	 * @access protected
+	 * @return string
+	 */
+	protected function get_model_name() {
+
+		if ( empty( $this->model_name ) ) {
+			if ( false !== strpos( static::class, "\\" ) ) {
+				$name = substr( strrchr( static::class, "\\" ), 1 );
+			} else {
+				$name = static::class;
+			}
+			$this->model_name = $name . 'Object';
+		}
+
+		return $this->model_name;
+
 	}
 
 	/**

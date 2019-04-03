@@ -67,7 +67,7 @@ class User extends Model {
 			'slug',
 		];
 
-		parent::__construct( 'UserObject', $user, 'list_users', $allowed_restricted_fields, $user->ID );
+		parent::__construct( $user, 'list_users', $allowed_restricted_fields, $user->ID );
 		$this->init();
 
 	}

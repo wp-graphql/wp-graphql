@@ -75,7 +75,7 @@ class PostType extends Model {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( 'PostTypeObject', $this->post_type, $post_type->cap->edit_posts, $allowed_restricted_fields );
+		parent::__construct( $this->post_type, $post_type->cap->edit_posts, $allowed_restricted_fields );
 		$this->init();
 	}
 
@@ -91,7 +91,7 @@ class PostType extends Model {
 	 */
 	public function is_private( $private, $model_name, $data ) {
 
-		if ( 'PostTypeObject' !== $model_name ) {
+		if ( $this->get_model_name() !== $model_name ) {
 			return $private;
 		}
 

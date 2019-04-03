@@ -44,7 +44,7 @@ class Plugin extends Model {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 2 );
 		}
 
-		parent::__construct( 'PluginObject', $this->plugin );
+		parent::__construct( $this->plugin );
 		$this->init();
 
 	}
@@ -62,7 +62,7 @@ class Plugin extends Model {
 	 */
 	public function is_private( $private, $model_name ) {
 
-		if ( 'PluginObject' !== $model_name ) {
+		if ( $this->get_model_name() !== $model_name ) {
 			return $private;
 		}
 

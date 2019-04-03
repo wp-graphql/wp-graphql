@@ -72,7 +72,7 @@ class Taxonomy extends Model {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( 'TaxonomyObject', $this->taxonomy, $this->taxonomy->cap->edit_terms, $allowed_restricted_fields  );
+		parent::__construct( $this->taxonomy, $this->taxonomy->cap->edit_terms, $allowed_restricted_fields  );
 		$this->init();
 
 	}
@@ -89,7 +89,7 @@ class Taxonomy extends Model {
 	 */
 	public function is_private( $private, $model_name, $data ) {
 
-		if ( 'TaxonomyObject' !== $model_name ) {
+		if ( $this->get_model_name() !== $model_name ) {
 			return $private;
 		}
 

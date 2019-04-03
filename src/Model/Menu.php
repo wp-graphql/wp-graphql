@@ -37,7 +37,7 @@ class Menu extends Model {
 	 */
 	public function __construct( \WP_Term $term ) {
 		$this->menu = $term;
-		parent::__construct( 'menuObject', $term );
+		parent::__construct( $term );
 		$this->init();
 	}
 
