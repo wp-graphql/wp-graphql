@@ -226,6 +226,9 @@ abstract class Model {
 	 * @access protected
 	 */
 	protected function owner_matches_current_user() {
+		if ( empty( $this->current_user->ID ) || empty( $this->owner ) ) {
+			return false;
+		}
 		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
 	}
 

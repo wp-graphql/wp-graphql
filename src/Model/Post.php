@@ -145,6 +145,8 @@ class Post extends Model {
 				$cap = $this->post_type_object->cap->edit_posts;
 				break;
 			case 'draft':
+			case 'future':
+			case 'pending':
 				$cap = $this->post_type_object->cap->edit_others_posts;
 				break;
 			default:
@@ -173,7 +175,42 @@ class Post extends Model {
 			return $private;
 		}
 
-		if ( ( true === $this->owner_matches_current_user() || 'publish' === $data->post_status ) && 'revision' !== $data->post_type ) {
+		/**
+		 * Media Items (attachments) are all public. Once uploaded to the media library
+		 * they are exposed with a public URL on the site.
+		 *
+		 * The WP REST API sets media items to private if they don't have a `post_parent` set, but
+		 * this has broken production apps, because media items can be uploaded directly to the
+		 * media library and published as a featured image, published inline within content, or
+		 * within a Gutenberg block, etc, but then a consumer tries to ask for data of a published
+		 * image and REST returns nothing because the media item is treated as private.
+		 *
+		 * Currently, we're treating all media items as public because there's nothing explicit in
+		 * how WP Core handles privacy of media library items. By default they're publicly exposed.
+		 */
+		if ( 'attachment' === $data->post_type ) {
+			return false;
+		}
+
+		/**
+		 * Published content is public, not private
+		 */
+		if ( 'publish' === $data->post_status ) {
+			return false;
+		}
+
+		/**
+		 * If the status is NOT publish and the user does NOT have capabilities to edit posts,
+		 * consider the post private.
+		 */
+		if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+			return true;
+		}
+
+		/**
+		 * If the owner of the content is the current user
+		 */
+		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $data->post_type ) {
 			return false;
 		}
 

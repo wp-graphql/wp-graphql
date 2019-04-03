@@ -80,14 +80,14 @@ class DataSource {
 	/**
 	 * Retrieves a WP_Comment object for the ID that gets passed
 	 *
-	 * @param string $author_email The ID of the comment the comment author is associated with.
+	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
 	 * @return CommentAuthor
 	 * @throws
 	 */
-	public static function resolve_comment_author( $author_email ) {
+	public static function resolve_comment_author( $comment_id ) {
 		global $wpdb;
-		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_author_email = %s LIMIT 1", esc_sql( $author_email ) ) );
+		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
 		$comment_author                      = ! empty( $comment_author ) ? ( array ) $comment_author : [];
 		return new CommentAuthor( $comment_author );
 	}

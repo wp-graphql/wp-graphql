@@ -11,6 +11,7 @@ register_graphql_union_type( 'CommentAuthorUnion', [
 	'name'        => 'CommentAuthorUnion',
 	'typeNames'   => [ 'User', 'CommentAuthor' ],
 	'resolveType' => function ( $source ) use ( $comment_author_type, $user_type ) {
+
 		if ( $source instanceof User ) {
 			$type = $user_type;
 		} else {

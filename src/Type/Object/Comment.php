@@ -43,7 +43,6 @@ register_graphql_object_type( 'Comment', [
 				 * the $comment and the Union will use that to hydrate the CommentAuthor Type
 				 */
 				if ( ! empty( $comment->userId ) ) {
-
 					if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
 						return null;
 					}
@@ -51,7 +50,7 @@ register_graphql_object_type( 'Comment', [
 					return DataSource::resolve_user( $comment->userId, $context );
 
 				} else {
-					return DataSource::resolve_comment_author( $comment->commentAuthorEmail );
+					return ! empty( $comment->commentId ) ? DataSource::resolve_comment_author( $comment->commentId ) : null;
 				}
 			}
 		],

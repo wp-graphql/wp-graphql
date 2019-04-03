@@ -217,16 +217,18 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data' => [
 				'comment' => [
-					'agent'    => '',
-					'approved' => '1',
+					'agent'    => null,
+					'approved' => true,
 					'author'   => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', get_comment_author_email( $comment_id ) ),
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id ),
 						'name'  => get_comment_author( $comment_id ),
 						'email' => get_comment_author_email( $comment_id ),
 						'url'   => get_comment_author_url( $comment_id ),
