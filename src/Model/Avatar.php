@@ -23,10 +23,10 @@ class Avatar extends Model {
 	/**
 	 * Stores the incoming avatar to be modeled
 	 *
-	 * @var array $avatar
+	 * @var array $data
 	 * @access protected
 	 */
-	protected $avatar;
+	protected $data;
 
 	/**
 	 * Avatar constructor.
@@ -37,9 +37,8 @@ class Avatar extends Model {
 	 * @access public
 	 */
 	public function __construct( $avatar ) {
-		$this->avatar = $avatar;
-		parent::__construct( 'AvatarObject', $avatar );
-		$this->init();
+		$this->data = $avatar;
+		parent::__construct();
 	}
 
 	/**
@@ -50,46 +49,40 @@ class Avatar extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
 				'size' => function() {
-					return ! empty( $this->avatar['size'] ) ? absint( $this->avatar['size'] ) : null;
+					return ! empty( $this->data['size'] ) ? absint( $this->data['size'] ) : null;
 				},
 				'height' => function() {
-					return ! empty( $this->avatar['height'] ) ? absint( $this->avatar['height'] ) : null;
+					return ! empty( $this->data['height'] ) ? absint( $this->data['height'] ) : null;
 				},
 				'width' => function() {
-					return ! empty( $this->avatar['width'] ) ? absint( $this->avatar['width'] ) : null;
+					return ! empty( $this->data['width'] ) ? absint( $this->data['width'] ) : null;
 				},
 				'default' => function() {
-					return ! empty( $this->avatar['default'] ) ? $this->avatar['default'] : null;
+					return ! empty( $this->data['default'] ) ? $this->data['default'] : null;
 				},
 				'forceDefault' => function() {
-					return ( ! empty( $this->avatar['force_default'] ) && true === $this->avatar['force_default'] ) ? true : false;
+					return ( ! empty( $this->data['force_default'] ) && true === $this->data['force_default'] ) ? true : false;
 				},
 				'rating' => function() {
-					return ! empty( $this->avatar['rating'] ) ? $this->avatar['rating'] : null;
+					return ! empty( $this->data['rating'] ) ? $this->data['rating'] : null;
 				},
 				'scheme' => function() {
-					return ! empty( $this->avatar['scheme'] ) ? $this->avatar['scheme'] : null;
+					return ! empty( $this->data['scheme'] ) ? $this->data['scheme'] : null;
 				},
 				'extraAttr' => function() {
-					return ! empty( $this->avatar['extra_attr'] ) ? $this->avatar['extra_attr'] : null;
+					return ! empty( $this->data['extra_attr'] ) ? $this->data['extra_attr'] : null;
 				},
 				'foundAvatar' => function() {
-					return ! empty( $this->avatar['found_avatar'] && true === $this->avatar['found_avatar'] ) ? true : false;
+					return ! empty( $this->data['found_avatar'] && true === $this->data['found_avatar'] ) ? true : false;
 				},
 				'url' => function() {
-					return ! empty( $this->avatar['url'] ) ? $this->avatar['url'] : null;
+					return ! empty( $this->data['url'] ) ? $this->data['url'] : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

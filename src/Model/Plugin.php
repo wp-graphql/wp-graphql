@@ -23,10 +23,10 @@ class Plugin extends Model {
 	/**
 	 * Stores the incoming plugin data to be modeled
 	 *
-	 * @var array $plugin
+	 * @var array $data
 	 * @access protected
 	 */
-	protected $plugin;
+	protected $data;
 
 	/**
 	 * Plugin constructor.
@@ -37,40 +37,23 @@ class Plugin extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( $plugin ) {
-
-		$this->plugin = $plugin;
-
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 2 );
-		}
-
-		parent::__construct( 'PluginObject', $this->plugin );
-		$this->init();
-
+		$this->data = $plugin;
+		parent::__construct();
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the post should be
-	 * considered private. Plugins should all be private unless a user has the update_plugins
-	 * capability
+	 * Method for determining if the data should be considered private or not
 	 *
-	 * @param bool   $private    True or False value if the data should be private
-	 * @param string $model_name Name of the model for the data currently being modeled
-	 *
-	 * @access public
+	 * @access protected
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name ) {
-
-		if ( 'PluginObject' !== $model_name ) {
-			return $private;
-		}
+	protected function is_private() {
 
 		if ( ! current_user_can( 'update_plugins') ) {
 			return true;
 		}
 
-		return $private;
+		return false;
 
 	}
 
@@ -82,37 +65,31 @@ class Plugin extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->plugin['Name'] ) ? Relay::toGlobalId( 'plugin', $this->plugin['Name'] ) : null;
+					return ! empty( $this->data['Name'] ) ? Relay::toGlobalId( 'plugin', $this->data['Name'] ) : null;
 				},
 				'name' => function() {
-					return ! empty( $this->plugin['Name'] ) ? $this->plugin['Name'] : null;
+					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
 				},
 				'pluginUri' => function() {
-					return ! empty( $this->plugin['PluginURI'] ) ? $this->plugin['PluginURI'] : null;
+					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
 				},
 				'description' => function() {
-					return ! empty( $this->plugin['Description'] ) ? $this->plugin['Description'] : null;
+					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
 				'author' => function() {
-					return ! empty( $this->plugin['Author'] ) ? $this->plugin['Author'] : null;
+					return ! empty( $this->data['Author'] ) ? $this->data['Author'] : null;
 				},
 				'authorUri' => function() {
-					return ! empty( $this->plugin['AuthorURI'] ) ? $this->plugin['AuthorURI'] : null;
+					return ! empty( $this->data['AuthorURI'] ) ? $this->data['AuthorURI'] : null;
 				},
 				'version' => function() {
-					return ! empty( $this->plugin['Version'] ) ? $this->plugin['Version'] : null;
+					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

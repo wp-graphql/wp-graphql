@@ -21,10 +21,10 @@ class Menu extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var \WP_Term $menu
+	 * @var \WP_Term $data
 	 * @access protected
 	 */
-	protected $menu;
+	protected $data;
 
 	/**
 	 * Menu constructor.
@@ -36,39 +36,37 @@ class Menu extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Term $term ) {
-		$this->menu = $term;
-		parent::__construct( 'menuObject', $term );
-		$this->init();
+		$this->data = $term;
+		parent::__construct();
 	}
 
 	/**
 	 * Initializes the Menu object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
+	protected function init() {
 
 		if ( empty( $this->fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->menu->term_id ) ? Relay::toGlobalId( 'Menu', $this->menu->term_id ) : null;
+					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'Menu', $this->data->term_id ) : null;
 				},
 				'count' => function() {
-					return ! empty( $this->menu->count ) ? absint( $this->menu->count ) : null;
+					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'menuId' => function() {
-					return ! empty( $this->menu->term_id ) ? $this->menu->term_id : null;
+					return ! empty( $this->data->term_id ) ? $this->data->term_id : null;
 				},
 				'name' => function() {
-					return ! empty( $this->menu->name ) ? $this->menu->name : null;
+					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
 				'slug' => function() {
-					return ! empty( $this->menu->slug ) ? $this->menu->slug : null;
+					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 

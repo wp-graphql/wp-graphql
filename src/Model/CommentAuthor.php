@@ -20,10 +20,10 @@ class CommentAuthor extends Model {
 	/**
 	 * Stores the comment author to be modeled
 	 *
-	 * @var array $comment_author
+	 * @var array $data
 	 * @access protected
 	 */
-	protected $comment_author;
+	protected $data;
 
 	/**
 	 * CommentAuthor constructor.
@@ -34,9 +34,8 @@ class CommentAuthor extends Model {
 	 * @access public
 	 */
 	public function __construct( $comment_author ) {
-		$this->comment_author = $comment_author;
-		parent::__construct( 'CommentAuthorObject', $comment_author );
-		$this->init();
+		$this->data = $comment_author;
+		parent::__construct();
 	}
 
 	/**
@@ -47,28 +46,22 @@ class CommentAuthor extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->comment_author['comment_id'] ) ? Relay::toGlobalId( 'commentAuthor', $this->comment_author['comment_id'] ) : null;
+					return ! empty( $this->data['comment_id'] ) ? Relay::toGlobalId( 'commentAuthor', $this->data['comment_id'] ) : null;
 				},
 				'name' => function() {
-					return ! empty( $this->comment_author['comment_author'] ) ? $this->comment_author['comment_author'] : null;
+					return ! empty( $this->data['comment_author'] ) ? $this->data['comment_author'] : null;
 				},
 				'email' => function() {
-					return ! empty( $this->comment_author['comment_author_email'] ) ? $this->comment_author['comment_author_email'] : null;
+					return ! empty( $this->data['comment_author_email'] ) ? $this->data['comment_author_email'] : null;
 				},
 				'url' => function() {
-					return ! empty( $this->comment_author['comment_author_url'] ) ? $this->comment_author['comment_author_url'] : '';
+					return ! empty( $this->data['comment_author_url'] ) ? $this->data['comment_author_url'] : '';
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}
