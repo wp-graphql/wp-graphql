@@ -68,36 +68,24 @@ class Taxonomy extends Model {
 			'showInGraphql',
 		];
 
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
-		}
-
 		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields  );
 		$this->init();
 
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the Taxonomy is private or not.
-	 *
-	 * @param bool          $private    True or False value if the data should be private
-	 * @param string        $model_name Name of the model for the data currently being modeled
-	 * @param \WP_Taxonomy $data       The Data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name, $data ) {
+	public function is_private() {
 
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
-
-		if ( false === $data->public && ! current_user_can( $data->cap->edit_terms ) ) {
+		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_terms ) ) {
 			return true;
 		}
 
-		return $private;
+		return false;
 
 	}
 

@@ -64,38 +64,24 @@ class Comment extends Model {
 		];
 
 		$this->data = $comment;
-
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
-		}
-
 		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
 		$this->init();
 
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter for determining if the object should be
-	 * considered private or not
-	 *
-	 * @param bool        $private    Whether or not to consider the object private
-	 * @param string      $model_name Name of the model currently being processed
-	 * @param \WP_Comment $data       The data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name, $data ) {
+	public function is_private() {
 
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
-
-		if ( true != $data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
+		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
 
-		return $private;
+		return false;
 
 	}
 

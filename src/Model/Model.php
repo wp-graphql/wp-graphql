@@ -206,7 +206,7 @@ abstract class Model {
 			 *
 			 * @return bool
 			 */
-			$is_private = apply_filters( 'graphql_data_is_private', false, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+			$is_private = apply_filters( 'graphql_data_is_private', $this->is_private(), $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			if ( true === $is_private ) {
 				$this->visibility = 'private';
@@ -234,6 +234,17 @@ abstract class Model {
 		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
 
 	}
+
+	/**
+	 * Method to return the private state of the object. Can be overwritten in classes extending
+	 * this one.
+	 *
+	 * @access protected
+	 * @return bool
+	 */
+	 public function is_private() {
+	 	return false;
+	 }
 
 	/**
 	 * Whether or not the owner of the data matches the current user

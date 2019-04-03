@@ -158,21 +158,12 @@ class Post extends Model {
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the post should be
-	 * considered private
-	 *
-	 * @param bool   $private    True or False value if the data should be private
-	 * @param string $model_name Name of the model for the data currently being modeled
-	 * @param mixed  $data       The Data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name, $data ) {
-
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
+	public function is_private() {
 
 		/**
 		 * Media Items (attachments) are all public. Once uploaded to the media library
@@ -187,14 +178,14 @@ class Post extends Model {
 		 * Currently, we're treating all media items as public because there's nothing explicit in
 		 * how WP Core handles privacy of media library items. By default they're publicly exposed.
 		 */
-		if ( 'attachment' === $data->post_type ) {
+		if ( 'attachment' === $this->data->post_type ) {
 			return false;
 		}
 
 		/**
 		 * Published content is public, not private
 		 */
-		if ( 'publish' === $data->post_status ) {
+		if ( 'publish' === $this->data->post_status ) {
 			return false;
 		}
 
@@ -209,7 +200,7 @@ class Post extends Model {
 		/**
 		 * If the owner of the content is the current user
 		 */
-		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $data->post_type ) {
+		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $this->data->post_type ) {
 			return false;
 		}
 
@@ -221,12 +212,12 @@ class Post extends Model {
 			return true;
 		}
 
-		if ( 'private' === $data->post_status && ! current_user_can( $this->post_type_object->cap->read_private_posts ) ) {
+		if ( 'private' === $this->data->post_status && ! current_user_can( $this->post_type_object->cap->read_private_posts ) ) {
 			return true;
 		}
 
-		if ( 'revision' === $data->post_type || 'auto-draft' === $data->post_status ) {
-			$parent               = get_post( (int) $data->post_parent );
+		if ( 'revision' === $this->data->post_type || 'auto-draft' === $this->data->post_status ) {
+			$parent               = get_post( (int) $this->data->post_parent );
 			$parent_post_type_obj = get_post_type_object( $parent->post_type );
 
 			if ( 'private' === $parent->post_status ) {
@@ -240,7 +231,7 @@ class Post extends Model {
 			}
 		}
 
-		return $private;
+		return false;
 
 	}
 

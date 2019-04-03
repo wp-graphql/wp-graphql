@@ -41,46 +41,28 @@ class Theme extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Theme $theme ) {
-
 		$this->data = $theme;
-
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
-		}
-
 		parent::__construct();
 		$this->init();
-
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the post should be
-	 * considered private. The theme should be considered private unless it is the current active
-	 * theme. The current active theme is public because all of the information can be retrieved by
-	 * viewing source on the site and looking for the style.css file.
-	 *
-	 * @param bool   $private    True or False value if the data should be private
-	 * @param string $model_name Name of the model for the data currently being modeled
-	 * @param mixed  $data       The Data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name, $data ) {
-
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
+	public function is_private() {
 
 		if ( current_user_can( 'edit_themes' ) ) {
 			return false;
 		}
 
-		if ( wp_get_theme()->get_stylesheet() !== $data->get_stylesheet() ) {
+		if ( wp_get_theme()->get_stylesheet() !== $this->data->get_stylesheet() ) {
 			return true;
 		}
 
-		return $private;
+		return false;
 
 	}
 

@@ -39,38 +39,24 @@ class Plugin extends Model {
 	public function __construct( $plugin ) {
 
 		$this->data = $plugin;
-
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 2 );
-		}
-
 		parent::__construct();
 		$this->init();
 
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the post should be
-	 * considered private. Plugins should all be private unless a user has the update_plugins
-	 * capability
-	 *
-	 * @param bool   $private    True or False value if the data should be private
-	 * @param string $model_name Name of the model for the data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name ) {
-
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
+	public function is_private() {
 
 		if ( ! current_user_can( 'update_plugins') ) {
 			return true;
 		}
 
-		return $private;
+		return false;
 
 	}
 

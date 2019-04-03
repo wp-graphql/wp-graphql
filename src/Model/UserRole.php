@@ -35,38 +35,24 @@ class UserRole extends Model {
 	 */
 	public function __construct( $user_role ) {
 		$this->data = $user_role;
-
-		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
-			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
-		}
-
 		parent::__construct();
 		$this->init();
 	}
 
 	/**
-	 * Callback for the graphql_data_is_private filter to determine if the role should be
-	 * considered private
-	 *
-	 * @param bool   $private    True or False value if the data should be private
-	 * @param string $model_name Name of the model for the data currently being modeled
-	 * @param mixed  $data       The Data currently being modeled
+	 * Method for determining if the data should be considered private or not
 	 *
 	 * @access public
 	 * @return bool
 	 */
-	public function is_private( $private, $model_name, $data ) {
-
-		if ( $this->get_model_name() !== $model_name ) {
-			return $private;
-		}
+	public function is_private() {
 
 		if ( current_user_can( 'list_users' ) ) {
 			return false;
 		}
 
 		$current_user_roles = wp_get_current_user()->roles;
-		if ( in_array( $data['name'], $current_user_roles, true ) ) {
+		if ( in_array( $this->data['name'], $current_user_roles, true ) ) {
 			return false;
 		}
 
