@@ -32,6 +32,10 @@ register_graphql_object_type( 'Taxonomy', [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether the taxonomy is publicly queryable', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 		'hierarchical'           => [
 			'type'        => 'Boolean',
 			'description' => __( 'Whether the taxonomy is hierarchical', 'wp-graphql' ),

@@ -18,6 +18,7 @@ use WPGraphQL\Types;
 class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * The name of the post type the connection resolver is resolving for
 	 * @var string
 	 */
 	protected $post_type;
@@ -75,7 +76,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function should_execute() {
 
-		$should_execute = true;
+		if ( false === $this->should_execute ) {
+			return false;
+		}
 
 		/**
 		 * For revisions, we only want to execute the connection query if the user
@@ -87,11 +90,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( isset( $this->post_type ) && 'revision' === $this->post_type && $this->source instanceof Post ) {
 			$parent_post_type_obj = get_post_type_object( $this->source->post_type );
 			if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
-				$should_execute = false;
+				$this->should_execute = false;
 			}
 		}
 
-		return apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
+		return $this->should_execute;
 	}
 
 	/**
@@ -339,7 +342,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = Types::map_input( $where_args, $arg_mapping );
 
 		if ( ! empty( $query_args['post_status'] ) ) {
-			$query_args['post_status'] = $this->sanitize_post_stati( $query_args['post_status'] );
+			$allowed_stati =  $this->sanitize_post_stati( $query_args['post_status'] );
+			$query_args['post_status'] = ! empty( $allowed_stati ) ? $allowed_stati : ['publish'];
 		}
 
 		/**
@@ -380,11 +384,30 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|null
 	 */
 	public function sanitize_post_stati( $stati ) {
+
+		/**
+		 * If no stati is explicitly set by the input, default to publish. This will be the
+		 * most common scenario.
+		 */
 		if ( empty( $stati ) ) {
 			$stati = [ 'publish' ];
 		}
+
+		/**
+		 * Parse the list of stati
+		 */
 		$statuses         = wp_parse_slug_list( $stati );
+
+		/**
+		 * Get the Post Type object
+		 */
 		$post_type_obj    = get_post_type_object( $this->post_type );
+
+		/**
+		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
+		 * otherwise return null, effectively removing it from the $allowed_statuses that will
+		 * be passed to WP_Query
+		 */
 		$allowed_statuses = array_filter( array_map( function( $status ) use ( $post_type_obj ) {
 			if ( 'publish' === $status ) {
 				return $status;
@@ -396,6 +419,28 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			}
 		}, $statuses ) );
 
+		/**
+		 * If there are no allowed statuses to pass to WP_Query, prevent the connection
+		 * from executing
+		 *
+		 * For example, if a subscriber tries to query:
+		 *
+		 * {
+		 *   posts( where: { stati: [ DRAFT ] } ) {
+		 *     ...fields
+		 *   }
+		 * }
+		 *
+		 * We can safely prevent the execution of the query because they are asking for content
+		 * in a status that we know they can't ask for.
+		 */
+		if ( empty( $allowed_statuses ) ) {
+			$this->should_execute = false;
+		}
+
+		/**
+		 * Return the $allowed_statuses to the query args
+		 */
 		return $allowed_statuses;
 	}
 

@@ -107,6 +107,10 @@ register_graphql_object_type( 'PostType', [
 			'type'        => 'String',
 			'description' => __( 'The plural name of the post type within the GraphQL Schema.', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 		'connectedTaxonomyNames' => [
 			'type'        => [
 				'list_of' => 'String'

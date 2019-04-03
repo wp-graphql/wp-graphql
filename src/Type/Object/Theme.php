@@ -49,6 +49,10 @@ register_graphql_object_type( 'Theme', [
 			'type'        => 'Float',
 			'description' => __( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	],
 
 ] );

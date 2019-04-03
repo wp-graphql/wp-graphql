@@ -103,16 +103,12 @@ register_graphql_object_type( 'Comment', [
 			'type'        => 'Comment',
 			'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
 			'resolve'     => function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-				$parent = null;
-				if ( ! empty( $comment->comment_parent_id ) ) {
-					$parent_obj = \WP_Comment::get_instance( $comment->comment_parent_id );
-					if ( is_a( $parent_obj, 'WP_Comment' ) ) {
-						$parent = new Comment( $parent_obj );
-					}
-				}
-
-				return $parent;
+				return ! empty( $comment->comment_parent_id ) ? DataSource::resolve_comment( $comment->comment_parent_id, $context ) : null;
 			}
+		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 		],
 	]
 ] );

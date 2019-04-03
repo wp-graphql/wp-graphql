@@ -24,5 +24,9 @@ register_graphql_object_type( 'CommentAuthor', [
 			'type'        => 'String',
 			'description' => __( 'The url the comment author.', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	],
 ] );

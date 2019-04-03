@@ -53,6 +53,10 @@ register_graphql_object_type( 'MenuItem', [
 			'type'        => 'String',
 			'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 		'connectedObject'  => [
 			'type'        => 'MenuItemObjectUnion',
 			'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),

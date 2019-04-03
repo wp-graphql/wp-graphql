@@ -46,5 +46,9 @@ register_graphql_type( 'Avatar', [
 			'type'        => 'String',
 			'description' => __( 'URL for the gravatar image source.', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	]
 ] );
