@@ -34,10 +34,10 @@ class User extends Model {
 	/**
 	 * Stores the WP_User object for the incoming data
 	 *
-	 * @var \WP_User $user
+	 * @var \WP_User $data
 	 * @access protected
 	 */
-	protected $user;
+	protected $data;
 
 	/**
 	 * User constructor.
@@ -52,7 +52,7 @@ class User extends Model {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
-		$this->user = $user;
+		$this->data = $user;
 
 		$allowed_restricted_fields = [
 			'isRestricted',
@@ -67,7 +67,7 @@ class User extends Model {
 			'slug',
 		];
 
-		parent::__construct( $user, 'list_users', $allowed_restricted_fields, $user->ID );
+		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
 		$this->init();
 
 	}
@@ -80,23 +80,23 @@ class User extends Model {
 	 */
 	public function init() {
 
-		if ( 'private' === $this->get_visibility() || is_null( $this->user ) ) {
+		if ( 'private' === $this->get_visibility() || is_null( $this->data ) ) {
 			return null;
 		}
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					return ( ! empty( $this->user->ID ) ) ? Relay::toGlobalId( 'user', $this->user->ID ) : null;
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
 				},
 				'capabilities' => function() {
-					if ( ! empty( $this->user->allcaps ) ) {
+					if ( ! empty( $this->data->allcaps ) ) {
 
 						/**
 						 * Reformat the array of capabilities from the user object so that it is a true
 						 * ListOf type
 						 */
-						$capabilities = array_keys( array_filter( $this->user->allcaps, function( $cap ) {
+						$capabilities = array_keys( array_filter( $this->data->allcaps, function( $cap ) {
 							return true === $cap;
 						} ) );
 
@@ -106,52 +106,52 @@ class User extends Model {
 
 				},
 				'capKey' => function() {
-					return ! empty( $this->user->cap_key ) ? $this->user->cap_key : null;
+					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
 				'roles' => function() {
-					return ! empty( $this->user->roles ) ? $this->user->roles : null;
+					return ! empty( $this->data->roles ) ? $this->data->roles : null;
 				},
 				'email' => function() {
-					return ! empty( $this->user->user_email ) ? $this->user->user_email : null;
+					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
 				'firstName' => function() {
-					return ! empty( $this->user->first_name ) ? $this->user->first_name : null;
+					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
 				},
 				'lastName' => function() {
-					return ! empty( $this->user->last_name ) ? $this->user->last_name : null;
+					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
 				},
 				'extraCapabilities' => function() {
-					return ! empty( $this->user->allcaps ) ? array_keys( $this->user->allcaps ) : null;
+					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
 				},
 				'description' => function() {
-					return ! empty( $this->user->description ) ? $this->user->description : null;
+					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'username' => function() {
-					return ! empty( $this->user->user_login ) ? $this->user->user_login : null;
+					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
 				'name' => function() {
-					return ! empty( $this->user->display_name ) ? $this->user->display_name : null;
+					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
 				'registeredDate' => function() {
-					return ! empty( $this->user->user_registered ) ? date( 'c', strtotime( $this->user->user_registered ) ) : null;
+					return ! empty( $this->data->user_registered ) ? date( 'c', strtotime( $this->data->user_registered ) ) : null;
 				},
 				'nickname' => function() {
-					return ! empty( $this->user->nickname ) ? $this->user->nickname : null;
+					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
 				},
 				'url' => function() {
-					return ! empty( $this->user->user_url ) ? $this->user->user_url : null;
+					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
 				},
 				'slug' => function() {
-					return ! empty( $this->user->user_nicename ) ? $this->user->user_nicename : null;
+					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
 				'nicename' => function() {
-					return ! empty( $this->user->user_nicename ) ? $this->user->user_nicename : null;
+					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
 				'locale' => function() {
-					$user_locale = get_user_locale( $this->user );
+					$user_locale = get_user_locale( $this->data );
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
-				'userId' => ! empty( $this->user->ID ) ? absint( $this->user->ID ) : null,
+				'userId' => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 			];
 
 			parent::prepare_fields();

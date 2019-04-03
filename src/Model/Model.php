@@ -76,8 +76,6 @@ abstract class Model {
 	/**
 	 * Model constructor.
 	 *
-	 * @param mixed    $data                      The data passed to the child class before it's
-	 *                                            transformed for hook/filter context
 	 * @param string   $restricted_cap            The capability to check against to determine if
 	 *                                            the data should be restricted or not
 	 * @param array    $allowed_restricted_fields The allowed fields if the data is in fact restricted
@@ -88,13 +86,12 @@ abstract class Model {
 	 * @return void
 	 * @throws \Exception
 	 */
-	protected function __construct( $data, $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
+	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 
-		if ( empty( $data ) ) {
+		if ( empty( $this->data ) ) {
 			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
 		}
 
-		$this->data = $data;
 		$this->restricted_cap = $restricted_cap;
 		$this->allowed_restricted_fields = $allowed_restricted_fields;
 		$this->owner = $owner;

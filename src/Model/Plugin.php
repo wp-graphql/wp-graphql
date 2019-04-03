@@ -23,10 +23,10 @@ class Plugin extends Model {
 	/**
 	 * Stores the incoming plugin data to be modeled
 	 *
-	 * @var array $plugin
+	 * @var array $data
 	 * @access protected
 	 */
-	protected $plugin;
+	protected $data;
 
 	/**
 	 * Plugin constructor.
@@ -38,13 +38,13 @@ class Plugin extends Model {
 	 */
 	public function __construct( $plugin ) {
 
-		$this->plugin = $plugin;
+		$this->data = $plugin;
 
 		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 2 );
 		}
 
-		parent::__construct( $this->plugin );
+		parent::__construct();
 		$this->init();
 
 	}
@@ -90,25 +90,25 @@ class Plugin extends Model {
 
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->plugin['Name'] ) ? Relay::toGlobalId( 'plugin', $this->plugin['Name'] ) : null;
+					return ! empty( $this->data['Name'] ) ? Relay::toGlobalId( 'plugin', $this->data['Name'] ) : null;
 				},
 				'name' => function() {
-					return ! empty( $this->plugin['Name'] ) ? $this->plugin['Name'] : null;
+					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
 				},
 				'pluginUri' => function() {
-					return ! empty( $this->plugin['PluginURI'] ) ? $this->plugin['PluginURI'] : null;
+					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
 				},
 				'description' => function() {
-					return ! empty( $this->plugin['Description'] ) ? $this->plugin['Description'] : null;
+					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
 				'author' => function() {
-					return ! empty( $this->plugin['Author'] ) ? $this->plugin['Author'] : null;
+					return ! empty( $this->data['Author'] ) ? $this->data['Author'] : null;
 				},
 				'authorUri' => function() {
-					return ! empty( $this->plugin['AuthorURI'] ) ? $this->plugin['AuthorURI'] : null;
+					return ! empty( $this->data['AuthorURI'] ) ? $this->data['AuthorURI'] : null;
 				},
 				'version' => function() {
-					return ! empty( $this->plugin['Version'] ) ? $this->plugin['Version'] : null;
+					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
 				}
 			];
 

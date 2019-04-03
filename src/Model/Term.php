@@ -4,7 +4,6 @@ namespace WPGraphQL\Model;
 
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\DataSource;
 
 /**
  * Class Term - Models data for Terms
@@ -29,10 +28,10 @@ class Term extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var \WP_Term $term
+	 * @var \WP_Term $data
 	 * @access protected
 	 */
-	protected $term;
+	protected $data;
 
 	/**
 	 * Stores the taxonomy object for the term being modeled
@@ -52,9 +51,9 @@ class Term extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Term $term ) {
-		$this->term = $term;
+		$this->data = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
-		parent::__construct( $term );
+		parent::__construct();
 		$this->init();
 	}
 
@@ -69,44 +68,44 @@ class Term extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					return ( ! empty( $this->term->taxonomy ) && ! empty( $this->term->term_id ) ) ? Relay::toGlobalId( $this->term->taxonomy, $this->term->term_id ) : null;
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( $this->data->taxonomy, $this->data->term_id ) : null;
 				},
 				'term_id' => function() {
-					return ( ! empty( $this->term->term_id ) ) ? absint( $this->term->term_id ) : null;
+					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
 				'count' => function() {
-					return ! empty( $this->term->count ) ? absint( $this->term->count ) : null;
+					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'description' => function() {
-					return ! empty( $this->term->description ) ? $this->term->description : null;
+					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'name' => function() {
-					return ! empty( $this->term->name ) ? $this->term->name : null;
+					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
 				'slug' => function() {
-					return ! empty( $this->term->slug ) ? $this->term->slug : null;
+					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				},
 				'termGroupId' => function() {
-					return ! empty( $this->term->term_group ) ? absint( $this->term->term_group ) : null;
+					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
 				},
 				'termTaxonomyId' => function() {
-					return ! empty( $this->term->term_taxonomy_id ) ? absint( $this->term->term_taxonomy_id ) : null;
+					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
 				},
 				'taxonomyName' => function() {
 					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
 				},
 				'link' => function() {
-					$link = get_term_link( $this->term->term_id );
+					$link = get_term_link( $this->data->term_id );
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
 				'parentId' => function() {
-					return ! empty( $this->term->parent ) ? $this->term->parent : null;
+					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				}
 			];
 
 			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
 				$type_id                 = $this->taxonomy_object->graphql_single_name . 'Id';
-				$this->fields[ $type_id ] = absint( $this->term->term_id );
+				$this->fields[ $type_id ] = absint( $this->data->term_id );
 			};
 
 			parent::prepare_fields();

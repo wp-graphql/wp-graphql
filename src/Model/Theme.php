@@ -26,10 +26,10 @@ class Theme extends Model {
 	/**
 	 * Stores the incoming WP_Theme to be modeled
 	 *
-	 * @var \WP_Theme $theme
+	 * @var \WP_Theme $data
 	 * @access protected
 	 */
-	protected $theme;
+	protected $data;
 
 	/**
 	 * Theme constructor.
@@ -42,13 +42,13 @@ class Theme extends Model {
 	 */
 	public function __construct( \WP_Theme $theme ) {
 
-		$this->theme = $theme;
+		$this->data = $theme;
 
 		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( $this->theme );
+		parent::__construct();
 		$this->init();
 
 	}
@@ -99,40 +99,40 @@ class Theme extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					$stylesheet = $this->theme->get_stylesheet();
+					$stylesheet = $this->data->get_stylesheet();
 					return ( ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
 				},
 				'slug' => function() {
-					$stylesheet = $this->theme->get_stylesheet();
+					$stylesheet = $this->data->get_stylesheet();
 					return ! empty( $stylesheet ) ? $stylesheet : null;
 				},
 				'name' => function() {
-					$name = $this->theme->get( 'Name' );
+					$name = $this->data->get( 'Name' );
 					return ! empty( $name ) ? $name : null;
 				},
 				'screenshot' => function() {
-					$screenshot = $this->theme->get_screenshot();
+					$screenshot = $this->data->get_screenshot();
 					return ! empty( $screenshot ) ? $screenshot : null;
 				},
 				'themeUri' => function() {
-					$theme_uri = $this->theme->get( 'ThemeURI' );
+					$theme_uri = $this->data->get( 'ThemeURI' );
 					return ! empty( $theme_uri ) ? $theme_uri : null;
 				},
 				'description' => function() {
-					return ! empty( $this->theme->description ) ? $this->theme->description : null;
+					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'author' => function() {
-					return ! empty( $this->theme->author ) ? $this->theme->author : null;
+					return ! empty( $this->data->author ) ? $this->data->author : null;
 				},
 				'authorUri' => function() {
-					$author_uri = $this->theme->get( 'AuthorURI' );
+					$author_uri = $this->data->get( 'AuthorURI' );
 					return ! empty( $author_uri ) ? $author_uri : null;
 				},
 				'tags' => function() {
-					return ! empty( $this->theme->tags ) ? $this->theme->tags : null;
+					return ! empty( $this->data->tags ) ? $this->data->tags : null;
 				},
 				'version' => function() {
-					return ! empty( $this->theme->version ) ? $this->theme->version : null;
+					return ! empty( $this->data->version ) ? $this->data->version : null;
 				}
 			];
 

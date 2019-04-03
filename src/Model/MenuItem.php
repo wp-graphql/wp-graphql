@@ -24,10 +24,10 @@ class MenuItem extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var \WP_Post $post
+	 * @var \WP_Post $data
 	 * @access protected
 	 */
-	protected $post;
+	protected $data;
 
 	/**
 	 * MenuItem constructor.
@@ -39,8 +39,8 @@ class MenuItem extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post $post ) {
-		$this->post = wp_setup_nav_menu_item( $post );
-		parent::__construct( $post );
+		$this->data = wp_setup_nav_menu_item( $post );
+		parent::__construct();
 		$this->init();
 	}
 
@@ -55,37 +55,37 @@ class MenuItem extends Model {
 		if ( empty( $fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->post->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->post->ID ) : null;
+					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
 				'cassClasses' => function() {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
-					if ( ! isset( $this->post->classes ) || ! is_array( $this->post->classes ) || empty( $this->post->classes ) || empty( $this->post->classes[0] ) ) {
+					if ( ! isset( $this->data->classes ) || ! is_array( $this->data->classes ) || empty( $this->data->classes ) || empty( $this->data->classes[0] ) ) {
 						return [];
 					}
 
-					return $this->post->classes;
+					return $this->data->classes;
 				},
 				'description' => function() {
-					return ( ! empty( $this->post->description ) ) ? $this->post->description : null;
+					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
 				},
 				'label' => function() {
-					return ( ! empty( $this->post->title ) ) ? $this->post->title : null;
+					return ( ! empty( $this->data->title ) ) ? $this->data->title : null;
 				},
 				'linkRelationship' => function() {
-					return ! empty( $this->post->xfn ) ? $this->post->xfn : null;
+					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;
 				},
 				'menuItemId' => function() {
-					return absint( $this->post->ID );
+					return absint( $this->data->ID );
 				},
 				'target' => function() {
-					return ! empty( $this->post->target ) ? $this->post->target : null;
+					return ! empty( $this->data->target ) ? $this->data->target : null;
 				},
 				'title' => function() {
-					return ( ! empty( $this->post->attr_title ) ) ? $this->post->attr_title : null;
+					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
 				'url' => function() {
-					return ! empty( $this->post->url ) ? $this->post->url : null;
+					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
 			];
 

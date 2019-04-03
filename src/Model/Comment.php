@@ -31,10 +31,10 @@ class Comment extends Model {
 	/**
 	 * Stores the incoming WP_Comment object to be modeled
 	 *
-	 * @var \WP_Comment $comment
+	 * @var \WP_Comment $data
 	 * @access protected
 	 */
-	protected $comment;
+	protected $data;
 
 	/**
 	 * Comment constructor.
@@ -63,13 +63,13 @@ class Comment extends Model {
 			'isPublic',
 		];
 
-		$this->comment = $comment;
+		$this->data = $comment;
 
 		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( $comment, 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
+		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
 		$this->init();
 
 	}
@@ -108,60 +108,60 @@ class Comment extends Model {
 	protected function init() {
 
 		if ( 'private' === $this->get_visibility() ) {
-			$this->comment = null;
+			$this->data = null;
 			return;
 		}
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->comment->comment_ID ) ? Relay::toGlobalId( 'comment', $this->comment->comment_ID ) : null;
+					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
 				},
 				'commentId' => function() {
-					return ! empty( $this->comment->comment_ID ) ? $this->comment->comment_ID : 0;
+					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function() {
-					return ! empty( $this->comment->comment_author_email ) ? $this->comment->comment_author_email : 0;
+					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : 0;
 				},
 				'comment_ID' => function() {
-					return ! empty( $this->comment->comment_ID ) ? $this->comment->comment_ID : 0;
+					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'comment_post_ID' => function() {
-					return ! empty( $this->comment->comment_post_ID ) ? absint( $this->comment->comment_post_ID ) : null;
+					return ! empty( $this->data->comment_post_ID ) ? absint( $this->data->comment_post_ID ) : null;
 				},
 				'comment_parent_id' => function() {
-					return ! empty( $this->comment->comment_parent ) ? absint( $this->comment->comment_parent ) : 0;
+					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
 				},
 				'authorIp' => function() {
-					return ! empty( $this->comment->comment_author_IP ) ? $this->comment->comment_author_IP : null;
+					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
 				},
 				'date' => function() {
-					return ! empty( $this->comment->comment_date ) ? $this->comment->comment_date : null;
+					return ! empty( $this->data->comment_date ) ? $this->data->comment_date : null;
 				},
 				'dateGmt' => function() {
-					return ! empty( $this->comment->comment_date_gmt ) ? $this->comment->comment_date_gmt : null;
+					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
 				},
 				'contentRaw' => function() {
-					return ! empty( $this->comment->comment_content ) ? $this->comment->comment_content : null;
+					return ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 				},
 				'contentRendered' => function() {
-					$content = ! empty( $this->comment->comment_content ) ? $this->comment->comment_content : null;
+					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 					return apply_filters( 'comment_text', $content );
 				},
 				'karma' => function() {
-					return ! empty( $this->comment->comment_karma ) ? $this->comment->comment_karma : null;
+					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
 				},
 				'approved' => function() {
-					return ! empty( $this->comment->comment_approved ) ? $this->comment->comment_approved : null;
+					return ! empty( $this->data->comment_approved ) ? $this->data->comment_approved : null;
 				},
 				'agent' => function() {
-					return ! empty( $this->comment->comment_agent ) ? $this->comment->comment_agent : null;
+					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
 				},
 				'type' => function() {
-					return ! empty( $this->comment->comment_type ) ? $this->comment->comment_type : null;
+					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;
 				},
 				'userId' => function() {
-					return ! empty( $this->comment->user_id ) ? $this->comment->user_id : null;
+					return ! empty( $this->data->user_id ) ? $this->data->user_id : null;
 				}
 			];
 

@@ -19,10 +19,10 @@ class UserRole extends Model {
 	/**
 	 * Stores the incoming user role to be modeled
 	 *
-	 * @var array $user_role
+	 * @var array $data
 	 * @access protected
 	 */
-	protected $user_role;
+	protected $data;
 
 	/**
 	 * UserRole constructor.
@@ -34,13 +34,13 @@ class UserRole extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( $user_role ) {
-		$this->user_role = $user_role;
+		$this->data = $user_role;
 
 		if ( ! has_filter( 'graphql_data_is_private', [ $this, 'is_private' ] ) ) {
 			add_filter( 'graphql_data_is_private', [ $this, 'is_private' ], 1, 3 );
 		}
 
-		parent::__construct( $user_role );
+		parent::__construct();
 		$this->init();
 	}
 
@@ -88,17 +88,17 @@ class UserRole extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
-					$id = Relay::toGlobalId( 'role', $this->user_role['id'] );
+					$id = Relay::toGlobalId( 'role', $this->data['id'] );
 					return $id;
 				},
 				'name' => function() {
-					return ! empty( $this->user_role['name'] ) ? esc_html( $this->user_role['name'] ) : null;
+					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
 				},
 				'capabilities' => function() {
-					if ( empty( $this->user_role['capabilities'] ) || ! is_array( $this->user_role['capabilities'] ) ) {
+					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
 						return null;
 					} else {
-						return array_keys( $this->user_role['capabilities'] );
+						return array_keys( $this->data['capabilities'] );
 					}
 				}
 			];
