@@ -99,11 +99,11 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 
 		$mutation = '
-		mutation createCommentTest( $clientMutationId:String!, $postId:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
+		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
 		  createComment( 
 		    input: {
 		      clientMutationId: $clientMutationId
-		      postId: $postId
+		      commentOn: $commentOn
               content: $content
               author: $author
               authorEmail: $email
@@ -121,7 +121,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		';
 		$variables = wp_json_encode( [
 			'clientMutationId' => $this->client_mutation_id,
-			'postId'           => $post_id,
+			'commentOn'        => $post_id,
 			'content'          => $this->content,
 			'author'           => 'Comment Author',
 			'email'            => 'subscriber@example.com',
@@ -366,5 +366,71 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Compare the actual output vs the expected output
 		 */
 		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Make sure that we can't leave a comment if we are not logged in and the comment registration flag is set
+	 */
+	public function testCantCreateCommentNotLoggedIn() {
+
+		$args = [
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title',
+			'post_content' => 'Original Content',
+		];
+
+		/**
+		 * Set the flag so that only registered users can create comments
+		 */
+		update_option( 'comment_registration', '1' );
+
+		/**
+		 * Create a page to test against
+		 */
+		$post_id = $this->factory()->post->create( $args );
+
+		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+
+		$this->assertEquals( $new_post->comment_count, '0' );
+		$this->assertEquals( $new_post->post_type, 'post' );
+		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_content, 'Original Content' );
+
+		$mutation = '
+		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
+		  createComment( 
+		    input: {
+		      clientMutationId: $clientMutationId
+		      commentOn: $commentOn
+              content: $content
+              author: $author
+              authorEmail: $email
+              authorIp: $ip
+		    }
+          )
+          {
+		    clientMutationId
+		    comment {
+              content
+              authorIp
+		    }
+          }
+        }
+		';
+		$variables = wp_json_encode( [
+			'clientMutationId' => $this->client_mutation_id,
+			'commentOn'        => $post_id,
+			'content'          => $this->content,
+			'author'           => 'Comment Author',
+			'email'            => 'subscriber@example.com',
+			'ip'               => ':1',
+		] );
+
+		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
+
+		$this->assertNotEmpty( $actual['errors'] );
+		$this->assertEmpty( $actual['data']['createComment'] );
+
 	}
 }
