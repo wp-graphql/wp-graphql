@@ -65,7 +65,6 @@ class Comment extends Model {
 
 		$this->data = $comment;
 		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
-		$this->init();
 
 	}
 
@@ -93,12 +92,8 @@ class Comment extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			$this->data = null;
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
@@ -150,8 +145,6 @@ class Comment extends Model {
 					return ! empty( $this->data->user_id ) ? $this->data->user_id : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 

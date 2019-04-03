@@ -36,7 +36,6 @@ class CommentAuthor extends Model {
 	public function __construct( $comment_author ) {
 		$this->data = $comment_author;
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
@@ -46,10 +45,6 @@ class CommentAuthor extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
 
 		if ( empty( $this->fields ) ) {
 
@@ -67,8 +62,6 @@ class CommentAuthor extends Model {
 					return ! empty( $this->data['comment_author_url'] ) ? $this->data['comment_author_url'] : '';
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

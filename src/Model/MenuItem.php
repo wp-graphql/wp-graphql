@@ -41,18 +41,18 @@ class MenuItem extends Model {
 	public function __construct( \WP_Post $post ) {
 		$this->data = wp_setup_nav_menu_item( $post );
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
 	 * Initialize the Post object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
+	protected function init() {
 
 		if ( empty( $fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
@@ -88,8 +88,6 @@ class MenuItem extends Model {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
 			];
-
-			parent::prepare_fields();
 
 		}
 

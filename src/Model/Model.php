@@ -97,6 +97,13 @@ abstract class Model {
 		$this->owner = $owner;
 		$this->current_user = wp_get_current_user();
 
+		if ( 'private' === $this->get_visibility() ) {
+			return;
+		}
+
+		$this->init();
+		self::prepare_fields();
+
 	}
 
 	/**
@@ -457,5 +464,7 @@ abstract class Model {
 		}
 
 	}
+
+	abstract protected function init();
 
 }

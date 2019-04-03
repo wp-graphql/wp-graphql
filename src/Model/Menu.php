@@ -38,18 +38,18 @@ class Menu extends Model {
 	public function __construct( \WP_Term $term ) {
 		$this->data = $term;
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
 	 * Initializes the Menu object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
+	protected function init() {
 
 		if ( empty( $this->fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
 					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'Menu', $this->data->term_id ) : null;
@@ -67,8 +67,6 @@ class Menu extends Model {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 

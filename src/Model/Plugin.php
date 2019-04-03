@@ -37,11 +37,8 @@ class Plugin extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( $plugin ) {
-
 		$this->data = $plugin;
 		parent::__construct();
-		$this->init();
-
 	}
 
 	/**
@@ -68,10 +65,6 @@ class Plugin extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
@@ -97,8 +90,6 @@ class Plugin extends Model {
 					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

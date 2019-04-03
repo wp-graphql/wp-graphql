@@ -39,7 +39,6 @@ class Avatar extends Model {
 	public function __construct( $avatar ) {
 		$this->data = $avatar;
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
@@ -49,10 +48,6 @@ class Avatar extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
 
 		if ( empty( $this->fields ) ) {
 
@@ -88,8 +83,6 @@ class Avatar extends Model {
 					return ! empty( $this->data['url'] ) ? $this->data['url'] : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

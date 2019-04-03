@@ -55,6 +55,7 @@ class PostType extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
+
 		$this->data = $post_type;
 
 		$allowed_restricted_fields = [
@@ -72,7 +73,7 @@ class PostType extends Model {
 		];
 
 		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
-		$this->init();
+
 	}
 
 	/**
@@ -98,10 +99,6 @@ class PostType extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
 
 		if ( empty( $this->fields ) ) {
 
@@ -189,8 +186,6 @@ class PostType extends Model {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

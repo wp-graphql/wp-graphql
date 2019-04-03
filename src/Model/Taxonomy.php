@@ -69,7 +69,6 @@ class Taxonomy extends Model {
 		];
 
 		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields  );
-		$this->init();
 
 	}
 
@@ -96,10 +95,6 @@ class Taxonomy extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
 
 		if ( empty( $this->fields ) ) {
 
@@ -168,8 +163,6 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

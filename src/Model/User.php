@@ -68,21 +68,16 @@ class User extends Model {
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
-		$this->init();
 
 	}
 
 	/**
 	 * Initialize the User object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
-
-		if ( 'private' === $this->get_visibility() || is_null( $this->data ) ) {
-			return null;
-		}
+	protected function init() {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
@@ -153,8 +148,6 @@ class User extends Model {
 				},
 				'userId' => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 			];
-
-			parent::prepare_fields();
 
 		}
 

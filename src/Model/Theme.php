@@ -43,7 +43,6 @@ class Theme extends Model {
 	public function __construct( \WP_Theme $theme ) {
 		$this->data = $theme;
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
@@ -74,11 +73,8 @@ class Theme extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
 					$stylesheet = $this->data->get_stylesheet();
@@ -117,8 +113,6 @@ class Theme extends Model {
 					return ! empty( $this->data->version ) ? $this->data->version : null;
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

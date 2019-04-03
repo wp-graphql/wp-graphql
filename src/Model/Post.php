@@ -123,7 +123,6 @@ class Post extends Model {
 		}
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, $post->post_author );
-		$this->init();
 
 	}
 
@@ -238,14 +237,10 @@ class Post extends Model {
 	/**
 	 * Initialize the Post object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
-
-		if ( 'private' === parent::get_visibility() ) {
-			return null;
-		}
+	protected function init() {
 
 		if ( empty( $this->fields ) ) {
 
@@ -457,8 +452,6 @@ class Post extends Model {
 					return absint( $this->data->ID );
 				};
 			};
-
-			parent::prepare_fields();
 
 		}
 

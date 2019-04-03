@@ -36,7 +36,6 @@ class UserRole extends Model {
 	public function __construct( $user_role ) {
 		$this->data = $user_role;
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
@@ -67,10 +66,6 @@ class UserRole extends Model {
 	 */
 	protected function init() {
 
-		if ( 'private' === $this->get_visibility() ) {
-			return;
-		}
-
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function() {
@@ -88,8 +83,6 @@ class UserRole extends Model {
 					}
 				}
 			];
-
-			parent::prepare_fields();
 
 		}
 	}

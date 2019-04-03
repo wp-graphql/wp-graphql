@@ -54,18 +54,18 @@ class Term extends Model {
 		$this->data = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
 		parent::__construct();
-		$this->init();
 	}
 
 	/**
 	 * Initializes the Term object
 	 *
-	 * @access public
+	 * @access protected
 	 * @return void
 	 */
-	public function init() {
+	protected function init() {
 
 		if ( empty( $this->fields ) ) {
+
 			$this->fields = [
 				'id' => function() {
 					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( $this->data->taxonomy, $this->data->term_id ) : null;
@@ -107,8 +107,6 @@ class Term extends Model {
 				$type_id                 = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->data->term_id );
 			};
-
-			parent::prepare_fields();
 
 		}
 
