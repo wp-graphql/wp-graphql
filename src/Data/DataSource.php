@@ -21,6 +21,7 @@ use WPGraphQL\Model\CommentAuthor;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
+use WPGraphQL\Model\Taxonomy;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
@@ -283,7 +284,7 @@ class DataSource {
 	 *
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
-	 * @return \WP_Taxonomy object
+	 * @return Taxonomy object
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @access public
@@ -299,7 +300,7 @@ class DataSource {
 		 * If the $post_type is one of the allowed_post_types
 		 */
 		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
-			return get_taxonomy( $taxonomy );
+			return new Taxonomy( get_taxonomy( $taxonomy ) );
 		} else {
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
@@ -746,7 +747,7 @@ class DataSource {
 							case $node instanceof PostType:
 								$type = 'PostType';
 								break;
-							case $node instanceof \WP_Taxonomy:
+							case $node instanceof Taxonomy:
 								$type = 'Taxonomy';
 								break;
 							case $node instanceof Theme:

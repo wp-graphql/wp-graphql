@@ -251,6 +251,7 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
         'WPGraphQL\\Model\\Plugin' => __DIR__ . '/../..' . '/src/Model/Plugin.php',
         'WPGraphQL\\Model\\Post' => __DIR__ . '/../..' . '/src/Model/Post.php',
         'WPGraphQL\\Model\\PostType' => __DIR__ . '/../..' . '/src/Model/PostType.php',
+        'WPGraphQL\\Model\\Taxonomy' => __DIR__ . '/../..' . '/src/Model/Taxonomy.php',
         'WPGraphQL\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php',
         'WPGraphQL\\Model\\Theme' => __DIR__ . '/../..' . '/src/Model/Theme.php',
         'WPGraphQL\\Model\\User' => __DIR__ . '/../..' . '/src/Model/User.php',

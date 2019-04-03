@@ -228,6 +228,7 @@ return array(
     'WPGraphQL\\Model\\Plugin' => $baseDir . '/src/Model/Plugin.php',
     'WPGraphQL\\Model\\Post' => $baseDir . '/src/Model/Post.php',
     'WPGraphQL\\Model\\PostType' => $baseDir . '/src/Model/PostType.php',
+    'WPGraphQL\\Model\\Taxonomy' => $baseDir . '/src/Model/Taxonomy.php',
     'WPGraphQL\\Model\\Term' => $baseDir . '/src/Model/Term.php',
     'WPGraphQL\\Model\\Theme' => $baseDir . '/src/Model/Theme.php',
     'WPGraphQL\\Model\\User' => $baseDir . '/src/Model/User.php',
