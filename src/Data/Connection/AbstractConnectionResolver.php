@@ -53,6 +53,13 @@ abstract class AbstractConnectionResolver {
 	protected $query_args;
 
 	/**
+	 * Whether the connection resolver should execute
+	 *
+	 * @var bool
+	 */
+	protected $should_execute = true;
+
+	/**
 	 * The Query class/array/object used to fetch the data.
 	 *
 	 * Examples:
@@ -153,8 +160,8 @@ abstract class AbstractConnectionResolver {
 		 * @param bool                       $should_execute Whether the connection should execute
 		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
 		 */
-		$should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
-		if ( ! $should_execute ) {
+		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
+		if ( false === $this->should_execute ) {
 			return [];
 		}
 

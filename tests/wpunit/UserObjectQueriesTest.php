@@ -686,9 +686,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    lastName
 				    url
 				    description
-				    isPublic
 				    isRestricted
-				    isPrivate
 				  }
 				}
 			}
@@ -709,9 +707,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'lastName' => $user_2['last_name'],
 								'url' => $user_2['user_url'],
 								'description' => $user_2['description'],
-								'isPublic' => true,
 								'isRestricted' => false,
-								'isPrivate' => false,
 							],
 						],
 						[
@@ -723,9 +719,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'lastName' => $user_2['last_name'],
 								'url' => null,
 								'description' => $user_1['description'],
-								'isPublic' => false,
 								'isRestricted' => true,
-								'isPrivate' => false,
 							],
 						],
 					],

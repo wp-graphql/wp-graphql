@@ -55,6 +55,10 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 					return DataSource::resolve_taxonomy( $source->taxonomyName );
 				}
 			],
+			'isRestricted' => [
+				'type' => 'Boolean',
+				'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+			],
 			'link'              => [
 				'type'        => 'String',
 				'description' => __( 'The link to the term', 'wp-graphql' ),

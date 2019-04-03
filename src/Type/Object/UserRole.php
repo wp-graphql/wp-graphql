@@ -20,6 +20,10 @@ register_graphql_object_type( 'UserRole', [
 				'list_of' => 'String'
 			],
 			'description' => __( 'The capabilities that belong to this role', 'wp-graphql' ),
-		]
+		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	]
 ] );

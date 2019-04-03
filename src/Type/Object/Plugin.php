@@ -34,6 +34,10 @@ register_graphql_object_type( 'Plugin', [
 			'type'        => 'String',
 			'description' => __( 'Current version of the plugin.', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	],
 	'interfaces'  => [ WPObjectType::node_interface() ],
 ] );

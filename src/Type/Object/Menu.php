@@ -29,5 +29,9 @@ register_graphql_object_type( 'Menu', [
 			'type'        => 'String',
 			'description' => esc_html__( 'The url friendly name of the menu. Equivalent to WP_Term->slug', 'wp-graphql' ),
 		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+		],
 	]
 ] );

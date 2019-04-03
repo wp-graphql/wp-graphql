@@ -82,16 +82,8 @@ register_graphql_type( 'User', [
 			'description' => __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' ),
 		],
 		'isRestricted' => [
-			'type' => 'Bool',
-			'description' => __( 'Whether or not the user is restricted', 'wp-graphql' ),
-		],
-		'isPublic' => [
-			'type' => 'Bool',
-			'description' => __( 'Whether or not the user is public', 'wp-graphql' ),
-		],
-		'isPrivate' => [
-			'type' => 'Bool',
-			'description' => __( 'Whether or not the user is private', 'wp-graphql' ),
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 		],
 		'avatar'            => [
 			'type'        => 'Avatar',
