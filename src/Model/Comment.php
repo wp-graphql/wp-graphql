@@ -71,10 +71,10 @@ class Comment extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access public
+	 * @access protected
 	 * @return bool
 	 */
-	public function is_private() {
+	protected function is_private() {
 
 		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
 			return true;

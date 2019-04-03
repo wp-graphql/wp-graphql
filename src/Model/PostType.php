@@ -79,10 +79,10 @@ class PostType extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access public
+	 * @access protected
 	 * @return bool
 	 */
-	public function is_private() {
+	protected function is_private() {
 
 		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_posts ) ) {
 			return true;

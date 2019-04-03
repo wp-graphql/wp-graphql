@@ -249,7 +249,7 @@ abstract class Model {
 	 * @access protected
 	 * @return bool
 	 */
-	 public function is_private() {
+	 protected function is_private() {
 	 	return false;
 	 }
 

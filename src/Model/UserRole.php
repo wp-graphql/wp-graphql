@@ -41,10 +41,10 @@ class UserRole extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access public
+	 * @access protected
 	 * @return bool
 	 */
-	public function is_private() {
+	protected function is_private() {
 
 		if ( current_user_can( 'list_users' ) ) {
 			return false;

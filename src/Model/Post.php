@@ -159,10 +159,10 @@ class Post extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access public
+	 * @access protected
 	 * @return bool
 	 */
-	public function is_private() {
+	protected function is_private() {
 
 		/**
 		 * Media Items (attachments) are all public. Once uploaded to the media library
