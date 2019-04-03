@@ -29,7 +29,7 @@ class CommentCreate {
         return [
             'commentOn'      => [
                 'type'        => 'Int',
-                'description' => __( 'The ID of the post the comment belongs to.', 'wp-graphql' ),
+                'description' => __( 'The ID of the post object the comment belongs to.', 'wp-graphql' ),
             ],
             'userId'      => [
                 'type'        => 'Int',
