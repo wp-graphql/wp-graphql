@@ -393,25 +393,26 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$mutation  = '
 		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
-		  createComment( 
+		  createComment(
 		    input: {
 		      clientMutationId: $clientMutationId
 		      commentOn: $commentOn
-              content: $content
-              author: $author
-              authorEmail: $email
-              authorIp: $ip
+		      content: $content
+		      author: $author
+		      authorEmail: $email
+		      authorIp: $ip
 		    }
-          )
-          {
+		  )
+		  {
 		    clientMutationId
 		    comment {
-              content
-              authorIp
+		      content
+		      authorIp
 		    }
-          }
-        }
+		  }
+		}
 		';
+
 		$variables = wp_json_encode( [
 			'clientMutationId' => $this->client_mutation_id,
 			'commentOn'        => $post_id,
