@@ -27,7 +27,7 @@ class CommentCreate {
      */
     public static function get_input_fields() {
         return [
-            'postId'      => [
+            'commentOn'      => [
                 'type'        => 'Int',
                 'description' => __( 'The ID of the post the comment belongs to.', 'wp-graphql' ),
             ],
@@ -116,8 +116,12 @@ class CommentCreate {
             /**
              * Stop if post not open to comments
              */
-            if ( empty( $input['postId'] ) || get_post( $input['postId'] )->post_status === 'closed' ) {
+            if ( empty( $input['commentOn'] ) || get_post( $input['commentOn'] )->post_status === 'closed' ) {
                 throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
+            }
+
+            if ( '1' === get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+				throw new UserError( __( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
             }
 
             /**
