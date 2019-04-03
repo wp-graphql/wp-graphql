@@ -90,10 +90,8 @@ abstract class Model {
 	 */
 	protected function __construct( $data, $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 
-		$name = $this->get_model_name();
-
 		if ( empty( $data ) ) {
-			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $name ) );
+			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
 		}
 
 		$this->data = $data;
@@ -198,7 +196,7 @@ abstract class Model {
 			 *
 			 * @return string
 			 */
-			$protected_cap = apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+			$protected_cap = apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			/**
 			 * Filter to determine if the data should be considered private or not
@@ -211,7 +209,7 @@ abstract class Model {
 			 *
 			 * @return bool
 			 */
-			$is_private = apply_filters( 'graphql_data_is_private', false, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+			$is_private = apply_filters( 'graphql_data_is_private', false, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			if ( true === $is_private ) {
 				$this->visibility = 'private';
@@ -236,7 +234,7 @@ abstract class Model {
 		 *
 		 * @return string
 		 */
-		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->model_name, $this->data, $this->owner, $this->current_user );
+		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
 
 	}
 
@@ -274,7 +272,7 @@ abstract class Model {
 			 *
 			 * @return array
 			 */
-			apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user )
+			apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
 		) );
 	}
 
@@ -311,7 +309,7 @@ abstract class Model {
 					 *
 					 * @return string
 					 */
-					$cap_check = ( ! empty( $data['capability'] ) ) ? apply_filters( 'graphql_model_field_capability', $data['capability'], $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user ) : '';
+					$cap_check = ( ! empty( $data['capability'] ) ) ? apply_filters( 'graphql_model_field_capability', $data['capability'], $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user ) : '';
 					if ( ! empty( $cap_check ) ) {
 						if ( ! current_user_can( $data['capability'] ) ) {
 							$callback = null;
@@ -335,7 +333,7 @@ abstract class Model {
 				 *
 				 * @return null|callable|int|string|array|mixed
 				 */
-				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				if ( ! is_null( $pre ) ) {
 					$result = $pre;
@@ -359,7 +357,7 @@ abstract class Model {
 					 *
 					 * @return mixed
 					 */
-					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 				}
 
 				/**
@@ -373,7 +371,7 @@ abstract class Model {
 				 * @param null|int $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
 				 */
-				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->model_name, $this->data, $this->visibility, $this->owner, $this->current_user );
+				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				return $result;
 			};
@@ -422,7 +420,7 @@ abstract class Model {
 		 *
 		 * @return array
 		 */
-		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->model_name, $this->visibility, $this->owner, $this->current_user );
+		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user );
 		$this->wrap_fields();
 		$this->add_model_visibility();
 
