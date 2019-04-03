@@ -389,7 +389,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$comment_id = $this->factory->comment->create( $comment_args );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_args['comment_author_email'] );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id );
 
 		$query = "
 		query {

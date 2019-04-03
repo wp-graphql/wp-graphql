@@ -91,7 +91,7 @@ class Comment extends Model {
 			return $private;
 		}
 
-		if ( ! $data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
+		if ( true != $data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
 

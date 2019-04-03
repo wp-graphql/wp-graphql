@@ -55,7 +55,7 @@ class CommentAuthor extends Model {
 
 			$this->fields = [
 				'id' => function() {
-					return ! empty( $this->comment_author['comment_author_email'] ) ? Relay::toGlobalId( 'commentAuthor', $this->comment_author['comment_author_email'] ) : null;
+					return ! empty( $this->comment_author['comment_id'] ) ? Relay::toGlobalId( 'commentAuthor', $this->comment_author['comment_id'] ) : null;
 				},
 				'name' => function() {
 					return ! empty( $this->comment_author['comment_author'] ) ? $this->comment_author['comment_author'] : null;

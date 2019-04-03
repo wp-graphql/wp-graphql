@@ -1613,7 +1613,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$expected['data']['post']['author'] = null;
 		}
 
-		$this->assertEquals( $expected, $actual );
+		/**
+		 * If the status is not "publish" and the user is a subscriber, the Post is considered
+		 * private, so trying to fetch a private post by ID will return an error
+		 */
+		if ( 'publish' !== $status && ! current_user_can( get_post_type_object( get_post( $post_id )->post_type )->cap->edit_posts ) ) {
+			$this->assertArrayHasKey( 'errors', $actual );
+		} else {
+			$this->assertEquals( $expected, $actual );
+		}
+
 
 	}
 
