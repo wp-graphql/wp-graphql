@@ -572,9 +572,8 @@ class TypeRegistry {
 		$resolve_connection      = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
 		};
-		$connection_name         = self::get_connection_name( $from_type, $to_type );
+		$connection_name         = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : self::get_connection_name( $from_type, $to_type );
 		$where_args              = [];
-		$connection_field_config = ! empty( $config['connectionFieldConfig'] ) && is_array( $config['connectionFieldConfig'] ) ? $config['connectionFieldConfig'] : [];
 
 		/**
 		 * If there are any $connectionArgs,
