@@ -703,7 +703,7 @@ class DataSource {
 								 *
 								 * @since 0.0.6
 								 */
-								$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'] );
+								$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'], $context );
 								break;
 
 						}
