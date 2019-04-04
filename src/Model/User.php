@@ -72,6 +72,22 @@ class User extends Model {
 	}
 
 	/**
+	 * Method for determining if the data should be considered private or not
+	 *
+	 * @access protected
+	 * @return bool
+	 */
+	protected function is_private() {
+
+		if ( ! current_user_can( 'list_users' ) && '0' === count_user_posts( absint( $this->data->ID ), [], true ) ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+	/**
 	 * Initialize the User object
 	 *
 	 * @access protected
