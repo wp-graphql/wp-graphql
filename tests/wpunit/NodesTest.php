@@ -295,9 +295,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testUserNodeQuery
 	 *
+	 * @dataProvider dataProviderUserNode
+	 *
+	 * @param bool $has_posts whether or not the user has published posts
+	 *
 	 * @since 0.0.5
 	 */
-	public function testUserNodeQuery() {
+	public function testUserNodeQuery( $has_posts, $user, $private ) {
 
 		$user_args = array(
 			'role'       => 'editor',
@@ -305,6 +309,30 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$user_id = $this->factory->user->create( $user_args );
+
+		if ( true === $has_posts ) {
+			$this->factory()->post->create( [
+				'post_author' => $user_id,
+			] );
+		}
+
+		if ( ! empty( $user ) ) {
+
+			switch ( $user ) {
+				case 'admin':
+					$current_user = $this->admin;
+					break;
+				case 'owner':
+					$current_user = $user_id;
+					break;
+				default:
+					$current_user = 0;
+					break;
+			}
+
+			wp_set_current_user( $current_user );
+
+		}
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 		$query     = "
@@ -328,7 +356,36 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		if ( true === $private ) {
+			$expected['data']['node']['userId'] = null;
+		}
+
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function dataProviderUserNode() {
+		return [
+			[
+				'has_posts' => true,
+				'user' => '',
+				'private' => false,
+			],
+			[
+				'has_posts' => false,
+				'user' => '',
+				'private' => true,
+			],
+			[
+				'has_posts' => false,
+				'user' => 'admin',
+				'private' => false,
+			],
+			[
+				'has_posts' => false,
+				'user' => 'owner',
+				'private' => false,
+			]
+		];
 	}
 
 	/**

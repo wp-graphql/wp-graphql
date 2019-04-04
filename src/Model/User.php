@@ -72,6 +72,22 @@ class User extends Model {
 	}
 
 	/**
+	 * Method for determining if the data should be considered private or not
+	 *
+	 * @access protected
+	 * @return bool
+	 */
+	protected function is_private() {
+
+		if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) && ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+	/**
 	 * Initialize the User object
 	 *
 	 * @access protected
