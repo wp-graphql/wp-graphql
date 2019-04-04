@@ -28,6 +28,10 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'role' => 'author',
 		] );
 
+		$this->factory()->post->create( [
+			'post_author' => $this->author,
+		] );
+
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
@@ -856,7 +860,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSendPasswordResetEmailResponseWithUsername() {
-		$user     = get_userdata( $this->subscriber );
+		$user     = get_userdata( $this->author );
 		$username = $user->user_login;
 		// Run the mutation, passing in a valid username.
 		$actual   = $this->sendPasswordResetEmailMutation( $username );
@@ -868,7 +872,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSendPasswordResetEmailResponseWithEmail() {
-		$user  = get_userdata( $this->subscriber );
+		$user  = get_userdata( $this->author );
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
 		$actual   = $this->sendPasswordResetEmailMutation( $email );
@@ -880,7 +884,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function getSendPasswordResetEmailExpected() {
-		$user     = get_userdata( $this->subscriber );
+		$user     = get_userdata( $this->author );
 
 		return [
 			'data' => [

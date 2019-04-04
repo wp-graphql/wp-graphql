@@ -672,6 +672,16 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$user_1_id = $this->createUserObject( $user_1 );
 		$user_2_id = $this->createUserObject( $user_2 );
 
+		/**
+		 * Create posts for users so they are only restricted instead of private
+		 */
+		$this->factory()->post->create([
+			'post_author' => $user_1_id,
+		]);
+		$this->factory()->post->create([
+			'post_author' => $user_2_id,
+		]);
+
 		wp_set_current_user( $user_2_id );
 
 		$query = '
@@ -807,6 +817,17 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
 		$this->assertCount( 1, $actual['data']['users']['edges'] );
 
+	}
+
+	public function dataProviderUserHasPosts() {
+		return [
+			[
+				'has_posts' => true,
+			],
+			[
+				'has_posts' => false,
+			]
+		];
 	}
 
 }

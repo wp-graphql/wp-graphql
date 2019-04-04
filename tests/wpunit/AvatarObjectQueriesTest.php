@@ -11,6 +11,11 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'role'       => 'admin',
 			'user_email' => 'test@test.com'
 		] );
+
+		// Create a published post for the author so it is public in the API.
+		$this->factory()->post->create( [
+			'post_author' => $this->admin,
+		]);
 	}
 
 	public function tearDown() {
