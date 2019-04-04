@@ -79,7 +79,7 @@ class User extends Model {
 	 */
 	protected function is_private() {
 
-		if ( ! current_user_can( 'list_users' ) && '0' === count_user_posts( absint( $this->data->ID ), [], true ) ) {
+		if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) && ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
 			return true;
 		}
 
