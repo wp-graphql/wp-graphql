@@ -106,6 +106,16 @@ class UserRegister {
                 throw new UserError( __( 'The user failed to create', 'wp-graphql' ) );
             }
 
+	        /**
+	         * If the client isn't already authenticated, set the state in the current session to
+	         * the user they just registered. This is mostly so that they can get a response from
+	         * the mutation about the user they just registered after the user object passes
+	         * through the user model.
+	         */
+            if ( ! is_user_logged_in() ) {
+	            wp_set_current_user( $user_id );
+            }
+
             /**
              * Set the ID of the user to be used in the update
              */
