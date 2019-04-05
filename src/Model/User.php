@@ -79,8 +79,18 @@ class User extends Model {
 	 */
 	protected function is_private() {
 
-		if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) && ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
-			return true;
+		if ( ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
+
+			/**
+			 * @todo: We should handle this check in a Deferred resolver. Right now it queries once per user
+			 *      but we _could_ query once for _all_ users.
+			 *
+			 *      For now, we only query if the current user doesn't have list_users, instead of querying
+			 *      for ALL users. Slightly more efficient for authenticated users at least.
+			 */
+			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) ) {
+				return true;
+			}
 		}
 
 		return false;
