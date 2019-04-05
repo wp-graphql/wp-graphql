@@ -70,8 +70,8 @@ class CommentMutation {
 			}
 		}
 
-		if ( ! empty( $input['postId'] ) ) {
-			$output_args['comment_post_ID'] = $input['postId'];
+		if ( ! empty( $input['commentOn'] ) ) {
+			$output_args['comment_post_ID'] = $input['commentOn'];
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {

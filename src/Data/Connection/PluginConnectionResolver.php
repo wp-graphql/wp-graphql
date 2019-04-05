@@ -1,9 +1,10 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
@@ -24,6 +25,7 @@ class PluginConnectionResolver {
 	 * @since  0.5.0
 	 * @return array
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
@@ -34,7 +36,10 @@ class PluginConnectionResolver {
 		$plugins_array = [];
 		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
 			foreach ( $plugins as $plugin ) {
-				$plugins_array[] = $plugin;
+				$plugin_object = DataSource::resolve_plugin( $plugin );
+				if ( 'private' !== $plugin_object->get_visibility() ) {
+					$plugins_array[] = $plugin_object;
+				}
 			}
 		}
 

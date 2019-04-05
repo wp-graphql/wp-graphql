@@ -109,6 +109,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results        = $this->commentsQuery( $variables );
+
 		$comments_query = new WP_Comment_Query;
 		$comments       = $comments_query->query( [
 			'comment_status' => 'approved',

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type;
 
+use GraphQL\Deferred;
 use WPGraphQL\Data\DataSource;
 
 register_graphql_object_type( 'EditLock', [
@@ -21,8 +22,10 @@ register_graphql_object_type( 'EditLock', [
 			'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
 			'resolve'     => function( $edit_lock, array $args, $context, $info ) {
 				$user_id = ( is_array( $edit_lock ) && ! empty( $edit_lock[1] ) ) ? $edit_lock[1] : null;
-
-				return ! empty( $user_id ) ? DataSource::resolve_user( $user_id ) : null;
+				if ( empty( $user_id ) || ! absint( $user_id ) ) {
+					return null;
+				}
+				return DataSource::resolve_user( $user_id, $context );
 			},
 		],
 	],

@@ -6,6 +6,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date;
 	public $current_date_gmt;
 	public $admin;
+	public $contributor;
 
 	public function setUp() {
 		// before
@@ -16,6 +17,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
+		] );
+		$this->contributor = $this->factory()->user->create( [
+			'role' => 'contributor',
 		] );
 
 		add_shortcode( 'wpgql_test_shortcode', function ( $attrs, $content = null ) {
@@ -286,30 +290,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
-		 * Establish the expectation for the output of the query
+		 * There should be an internal server error when requesting a non-existent post
 		 */
-		$expected = [
-			'data'   => [
-				'post' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'No post was found with the ID: doesNotExist',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
-					],
-					'path'      => [
-						'post',
-					],
-					'category'  => 'user',
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
@@ -440,6 +423,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type' => 'post',
+			'post_status' => 'publish'
 		] );
 
 		// Create a comment and assign it to post.
@@ -776,11 +760,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostQueryWithCategories() {
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create a post
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+			'post_title' => 'test post',
 		] );
 
 		// Create a comment and assign it to post.
@@ -788,7 +777,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'name' => 'A category',
 		] );
 
-		wp_set_object_terms( $post_id, $category_id, 'category' );
+		wp_set_object_terms( $post_id, $category_id, 'category', false );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -818,6 +807,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -838,6 +828,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
+
+
 
 		$this->assertEquals( $expected, $actual );
 	}
@@ -1014,9 +1006,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPageByQueries() {
 
+		wp_set_current_user( $this->admin );
+
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'page',
 			'post_title' => 'Page Dawg',
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 
 		$path      = get_page_uri( $post_id );
@@ -1237,6 +1233,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the same query but request the fields in raw form.
 		 */
+		wp_set_current_user( $this->admin );
 		$graphql_query = "
 		query {
 			post(id: \"{$global_id}\") {
@@ -1535,6 +1532,130 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Asset that the query has been reset to the main query.
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
+
+	}
+
+	/**
+	 * Test restricted posts returned on certain statuses
+	 * @dataProvider dataProviderRestrictedPosts
+	 */
+	public function testRestrictedPosts( $status, $author, $user, $restricted ) {
+
+		if ( ! empty( $author ) ) {
+			$author = $this->{$author};
+		}
+		if ( ! empty( $user ) ) {
+			$user = $this->{$user};
+		}
+
+		$title = 'Content from author: ' . (string)$author;
+		$content = 'Test Content';
+		$post_date = time();
+
+		if ( 'future' === $status ) {
+			$post_date = $post_date + 600;
+		}
+
+		$post_date = date( 'Y-m-d H:i:s', $post_date );
+		$post_id = $this->factory()->post->create( [
+			'post_status' => $status,
+			'post_author' => $author,
+			'post_title' => $title,
+			'post_content' => $content,
+			'post_date' => $post_date,
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		/**
+		 * Create the GraphQL query.
+		 */
+		$graphql_query = "
+		query {
+			post(id: \"{$global_id}\") {
+				id
+				title
+				status
+				author{
+					userId
+				}
+				content
+			}
+		}";
+
+		wp_set_current_user( $user );
+
+		$actual = do_graphql_request( $graphql_query );
+
+		$expected = [
+			'data' => [
+				'post' => [
+					'id' => $global_id,
+					'title' => $title,
+					'status' => $status,
+					'author' => [
+						'userId' => $author
+					],
+					'content' => apply_filters( 'the_content', $content ),
+				]
+			]
+		];
+
+		if ( true === $restricted ) {
+			$expected['data']['post']['content'] = null;
+			$expected['data']['post']['author'] = null;
+		}
+
+		if ( 0 === $author ) {
+			$expected['data']['post']['author'] = null;
+		}
+
+		/**
+		 * If the status is not "publish" and the user is a subscriber, the Post is considered
+		 * private, so trying to fetch a private post by ID will return an error
+		 */
+		if ( 'publish' !== $status && ! current_user_can( get_post_type_object( get_post( $post_id )->post_type )->cap->edit_posts ) ) {
+			$this->assertArrayHasKey( 'errors', $actual );
+		} else {
+			$this->assertEquals( $expected, $actual );
+		}
+
+
+	}
+
+	public function dataProviderRestrictedPosts() {
+
+		$test_vars = [];
+		$statuses = [ 'future', 'draft', 'pending' ];
+
+		foreach ( $statuses as $status ) {
+			$test_vars[] = [
+				'status' => $status,
+				'author' => 0,
+				'user' => 'admin',
+				'restricted' => false,
+			];
+
+			$test_vars[] = [
+				'status' => $status,
+				'author' => 0,
+				'user' => 0,
+				'restricted' => true,
+			];
+
+			$test_vars[] = [
+				'status' => $status,
+				'author' => 'contributor',
+				'user' => 'contributor',
+				'restricted' => false,
+			];
+
+		}
+
+		return $test_vars;
 
 	}
 

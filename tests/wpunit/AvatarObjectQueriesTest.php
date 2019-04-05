@@ -11,6 +11,11 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'role'       => 'admin',
 			'user_email' => 'test@test.com'
 		] );
+
+		// Create a published post for the author so it is public in the API.
+		$this->factory()->post->create( [
+			'post_author' => $this->admin,
+		]);
 	}
 
 	public function tearDown() {
@@ -29,6 +34,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
 		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
@@ -101,6 +107,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
 		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
@@ -171,6 +178,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
 		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
