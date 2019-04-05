@@ -18,8 +18,8 @@ use WPGraphQL\Types;
 class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * The name of the post type the connection resolver is resolving for
-	 * @var string
+	 * The name of the post type, or array of post types the connection resolver is resolving for
+	 * @var mixed string|array
 	 */
 	protected $post_type;
 
@@ -357,7 +357,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $all_args   All of the arguments for the query (not just the "where" args)
 		 * @param AppContext  $context    The AppContext object
 		 * @param ResolveInfo $info       The ResolveInfo object
-		 * @param string      $post_type  The post type for the query
+		 * @param mixed|string|array      $post_type  The post type for the query
 		 *
 		 * @since 0.0.5
 		 * @return array

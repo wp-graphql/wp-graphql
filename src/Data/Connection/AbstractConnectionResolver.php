@@ -151,68 +151,17 @@ abstract class AbstractConnectionResolver {
 		 */
 		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this );
 
-		/**
-		 * Check if the connection should execute. If conditions are met that should prevent
-		 * the execution, we can bail from resolving early, before the query is executed.
-		 *
-		 * Filter whether the connection should execute.
-		 *
-		 * @param bool                       $should_execute Whether the connection should execute
-		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
-		 */
-		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
-		if ( false === $this->should_execute ) {
-			return [];
-		}
+	}
 
-		/**
-		 * Set the query for the resolver, for use as reference in filters, etc
-		 *
-		 * Filter the query. For core data, the query is typically an instance of:
-		 *
-		 *   WP_Query
-		 *   WP_Comment_Query
-		 *   WP_User_Query
-		 *   WP_Term_Query
-		 *   ...
-		 *
-		 * But in some cases, the actual mechanism for querying data should be overridden. For
-		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
-		 * the query to that instead of a native WP_Query class. You could override this with a
-		 * query to that datasource instead.
-		 */
-		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
-
-		/**
-		 * The items returned from the query. This array of items will be passed
-		 * to `get_nodes`
-		 *
-		 * Filter the items.
-		 *
-		 * @param array                      $items The items returned from the query
-		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-		 */
-		$items       = ! empty( $this->get_items() ) ? $this->get_items() : [];
-		$this->items = apply_filters( 'graphql_connection_items', $items, $this );
-
-		/**
-		 * Set the items. These are the "nodes" that make up the connection.
-		 *
-		 * Filters the nodes in the connection
-		 *
-		 * @param array                      $nodes The nodes in the connection
-		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-		 */
-		$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
-
-		/**
-		 * Filters the edges in the connection
-		 *
-		 * @param array                      $nodes The nodes in the connection
-		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-		 */
-		$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
-
+	/**
+	 * Given a key and value, this sets a query_arg which will modify the query_args used by
+	 * the connection resolvers get_query();
+	 *
+	 * @param string $key The key of the query arg to set
+	 * @param mixed $value The value of the query arg to set
+	 */
+	public function setQueryArg ( $key, $value ) {
+		$this->query_args[ $key ] = $value;
 	}
 
 	/**
@@ -554,6 +503,72 @@ abstract class AbstractConnectionResolver {
 
 	}
 
+	protected function execute_and_get_data() {
+
+		/**
+		 * Check if the connection should execute. If conditions are met that should prevent
+		 * the execution, we can bail from resolving early, before the query is executed.
+		 *
+		 * Filter whether the connection should execute.
+		 *
+		 * @param bool                       $should_execute Whether the connection should execute
+		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
+		 */
+		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
+		if ( false === $this->should_execute ) {
+			return [];
+		}
+
+		/**
+		 * Set the query for the resolver, for use as reference in filters, etc
+		 *
+		 * Filter the query. For core data, the query is typically an instance of:
+		 *
+		 *   WP_Query
+		 *   WP_Comment_Query
+		 *   WP_User_Query
+		 *   WP_Term_Query
+		 *   ...
+		 *
+		 * But in some cases, the actual mechanism for querying data should be overridden. For
+		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
+		 * the query to that instead of a native WP_Query class. You could override this with a
+		 * query to that datasource instead.
+		 */
+		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
+
+		/**
+		 * The items returned from the query. This array of items will be passed
+		 * to `get_nodes`
+		 *
+		 * Filter the items.
+		 *
+		 * @param array                      $items The items returned from the query
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+		 */
+		$items       = ! empty( $this->get_items() ) ? $this->get_items() : [];
+		$this->items = apply_filters( 'graphql_connection_items', $items, $this );
+
+		/**
+		 * Set the items. These are the "nodes" that make up the connection.
+		 *
+		 * Filters the nodes in the connection
+		 *
+		 * @param array                      $nodes The nodes in the connection
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+		 */
+		$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+
+		/**
+		 * Filters the edges in the connection
+		 *
+		 * @param array                      $nodes The nodes in the connection
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+		 */
+		$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+
+	}
+
 	/**
 	 * get_connection
 	 *
@@ -562,7 +577,7 @@ abstract class AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_connection() {
-
+		$this->execute_and_get_data();
 		$connection = [
 			'edges'    => $this->get_edges(),
 			'pageInfo' => $this->get_page_info(),
