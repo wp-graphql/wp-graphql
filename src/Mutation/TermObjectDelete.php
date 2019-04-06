@@ -3,6 +3,8 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Term;
 
 class TermObjectDelete {
     /**
@@ -61,9 +63,7 @@ class TermObjectDelete {
 				'type'        => $taxonomy->graphql_single_name,
 				'description' => __( 'The deteted term object', 'wp-graphql' ),
 				'resolve'     => function( $payload ) use ( $taxonomy ) {
-					$deleted = (object) $payload['termObject'];
-
-					return ! empty( $deleted ) ? $deleted : null;
+					return new Term( $payload['termObject'] );
 				},
 			],
 		];

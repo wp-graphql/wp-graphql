@@ -117,8 +117,6 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->categoriesQuery( $variables );
 
-		var_dump( $results );
-
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */

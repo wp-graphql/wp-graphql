@@ -7,8 +7,8 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.xdebug'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.0.2}"
-        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.1.1}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
     image: 'wordpress-utc-xdebug-cache'
     environment:
       # XDebug remote debugging: https://xdebug.org/docs/remote

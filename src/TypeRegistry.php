@@ -135,12 +135,12 @@ class TypeRegistry {
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 			foreach ( $allowed_setting_types as $group => $setting_type ) {
 
-				$group_name = str_replace('_', '', strtolower( $group ) );
+				$group_name = str_replace( '_', '', strtolower( $group ) );
 				register_settings_group( $group_name );
 
 				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
-					'type'        => ucfirst( $group_name ) . 'Settings',
-					'resolve'     => function () use ( $setting_type ) {
+					'type'    => ucfirst( $group_name ) . 'Settings',
+					'resolve' => function () use ( $setting_type ) {
 						return $setting_type;
 					},
 				] );
@@ -560,17 +560,20 @@ class TypeRegistry {
 			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
 		}
 
-		$from_type          = $config['fromType'];
-		$to_type            = $config['toType'];
-		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() { return null; };
-		$connection_name    = self::get_connection_name( $from_type, $to_type );
-		$where_args         = [];
+
+		$from_type               = $config['fromType'];
+		$to_type                 = $config['toType'];
+		$from_field_name         = $config['fromFieldName'];
+		$connection_fields       = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$connection_args         = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$edge_fields             = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$resolve_node            = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
+		$resolve_cursor          = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
+		$resolve_connection      = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
+			return null;
+		};
+		$connection_name         = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : self::get_connection_name( $from_type, $to_type );
+		$where_args              = [];
 
 		/**
 		 * If there are any $connectionArgs,
@@ -582,7 +585,7 @@ class TypeRegistry {
 				// Translators: Placeholder is the name of the connection
 				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
 				'fields'      => $connection_args,
-				'queryClass' => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
+				'queryClass'  => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
 			] );
 
 			$where_args = [
@@ -606,7 +609,13 @@ class TypeRegistry {
 				'node'   => [
 					'type'        => $to_type,
 					'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-					'resolve'     => $resolve_node
+					'resolve'     => function ( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
+						if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
+							return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
+						} else {
+							return $source['node'];
+						}
+					},
 				],
 			], $edge_fields ),
 		] );
@@ -631,8 +640,19 @@ class TypeRegistry {
 						'list_of' => $to_type,
 					],
 					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, $info ) {
-						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
+					'resolve'     => function ( $source, $args, $context, $info ) use ( $resolve_node ) {
+						$nodes = [];
+						if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
+							if ( is_callable( $resolve_node ) ) {
+								foreach ( $source['nodes'] as $node ) {
+									$nodes[] = $resolve_node( $node, $args, $context, $info );
+								}
+							} else {
+								return $source['nodes'];
+							}
+						}
+
+						return $nodes;
 					},
 				],
 			], $connection_fields ),
@@ -659,7 +679,7 @@ class TypeRegistry {
 				],
 			], $where_args ),
 			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
-			'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
+			'resolve'     => function ( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
 
 				/**
 				 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
@@ -757,7 +777,7 @@ class TypeRegistry {
 				//@todo: Might want to check that this is callable before invoking, otherwise errors could happen
 				if ( ! is_callable( $mutateAndGetPayload ) ) {
 					// Translators: The placeholder is the name of the mutation
-					throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql'), $mutation_name ) );
+					throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
 				}
 				$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
 				$payload['clientMutationId'] = $args['input']['clientMutationId'];

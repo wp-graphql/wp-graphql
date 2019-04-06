@@ -3,6 +3,7 @@
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\PostType;
 
 /**
  * Class PostObjects
@@ -66,6 +67,20 @@ class PostObjects {
 					] ) );
 				}
 
+				/**
+				 * If the post_type has revisions enabled, add a connection from the Post Object to revisions
+				 */
+				if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
+					register_graphql_connection( self::get_connection_config( $post_type_object, [
+						'fromType'      => $post_type_object->graphql_single_name,
+						'toType'        => 'Revision',
+						'fromFieldName' => 'revisions',
+						'resolve'          => function ( $root, $args, $context, $info ) {
+							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
+						},
+					] ) );
+				}
+
 			}
 		}
 
@@ -85,7 +100,7 @@ class PostObjects {
 
 		$connection_args = self::get_connection_args();
 
-		if ( 'revision' === self::get_connection_args() ) {
+		if ( 'revision' === $post_type_object->name ) {
 			unset( $connection_args['status'] );
 			unset( $connection_args['stati'] );
 		}
@@ -99,10 +114,13 @@ class PostObjects {
 					'type'        => 'PostType',
 					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
 					'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
-						return $post_type_object;
+						return DataSource::resolve_post_type( $post_type_object->name );
 					},
 				],
 			],
+			'resolveNode'      => function( $id, $args, $context, $info ) {
+				return DataSource::resolve_post_object( $id, $context );
+			},
 			'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
 			'connectionArgs'   => $connection_args,
 			'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {

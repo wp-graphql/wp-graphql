@@ -26,8 +26,6 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 		';
-		$this->assertEquals( 1, 1 );
-		return;
 
 		$actual = do_graphql_request( $query );
 

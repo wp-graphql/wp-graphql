@@ -28,6 +28,10 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'role' => 'author',
 		] );
 
+		$this->factory()->post->create( [
+			'post_author' => $this->author,
+		] );
+
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
@@ -91,7 +95,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			user{
 			  firstName
 			  lastName
-			  roles
+			  roles {
+			    nodes {
+			      name
+			    }
+			  }
 			  email
 			  username
 			}
@@ -163,7 +171,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'firstName' => $this->first_name,
 						'lastName'  => $this->last_name,
 						'roles'     => [
-							'administrator',
+							'nodes' => [
+								[
+									'name' => 'administrator',
+								]
+							],
 						],
 						'email'     => $email,
 						'username'  => $username,
@@ -264,7 +276,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			user{
 			  firstName
 			  lastName
-			  roles
+			  roles {
+			    nodes {
+			      name
+			    }
+			  }
 			  username
 			  email
 			  userId
@@ -301,7 +317,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'firstName' => $updated_firstname,
 						'lastName'  => $updated_lastname,
 						'roles'     => [
-							'administrator',
+							'nodes' => [
+								[
+									'name' => 'administrator',
+								]
+							],
 						],
 						'username'  => $user_login,
 						'email'     => $updated_email,
@@ -582,9 +602,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		  registerUser(input:$input) {
 		    clientMutationId
 			user {
-			  username
-			  email
-			  roles
+			  name
+			  slug
 			}
 		  }
 		}';
@@ -631,7 +650,6 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$username     = 'userDoesNotExist';
 		$email        = 'emailDoesNotExist@test.com';
-		$default_role = get_option( 'default_role' );
 
 		/**
 		 * Enable new user registration.
@@ -651,11 +669,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'registerUser' => [
 					'clientMutationId' => $this->client_mutation_id,
 					'user'             => [
-						'username' => $username,
-						'email'    => $email,
-						'roles'    => [
-							$default_role,
-						],
+						'name' => $username,
+						'slug' => strtolower( $username ),
 					]
 				]
 			]
@@ -674,7 +689,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				user {
 					username
 					email
-					roles
+					roles {
+					  nodes {
+					    name
+					  }
+					}
 				}
 			}
 		}';
@@ -746,7 +765,16 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'password' => $new_password,
 		];
 
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->resetUserPasswordMutation( $args );
+
+		$role_nodes = [];
+		foreach( $roles as $role ) {
+			$role_nodes[] = [
+				'name' => $role
+			];
+		}
 
 		$expected = [
 			'data' => [
@@ -755,7 +783,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'user'             => [
 						'username' => $login,
 						'email'    => $email,
-						'roles'    => $roles,
+						'roles'    => [
+							'nodes' => $role_nodes,
+						],
 					],
 				],
 			],
@@ -803,9 +833,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			sendPasswordResetEmail( input: $input ) {
 				clientMutationId
 				user {
-					username
-					email
-					roles
+					userId
 				} 
 			}
 		}
@@ -832,7 +860,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSendPasswordResetEmailResponseWithUsername() {
-		$user     = get_userdata( $this->subscriber );
+		$user     = get_userdata( $this->author );
 		$username = $user->user_login;
 		// Run the mutation, passing in a valid username.
 		$actual   = $this->sendPasswordResetEmailMutation( $username );
@@ -844,7 +872,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSendPasswordResetEmailResponseWithEmail() {
-		$user  = get_userdata( $this->subscriber );
+		$user  = get_userdata( $this->author );
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
 		$actual   = $this->sendPasswordResetEmailMutation( $email );
@@ -856,19 +884,14 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function getSendPasswordResetEmailExpected() {
-		$user     = get_userdata( $this->subscriber );
-		$username = $user->user_login;
-		$email    = $user->user_email;
-		$roles    = $user->roles;
+		$user     = get_userdata( $this->author );
 
 		return [
 			'data' => [
 				'sendPasswordResetEmail' => [
 					'clientMutationId' => $this->client_mutation_id,
 					'user'             => [
-						'username' => $username,
-						'email'    => $email,
-						'roles'    => $roles,
+						'userId' => $user->ID,
 					]
 				]
 			]

@@ -20,7 +20,7 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$menu_item_relay_id = Relay::toGlobalId( 'MenuItem', $menu_item_id );
+		$menu_item_relay_id = Relay::toGlobalId( 'nav_menu_item', $menu_item_id );
 
 		$query = '
 		{

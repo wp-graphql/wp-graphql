@@ -1,6 +1,8 @@
 <?php
-
 namespace WPGraphQL\Connection;
+
+use WPGraphQL\Data\DataSource;
+
 
 /**
  * Class Users
@@ -25,20 +27,12 @@ class Users {
 			'fromType'         => 'RootQuery',
 			'toType'           => 'User',
 			'fromFieldName'    => 'users',
-			'resolve'          => function ( $source, $args, $context, $info ) {
-				return \WPGraphQL\Data\DataSource::resolve_users_connection( $source, $args, $context, $info );
+			'resolveNode'      => function( $id, $args, $context, $info ) {
+				return DataSource::resolve_user( $id, $context );
 			},
-			'connectionFields' => [
-				'nodes' => [
-					'type'        => [
-						'list_of' => 'User',
-					],
-					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, $info ) {
-						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
-					},
-				],
-			],
+			'resolve'          => function ( $source, $args, $context, $info ) {
+				return DataSource::resolve_users_connection( $source, $args, $context, $info );
+			},
 			'connectionArgs'   => self::get_connection_args(),
 		] );
 

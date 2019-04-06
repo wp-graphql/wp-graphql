@@ -2,7 +2,8 @@
 
 namespace WPGraphQL\Connection;
 
-use WPGraphQL\Data\MenuConnectionResolver;
+use WPGraphQL\Data\Connection\MenuConnectionResolver;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class Menus
@@ -52,8 +53,14 @@ class Menus {
 					},
 				],
 			],
+			'resolveNode'      => function ( $id, $args, $context, $info ) {
+				return DataSource::resolve_term_object( $id, $context );
+			},
 			'resolve'          => function ( $source, $args, $context, $info ) {
-				return MenuConnectionResolver::resolve( $source, $args, $context, $info );
+				$resolver   = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
+				$connection = $resolver->get_connection();
+
+				return $connection;
 			},
 		] );
 	}
