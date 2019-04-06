@@ -2,8 +2,13 @@
 
 class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public $admin;
+
 	public function setUp() {
 		parent::setUp();
+		$this->admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
 	}
 
 	public function tearDown() {
@@ -76,6 +81,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		/**
@@ -136,6 +142,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		/**

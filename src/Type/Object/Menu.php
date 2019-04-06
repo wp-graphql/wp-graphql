@@ -12,9 +12,6 @@ register_graphql_object_type( 'Menu', [
 				'non_null' => 'ID',
 			],
 			'description' => __( 'ID of the nav menu.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Term $menu ) {
-				return ! empty( $menu->term_id ) ? Relay::toGlobalId( 'Menu', $menu->term_id ) : null;
-			},
 		],
 		'count'  => [
 			'type'        => 'Int',
@@ -23,9 +20,6 @@ register_graphql_object_type( 'Menu', [
 		'menuId' => [
 			'type'        => 'Int',
 			'description' => __( 'WP ID of the nav menu.', 'wp-graphql' ),
-			'resolve'     => function( \WP_Term $menu ) {
-				return ! empty( $menu->term_id ) ? $menu->term_id : null;
-			},
 		],
 		'name'   => [
 			'type'        => 'String',
@@ -34,6 +28,10 @@ register_graphql_object_type( 'Menu', [
 		'slug'   => [
 			'type'        => 'String',
 			'description' => esc_html__( 'The url friendly name of the menu. Equivalent to WP_Term->slug', 'wp-graphql' ),
+		],
+		'isRestricted' => [
+			'type' => 'Boolean',
+			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 		],
 	]
 ] );

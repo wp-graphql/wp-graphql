@@ -406,6 +406,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testCreateMediaItemAttachToParent() {
 		$post = $this->factory()->post->create( [
 			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 		$this->create_variables['input']['parentId'] = absint( $post );
 
@@ -883,6 +884,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
+
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
 		$update_variables['input']['authorId'] = false;
@@ -904,6 +906,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 
 		$actual = $this->updateMediaItemMutation();
+
 
 		/**
 		 * Define the expected output.
@@ -1021,7 +1024,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
 		    deletedId
-		    mediaItem{
+		    mediaItem {
 		      id
 		      mediaItemId
 		    }
@@ -1042,7 +1045,11 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+
+
 		$this->assertArrayHasKey( 'errors', $actual );
+
+
 
 		$delete_trash_variables['input']['forceDelete'] = true;
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );

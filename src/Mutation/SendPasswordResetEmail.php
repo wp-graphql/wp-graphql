@@ -5,6 +5,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\User;
 
 class SendPasswordResetEmail {
 	public static function register_mutation() {
@@ -24,8 +25,7 @@ class SendPasswordResetEmail {
 					'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
 					'resolve'     => function ( $payload ) {
 						$user = get_user_by( 'ID', absint( $payload['id'] ) );
-
-						return ! empty( $user ) ? $user : null;
+						return new User( $user );
 					},
 				],
 			],

@@ -1,9 +1,10 @@
 <?php
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class ThemeConnectionResolver
@@ -24,13 +25,18 @@ class ThemeConnectionResolver {
 	 * @since  0.5.0
 	 * @return array
 	 * @access public
+	 * @throws \Exception
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$themes_array = [];
 		$themes = wp_get_themes();
 		if ( is_array( $themes ) && ! empty( $themes ) ) {
 			foreach ( $themes as $theme ) {
-				$themes_array[] = $theme;
+				$theme_obj = DataSource::resolve_theme( $theme->get_stylesheet() );
+				if ( 'private' !== $theme_obj->get_visibility() ) {
+					$themes_array[] = $theme_obj;
+				}
+
 			}
 		}
 

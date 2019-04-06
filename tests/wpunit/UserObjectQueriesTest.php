@@ -61,6 +61,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 		$user    = get_user_by( 'id', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -116,7 +117,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				registeredDate
-				roles
+				roles {
+				  nodes {
+				    name
+				  }
+				}
 				slug
 				url
 				userId
@@ -163,7 +168,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'edges' => [],
 					],
 					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
-					'roles'             => [ 'subscriber' ],
+					'roles'             => [
+						'nodes' => [
+							[
+								'name' => 'subscriber'
+							]
+						],
+					],
 					'slug'              => $user->data->user_nicename,
 					'url'               => null,
 					'userId'            => $user_id,
@@ -195,6 +206,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -259,6 +271,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -323,6 +336,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -387,6 +401,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -466,21 +481,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'data'   => [
 				'user' => null,
 			],
-			'errors' => [
-				[
-					'message'   => 'No user was found with the provided ID',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
-					],
-					'path'      => [
-						'user',
-					],
-					'category' => 'user',
-				],
-			],
 		];
 
 		$this->assertEquals( $expected, $actual );
@@ -491,9 +491,10 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a user
 		 */
+		$email = 'test@test.com';
 		$user_id = $this->createUserObject(
 			[
-				'user_email' => 'test@test.com',
+				'user_email' => $email,
 			]
 		);
 
@@ -501,6 +502,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		/**
+		 * Set the current user to nobody (unauthenticated)
+		 */
+		wp_set_current_user( 0 );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -512,6 +518,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  node{
 				    id
 				    userId
+				    email
 				  }
 				}
 			}
@@ -521,6 +528,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		/**
+		 * The user has no published posts, so there should be no results publicly
+		 * returned to an unauthenticated user
+		 */
+		$this->assertEmpty( $actual['data']['users']['edges'] );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -533,6 +546,190 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							'node' => [
 								'id' => $global_id,
 								'userId' => $user_id,
+								'email' => $email,
+							],
+						],
+					],
+				],
+			],
+		];
+
+		/**
+		 * Set the current user to the created user we're querying and
+		 * try the query again
+		 */
+		wp_set_current_user( $user_id );
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * The authenticated user should see their own user in the result
+		 */
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testQueryAllUsersAsAdmin() {
+
+		$user_1 = [
+			'user_email' => 'user1@email.com',
+			'user_login' => 'user1',
+			'user_url' => 'https://test1.com',
+			'first_name' => 'User1',
+			'last_name' => 'Test',
+		];
+
+		$user_2 = [
+			'user_email' => 'user2@email.com',
+			'user_login' => 'user2',
+			'user_url' => 'https://test2.com',
+			'first_name' => 'User2',
+			'last_name' => 'Test',
+		];
+
+		$user_1_id = $this->createUserObject( $user_1 );
+		$user_2_id = $this->createUserObject( $user_2 );
+		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+
+		wp_set_current_user( $admin );
+
+		$query = '
+		query {
+			users(first:2) {
+				edges{
+				  node{
+				    userId
+				    username
+				    email
+				    firstName
+				    lastName
+				    url
+				  }
+				}
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'users' => [
+					'edges' => [
+						[
+							'node' => [
+								'userId' => $user_2_id,
+								'username' => $user_2['user_login'],
+								'email' => $user_2['user_email'],
+								'firstName' => $user_2['first_name'],
+								'lastName' => $user_2['last_name'],
+								'url' => $user_2['user_url'],
+							],
+						],
+						[
+							'node' => [
+								'userId' => $user_1_id,
+								'username' => $user_1['user_login'],
+								'email' => $user_1['user_email'],
+								'firstName' => $user_1['first_name'],
+								'lastName' => $user_1['last_name'],
+								'url' => $user_1['user_url'],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	public function testQueryAllUsersAsSubscriber() {
+
+		$user_1 = [
+			'user_email' => 'user1@email.com',
+			'user_login' => 'user1',
+			'user_url' => 'https://test1.com',
+			'first_name' => 'User1',
+			'last_name' => 'Test',
+			'role' => 'subscriber',
+			'description' => 'User 1 Test',
+		];
+
+		$user_2 = [
+			'user_email' => 'user2@email.com',
+			'user_login' => 'user2',
+			'user_url' => 'https://test2.com',
+			'first_name' => 'User2',
+			'last_name' => 'Test',
+			'role' => 'subscriber',
+			'description' => 'User 2 test',
+		];
+
+		$user_1_id = $this->createUserObject( $user_1 );
+		$user_2_id = $this->createUserObject( $user_2 );
+
+		/**
+		 * Create posts for users so they are only restricted instead of private
+		 */
+		$this->factory()->post->create([
+			'post_author' => $user_1_id,
+		]);
+		$this->factory()->post->create([
+			'post_author' => $user_2_id,
+		]);
+
+		wp_set_current_user( $user_2_id );
+
+		$query = '
+		query {
+			users(first:2) {
+				edges{
+				  node{
+				    userId
+				    username
+				    email
+				    firstName
+				    lastName
+				    url
+				    description
+				    isRestricted
+				  }
+				}
+			}
+		}';
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'users' => [
+					'edges' => [
+						[
+							'node' => [
+								'userId' => $user_2_id,
+								'username' => $user_2['user_login'],
+								'email' => $user_2['user_email'],
+								'firstName' => $user_2['first_name'],
+								'lastName' => $user_2['last_name'],
+								'url' => $user_2['user_url'],
+								'description' => $user_2['description'],
+								'isRestricted' => false,
+							],
+						],
+						[
+							'node' => [
+								'userId' => $user_1_id,
+								'username' => null,
+								'email' => null,
+								'firstName' => $user_1['first_name'],
+								'lastName' => $user_2['last_name'],
+								'url' => null,
+								'description' => $user_1['description'],
+								'isRestricted' => true,
 							],
 						],
 					],
@@ -553,7 +750,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'role' => 'administrator',
 		]);
 
-		$this->factory->user->create([
+		$admin = $this->factory->user->create([
 			'role' => 'administrator',
 		]);
 
@@ -575,6 +772,20 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		  }
 		}
 		';
+
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Results should be empty for a non-authenticated request because the
+		 * users have no published posts and are not considered public
+		 */
+		$this->assertEmpty( $actual['data']['users']['pageInfo']['hasNextPage'] );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		/**
+		 * Set the current user and retry the request
+		 */
+		wp_set_current_user( $admin );
 
 		$actual = do_graphql_request( $query );
 
@@ -606,6 +817,17 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
 		$this->assertCount( 1, $actual['data']['users']['edges'] );
 
+	}
+
+	public function dataProviderUserHasPosts() {
+		return [
+			[
+				'has_posts' => true,
+			],
+			[
+				'has_posts' => false,
+			]
+		];
 	}
 
 }
