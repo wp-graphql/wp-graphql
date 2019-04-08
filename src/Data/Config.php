@@ -52,7 +52,8 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
-		return $orderby . ', wp_posts.ID DESC ';
+		global $wpdb;
+		return "{$orderby}, {$wpdb->posts}.ID DESC ";
 	}
 
 	/**
