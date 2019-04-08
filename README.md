@@ -8,6 +8,9 @@ GraphQL API for WordPress.
 
 [![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql)
 [![codecov](https://codecov.io/gh/wp-graphql/wp-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/wp-graphql/wp-graphql)
+[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](#sponsors) 
+
 ------
 
 ## Quick Install
@@ -302,3 +305,33 @@ implementation (https://github.com/graphql/graphql-js)
 
 Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a lot of insight 
 into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.com/
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/wp-graphql#backer)]
+
+<a href="https://opencollective.com/wp-graphql#backers" target="_blank"><img src="https://opencollective.com/wp-graphql/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/wp-graphql#sponsor)]
+
+<a href="https://opencollective.com/wp-graphql/sponsor/0/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/1/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/2/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/3/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/4/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/5/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/6/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/7/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/8/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/9/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/9/avatar.svg"></a>
+
+
