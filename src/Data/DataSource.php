@@ -687,6 +687,10 @@ class DataSource {
 								break;
 							case 'user':
 								$user_id = absint( $id_components['id'] );
+
+								if ( empty( $user_id ) || ! absint( $user_id )) {
+									return null;
+								}
 								$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 								return new Deferred( function () use ( $user_id, $context ) {
