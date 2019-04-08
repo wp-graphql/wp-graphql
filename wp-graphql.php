@@ -216,7 +216,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * The codeception tests are an example of an environment where adding the autoloader again causes issues
 			 * so this is set to false for tests.
 			 */
-			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+			if ( ! class_exists('GraphQL\GraphQL') && defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
 				// Autoload Required Classes.
 				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
 			}
