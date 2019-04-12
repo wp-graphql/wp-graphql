@@ -265,7 +265,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Determine what to show in graphql
 			 */
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
-			add_action( 'init_graphql_request', [ $this, 'setup_types' ], 10 );
+			add_action( 'init', [ $this, 'setup_types' ], 10 );
 		}
 
 		/**
