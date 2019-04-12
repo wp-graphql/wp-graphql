@@ -510,7 +510,7 @@ class TypeRegistry {
 	 * @return mixed|WPObjectType|WPUnionType|WPInputObjectType|WPEnumType
 	 */
 	public static function get_type( $type_name ) {
-		return ( null !== self::$types[ self::format_key( $type_name ) ] ) ? ( self::$types[ self::format_key( $type_name ) ] ) : null;
+		return isset( self::$types[ self::format_key( $type_name ) ] ) ? ( self::$types[ self::format_key( $type_name ) ] ) : null;
 	}
 
 	/**
