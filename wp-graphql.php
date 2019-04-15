@@ -266,6 +266,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
+			add_action( 'init', [ $this, 'get_allowed_types' ], 999 );
 		}
 
 		/**
@@ -277,6 +278,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Setup the settings, post_types and taxonomies to show_in_graphql
 			 */
 			self::show_in_graphql();
+		}
+
+		/**
+		 * This gets the allowed post types and taxonomies when a GraphQL request has started
+		 */
+		public function get_allowed_types() {
 			self::get_allowed_post_types();
 			self::get_allowed_taxonomies();
 		}
