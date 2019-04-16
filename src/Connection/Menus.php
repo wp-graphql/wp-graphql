@@ -42,17 +42,6 @@ class Menus {
 					'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 				],
 			],
-			'connectionFields' => [
-				'nodes' => [
-					'type'        => [
-						'list_of' => 'Menu',
-					],
-					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, $info ) {
-						return ! empty( $source['nodes'] ) ? $source['nodes'] : [];
-					},
-				],
-			],
 			'resolveNode'      => function ( $id, $args, $context, $info ) {
 				return DataSource::resolve_term_object( $id, $context );
 			},
