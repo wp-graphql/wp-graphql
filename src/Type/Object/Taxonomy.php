@@ -4,7 +4,7 @@ namespace WPGraphQL\Type;
 
 use WPGraphQL\Model\Taxonomy;
 
-$allowed_post_types = \WPGraphQL::$allowed_post_types;
+$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 register_graphql_object_type( 'Taxonomy', [
 	'description' => __( 'A taxonomy object', 'wp-graphql' ),

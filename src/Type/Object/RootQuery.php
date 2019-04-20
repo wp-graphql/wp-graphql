@@ -149,7 +149,7 @@ register_graphql_object_type( 'RootQuery', [
 	],
 ] );
 
-$allowed_post_types = \WPGraphQL::$allowed_post_types;
+$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 	foreach ( $allowed_post_types as $post_type ) {
 		$post_type_object = get_post_type_object( $post_type );
@@ -237,7 +237,7 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 	}
 }
 
-$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 	foreach ( $allowed_taxonomies as $taxonomy ) {
 		$taxonomy_object = get_taxonomy( $taxonomy );

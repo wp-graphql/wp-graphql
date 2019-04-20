@@ -22,7 +22,7 @@ class PostObjects {
 		/**
 		 * Register Connections to PostObjects
 		 */
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 
@@ -44,7 +44,7 @@ class PostObjects {
 				 * Registers connections for each post_type that has a connection
 				 * to a taxonomy that's allowed in GraphQL
 				 */
-				$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 						// If the taxonomy is in the array of taxonomies registered to the post_type

@@ -4,7 +4,7 @@ namespace WPGraphQL\Type;
 
 use GraphQLRelay\Relay;
 
-$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 register_graphql_object_type( 'PostType', [
 	'description' => __( 'An Post Type object', 'wp-graphql' ),
