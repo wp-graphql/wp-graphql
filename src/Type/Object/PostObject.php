@@ -137,6 +137,9 @@ function get_post_object_fields( $post_type_object ) {
 				'non_null' => 'Int',
 			],
 			'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+			'resolve'     => function ( Post $post, $args, $context, $info ) {
+				return absint( $post->ID );
+			},
 		],
 		'ancestors'         => [
 			'type'        => [
