@@ -347,7 +347,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -396,7 +396,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -441,7 +441,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}

@@ -20,8 +20,8 @@ class TermObjects {
 	 */
 	public static function register_connections() {
 
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
-		$allowed_post_types = \WPGraphQL::$allowed_post_types;
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 		/**
 		 * Loop through the allowed_taxonomies to register appropriate connections
