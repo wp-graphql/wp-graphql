@@ -474,4 +474,62 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	public function testQueryCustomTaxomomy() {
+
+		register_taxonomy(
+			'car_make',
+			[ 'post' ],
+			[
+				'label'               => __( 'Make', 'fixxr-features' ),
+				'public'              => true,
+				'show_ui'             => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'CarMake',
+				'graphql_plural_name' => 'CarMakes',
+				'hierarchical'        => true,
+			]
+		);
+
+		$id = $this->factory()->term->create([
+			'taxonomy' => 'car_make',
+			'name' => 'Honda'
+		]);
+
+		$args = [
+			'include' => [ $id ],
+			'number'  => count( [ $id ] ),
+			'orderby' => 'include',
+			'hide_empty' => false,
+		];
+
+		/**
+		 * Execute the query. This adds the terms to the cache
+		 */
+		$query = new \WP_Term_Query( $args );
+		$terms = $query->get_terms();
+
+		$query = '
+		{
+		  carMakes {
+		    nodes {
+		      carMakeId
+		    }
+		    edges {
+		      node {
+		        carMakeId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertEquals( $id, $actual['data']['carMakes']['nodes'][0]['carMakeId']);
+		$this->assertEquals( $id, $actual['data']['carMakes']['edges'][0]['node']['carMakeId']);
+
+	}
+
 }

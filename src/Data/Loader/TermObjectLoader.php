@@ -40,6 +40,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
+
 		/**
 		 * Prepare the args for the query. We're provided a specific set of IDs for terms,
 		 * so we want to query as efficiently as possible with as little overhead as possible.
@@ -47,6 +48,8 @@ class TermObjectLoader extends AbstractDataLoader {
 		$args = [
 			'include' => $keys,
 			'number'  => count( $keys ),
+			'orderby' => 'include',
+			'hide_empty' => false,
 		];
 
 		/**
@@ -55,8 +58,9 @@ class TermObjectLoader extends AbstractDataLoader {
 		$query = new \WP_Term_Query( $args );
 		$terms = $query->get_terms();
 
+
 		if ( empty( $terms ) || ! is_array( $terms ) ) {
-			return null;
+			return [];
 		}
 
 		$terms_by_id = [];

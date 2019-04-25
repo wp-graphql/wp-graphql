@@ -23,6 +23,9 @@ function register_taxonomy_object_type( $taxonomy_object ) {
 			$single_name . 'Id' => [
 				'type'        => 'Int',
 				'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+				'resolve' => function( Term $term, $args, $context, $node ) {
+					return absint( $term->term_id );
+				}
 			],
 			'count'             => [
 				'type'        => 'Int',
