@@ -3,6 +3,24 @@
 class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
+
+		/**
+		 * Register Custom Taxonomy to use in the tests
+		 */
+		register_taxonomy(
+			'car_make',
+			[ 'post' ],
+			[
+				'label'               => __( 'Make', 'fixxr-features' ),
+				'public'              => true,
+				'show_ui'             => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'CarMake',
+				'graphql_plural_name' => 'CarMakes',
+				'hierarchical'        => true,
+			]
+		);
+
 		parent::setUp();
 	}
 
@@ -475,20 +493,6 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testQueryCustomTaxomomy() {
-
-		register_taxonomy(
-			'car_make',
-			[ 'post' ],
-			[
-				'label'               => __( 'Make', 'fixxr-features' ),
-				'public'              => true,
-				'show_ui'             => true,
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'CarMake',
-				'graphql_plural_name' => 'CarMakes',
-				'hierarchical'        => true,
-			]
-		);
 
 		$id = $this->factory()->term->create([
 			'taxonomy' => 'car_make',
