@@ -17,7 +17,7 @@ modules:
             tablePrefix: "wp_"
             domain: "wpgraphql.test"
             adminEmail: "admin@wpgraphql.test"
-            title: "Test"        
-            plugins: ['wp-graphql/wp-graphql.php']
-            activatePlugins: ['wp-graphql/wp-graphql.php']
+            title: "Test"
+            plugins: ['wp-graphql/tests/_bootstrap/bootstrap.php','wp-graphql/wp-graphql.php']
+            activatePlugins: ['wp-graphql/tests/_bootstrap/bootstrap.php','wp-graphql/wp-graphql.php']
             configFile: "tests/_data/config.php"

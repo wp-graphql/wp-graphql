@@ -15,7 +15,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @throws Exception
 	 */
-	public function testQueryCustomTaxomomy() {
+	public function testQueryCustomPostType() {
 
 		$id = $this->factory()->post->create([
 			'post_type' => 'bootstrap_cpt',
