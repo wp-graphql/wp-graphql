@@ -53,7 +53,16 @@ class TermObjectLoader extends AbstractDataLoader {
 		 * Execute the query. This adds the terms to the cache
 		 */
 		$query = new \WP_Term_Query( $args );
-		$query->get_terms();
+		$terms = $query->get_terms();
+
+		if ( empty( $terms ) || ! is_array( $terms ) ) {
+			return null;
+		}
+
+		$terms_by_id = [];
+		foreach ( $terms as $term ) {
+			$terms_by_id[ $term->term_id ] = $term;
+		}
 
 		/**
 		 * Loop over the keys and return an array of loaded_terms, where the key is the ID and the value is
@@ -66,9 +75,9 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * them from the cache to pass through the model layer, or return null if the
 			 * object isn't in the cache, meaning it didn't come back when queried.
 			 */
-			$term_object                = get_term_by( 'term_taxonomy_id', $key );
+			$term_object                = $terms_by_id[ $key ];
 
-			if ( empty( $term_object ) ) {
+			if ( empty( $term_object ) || ! is_a( $term_object, 'WP_Term' ) ) {
 				return null;
 			}
 
