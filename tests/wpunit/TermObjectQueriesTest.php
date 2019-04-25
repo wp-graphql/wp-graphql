@@ -4,10 +4,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
+
 	}
 
 	public function tearDown() {
 		parent::tearDown();
+
 	}
 
 	public function createTermObject( $args = [] ) {
