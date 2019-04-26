@@ -124,7 +124,7 @@ class TermObjects {
 			],
 			'hideEmpty'                       => [
 				'type'        => 'Boolean',
-				'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default true', 'wp-graphql' ),
+				'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default false', 'wp-graphql' ),
 			],
 			'include'                         => [
 				'type'        => [
