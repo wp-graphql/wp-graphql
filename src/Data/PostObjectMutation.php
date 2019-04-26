@@ -240,7 +240,7 @@ class PostObjectMutation {
 		/**
 		 * Get the allowed taxonomies and iterate through them to find the term inputs to use for setting relationships
 		 */
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 

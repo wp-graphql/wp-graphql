@@ -137,6 +137,9 @@ function get_post_object_fields( $post_type_object ) {
 				'non_null' => 'Int',
 			],
 			'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+			'resolve'     => function ( Post $post, $args, $context, $info ) {
+				return absint( $post->ID );
+			},
 		],
 		'ancestors'         => [
 			'type'        => [
@@ -344,7 +347,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -393,7 +396,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -438,7 +441,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::$allowed_taxonomies ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}

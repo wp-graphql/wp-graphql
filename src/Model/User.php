@@ -88,7 +88,7 @@ class User extends Model {
 			 *      For now, we only query if the current user doesn't have list_users, instead of querying
 			 *      for ALL users. Slightly more efficient for authenticated users at least.
 			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) ) {
+			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::get_allowed_post_types(), true ) ) {
 				return true;
 			}
 		}
