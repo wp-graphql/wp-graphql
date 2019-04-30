@@ -30,6 +30,7 @@ function graphql_format_field_name( $field_name ) {
  * @access public
  * @return array
  * @since  0.2.0
+ * @throws Exception
  */
 function graphql( $request_data = [] ) {
 	$request = new \WPGraphQL\Request( $request_data );
@@ -47,6 +48,7 @@ function graphql( $request_data = [] ) {
  * @access public
  * @return array
  * @since  0.0.2
+ * @throws \Exception
  */
 function do_graphql_request( $query, $operation_name = '', $variables = [] ) {
 	return graphql( [

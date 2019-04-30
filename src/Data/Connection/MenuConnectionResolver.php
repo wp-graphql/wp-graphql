@@ -22,21 +22,21 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 			'fields'     => 'ids',
 		];
 
-		if ( ! empty( $args['where']['slug'] ) ) {
-			$term_args['slug']    = $args['where']['slug'];
+		if ( ! empty( $this->args['where']['slug'] ) ) {
+			$term_args['slug']    = $this->args['where']['slug'];
 			$term_args['include'] = null;
 		}
 
-		if ( ! empty( $args['where']['location'] ) ) {
+		if ( ! empty( $this->args['where']['location'] ) ) {
 			$theme_locations = get_nav_menu_locations();
 
-			if ( isset( $theme_locations[ $args['where']['location'] ] ) ) {
-				$term_args['include'] = $theme_locations[ $args['where']['location'] ];
+			if ( isset( $theme_locations[ $this->args['where']['location'] ] ) ) {
+				$term_args['include'] = $theme_locations[ $this->args['where']['location'] ];
 			}
 		}
 
-		if ( ! empty( $args['where']['id'] ) ) {
-			$term_args['include'] = $args['where']['id'];
+		if ( ! empty( $this->args['where']['id'] ) ) {
+			$term_args['include'] = $this->args['where']['id'];
 		}
 
 		return $term_args;

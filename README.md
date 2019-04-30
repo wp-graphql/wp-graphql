@@ -158,7 +158,7 @@ of the set up and configuration tasks performed by a developer.
    ```
 1. Visit http://127.0.0.1:8000.
 
-#### Using PHPStorm/IntelliJ+XDebug (Linux)
+#### Using PHPStorm/IntelliJ+XDebug (OS X and Linux)
 
 1. Make sure PHPStorm/IntelliJ is listenting on port 9000 for incoming XDebug connections from the WP container (for more info on remote XDebug debugging, visit https://xdebug.org/docs/remote):
    ![alt text](img/intellij-php-debug-config.png)
