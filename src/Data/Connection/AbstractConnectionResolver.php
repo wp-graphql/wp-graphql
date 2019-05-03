@@ -438,6 +438,7 @@ abstract class AbstractConnectionResolver {
 				$edge = apply_filters( 'graphql_connection_edge', [
 					'cursor' => $this->get_cursor_for_node( $node, $key ),
 					'node'   => $node,
+					'source' => $this->source,
 				], $this );
 
 				/**
