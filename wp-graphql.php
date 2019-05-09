@@ -533,13 +533,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
-			/**
-			 * Initialize the TypeRegistry
-			 */
-			\WPGraphQL\TypeRegistry::init();
-			\WPGraphQL\SchemaRegistry::init();
-
 			if ( null === self::$schema ) {
+				/**
+				 * Initialize the TypeRegistry
+				 */
+				\WPGraphQL\TypeRegistry::init();
+				\WPGraphQL\SchemaRegistry::init();
 
 				/**
 				 * Filter the Active Schema, allowing for custom Schemas to be active instead
