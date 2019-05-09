@@ -496,6 +496,34 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			return self::$allowed_taxonomies;
 
 		}
+		
+		/**
+		 * Builds the Schema
+		 */
+		public static function build_schema() {
+			/**
+			 * Filter the Active Schema, allowing for custom Schemas to be active instead
+			 * of the core schema
+			 */
+			$active_schema     = apply_filters( 'graphql_active_schema', 'core' );
+			$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
+
+			/**
+			 * Generate the Schema
+			 */
+			$schema = new \WPGraphQL\WPSchema( $executable_schema );
+
+			/**
+			 * Generate & Filter the schema.
+			 *
+			 * @since 0.0.5
+			 *
+			 * @param array                 $schema      The executable Schema that GraphQL executes against
+			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+			 *                                           information about the context we know at this point
+			 */
+			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+		}
 
 		/**
 		 * Returns the Schema as defined by static registrations throughout
@@ -518,29 +546,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			\WPGraphQL\SchemaRegistry::init();
 
 			if ( null === self::$schema ) {
-
-				/**
-				 * Filter the Active Schema, allowing for custom Schemas to be active instead
-				 * of the core schema
-				 */
-				$active_schema     = apply_filters( 'graphql_active_schema', 'core' );
-				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
-
-				/**
-				 * Generate the Schema
-				 */
-				$schema = new \WPGraphQL\WPSchema( $executable_schema );
-
-				/**
-				 * Generate & Filter the schema.
-				 *
-				 * @since 0.0.5
-				 *
-				 * @param array                 $schema      The executable Schema that GraphQL executes against
-				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
-				 *                                           information about the context we know at this point
-				 */
-				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+				self::build_schema();
 			}
 
 			/**
