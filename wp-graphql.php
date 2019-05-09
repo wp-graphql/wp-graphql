@@ -498,6 +498,24 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
+		 * Clears cache schema (DO NOT CALL IN RESOLVERS)
+		 */
+		public static function clear_schema() {
+			/**
+			 * Fire an action before Schema is cleared
+			 */
+			do_action( 'graphql_before_clear_schema', self::$schema );
+			
+			self::$schema = null;
+			
+			/**
+			 * Fire an action after Schema has been cleared
+			 */
+			do_action( 'graphql_after_clear_schema', self::$schema );
+			
+		}
+		
+		/**
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
