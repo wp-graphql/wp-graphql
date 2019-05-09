@@ -498,20 +498,24 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * Clears cache schema (DO NOT CALL IN RESOLVERS)
+		 * Clears cached active schema (DO NOT CALL IN RESOLVERS).
 		 */
 		public static function clear_schema() {
+			$active_schema = apply_filters( 'graphql_active_schema', 'core' );
+			
 			/**
 			 * Fire an action before Schema is cleared
 			 */
-			do_action( 'graphql_before_clear_schema', self::$schema );
+			do_action( 'graphql_before_clear_schema', self::$schema, $active_schema );
 			
+			\WPGraphQL\SchemaRegistry::deregister_schema( $active_schema );
 			self::$schema = null;
+			
 			
 			/**
 			 * Fire an action after Schema has been cleared
 			 */
-			do_action( 'graphql_after_clear_schema', self::$schema );
+			do_action( 'graphql_after_clear_schema', self::$schema, $active_schema );
 			
 		}
 		
