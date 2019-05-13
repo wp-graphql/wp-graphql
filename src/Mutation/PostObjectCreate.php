@@ -209,17 +209,14 @@ class PostObjectCreate {
                 throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
             }
 
-            /**
+           /**
              * If the post being created is being assigned to another user that's not the current user, make sure
              * the current user has permission to edit others posts for this post_type
-             *
-	     *
-	     * Bug Fix: ID failed if it was user id in string format i.e. '120029. Need to account for Hash/Gloabl ID's as well as numeric.
-	     */
-	    $authorID = absint($input['authorId'])
-	    if ($id_components = Relay::fromGlobalId ( $input['authorId'] ) && is_array( $id_components ) && ! empty( $id_components['id'])) {
-	        $authorID = $id_components['id'];
-	    }
+             */
+            $authorID = absint($input['authorId']);
+            if ($id_components = Relay::fromGlobalId ( $input['authorId'] ) && is_array( $id_components ) && ! empty( $id_components['id'])) {
+	            $authorID = $id_components['id'];
+	        }
 
             if ( ! empty( $authorID ) && get_current_user_id() !== $authorID && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
                 // translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
