@@ -8,7 +8,7 @@ use GraphQLRelay\Relay;
  * Class MenuItem - Models the data for the MenuItem object type
  *
  * @property string   $id
- * @property array    $cassClasses
+ * @property array    $cssClasses
  * @property string   $description
  * @property string   $label
  * @property string   $linkRelationship
@@ -57,7 +57,7 @@ class MenuItem extends Model {
 				'id' => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
-				'cassClasses' => function() {
+				'cssClasses' => function() {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
 					if ( ! isset( $this->data->classes ) || ! is_array( $this->data->classes ) || empty( $this->data->classes ) || empty( $this->data->classes[0] ) ) {
