@@ -236,7 +236,9 @@ class TypeRegistry {
 		/**
 		 * Hook to register connections
 		 */
-		do_action( 'graphql_register_types' );
+		if ( ! did_action( 'graphql_register_types' ) ) {
+			do_action( 'graphql_register_types' );
+		}
 
 	}
 
