@@ -498,28 +498,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * Clears cached active schema (DO NOT CALL IN RESOLVERS).
-		 */
-		public static function clear_schema() {
-			$active_schema = apply_filters( 'graphql_active_schema', 'core' );
-			
-			/**
-			 * Fire an action before Schema is cleared
-			 */
-			do_action( 'graphql_before_clear_schema', self::$schema, $active_schema );
-			
-			\WPGraphQL\SchemaRegistry::deregister_schema( $active_schema );
-			self::$schema = null;
-			
-			
-			/**
-			 * Fire an action after Schema has been cleared
-			 */
-			do_action( 'graphql_after_clear_schema', self::$schema, $active_schema );
-			
-		}
-		
-		/**
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
@@ -533,12 +511,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			do_action( 'graphql_get_schema', self::$schema );
 
+			/**
+			 * Initialize the TypeRegistry
+			 */
+			\WPGraphQL\TypeRegistry::init();
+			\WPGraphQL\SchemaRegistry::init();
+
 			if ( null === self::$schema ) {
-				/**
-				 * Initialize the TypeRegistry
-				 */
-				\WPGraphQL\TypeRegistry::init();
-				\WPGraphQL\SchemaRegistry::init();
 
 				/**
 				 * Filter the Active Schema, allowing for custom Schemas to be active instead
