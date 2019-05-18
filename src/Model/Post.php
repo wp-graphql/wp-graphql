@@ -261,7 +261,7 @@ class Post extends Model {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'date'          => function () {
-					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? $this->data->post_date : null;
+					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Types::prepare_date_response( null, $this->data->post_date ) : null;
 				},
 				'dateGmt'       => function () {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
