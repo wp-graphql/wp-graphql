@@ -504,7 +504,9 @@ class TypeRegistry {
 				} else if ( is_string( $type['non_null'] ) ) {
 					$non_null_type = TypeRegistry::get_type( $type['non_null'] );
 				}
-				if ( ! empty( $non_null_type ) ) {
+				if ( empty( $non_null_type ) ) {
+					throw new \Exception( sprintf( __( 'The non_null type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['non_null'] ) );
+				} else {
 					$type = Types::non_null( $non_null_type );
 				}
 			} else if ( isset( $type['list_of'] ) ) {
@@ -514,7 +516,9 @@ class TypeRegistry {
 					$list_of_type = TypeRegistry::get_type( $type['list_of'] );
 				}
 
-				if ( ! empty( $list_of_type ) ) {
+				if ( empty( $list_of_type ) ) {
+					throw new \Exception( sprintf( __( 'The list_of type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['list_of'] ) );
+				} else {
 					$type = Types::list_of( $list_of_type );
 				}
 			}
