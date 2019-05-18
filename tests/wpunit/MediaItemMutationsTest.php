@@ -78,7 +78,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->authorId         = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 	    $this->caption          = 'Shia shows off some magic in this caption.';
 	    $this->commentStatus    = 'closed';
-	    $this->date             = '2017-08-01 15:00:00';
+	    $this->date             = '2017-08-01T15:00:00';
 	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
 	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
@@ -98,7 +98,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_altText = 'Some updated alt text';
 	    $this->updated_caption = 'Shia shows off some magic in this updated caption.';
 	    $this->updated_commentStatus = 'open';
-	    $this->updated_date = '2017-08-01 16:00:00';
+	    $this->updated_date = '2017-08-01T16:00:00';
 	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';

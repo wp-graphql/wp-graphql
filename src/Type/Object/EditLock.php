@@ -4,6 +4,7 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Deferred;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Types;
 
 register_graphql_object_type( 'EditLock', [
 	'description' => __( 'Info on whether the object is locked by another user editing it', 'wp-graphql' ),
@@ -14,7 +15,7 @@ register_graphql_object_type( 'EditLock', [
 			'resolve'     => function( $edit_lock, array $args, $context, $info ) {
 				$time = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
 
-				return ! empty( $time ) ? date( 'Y-m-d H:i:s', $time ) : null;
+				return ! empty( $time ) ? Types::prepare_date_response(null, date( 'Y-m-d H:i:s', $time ) ) : null;
 			},
 		],
 		'user'     => [
