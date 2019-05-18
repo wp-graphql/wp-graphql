@@ -79,7 +79,7 @@ class TypeRegistry {
 		register_graphql_type( 'String', Types::string() );
 
 		/**
-		 * Register core WPGRaphQL Types
+		 * Register core WPGraphQL Types
 		 */
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
