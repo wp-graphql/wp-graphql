@@ -46,8 +46,8 @@ register_graphql_union_type( 'MenuItemObjectUnion', [
 		}
 
 		// Taxonomy term
-		if ( $object instanceof Term && ! empty( $object->taxonomy ) ) {
-			return Types::term_object( $object->taxonomy );
+		if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
+			return Types::term_object( $object->taxonomyName );
 		}
 
 		return null;

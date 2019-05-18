@@ -13,6 +13,7 @@ use GraphQLRelay\Relay;
  * @property string   $label
  * @property string   $linkRelationship
  * @property int      $menuItemId
+ * @property int      $objectId
  * @property string   $target
  * @property string   $title
  * @property string   $url
@@ -77,6 +78,9 @@ class MenuItem extends Model {
 				},
 				'menuItemId' => function() {
 					return absint( $this->data->ID );
+				},
+				'objectId' => function() {
+					return ( absint( $this->data->object_id ) );
 				},
 				'target' => function() {
 					return ! empty( $this->data->target ) ? $this->data->target : null;
