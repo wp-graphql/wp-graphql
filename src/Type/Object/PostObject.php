@@ -73,6 +73,10 @@ function register_post_object_types( $post_type_object ) {
 				'type'        => 'String',
 				'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
 			],
+			'srcSet' => [
+				'type' => 'string',
+				'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
+			],
 			'description'  => [
 				'type'        => 'String',
 				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),

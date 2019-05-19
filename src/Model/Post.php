@@ -380,6 +380,10 @@ class Post extends Model {
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
+					'srcSet' => function() {
+						$src_set = wp_get_attachment_image_srcset( $this->data->ID );
+						return ! empty( $src_set ) ? $src_set : null;
+					},
 					'captionRaw' => [
 						'callback' => function() {
 							return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
