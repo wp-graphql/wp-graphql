@@ -61,7 +61,7 @@ COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
 # Run PHP Composer install so that Codeception dependencies are available
 USER www-data
 RUN cd "${SUT_PLUGIN_DIR}" \
-  && composer update --prefer-source --no-interaction --dev
+  && composer install --prefer-source --no-interaction --dev
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root
