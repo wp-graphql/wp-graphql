@@ -66,15 +66,24 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$sticky = [];
 
 		/**
-		 * Filter whether GraphQL should include sticky posts at the top of the query.
-		 *
-		 * @param boolean                      $include Whether to include sticky posts. False by default.
-		 * @param PostObjectConnectionResolver $this    Instance of the class to provide context for filters to decide when to allow/disallow sticky post support
+		 * Sticky posts are only supported for the 'post' post_type, and
+		 * should only be added to the first query for posts in a paginated
+		 * query
 		 */
-		$include_sticky_posts = apply_filters( 'graphql_include_sticky_posts', false, $this );
-		if ( true === $include_sticky_posts && 0 == $this->get_offset() && ! isset( $this->args['last'] ) ) {
-			$sticky = get_option( 'sticky_posts' );
+		if ( 'post' === $this->post_type && 0 == $this->get_offset() && ! isset( $this->args['last'] ) ) {
+
+			/**
+			 * Filter whether GraphQL should include sticky posts at the top of the query.
+			 *
+			 * @param boolean                      $include Whether to include sticky posts. false by default.
+			 * @param PostObjectConnectionResolver $this    Instance of the class to provide context for filters to decide when to allow/disallow sticky post support
+			 */
+			$include_sticky_posts = apply_filters( 'graphql_include_sticky_posts', false, $this );
+			if ( true === $include_sticky_posts ) {
+				$sticky = get_option( 'sticky_posts' );
+			}
 		}
+
 
 		return ! empty( $this->query->posts ) ? array_merge( $sticky, $this->query->posts ) : [];
 	}
