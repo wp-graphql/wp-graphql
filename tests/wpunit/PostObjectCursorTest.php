@@ -226,6 +226,21 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
+	public function testPostOrderingByDuplicatePostTitles() {
+		foreach ($this->created_post_ids as $index => $post_id) {
+			wp_update_post( [
+				'ID' => $post_id,
+				'post_title' => 'duptitle',
+
+			] );
+		}
+
+		$this->assertQueryInCursor( [
+			'orderby' => 'post_title',
+			'order' => 'DESC',
+		] );
+	}
+
 	public function testPostOrderingByMetaString() {
 
 		// Add post meta to created posts
