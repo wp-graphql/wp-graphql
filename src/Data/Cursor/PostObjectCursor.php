@@ -163,15 +163,14 @@ class PostObjectCursor {
 	 */
 	private function compare_with( $by, $order ) {
 
-		$post_field = 'post_' . $by;
+		$post_field = $by;
 		$value      = $this->get_cursor_post()->{$post_field};
 
 		/**
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
-			$this->builder->add_field( "{$this->wpdb->posts}.post_{$by}", $value, null, $order );
-
+			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 			return;
 		}
 
