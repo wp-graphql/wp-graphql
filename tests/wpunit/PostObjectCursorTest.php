@@ -199,7 +199,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Simple title ordering test
 	 */
-	public function testPostOrderingByPostTitle() {
+	public function testPostOrderingByPostTitleDefault() {
 		$this->assertQueryInCursor( [
 			'orderby' => 'title',
 		] );
