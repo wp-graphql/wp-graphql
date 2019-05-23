@@ -74,6 +74,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
+		// Ensure that ordering by titles is different from ordering by ids
+		$titles = "qwertyuiopasdfghjklzxcvbnm";
 
 		// Create posts
 		$created_posts = [];
@@ -84,7 +86,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'post_type'   => 'post',
 				'post_date'   => $date,
 				'post_status' => 'publish',
-				'post_title'  => $i,
+				'post_title'  => $titles[ $i % strlen( $titles ) ],
 			] );
 		}
 
