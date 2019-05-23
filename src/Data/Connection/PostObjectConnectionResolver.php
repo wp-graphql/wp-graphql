@@ -62,7 +62,21 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_items() {
-		return ! empty( $this->query->posts ) ? $this->query->posts : [];
+
+		$sticky = [];
+
+		/**
+		 * Filter whether GraphQL should include sticky posts at the top of the query.
+		 *
+		 * @param boolean                      $include Whether to include sticky posts. False by default.
+		 * @param PostObjectConnectionResolver $this    Instance of the class to provide context for filters to decide when to allow/disallow sticky post support
+		 */
+		$include_sticky_posts = apply_filters( 'graphql_include_sticky_posts', false, $this );
+		if ( true === $include_sticky_posts && 0 == $this->get_offset() && ! isset( $this->args['last'] ) ) {
+			$sticky = get_option( 'sticky_posts' );
+		}
+
+		return ! empty( $this->query->posts ) ? array_merge( $sticky, $this->query->posts ) : [];
 	}
 
 	/**
@@ -112,11 +126,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
 
 		/**
-		 * Ignore sticky posts by default
-		 */
-		$query_args['ignore_sticky_posts'] = true;
-
-		/**
 		 * Set the post_type for the query based on the type of post being queried
 		 */
 		$query_args['post_type'] = ! empty( $this->post_type ) ? $this->post_type : 'post';
@@ -148,14 +157,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$cursor_offset                        = $this->get_offset();
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
-
-		/**
-		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
-		 * trigger due to the page parameter not being set in the query_vars, fixes #732
-		 */
-		if ( 0 !== $cursor_offset ) {
-			$query_args['ignore_sticky_posts'] = true;
-		}
 
 		/**
 		 * Pass the graphql $args to the WP_Query
