@@ -140,6 +140,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			  edges {
 				node {
 				  title
+				  postId
 				}
 			  }
 			}
@@ -150,7 +151,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $first['data']['posts']['edges']);
 
 
@@ -160,7 +161,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
@@ -181,8 +182,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] ) );
 
 
-		$first_page_expected = wp_list_pluck($first_page->posts, 'post_title');
-		$second_page_expected = wp_list_pluck($second_page->posts, 'post_title');
+		$first_page_expected = wp_list_pluck($first_page->posts, 'ID');
+		$second_page_expected = wp_list_pluck($second_page->posts, 'ID');
 
 		// Aserting like this we get more readable assertion fail message
 		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
