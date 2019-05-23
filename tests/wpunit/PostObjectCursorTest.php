@@ -201,7 +201,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleDefault() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 		] );
 	}
 
@@ -210,7 +210,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleASC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 			'order' => 'ASC',
 		] );
 	}
@@ -220,7 +220,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleDESC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 			'order' => 'DESC',
 		] );
 	}
