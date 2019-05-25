@@ -75,7 +75,23 @@ function register_post_object_types( $post_type_object ) {
 			],
 			'srcSet' => [
 				'type' => 'string',
+				'args' => [
+					'size' => [
+						'type'        => 'MediaItemSizeEnum',
+						'description' => __( 'Size of the MediaItem to calculate srcSet with', 'wp-graphql' ),
+					],
+				],
 				'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
+			],
+			'sizes' => [
+				'type' => 'string',
+				'args' => [
+					'size' => [
+						'type'        => 'MediaItemSizeEnum',
+						'description' => __( 'Size of the MediaItem to calculate sizes with', 'wp-graphql' ),
+					],
+				],
+				'description' => __( 'The sizes attribute value for an image.', 'wp-graphql' ),
 			],
 			'description'  => [
 				'type'        => 'String',

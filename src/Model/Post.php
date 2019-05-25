@@ -380,9 +380,17 @@ class Post extends Model {
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
-					'srcSet' => function() {
-						$src_set = wp_get_attachment_image_srcset( $this->data->ID );
+					'srcSet' => function( $size = 'medium' ) {
+						$src_set = wp_get_attachment_image_srcset( $this->data->ID, $size );
 						return ! empty( $src_set ) ? $src_set : null;
+					},
+					'sizes' => function( $size = 'medium' ) {
+						$url = wp_get_attachment_image_src( $this->data->ID, $size );
+						if ( empty( $url[0] ) ) {
+							return null;
+						}
+						$sizes = wp_calculate_image_sizes( $size, $url[0], null, $this->data->ID );
+						return ! empty( $sizes ) ? $sizes : null;
 					},
 					'captionRaw' => [
 						'callback' => function() {
