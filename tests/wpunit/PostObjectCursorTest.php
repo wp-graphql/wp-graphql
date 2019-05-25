@@ -74,6 +74,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
+		// Ensure that ordering by titles is different from ordering by ids
+		$titles = "qwertyuiopasdfghjklzxcvbnm";
 
 		// Create posts
 		$created_posts = [];
@@ -84,7 +86,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'post_type'   => 'post',
 				'post_date'   => $date,
 				'post_status' => 'publish',
-				'post_title'  => $i,
+				'post_title'  => $titles[ $i % strlen( $titles ) ],
 			] );
 		}
 
@@ -138,6 +140,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			  edges {
 				node {
 				  title
+				  postId
 				}
 			  }
 			}
@@ -148,7 +151,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $first['data']['posts']['edges']);
 
 
@@ -158,7 +161,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
@@ -179,8 +182,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		] ) );
 
 
-		$first_page_expected = wp_list_pluck($first_page->posts, 'post_title');
-		$second_page_expected = wp_list_pluck($second_page->posts, 'post_title');
+		$first_page_expected = wp_list_pluck($first_page->posts, 'ID');
+		$second_page_expected = wp_list_pluck($second_page->posts, 'ID');
 
 		// Aserting like this we get more readable assertion fail message
 		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
@@ -197,9 +200,9 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Simple title ordering test
 	 */
-	public function testPostOrderingByPostTitle() {
+	public function testPostOrderingByPostTitleDefault() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 		] );
 	}
 
@@ -208,7 +211,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleASC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 			'order' => 'ASC',
 		] );
 	}
@@ -218,7 +221,22 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleDESC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
+			'order' => 'DESC',
+		] );
+	}
+
+	public function testPostOrderingByDuplicatePostTitles() {
+		foreach ($this->created_post_ids as $index => $post_id) {
+			wp_update_post( [
+				'ID' => $post_id,
+				'post_title' => 'duptitle',
+
+			] );
+		}
+
+		$this->assertQueryInCursor( [
+			'orderby' => 'post_title',
 			'order' => 'DESC',
 		] );
 	}

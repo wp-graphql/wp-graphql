@@ -26,7 +26,7 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
         docker-php-ext-enable xdebug; \
      fi \
   && docker-php-ext-install pdo_mysql \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/5eb0614d3fa7130b363698d3dca52c619b463615/web/installer' | php -- --quiet \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/ffdc3c7fcb7c0f2a806508a868a35d13177a5a51/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
@@ -61,7 +61,7 @@ COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
 # Run PHP Composer install so that Codeception dependencies are available
 USER www-data
 RUN cd "${SUT_PLUGIN_DIR}" \
-  && composer update --prefer-source --no-interaction --dev
+  && composer install --prefer-source --no-interaction --dev
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root

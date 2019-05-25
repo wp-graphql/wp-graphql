@@ -261,7 +261,7 @@ class Post extends Model {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'date'          => function () {
-					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? $this->data->post_date : null;
+					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Types::prepare_date_response( null, $this->data->post_date ) : null;
 				},
 				'dateGmt'       => function () {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
@@ -379,6 +379,18 @@ class Post extends Model {
 						setup_postdata( $this->data );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 						return ! empty( $caption ) ? $caption : null;
+					},
+					'srcSet' => function( $size = 'medium' ) {
+						$src_set = wp_get_attachment_image_srcset( $this->data->ID, $size );
+						return ! empty( $src_set ) ? $src_set : null;
+					},
+					'sizes' => function( $size = 'medium' ) {
+						$url = wp_get_attachment_image_src( $this->data->ID, $size );
+						if ( empty( $url[0] ) ) {
+							return null;
+						}
+						$sizes = wp_calculate_image_sizes( $size, $url[0], null, $this->data->ID );
+						return ! empty( $sizes ) ? $sizes : null;
 					},
 					'captionRaw' => [
 						'callback' => function() {

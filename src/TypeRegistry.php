@@ -79,7 +79,7 @@ class TypeRegistry {
 		register_graphql_type( 'String', Types::string() );
 
 		/**
-		 * Register core WPGRaphQL Types
+		 * Register core WPGraphQL Types
 		 */
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
@@ -476,19 +476,7 @@ class TypeRegistry {
 			}
 		}
 
-		if ( is_array( $field_config['type'] ) ) {
-			if ( isset( $field_config['type']['non_null'] ) && is_string( $field_config['type']['non_null'] ) ) {
-				$non_null_type = TypeRegistry::get_type( $field_config['type']['non_null'] );
-				if ( ! empty( $non_null_type ) ) {
-					$field_config['type'] = Types::non_null( $non_null_type );
-				}
-			} else if ( isset( $field_config['type']['list_of'] ) && is_string( $field_config['type']['list_of'] ) ) {
-				$list_of_type = TypeRegistry::get_type( $field_config['type']['list_of'] );
-				if ( ! empty( $list_of_type ) ) {
-					$field_config['type'] = Types::list_of( $list_of_type );
-				}
-			}
-		}
+		$field_config['type'] = self::setup_type_modifiers( $field_config['type'] );
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
@@ -499,6 +487,45 @@ class TypeRegistry {
 		}
 
 		return $field_config;
+	}
+
+	/**
+	 * @param mixed string|array $type
+	 *
+	 * @return mixed
+	 * @throws \Exception
+	 */
+	public static function setup_type_modifiers( $type ) {
+
+		if ( is_array( $type ) ) {
+			if ( isset( $type['non_null'] ) ) {
+				if ( is_array( $type['non_null'] ) ) {
+					$non_null_type = self::setup_type_modifiers( $type['non_null'] );
+				} else if ( is_string( $type['non_null'] ) ) {
+					$non_null_type = TypeRegistry::get_type( $type['non_null'] );
+				}
+				if ( empty( $non_null_type ) ) {
+					throw new \Exception( sprintf( __( 'The non_null type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['non_null'] ) );
+				} else {
+					$type = Types::non_null( $non_null_type );
+				}
+			} else if ( isset( $type['list_of'] ) ) {
+				if ( is_array( $type['list_of'] ) ) {
+					$list_of_type = self::setup_type_modifiers( $type['list_of'] );
+				} else if ( is_string( $type['list_of'] ) ) {
+					$list_of_type = TypeRegistry::get_type( $type['list_of'] );
+				}
+
+				if ( empty( $list_of_type ) ) {
+					throw new \Exception( sprintf( __( 'The list_of type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['list_of'] ) );
+				} else {
+					$type = Types::list_of( $list_of_type );
+				}
+			}
+		}
+
+		return $type;
+
 	}
 
 	/**

@@ -219,14 +219,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'commentCount'  => null,
 					'commentStatus' => 'open',
 					'content'       => apply_filters( 'the_content', 'Test page content' ),
-					'date'          => $this->current_date,
+					'date'          => \WPGraphQL\Types::prepare_date_response( null, $this->current_date ),
 					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'desiredSlug'   => null,
 					'editLast'      => [
 						'userId' => $this->admin,
 					],
 					'editLock'      => [
-						'editTime' => $this->current_date,
+						'editTime' => \WPGraphQL\Types::prepare_date_response( null, $this->current_date ),
 						'user'     => [
 							'userId' => $this->admin,
 						],
