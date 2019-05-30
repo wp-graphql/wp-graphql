@@ -27,7 +27,7 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 		} else {
 			$field_key = $key;
 		}
-		$field_key = lcfirst( $setting_field['group'] . 'Settings' . str_replace( '_', '', ucwords( $field_key, '_' ) ) );
+		$field_key = lcfirst( str_replace( '_', '', ucwords( $setting_field['group'], '_' ) ) . 'Settings' . str_replace( '_', '', ucwords( $field_key, '_' ) ) );
 
 		if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
