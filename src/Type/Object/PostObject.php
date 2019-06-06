@@ -192,7 +192,7 @@ function register_post_object_types( $post_type_object ) {
 }
 
 /**
- * Registers fields corresponding the provided post type object
+ * Registers common post type fields on schema type corresponding to provided post type object.
  *
  * @param WP_Post_Type $post_type_object Post type.
  */
