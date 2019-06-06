@@ -19,6 +19,9 @@
     },
     {
       "name": "Chris Zarate"
+    },
+    {
+      "name": "Geoff Taylor"
     }
   ],
   "require": {
@@ -26,7 +29,7 @@
     "ivome/graphql-relay-php": "^0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^2.2."
+    "lucatume/wp-browser": ">=2.2.1 <2.2.8"
   },
   "config": {
     "optimize-autoloader": true
