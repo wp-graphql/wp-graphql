@@ -88,10 +88,10 @@ function register_post_object_types( $post_type_object ) {
 						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 							// @codingStandardsIgnoreLine.
 							return $source->captionRaw;
-						} else {
-							// @codingStandardsIgnoreLine.
-							return $source->captionRendered;
 						}
+
+						// @codingStandardsIgnoreLine.
+						return $source->captionRendered;
 					},
 				],
 				'altText'      => [
@@ -154,10 +154,10 @@ function register_post_object_types( $post_type_object ) {
 						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 							// @codingStandardsIgnoreLine.
 							return $source->descriptionRaw;
-						} else {
-							// @codingStandardsIgnoreLine.
-							return $source->descriptionRendered;
 						}
+
+						// @codingStandardsIgnoreLine.
+						return $source->descriptionRendered;
 					},
 				],
 				'mediaType'    => [
@@ -275,10 +275,10 @@ function get_post_object_fields( $post_type_object ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 					// @codingStandardsIgnoreLine.
 					return $source->contentRaw;
-				} else {
-					// @codingStandardsIgnoreLine.
-					return $source->contentRendered;
 				}
+
+				// @codingStandardsIgnoreLine.
+				return $source->contentRendered;
 			},
 		],
 		'title'             => [
@@ -294,10 +294,10 @@ function get_post_object_fields( $post_type_object ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 					// @codingStandardsIgnoreLine.
 					return $source->titleRaw;
-				} else {
-					// @codingStandardsIgnoreLine.
-					return $source->titleRendered;
 				}
+
+				// @codingStandardsIgnoreLine.
+				return $source->titleRendered;
 			},
 		],
 		'excerpt'           => [
@@ -313,10 +313,10 @@ function get_post_object_fields( $post_type_object ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 					// @codingStandardsIgnoreLine.
 					return $source->excerptRaw;
-				} else {
-					// @codingStandardsIgnoreLine.
-					return $source->excerptRendered;
 				}
+
+				// @codingStandardsIgnoreLine.
+				return $source->excerptRendered;
 			},
 		],
 		'status'            => [
