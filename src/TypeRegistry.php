@@ -135,7 +135,7 @@ class TypeRegistry {
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 			foreach ( $allowed_setting_types as $group => $setting_type ) {
 
-				$group_name = str_replace( '_', '', strtolower( $group ) );
+				$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
 				register_settings_group( $group_name );
 
 				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
