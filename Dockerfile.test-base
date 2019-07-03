@@ -26,7 +26,7 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
         docker-php-ext-enable xdebug; \
      fi \
   && docker-php-ext-install pdo_mysql \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/ffdc3c7fcb7c0f2a806508a868a35d13177a5a51/web/installer' | php -- --quiet \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/3c21a2c1affd88dd3fec6251e91a53e440bc2198/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
