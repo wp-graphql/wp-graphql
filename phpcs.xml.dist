@@ -16,7 +16,6 @@
 	<rule ref="PHPCompatibilityWP"/>
 
 	<!-- Load WordPress Coding standards -->
-	<rule ref="WordPress-Core"/>
 	<rule ref="WordPress-Docs"/>
 	<rule ref="WordPress-Extra"/>
 
