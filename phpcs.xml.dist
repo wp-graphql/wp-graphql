@@ -4,21 +4,21 @@
 	<!-- Set a description for this ruleset -->
 	<description>Coding standards that will be run on the WP GraphQL plugin.</description>
 
-  <config name="encoding" value="utf-8"/>
+	<config name="encoding" value="utf-8"/>
 
 	<!-- Check code for cross-version PHP compatibility. -->
 	<!-- Will check the code compatiblity for PHP greater than 5.6 -->
-  <config name="testVersion" value="5.6-"/>
+	<config name="testVersion" value="5.6-"/>
 
-  <!-- Check against minimum WP version. -->
-  <config name="minimum_supported_wp_version" value="4.7"/>
+	<!-- Check against minimum WP version. -->
+	<config name="minimum_supported_wp_version" value="4.7"/>
 
-  <rule ref="PHPCompatibilityWP"/>
+	<rule ref="PHPCompatibilityWP"/>
 
 	<!-- Load WordPress Coding standards -->
-  <rule ref="WordPress-Core"/>
-  <rule ref="WordPress-Docs"/>
-  <rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
 
 	<!-- What to exclude -->
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
@@ -27,11 +27,11 @@
 	<!-- What to scan -->
 	<file>src</file>
 
-  <!-- Enable colors in report -->
-  <arg name="colors"/>
+	<!-- Enable colors in report -->
+	<arg name="colors"/>
 
-  <!-- Add source codes in the report -->
-  <arg value="s"/>
+	<!-- Add source codes in the report -->
+	<arg value="s"/>
 
 	<!-- Remove the class naming error temporarily -->
 	<rule ref="WordPress.Files.FileName">
@@ -40,8 +40,8 @@
 		</properties>
 	</rule>
 
-  <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-    <severity>0</severity>
-  </rule>
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<severity>0</severity>
+	</rule>
 
 </ruleset>
