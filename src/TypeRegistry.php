@@ -102,6 +102,7 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/OrderEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PageInfo.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Plugin.php' );
+		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PluginStatusEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/PostObjectsConnectionOrderbyInput.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php' );
