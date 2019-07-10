@@ -73,7 +73,7 @@ register_graphql_object_type( 'MenuItem', [
 
 					// Taxonomy term
 					case 'taxonomy':
-						$resolved_object = isset( $menu_item->term_id ) && isset( $menu_item->taxonomy ) ? DataSource::resolve_term_object( $menu_item->term_id, $context ) : $menu_item;
+						$resolved_object = DataSource::resolve_term_object( $object_id, $context );
 						break;
 					default:
 						$resolved_object = $menu_item;

@@ -240,6 +240,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				status
 				title
 				toPing
+				srcSet
 			}
 		}";
 
@@ -247,6 +248,8 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$mediaItem = $actual['data']['mediaItem'];
 
@@ -282,6 +285,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
 		$this->assertTrue( ( empty( $mediaItem['toPing'] ) || is_array( $mediaItem['toPing'] ) ) );
+		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
+		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
 
 		$this->assertEquals(
 			[

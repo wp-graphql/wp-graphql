@@ -178,6 +178,32 @@ of the set up and configuration tasks performed by a developer.
    ![alt text](img/intellij-php-start-debug.png)
    
 1. Now when you visit http://127.0.0.1:8000 you can use the debugger.           
+
+
+#### Using MySQL clients to connect to MySQL containers
+1. Run the application with desired sites. Here's an example:
+   ```
+   ./run-docker-local-app.sh
+   ```
+
+1. List the MySQL containers that are running and their MySQL port mappings. These ports will change each time the app is run:  
+   ```
+   ./list-mysql-containers.sh
+   ```
+   
+   You should see output like the following:
+   ```
+   aa38d8d7eff1        mariadb:10.2.24-bionic          "docker-entrypoint.s…"   14 seconds ago      Up 13 seconds       0.0.0.0:32772->3306/tcp   docker_mysql_test_1
+   ```
+   
+1. Configure your MySQL client to connect to `localhost` and the appropriate ***host*** port. For example, to connect
+   to the MySQL container shown above, have the MySQL client connect with this configuration:
+   * IP/Hostname: `localhost`
+   * Port: `32772`
+   * Database: `wpgraphql_test`
+   * User: `root`
+   * Password: `testing`
+
    
 #### Running tests with Docker
 
@@ -246,7 +272,7 @@ Notes:
   
 
 #### Updating WP Docker software versions
-Make sure the `docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
+Make sure the `docker/docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
 Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
 check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
 

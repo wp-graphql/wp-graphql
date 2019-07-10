@@ -3,6 +3,8 @@
 namespace WPGraphQL;
 
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
+
 
 /**
  * Class WPSchema
@@ -12,6 +14,11 @@ use GraphQL\Type\Schema;
  * @package WPGraphQL
  */
 class WPSchema extends Schema {
+
+	/**
+	 * @var SchemaConfig
+	 */
+	public $config;
 
 	/**
 	 * Holds the $filterable_config which allows WordPress access to modifying the
@@ -30,6 +37,8 @@ class WPSchema extends Schema {
 	 * @since 0.0.9
 	 */
 	public function __construct( $config ) {
+
+		$this->config = $config;
 
 		/**
 		 * Set the $filterable_config as the $config that was passed to the WPSchema when instantiated

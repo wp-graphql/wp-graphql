@@ -612,7 +612,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
          * Set the expected date outcome
          */
 
-        $dateExpected = '2017-01-03 00:00:00';
+        $dateExpected = '2017-01-03T00:00:00';
         $dateGmtExpected = '2017-01-03T00:00:00';
 
         $results = $this->createPostWithDatesMutation([
@@ -649,7 +649,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
          * Set the input and expected date outcome
          */
 
-        $dateExpected = '2017-01-03 00:00:00';
+        $dateExpected = '2017-01-03T00:00:00';
         $dateGmtExpected = '2017-01-03T00:00:00';
 
         $results = $this->createPostWithDatesMutation([
@@ -686,7 +686,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
          * Set the input and expected date outcome
          */
 
-        $dateExpected = '2017-01-03 00:00:00';
+        $dateExpected = '2017-01-03T00:00:00';
         $dateGmtExpected = null;
 
         $results = $this->createPostWithDatesMutation([
