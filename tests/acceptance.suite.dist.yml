@@ -15,15 +15,15 @@ modules:
         WPDb:
             dsn: 'mysql:host=127.0.0.1;dbname=wpgraphql_test'
             user: 'root'
-            password: ''
+            password: 'mysql'
             dump: 'tests/_data/dump.sql'
             populate: true #import the dump before the tests
             cleanup: true #import the dump between tests
-            url: 'http://wpgraphql.test'
+            url: 'http://digitalp.local'
             urlReplacement: true #replace the hardcoded dump URL with the one above
             tablePrefix: 'wp_'
         WPBrowser:
-            url: 'http://wpgraphql.test'
-            adminUsername: 'admin'
-            adminPassword: 'password'
+            url: 'http://digitalp.local'
+            adminUsername: 'joseff'
+            adminPassword: 'test'
             adminPath: '/wp-admin'
