@@ -213,10 +213,18 @@ class PostObjectCreate {
              * If the post being created is being assigned to another user that's not the current user, make sure
              * the current user has permission to edit others posts for this post_type
              */
-	        $authorID = absint($input['authorId']);
-	        $id_components = Relay::fromGlobalId ( $input['authorId'] );
-	        if (is_array( $id_components ) && ! empty( $id_components['id'])) {
-		        $authorID = $id_components['id'];
+
+            if(!is_numeric($input['authorId'])) {
+	            $authorID = absint($input['authorId']);
+            } else {
+	            $relayArray = \GraphQLRelay\Relay::fromGlobalId ( $input['authorId'] );
+            }
+
+	        $authorID = \GraphQLRelay\Relay::fromGlobalId ( $input['authorId'] );
+	        if (is_array( $authorID ) && ! empty( $authorID['id'])) {
+		        $authorID = $authorID['id'];
+	        } else {
+		        $authorID = absint($input['authorId']);
 	        }
 
 	        if ( ! empty( $authorID ) && get_current_user_id() !== $authorID && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
