@@ -122,17 +122,21 @@ class PostObjectCursor {
 		$order   = $this->get_query_var( 'order' );
 
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
+
 			/**
 			 * Loop through all order keys if it is an array
 			 */
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
+
 		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
+
 		}
 
 		/**
@@ -164,7 +168,19 @@ class PostObjectCursor {
 	 */
 	private function compare_with( $by, $order ) {
 
-		$value      = $this->get_cursor_post()->{$by};
+		switch ( $by ) {
+			case 'author':
+			case 'title':
+			case 'type':
+			case 'name':
+			case 'modified':
+			case 'date':
+			case 'parent':
+				$by = 'post_' . $by;
+				break;
+		}
+
+		$value = $this->get_cursor_post()->{$by};
 
 		/**
 		 * Compare by the post field if the key matches an value
