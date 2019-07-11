@@ -50,6 +50,7 @@ class Plugins {
 			 */
 			'status'       => [
 				'type' => 'PluginStatusEnum',
+				'description'  => __( 'The status of the plugin object', 'wp-graphql' ),
 			],
 
 		], $args );
