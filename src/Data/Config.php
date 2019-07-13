@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data;
 
 use WPGraphQL\Data\Cursor\PostObjectCursor;
+use WPGraphQL\Data\Cursor\UserCursor;
 
 /**
  * Class Config
@@ -51,6 +52,85 @@ class Config {
 			'graphql_wp_query_cursor_pagination_stability'
 		], 10, 2 );
 
+		if ( ! defined( 'ABSPATH' ) ) {
+			exit;
+		}
+		
+		/**
+		 * Copied from https://github.com/wp-graphql/wp-graphql/issues/274#issuecomment-510150571
+		 * Shoutouts to epeli!
+		 * 
+		 * Add missing filters to WP_User_Query class.
+		 */
+		add_filter( 'pre_user_query', function ( $query ) {
+		
+				if ( ! $query->get( 'suppress_filters' ) ) {
+						$query->set( 'suppress_filters', 0 );
+				}
+		
+				if ( ! $query->get( 'suppress_filters' ) ) {
+		
+						/**
+						 * Filters the FROM clause of the query.
+						 *
+						 * Specifically for manipulating paging queries.
+						 **
+						*
+						* @param string $where The FROM clause of the query.
+						* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+						*/
+						$query->query_from = apply_filters_ref_array( 'users_from', array( $query->query_from, &$query ) );
+		
+						/**
+						 * Filters the WHERE clause of the query.
+						 *
+						 * Specifically for manipulating paging queries.
+						 **
+						*
+						* @param string $where The WHERE clause of the query.
+						* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+						*/
+						$query->query_where = apply_filters_ref_array( 'users_where', array( $query->query_where, &$query ) );
+		
+						/**
+						 * Filters the ORDER BY clause of the query.
+						 *
+						 *
+						 * @param string $orderby The ORDER BY clause of the query.
+						 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+						 */
+						$query->query_orderby = apply_filters_ref_array( 'users_orderby', array( $query->query_orderby, &$query ) );
+		
+						/**
+						 * Filters the LIMIT clause of the query.
+						 *
+						 *
+						 * @param string $limits The LIMIT clause of the query.
+						 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+						 */
+						$query->query_limit = apply_filters_ref_array( 'users_limits', array( $query->query_limit, &$query ) );
+		
+						/**
+						 * Filters the SELECT clause of the query.
+						 *
+						 *
+						 * @param string $fields The SELECT clause of the query.
+						 * @param WP_User_Query $this The WP_User_Query instance (passed by reference).
+						 */
+						$query->query_fields = apply_filters_ref_array( 'users_fields', array( $query->query_fields, &$query ) );
+		
+				}
+		
+				return $query;
+		
+		} );
+		
+		/**
+		 * Filter the WP_User_Query to support cursor based pagination where a user ID can be used
+		 * as a point of comparison when slicing the results to return.
+		 */
+		add_filter( 'users_where', [ $this, 'graphql_wp_user_query_cursor_pagination_support' ], 10, 2 );
+
 	}
 
 	/**
@@ -91,6 +171,30 @@ class Config {
 			$post_cursor = new PostObjectCursor( $query );
 
 			return $where . $post_cursor->get_where();
+		}
+
+		return $where;
+	}
+
+
+	/**
+	 * This filters the WP_User_Query 'where' $args, enforcing the query to return results before or
+	 * after the referenced cursor
+	 *
+	 * @param string    $where The WHERE clause of the query.
+	 * @param \WP_User_Query $query The WP_User_Query instance (passed by reference).
+	 *
+	 * @return string
+	 */
+	public function graphql_wp_user_query_cursor_pagination_support( $where, \WP_User_Query $query ) {
+
+		/**
+		 * If there's a graphql_cursor_offset in the query, we should check to see if
+		 * it should be applied to the query
+		 */
+		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+			$user_cursor = new UserCursor( $query );
+			return $where . $user_cursor->get_where();
 		}
 
 		return $where;

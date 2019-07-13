@@ -35,11 +35,23 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query_args() {
 		/**
+		 * Prepare for later use
+		 */
+		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		
+		/**
 		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['count_total'] = false;
-		$query_args['offset']      = $this->get_offset();
-		$query_args['order']       = ! empty( $this->args['last'] ) ? 'ASC' : 'DESC';
+		$query_args['order']       = ! empty( $last ) ? 'ASC' : 'DESC';
+
+		/**
+		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
+		 * to filter the WP_User_Query to support cursor pagination
+		 */
+		$cursor_offset                        = $this->get_offset();
+		$query_args['graphql_cursor_offset']  = $cursor_offset;
+		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount

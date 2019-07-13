@@ -33,7 +33,7 @@ class UserObjectPaginationTest extends \Codeception\TestCase\WPTestCase {
 				}
 		    nodes {
 		      userId
-		    }
+				}
 		  }
 		}
 		';
@@ -127,7 +127,7 @@ class UserObjectPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query' 		=> $this->query,
 			'variables' => [
-				'first' => ceil( $this->count / 2 ),
+				'first' => $paged_count,
 				'after' => $actual['data']['users']['pageInfo']['endCursor'],
 			],
 		] );
@@ -169,7 +169,7 @@ class UserObjectPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query' 		=> $this->query,
 			'variables' => [
-				'last' => ceil( $this->count / 2 ),
+				'last' => $paged_count,
 				'before' => $actual['data']['users']['pageInfo']['startCursor'],
 			],
 		] );
