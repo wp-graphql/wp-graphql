@@ -129,7 +129,18 @@ class Config {
 		 * Filter the WP_User_Query to support cursor based pagination where a user ID can be used
 		 * as a point of comparison when slicing the results to return.
 		 */
-		add_filter( 'users_where', [ $this, 'graphql_wp_user_query_cursor_pagination_support' ], 10, 2 );
+		add_filter( 'users_where', [ 
+			$this, 
+			'graphql_wp_user_query_cursor_pagination_support' 
+		], 10, 2 );
+
+		/**
+		 * Filter WP_User_Query order by add some stability to meta query ordering
+		 */
+		add_filter( 'users_orderby', [
+			$this,
+			'graphql_wp_user_query_cursor_pagination_stability'
+		], 10, 2 );
 
 	}
 
@@ -174,6 +185,25 @@ class Config {
 		}
 
 		return $where;
+	}
+
+		/**
+	 * When users are ordered by a meta query the order might be random when
+	 * the meta values have same values multiple times. This filter adds a
+	 * secondary ordering by the post ID which forces stable order in such cases.
+	 *
+	 * @param string $orderby The ORDER BY clause of the query.
+	 *
+	 * @return string
+	 */
+	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
+		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+			global $wpdb;
+
+			return "{$orderby}, {$wpdb->users}.ID DESC ";
+		}
+
+		return $orderby;
 	}
 
 

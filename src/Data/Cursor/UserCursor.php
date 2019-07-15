@@ -118,26 +118,26 @@ class UserCursor {
 			return '';
 		}
 
-		// $orderby = $this->get_query_var( 'orderby' );
-		// $order   = $this->get_query_var( 'order' );
+		$orderby = $this->get_query_var( 'orderby' );
+		$order   = $this->get_query_var( 'order' );
 
-		/* if ( ! empty( $orderby ) && is_array( $orderby ) ) {
+		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 
 			/**
 			 * Loop through all order keys if it is an array
 			 */
-			// foreach ( $orderby as $by => $order ) {
-			//	$this->compare_with( $by, $order );
-			// }
+			foreach ( $orderby as $by => $order ) {
+				$this->compare_with( $by, $order );
+			}
 
-		// } else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
 
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
-			// $this->compare_with( $orderby, $order );
+			$this->compare_with( $orderby, $order );
 
-		// } 
+		} 
 
 		/**
 		 * No custom comparing. Use the default date
@@ -169,24 +169,22 @@ class UserCursor {
 	private function compare_with( $by, $order ) {
 
 		switch ( $by ) {
-			case 'author':
-			case 'title':
-			case 'type':
-			case 'name':
-			case 'modified':
-			case 'date':
-			case 'parent':
-				$by = 'post_' . $by;
+			case 'email':
+			case 'login':
+			case 'nicename':
+			case 'registered':
+			case 'url':
+				$by = 'user_' . $by;
 				break;
 		}
 
-		$value = $this->get_cursor_post()->{$by};
+		$value = $this->get_cursor_user()->{$by};
 
 		/**
-		 * Compare by the post field if the key matches an value
+		 * Compare by the user field if the key matches a value
 		 */
 		if ( ! empty( $value ) ) {
-			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
+			$this->builder->add_field( "{$this->wpdb->users}.{$by}", $value, null, $order );
 
 			return;
 		}
@@ -206,16 +204,16 @@ class UserCursor {
 	/**
 	 * Compare with meta key field
 	 *
-	 * @param string $meta_key post meta key
+	 * @param string $meta_key user meta key
 	 * @param string $order    The comparison string
 	 *
 	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
-		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
+		$meta_value = get_user_meta( $this->cursor_offset, $meta_key, true );
 
-		$key = "{$this->wpdb->postmeta}.meta_value";
+		$key = "{$this->wpdb->usermeta}.meta_value";
 
 		/**
 		 * wp uses mt1, mt2 etc. style aliases for additional meta value joins.

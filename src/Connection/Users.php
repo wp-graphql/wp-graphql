@@ -118,6 +118,12 @@ class Users {
 				'type'        => 'Int',
 				'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 			],
+			'orderby'      => [
+				'type'        => [
+					'list_of' => 'UsersConnectionOrderbyEnum',
+				],
+				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
+			],
 		];
 	}
 

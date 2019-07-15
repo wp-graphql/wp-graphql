@@ -43,7 +43,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['count_total'] = false;
-		$query_args['order']       = ! empty( $last ) ? 'ASC' : 'DESC';
 
 		/**
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
@@ -87,6 +86,47 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( ! is_user_logged_in() ) {
 			$query_args['has_published_posts'] = true;
+		}
+
+		/**
+		 * Map the orderby inputArgs to the WP_User_Query
+		 */
+		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+			$query_args['orderby'] = [];
+			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				/**
+				 * These orderby options should not include the order parameter.
+				 */
+				if ( in_array( $orderby_input['field'], [
+					'login__in',
+					'nicename__in',
+				], true ) ) {
+					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+				} else if ( ! empty( $orderby_input['field'] ) ) {
+					$query_args['orderby'] = [
+						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
+					];
+				}
+			}
+		}
+
+		/**
+		 * Convert meta_value_num to seperate meta_value value field which our
+		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
+		 */
+		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
+			$query_args['orderby'] = [
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+			];
+			unset( $query_args['order'] );
+			$query_args['meta_type'] = 'NUMERIC';
+		}
+
+		/**
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( empty( $query_args['orderby'] ) ) {
+			$query_args['order'] = empty( $last ) ? 'ASC' : 'DESC';
 		}
 
 		return $query_args;
@@ -162,7 +202,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Filter the input fields
 		 *
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
-		 * from a GraphQL Query to the get_terms query
+		 * from a GraphQL Query to the WP_User_Query
 		 *
 		 * @param array       $query_args The mapped query args
 		 * @param array       $args       The query "where" args
@@ -174,7 +214,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @since 0.0.5
 		 * @return array
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
