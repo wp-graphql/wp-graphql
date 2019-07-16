@@ -12,7 +12,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp() {
 
 		parent::setUp();
-		
+
 		$this->delete_users();
 
 		// Set admin as current user to authorize 'users' queries
@@ -25,8 +25,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->create_users();
 
 		$this->query = '
-		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String) {
-		  users(last: $last, before: $before, first: $first, after: $after) {
+		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToUserConnectionWhereArgs) {
+		  users(last: $last, before: $before, first: $first, after: $after, where: $where) {
 				pageInfo {
 					startCursor
 					endCursor
@@ -96,7 +96,11 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function delete_users() {
 		global $wpdb;
-		$wpdb->delete( $wpdb->prefix . 'users', array( 'user_url' => 'http://www.test.test' ) );
+		$wpdb->query( $wpdb->prepare( "
+        DELETE FROM {$wpdb->prefix}users
+        WHERE ID <> %d",
+        array( 1 )
+    ) );
 		$this->created_user_ids = [ 1 ];
 	}
 
@@ -105,9 +109,11 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUsersForwardPagination() {
 
-		codecept_debug($this->created_user_ids);
-
 		$paged_count = ceil( $this->count / 2 );
+		$expected = array_slice( $this->created_user_ids, 1, $paged_count );
+
+		codecept_debug( $expected );
+		
 		$actual = graphql( [
 			'query' 		=> $this->query,
 			'variables' => [
@@ -124,8 +130,12 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		// Compare actual results to ground truth
 		for ( $i = 0; $i < $paged_count; $i ++ ) {
-			$this->assertEquals( $this->created_user_ids[$i], $actual['data']['users']['nodes'][$i]['userId'] );
+			$this->assertEquals( $expected[$i], $actual['data']['users']['nodes'][$i]['userId'] );
 		}
+
+		$expected = array_slice( $this->created_user_ids, $paged_count + 1, $paged_count );
+
+		codecept_debug( $expected );
 
 		$actual = graphql( [
 			'query' 		=> $this->query,
@@ -142,8 +152,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		for ( $i = 0; $i < $paged_count; $i ++ ) {
-			$this->assertEquals( $this->created_user_ids[$paged_count + $i], $actual['data']['users']['nodes'][$i]['userId'] );
+		for ( $i = 0; $i < $paged_count - 1; $i ++ ) {
+			$this->assertEquals( $expected[$i], $actual['data']['users']['nodes'][$i]['userId'] );
 		}
 	}
 
@@ -153,9 +163,11 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUsersBackwardPagination() {
 
-		codecept_debug($this->created_user_ids);
-
 		$paged_count = ceil( $this->count / 2 );
+		$expected = array_slice( $this->created_user_ids, $paged_count, $paged_count );
+
+		codecept_debug( $expected );
+
 		$actual = graphql( [
 			'query' 		=> $this->query,
 			'variables' => [
@@ -172,8 +184,13 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		// Compare actual results to ground truth
 		for ( $i = 0; $i < $paged_count; $i ++ ) {
-			$this->assertEquals( $this->created_user_ids[$paged_count + $i], $actual['data']['users']['nodes'][$i]['userId'] );
+			$this->assertEquals( $expected[$i], $actual['data']['users']['nodes'][$i]['userId'] );
 		}
+
+		$paged_count = ceil( $this->count / 2 );
+		$expected = array_slice( $this->created_user_ids, 1, $paged_count - 1);
+
+		codecept_debug( $expected );
 
 		$actual = graphql( [
 			'query' 		=> $this->query,
@@ -190,8 +207,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		for ( $i = 0; $i < $paged_count; $i ++ ) {
-			$this->assertEquals( $this->created_user_ids[$i], $actual['data']['users']['nodes'][$i]['userId'] );
+		for ( $i = 0; $i < $paged_count - 1; $i ++ ) {
+			$this->assertEquals( $expected[$i], $actual['data']['users']['nodes'][$i]['userId'] );
 		}
 	}
 
