@@ -19,7 +19,7 @@ FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 # Set timezone, install XDebug, PHP Composer, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
-  && apt-get install --no-install-recommends -y mysql-client subversion \
+  && apt-get install --no-install-recommends -y mariadb-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7'; then \
         pecl install xdebug; \
