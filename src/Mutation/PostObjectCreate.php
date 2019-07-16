@@ -213,18 +213,22 @@ class PostObjectCreate {
 			 * If the post being created is being assigned to another user that's not the current user, make sure
 			 * the current user has permission to edit others posts for this post_type
 			 */
+			if ( ! empty( $input['authorId'] ) ) { //not every mutation will have a authorId
+				if ( ! is_numeric( $input['authorId'] ) ) { //check if it's a regular ID (int or string) or a Relay ID (multichar string)
+					$authorID = absint( $input['authorId'] );
+				} else {
+					// if it's a multichar hash we pull the GlobalID from the hash.
+					$relayArray = \GraphQLRelay\Relay::fromGlobalId( $input['authorId'] );
+					$authorID   = is_array( $relayArray ) && ! empty( $relayArray['id'] ) ? $relayArray['id'] : 0;
+					// already got this far, if not a id then we 0 it out ensuring it will fail the create-on-behalf-of request.
+				}
 
-			if ( ! is_numeric( $input['authorId'] ) ) {
-				$authorID = absint( $input['authorId'] );
-			} else {
-				$relayArray = \GraphQLRelay\Relay::fromGlobalId( $input['authorId'] );
-				$authorID   = is_array( $relayArray ) && ! empty( $relayArray['id'] ) ? $relayArray['id'] : 0;
+				if ( ! empty( $authorID ) && get_current_user_id() !== $authorID && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+					// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
+					throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+				}
 			}
 
-			if ( ! empty( $authorID ) && get_current_user_id() !== $authorID && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
-			}
 
 			/**
 			 * @todo: When we support assigning terms and setting posts as "sticky" we need to check permissions
