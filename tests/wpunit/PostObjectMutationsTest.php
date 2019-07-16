@@ -529,8 +529,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 		/**
 		 * Set the current user as the subscriber role so we
-		 * can test the mutation and make sure they cannot create a post
-		 * since they don't have proper permissions
+		 * can test the mutation and make sure they can create a post
+		 * since they should have have proper 'other user' permissions now
 		 */
 		wp_set_current_user( $this->subscriber );
 
