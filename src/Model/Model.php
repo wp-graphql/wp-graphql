@@ -158,6 +158,12 @@ abstract class Model {
 	}
 
 	/**
+	 * Generic model setup before the resolver function executes
+	 */
+	public function setup() {
+	}
+
+	/**
 	 * Returns the name of the model, built from the child className
 	 *
 	 * @access protected
@@ -304,9 +310,11 @@ abstract class Model {
 		}
 
 		$clean_array = [];
+		$self = $this;
 		foreach ( $this->fields as $key => $data ) {
 
-			$clean_array[ $key ] = function() use ( $key, $data ) {
+			$clean_array[ $key ] = function() use ( $key, $data, $self ) {
+				$self->setup();
 
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;

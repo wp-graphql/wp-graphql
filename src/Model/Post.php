@@ -87,14 +87,6 @@ class Post extends Model {
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
 
 		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $this->data;
-		setup_postdata( $this->data );
-
-		/**
 		 * Mimic core functionality for templates, as seen here:
 		 * https://github.com/WordPress/WordPress/blob/6fd8080e7ee7599b36d4528f72a8ced612130b8c/wp-includes/template-loader.php#L56
 		 */
@@ -120,6 +112,18 @@ class Post extends Model {
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, $post->post_author );
 
+	}
+
+	public function setup() {
+		/**
+		 * Set the resolving post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 */
+		if ( $this->data ) {
+			$GLOBALS['post'] = $this->data;
+			setup_postdata( $this->data );
+		}
 	}
 
 	/**
