@@ -90,7 +90,6 @@ class Config {
 						 */
 						$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
 		
-		
 				}
 		
 				return $query;
