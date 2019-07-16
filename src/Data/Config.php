@@ -71,17 +71,6 @@ class Config {
 				if ( ! $query->get( 'suppress_filters' ) ) {
 		
 						/**
-						 * Filters the FROM clause of the query.
-						 *
-						 * Specifically for manipulating paging queries.
-						 **
-						*
-						* @param string $where The FROM clause of the query.
-						* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-						*/
-						$query->query_from = apply_filters_ref_array( 'users_from', array( $query->query_from, &$query ) );
-		
-						/**
 						 * Filters the WHERE clause of the query.
 						 *
 						 * Specifically for manipulating paging queries.
@@ -90,7 +79,7 @@ class Config {
 						* @param string $where The WHERE clause of the query.
 						* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
 						*/
-						$query->query_where = apply_filters_ref_array( 'users_where', array( $query->query_where, &$query ) );
+						$query->query_where = apply_filters_ref_array( 'graphql_users_where', array( $query->query_where, &$query ) );
 		
 						/**
 						 * Filters the ORDER BY clause of the query.
@@ -99,25 +88,8 @@ class Config {
 						 * @param string $orderby The ORDER BY clause of the query.
 						 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
 						 */
-						$query->query_orderby = apply_filters_ref_array( 'users_orderby', array( $query->query_orderby, &$query ) );
+						$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
 		
-						/**
-						 * Filters the LIMIT clause of the query.
-						 *
-						 *
-						 * @param string $limits The LIMIT clause of the query.
-						 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-						 */
-						$query->query_limit = apply_filters_ref_array( 'users_limits', array( $query->query_limit, &$query ) );
-		
-						/**
-						 * Filters the SELECT clause of the query.
-						 *
-						 *
-						 * @param string $fields The SELECT clause of the query.
-						 * @param WP_User_Query $this The WP_User_Query instance (passed by reference).
-						 */
-						$query->query_fields = apply_filters_ref_array( 'users_fields', array( $query->query_fields, &$query ) );
 		
 				}
 		
@@ -129,7 +101,7 @@ class Config {
 		 * Filter the WP_User_Query to support cursor based pagination where a user ID can be used
 		 * as a point of comparison when slicing the results to return.
 		 */
-		add_filter( 'users_where', [ 
+		add_filter( 'graphql_users_where', [ 
 			$this, 
 			'graphql_wp_user_query_cursor_pagination_support' 
 		], 10, 2 );
@@ -137,7 +109,7 @@ class Config {
 		/**
 		 * Filter WP_User_Query order by add some stability to meta query ordering
 		 */
-		add_filter( 'users_orderby', [
+		add_filter( 'graphql_users_orderby', [
 			$this,
 			'graphql_wp_user_query_cursor_pagination_stability'
 		], 10, 2 );
