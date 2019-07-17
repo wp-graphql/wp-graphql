@@ -126,7 +126,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
 		if ( empty( $query_args['orderby'] ) ) {
-			$query_args['order'] = empty( $last ) ? 'ASC' : 'DESC';
+			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
 		return $query_args;

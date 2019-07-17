@@ -87,7 +87,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			] );
 		}
 
-		$this->created_user_ids = $created_user_ids;
+		$this->created_user_ids = array_reverse( $created_user_ids );
 
 	}
 
@@ -110,7 +110,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testUsersForwardPagination() {
 
 		$paged_count = ceil( $this->count / 2 );
-		$expected = array_slice( $this->created_user_ids, 1, $paged_count );
+		$expected = array_slice( $this->created_user_ids, 0, $paged_count );
 
 		codecept_debug( $expected );
 		
@@ -133,7 +133,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $expected[$i], $actual['data']['users']['nodes'][$i]['userId'] );
 		}
 
-		$expected = array_slice( $this->created_user_ids, $paged_count + 1, $paged_count );
+		$expected = array_slice( $this->created_user_ids, $paged_count, $paged_count );
 
 		codecept_debug( $expected );
 
@@ -164,7 +164,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testUsersBackwardPagination() {
 
 		$paged_count = ceil( $this->count / 2 );
-		$expected = array_slice( $this->created_user_ids, $paged_count, $paged_count );
+		$expected = array_slice( $this->created_user_ids, $paged_count - 1, $paged_count );
 
 		codecept_debug( $expected );
 
@@ -188,7 +188,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$paged_count = ceil( $this->count / 2 );
-		$expected = array_slice( $this->created_user_ids, 1, $paged_count - 1);
+		$expected = array_slice( $this->created_user_ids, 0, $paged_count - 1);
 
 		codecept_debug( $expected );
 
@@ -295,9 +295,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'number' => $users_per_page,
 			'paged' => 2,
 		] ) );
-
-		$first_page_expected = wp_list_pluck($first_page->results, 'ID');
+		
+		$first_page_expected 	= wp_list_pluck($first_page->results, 'ID');
 		$second_page_expected = wp_list_pluck($second_page->results, 'ID');
+
+		// WPGraphQL uses reverse ordering compared to WP_User_Query ordering	if orderby arg is not specified
+		if ( empty( $meta_fields['orderby'] ) ) {
+			$first_page_expected 	= array_reverse( wp_list_pluck($second_page->results, 'ID') );
+			$second_page_expected = array_reverse( wp_list_pluck($first_page->results, 'ID') );
+		}
 
 		// Aserting like this we get more readable assertion fail message
 		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
@@ -314,7 +320,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Simple nice name ordering test
 	 */
-	public function testUserOrderingByUserTitleDefault() {
+	public function testUserOrderingByNiceNameDefault() {
 		$this->assertQueryInCursor( [
 			'orderby' => 'user_nicename',
 		] );

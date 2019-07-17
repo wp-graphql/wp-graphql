@@ -140,10 +140,10 @@ class UserCursor {
 		} 
 
 		/**
-		 * No custom comparing. Use the default date
+		 * No custom comparing. Order by login
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_date();
+			$this->compare_with_login();
 		}
 
 		$this->builder->add_field( "{$this->wpdb->users}.ID", $this->cursor_offset, 'ID' );
@@ -152,10 +152,10 @@ class UserCursor {
 	}
 
 	/**
-	 * Use user registration date based comparison
+	 * Use user login based comparison
 	 */
-	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->users}.user_registered", $this->get_cursor_user()->user_registered, 'DATETIME' );
+	private function compare_with_login() {
+		$this->builder->add_field( "{$this->wpdb->users}.user_login", $this->get_cursor_user()->user_login, 'CHAR' );
 	}
 
 	/**
