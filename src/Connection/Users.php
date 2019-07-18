@@ -120,7 +120,7 @@ class Users {
 			],
 			'orderby'      => [
 				'type'        => [
-					'list_of' => 'UsersConnectionOrderbyEnum',
+					'list_of' => 'UsersConnectionOrderbyInput',
 				],
 				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 			],
