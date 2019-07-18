@@ -318,6 +318,35 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Simple login__in ordering test
+	 */
+	public function testUserOrderingByLoginInDefault() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'login__in',
+		] );
+	}
+
+	/**
+	 * Simple login__in ordering test by ASC
+	 */
+	public function testUserOrderingByLoginInASC() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'login__in',
+			'order' => 'ASC',
+		] );
+	}
+
+	/**
+	 * Simple login__in ordering test by DESC
+	 */
+	public function testUserOrderingByLoginInDESC() {
+		$this->assertQueryInCursor( [
+			'orderby' => 'login__in',
+			'order' => 'DESC',
+		] );
+	}
+
+	/**
 	 * Simple nice name ordering test
 	 */
 	public function testUserOrderingByNiceNameDefault() {
