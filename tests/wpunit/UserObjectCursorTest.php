@@ -351,7 +351,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserOrderingByNiceNameDefault() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'user_nicename',
+			'orderby' => 'nicename',
 		] );
 	}
 
@@ -360,7 +360,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserOrderingByNiceNameASC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'user_nicename',
+			'orderby' => 'nicename',
 			'order' => 'ASC',
 		] );
 	}
@@ -370,7 +370,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserOrderingByNiceNameDESC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'user_nicename',
+			'orderby' => 'nicename',
 			'order' => 'DESC',
 		] );
 	}
@@ -607,6 +607,54 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'order' => 'ASC',
 			'meta_key' => 'test_meta',
 		] );
+	}
+
+	/**
+	 * Test orderby nicename__in should work even with order parameter added by mistake
+	 */
+
+	 /**
+	 * Assert given 'orderby' field by comparing the GraphQL query against a plain WP_User_Query
+	 * @throws Exception
+	 */
+	public function testOrderbyNiceNameIn() {
+
+		$users_per_page = $this->count;
+		
+		$query = "
+		query getUsers(\$cursor: String) {
+			users(after: \$cursor, first: $users_per_page, where: {orderby: {field: NICE_NAME_IN, order: DESC}}) {
+			  pageInfo {
+					endCursor
+			  }
+			  edges {
+					node {
+						name
+						userId
+					}
+			  }
+			}
+		  }
+		";
+
+		$response = do_graphql_request( $query, 'getUsers', [ 'cursor' => '' ] );
+		$this->assertArrayNotHasKey( 'errors', $response, print_r( $response, true ) );
+
+		$actual = array_map( function( $edge ) {
+			return $edge['node']['userId'];
+		}, $response['data']['users']['edges']);
+
+		// Make corresponding WP_User_Query
+		$WP_response = new WP_User_Query( [
+			'number' => $users_per_page,
+			'paged' => 1,
+		] );
+		
+		// WPGraphQL uses reverse ordering compared to WP_User_Query ordering	by default
+		$expected = array_reverse( wp_list_pluck($WP_response->results, 'ID') );
+
+		// Aserting like this we get more readable assertion fail message
+		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
 	}
 
 }
