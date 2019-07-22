@@ -500,6 +500,91 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['errors'] );
 
 	}
+	/**
+	 * This tests to make sure a user with proper capabilities can create a post on behalf of others
+	 */
+	public function testEditOthersPostObjectWithProperCapabilities() {
+
+		/**
+		 *  Give the subscriber role that capability to edit another post
+		 */
+		$role = get_role( 'subscriber' );
+		$role->add_cap( 'edit_posts' );
+		$role->add_cap( 'edit_others_posts' );
+
+		/**
+		 * Create a post by an author
+		 */
+		wp_set_current_user( $this->admin );
+
+		/**
+		 * Create a post to test against and set global ID
+		 */
+		$test_post = $this->factory()->post->create( [
+			'post_title' => 'My Test Post',
+			'post_status' => 'draft',
+		] );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+		/**
+		 * Set the current user as the subscriber role so we
+		 * can test the mutation and make sure they can create a post
+		 * since they should have have proper 'other user' permissions now
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		/**
+		 * Prepare mutation for GQL request
+		 */
+		$mutation = 'mutation UPDATE_POST( $input:UpdatePostInput! ) {
+          updatePost(input: $input) {
+            post {
+              id
+              postId
+              title
+              date
+              dateGmt
+              modified
+              modifiedGmt
+            }
+          }
+		}
+        ';
+
+		$defaults = [
+			'clientMutationId' => uniqid(),
+			'id' => $global_id,
+			'title' => 'New Post Update',
+		];
+
+		$variables = [
+			'input' => $defaults,
+		];
+
+		/**
+		 * Run GQl request
+		 */
+		$actual = do_graphql_request( $mutation, 'updatePost', $variables );
+
+		/**
+		 * clean up after ourselves.
+		 * Revert capability to defaults now so future test won't give a false positive.
+		 */
+		$role->remove_cap( 'edit_posts' );
+		$role->remove_cap( 'edit_others_posts' );
+
+		/**
+		 * We're asserting that this will NOT return an error
+		 * because this user has permissions to create a post as a
+		 * subscriber on behalf of another user
+		 *
+		 * We also assert that the title is now changed to "New Post Update"
+		 */
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'New Post Update', $actual['data']['updatePost']['post']['title'] );
+
+	}
 
 	/**
 	 * This tests a createPage mutation by an admin, to verify that a user WITH proper
