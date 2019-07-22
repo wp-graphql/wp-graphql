@@ -213,12 +213,13 @@ class PostObjectCreate {
 			 * If the post being created is being assigned to another user that's not the current user, make sure
 			 * the current user has permission to edit others posts for this post_type
 			 */
+
 			if ( ! empty( $input['authorId'] ) ) { //not every mutation will have a authorId
-				if ( ! is_numeric( $input['authorId'] ) ) { //check if it's a regular ID (int or string) or a Relay ID (multichar string)
+				if ( is_numeric( $input['authorId'] ) ) { //check if it's a regular ID (int or string)
 					$authorID = absint( $input['authorId'] );
-				} else {
+				} else { // else it's a Relay ID (multichar string)
 					// if it's a multichar hash we pull the GlobalID from the hash.
-					$relayArray = \GraphQLRelay\Relay::fromGlobalId( $input['authorId'] );
+					$relayArray = Relay::fromGlobalId( $input['authorId'] );
 					$authorID   = is_array( $relayArray ) && ! empty( $relayArray['id'] ) ? $relayArray['id'] : 0;
 					// already got this far, if not a id then we 0 it out ensuring it will fail the create-on-behalf-of request.
 				}

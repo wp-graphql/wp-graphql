@@ -1,5 +1,7 @@
 <?php
 
+use GraphQLRelay\Relay;
+
 class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public $title;
@@ -160,7 +162,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the variables to use with the mutation
 		 */
 		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'id'               => Relay::toGlobalId( 'page', $page_id ),
 			'title'            => 'Some updated title',
 			'content'          => 'Some updated content',
 			'clientMutationId' => 'someId',
@@ -217,7 +219,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'updatePage' => [
 					'clientMutationId' => 'someId',
 					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'id'      => Relay::toGlobalId( 'page', $page_id ),
 						'title'   => apply_filters( 'the_title', 'Some updated title' ),
 						'content' => apply_filters( 'the_content', 'Some updated content' ),
 						'pageId'  => $page_id,
@@ -292,7 +294,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'id'               => Relay::toGlobalId( 'page', $page_id ),
 				'clientMutationId' => 'someId',
 			],
 		];
@@ -327,9 +329,9 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'data' => [
 				'deletePage' => [
 					'clientMutationId' => 'someId',
-					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+					'deletedId'        => Relay::toGlobalId( 'page', $page_id ),
 					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'id'      => Relay::toGlobalId( 'page', $page_id ),
 						'title'   => apply_filters( 'the_title', 'Original Title' ),
 						'content' => apply_filters( 'the_content', 'Original Content' ),
 						'pageId'  => $page_id,
@@ -358,7 +360,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'id'               => Relay::toGlobalId( 'page', $page_id ),
 				'clientMutationId' => 'someId',
 				'forceDelete'      => true,
 			],
@@ -371,7 +373,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( 'someId', $actual['data']['deletePage']['clientMutationId'] );
-		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ), $actual['data']['deletePage']['deletedId'] );
+		$this->assertEquals( Relay::toGlobalId( 'page', $page_id ), $actual['data']['deletePage']['deletedId'] );
 
 		/**
 		 * Try to delete the page one more time, and now there's nothing to delete, not even from the trash
@@ -413,7 +415,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$page_id   = $this->factory()->post->create( [
 			'post_type' => 'page',
 		] );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = Relay::toGlobalId( 'page', $page_id );
 
 		$variables = [
 			'input' => [
@@ -459,7 +461,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'id'               => Relay::toGlobalId( 'page', $page_id ),
 			'clientMutationId' => 'someId',
 		] );
 
@@ -525,7 +527,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'post_status' => 'draft',
 		] );
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+		$global_id = Relay::toGlobalId( 'post', $test_post );
 		/**
 		 * Set the current user as the subscriber role so we
 		 * can test the mutation and make sure they can create a post
@@ -551,20 +553,40 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
         ';
 
-		$defaults = [
+		$relayId = [
 			'clientMutationId' => uniqid(),
 			'id' => $global_id,
-			'title' => 'New Post Update',
+			'authorId' => Relay::toGlobalId('user',$this->admin),
+			'title' => 'New Post Update Relay ID',
 		];
 
-		$variables = [
-			'input' => $defaults,
+		$wpId = [
+			'clientMutationId' => uniqid(),
+			'id' => $global_id,
+			'authorId' => $this->admin,
+			'title' => 'New Post Update WP ID',
 		];
 
 		/**
-		 * Run GQl request
+		 * Run GQl request for WP ID
 		 */
-		$actual = do_graphql_request( $mutation, 'updatePost', $variables );
+		$actual = do_graphql_request( $mutation, 'updatePost', [ 'input' => $wpId ] );
+
+		/**
+		 * We're asserting that this will NOT return an error
+		 * because this user has permissions to create a post as a
+		 * subscriber on behalf of another user
+		 *
+		 * We also assert that the title is now changed to "New Post Update"
+		 */
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $wpId['title'], $actual['data']['updatePost']['post']['title'] );
+
+		/**
+		 * Run GQl request for Global ID
+		 */
+		$actual = do_graphql_request( $mutation, 'updatePost', [ 'input' => $relayId ]  );
 
 		/**
 		 * clean up after ourselves.
@@ -582,8 +604,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'New Post Update', $actual['data']['updatePost']['post']['title'] );
-
+		$this->assertEquals( $relayId['title'], $actual['data']['updatePost']['post']['title'] );
 	}
 
 	/**
@@ -812,7 +833,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
             'post_status' => 'draft',
         ] );
 
-        $global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+        $global_id = Relay::toGlobalId( 'post', $test_post );
 
         /**
          * Prepare mutation for GQL request
