@@ -55,7 +55,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 				if ( $source->menu instanceof Menu && ! empty( $source->menu->slug ) ) {
 					$items = wp_get_nav_menu_items( $source->menu->slug );
 					return $items;
-				} else if ( $source->menu instanceof MenuItem ) {
+				} elseif ( $source->menu instanceof MenuItem ) {
 					return self::get_menu_items( $source->menu, $args );
 				}
 			} else {
@@ -90,7 +90,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 */
 	public function get_query_args() {
 
-
 		/**
 		 * Filter the $this->args to allow folks to customize query generation programmatically
 		 *
@@ -104,7 +103,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Prevent the query from matching anything by default.
 		$query_args = [
 			'post_type' => 'nav_menu_item',
-			'post__in' => [ 0 ],
+			'post__in'  => [ 0 ],
 		];
 
 		$source = $this->source;
@@ -132,9 +131,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// inside a request for child items. If parent ID is 0, that corresponds to
 		// a top-level menu item.
 		$parent_id     = ( $source instanceof MenuItem && 'childItems' === $this->info->fieldName ) ? $source->menuItemId : 0;
-		$matched_items = array_filter( $menu_items, function ( $item ) use ( $parent_id ) {
-			return $parent_id === intval( $item->menu_item_parent );
-		} );
+		$matched_items = array_filter(
+			$menu_items,
+			function ( $item ) use ( $parent_id ) {
+				return $parent_id === intval( $item->menu_item_parent );
+			}
+		);
 
 		// Get post IDs.
 		$matched_ids = wp_list_pluck( $matched_items, 'ID' );

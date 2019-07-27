@@ -20,9 +20,9 @@ class WPInputObjectType extends InputObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array $fields
+	 * @param array  $fields
 	 * @param string $type_name
-	 * @param array $config
+	 * @param array  $config
 	 * @return mixed
 	 * @since 0.0.5
 	 */
@@ -41,12 +41,14 @@ class WPInputObjectType extends InputObjectType {
 
 		/**
 		 * Sort the fields alphabetically by key. This makes reading through docs much easier
+		 *
 		 * @since 0.0.2
 		 */
 		ksort( $fields );
 
 		/**
 		 * Return the filtered, sorted $fields
+		 *
 		 * @since 0.0.5
 		 */
 		return $fields;

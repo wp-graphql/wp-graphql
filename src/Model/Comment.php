@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -95,55 +94,55 @@ class Comment extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
+				'id'                 => function() {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
 				},
-				'commentId' => function() {
+				'commentId'          => function() {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function() {
 					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : 0;
 				},
-				'comment_ID' => function() {
+				'comment_ID'         => function() {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
-				'comment_post_ID' => function() {
+				'comment_post_ID'    => function() {
 					return ! empty( $this->data->comment_post_ID ) ? absint( $this->data->comment_post_ID ) : null;
 				},
-				'comment_parent_id' => function() {
+				'comment_parent_id'  => function() {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
 				},
-				'authorIp' => function() {
+				'authorIp'           => function() {
 					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
 				},
-				'date' => function() {
+				'date'               => function() {
 					return ! empty( $this->data->comment_date ) ? $this->data->comment_date : null;
 				},
-				'dateGmt' => function() {
+				'dateGmt'            => function() {
 					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
 				},
-				'contentRaw' => function() {
+				'contentRaw'         => function() {
 					return ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 				},
-				'contentRendered' => function() {
+				'contentRendered'    => function() {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 					return apply_filters( 'comment_text', $content );
 				},
-				'karma' => function() {
+				'karma'              => function() {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
 				},
-				'approved' => function() {
+				'approved'           => function() {
 					return ! empty( $this->data->comment_approved ) ? $this->data->comment_approved : null;
 				},
-				'agent' => function() {
+				'agent'              => function() {
 					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
 				},
-				'type' => function() {
+				'type'               => function() {
 					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;
 				},
-				'userId' => function() {
+				'userId'             => function() {
 					return ! empty( $this->data->user_id ) ? $this->data->user_id : null;
-				}
+				},
 			];
 
 		}

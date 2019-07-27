@@ -30,17 +30,25 @@ class MenuItems {
 		 * Registers the ChildItems connection to the MenuItem Type
 		 * MenuItemToMenuItemConnection
 		 */
-		register_graphql_connection( self::get_connection_config( [
-			'fromType'      => 'MenuItem',
-			'fromFieldName' => 'childItems',
-		] ) );
+		register_graphql_connection(
+			self::get_connection_config(
+				[
+					'fromType'      => 'MenuItem',
+					'fromFieldName' => 'childItems',
+				]
+			)
+		);
 
 		/**
 		 * Register the MenuToMenuItemsConnection
 		 */
-		register_graphql_connection( self::get_connection_config( [
-			'fromType' => 'Menu'
-		] ) );
+		register_graphql_connection(
+			self::get_connection_config(
+				[
+					'fromType' => 'Menu',
+				]
+			)
+		);
 
 	}
 
@@ -53,29 +61,32 @@ class MenuItems {
 	 * @return array
 	 */
 	public static function get_connection_config( $args = [] ) {
-		return array_merge( [
-			'fromType'       => 'RootQuery',
-			'fromFieldName'  => 'menuItems',
-			'toType'         => 'MenuItem',
-			'connectionArgs' => [
-				'id'       => [
-					'type'        => 'Int',
-					'description' => __( 'The ID of the object', 'wp-graphql' ),
+		return array_merge(
+			[
+				'fromType'       => 'RootQuery',
+				'fromFieldName'  => 'menuItems',
+				'toType'         => 'MenuItem',
+				'connectionArgs' => [
+					'id'       => [
+						'type'        => 'Int',
+						'description' => __( 'The ID of the object', 'wp-graphql' ),
+					],
+					'location' => [
+						'type'        => 'MenuLocationEnum',
+						'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
+					],
 				],
-				'location' => [
-					'type'        => 'MenuLocationEnum',
-					'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
-				],
+				'resolveNode'    => function( $id, $args, $context, $info ) {
+					return ! empty( $id ) ? DataSource::resolve_menu_item( $id, $context ) : null;
+				},
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
+					$connection = $resolver->get_connection();
+					return $connection;
+				},
 			],
-			'resolveNode' => function( $id, $args, $context, $info ) {
-				return ! empty( $id ) ? DataSource::resolve_menu_item( $id, $context ) : null;
-			},
-			'resolve'        => function ( $source, $args, $context, $info ) {
-				$resolver = new MenuItemConnectionResolver( $source, $args, $context, $info );
-				$connection = $resolver->get_connection();
-				return $connection;
-			},
-		], $args );
+			$args
+		);
 	}
 
 }

@@ -239,13 +239,17 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
-				if ( in_array( $orderby_input['field'], [
-					'post__in',
-					'post_name__in',
-					'post_parent__in'
-				], true ) ) {
+				if ( in_array(
+					$orderby_input['field'],
+					[
+						'post__in',
+						'post_name__in',
+						'post_parent__in',
+					],
+					true
+				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} else if ( ! empty( $orderby_input['field'] ) ) {
+				} elseif ( ! empty( $orderby_input['field'] ) ) {
 					$query_args['orderby'] = [
 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
 					];
@@ -253,14 +257,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			}
 		}
 
-
 		/**
 		 * Convert meta_value_num to seperate meta_value value field which our
 		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
@@ -421,16 +424,21 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * otherwise return null, effectively removing it from the $allowed_statuses that will
 		 * be passed to WP_Query
 		 */
-		$allowed_statuses = array_filter( array_map( function( $status ) use ( $post_type_obj ) {
-			if ( 'publish' === $status ) {
-				return $status;
-			}
-			if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
-				return $status;
-			} else {
-				return null;
-			}
-		}, $statuses ) );
+		$allowed_statuses = array_filter(
+			array_map(
+				function( $status ) use ( $post_type_obj ) {
+					if ( 'publish' === $status ) {
+						  return $status;
+					}
+					if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
+						return $status;
+					} else {
+						return null;
+					}
+				},
+				$statuses
+			)
+		);
 
 		/**
 		 * If there are no allowed statuses to pass to WP_Query, prevent the connection

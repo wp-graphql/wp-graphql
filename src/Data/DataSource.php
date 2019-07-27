@@ -72,9 +72,11 @@ class DataSource {
 		$comment_id = absint( $id );
 		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
 
-		return new Deferred( function () use ( $comment_id, $context ) {
-			return $context->getLoader( 'comment' )->load( $comment_id );
-		} );
+		return new Deferred(
+			function () use ( $comment_id, $context ) {
+					return $context->getLoader( 'comment' )->load( $comment_id );
+			}
+		);
 
 	}
 
@@ -88,8 +90,8 @@ class DataSource {
 	 */
 	public static function resolve_comment_author( $comment_id ) {
 		global $wpdb;
-		$comment_author                      = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
-		$comment_author                      = ! empty( $comment_author ) ? ( array ) $comment_author : [];
+		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
+		$comment_author = ! empty( $comment_author ) ? (array) $comment_author : [];
 		return new CommentAuthor( $comment_author );
 	}
 
@@ -97,9 +99,9 @@ class DataSource {
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
 	 * @param mixed  object $source
-	 * @param array       $args    Query args to pass to the connection resolver
-	 * @param AppContext  $context The context of the query to pass along
-	 * @param ResolveInfo $info    The ResolveInfo object
+	 * @param array         $args    Query args to pass to the connection resolver
+	 * @param AppContext    $context The context of the query to pass along
+	 * @param ResolveInfo   $info    The ResolveInfo object
 	 *
 	 * @return mixed
 	 * @since 0.0.5
@@ -203,9 +205,11 @@ class DataSource {
 		$post_id = absint( $id );
 		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
 
-		return new Deferred( function () use ( $post_id, $context ) {
-			return $context->getLoader( 'post_object' )->load( $post_id );
-		} );
+		return new Deferred(
+			function () use ( $post_id, $context ) {
+					return $context->getLoader( 'post_object' )->load( $post_id );
+			}
+		);
 
 	}
 
@@ -223,9 +227,11 @@ class DataSource {
 		$menu_item_id = absint( $id );
 		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
 
-		return new Deferred( function () use ( $menu_item_id, $context ) {
-			return $context->getLoader( 'menu_item' )->load( $menu_item_id );
-		} );
+		return new Deferred(
+			function () use ( $menu_item_id, $context ) {
+					return $context->getLoader( 'menu_item' )->load( $menu_item_id );
+			}
+		);
 	}
 
 	/**
@@ -327,9 +333,11 @@ class DataSource {
 		$term_id = absint( $id );
 		$context->getLoader( 'term_object' )->buffer( [ $id ] );
 
-		return new Deferred( function () use ( $term_id, $context ) {
-			return $context->getLoader( 'term_object' )->load( $term_id );
-		} );
+		return new Deferred(
+			function () use ( $term_id, $context ) {
+					return $context->getLoader( 'term_object' )->load( $term_id );
+			}
+		);
 
 	}
 
@@ -395,7 +403,7 @@ class DataSource {
 	/**
 	 * Gets the user object for the user ID specified
 	 *
-	 * @param int $id ID of the user you want the object for
+	 * @param int        $id ID of the user you want the object for
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
@@ -411,9 +419,11 @@ class DataSource {
 		$user_id = absint( $id );
 		$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
-		return new Deferred( function () use ( $user_id, $context ) {
-			return $context->getLoader( 'user' )->load( $user_id );
-		} );
+		return new Deferred(
+			function () use ( $user_id, $context ) {
+					return $context->getLoader( 'user' )->load( $user_id );
+			}
+		);
 	}
 
 	/**
@@ -547,11 +557,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                                         = $key;
+					$setting['key'] = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
-			} else if ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                                         = $key;
+			} elseif ( true === $setting['show_in_graphql'] ) {
+				$setting['key'] = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
@@ -595,7 +605,7 @@ class DataSource {
 					$setting['key']           = $key;
 					$allowed_settings[ $key ] = $setting;
 				}
-			} else if ( true === $setting['show_in_graphql'] ) {
+			} elseif ( true === $setting['show_in_graphql'] ) {
 				$setting['key']           = $key;
 				$allowed_settings[ $key ] = $setting;
 			}
@@ -636,7 +646,7 @@ class DataSource {
 
 			$node_definition = Relay::nodeDefinitions(
 
-			// The ID fetcher definition
+				// The ID fetcher definition
 				function ( $global_id, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $global_id ) ) {
@@ -693,14 +703,16 @@ class DataSource {
 							case 'user':
 								$user_id = absint( $id_components['id'] );
 
-								if ( empty( $user_id ) || ! absint( $user_id )) {
+								if ( empty( $user_id ) || ! absint( $user_id ) ) {
 									return null;
 								}
 								$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
-								return new Deferred( function () use ( $user_id, $context ) {
-									return $context->getLoader( 'user' )->load( $user_id );
-								} );
+								return new Deferred(
+									function () use ( $user_id, $context ) {
+											return $context->getLoader( 'user' )->load( $user_id );
+									}
+								);
 								break;
 							default:
 								/**
@@ -737,7 +749,6 @@ class DataSource {
 						throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 					}
 				},
-
 				// Type resolver
 				function ( $node ) {
 
@@ -774,7 +785,6 @@ class DataSource {
 							default:
 								$type = null;
 						}
-
 					}
 
 					/**

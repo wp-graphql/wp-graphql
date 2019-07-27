@@ -261,14 +261,13 @@ class UserMutation {
 
 				if ( true === $verified ) {
 					$user->add_role( $role );
-				} else if ( is_wp_error( $verified ) ) {
+				} elseif ( is_wp_error( $verified ) ) {
 					$message = $verified->get_error_message();
 					throw new \Exception( $message );
-				} else if ( false === $verified ) {
+				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
 					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
 				}
-
 			}
 		}
 
@@ -300,8 +299,8 @@ class UserMutation {
 		 * Multisite super admins can freely edit their blog roles -- they possess all caps.
 		 */
 		if ( ! ( is_multisite() && current_user_can( 'manage_sites' ) )
-		     && get_current_user_id() === $user_id
-		     && ! $potential_role->has_cap( 'edit_users' )
+			 && get_current_user_id() === $user_id
+			 && ! $potential_role->has_cap( 'edit_users' )
 		) {
 			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you cannot remove user editing permissions for your own account.', 'wp-graphql' ) );
 		}

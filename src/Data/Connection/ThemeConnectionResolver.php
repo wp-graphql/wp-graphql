@@ -29,14 +29,13 @@ class ThemeConnectionResolver {
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$themes_array = [];
-		$themes = wp_get_themes();
+		$themes       = wp_get_themes();
 		if ( is_array( $themes ) && ! empty( $themes ) ) {
 			foreach ( $themes as $theme ) {
 				$theme_obj = DataSource::resolve_theme( $theme->get_stylesheet() );
 				if ( 'private' !== $theme_obj->get_visibility() ) {
 					$themes_array[] = $theme_obj;
 				}
-
 			}
 		}
 

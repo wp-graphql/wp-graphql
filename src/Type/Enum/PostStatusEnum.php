@@ -25,7 +25,10 @@ if ( ! empty( $post_stati ) && is_array( $post_stati ) ) {
 	}
 }
 
-register_graphql_enum_type( 'PostStatusEnum', [
-	'description' => __( 'The status of the object.', 'wp-graphql' ),
-	'values'      => $post_status_enum_values,
-] );
+register_graphql_enum_type(
+	'PostStatusEnum',
+	[
+		'description' => __( 'The status of the object.', 'wp-graphql' ),
+		'values'      => $post_status_enum_values,
+	]
+);

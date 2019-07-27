@@ -9,29 +9,32 @@ namespace WPGraphQL\Type;
  * @todo: Ideally, when the relay library is deprecated this can be changed
  * back to PageInfo – which would be another breaking change at that time
  */
-register_graphql_object_type( 'WPPageInfo', [
-	'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-	'fields'      => [
-		'hasNextPage'     => [
-			'type'        => [
-				'non_null' => 'Boolean',
+register_graphql_object_type(
+	'WPPageInfo',
+	[
+		'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+		'fields'      => [
+			'hasNextPage'     => [
+				'type'        => [
+					'non_null' => 'Boolean',
+				],
+				'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
 			],
-			'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
-		],
-		'hasPreviousPage' => [
-			'type'        => [
-				'non_null' => 'Boolean',
+			'hasPreviousPage' => [
+				'type'        => [
+					'non_null' => 'Boolean',
+				],
+				'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
 			],
-			'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
+			'startCursor'     => [
+				'type'        => 'String',
+				'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
+			],
+			'endCursor'       => [
+				'type'        => 'String',
+				'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
+			],
 		],
-		'startCursor'     => [
-			'type'        => 'String',
-			'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
-		],
-		'endCursor'       => [
-			'type'        => 'String',
-			'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
-		],
-	],
 
-] );
+	]
+);

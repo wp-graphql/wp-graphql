@@ -81,51 +81,51 @@ class TypeRegistry {
 		/**
 		 * Register core WPGraphQL Types
 		 */
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/CommentsConnectionOrderbyEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/CommentAuthor.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateInput.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemSizeEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaSize.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MenuItem.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/MenuItemsConnectionWhereArgs.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MenuLocationEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Menu.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MimeTypeEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/OrderEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PageInfo.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Plugin.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/PostObjectsConnectionOrderbyInput.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectFieldFormatEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootQuery.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TimezoneEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/TermObject.php' );
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/CommentsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/CommentAuthor.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemSizeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaSize.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MenuItem.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/MenuItemsConnectionWhereArgs.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MenuLocationEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Menu.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MimeTypeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/OrderEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PageInfo.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Plugin.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/PostObjectsConnectionOrderbyInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectFieldFormatEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootQuery.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TimezoneEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/TermObject.php';
 
 		/**
 		 * Create the root query fields for any setting type in
@@ -138,12 +138,16 @@ class TypeRegistry {
 				$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
 				register_settings_group( $group_name );
 
-				register_graphql_field( 'RootQuery', $group_name . 'Settings', [
-					'type'    => ucfirst( $group_name ) . 'Settings',
-					'resolve' => function () use ( $setting_type ) {
-						return $setting_type;
-					},
-				] );
+				register_graphql_field(
+					'RootQuery',
+					$group_name . 'Settings',
+					[
+						'type'    => ucfirst( $group_name ) . 'Settings',
+						'resolve' => function () use ( $setting_type ) {
+							return $setting_type;
+						},
+					]
+				);
 			}
 		}
 
@@ -174,7 +178,6 @@ class TypeRegistry {
 					PostObjectDelete::register_mutation( $post_type_object );
 
 				}
-
 			}
 		}
 
@@ -196,11 +199,10 @@ class TypeRegistry {
 		 * Register all Union Types
 		 * Unions need to be registered after other types as they reference other Types
 		 */
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/CommentAuthorUnion.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/MenuItemObjectUnion.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php' );
-
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/CommentAuthorUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/MenuItemObjectUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php';
 
 		/**
 		 * Register core connections
@@ -285,28 +287,33 @@ class TypeRegistry {
 	 */
 	public static function register_field( $type_name, $field_name, $config ) {
 
-		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name, $config ) {
+		add_filter(
+			'graphql_' . $type_name . '_fields',
+			function ( $fields ) use ( $type_name, $field_name, $config ) {
 
-			if ( isset ( $fields[ $field_name ] ) ) {
-				if ( true === GRAPHQL_DEBUG ) {
-					throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+				if ( isset( $fields[ $field_name ] ) ) {
+					if ( true === GRAPHQL_DEBUG ) {
+						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+					}
+
+					return $fields;
+				}
+
+				/**
+				 * If the field returns a properly prepared field, add it the the field registry
+				 */
+				$field = self::prepare_field( $field_name, $config, $type_name );
+
+				if ( ! empty( $field ) ) {
+					$fields[ $field_name ] = self::prepare_field( $field_name, $config, $type_name );
 				}
 
 				return $fields;
-			}
 
-			/**
-			 * If the field returns a properly prepared field, add it the the field registry
-			 */
-			$field = self::prepare_field( $field_name, $config, $type_name );
-
-			if ( ! empty( $field ) ) {
-				$fields[ $field_name ] = self::prepare_field( $field_name, $config, $type_name );
-			}
-
-			return $fields;
-
-		}, 10, 1 );
+			},
+			10,
+			1
+		);
 
 	}
 
@@ -321,19 +328,22 @@ class TypeRegistry {
 	 */
 	public static function deregister_field( $type_name, $field_name ) {
 
-		add_filter( 'graphql_' . $type_name . '_fields', function ( $fields ) use ( $type_name, $field_name ) {
+		add_filter(
+			'graphql_' . $type_name . '_fields',
+			function ( $fields ) use ( $type_name, $field_name ) {
 
-			if ( isset ( $fields[ $field_name ] ) ) {
-				unset( $fields[ $field_name ] );
-			} else {
-				if ( true === GRAPHQL_DEBUG ) {
-					throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
+				if ( isset( $fields[ $field_name ] ) ) {
+					unset( $fields[ $field_name ] );
+				} else {
+					if ( true === GRAPHQL_DEBUG ) {
+						throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
+					}
 				}
+
+				return $fields;
+
 			}
-
-			return $fields;
-
-		} );
+		);
 
 	}
 
@@ -431,7 +441,6 @@ class TypeRegistry {
 					} else {
 						unset( $prepared_fields[ self::format_key( $field_name ) ] );
 					}
-
 				}
 			}
 		}
@@ -468,7 +477,7 @@ class TypeRegistry {
 		}
 
 		if ( is_string( $field_config['type'] ) ) {
-			$type = TypeRegistry::get_type( $field_config['type'] );
+			$type = self::get_type( $field_config['type'] );
 			if ( ! empty( $type ) ) {
 				$field_config['type'] = $type;
 			} else {
@@ -501,19 +510,19 @@ class TypeRegistry {
 			if ( isset( $type['non_null'] ) ) {
 				if ( is_array( $type['non_null'] ) ) {
 					$non_null_type = self::setup_type_modifiers( $type['non_null'] );
-				} else if ( is_string( $type['non_null'] ) ) {
-					$non_null_type = TypeRegistry::get_type( $type['non_null'] );
+				} elseif ( is_string( $type['non_null'] ) ) {
+					$non_null_type = self::get_type( $type['non_null'] );
 				}
 				if ( empty( $non_null_type ) ) {
 					throw new \Exception( sprintf( __( 'The non_null type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['non_null'] ) );
 				} else {
 					$type = Types::non_null( $non_null_type );
 				}
-			} else if ( isset( $type['list_of'] ) ) {
+			} elseif ( isset( $type['list_of'] ) ) {
 				if ( is_array( $type['list_of'] ) ) {
 					$list_of_type = self::setup_type_modifiers( $type['list_of'] );
-				} else if ( is_string( $type['list_of'] ) ) {
-					$list_of_type = TypeRegistry::get_type( $type['list_of'] );
+				} elseif ( is_string( $type['list_of'] ) ) {
+					$list_of_type = self::get_type( $type['list_of'] );
 				}
 
 				if ( empty( $list_of_type ) ) {
@@ -587,20 +596,19 @@ class TypeRegistry {
 			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
 		}
 
-
-		$from_type               = $config['fromType'];
-		$to_type                 = $config['toType'];
-		$from_field_name         = $config['fromFieldName'];
-		$connection_fields       = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args         = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields             = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node            = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
-		$resolve_cursor          = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$resolve_connection      = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
+		$from_type          = $config['fromType'];
+		$to_type            = $config['toType'];
+		$from_field_name    = $config['fromFieldName'];
+		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
+		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
+		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
 		};
-		$connection_name         = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : self::get_connection_name( $from_type, $to_type );
-		$where_args              = [];
+		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : self::get_connection_name( $from_type, $to_type );
+		$where_args         = [];
 
 		/**
 		 * If there are any $connectionArgs,
@@ -608,16 +616,19 @@ class TypeRegistry {
 		 * field as arguments
 		 */
 		if ( ! empty( $connection_args ) ) {
-			register_graphql_input_type( $connection_name . 'WhereArgs', [
-				// Translators: Placeholder is the name of the connection
-				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
-				'fields'      => $connection_args,
-				'queryClass'  => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
-			] );
+			register_graphql_input_type(
+				$connection_name . 'WhereArgs',
+				[
+					// Translators: Placeholder is the name of the connection
+					'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
+					'fields'      => $connection_args,
+					'queryClass'  => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
+				]
+			);
 
 			$where_args = [
 				'where' => [
-					//@TODO: Same as above ^ description seems a little vague
+					// @TODO: Same as above ^ description seems a little vague
 					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 					'type'        => $connection_name . 'WhereArgs',
 				],
@@ -625,120 +636,139 @@ class TypeRegistry {
 
 		}
 
-		register_graphql_type( $connection_name . 'Edge', [
-			'description' => __( 'An edge in a connection', 'wp-graphql' ),
-			'fields'      => array_merge( [
-				'cursor' => [
-					'type'        => 'String',
-					'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-					'resolve'     => $resolve_cursor
-				],
-				'node'   => [
-					'type'        => $to_type,
-					'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
-						if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
-							return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
-						} else {
-							return $source['node'];
-						}
-					},
-				],
-			], $edge_fields ),
-		] );
-
-		register_graphql_type( $connection_name, [
-			// Translators: the placeholders are the name of the Types the connection is between.
-			'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
-			'fields'      => array_merge( [
-				'pageInfo' => [
-					// @todo: change to PageInfo when/if the Relay lib is deprecated
-					'type'        => 'WPPageInfo',
-					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-				],
-				'edges'    => [
-					'type'        => [
-						'list_of' => $connection_name . 'Edge',
-					],
-					'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
-				],
-				'nodes'    => [
-					'type'        => [
-						'list_of' => $to_type,
-					],
-					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args, $context, $info ) use ( $resolve_node ) {
-						$nodes = [];
-						if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-							if ( is_callable( $resolve_node ) ) {
-								foreach ( $source['nodes'] as $node ) {
-									$nodes[] = $resolve_node( $node, $args, $context, $info );
+		register_graphql_type(
+			$connection_name . 'Edge',
+			[
+				'description' => __( 'An edge in a connection', 'wp-graphql' ),
+				'fields'      => array_merge(
+					[
+						'cursor' => [
+							'type'        => 'String',
+							'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
+							'resolve'     => $resolve_cursor,
+						],
+						'node'   => [
+							'type'        => $to_type,
+							'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
+							'resolve'     => function ( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
+								if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
+									return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
+								} else {
+									return $source['node'];
 								}
-							} else {
-								return $source['nodes'];
-							}
-						}
+							},
+						],
+					],
+					$edge_fields
+				),
+			]
+		);
 
-						return $nodes;
-					},
-				],
-			], $connection_fields ),
-		] );
+		register_graphql_type(
+			$connection_name,
+			[
+				// Translators: the placeholders are the name of the Types the connection is between.
+				'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+				'fields'      => array_merge(
+					[
+						'pageInfo' => [
+							// @todo: change to PageInfo when/if the Relay lib is deprecated
+							'type'        => 'WPPageInfo',
+							'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+						],
+						'edges'    => [
+							'type'        => [
+								'list_of' => $connection_name . 'Edge',
+							],
+							'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
+						],
+						'nodes'    => [
+							'type'        => [
+								'list_of' => $to_type,
+							],
+							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+							'resolve'     => function ( $source, $args, $context, $info ) use ( $resolve_node ) {
+								$nodes = [];
+								if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
+									if ( is_callable( $resolve_node ) ) {
+										foreach ( $source['nodes'] as $node ) {
+											$nodes[] = $resolve_node( $node, $args, $context, $info );
+										}
+									} else {
+										return $source['nodes'];
+									}
+								}
 
-		register_graphql_field( $from_type, $from_field_name, [
-			'type'        => $connection_name,
-			'args'        => array_merge( [
-				'first'  => [
-					'type'        => 'Int',
-					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
-				],
-				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
-				],
-				'after'  => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-				'before' => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-			], $where_args ),
-			'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
-			'resolve'     => function ( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
+								return $nodes;
+							},
+						],
+					],
+					$connection_fields
+				),
+			]
+		);
 
-				/**
-				 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
-				 * numerous instances of the same connection within any given query. If the connection
-				 * has the same args, we can use the existing cached args instead of storing new context
-				 */
-				$connection_id = $connection_name . ':' . base64_encode( wp_json_encode( $args ) );
+		register_graphql_field(
+			$from_type,
+			$from_field_name,
+			[
+				'type'        => $connection_name,
+				'args'        => array_merge(
+					[
+						'first'  => [
+							'type'        => 'Int',
+							'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
+						],
+						'last'   => [
+							'type'         => 'Int',
+							'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
+						],
+						'after'  => [
+							'type'        => 'String',
+							'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
+						],
+						'before' => [
+							'type'        => 'String',
+							'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
+						],
+					],
+					$where_args
+				),
+				'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
+				'resolve'     => function ( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
 
-				/**
-				 * Set the previous connection by getting the currentConnection
-				 */
-				$context->prevConnection = isset( $context->currentConnection ) ? $context->currentConnection : null;
+					/**
+					 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
+					 * numerous instances of the same connection within any given query. If the connection
+					 * has the same args, we can use the existing cached args instead of storing new context
+					 */
+					$connection_id = $connection_name . ':' . base64_encode( wp_json_encode( $args ) );
 
-				/**
-				 * Set the currentConnection using the $connectionId
-				 */
-				$context->currentConnection = $connection_id;
+					/**
+					 * Set the previous connection by getting the currentConnection
+					 */
+					$context->prevConnection = isset( $context->currentConnection ) ? $context->currentConnection : null;
 
-				/**
-				 * Set the connectionArgs if they haven't already been set
-				 * (it's possible, although rare, to have multiple connections in a single query with the same args)
-				 */
-				if ( ! isset( $context->connectionArgs[ $connection_id ] ) ) {
-					$context->connectionArgs[ $connection_id ] = $args;
-				}
+					/**
+					 * Set the currentConnection using the $connectionId
+					 */
+					$context->currentConnection = $connection_id;
 
-				/**
-				 * Return the results
-				 */
-				return call_user_func( $resolve_connection, $root, $args, $context, $info );
-			},
-		] );
+					/**
+					 * Set the connectionArgs if they haven't already been set
+					 * (it's possible, although rare, to have multiple connections in a single query with the same args)
+					 */
+					if ( ! isset( $context->connectionArgs[ $connection_id ] ) ) {
+						$context->connectionArgs[ $connection_id ] = $args;
+					}
+
+					/**
+					 * Return the results
+					 */
+					return call_user_func( $resolve_connection, $root, $args, $context, $info );
+				},
+			]
+		);
 
 	}
 
@@ -765,10 +795,13 @@ class TypeRegistry {
 			$output_fields = array_merge( $config['outputFields'], $output_fields );
 		}
 
-		register_graphql_object_type( $mutation_name . 'Payload', [
-			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
-			'fields'      => $output_fields,
-		] );
+		register_graphql_object_type(
+			$mutation_name . 'Payload',
+			[
+				'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+				'fields'      => $output_fields,
+			]
+		);
 
 		$input_fields = [
 			'clientMutationId' => [
@@ -782,36 +815,43 @@ class TypeRegistry {
 			$input_fields = array_merge( $config['inputFields'], $input_fields );
 		}
 
-		register_graphql_input_type( $mutation_name . 'Input', [
-			'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
-			'fields'      => $input_fields,
-		] );
+		register_graphql_input_type(
+			$mutation_name . 'Input',
+			[
+				'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
+				'fields'      => $input_fields,
+			]
+		);
 
 		$mutateAndGetPayload = ! empty( $config['mutateAndGetPayload'] ) ? $config['mutateAndGetPayload'] : null;
 
-		register_graphql_field( 'rootMutation', $mutation_name, [
-			'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
-			'args'        => [
-				'input' => [
-					'type'        => [
-						'non_null' => $mutation_name . 'Input',
+		register_graphql_field(
+			'rootMutation',
+			$mutation_name,
+			[
+				'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+				'args'        => [
+					'input' => [
+						'type'        => [
+							'non_null' => $mutation_name . 'Input',
+						],
+						'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ), 'wp-graphql' ),
 					],
-					'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ), 'wp-graphql' ),
 				],
-			],
-			'type'        => $mutation_name . 'Payload',
-			'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
-				//@todo: Might want to check that this is callable before invoking, otherwise errors could happen
-				if ( ! is_callable( $mutateAndGetPayload ) ) {
-					// Translators: The placeholder is the name of the mutation
-					throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
-				}
-				$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
-				$payload['clientMutationId'] = $args['input']['clientMutationId'];
+				'type'        => $mutation_name . 'Payload',
+				'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
+					// @todo: Might want to check that this is callable before invoking, otherwise errors could happen
+					if ( ! is_callable( $mutateAndGetPayload ) ) {
+						// Translators: The placeholder is the name of the mutation
+						throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
+					}
+					$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
+					$payload['clientMutationId'] = $args['input']['clientMutationId'];
 
-				return $payload;
-			}
-		] );
+					return $payload;
+				},
+			]
+		);
 
 	}
 

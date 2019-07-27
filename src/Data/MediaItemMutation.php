@@ -96,7 +96,6 @@ class MediaItemMutation {
 			} else {
 				$insert_post_args['post_parent'] = absint( $input['parentId'] );
 			}
-
 		}
 
 		/**
