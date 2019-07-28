@@ -60,8 +60,6 @@ class WPObjectType extends ObjectType {
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
 
-		PostStatusRegister::register_status_enum_type( $config['name'] );
-
 		parent::__construct( $config );
 	}
 

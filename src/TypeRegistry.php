@@ -38,6 +38,7 @@ use function WPGraphQL\Type\register_post_object_types;
 use function WPGraphQL\Type\register_settings_group;
 use function WPGraphQL\Type\register_taxonomy_object_type;
 use WPGraphQL\Type\WPEnumType;
+use WPGraphQL\Type\WPStatusEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPUnionType;
@@ -106,7 +107,6 @@ class TypeRegistry {
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectFieldFormatEnum.php' );
-		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php' );
 		require_once( WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php' );
@@ -401,6 +401,7 @@ class TypeRegistry {
 				case 'object':
 				default:
 					$prepared_type = new WPObjectType( $config );
+					WPStatusEnumType::register_status_enum_type( $config['name'] );
 			}
 		} else {
 			$prepared_type = $config;

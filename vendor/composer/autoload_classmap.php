@@ -259,6 +259,7 @@ return array(
     'WPGraphQL\\Server\\WPHelper' => $baseDir . '/src/Server/WPHelper.php',
     'WPGraphQL\\TypeRegistry' => $baseDir . '/src/TypeRegistry.php',
     'WPGraphQL\\Type\\WPEnumType' => $baseDir . '/src/Type/WPEnumType.php',
+    'WPGraphQL\\Type\\WPStatusEnumType' => $baseDir . '/src/Type/WPEnumType.php',
     'WPGraphQL\\Type\\WPInputObjectType' => $baseDir . '/src/Type/WPInputObjectType.php',
     'WPGraphQL\\Type\\WPObjectType' => $baseDir . '/src/Type/WPObjectType.php',
     'WPGraphQL\\Type\\WPUnionType' => $baseDir . '/src/Type/WPUnionType.php',
