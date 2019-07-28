@@ -2,13 +2,31 @@
 
 namespace WPGraphQL\Type;
 
+/**
+ * Class PostStatusRegister
+ *
+ * Helper class to register Status enums for GraphQL types
+ *
+ * @package WPGraphQL\Type
+ * @since   0.3.5
+ */
 class PostStatusRegister {
 
+	/**
+	 * Holds default status values
+	 * 
+	 * @var $post_status_enum_values
+	 */
 	protected static $post_status_enum_values = [
 		'name'  => 'PUBLISH',
 		'value' => 'publish',
 	];
 
+	/**
+	 * Gets built in post status as WPGraphQL enum
+	 * 
+	 * @return array
+	 */
 	public static function get_status_enum_values() {
 
 		$post_stati = get_post_stati();
@@ -34,6 +52,11 @@ class PostStatusRegister {
 		return $post_status_enum_values;
 	}
 
+	/**
+	 * Registers a status enum for a given type
+	 * 
+	 * @param string $type_name the GraphQL type to be registered
+	 */
 	public static function register_status_enum_type( $type_name ) {
 
 		$values = self::get_status_enum_values();
@@ -48,6 +71,7 @@ class PostStatusRegister {
 	}
 }
 
+// register some built in types
 PostStatusRegister::register_status_enum_type( 'Post' );
 PostStatusRegister::register_status_enum_type( 'Page' );
 PostStatusRegister::register_status_enum_type( 'Comment' );
