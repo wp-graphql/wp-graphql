@@ -198,14 +198,14 @@ class Comments {
 			],
 			'contentStatus'      => [
 				'type'        => [
-					'list_of' => 'PostStatusEnum',
+					'list_of' => 'CommentStatusEnum',
 				],
 				'description' => __( 'Array of content object statuses to retrieve affiliated comments for.
 							Pass \'any\' to match any value.', 'wp-graphql' ),
 			],
 			'contentType'        => [
 				'type'        => [
-					'list_of' => 'PostStatusEnum',
+					'list_of' => 'CommentStatusEnum',
 				],
 				'description' => __( 'Content object type or array of types to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
 			],

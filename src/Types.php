@@ -474,8 +474,8 @@ class Types {
 	 * @since  0.0.5
 	 * @access public
 	 */
-	public static function post_status_enum() {
-		return self::$post_status_enum ? : ( self::$post_status_enum = TypeRegistry::get_type( 'PostStatusEnum' ) );
+	public static function post_status_enum( $post_type = 'Post' ) {
+		return self::$post_status_enum ? : ( self::$post_status_enum = TypeRegistry::get_type( "{$post_type}StatusEnum" ) );
 	}
 
 	/**
@@ -510,7 +510,7 @@ class Types {
 	}
 
 	/**
-	 * This returns the definition for the PostStatusEnumType
+	 * This returns the definition for the PostEnumType
 	 *
 	 * @return WPEnumType object
 	 * @since  0.0.5

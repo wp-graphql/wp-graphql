@@ -89,7 +89,7 @@ class PostObjectCreate {
                 'description' => __( 'The slug of the object', 'wp-graphql' ),
             ],
             'status'        => [
-                'type'        => 'PostStatusEnum',
+                'type'        => "{$post_type_object->graphql_single_name}StatusEnum",
                 'description' => __( 'The status of the object', 'wp-graphql' ),
             ],
             'title'         => [

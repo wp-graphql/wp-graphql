@@ -147,7 +147,18 @@ class WPObjectType extends ObjectType {
 			ksort( $fields );
 			self::$prepared_fields[ $type_name ] = $fields;
 		}
+
+		/**
+		 * Register status enum for this type
+		 */
+		PostStatusRegister::register_status_enum_type( $type_name );
+
 		return ! empty( self::$prepared_fields[ $type_name ] ) ? self::$prepared_fields[ $type_name ] : null;
+	}
+
+	private static function register_enum_types( $post_type ) {
+
+
 	}
 
 }

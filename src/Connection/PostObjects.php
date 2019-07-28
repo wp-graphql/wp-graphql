@@ -98,7 +98,7 @@ class PostObjects {
 	 */
 	public static function get_connection_config( $post_type_object, $args = [] ) {
 
-		$connection_args = self::get_connection_args();
+		$connection_args = self::get_connection_args( [], $post_type_object->graphql_single_name );
 
 		if ( 'revision' === $post_type_object->name ) {
 			unset( $connection_args['status'] );
@@ -137,7 +137,7 @@ class PostObjects {
 	 *
 	 * @return array
 	 */
-	public static function get_connection_args( $args = [] ) {
+	public static function get_connection_args( $args = [], $post_type = 'Post' ) {
 
 		return array_merge( [
 
@@ -341,7 +341,7 @@ class PostObjects {
 			 * @since 0.0.2
 			 */
 			'status'       => [
-				'type' => 'PostStatusEnum',
+				'type' => "{$post_type}StatusEnum",
 			],
 
 			/**
@@ -349,7 +349,7 @@ class PostObjects {
 			 */
 			'stati'        => [
 				'type' => [
-					'list_of' => 'PostStatusEnum',
+					'list_of' => "{$post_type}StatusEnum",
 				],
 			],
 
