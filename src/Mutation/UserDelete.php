@@ -8,7 +8,7 @@ use WPGraphQL\Model\User;
 
 class UserDelete {
 	/**
-	 * Registers the CommentCreate mutation.
+	 * Registers the UserDelete mutation.
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation( 'deleteUser', [

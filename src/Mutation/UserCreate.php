@@ -9,7 +9,7 @@ use WPGraphQL\Model\User;
 
 class UserCreate {
     /**
-     * Registers the CommentCreate mutation.
+     * Registers the UserCreate mutation.
      */
     public static function register_mutation() {
         register_graphql_mutation( 'createUser', [

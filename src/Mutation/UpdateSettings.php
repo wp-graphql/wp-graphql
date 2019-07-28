@@ -7,7 +7,7 @@ use WPGraphQL\Data\DataSource;
 
 class UpdateSettings {
     /**
-     * Registers the CommentCreate mutation.
+     * Registers the UpdateSettings mutation.
      */
     public static function register_mutation() {
         register_graphql_mutation( 'updateSettings', [
