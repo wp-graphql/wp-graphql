@@ -14,10 +14,13 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 	}
 }
 
-register_graphql_union_type( 'PostObjectUnion', [
-	'name'        => 'PostObjectUnion',
-	'types'       => $possible_types,
-	'resolveType' => function( $value ) {
-		return ! empty( $value->post_type ) ? Types::post_object( $value->post_type ) : null;
-	},
-] );
+register_graphql_union_type(
+	'PostObjectUnion',
+	[
+		'name'        => 'PostObjectUnion',
+		'types'       => $possible_types,
+		'resolveType' => function( $value ) {
+			return ! empty( $value->post_type ) ? Types::post_object( $value->post_type ) : null;
+		},
+	]
+);

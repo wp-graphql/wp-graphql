@@ -81,12 +81,11 @@ class CursorBuilder {
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
 
-
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
 				$value = "'$value'";
-			} else if ( $cast ) {
+			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
 			}

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -49,7 +48,7 @@ class Plugin extends Model {
 	 */
 	protected function is_private() {
 
-		if ( ! current_user_can( 'update_plugins') ) {
+		if ( ! current_user_can( 'update_plugins' ) ) {
 			return true;
 		}
 
@@ -68,27 +67,27 @@ class Plugin extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
+				'id'          => function() {
 					return ! empty( $this->data['Name'] ) ? Relay::toGlobalId( 'plugin', $this->data['Name'] ) : null;
 				},
-				'name' => function() {
+				'name'        => function() {
 					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
 				},
-				'pluginUri' => function() {
+				'pluginUri'   => function() {
 					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
 				},
 				'description' => function() {
 					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
-				'author' => function() {
+				'author'      => function() {
 					return ! empty( $this->data['Author'] ) ? $this->data['Author'] : null;
 				},
-				'authorUri' => function() {
+				'authorUri'   => function() {
 					return ! empty( $this->data['AuthorURI'] ) ? $this->data['AuthorURI'] : null;
 				},
-				'version' => function() {
+				'version'     => function() {
 					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
-				}
+				},
 			];
 
 		}

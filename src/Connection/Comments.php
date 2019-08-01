@@ -33,10 +33,14 @@ class Comments {
 		/**
 		 * Register connection from Comment to children comments
 		 */
-		register_graphql_connection( self::get_connection_config( [
-			'fromType'      => 'Comment',
-			'fromFieldName' => 'children',
-		] ) );
+		register_graphql_connection(
+			self::get_connection_config(
+				[
+					'fromType'      => 'Comment',
+					'fromFieldName' => 'children',
+				]
+			)
+		);
 
 		/**
 		 * Register Connections from all existing PostObject Types to Comments
@@ -46,11 +50,15 @@ class Comments {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					register_graphql_connection( self::get_connection_config( [
-						'fromType'      => $post_type_object->graphql_single_name,
-						'toType'        => 'Comment',
-						'fromFieldName' => 'comments',
-					] ) );
+					register_graphql_connection(
+						self::get_connection_config(
+							[
+								'fromType'      => $post_type_object->graphql_single_name,
+								'toType'        => 'Comment',
+								'fromFieldName' => 'comments',
+							]
+						)
+					);
 				}
 			}
 		}
@@ -121,8 +129,11 @@ class Comments {
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the
-							query regardless of status.', 'wp-graphql' ),
+				'description' => __(
+					'Array of IDs of users whose unapproved comments will be returned by the
+							query regardless of status.',
+					'wp-graphql'
+				),
 			],
 			'includeUnapproved'  => [
 				'type'        => [
@@ -156,8 +167,11 @@ class Comments {
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Array of parent IDs of comments *not* to retrieve children
-							for.', 'wp-graphql' ),
+				'description' => __(
+					'Array of parent IDs of comments *not* to retrieve children
+							for.',
+					'wp-graphql'
+				),
 			],
 			'contentAuthorIn'    => [
 				'type'        => [
@@ -173,22 +187,31 @@ class Comments {
 			],
 			'contentId'          => [
 				'type'        => 'ID',
-				'description' => __( 'Limit results to those affiliated with a given content object
-							ID.', 'wp-graphql' ),
+				'description' => __(
+					'Limit results to those affiliated with a given content object
+							ID.',
+					'wp-graphql'
+				),
 			],
 			'contentIdIn'        => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Array of content object IDs to include affiliated comments
-							for.', 'wp-graphql' ),
+				'description' => __(
+					'Array of content object IDs to include affiliated comments
+							for.',
+					'wp-graphql'
+				),
 			],
 			'contentIdNotIn'     => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Array of content object IDs to exclude affiliated comments
-							for.', 'wp-graphql' ),
+				'description' => __(
+					'Array of content object IDs to exclude affiliated comments
+							for.',
+					'wp-graphql'
+				),
 			],
 			'contentAuthor'      => [
 				'type'        => [
@@ -200,8 +223,11 @@ class Comments {
 				'type'        => [
 					'list_of' => 'PostStatusEnum',
 				],
-				'description' => __( 'Array of content object statuses to retrieve affiliated comments for.
-							Pass \'any\' to match any value.', 'wp-graphql' ),
+				'description' => __(
+					'Array of content object statuses to retrieve affiliated comments for.
+							Pass \'any\' to match any value.',
+					'wp-graphql'
+				),
 			],
 			'contentType'        => [
 				'type'        => [

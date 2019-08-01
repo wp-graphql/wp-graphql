@@ -23,18 +23,20 @@ class Users {
 		/**
 		 * Connection from RootQuery to Users
 		 */
-		register_graphql_connection( [
-			'fromType'         => 'RootQuery',
-			'toType'           => 'User',
-			'fromFieldName'    => 'users',
-			'resolveNode'      => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_user( $id, $context );
-			},
-			'resolve'          => function ( $source, $args, $context, $info ) {
-				return DataSource::resolve_users_connection( $source, $args, $context, $info );
-			},
-			'connectionArgs'   => self::get_connection_args(),
-		] );
+		register_graphql_connection(
+			[
+				'fromType'       => 'RootQuery',
+				'toType'         => 'User',
+				'fromFieldName'  => 'users',
+				'resolveNode'    => function( $id, $args, $context, $info ) {
+					return DataSource::resolve_user( $id, $context );
+				},
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					return DataSource::resolve_users_connection( $source, $args, $context, $info );
+				},
+				'connectionArgs' => self::get_connection_args(),
+			]
+		);
 
 	}
 
@@ -52,25 +54,25 @@ class Users {
 			],
 			'roleIn'            => [
 				'type'        => [
-					'list_of' => 'UserRoleEnum'
+					'list_of' => 'UserRoleEnum',
 				],
 				'description' => __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' ),
 			],
 			'roleNotIn'         => [
 				'type'        => [
-					'list_of' => 'UserRoleEnum'
+					'list_of' => 'UserRoleEnum',
 				],
 				'description' => __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' ),
 			],
 			'include'           => [
 				'type'        => [
-					'list_of' => 'Int'
+					'list_of' => 'Int',
 				],
 				'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
 			],
 			'exclude'           => [
 				'type'        => [
-					'list_of' => 'Int'
+					'list_of' => 'Int',
 				],
 				'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
 			],
@@ -86,7 +88,7 @@ class Users {
 			],
 			'hasPublishedPosts' => [
 				'type'        => [
-					'list_of' => 'PostTypeEnum'
+					'list_of' => 'PostTypeEnum',
 				],
 				'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
 			],

@@ -197,10 +197,13 @@ class Router {
 		 *
 		 * @param array $access_control_headers Array of headers to allow.
 		 */
-		$access_control_allow_headers = apply_filters( 'graphql_access_control_allow_headers', [
-			'Authorization',
-			'Content-Type'
-		] );
+		$access_control_allow_headers = apply_filters(
+			'graphql_access_control_allow_headers',
+			[
+				'Authorization',
+				'Content-Type',
+			]
+		);
 
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
@@ -328,19 +331,19 @@ class Router {
 			exit;
 		}
 
-		$query           = '';
-		$operation_name  = '';
-		$variables       = [];
+		$query          = '';
+		$operation_name = '';
+		$variables      = [];
 
 		try {
-			$request = new Request();
+			$request  = new Request();
 			$response = $request->execute_http();
 
 			// Get the operation params from the request.
-			$params = $request->get_params();
-			$query = isset( $params->query ) ? $params->query : '';
+			$params         = $request->get_params();
+			$query          = isset( $params->query ) ? $params->query : '';
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
-			$variables = isset( $params->variables ) ? $params->variables : null;
+			$variables      = isset( $params->variables ) ? $params->variables : null;
 
 		} catch ( \Exception $error ) {
 

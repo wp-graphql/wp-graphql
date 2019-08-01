@@ -79,8 +79,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If the current user cannot moderate comments, do not include unapproved comments
 		 */
-		if ( ! current_user_can('moderate_comments' ) ) {
-			$query_args['status'] = ['approve'];
+		if ( ! current_user_can( 'moderate_comments' ) ) {
+			$query_args['status']             = [ 'approve' ];
 			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
 			if ( empty( $query_args['include_unapproved'] ) ) {
 				unset( $query_args['include_unapproved'] );
@@ -195,7 +195,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * @param array       $args     The array of query arguments
+	 * @param array $args     The array of query arguments
 	 *
 	 * @since  0.0.5
 	 * @access private

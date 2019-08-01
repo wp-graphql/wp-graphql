@@ -9,10 +9,13 @@ use WPGraphQL\Data\DataSource;
  * @param string $group_name
  */
 function register_settings_group( $group_name ) {
-	register_graphql_object_type( ucfirst( $group_name ) . 'Settings', [
-		'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
-		'fields'      => get_settings_group_fields( $group_name ),
-	] );
+	register_graphql_object_type(
+		ucfirst( $group_name ) . 'Settings',
+		[
+			'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
+			'fields'      => get_settings_group_fields( $group_name ),
+		]
+	);
 }
 
 /**
@@ -78,7 +81,7 @@ function get_settings_group_fields( $group_name ) {
 								break;
 							case 'boolean':
 							case 'bool':
-								$option = (boolean) $option;
+								$option = (bool) $option;
 								break;
 							case 'number':
 							case 'float':
@@ -91,9 +94,7 @@ function get_settings_group_fields( $group_name ) {
 				];
 
 			}
-
 		}
-
 	}
 
 	return $fields;

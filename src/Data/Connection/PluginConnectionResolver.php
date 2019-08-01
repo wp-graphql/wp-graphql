@@ -32,7 +32,7 @@ class PluginConnectionResolver {
 		// File has not loaded.
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		// This is missing must use and drop in plugins.
-		$plugins = apply_filters( 'all_plugins', get_plugins() );
+		$plugins       = apply_filters( 'all_plugins', get_plugins() );
 		$plugins_array = [];
 		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
 			foreach ( $plugins as $plugin ) {

@@ -21,7 +21,10 @@ if ( empty( $values ) ) {
 	];
 }
 
-register_graphql_enum_type( 'MenuLocationEnum', [
-	'description' => __( 'Registered menu locations', 'wp-graphql' ),
-	'values' => $values
-] );
+register_graphql_enum_type(
+	'MenuLocationEnum',
+	[
+		'description' => __( 'Registered menu locations', 'wp-graphql' ),
+		'values'      => $values,
+	]
+);

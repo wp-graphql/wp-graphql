@@ -40,15 +40,14 @@ class TermObjectLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
-
 		/**
 		 * Prepare the args for the query. We're provided a specific set of IDs for terms,
 		 * so we want to query as efficiently as possible with as little overhead as possible.
 		 */
 		$args = [
-			'include' => $keys,
-			'number'  => count( $keys ),
-			'orderby' => 'include',
+			'include'    => $keys,
+			'number'     => count( $keys ),
+			'orderby'    => 'include',
 			'hide_empty' => false,
 		];
 
@@ -57,7 +56,6 @@ class TermObjectLoader extends AbstractDataLoader {
 		 */
 		$query = new \WP_Term_Query( $args );
 		$terms = $query->get_terms();
-
 
 		if ( empty( $terms ) || ! is_array( $terms ) ) {
 			return [];
@@ -79,7 +77,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * them from the cache to pass through the model layer, or return null if the
 			 * object isn't in the cache, meaning it didn't come back when queried.
 			 */
-			$term_object                = $terms_by_id[ $key ];
+			$term_object = $terms_by_id[ $key ];
 
 			if ( empty( $term_object ) || ! is_a( $term_object, 'WP_Term' ) ) {
 				return null;
@@ -89,21 +87,23 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$this->loaded_terms[ $key ] = new Deferred( function () use ( $term_object ) {
+			$this->loaded_terms[ $key ] = new Deferred(
+				function () use ( $term_object ) {
 
-				if ( ! $term_object instanceof \WP_Term ) {
-					return null;
+					if ( ! $term_object instanceof \WP_Term ) {
+						  return null;
+					}
+
+						/**
+						 * For nav_menu_item terms, we want to pass through a different model
+						 */
+					if ( 'nav_menu' === $term_object->taxonomy ) {
+						return new Menu( $term_object );
+					}
+
+						return new Term( $term_object );
 				}
-
-				/**
-				 * For nav_menu_item terms, we want to pass through a different model
-				 */
-				if ( 'nav_menu' === $term_object->taxonomy ) {
-					return new Menu( $term_object );
-				}
-
-				return new Term( $term_object );
-			} );
+			);
 		}
 
 		return ! empty( $this->loaded_terms ) ? $this->loaded_terms : [];

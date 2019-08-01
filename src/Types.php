@@ -374,7 +374,7 @@ class Types {
 	 * @access public
 	 */
 	public static function mime_type_enum() {
-		return self::$mime_type_enum ? : ( self::$mime_type_enum = TypeRegistry::get_type( 'MimeTypeEnum') );
+		return self::$mime_type_enum ? : ( self::$mime_type_enum = TypeRegistry::get_type( 'MimeTypeEnum' ) );
 	}
 
 	/**
@@ -437,7 +437,7 @@ class Types {
 		}
 
 		if ( empty( self::$post_object[ $post_type ] ) ) {
-			$post_type_object = get_post_type_object( $post_type );
+			$post_type_object                = get_post_type_object( $post_type );
 			self::$post_object[ $post_type ] = TypeRegistry::get_type( $post_type_object->graphql_single_name );
 		}
 
@@ -464,7 +464,7 @@ class Types {
 	 * @access public
 	 */
 	public static function post_object_field_format_enum() {
-		return self::$post_object_field_format_enum ? : ( self::$post_object_field_format_enum = TypeRegistry::get_type( 'PostObjectFieldFormatEnum') );
+		return self::$post_object_field_format_enum ? : ( self::$post_object_field_format_enum = TypeRegistry::get_type( 'PostObjectFieldFormatEnum' ) );
 	}
 
 	/**
@@ -625,7 +625,7 @@ class Types {
 		}
 
 		if ( empty( self::$term_object[ $taxonomy ] ) ) {
-			$taxonomy_object = get_taxonomy( $taxonomy );
+			$taxonomy_object                = get_taxonomy( $taxonomy );
 			self::$term_object[ $taxonomy ] = TypeRegistry::get_type( $taxonomy_object->graphql_single_name );
 		}
 
@@ -794,13 +794,16 @@ class Types {
 		foreach ( $args as $arg => $value ) {
 
 			if ( is_array( $value ) && ! empty( $value ) ) {
-				$value = array_map( function( $value ) {
-					if ( is_string( $value ) ) {
-						$value = sanitize_text_field( $value );
-					}
+				$value = array_map(
+					function( $value ) {
+						if ( is_string( $value ) ) {
+							  $value = sanitize_text_field( $value );
+						}
 
-					return $value;
-				}, $value );
+							return $value;
+					},
+					$value
+				);
 			} elseif ( is_string( $value ) ) {
 				$value = sanitize_text_field( $value );
 			}
@@ -816,27 +819,27 @@ class Types {
 
 	}
 
-    /**
-     * Checks the post_date_gmt or modified_gmt and prepare any post or
-     * modified date for single post output.
-     *
-     * @since 4.7.0
-     *
-     * @param string      $date_gmt GMT publication time.
-     * @param string|null $date     Optional. Local publication time. Default null.
-     * @return string|null ISO8601/RFC3339 formatted datetime.
-     */
-    public static function prepare_date_response( $date_gmt, $date = null ) {
-        // Use the date if passed.
-        if ( isset( $date ) ) {
-            return mysql_to_rfc3339( $date );
-        }
-        // Return null if $date_gmt is empty/zeros.
-        if ( '0000-00-00 00:00:00' === $date_gmt ) {
-            return null;
-        }
-        // Return the formatted datetime.
-        return mysql_to_rfc3339( $date_gmt );
-    }
+	/**
+	 * Checks the post_date_gmt or modified_gmt and prepare any post or
+	 * modified date for single post output.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string      $date_gmt GMT publication time.
+	 * @param string|null $date     Optional. Local publication time. Default null.
+	 * @return string|null ISO8601/RFC3339 formatted datetime.
+	 */
+	public static function prepare_date_response( $date_gmt, $date = null ) {
+		// Use the date if passed.
+		if ( isset( $date ) ) {
+			return mysql_to_rfc3339( $date );
+		}
+		// Return null if $date_gmt is empty/zeros.
+		if ( '0000-00-00 00:00:00' === $date_gmt ) {
+			return null;
+		}
+		// Return the formatted datetime.
+		return mysql_to_rfc3339( $date_gmt );
+	}
 
 }

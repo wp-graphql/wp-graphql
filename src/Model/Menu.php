@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -51,21 +50,21 @@ class Menu extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
+				'id'     => function() {
 					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'Menu', $this->data->term_id ) : null;
 				},
-				'count' => function() {
+				'count'  => function() {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'menuId' => function() {
 					return ! empty( $this->data->term_id ) ? $this->data->term_id : null;
 				},
-				'name' => function() {
+				'name'   => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'slug' => function() {
+				'slug'   => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
-				}
+				},
 			];
 
 		}

@@ -23,10 +23,15 @@ class Config {
 		 * Filter the term_clauses in the WP_Term_Query to allow for cursor pagination support where a Term ID
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
-		add_filter( 'comments_clauses', [
-			$this,
-			'graphql_wp_comments_query_cursor_pagination_support'
-		], 10, 2 );
+		add_filter(
+			'comments_clauses',
+			[
+				$this,
+				'graphql_wp_comments_query_cursor_pagination_support',
+			],
+			10,
+			2
+		);
 
 		/**
 		 * Filter the WP_Query to support cursor based pagination where a post ID can be used
@@ -38,18 +43,28 @@ class Config {
 		 * Filter the term_clauses in the WP_Term_Query to allow for cursor pagination support where a Term ID
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
-		add_filter( 'terms_clauses', [
-			$this,
-			'graphql_wp_term_query_cursor_pagination_support'
-		], 10, 3 );
+		add_filter(
+			'terms_clauses',
+			[
+				$this,
+				'graphql_wp_term_query_cursor_pagination_support',
+			],
+			10,
+			3
+		);
 
 		/**
 		 * Filter WP_Query order by add some stability to meta query ordering
 		 */
-		add_filter( 'posts_orderby', [
-			$this,
-			'graphql_wp_query_cursor_pagination_stability'
-		], 10, 2 );
+		add_filter(
+			'posts_orderby',
+			[
+				$this,
+				'graphql_wp_query_cursor_pagination_stability',
+			],
+			10,
+			2
+		);
 
 	}
 
