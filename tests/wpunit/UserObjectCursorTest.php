@@ -26,15 +26,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->query = '
 		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToUserConnectionWhereArgs) {
-		  users(last: $last, before: $before, first: $first, after: $after, where: $where) {
+		  	users(last: $last, before: $before, first: $first, after: $after, where: $where) {
 				pageInfo {
 					startCursor
 					endCursor
 				}
-		    nodes {
-		      userId
+			    nodes {
+			      	userId
 				}
-		  }
+		  	}
 		}
 		';
 
@@ -51,8 +51,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'role' 		 => 'subscriber',
-			'user_url' => 'http://www.test.test',
+			'role'		=> 'subscriber',
+			'user_url' 	=> 'http://www.test.test',
 		];
 
 		/**
@@ -83,7 +83,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		// Create a few more users
 		for ( $i = 1; $i < $this->count; $i ++ ) {
 			$created_user_ids[ $i ]	= $this->createUserObject( [
-					'user_email' => 'test_user_' . $i . '@test.com',
+				'user_email' => 'test_user_' . $i . '@test.com',
 			] );
 		}
 
@@ -96,11 +96,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function delete_users() {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare( "
-        DELETE FROM {$wpdb->prefix}users
-        WHERE ID <> %d",
-        array( 1 )
-    ) );
+		$wpdb->query( $wpdb->prepare( 
+			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
+		    array( 1 )
+		) );
 		$this->created_user_ids = [ 1 ];
 	}
 
@@ -256,15 +255,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query getUsers(\$cursor: String) {
 			users(after: \$cursor, first: $users_per_page, where: {roleIn: [ADMINISTRATOR, SUBSCRIBER]}) {
-			  pageInfo {
+				pageInfo {
 					endCursor
-			  }
-			  edges {
+				}
+				edges {
 					node {
 						name
 						userId
 					}
-			  }
+				}
 			}
 		  }
 		";

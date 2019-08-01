@@ -64,35 +64,35 @@ class Config {
 		 */
 		add_filter( 'pre_user_query', function ( $query ) {
 		
-				if ( ! $query->get( 'suppress_filters' ) ) {
-						$query->set( 'suppress_filters', 0 );
-				}
-		
-				if ( ! $query->get( 'suppress_filters' ) ) {
-		
-						/**
-						 * Filters the WHERE clause of the query.
-						 *
-						 * Specifically for manipulating paging queries.
-						 **
-						*
-						* @param string $where The WHERE clause of the query.
-						* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-						*/
-						$query->query_where = apply_filters_ref_array( 'graphql_users_where', array( $query->query_where, &$query ) );
-		
-						/**
-						 * Filters the ORDER BY clause of the query.
-						 *
-						 *
-						 * @param string $orderby The ORDER BY clause of the query.
-						 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-						 */
-						$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
-		
-				}
-		
-				return $query;
+			if ( ! $query->get( 'suppress_filters' ) ) {
+				$query->set( 'suppress_filters', 0 );
+			}
+	
+			if ( ! $query->get( 'suppress_filters' ) ) {
+	
+				/**
+				 * Filters the WHERE clause of the query.
+				 *
+				 * Specifically for manipulating paging queries.
+				 **
+				*
+				* @param string $where The WHERE clause of the query.
+				* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+				*/
+				$query->query_where = apply_filters_ref_array( 'graphql_users_where', array( $query->query_where, &$query ) );
+
+				/**
+				 * Filters the ORDER BY clause of the query.
+				 *
+				 *
+				 * @param string $orderby The ORDER BY clause of the query.
+				 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+				 */
+				$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
+	
+			}
+	
+			return $query;
 		
 		} );
 		
