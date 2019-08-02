@@ -21,7 +21,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		// Number of users to create. More created users will slow down the test. 
-		$this->count				= 10;
+		$this->count	= 10;
 		$this->create_users();
 
 		$this->query = '
@@ -31,8 +31,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 					startCursor
 					endCursor
 				}
-			    nodes {
-			      	userId
+			    	nodes {
+			      		userId
 				}
 		  	}
 		}
