@@ -26,7 +26,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->query = '
 		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToUserConnectionWhereArgs) {
-		  	users(last: $last, before: $before, first: $first, after: $after, where: $where) {
+			users(last: $last, before: $before, first: $first, after: $after, where: $where) {
 				pageInfo {
 					startCursor
 					endCursor
