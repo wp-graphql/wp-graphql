@@ -241,20 +241,22 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Assert given 'orderby' field by comparing the GraphQL query against a plain WP_User_Query
 	 * @throws Exception
 	 */
-	public function assertQueryInCursor( $meta_fields ) {
+	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
-		add_filter( 'graphql_map_input_fields_to_wp_user_query', function( $query_args ) use ( $meta_fields ) {
-			return array_merge( $query_args, $meta_fields );
-		}, 10, 1 );
+		$where = str_replace( '"', '', json_encode( $graphql_args ) );
 
-		// Must use dummy where args here to force
-		// graphql_map_input_fields_to_wp_query to be executed
+		// Meta field orderby is not supported in schema and needs to be passed in through hook
+		if ( $order_by_meta_field ) {
+			add_filter( 'graphql_map_input_fields_to_wp_user_query', function( $query_args ) use ( $wp_user_query_args ) {
+				return array_merge( $query_args, $wp_user_query_args );
+			}, 10, 1 );
+		}
 
 		$users_per_page = ceil( $this->count / 2 );
 		
 		$query = "
 		query getUsers(\$cursor: String) {
-			users(after: \$cursor, first: $users_per_page, where: {roleIn: [ADMINISTRATOR, SUBSCRIBER]}) {
+			users(after: \$cursor, first: $users_per_page, where: $where) {
 				pageInfo {
 					endCursor
 				}
@@ -285,21 +287,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		}, $second['data']['users']['edges']);
 
 		// Make corresponding WP_User_Query
-		$first_page = new WP_User_Query( array_merge( $meta_fields, [
+		$first_page = new WP_User_Query( array_merge( $wp_user_query_args, [
 			'number' => $users_per_page,
 			'paged' => 1,
 		] ) );
 
-		$second_page = new WP_User_Query( array_merge( $meta_fields, [
+		$second_page = new WP_User_Query( array_merge( $wp_user_query_args, [
 			'number' => $users_per_page,
 			'paged' => 2,
 		] ) );
-		
 		$first_page_expected 	= wp_list_pluck($first_page->results, 'ID');
 		$second_page_expected = wp_list_pluck($second_page->results, 'ID');
 
 		// WPGraphQL uses reverse ordering compared to WP_User_Query ordering	if orderby arg is not specified
-		if ( empty( $meta_fields['orderby'] ) ) {
+		if ( empty( $wp_user_query_args['orderby'] ) ) {
 			$first_page_expected 	= array_reverse( wp_list_pluck($second_page->results, 'ID') );
 			$second_page_expected = array_reverse( wp_list_pluck($first_page->results, 'ID') );
 		}
@@ -313,65 +314,95 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Test default order
 	 */
 	public function testDefaultUserOrdering() {
-		$this->assertQueryInCursor( [ ] );
+		$this->assertQueryInCursor( NULL, [ ] );
 	}
 
 	/**
 	 * Simple login__in ordering test
 	 */
 	public function testUserOrderingByLoginInDefault() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'login__in',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'LOGIN_IN'
+				]
+			],
+			[
+				'orderby' => 'login__in',
+			] 
+		);
 	}
 
 	/**
 	 * Simple login__in ordering test by ASC
 	 */
 	public function testUserOrderingByLoginInASC() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'login__in',
-			'order' => 'ASC',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'LOGIN_IN',
+					'order' => 'ASC'
+				]
+			],
+			[
+				'orderby' => 'login__in',
+				'order' 	=> 'ASC'
+			] 
+		);
 	}
 
 	/**
 	 * Simple login__in ordering test by DESC
 	 */
 	public function testUserOrderingByLoginInDESC() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'login__in',
-			'order' => 'DESC',
-		] );
-	}
-
-	/**
-	 * Simple nice name ordering test
-	 */
-	public function testUserOrderingByNiceNameDefault() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'nicename',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'LOGIN_IN',
+					'order' => 'DESC'
+				]
+			],
+			[
+				'orderby' => 'login__in',
+				'order' 	=> 'DESC'
+			] 
+		);
 	}
 
 	/**
 	 * Simple nice name ordering test by ASC
 	 */
 	public function testUserOrderingByNiceNameASC() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'nicename',
-			'order' => 'ASC',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'NICE_NAME',
+					'order'	=> 'ASC'
+				]
+			], 
+			[
+				'orderby' => 'nicename',
+				'order'		=> 'ASC'
+			]
+		);
 	}
 
 	/**
 	 * Simple nice name ordering test by DESC
 	 */
 	public function testUserOrderingByNiceNameDESC() {
-		$this->assertQueryInCursor( [
-			'orderby' => 'nicename',
-			'order' => 'DESC',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'NICE_NAME',
+					'order'	=> 'DESC'
+				]
+			], 
+			[
+				'orderby' => 'nicename',
+				'order'		=> 'DESC'
+			]
+		);
 	}
 
 	public function testUserOrderingByDuplicateUserNames() {
@@ -383,10 +414,18 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			] );
 		}
 
-		$this->assertQueryInCursor( [
-			'orderby' => 'user_nicename',
-			'order' => 'DESC',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'NICE_NAME',
+					'order'	=> 'DESC'
+				]
+			], 
+			[
+				'orderby' => 'nicename',
+				'order'		=> 'DESC'
+			]
+		);
 	}
 
 	public function testUserOrderingByMetaString() {
@@ -400,10 +439,21 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_user_meta($this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-		] );
+		// Must use dummy where args here to force
+		// graphql_map_input_fields_to_wp_query to be executed
+		$this->assertQueryInCursor(	
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' 	=> [ 'meta_value' => 'ASC', ],
+				'meta_key' 	=> 'test_meta',
+			],
+			true 
+		);
 
 	}
 
@@ -418,11 +468,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 6 ) );
 		update_user_meta( $this->created_user_ids[9], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'DATE',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'DATE',
+			],
+			true 
+		);
 	}
 
 	public function testUserOrderingByMetaDateDESC() {
@@ -435,11 +494,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 14 ) );
 		update_user_meta( $this->created_user_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'DESC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'DATE',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'DESC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'DATE',
+			],
+			true 
+		);
 	}
 
 	public function testUserOrderingByMetaNumber() {
@@ -453,11 +521,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_user_meta($this->created_user_ids[9], 'test_meta', 6 );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'UNSIGNED',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'UNSIGNED',
+			],
+			true
+		);
 	}
 
 	public function testUserOrderingByMetaNumberDESC() {
@@ -470,11 +547,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 4 );
 		update_user_meta( $this->created_user_ids[2], 'test_meta', 4 );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'DESC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'UNSIGNED',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'DESC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'UNSIGNED',
+			],
+			true 
+		);
 	}
 
 	public function testUserOrderingWithMetaFiltering() {
@@ -487,19 +573,28 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 7 );
 		update_user_meta($this->created_user_ids[2], 'test_meta', 7 );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'UNSIGNED',
-			'meta_query' => [
-				[
-					'key'     => 'test_meta',
-					'compare' => '>',
-					'value'   => 10,
-					'type'    => 'UNSIGNED',
-				],
-			]
-			], 3 );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'UNSIGNED',
+				'meta_query' => [
+					[
+						'key'     => 'test_meta',
+						'compare' => '>',
+						'value'   => 10,
+						'type'    => 'UNSIGNED',
+					],
+				]
+			], 
+			true 
+		);
 
 	}
 
@@ -513,15 +608,24 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_user_meta($this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'test_clause' => 'ASC', ],
-			'meta_query' => [
-				'test_clause' => [
-					'key' => 'test_meta',
-					'compare' => 'EXISTS',
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
 				]
-			]
-		] );
+			],
+			[
+				'orderby' => [ 'test_clause' => 'ASC', ],
+				'meta_query' => [
+					'test_clause' => [
+						'key' => 'test_meta',
+						'compare' => 'EXISTS',
+					]
+				]
+			],
+			true 
+		);
 	}
 
 	public function testUserOrderingByMetaQueryClauseString() {
@@ -534,16 +638,25 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_user_meta($this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => 'test_clause',
-			'order' => 'ASC',
-			'meta_query' => [
-				'test_clause' => [
-					'key' => 'test_meta',
-					'compare' => 'EXISTS',
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
 				]
-			]
-		] );
+			],
+			[
+				'orderby' => 'test_clause',
+				'order' => 'ASC',
+				'meta_query' => [
+					'test_clause' => [
+						'key' => 'test_meta',
+						'compare' => 'EXISTS',
+					]
+				]
+			],
+			true 
+		);
 
 	}
 
@@ -560,27 +673,54 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		update_user_meta( $this->created_user_ids[9], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'DATE',
-		] );
+		$this->assertQueryInCursor(
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'DATE',
+			],
+			true 
+		);
 
 		update_user_meta( $this->created_user_ids[7], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'DATE',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'DATE',
+			],
+			true
+		);
 
 		update_user_meta( $this->created_user_ids[8], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'DATE',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => [ 'meta_value' => 'ASC', ],
+				'meta_key' => 'test_meta',
+				'meta_type' => 'DATE',
+			],
+			true 
+		);
 
 	}
 
@@ -601,59 +741,39 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_user_meta($this->created_user_ids[2], 'test_meta', 6 );
 
-		$this->assertQueryInCursor( [
-			'orderby' => 'meta_value_num',
-			'order' => 'ASC',
-			'meta_key' => 'test_meta',
-		] );
+		$this->assertQueryInCursor( 
+			[
+				'roleIn' => [
+					'ADMINISTRATOR', 
+					'SUBSCRIBER'
+				]
+			],
+			[
+				'orderby' => 'meta_value_num',
+				'order' => 'ASC',
+				'meta_key' => 'test_meta',
+			],
+			true
+		);
 	}
 
 	/**
 	 * Test orderby nicename__in should work even with order parameter added by mistake
-	 */
-
-	 /**
-	 * Assert given 'orderby' field by comparing the GraphQL query against a plain WP_User_Query
 	 * @throws Exception
 	 */
 	public function testOrderbyNiceNameIn() {
-
-		$users_per_page = $this->count;
-		
-		$query = "
-		query getUsers(\$cursor: String) {
-			users(after: \$cursor, first: $users_per_page, where: {orderby: {field: NICE_NAME_IN, order: DESC}}) {
-			  pageInfo {
-					endCursor
-			  }
-			  edges {
-					node {
-						name
-						userId
-					}
-			  }
-			}
-		  }
-		";
-
-		$response = do_graphql_request( $query, 'getUsers', [ 'cursor' => '' ] );
-		$this->assertArrayNotHasKey( 'errors', $response, print_r( $response, true ) );
-
-		$actual = array_map( function( $edge ) {
-			return $edge['node']['userId'];
-		}, $response['data']['users']['edges']);
-
-		// Make corresponding WP_User_Query
-		$WP_response = new WP_User_Query( [
-			'number' => $users_per_page,
-			'paged' => 1,
-		] );
-		
-		// WPGraphQL uses reverse ordering compared to WP_User_Query ordering	by default
-		$expected = array_reverse( wp_list_pluck($WP_response->results, 'ID') );
-
-		// Aserting like this we get more readable assertion fail message
-		$this->assertEquals( implode(',', $expected), implode(',', $actual) );
-	}
+		$this->assertQueryInCursor( 
+			[
+				'orderby' => [
+					'field' => 'NICE_NAME_IN',
+					'order'	=> 'DESC'
+				]
+			],
+			[
+				'orderby' => 'nicename__in',
+				'order' => 'DESC',
+			]
+		);
+	}	
 
 }
