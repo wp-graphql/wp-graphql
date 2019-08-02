@@ -68,13 +68,13 @@ class Users {
 				'type'        => [
 					'list_of' => 'Int',
 				],
-				'description' => __( 'Array of comment IDs to include.', 'wp-graphql' ),
+				'description' => __( 'Array of userIds to include.', 'wp-graphql' ),
 			],
 			'exclude'           => [
 				'type'        => [
 					'list_of' => 'Int',
 				],
-				'description' => __( 'Array of IDs of users whose unapproved comments will be returned by the query regardless of status.', 'wp-graphql' ),
+				'description' => __( 'Array of userIds to exclude.', 'wp-graphql' ),
 			],
 			'search'            => [
 				'type'        => 'String',
