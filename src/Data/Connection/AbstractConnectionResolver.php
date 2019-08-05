@@ -489,7 +489,7 @@ abstract class AbstractConnectionResolver {
 		 *   $page_info['total'] = null;
 		 *
 		 *   if ( $connection->query instanceof WP_Query ) {
-		 *      if ( isset( $connection->query->found_posts ) {
+		 *      if ( isset( $connection->query->found_posts ) ) {
 		 *          $page_info['total'] = (int) $connection->query->found_posts;
 		 *      }
 		 *   }
