@@ -19,7 +19,7 @@ services:
       - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
 
   mysql_test:
-    image: 'mariadb:10.2.25-bionic'
+    image: 'mariadb:10.2.26-bionic'
     ports:
       # Have Docker forward a randomly assigned host port to this site's MySQL container port
       - '3306'
