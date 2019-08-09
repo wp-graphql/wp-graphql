@@ -113,14 +113,99 @@ class Request {
 	}
 
 	/**
+	 * Checks authentication errors.
+	 *
+	 * False will mean there are no detected errors and
+	 * execution will continue.
+	 *
+	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
+	 * request.
+	 *
+	 * @return boolean
+	 *
+	 * @access protected
+	 *
+	 * @throws \Exception
+	 */
+	protected function has_authentication_errors() {
+
+		$authentication_errors = false;
+
+		if ( ! empty( $result ) ) {
+			return $result;
+		}
+
+		global $wp_rest_auth_cookie;
+
+		/*
+		 * Is cookie authentication being used? (If we get an auth
+		 * error, but we're still logged in, another authentication
+		 * must have been used).
+		 */
+		if ( true !== $wp_rest_auth_cookie && is_user_logged_in() ) {
+			return $this->filtered_authentication_errors( $authentication_errors );
+		} else {
+
+			// Determine if there is a nonce.
+			$nonce = null;
+			if ( isset( $_REQUEST['_wpnonce'] ) ) {
+				$nonce = $_REQUEST['_wpnonce'];
+			} elseif ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
+				$nonce = $_SERVER['HTTP_X_WP_NONCE'];
+			}
+			if ( null === $nonce ) {
+				// No nonce at all, so act as if it's an unauthenticated request.
+				wp_set_current_user( 0 );
+				return $this->filtered_authentication_errors( $authentication_errors );
+			}
+
+			// Check the nonce.
+			$result = wp_verify_nonce( $nonce, 'wp_rest' );
+			if ( ! $result ) {
+				throw new \Exception( __( 'Cookie nonce is invalid', 'wp-graphql' ) );
+			}
+
+		}
+
+		return $this->filtered_authentication_errors( $authentication_errors );
+	}
+
+	/**
+	 * Filter Authentication errors. Allows plugins that authenticate to hook in and prevent
+	 * execution if Authentication errors exist.
+	 *
+	 * @param $authentication_errors
+	 *
+	 * @return boolean
+	 */
+	protected function filtered_authentication_errors( $authentication_errors = false ) {
+
+		/**
+		 * If false, there are no authentication errors. If true, execution of the
+		 * GraphQL request will be prevented and an error will be thrown.
+		 */
+		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
+	}
+
+	/**
 	 * Performs actions and runs filters after execution completes
 	 *
 	 * @param mixed|array|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
 	 *
 	 * @return array
+	 *
+	 * @throws \Exception
 	 */
 	private function after_execute( $response ) {
+
+		/**
+		 * If there are authentication errors, prevent execution and throw an exception.
+		 */
+		if ( false !== $this->has_authentication_errors() ) {
+
+			throw new \Exception( __( 'Authentication Error', 'wp-graphql' ) );
+		}
 
 		/**
 		 * If the params and the $response are both arrays
