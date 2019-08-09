@@ -175,6 +175,7 @@ class Request {
 	 * execution if Authentication errors exist.
 	 *
 	 * @param $authentication_errors
+	 * @access protected
 	 *
 	 * @return boolean
 	 */
@@ -194,6 +195,7 @@ class Request {
 	 *                                     single object for individual requests
 	 *
 	 * @return array
+	 * @access private
 	 *
 	 * @throws \Exception
 	 */
