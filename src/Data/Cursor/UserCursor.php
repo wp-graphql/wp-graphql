@@ -90,11 +90,21 @@ class UserCursor {
 
 		return get_user_by( 'id', $this->cursor_offset );
 	}
-
+	
+	/**
+	 * Generate the final SQL string to be appended to WHERE clause
+	 *
+	 * @return string
+	 */
 	public function to_sql() {
 		return ' AND ' . $this->builder->to_sql();
 	}
-
+	
+	/**
+	 * Get current WP_User_Query instance's query variables.
+	 *
+	 * @return mixed array|null
+	 */
 	public function get_query_var( $name ) {
 		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
 	}
