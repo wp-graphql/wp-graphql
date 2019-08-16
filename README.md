@@ -272,7 +272,7 @@ Notes:
   
 
 #### Updating WP Docker software versions
-Make sure the `docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
+Make sure the `docker/docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
 Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
 check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
 

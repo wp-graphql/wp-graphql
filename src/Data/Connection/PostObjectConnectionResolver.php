@@ -19,6 +19,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * The name of the post type, or array of post types the connection resolver is resolving for
+	 *
 	 * @var mixed string|array
 	 */
 	protected $post_type;
@@ -238,13 +239,17 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
-				if ( in_array( $orderby_input['field'], [
-					'post__in',
-					'post_name__in',
-					'post_parent__in'
-				], true ) ) {
+				if ( in_array(
+					$orderby_input['field'],
+					[
+						'post__in',
+						'post_name__in',
+						'post_parent__in',
+					],
+					true
+				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} else if ( ! empty( $orderby_input['field'] ) ) {
+				} elseif ( ! empty( $orderby_input['field'] ) ) {
 					$query_args['orderby'] = [
 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
 					];
@@ -252,17 +257,28 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			}
 		}
 
-
 		/**
 		 * Convert meta_value_num to seperate meta_value value field which our
 		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
+		}
+
+		/**
+		 * If the query contains search default the results to
+		 */
+		if ( isset( $query_args['s'] ) && ! empty( $query_args['s'] ) ) {
+			/**
+			 * Don't order search results by title (causes funky issues with cursors)
+			 */
+			$query_args['search_orderby_title'] = false;
+			$query_args['orderby']              = 'date';
+			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**
@@ -342,8 +358,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = Types::map_input( $where_args, $arg_mapping );
 
 		if ( ! empty( $query_args['post_status'] ) ) {
-			$allowed_stati =  $this->sanitize_post_stati( $query_args['post_status'] );
-			$query_args['post_status'] = ! empty( $allowed_stati ) ? $allowed_stati : ['publish'];
+			$allowed_stati             = $this->sanitize_post_stati( $query_args['post_status'] );
+			$query_args['post_status'] = ! empty( $allowed_stati ) ? $allowed_stati : [ 'publish' ];
 		}
 
 		/**
@@ -351,13 +367,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
 		 *
-		 * @param array       $query_args The mapped query arguments
-		 * @param array       $args       Query "where" args
-		 * @param mixed       $source     The query results for a query calling this
-		 * @param array       $all_args   All of the arguments for the query (not just the "where" args)
-		 * @param AppContext  $context    The AppContext object
-		 * @param ResolveInfo $info       The ResolveInfo object
-		 * @param mixed|string|array      $post_type  The post type for the query
+		 * @param array              $query_args The mapped query arguments
+		 * @param array              $args       Query "where" args
+		 * @param mixed              $source     The query results for a query calling this
+		 * @param array              $all_args   All of the arguments for the query (not just the "where" args)
+		 * @param AppContext         $context    The AppContext object
+		 * @param ResolveInfo        $info       The ResolveInfo object
+		 * @param mixed|string|array $post_type  The post type for the query
 		 *
 		 * @since 0.0.5
 		 * @return array
@@ -396,28 +412,33 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Parse the list of stati
 		 */
-		$statuses         = wp_parse_slug_list( $stati );
+		$statuses = wp_parse_slug_list( $stati );
 
 		/**
 		 * Get the Post Type object
 		 */
-		$post_type_obj    = get_post_type_object( $this->post_type );
+		$post_type_obj = get_post_type_object( $this->post_type );
 
 		/**
 		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
 		 * otherwise return null, effectively removing it from the $allowed_statuses that will
 		 * be passed to WP_Query
 		 */
-		$allowed_statuses = array_filter( array_map( function( $status ) use ( $post_type_obj ) {
-			if ( 'publish' === $status ) {
-				return $status;
-			}
-			if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
-				return $status;
-			} else {
-				return null;
-			}
-		}, $statuses ) );
+		$allowed_statuses = array_filter(
+			array_map(
+				function( $status ) use ( $post_type_obj ) {
+					if ( 'publish' === $status ) {
+						  return $status;
+					}
+					if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
+						return $status;
+					} else {
+						return null;
+					}
+				},
+				$statuses
+			)
+		);
 
 		/**
 		 * If there are no allowed statuses to pass to WP_Query, prevent the connection

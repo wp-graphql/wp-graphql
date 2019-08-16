@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -48,11 +47,11 @@ class User extends Model {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user) {
+	public function __construct( \WP_User $user ) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
-		$this->data = $user;
+		$this->data      = $user;
 
 		$allowed_restricted_fields = [
 			'isRestricted',
@@ -107,72 +106,77 @@ class User extends Model {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id' => function() {
+				'id'                => function() {
 					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
 				},
-				'capabilities' => function() {
+				'capabilities'      => function() {
 					if ( ! empty( $this->data->allcaps ) ) {
 
 						/**
 						 * Reformat the array of capabilities from the user object so that it is a true
 						 * ListOf type
 						 */
-						$capabilities = array_keys( array_filter( $this->data->allcaps, function( $cap ) {
-							return true === $cap;
-						} ) );
+						$capabilities = array_keys(
+							array_filter(
+								$this->data->allcaps,
+								function( $cap ) {
+									return true === $cap;
+								}
+							)
+						);
 
 					}
 
 					return ! empty( $capabilities ) ? $capabilities : null;
 
 				},
-				'capKey' => function() {
+				'capKey'            => function() {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
-				'roles' => function() {
+				'roles'             => function() {
 					return ! empty( $this->data->roles ) ? $this->data->roles : null;
 				},
-				'email' => function() {
+				'email'             => function() {
 					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
-				'firstName' => function() {
+				'firstName'         => function() {
 					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
 				},
-				'lastName' => function() {
+				'lastName'          => function() {
 					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
 				},
 				'extraCapabilities' => function() {
 					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
 				},
-				'description' => function() {
+				'description'       => function() {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'username' => function() {
+				'username'          => function() {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
-				'name' => function() {
+				'name'              => function() {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
-				'registeredDate' => function() {
+				'registeredDate'    => function() {
 					return ! empty( $this->data->user_registered ) ? date( 'c', strtotime( $this->data->user_registered ) ) : null;
 				},
-				'nickname' => function() {
+				'nickname'          => function() {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
 				},
-				'url' => function() {
+				'url'               => function() {
 					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
 				},
-				'slug' => function() {
+				'slug'              => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'nicename' => function() {
+				'nicename'          => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'locale' => function() {
+				'locale'            => function() {
 					$user_locale = get_user_locale( $this->data );
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
-				'userId' => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
+				'userId'            => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 			];
 
 		}

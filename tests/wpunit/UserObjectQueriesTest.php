@@ -830,4 +830,136 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 	}
 
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testFilterUsersByRole() {
+
+		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
+		wp_set_current_user( $subscriber );
+
+		$query = '
+		query getUsers($where:RootQueryToUserConnectionWhereArgs){
+		  users(where:$where){
+		    edges{
+		      node{
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'role' => 'ADMINISTRATOR'
+				]
+			]
+		]);
+
+		/**
+		 * The query should return errors because the user is a subscriber and cannot filter by role
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['users'] );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'roleIn' => ['ADMINISTRATOR', 'SUBSCRIBER']
+				]
+			]
+		]);
+
+		/**
+		 * The query should return errors because the user is a subscriber and cannot filter by role
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['users'] );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'roleNotIn' => ['ADMINISTRATOR']
+				]
+			]
+		]);
+
+		/**
+		 * The query should return errors because the user is a subscriber and cannot filter by role
+		 */
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['users'] );
+
+		/**
+		 * Create an Admin to make the request with again
+		 */
+		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'role' => 'ADMINISTRATOR'
+				]
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * The query should not have any errors because admins have "list_users" cap and can
+		 * filter users by role
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'roleIn' => ['ADMINISTRATOR']
+				]
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * The query should not have any errors because admins have "list_users" cap and can
+		 * filter users by role
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => [
+					'roleNotIn' => ['ADMINISTRATOR']
+				]
+			]
+		]);
+
+		/**
+		 * The query should not have any errors because admins have "list_users" cap and can
+		 * filter users by role
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+
+
+
+	}
+
 }

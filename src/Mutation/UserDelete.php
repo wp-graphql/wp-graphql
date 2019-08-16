@@ -11,11 +11,14 @@ class UserDelete {
 	 * Registers the CommentCreate mutation.
 	 */
 	public static function register_mutation() {
-		register_graphql_mutation( 'deleteUser', [
-			'inputFields'         => self::get_input_fields(),
-			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => self::mutate_and_get_payload(),
-		] );
+		register_graphql_mutation(
+			'deleteUser',
+			[
+				'inputFields'         => self::get_input_fields(),
+				'outputFields'        => self::get_output_fields(),
+				'mutateAndGetPayload' => self::mutate_and_get_payload(),
+			]
+		);
 	}
 
 	/**
@@ -104,7 +107,7 @@ class UserDelete {
 			 * function on the user edit screen normally.
 			 */
 			if ( ! function_exists( 'wp_delete_user' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/user.php' );
+				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
 			if ( is_multisite() ) {

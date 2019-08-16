@@ -126,7 +126,6 @@ class AppContext {
 		 */
 		$this->loaders = apply_filters( 'graphql_data_loaders', $loaders, $this );
 
-
 		/**
 		 * This filters the config for the AppContext.
 		 *

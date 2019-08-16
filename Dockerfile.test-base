@@ -19,14 +19,14 @@ FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 # Set timezone, install XDebug, PHP Composer, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
-  && apt-get install --no-install-recommends -y mysql-client subversion \
+  && apt-get install --no-install-recommends -y mariadb-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7'; then \
         pecl install xdebug; \
         docker-php-ext-enable xdebug; \
      fi \
   && docker-php-ext-install pdo_mysql \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/ffdc3c7fcb7c0f2a806508a868a35d13177a5a51/web/installer' | php -- --quiet \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/ba13e3fc70f1c66250d1ea7ea4911d593aa1dba5/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \

@@ -158,9 +158,9 @@ abstract class AbstractConnectionResolver {
 	 * the connection resolvers get_query();
 	 *
 	 * @param string $key The key of the query arg to set
-	 * @param mixed $value The value of the query arg to set
+	 * @param mixed  $value The value of the query arg to set
 	 */
-	public function setQueryArg ( $key, $value ) {
+	public function setQueryArg( $key, $value ) {
 		$this->query_args[ $key ] = $value;
 	}
 
@@ -435,11 +435,15 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * @param object $this Instance of the connection resolver class
 				 */
-				$edge = apply_filters( 'graphql_connection_edge', [
-					'cursor' => $this->get_cursor_for_node( $node, $key ),
-					'node'   => $node,
-					'source' => $this->source,
-				], $this );
+				$edge = apply_filters(
+					'graphql_connection_edge',
+					[
+						'cursor' => $this->get_cursor_for_node( $node, $key ),
+						'node'   => $node,
+						'source' => $this->source,
+					],
+					$this
+				);
 
 				/**
 				 * If not empty, add the edge to the edges
@@ -448,8 +452,6 @@ abstract class AbstractConnectionResolver {
 					$edges[] = $edge;
 				}
 			}
-
-
 		}
 
 		return $edges;
@@ -497,8 +499,6 @@ abstract class AbstractConnectionResolver {
 		 *   return $page_info;
 		 *
 		 * });
-		 *
-		 *
 		 */
 		return apply_filters( 'graphql_connection_page_info', $page_info, $this );
 

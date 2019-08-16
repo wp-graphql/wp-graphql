@@ -17,9 +17,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->subscriber = $this->factory()->user->create( [
+		$this->subscriber       = $this->factory()->user->create( [
 			'role' => 'subscriber'
-		]);
+		] );
 
 		$this->created_post_ids = $this->create_posts();
 
@@ -38,15 +38,15 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'post_author'  => $this->admin,
-			'post_content' => 'Test page content',
-			'post_excerpt' => 'Test excerpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
-			'post_type'    => 'post',
-			'post_date'    => $this->current_date,
-			'has_password' => false,
-			'post_password'=> null,
+			'post_author'   => $this->admin,
+			'post_content'  => 'Test page content',
+			'post_excerpt'  => 'Test excerpt',
+			'post_status'   => 'publish',
+			'post_title'    => 'Test Title',
+			'post_type'     => 'post',
+			'post_date'     => $this->current_date,
+			'has_password'  => false,
+			'post_password' => null,
 		];
 
 		/**
@@ -80,6 +80,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
 	 * @param  int $count Number of posts to create.
+	 *
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
@@ -139,7 +140,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		if ( empty( $field ) ) {
 			return $data;
-		} else if ( ! empty( $data )) {
+		} else if ( ! empty( $data ) ) {
 			$data = $data[ $field ];
 		}
 
@@ -430,12 +431,17 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$private_post = $this->createPostObject( [
 			'post_status' => 'private',
 		] );
-		$public_post = $this->createPostObject( [
+		$public_post  = $this->createPostObject( [
 			'post_status' => 'publish',
 		] );
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $private_post, $public_post ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$actual = $this->postsQuery( [
+			'where' => [
+				'in'    => [ $private_post, $public_post ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+			]
+		] );
 
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
@@ -446,7 +452,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsWithProperCaps() {
 
 		$post_args = [
-			'post_title' => 'Private post WITH caps',
+			'post_title'  => 'Private post WITH caps',
 			'post_status' => 'private',
 			'post_author' => $this->subscriber,
 		];
@@ -454,7 +460,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->admin );
-		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$actual = $this->postsQuery( [
+			'where' => [
+				'in'    => [ $post_id ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+			]
+		] );
 		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
 
 	}
@@ -462,7 +473,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsForCurrentUser() {
 
 		$post_args = [
-			'post_title' => 'Private post WITH caps',
+			'post_title'  => 'Private post WITH caps',
 			'post_status' => 'private',
 			'post_author' => $this->subscriber,
 		];
@@ -470,7 +481,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $post_id ], 'stati' => [ 'PUBLISH', 'PRIVATE' ] ] ] );
+		$actual = $this->postsQuery( [
+			'where' => [
+				'in'    => [ $post_id ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+			]
+		] );
 
 		/**
 		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
@@ -500,8 +516,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
 
 		$parent_post = $this->createPostObject( [] );
-		$revision = $this->createPostObject( [
-			'post_type' => 'revision',
+		$revision    = $this->createPostObject( [
+			'post_type'   => 'revision',
 			'post_parent' => $parent_post,
 			'post_status' => 'inherit',
 		] );
@@ -550,16 +566,21 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testDraftPosts( $role, $show_draft ) {
 
 		$public_post = $this->createPostObject( [] );
-		$draft_args = [
-			'post_title' => 'Draft Title',
+		$draft_args  = [
+			'post_title'   => 'Draft Title',
 			'post_content' => 'Draft Post Content Here',
-			'post_status' => 'draft',
+			'post_status'  => 'draft',
 		];
-		$draft_post = $this->createPostObject( $draft_args );
+		$draft_post  = $this->createPostObject( $draft_args );
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'DRAFT' ] ] ] );
+		$actual = $this->postsQuery( [
+			'where' => [
+				'in'    => [ $public_post, $draft_post ],
+				'stati' => [ 'PUBLISH', 'DRAFT' ]
+			]
+		] );
 
 		if ( 'admin' === $role ) {
 
@@ -597,16 +618,21 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testTrashPosts( $role, $show_trash ) {
 
 		$public_post = $this->createPostObject( [] );
-		$draft_args = [
-			'post_title' => 'Trash Title',
+		$draft_args  = [
+			'post_title'   => 'Trash Title',
 			'post_content' => 'Trash Post Content Here',
-			'post_status' => 'trash',
+			'post_status'  => 'trash',
 		];
-		$draft_post = $this->createPostObject( $draft_args );
+		$draft_post  = $this->createPostObject( $draft_args );
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [ 'where' => [ 'in' => [ $public_post, $draft_post ], 'stati' => [ 'PUBLISH', 'TRASH' ] ] ] );
+		$actual = $this->postsQuery( [
+			'where' => [
+				'in'    => [ $public_post, $draft_post ],
+				'stati' => [ 'PUBLISH', 'TRASH' ]
+			]
+		] );
 
 		if ( 'admin' === $role ) {
 			/**
@@ -615,7 +641,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 			$this->assertCount( 2, $actual['data']['posts']['edges'] );
 			$this->assertNotNull( $this->getReturnField( $actual, 1, 'id' ) );
-			$content_field =  $this->getReturnField( $actual, 1, 'content' );
+			$content_field = $this->getReturnField( $actual, 1, 'content' );
 			$excerpt_field = $this->getReturnField( $actual, 1, 'excerpt' );
 
 			if ( true === $show_trash ) {
@@ -647,6 +673,5 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		];
 	}
-
 
 }

@@ -19,8 +19,11 @@ if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
 }
 
 if ( ! empty( $roles ) && is_array( $roles ) ) {
-	register_graphql_enum_type( 'UserRoleEnum', [
-		'description' => __( 'Names of available user roles', 'wp-graphql' ),
-		'values'      => $roles
-	] );
+	register_graphql_enum_type(
+		'UserRoleEnum',
+		[
+			'description' => __( 'Names of available user roles', 'wp-graphql' ),
+			'values'      => $roles,
+		]
+	);
 }

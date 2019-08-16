@@ -162,7 +162,6 @@ class Request {
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
 	 *
-	 *
 	 * @return array
 	 */
 	private function after_execute_actions( $response, $key = null ) {
@@ -174,12 +173,12 @@ class Request {
 
 		if ( ! $key && $this->params ) {
 			$params = $this->params;
-		} else if ( is_array( $this->params ) && isset( $this->params[ $key ] ) ) {
+		} elseif ( is_array( $this->params ) && isset( $this->params[ $key ] ) ) {
 			$params = $this->params[ $key ];
 		}
 
 		$operation = isset( $params->operation ) ? $params->operation : '';
-		$query = isset( $params->query ) ? $params->query : '';
+		$query     = isset( $params->query ) ? $params->query : '';
 		$variables = isset( $params->variables ) ? $params->variables : null;
 
 		/**

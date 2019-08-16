@@ -20,7 +20,10 @@ if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 	}
 }
 
-register_graphql_enum_type( 'TaxonomyEnum', [
-	'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
-	'values'      => $values
-] );
+register_graphql_enum_type(
+	'TaxonomyEnum',
+	[
+		'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
+		'values'      => $values,
+	]
+);

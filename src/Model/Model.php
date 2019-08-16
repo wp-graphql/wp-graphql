@@ -92,10 +92,10 @@ abstract class Model {
 			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
 		}
 
-		$this->restricted_cap = $restricted_cap;
+		$this->restricted_cap            = $restricted_cap;
 		$this->allowed_restricted_fields = $allowed_restricted_fields;
-		$this->owner = $owner;
-		$this->current_user = wp_get_current_user();
+		$this->owner                     = $owner;
+		$this->current_user              = wp_get_current_user();
 
 		if ( 'private' === $this->get_visibility() ) {
 			return;
@@ -146,7 +146,7 @@ abstract class Model {
 	public function __get( $key ) {
 		if ( ! empty( $this->fields[ $key ] ) ) {
 			if ( is_callable( $this->fields[ $key ] ) ) {
-				$data = call_user_func( $this->fields[ $key ] );
+				$data       = call_user_func( $this->fields[ $key ] );
 				$this->$key = $data;
 				return $data;
 			} else {
@@ -158,6 +158,12 @@ abstract class Model {
 	}
 
 	/**
+	 * Generic model setup before the resolver function executes
+	 */
+	public function setup() {
+	}
+
+	/**
 	 * Returns the name of the model, built from the child className
 	 *
 	 * @access protected
@@ -166,8 +172,8 @@ abstract class Model {
 	protected function get_model_name() {
 
 		if ( empty( $this->model_name ) ) {
-			if ( false !== strpos( static::class, "\\" ) ) {
-				$name = substr( strrchr( static::class, "\\" ), 1 );
+			if ( false !== strpos( static::class, '\\' ) ) {
+				$name = substr( strrchr( static::class, '\\' ), 1 );
 			} else {
 				$name = static::class;
 			}
@@ -217,14 +223,13 @@ abstract class Model {
 
 			if ( true === $is_private ) {
 				$this->visibility = 'private';
-			} else if ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
+			} elseif ( null !== $this->owner && true === $this->owner_matches_current_user() ) {
 				$this->visibility = 'public';
-			} else if ( empty( $protected_cap ) || current_user_can( $protected_cap ) ) {
+			} elseif ( empty( $protected_cap ) || current_user_can( $protected_cap ) ) {
 				$this->visibility = 'public';
 			} else {
 				$this->visibility = 'restricted';
 			}
-
 		}
 
 		/**
@@ -249,9 +254,9 @@ abstract class Model {
 	 * @access protected
 	 * @return bool
 	 */
-	 protected function is_private() {
-	 	return false;
-	 }
+	protected function is_private() {
+		return false;
+	}
 
 	/**
 	 * Whether or not the owner of the data matches the current user
@@ -273,22 +278,25 @@ abstract class Model {
 	 * @return void
 	 */
 	protected function restrict_fields() {
-		$this->fields = array_intersect_key( $this->fields, array_flip(
+		$this->fields = array_intersect_key(
+			$this->fields,
+			array_flip(
 
-			/**
-			 * Filter for the allowed restricted fields
-			 *
-			 * @param array       $allowed_restricted_fields The fields to allow when the data is designated as restricted to the current user
-			 * @param string      $model_name                Name of the model the filter is currently being executed in
-			 * @param mixed       $data                      The un-modeled incoming data
-			 * @param string|null $visibility                The visibility that has currently been set for the data at this point
-			 * @param null|int    $owner                     The user ID for the owner of this piece of data
-			 * @param \WP_User    $current_user              The current user for the session
-			 *
-			 * @return array
-			 */
-			apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
-		) );
+				/**
+				* Filter for the allowed restricted fields
+				*
+				* @param array       $allowed_restricted_fields The fields to allow when the data is designated as restricted to the current user
+				* @param string      $model_name                Name of the model the filter is currently being executed in
+				* @param mixed       $data                      The un-modeled incoming data
+				* @param string|null $visibility                The visibility that has currently been set for the data at this point
+				* @param null|int    $owner                     The user ID for the owner of this piece of data
+				* @param \WP_User    $current_user              The current user for the session
+				*
+				* @return array
+				*/
+				apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
+			)
+		);
 	}
 
 	/**
@@ -304,9 +312,11 @@ abstract class Model {
 		}
 
 		$clean_array = [];
+		$self        = $this;
 		foreach ( $this->fields as $key => $data ) {
 
-			$clean_array[ $key ] = function() use ( $key, $data ) {
+			$clean_array[ $key ] = function() use ( $key, $data, $self ) {
+				$self->setup();
 
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
@@ -406,9 +416,15 @@ abstract class Model {
 		/**
 		 * @TODO: potentially abstract this out into a more central spot
 		 */
-		$this->fields['isPublic']     = function() { return ( 'public' === $this->get_visibility() ) ? true : false;};
-		$this->fields['isRestricted'] = function() { return ( 'restricted' === $this->get_visibility() ) ? true : false; };
-		$this->fields['isPrivate']    = function() { return ( 'private' === $this->get_visibility() ) ? true : false; };
+		$this->fields['isPublic']     = function() {
+			return ( 'public' === $this->get_visibility() ) ? true : false;
+		};
+		$this->fields['isRestricted'] = function() {
+			return ( 'restricted' === $this->get_visibility() ) ? true : false;
+		};
+		$this->fields['isPrivate']    = function() {
+			return ( 'private' === $this->get_visibility() ) ? true : false;
+		};
 
 	}
 

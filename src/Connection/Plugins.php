@@ -19,13 +19,15 @@ class Plugins {
 	 * @access public
 	 */
 	public static function register_connections() {
-		register_graphql_connection( [
-			'fromType'      => 'RootQuery',
-			'toType'        => 'Plugin',
-			'fromFieldName' => 'plugins',
-			'resolve'       => function ( $root, $args, $context, $info ) {
-				return DataSource::resolve_plugins_connection( $root, $args, $context, $info );
-			},
-		] );
+		register_graphql_connection(
+			[
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Plugin',
+				'fromFieldName' => 'plugins',
+				'resolve'       => function ( $root, $args, $context, $info ) {
+					return DataSource::resolve_plugins_connection( $root, $args, $context, $info );
+				},
+			]
+		);
 	}
 }
