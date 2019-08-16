@@ -355,12 +355,9 @@ class PostObjectMutation {
 									if ( ! empty( $created_term ) ) {
 										$terms_to_connect[] = $created_term;
 									}
-
 								}
-
 							}
 						}
-
 
 						/**
 						 * If there are terms to connect, set the connection
@@ -377,9 +374,7 @@ class PostObjectMutation {
 							wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
 						}
 					}
-
 				}
-
 			}
 		}
 

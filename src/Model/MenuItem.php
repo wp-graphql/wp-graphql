@@ -55,10 +55,10 @@ class MenuItem extends Model {
 		if ( empty( $fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
+				'id'               => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
-				'cssClasses' => function() {
+				'cssClasses'       => function() {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
 					if ( ! isset( $this->data->classes ) || ! is_array( $this->data->classes ) || empty( $this->data->classes ) || empty( $this->data->classes[0] ) ) {
@@ -67,28 +67,28 @@ class MenuItem extends Model {
 
 					return $this->data->classes;
 				},
-				'description' => function() {
+				'description'      => function() {
 					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
 				},
-				'label' => function() {
+				'label'            => function() {
 					return ( ! empty( $this->data->title ) ) ? $this->data->title : null;
 				},
 				'linkRelationship' => function() {
 					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;
 				},
-				'menuItemId' => function() {
+				'menuItemId'       => function() {
 					return absint( $this->data->ID );
 				},
-				'objectId' => function() {
+				'objectId'         => function() {
 					return ( absint( $this->data->object_id ) );
 				},
-				'target' => function() {
+				'target'           => function() {
 					return ! empty( $this->data->target ) ? $this->data->target : null;
 				},
-				'title' => function() {
+				'title'            => function() {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
-				'url' => function() {
+				'url'              => function() {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
 			];

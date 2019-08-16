@@ -1,7 +1,11 @@
 <?php
+/**
+ * Model - PostObject
+ *
+ * @package WPGraphQL\Model
+ */
 
 namespace WPGraphQL\Model;
-
 
 use GraphQLRelay\Relay;
 use WPGraphQL\Types;
@@ -75,24 +79,15 @@ class Post extends Model {
 	/**
 	 * Post constructor.
 	 *
-	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
+	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @access public
 	 * @return void
-	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post $post ) {
 
-		$this->data = $post;
+		$this->data             = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
-
-		/**
-		 * Set the resolving post to the global $post. That way any filters that
-		 * might be applied when resolving fields can rely on global post and
-		 * post data being set up.
-		 */
-		$GLOBALS['post'] = $this->data;
-		setup_postdata( $this->data );
 
 		/**
 		 * Mimic core functionality for templates, as seen here:
@@ -122,6 +117,18 @@ class Post extends Model {
 
 	}
 
+	public function setup() {
+		/**
+		 * Set the resolving post to the global $post. That way any filters that
+		 * might be applied when resolving fields can rely on global post and
+		 * post data being set up.
+		 */
+		if ( $this->data ) {
+			$GLOBALS['post'] = $this->data;
+			setup_postdata( $this->data );
+		}
+	}
+
 	/**
 	 * Retrieve the cap to check if the data should be restricted for the post
 	 *
@@ -129,7 +136,6 @@ class Post extends Model {
 	 * @return string
 	 */
 	protected function get_restricted_cap() {
-
 		if ( ! empty( $this->data->post_password ) ) {
 			return $this->post_type_object->cap->edit_others_posts;
 		}
@@ -245,25 +251,25 @@ class Post extends Model {
 			};
 
 			$this->fields = [
-				'ID' => function() {
+				'ID'              => function() {
 					return $this->data->ID;
 				},
-				'post_author'   => function() {
+				'post_author'     => function() {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'id'            => function () {
+				'id'              => function () {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->ID ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->ID ) : null;
 				},
-				'post_type'     => function() {
+				'post_type'       => function() {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
 				},
 				'authorId'        => function () {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'date'          => function () {
+				'date'            => function () {
 					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Types::prepare_date_response( null, $this->data->post_date ) : null;
 				},
-				'dateGmt'       => function () {
+				'dateGmt'         => function () {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
 				},
 				'contentRendered' => function() {
@@ -271,20 +277,20 @@ class Post extends Model {
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
-				'contentRaw' => [
-					'callback' => function() {
+				'contentRaw'      => [
+					'callback'   => function() {
 						return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_posts
+					'capability' => $this->post_type_object->cap->edit_posts,
 				],
-				'titleRendered' => function() {
+				'titleRendered'   => function() {
 					setup_postdata( $this->data );
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 					return apply_filters( 'the_title', $title, $id );
 				},
-				'titleRaw' => [
-					'callback' => function() {
+				'titleRaw'        => [
+					'callback'   => function() {
 						return ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
@@ -295,37 +301,37 @@ class Post extends Model {
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 					return apply_filters( 'the_excerpt', $excerpt );
 				},
-				'excerptRaw' => [
-					'callback' => function() {
+				'excerptRaw'      => [
+					'callback'   => function() {
 						return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
-				'post_status'   => function() {
+				'post_status'     => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'status'        => function () {
+				'status'          => function () {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'commentStatus' => function () {
+				'commentStatus'   => function () {
 					return ! empty( $this->data->comment_status ) ? $this->data->comment_status : null;
 				},
-				'pingStatus'    => function () {
+				'pingStatus'      => function () {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
 				},
-				'slug'          => function () {
+				'slug'            => function () {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
-				'toPing'        => function () {
+				'toPing'          => function () {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},
-				'pinged'        => function () {
+				'pinged'          => function () {
 					return ! empty( $this->data->pinged ) && is_array( $this->data->pinged ) ? implode( ',', (array) $this->data->pinged ) : null;
 				},
-				'modified'      => function () {
+				'modified'        => function () {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;
 				},
-				'modifiedGmt'   => function () {
+				'modifiedGmt'     => function () {
 					return ! empty( $this->data->post_modified_gmt ) ? Types::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
 				'parentId'        => function () {
@@ -335,86 +341,74 @@ class Post extends Model {
 					$edit_last = get_post_meta( $this->data->ID, '_edit_last', true );
 					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
-				'editLock'      => function () {
+				'editLock'        => function () {
 					$edit_lock       = get_post_meta( $this->data->ID, '_edit_lock', true );
 					$edit_lock_parts = explode( ':', $edit_lock );
 					return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 				},
-				'enclosure'     => function () {
+				'enclosure'       => function () {
 					$enclosure = get_post_meta( $this->data->ID, 'enclosure', true );
 					return ! empty( $enclosure ) ? $enclosure : null;
 				},
-				'guid'          => function () {
+				'guid'            => function () {
 					return ! empty( $this->data->guid ) ? $this->data->guid : null;
 				},
-				'menuOrder'     => function () {
+				'menuOrder'       => function () {
 					return ! empty( $this->data->menu_order ) ? absint( $this->data->menu_order ) : null;
 				},
-				'link'          => function () {
+				'link'            => function () {
 					$link = get_permalink( $this->data->ID );
 					return ! empty( $link ) ? $link : null;
 				},
-				'uri'           => function () {
+				'uri'             => function () {
 					$uri = get_page_uri( $this->data->ID );
 					return ! empty( $uri ) ? $uri : null;
 				},
-				'commentCount'  => function () {
+				'commentCount'    => function () {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
 				},
 				'featuredImageId' => function () {
 					$thumbnail_id = get_post_thumbnail_id( $this->data->ID );
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
-				'password' => [
-					'callback' => function() {
+				'password'        => [
+					'callback'   => function() {
 						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_others_posts,
-				]
+				],
 			];
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [
-					'captionRendered' => function() {
+					'captionRendered'     => function() {
 						setup_postdata( $this->data );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 						return ! empty( $caption ) ? $caption : null;
 					},
-					'srcSet' => function( $size = 'medium' ) {
-						$src_set = wp_get_attachment_image_srcset( $this->data->ID, $size );
-						return ! empty( $src_set ) ? $src_set : null;
-					},
-					'sizes' => function( $size = 'medium' ) {
-						$url = wp_get_attachment_image_src( $this->data->ID, $size );
-						if ( empty( $url[0] ) ) {
-							return null;
-						}
-						$sizes = wp_calculate_image_sizes( $size, $url[0], null, $this->data->ID );
-						return ! empty( $sizes ) ? $sizes : null;
-					},
-					'captionRaw' => [
-						'callback' => function() {
+					'captionRaw'          => [
+						'callback'   => function() {
 							return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 						},
 						'capability' => $this->post_type_object->cap->edit_posts,
 					],
-					'altText' => function() {
+					'altText'             => function() {
 						return get_post_meta( $this->data->ID, '_wp_attachment_image_alt', true );
 					},
 					'descriptionRendered' => function() {
 						setup_postdata( $this->data );
 						return ! empty( $this->data->post_content ) ? apply_filters( 'the_content', $this->data->post_content ) : null;
 					},
-					'descriptionRaw' => [
-						'callback' => function() {
+					'descriptionRaw'      => [
+						'callback'   => function() {
 							return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 						},
 						'capability' => $this->post_type_object->cap->edit_posts,
 					],
-					'mediaType' => function() {
+					'mediaType'           => function() {
 						return wp_attachment_is_image( $this->data->ID ) ? 'image' : 'file';
 					},
-					'sourceUrl' => function( $size = 'full' ) {
+					'sourceUrl'           => function( $size = 'full' ) {
 						if ( ! empty( $size ) ) {
 							$image_src = wp_get_attachment_image_src( $this->data->ID, $size );
 
@@ -425,27 +419,27 @@ class Post extends Model {
 
 						return wp_get_attachment_image_src( $this->data->ID, $size );
 					},
-					'sourceUrlsBySize' => function() {
+					'sourceUrlsBySize'    => function() {
 						$sizes = get_intermediate_image_sizes();
-						$urls = [];
+						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
-							foreach( $sizes as $size ) {
+							foreach ( $sizes as $size ) {
 								$urls[ $size ] = wp_get_attachment_image_src( $this->data->ID, $size )[0];
 							}
 						}
 						return $urls;
 					},
-					'mimeType' => function() {
+					'mimeType'            => function() {
 						return ! empty( $this->data->post_mime_type ) ? $this->data->post_mime_type : null;
 					},
-					'mediaDetails' => function() {
+					'mediaDetails'        => function() {
 						$media_details = wp_get_attachment_metadata( $this->data->ID );
 						if ( ! empty( $media_details ) ) {
 							$media_details['ID'] = $this->data->ID;
 							return $media_details;
 						}
 						return null;
-					}
+					},
 				];
 
 				$this->fields = array_merge( $this->fields, $attachment_fields );
@@ -455,7 +449,7 @@ class Post extends Model {
 			 * Set the {post_type}Id field to the Model.
 			 */
 			if ( isset( $this->post_type_object ) && isset( $this->post_type_object->graphql_single_name ) ) {
-				$type_id                 = $this->post_type_object->graphql_single_name . 'Id';
+				$type_id                  = $this->post_type_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = function() {
 					return absint( $this->data->ID );
 				};

@@ -13,11 +13,14 @@ class CommentCreate {
 	 * Registers the CommentCreate mutation.
 	 */
 	public static function register_mutation() {
-		register_graphql_mutation( 'createComment', [
-			'inputFields'         => self::get_input_fields(),
-			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => self::mutate_and_get_payload(),
-		] );
+		register_graphql_mutation(
+			'createComment',
+			[
+				'inputFields'         => self::get_input_fields(),
+				'outputFields'        => self::get_output_fields(),
+				'mutateAndGetPayload' => self::mutate_and_get_payload(),
+			]
+		);
 	}
 
 	/**
@@ -110,9 +113,9 @@ class CommentCreate {
 			 * client can see their comment while it's still pending approval.
 			 */
 			'success' => [
-				'type' => 'Boolean',
+				'type'        => 'Boolean',
 				'description' => __( 'Whether the mutation succeeded. If the comment is not approved, the server will not return the comment to a non authenticated user, but a success message can be returned if the create succeeded, and the client can optimistically add the comment to the client cache', 'wp-graphql' ),
-			]
+			],
 		];
 	}
 
@@ -194,7 +197,7 @@ class CommentCreate {
 			 * Return the comment object
 			 */
 			return [
-				'id' => $comment_id,
+				'id'      => $comment_id,
 				'success' => true,
 			];
 		};

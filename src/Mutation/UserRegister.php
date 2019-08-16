@@ -12,11 +12,14 @@ class UserRegister {
 	 * Registers the CommentCreate mutation.
 	 */
 	public static function register_mutation() {
-		register_graphql_mutation( 'registerUser', [
-			'inputFields'         => self::get_input_fields(),
-			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => self::mutate_and_get_payload(),
-		] );
+		register_graphql_mutation(
+			'registerUser',
+			[
+				'inputFields'         => self::get_input_fields(),
+				'outputFields'        => self::get_output_fields(),
+				'mutateAndGetPayload' => self::mutate_and_get_payload(),
+			]
+		);
 	}
 
 	/**
@@ -25,19 +28,22 @@ class UserRegister {
 	 * @return array
 	 */
 	public static function get_input_fields() {
-		$input_fields = array_merge( UserCreate::get_input_fields(), [
-			'username' => [
-				'type'        => [
-					'non_null' => 'String'
+		$input_fields = array_merge(
+			UserCreate::get_input_fields(),
+			[
+				'username' => [
+					'type'        => [
+						'non_null' => 'String',
+					],
+					// translators: the placeholder is the name of the type of object being updated
+					'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
 				],
-				// translators: the placeholder is the name of the type of object being updated
-				'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
-			],
-			'email'    => [
-				'type'        => 'String',
-				'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
-			],
-		] );
+				'email'    => [
+					'type'        => 'String',
+					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
+				],
+			]
+		);
 
 		/**
 		 * make sure we don't allow input for role or roles

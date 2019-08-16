@@ -12,7 +12,7 @@ use WPGraphQL\Types;
  * registered to "show_in_graphql" and "show_in_nav_menus"
  */
 $args = [
-	'show_in_graphql' => true,
+	'show_in_graphql'   => true,
 	'show_in_nav_menus' => true,
 ];
 
@@ -31,25 +31,28 @@ foreach ( get_taxonomies( $args ) as $type ) {
 // Add the custom link type (which is just a menu item).
 $possible_types['MenuItem'] = TypeRegistry::get_type( 'MenuItem' );
 
-register_graphql_union_type( 'MenuItemObjectUnion', [
-	'types'       => $possible_types,
-	'resolveType' => function ( $object ) {
+register_graphql_union_type(
+	'MenuItemObjectUnion',
+	[
+		'types'       => $possible_types,
+		'resolveType' => function ( $object ) {
 
-		// Custom link / menu item
-		if ( $object instanceof MenuItem ) {
-			return TypeRegistry::get_type( 'MenuItem' );
-		}
+			// Custom link / menu item
+			if ( $object instanceof MenuItem ) {
+				return TypeRegistry::get_type( 'MenuItem' );
+			}
 
-		// Post object
-		if ( $object instanceof Post && ! empty( $object->post_type ) ) {
-			return Types::post_object( $object->post_type );
-		}
+			// Post object
+			if ( $object instanceof Post && ! empty( $object->post_type ) ) {
+				return Types::post_object( $object->post_type );
+			}
 
-		// Taxonomy term
-		if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
-			return Types::term_object( $object->taxonomyName );
-		}
+			// Taxonomy term
+			if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
+				return Types::term_object( $object->taxonomyName );
+			}
 
-		return null;
-	},
-] );
+			return null;
+		},
+	]
+);

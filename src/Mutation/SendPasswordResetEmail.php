@@ -9,54 +9,57 @@ use WPGraphQL\Model\User;
 
 class SendPasswordResetEmail {
 	public static function register_mutation() {
-		register_graphql_mutation( 'sendPasswordResetEmail', [
-			'description'         => __( 'Send password reset email to user', 'wp-graphql' ),
-			'inputFields'         => [
-				'username' => [
-					'type'        => [
-						'non_null' => 'String',
+		register_graphql_mutation(
+			'sendPasswordResetEmail',
+			[
+				'description'         => __( 'Send password reset email to user', 'wp-graphql' ),
+				'inputFields'         => [
+					'username' => [
+						'type'        => [
+							'non_null' => 'String',
+						],
+						'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
 					],
-					'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
 				],
-			],
-			'outputFields'        => [
-				'user' => [
-					'type'        => 'User',
-					'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
-					'resolve'     => function ( $payload ) {
-						$user = get_user_by( 'ID', absint( $payload['id'] ) );
-						return new User( $user );
-					},
+				'outputFields'        => [
+					'user' => [
+						'type'        => 'User',
+						'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
+						'resolve'     => function ( $payload ) {
+							$user = get_user_by( 'ID', absint( $payload['id'] ) );
+							return new User( $user );
+						},
+					],
 				],
-			],
-			'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
+				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
 
-				if ( ! self::was_username_provided( $input ) ) {
-					throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
-				}
-				$user_data = self::get_user_data( $input['username'] );
-				if ( ! $user_data ) {
-					throw new UserError( self::get_user_not_found_error_message( $input['username'] ) );
-				}
-				$key = get_password_reset_key( $user_data );
-				if ( is_wp_error( $key ) ) {
-					throw new UserError( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
-				}
-				$subject    = self::get_email_subject( $user_data );
-				$message    = self::get_email_message( $user_data, $key );
-				$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
-				if ( ! $email_sent ) {
-					throw new UserError( __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' ) );
-				}
+					if ( ! self::was_username_provided( $input ) ) {
+						throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
+					}
+					$user_data = self::get_user_data( $input['username'] );
+					if ( ! $user_data ) {
+						throw new UserError( self::get_user_not_found_error_message( $input['username'] ) );
+					}
+					$key = get_password_reset_key( $user_data );
+					if ( is_wp_error( $key ) ) {
+						throw new UserError( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
+					}
+					$subject    = self::get_email_subject( $user_data );
+					$message    = self::get_email_message( $user_data, $key );
+					$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
+					if ( ! $email_sent ) {
+						throw new UserError( __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' ) );
+					}
 
-				/**
-				 * Return the ID of the user
-				 */
-				return [
-					'id' => $user_data->ID,
-				];
-			}
-		] );
+					/**
+					 * Return the ID of the user
+					 */
+					return [
+						'id' => $user_data->ID,
+					];
+				},
+			]
+		);
 	}
 
 	/**

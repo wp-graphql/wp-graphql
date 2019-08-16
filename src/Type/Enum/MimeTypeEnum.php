@@ -4,7 +4,7 @@ namespace WPGraphQL\Type;
 
 $values = [
 	'IMAGE_JPEG' => [
-		'value' => 'image/jpeg'
+		'value' => 'image/jpeg',
 	],
 ];
 
@@ -19,7 +19,10 @@ if ( ! empty( $allowed_mime_types ) ) {
 	}
 }
 
-register_graphql_enum_type( 'MimeTypeEnum', [
-	'description' => __( 'The MimeType of the object', 'wp-graphql' ),
-	'values'      => $values
-] );
+register_graphql_enum_type(
+	'MimeTypeEnum',
+	[
+		'description' => __( 'The MimeType of the object', 'wp-graphql' ),
+		'values'      => $values,
+	]
+);

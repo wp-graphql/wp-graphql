@@ -26,10 +26,13 @@ class SchemaRegistry {
 		/**
 		 * Register the core GraphQL Schema
 		 */
-		register_graphql_schema( 'core', [
-			'query'    => 'RootQuery',
-			'mutation' => 'RootMutation',
-		] );
+		register_graphql_schema(
+			'core',
+			[
+				'query'    => 'RootQuery',
+				'mutation' => 'RootMutation',
+			]
+		);
 
 		if ( ! did_action( 'graphql_register_schemas' ) ) {
 			do_action( 'graphql_register_schemas' );

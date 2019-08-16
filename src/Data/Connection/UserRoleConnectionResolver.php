@@ -7,6 +7,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * No args needed to be passed to the query
+	 *
 	 * @return array
 	 */
 	public function get_query_args() {
@@ -15,6 +16,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * Get the defined wp_roles
+	 *
 	 * @return mixed|\WP_Roles
 	 */
 	public function get_query() {
@@ -23,6 +25,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * Get the items from WP_Roles
+	 *
 	 * @return array|mixed|\WP_Roles
 	 */
 	public function get_items() {
@@ -35,16 +38,21 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 			$roles = ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
 		}
 
-		$roles = array_filter( array_map(function( $role ) use ( $current_user_roles ) {
-			if (current_user_can( 'list_users' ) ) {
-				return $role;
-			}
+		$roles = array_filter(
+			array_map(
+				function( $role ) use ( $current_user_roles ) {
+					if ( current_user_can( 'list_users' ) ) {
+						return $role;
+					}
 
-			if ( in_array( $role, $current_user_roles, true ) ) {
-				return $role;
-			}
-			return null;
-		}, $roles ) );
+					if ( in_array( $role, $current_user_roles, true ) ) {
+						return $role;
+					}
+					return null;
+				},
+				$roles
+			)
+		);
 
 		return $roles;
 	}

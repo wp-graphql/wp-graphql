@@ -44,26 +44,30 @@ class MenuItemLoader extends AbstractDataLoader {
 		 * in the same order the keys were provided in.
 		 */
 		$args = [
-			'post_type' => 'nav_menu_item',
-			'post_status' => 'any',
-			'posts_per_page' => count( $keys ),
-			'post__in' => $keys,
-			'orderby' => 'post__in',
-			'no_found_rows' => true,
-			'split_the_query' => true,
+			'post_type'           => 'nav_menu_item',
+			'post_status'         => 'any',
+			'posts_per_page'      => count( $keys ),
+			'post__in'            => $keys,
+			'orderby'             => 'post__in',
+			'no_found_rows'       => true,
+			'split_the_query'     => true,
 			'ignore_sticky_posts' => true,
 		];
 
 		/**
 		 * Ensure that WP_Query doesn't first ask for IDs since we already have them.
 		 */
-		add_filter( 'split_the_query', function ( $split, \WP_Query $query ) {
-			if ( false === $query->get( 'split_the_query' ) ) {
-				return false;
-			}
-			return $split;
-		}, 10, 2 );
-
+		add_filter(
+			'split_the_query',
+			function ( $split, \WP_Query $query ) {
+				if ( false === $query->get( 'split_the_query' ) ) {
+					return false;
+				}
+				return $split;
+			},
+			10,
+			2
+		);
 
 		new \WP_Query( $args );
 

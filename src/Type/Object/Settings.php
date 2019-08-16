@@ -27,7 +27,7 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 		} else {
 			$field_key = $key;
 		}
-		$field_key = lcfirst( $setting_field['group'] . 'Settings' . str_replace( '_', '', ucwords( $field_key, '_' ) ) );
+		$field_key = lcfirst( str_replace( '_', '', ucwords( $setting_field['group'], '_' ) ) . 'Settings' . str_replace( '_', '', ucwords( $field_key, '_' ) ) );
 
 		if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
@@ -39,7 +39,7 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 				'type'        => TypeRegistry::get_type( $setting_field['type'] ),
 				'description' => $setting_field['description'],
 
-				'resolve' => function( $root, $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
+				'resolve'     => function( $root, $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
 					/**
 					 * Check to see if the user querying the email field has the 'manage_options' capability
 					 * All other options should be public by default
@@ -58,7 +58,7 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 							$option = ! empty( $option ) ? (string) $option : '';
 							break;
 						case 'boolean':
-							$option = (boolean) $option;
+							$option = (bool) $option;
 							break;
 						case 'number':
 							$option = (float) $option;
@@ -70,12 +70,13 @@ if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 			];
 
 		}
-
 	}
-
 }
 
-register_graphql_object_type( 'Settings', [
-	'description' => __( 'All of the registered settings', 'wp-graphql' ),
-	'fields'      => $fields
-] );
+register_graphql_object_type(
+	'Settings',
+	[
+		'description' => __( 'All of the registered settings', 'wp-graphql' ),
+		'fields'      => $fields,
+	]
+);

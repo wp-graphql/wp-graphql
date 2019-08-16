@@ -14,9 +14,12 @@ if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 	}
 }
 
-register_graphql_union_type( 'TermObjectUnion', [
-	'types'       => $possible_types,
-	'resolveType' => function ( $value ) {
-		return ! empty( $value->taxonomyName ) ? Types::term_object( $value->taxonomyName ) : null;
-	},
-] );
+register_graphql_union_type(
+	'TermObjectUnion',
+	[
+		'types'       => $possible_types,
+		'resolveType' => function ( $value ) {
+			return ! empty( $value->taxonomyName ) ? Types::term_object( $value->taxonomyName ) : null;
+		},
+	]
+);

@@ -9,9 +9,9 @@ namespace WPGraphQL\Type;
 
 $enum_values = [];
 
-$locale = get_locale();
+$locale           = get_locale();
 static $mo_loaded = false, $locale_loaded = null;
-$continents = array(
+$continents       = array(
 	'Africa',
 	'America',
 	'Antarctica',
@@ -21,7 +21,7 @@ $continents = array(
 	'Australia',
 	'Europe',
 	'Indian',
-	'Pacific'
+	'Pacific',
 );
 // Load translations for continents and cities.
 if ( ! $mo_loaded || $locale !== $locale_loaded ) {
@@ -76,7 +76,7 @@ foreach ( $zonen as $key => $zone ) {
 		$display = $zone['t_city'];
 		if ( ! empty( $zone['subcity'] ) ) {
 			// Add the subcity to the value
-			$value[] = $zone['subcity'];
+			$value[]  = $zone['subcity'];
 			$display .= ' - ' . $zone['t_subcity'];
 		}
 	}
@@ -85,7 +85,7 @@ foreach ( $zonen as $key => $zone ) {
 
 	$enum_values[ WPEnumType::get_safe_name( $value ) ] = [
 		'value'       => $value,
-		'description' => $display
+		'description' => $display,
 	];
 
 
@@ -155,11 +155,15 @@ foreach ( $offset_range as $offset ) {
 		$offset_name = (string) $offset;
 	}
 	$offset_value = $offset_name;
-	$offset_name  = str_replace( array( '.25', '.5', '.75' ), array(
-		':15',
-		':30',
-		':45'
-	), $offset_name );
+	$offset_name  = str_replace(
+		array( '.25', '.5', '.75' ),
+		array(
+			':15',
+			':30',
+			':45',
+		),
+		$offset_name
+	);
 	$offset_name  = 'UTC' . $offset_name;
 	$offset_value = 'UTC' . $offset_value;
 
@@ -171,7 +175,10 @@ foreach ( $offset_range as $offset ) {
 
 }
 
-register_graphql_enum_type( 'TimezoneEnum', [
-	'description' => __( 'Available timezones', 'wp-graphql' ),
-	'values'      => $enum_values
-] );
+register_graphql_enum_type(
+	'TimezoneEnum',
+	[
+		'description' => __( 'Available timezones', 'wp-graphql' ),
+		'values'      => $enum_values,
+	]
+);

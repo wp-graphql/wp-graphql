@@ -46,5 +46,55 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $id, $actual['data']['bootstrapTerms']['edges'][0]['node']['bootstrapTermId'] );
 
 	}
+	public function testQueryCustomTaxomomyChildren() {
+
+
+		// Just create a post of the same cpt to expose issue #905
+		$this->factory->post->create( [
+			'post_content'  => 'Test page content',
+			'post_excerpt'  => 'Test excerpt',
+			'post_status'   => 'publish',
+			'post_title'    => 'Test Title',
+			'post_type'     => 'bootstrap_cpt',
+		] );
+
+		$parent_id = $this->factory()->term->create( [
+			'taxonomy' => 'bootstrap_tax',
+			'name'     => 'parent'
+		] );
+
+		$child_id = $this->factory()->term->create( [
+			'taxonomy' => 'bootstrap_tax',
+			'name'     => 'child',
+			'parent' => $parent_id,
+		] );
+
+		$query = '
+		query TaxonomyChildren {
+		  bootstrapTerms {
+		    nodes {
+			  name
+			  children {
+				  nodes {
+					  name
+				  }
+			  }
+		    }
+		  }
+		  bootstrapPosts {
+			  nodes {
+				  title
+			  }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+		] );
+
+		$this->assertEquals( 'child', $actual['data']['bootstrapTerms']['nodes'][0]['children']['nodes'][0]['name'] );
+
+	}
 
 }

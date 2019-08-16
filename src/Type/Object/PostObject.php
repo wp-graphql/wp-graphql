@@ -1,4 +1,9 @@
 <?php
+/**
+ * WPObject - PostObject
+ *
+ * @package WPGraphQL\Type
+ */
 
 namespace WPGraphQL\Type;
 
@@ -9,37 +14,53 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 
+/**
+ * Registers a post_type WPObject type to the schema.
+ *
+ * @param WP_Post_Type $post_type_object Post type.
+ */
 function register_post_object_types( $post_type_object ) {
-
 	$single_name = $post_type_object->graphql_single_name;
 
-	register_graphql_object_type( $single_name, [
-		'description' => __( sprintf( 'The %s type', $single_name ), 'wp-graphql' ),
-		'interfaces'  => [ WPObjectType::node_interface() ],
-		'fields'      => get_post_object_fields( $post_type_object ),
-	] );
+	register_graphql_object_type(
+		$single_name,
+		[
+			/* translators: post object singular name w/ description */
+			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
+			'interfaces'  => [ WPObjectType::node_interface() ],
+			'fields'      => get_post_object_fields( $post_type_object ),
+		]
+	);
 
 	if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-
-		register_graphql_field( $post_type_object->graphql_single_name, 'commentCount', [
-			'type'        => 'Int',
-			'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
-		] );
-
+		register_graphql_field(
+			$post_type_object->graphql_single_name,
+			'commentCount',
+			[
+				'type'        => 'Int',
+				'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
+			]
+		);
 	}
 
 	if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+		register_graphql_field(
+			$post_type_object->graphql_single_name,
+			'featuredImage',
+			[
+				'type'        => 'MediaItem',
+				'description' => __( 'The featured image for the object', 'wp-graphql' ),
+				'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					// @codingStandardsIgnoreLine.
+					if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
+						return null;
+					}
 
-		register_graphql_field( $post_type_object->graphql_single_name, 'featuredImage', [
-			'type'        => 'MediaItem',
-			'description' => __( 'The featured image for the object', 'wp-graphql' ),
-			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-				if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
-					return null;
-				}
-				return DataSource::resolve_post_object( $post->featuredImageId, $context );
-			}
-		] );
+					// @codingStandardsIgnoreLine.
+					return DataSource::resolve_post_object( $post->featuredImageId, $context );
+				},
+			]
+		);
 
 	}
 
@@ -51,99 +72,131 @@ function register_post_object_types( $post_type_object ) {
 		/**
 		 * Register fields custom to the MediaItem Type
 		 */
-		register_graphql_fields( $post_type_object->graphql_single_name, [
-			'caption'      => [
-				'type'        => 'String',
-				'description' => __( 'The caption for the resource', 'wp-graphql' ),
-				'args'        => [
-					'format' => [
-						'type'        => 'PostObjectFieldFormatEnum',
-						'description' => __( 'Format of the field output', 'wp-graphql' ),
+		register_graphql_fields(
+			$post_type_object->graphql_single_name,
+			[
+				'caption'      => [
+					'type'        => 'String',
+					'description' => __( 'The caption for the resource', 'wp-graphql' ),
+					'args'        => [
+						'format' => [
+							'type'        => 'PostObjectFieldFormatEnum',
+							'description' => __( 'Format of the field output', 'wp-graphql' ),
+						],
 					],
-				],
-				'resolve' => function( $source, $args ) {
-					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-						return $source->captionRaw;
-					} else {
+					'resolve'     => function( $source, $args ) {
+						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+							// @codingStandardsIgnoreLine.
+							return $source->captionRaw;
+						}
+
+						// @codingStandardsIgnoreLine.
 						return $source->captionRendered;
-					}
-				}
-			],
-			'altText'      => [
-				'type'        => 'String',
-				'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
-			],
-			'srcSet' => [
-				'type' => 'string',
-				'args' => [
-					'size' => [
-						'type'        => 'MediaItemSizeEnum',
-						'description' => __( 'Size of the MediaItem to calculate srcSet with', 'wp-graphql' ),
-					],
+					},
 				],
-				'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
-			],
-			'sizes' => [
-				'type' => 'string',
-				'args' => [
-					'size' => [
-						'type'        => 'MediaItemSizeEnum',
-						'description' => __( 'Size of the MediaItem to calculate sizes with', 'wp-graphql' ),
-					],
+				'altText'      => [
+					'type'        => 'String',
+					'description' => __( 'Alternative text to display when resource is not displayed', 'wp-graphql' ),
 				],
-				'description' => __( 'The sizes attribute value for an image.', 'wp-graphql' ),
-			],
-			'description'  => [
-				'type'        => 'String',
-				'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
-				'args'        => [
-					'format' => [
-						'type'        => 'PostObjectFieldFormatEnum',
-						'description' => __( 'Format of the field output', 'wp-graphql' ),
+				'srcSet'       => [
+					'type'        => 'string',
+					'args'        => [
+						'size' => [
+							'type'        => 'MediaItemSizeEnum',
+							'description' => __( 'Size of the MediaItem to calculate srcSet with', 'wp-graphql' ),
+						],
 					],
+					'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
+					'resolve'     => function( $source, $args ) {
+						$size = 'medium';
+						if ( ! empty( $args['size'] ) ) {
+							$size = $args['size'];
+						}
+
+						$src_set = wp_get_attachment_image_srcset( $source->ID, $size );
+						return ! empty( $src_set ) ? $src_set : null;
+					},
 				],
-				'resolve' => function( $source, $args ) {
-					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-						return $source->descriptionRaw;
-					} else {
+				'sizes'        => [
+					'type'        => 'string',
+					'args'        => [
+						'size' => [
+							'type'        => 'MediaItemSizeEnum',
+							'description' => __( 'Size of the MediaItem to calculate sizes with', 'wp-graphql' ),
+						],
+					],
+					'description' => __( 'The sizes attribute value for an image.', 'wp-graphql' ),
+					'resolve'     => function( $source, $args ) {
+						$size = 'medium';
+						if ( ! empty( $args['size'] ) ) {
+							$size = $args['size'];
+						}
+
+						$url = wp_get_attachment_image_src( $source->ID, $size );
+						if ( empty( $url[0] ) ) {
+							return null;
+						}
+
+						$sizes = wp_calculate_image_sizes( $size, $url[0], null, $source->ID );
+						return ! empty( $sizes ) ? $sizes : null;
+					},
+				],
+				'description'  => [
+					'type'        => 'String',
+					'description' => __( 'Description of the image (stored as post_content)', 'wp-graphql' ),
+					'args'        => [
+						'format' => [
+							'type'        => 'PostObjectFieldFormatEnum',
+							'description' => __( 'Format of the field output', 'wp-graphql' ),
+						],
+					],
+					'resolve'     => function( $source, $args ) {
+						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+							// @codingStandardsIgnoreLine.
+							return $source->descriptionRaw;
+						}
+
+						// @codingStandardsIgnoreLine.
 						return $source->descriptionRendered;
-					}
-				}
-			],
-			'mediaType'    => [
-				'type'        => 'String',
-				'description' => __( 'Type of resource', 'wp-graphql' ),
-			],
-			'sourceUrl'    => [
-				'type'        => 'String',
-				'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
-				'args'        => [
-					'size' => [
-						'type'        => 'MediaItemSizeEnum',
-						'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
-					],
+					},
 				],
-				'resolve'     => function ( $image, $args, $context, $info ) {
-					return ! empty( $args['size'] ) ? $image->sourceUrlsBySize[ $args['size'] ] : $image->sourceUrl;
-				},
-			],
-			'mimeType'     => [
-				'type'        => 'String',
-				'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
-			],
-			'mediaDetails' => [
-				'type'        => 'MediaDetails',
-				'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
-			],
-
-		] );
-
+				'mediaType'    => [
+					'type'        => 'String',
+					'description' => __( 'Type of resource', 'wp-graphql' ),
+				],
+				'sourceUrl'    => [
+					'type'        => 'String',
+					'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+					'args'        => [
+						'size' => [
+							'type'        => 'MediaItemSizeEnum',
+							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+						],
+					],
+					'resolve'     => function ( $image, $args, $context, $info ) {
+						// @codingStandardsIgnoreLine.
+						return ! empty( $args['size'] ) ? $image->sourceUrlsBySize[ $args['size'] ] : $image->sourceUrl;
+					},
+				],
+				'mimeType'     => [
+					'type'        => 'String',
+					'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
+				],
+				'mediaDetails' => [
+					'type'        => 'MediaDetails',
+					'description' => __( 'Details about the mediaItem', 'wp-graphql' ),
+				],
+			]
+		);
 	}
-
 }
 
+/**
+ * Registers common post type fields on schema type corresponding to provided post type object.
+ *
+ * @param WP_Post_Type $post_type_object Post type.
+ */
 function get_post_object_fields( $post_type_object ) {
-
 	$single_name = $post_type_object->graphql_single_name;
 	$fields      = [
 		'id'                => [
@@ -174,26 +227,32 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
 				$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
 				if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
 					return null;
 				}
 				$context->getLoader( 'post_object' )->buffer( $ancestor_ids );
-				return new Deferred( function() use ( $context, $ancestor_ids ) {
-					return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
-				});
-			}
+				return new Deferred(
+					function() use ( $context, $ancestor_ids ) {
+						// @codingStandardsIgnoreLine.
+						return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
+					}
+				);
+			},
 		],
 		'author'            => [
 			'type'        => 'User',
 			'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				// @codingStandardsIgnoreLine.
 				if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
 					return null;
 				};
+
+				// @codingStandardsIgnoreLine.
 				return DataSource::resolve_user( $post->authorId, $context );
-			}
+			},
 		],
 		'date'              => [
 			'type'        => 'String',
@@ -212,13 +271,15 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args ) {
+			'resolve'     => function( $source, $args ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					// @codingStandardsIgnoreLine.
 					return $source->contentRaw;
-				} else {
-					return $source->contentRendered;
 				}
-			}
+
+				// @codingStandardsIgnoreLine.
+				return $source->contentRendered;
+			},
 		],
 		'title'             => [
 			'type'        => 'String',
@@ -229,13 +290,15 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args ) {
+			'resolve'     => function( $source, $args ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					// @codingStandardsIgnoreLine.
 					return $source->titleRaw;
-				} else {
-					return $source->titleRendered;
 				}
-			}
+
+				// @codingStandardsIgnoreLine.
+				return $source->titleRendered;
+			},
 		],
 		'excerpt'           => [
 			'type'        => 'String',
@@ -246,13 +309,15 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Format of the field output', 'wp-graphql' ),
 				],
 			],
-			'resolve' => function( $source, $args ) {
+			'resolve'     => function( $source, $args ) {
 				if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+					// @codingStandardsIgnoreLine.
 					return $source->excerptRaw;
-				} else {
-					return $source->excerptRendered;
 				}
-			}
+
+				// @codingStandardsIgnoreLine.
+				return $source->excerptRendered;
+			},
 		],
 		'status'            => [
 			'type'        => 'String',
@@ -289,22 +354,26 @@ function get_post_object_fields( $post_type_object ) {
 		'parent'            => [
 			'type'        => 'PostObjectUnion',
 			'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
-			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				// @codingStandardsIgnoreLine.
 				if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
 					return null;
 				}
 
+				// @codingStandardsIgnoreLine.
 				return DataSource::resolve_post_object( $post->parentId, $context );
-			}
+			},
 		],
 		'editLast'          => [
 			'type'        => 'User',
 			'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-			'resolve' => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				// @codingStandardsIgnoreLine.
 				if ( ! isset( $post->editLastId ) || ! absint( $post->editLastId ) ) {
 					return null;
 				}
 
+				// @codingStandardsIgnoreLine.
 				return DataSource::resolve_user( $post->editLastId, $context );
 			},
 		],
@@ -349,14 +418,10 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 				],
 			],
-			// Translators: placeholder is the name of the post_type
+			/* translators: placeholder is the name of the post_type */
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-			'resolve' => function ( $source, $args ) {
-
-				/**
-				 * @TODO eventually use a loader here to grab the taxonomies and pass them through the term model
-				 */
-
+			'resolve'     => function ( $source, $args ) {
+				// @TODO eventually use a loader here to grab the taxonomies and pass them through the term model.
 				/**
 				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 				 * otherwise use the default $allowed_taxonomies passed down
@@ -367,7 +432,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -375,14 +440,15 @@ function get_post_object_fields( $post_type_object ) {
 
 				$tax_terms = [];
 				if ( ! empty( $taxonomies ) ) {
-
-					$term_query = new \WP_Term_Query( [
-						'taxonomy'   => $taxonomies,
-						'object_ids' => $source->ID,
-					] );
+					$term_query = new \WP_Term_Query(
+						[
+							'taxonomy'   => $taxonomies,
+							'object_ids' => $source->ID,
+						]
+					);
 
 					$fetched_terms = $term_query->get_terms();
-					$tax_terms = [];
+					$tax_terms     = [];
 					if ( ! empty( $fetched_terms ) ) {
 						foreach ( $fetched_terms as $tax_term ) {
 							$tax_terms[ $tax_term->term_id ] = new Term( $tax_term );
@@ -391,7 +457,7 @@ function get_post_object_fields( $post_type_object ) {
 				}
 
 				return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
-			}
+			},
 		],
 		'termNames'         => [
 			'type'        => [ 'list_of' => 'String' ],
@@ -403,9 +469,9 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 				],
 			],
-			// Translators: placeholder is the name of the post_type
+			/* translators: placeholder is the name of the post_type */
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-			'resolve' => function( $source, $args ) {
+			'resolve'     => function( $source, $args ) {
 				/**
 				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 				 * otherwise use the default $allowed_taxonomies passed down
@@ -416,7 +482,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -424,11 +490,12 @@ function get_post_object_fields( $post_type_object ) {
 
 				$tax_terms = [];
 				if ( ! empty( $taxonomies ) ) {
-
-					$term_query = new \WP_Term_Query( [
-						'taxonomy'   => $taxonomies,
-						'object_ids' => [ $source->ID ],
-					] );
+					$term_query = new \WP_Term_Query(
+						[
+							'taxonomy'   => $taxonomies,
+							'object_ids' => [ $source->ID ],
+						]
+					);
 
 					$tax_terms = $term_query->get_terms();
 
@@ -436,7 +503,7 @@ function get_post_object_fields( $post_type_object ) {
 				$term_names = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'name' ) : [];
 
 				return ! empty( $term_names ) ? $term_names : null;
-			}
+			},
 		],
 		'termSlugs'         => [
 			'type'        => [ 'list_of' => 'String' ],
@@ -448,9 +515,9 @@ function get_post_object_fields( $post_type_object ) {
 					'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
 				],
 			],
-			// Translators: placeholder is the name of the post_type
+			/* translators: placeholder is the name of the post_type */
 			'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-			'resolve' => function( $source, $args ) {
+			'resolve'     => function( $source, $args ) {
 				/**
 				 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
 				 * otherwise use the default $allowed_taxonomies passed down
@@ -461,7 +528,7 @@ function get_post_object_fields( $post_type_object ) {
 				} else {
 					$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
 					foreach ( $connected_taxonomies as $taxonomy ) {
-						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies() ) ) {
+						if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
 							$taxonomies[] = $taxonomy;
 						}
 					}
@@ -470,10 +537,12 @@ function get_post_object_fields( $post_type_object ) {
 				$tax_terms = [];
 				if ( ! empty( $taxonomies ) ) {
 
-					$term_query = new \WP_Term_Query( [
-						'taxonomy'   => $taxonomies,
-						'object_ids' => [ $source->ID ],
-					] );
+					$term_query = new \WP_Term_Query(
+						[
+							'taxonomy'   => $taxonomies,
+							'object_ids' => [ $source->ID ],
+						]
+					);
 
 					$tax_terms = $term_query->get_terms();
 
@@ -481,10 +550,10 @@ function get_post_object_fields( $post_type_object ) {
 				$term_slugs = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'slug' ) : [];
 
 				return ! empty( $term_slugs ) ? $term_slugs : null;
-			}
+			},
 		],
-		'isRestricted' => [
-			'type' => 'Boolean',
+		'isRestricted'      => [
+			'type'        => 'Boolean',
 			'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 		],
 	];

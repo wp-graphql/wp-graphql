@@ -62,14 +62,18 @@ class PostObjectLoader extends AbstractDataLoader {
 		/**
 		 * Ensure that WP_Query doesn't first ask for IDs since we already have them.
 		 */
-		add_filter( 'split_the_query', function ( $split, \WP_Query $query ) {
-			if ( false === $query->get( 'split_the_query' ) ) {
-				return false;
-			}
+		add_filter(
+			'split_the_query',
+			function ( $split, \WP_Query $query ) {
+				if ( false === $query->get( 'split_the_query' ) ) {
+					return false;
+				}
 
-			return $split;
-		}, 10, 2 );
-
+				return $split;
+			},
+			10,
+			2
+		);
 
 		new \WP_Query( $args );
 
@@ -96,28 +100,32 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$this->loaded_posts[ $key ] = new Deferred( function () use ( $post_object ) {
+			$this->loaded_posts[ $key ] = new Deferred(
+				function () use ( $post_object ) {
 
-				if ( ! $post_object instanceof \WP_Post ) {
-					return null;
-				}
+					if ( ! $post_object instanceof \WP_Post ) {
+						  return null;
+					}
 
-				/**
-				 * If there's a Post Author connected to the post, we need to resolve the
-				 * user as it gets set in the globals via `setup_post_data()` and doing it this way
-				 * will batch the loading so when `setup_post_data()` is called the user
-				 * is already in the cache.
-				 */
-				if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
-					$author = DataSource::resolve_user( $post_object->post_author, $this->context );
+						/**
+						 * If there's a Post Author connected to the post, we need to resolve the
+						 * user as it gets set in the globals via `setup_post_data()` and doing it this way
+						 * will batch the loading so when `setup_post_data()` is called the user
+						 * is already in the cache.
+						 */
+					if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
+						$author = DataSource::resolve_user( $post_object->post_author, $this->context );
 
-					return $author->then( function () use ( $post_object ) {
+						return $author->then(
+							function () use ( $post_object ) {
+								return new Post( $post_object );
+							}
+						);
+					} else {
 						return new Post( $post_object );
-					} );
-				} else {
-					return new Post( $post_object );
+					}
 				}
-			} );
+			);
 
 		}
 

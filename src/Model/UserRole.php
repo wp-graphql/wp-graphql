@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -68,11 +67,11 @@ class UserRole extends Model {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id' => function() {
+				'id'           => function() {
 					$id = Relay::toGlobalId( 'role', $this->data['id'] );
 					return $id;
 				},
-				'name' => function() {
+				'name'         => function() {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
 				},
 				'capabilities' => function() {
@@ -81,7 +80,7 @@ class UserRole extends Model {
 					} else {
 						return array_keys( $this->data['capabilities'] );
 					}
-				}
+				},
 			];
 
 		}

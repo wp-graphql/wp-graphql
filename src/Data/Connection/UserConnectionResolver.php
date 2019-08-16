@@ -1,6 +1,8 @@
 <?php
+
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Types;
@@ -36,8 +38,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Set the $query_args based on various defaults and primary input $args
 		 */
 		$query_args['count_total'] = false;
-		$query_args['offset'] = $this->get_offset();
-		$query_args['order'] = ! empty( $this->args['last'] ) ? 'ASC' : 'DESC';
+		$query_args['offset']      = $this->get_offset();
+		$query_args['order']       = ! empty( $this->args['last'] ) ? 'ASC' : 'DESC';
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
@@ -96,6 +98,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_items() {
 		$results = $this->query->get_results();
+
 		return ! empty( $results ) ? $results : [];
 	}
 
@@ -106,13 +109,26 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * @param array       $args     The query "where" args
+	 * @param array $args The query "where" args
 	 *
 	 * @since  0.0.5
 	 * @return array
 	 * @access protected
 	 */
 	protected function sanitize_input_fields( array $args ) {
+
+		/**
+		 * Only users with the "list_users" capability can filter users by roles
+		 */
+		if ( (
+				 ! empty( $args['roleIn'] ) ||
+				 ! empty( $args['roleNotIn'] ) ||
+				 ! empty( $args['role'] )
+			 ) &&
+			 ! current_user_can( 'list_users' )
+		) {
+			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
+		}
 
 		$arg_mapping = [
 			'roleIn'            => 'role__in',
