@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\UnionType;
-use WPGraphQL\TypeRegistry;
 
 /**
  * Class WPUnionType
@@ -25,10 +24,6 @@ class WPUnionType extends UnionType {
 		 * Set the Types to start with capitals
 		 */
 		$config['name'] = ucfirst( $config['name'] );
-
-		if ( ! empty( $config['typeNames'] ) && is_array( $config['typeNames'] ) ) {
-			$config['types'] = self::prepare_types( $config['typeNames'], $config );
-		}
 
 		/**
 		 * Filter the possible_types to allow systems to add to the possible resolveTypes.
@@ -57,13 +52,5 @@ class WPUnionType extends UnionType {
 		do_action( 'graphql_wp_union_type', $config, $this );
 
 		parent::__construct( $config );
-	}
-
-	protected static function prepare_types( $type_names, $config ) {
-		$prepared_types = [];
-		foreach ( $type_names as $type ) {
-			$prepared_types[] = TypeRegistry::get_type( $type );
-		}
-		return $prepared_types;
 	}
 }

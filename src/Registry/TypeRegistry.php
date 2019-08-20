@@ -1,9 +1,10 @@
 <?php
 
-namespace WPGraphQL;
+namespace WPGraphQL\Registry;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
@@ -59,14 +60,127 @@ class TypeRegistry {
 	 *
 	 * @var array
 	 */
-	protected static $types;
+	protected $types;
 
 	/**
-	 * Initialize the TypeRegistry by registering core Types that should be available
+	 * TypeRegistry constructor.
 	 */
-	public static function init() {
+	public function __construct() {
+
+		$this->includes();
 
 
+		/**
+		 * Initialize Type Registry with core Types
+		 */
+		$this->init();
+
+		/**
+		 * Fire an action as the Type registry is being initiated
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $this );
+
+		/**
+		 * Fire an action once initial Types have been registered
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'init_type_registry', $this );
+
+
+	}
+
+	protected function includes() {
+
+	}
+
+	/**
+	 * Initialize the Type Registry with core Types
+	 */
+	protected function init() {
+
+		$this->register_type( 'Bool', Type::boolean() );
+		$this->register_type( 'Boolean', Type::boolean() );
+		$this->register_type( 'Float', Type::float() );
+		$this->register_type( 'Number', Type::float() );
+		$this->register_type( 'Id', Type::id() );
+		$this->register_type( 'Int', Type::int() );
+		$this->register_type( 'Integer', Type::int() );
+		$this->register_type( 'String', Type::string() );
+
+
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Avatar.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/AvatarRatingEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Comment.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/CommentsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/CommentAuthor.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/DateQueryInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/EditLock.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemStatusEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MediaItemSizeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaDetails.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaItemMeta.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MediaSize.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/MenuItem.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/MenuItemsConnectionWhereArgs.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MenuLocationEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Menu.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/MimeTypeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/OrderEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PageInfo.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Plugin.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/PostObjectsConnectionOrderbyInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectsConnectionDateColumnEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostObjectFieldFormatEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostStatusEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostType.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostTypeLabelDetails.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootMutation.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/RootQuery.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/PostTypeEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TimezoneEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/SettingGroup.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/PostObject.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/TermObject.php';
+
+		/**
+		 * Create the root query fields for any setting type in
+		 * the $allowed_setting_types array.
+		 */
+		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
+
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+			foreach ( $allowed_setting_types as $group => $setting_type ) {
+
+				$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
+				register_settings_group( $group_name );
+
+				register_graphql_field(
+					'RootQuery',
+					$group_name . 'Settings',
+					[
+						'type'    => ucfirst( $group_name ) . 'Settings',
+						'resolve' => function () use ( $setting_type ) {
+							return $setting_type;
+						},
+					]
+				);
+			}
+		}
 
 		/**
 		 * Register PostObject types based on post_types configured to show_in_graphql
@@ -152,12 +266,6 @@ class TypeRegistry {
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
 
-		/**
-		 * Hook to register connections
-		 */
-		if ( ! did_action( 'graphql_register_types' ) ) {
-			do_action( 'graphql_register_types' );
-		}
 
 	}
 
@@ -169,7 +277,7 @@ class TypeRegistry {
 	 * @return string
 	 * @access protected
 	 */
-	protected static function format_key( $key ) {
+	protected function format_key( $key ) {
 		return strtolower( $key );
 	}
 
@@ -182,11 +290,11 @@ class TypeRegistry {
 	 * @access public
 	 * @return void
 	 */
-	public static function register_fields( $type_name, $fields ) {
+	public function register_fields( $type_name, $fields ) {
 		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
 				if ( isset( $field_name ) && is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
-					self::register_field( $type_name, $field_name, $config );
+					$this->register_field( $type_name, $field_name, $config );
 				}
 			}
 		}
@@ -202,7 +310,7 @@ class TypeRegistry {
 	 * @access public
 	 * @return void
 	 */
-	public static function register_field( $type_name, $field_name, $config ) {
+	public function register_field( $type_name, $field_name, $config ) {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
@@ -219,10 +327,10 @@ class TypeRegistry {
 				/**
 				 * If the field returns a properly prepared field, add it the the field registry
 				 */
-				$field = self::prepare_field( $field_name, $config, $type_name );
+				$field = $this->prepare_field( $field_name, $config, $type_name );
 
 				if ( ! empty( $field ) ) {
-					$fields[ $field_name ] = self::prepare_field( $field_name, $config, $type_name );
+					$fields[ $field_name ] = $this->prepare_field( $field_name, $config, $type_name );
 				}
 
 				return $fields;
@@ -243,7 +351,7 @@ class TypeRegistry {
 	 * @access public
 	 * @return void
 	 */
-	public static function deregister_field( $type_name, $field_name ) {
+	public function deregister_field( $type_name, $field_name ) {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
@@ -273,13 +381,13 @@ class TypeRegistry {
 	 * @access public
 	 * @return void
 	 */
-	public static function register_type( $type_name, $config ) {
-		if ( isset( self::$types[ self::format_key( $type_name ) ] ) ) {
+	public function register_type( $type_name, $config ) {
+		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
 			return;
 		}
-		$prepared_type = self::prepare_type( $type_name, $config );
+		$prepared_type = $this->prepare_type( $type_name, $config );
 		if ( ! empty( $prepared_type ) ) {
-			self::$types[ self::format_key( $type_name ) ] = $prepared_type;
+			$this->types[ $this->format_key( $type_name ) ] = $prepared_type;
 		}
 	}
 
@@ -292,16 +400,23 @@ class TypeRegistry {
 	 *
 	 * @return null|WPEnumType|WPInputObjectType|WPObjectType|WPUnionType
 	 */
-	protected static function prepare_type( $type_name, $config ) {
+	protected function prepare_type( $type_name, $config ) {
 
 		if ( is_array( $config ) ) {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
 
+			add_filter( 'graphql_' . $type_name . '_fields', function( $fields ) use ( $type_name ) {
+
+
+
+				return $this->prepare_fields( $fields, $type_name );
+			} );
+
 			if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
 				$config['fields'] = function () use ( $config, $kind, $type_name ) {
-					$prepared_fields = self::prepare_fields( $config['fields'], $type_name );
-					$prepared_fields = WPObjectType::prepare_fields( $prepared_fields, $type_name );
+
+					$prepared_fields = WPObjectType::prepare_fields( $config['fields'], $type_name );
 
 					/**
 					 * If the object defines input fields, additionally apply a
@@ -323,6 +438,13 @@ class TypeRegistry {
 					$prepared_type = new WPInputObjectType( $config );
 					break;
 				case 'union':
+					if ( ! empty( $config['typeNames'] ) && is_array( $config['typeNames'] ) ) {
+						$prepared_types = [];
+						foreach ( $config['typeNames'] as $type_name ) {
+							$prepared_types[] = $this->get_type( $type_name );
+						}
+						$config['types'] = $prepared_types;
+					}
 					$prepared_type = new WPUnionType( $config );
 					break;
 				case 'object':
@@ -346,17 +468,17 @@ class TypeRegistry {
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected static function prepare_fields( $fields, $type_name ) {
+	protected function prepare_fields( $fields, $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $field_config ) {
 				if ( isset( $field_config['type'] ) ) {
-					$prepared_field = self::prepare_field( $field_name, $field_config, $type_name );
+					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
 					if ( ! empty( $prepared_field ) ) {
-						$prepared_fields[ self::format_key( $field_name ) ] = $prepared_field;
+						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
 					} else {
-						unset( $prepared_fields[ self::format_key( $field_name ) ] );
+						unset( $prepared_fields[ $this->format_key( $field_name ) ] );
 					}
 				}
 			}
@@ -376,7 +498,7 @@ class TypeRegistry {
 	 * @return array|null
 	 * @throws \Exception
 	 */
-	protected static function prepare_field( $field_name, $field_config, $type_name ) {
+	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
 		/**
 		 * If the Field is a Type definition and not
@@ -394,7 +516,7 @@ class TypeRegistry {
 		}
 
 		if ( is_string( $field_config['type'] ) ) {
-			$type = self::get_type( $field_config['type'] );
+			$type = $this->get_type( $field_config['type'] );
 			if ( ! empty( $type ) ) {
 				$field_config['type'] = $type;
 			} else {
@@ -402,11 +524,12 @@ class TypeRegistry {
 			}
 		}
 
-		$field_config['type'] = self::setup_type_modifiers( $field_config['type'] );
+
+		$field_config['type'] = $this->setup_type_modifiers( $field_config['type'] );
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$field_config['args'][ $arg_name ] = self::prepare_field( $arg_name, $arg_config, $type_name );
+				$field_config['args'][ $arg_name ] = $this->prepare_field( $arg_name, $arg_config, $type_name );
 			}
 		} else {
 			unset( $field_config['args'] );
@@ -421,31 +544,31 @@ class TypeRegistry {
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public static function setup_type_modifiers( $type ) {
+	public function setup_type_modifiers( $type ) {
 
 		if ( is_array( $type ) ) {
 			if ( isset( $type['non_null'] ) ) {
 				if ( is_array( $type['non_null'] ) ) {
-					$non_null_type = self::setup_type_modifiers( $type['non_null'] );
+					$non_null_type = $this->setup_type_modifiers( $type['non_null'] );
 				} elseif ( is_string( $type['non_null'] ) ) {
-					$non_null_type = self::get_type( $type['non_null'] );
+					$non_null_type = $this->get_type( $type['non_null'] );
 				}
 				if ( empty( $non_null_type ) ) {
 					throw new \Exception( sprintf( __( 'The non_null type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['non_null'] ) );
 				} else {
-					$type = Types::non_null( $non_null_type );
+					$type = Type::nonNull( $non_null_type );
 				}
 			} elseif ( isset( $type['list_of'] ) ) {
 				if ( is_array( $type['list_of'] ) ) {
-					$list_of_type = self::setup_type_modifiers( $type['list_of'] );
+					$list_of_type = $this->setup_type_modifiers( $type['list_of'] );
 				} elseif ( is_string( $type['list_of'] ) ) {
-					$list_of_type = self::get_type( $type['list_of'] );
+					$list_of_type = $this->get_type( $type['list_of'] );
 				}
 
 				if ( empty( $list_of_type ) ) {
 					throw new \Exception( sprintf( __( 'The list_of type %s is an invalid or non-existent type', 'wp-graphql' ), (string) $type['list_of'] ) );
 				} else {
-					$type = Types::list_of( $list_of_type );
+					$type = Type::listOf( $list_of_type );
 				}
 			}
 		}
@@ -462,8 +585,8 @@ class TypeRegistry {
 	 * @access public
 	 * @return mixed|WPObjectType|WPUnionType|WPInputObjectType|WPEnumType
 	 */
-	public static function get_type( $type_name ) {
-		return isset( self::$types[ self::format_key( $type_name ) ] ) ? ( self::$types[ self::format_key( $type_name ) ] ) : null;
+	public function get_type( $type_name ) {
+		return isset( $this->types[ $this->format_key( $type_name ) ] ) ? ( $this->types[ $this->format_key( $type_name ) ] ) : null;
 	}
 
 	/**
@@ -472,8 +595,8 @@ class TypeRegistry {
 	 * @access public
 	 * @return array
 	 */
-	public static function get_types() {
-		return ! empty( self::$types ) ? self::$types : [];
+	public function get_types() {
+		return ! empty( $this->types ) ? $this->types : [];
 	}
 
 	/**
@@ -486,7 +609,7 @@ class TypeRegistry {
 	 * @access protected
 	 * @return string
 	 */
-	protected static function get_connection_name( $from_type, $to_type ) {
+	protected function get_connection_name( $from_type, $to_type ) {
 		return ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
 	}
 
@@ -499,7 +622,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \InvalidArgumentException
 	 */
-	public static function register_connection( $config ) {
+	public function register_connection( $config ) {
 
 		if ( ! array_key_exists( 'fromType', $config ) ) {
 			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
@@ -524,7 +647,7 @@ class TypeRegistry {
 		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
 		};
-		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : self::get_connection_name( $from_type, $to_type );
+		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type );
 		$where_args         = [];
 
 		/**
@@ -698,7 +821,7 @@ class TypeRegistry {
 	 * @access public
 	 * @return void
 	 */
-	public static function register_mutation( $mutation_name, $config ) {
+	public function register_mutation( $mutation_name, $config ) {
 
 		$output_fields = [
 			'clientMutationId' => [

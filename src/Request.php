@@ -2,9 +2,13 @@
 
 namespace WPGraphQL;
 
+use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Server\WPHelper;
 
 /**
@@ -34,7 +38,7 @@ class Request {
 	/**
 	 * Cached global post.
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	private $global_post;
 
@@ -52,6 +56,8 @@ class Request {
 	 * @var \WPGraphQL\WPSchema
 	 */
 	private $schema;
+
+	private $type_registry;
 
 	/**
 	 * Constructor
@@ -82,8 +88,29 @@ class Request {
 		// Set request data for passed-in (non-HTTP) requests.
 		$this->data = $data;
 
-		$this->schema      = \WPGraphQL::get_schema();
+
+		$this->type_registry = new TypeRegistry();
+		$schema_config = [
+			'query' => $this->type_registry->get_type( 'RootQuery' ),
+			'mutation' => $this->type_registry->get_type( 'RootMutation' ),
+		];
+
+		// codecept_debug( $schema_config );
+
+		$this->schema      = new Schema( $schema_config );
 		$this->app_context = \WPGraphQL::get_app_context();
+
+		/**
+		 * Configure the app_context which gets passed down to all the resolvers.
+		 *
+		 * @since 0.0.4
+		 */
+		$app_context           = new AppContext();
+		$app_context->viewer   = wp_get_current_user();
+		$app_context->root_url = get_bloginfo( 'url' );
+		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+
+		$this->app_context = $app_context;
 	}
 
 	/**
@@ -269,6 +296,7 @@ class Request {
 		 */
 		$this->before_execute();
 
+
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
 			$this->params->query,
@@ -277,6 +305,7 @@ class Request {
 			$this->params->variables,
 			$this->params->operation
 		);
+
 
 		/**
 		 * Return the result of the request

@@ -17,7 +17,7 @@ use WPGraphQL\Model\Term;
 /**
  * Registers a post_type WPObject type to the schema.
  *
- * @param WP_Post_Type $post_type_object Post type.
+ * @param \WP_Post_Type $post_type_object Post type.
  */
 function register_post_object_types( $post_type_object ) {
 	$single_name = $post_type_object->graphql_single_name;
@@ -194,7 +194,9 @@ function register_post_object_types( $post_type_object ) {
 /**
  * Registers common post type fields on schema type corresponding to provided post type object.
  *
- * @param WP_Post_Type $post_type_object Post type.
+ * @param \WP_Post_Type $post_type_object Post type.
+ *
+ * @return array
  */
 function get_post_object_fields( $post_type_object ) {
 	$single_name = $post_type_object->graphql_single_name;

@@ -2,25 +2,30 @@
 namespace WPGraphQL\Type;
 
 use WPGraphQL\Model\User;
-use WPGraphQL\TypeRegistry;
+use WPGraphQL\Registry\TypeRegistry;
 
-$comment_author_type = TypeRegistry::get_type( 'CommentAuthor' );
-$user_type           = TypeRegistry::get_type( 'User' );
+add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 
-register_graphql_union_type(
-	'CommentAuthorUnion',
-	[
-		'name'        => 'CommentAuthorUnion',
-		'typeNames'   => [ 'User', 'CommentAuthor' ],
-		'resolveType' => function ( $source ) use ( $comment_author_type, $user_type ) {
+	$comment_author_type = $type_registry->get_type( 'CommentAuthor' );
+	$user_type           = $type_registry->get_type( 'User' );
 
-			if ( $source instanceof User ) {
-				$type = $user_type;
-			} else {
-				$type = $comment_author_type;
-			}
+	register_graphql_union_type(
+		'CommentAuthorUnion',
+		[
+			'name'        => 'CommentAuthorUnion',
+			'typeNames'   => [ 'User', 'CommentAuthor' ],
+			'resolveType' => function ( $source ) use ( $comment_author_type, $user_type ) {
 
-			return $type;
-		},
-	]
-);
+				if ( $source instanceof User ) {
+					$type = $user_type;
+				} else {
+					$type = $comment_author_type;
+				}
+
+				return $type;
+			},
+		]
+	);
+
+} );
+

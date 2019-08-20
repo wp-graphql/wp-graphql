@@ -118,6 +118,8 @@ class Router {
 	 * @since  0.0.1
 	 * @access public
 	 * @return void
+	 * @throws \Exception
+	 * @throws \Throwable
 	 */
 	public static function resolve_http_request() {
 

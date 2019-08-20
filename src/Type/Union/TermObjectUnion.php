@@ -1,25 +1,42 @@
 <?php
 namespace WPGraphQL\Type;
 
-use WPGraphQL\Types;
+use WPGraphQL\Registry\TypeRegistry;
 
-$possible_types = [];
+add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 
-$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-	foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
-		if ( empty( $possible_types[ $allowed_taxonomy ] ) ) {
-			$possible_types[ $allowed_taxonomy ] = Types::term_object( $allowed_taxonomy );
+	$possible_types = [];
+
+	$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+	if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+		foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
+			if ( empty( $possible_types[ $allowed_taxonomy ] ) ) {
+				$tax_object = get_taxonomy( $allowed_taxonomy );
+				if ( isset( $tax_object->graphql_single_name ) ) {
+					$possible_types[ $allowed_taxonomy ] = $type_registry->get_type( $tax_object->graphql_single_name );
+				}
+			}
 		}
 	}
-}
 
-register_graphql_union_type(
-	'TermObjectUnion',
-	[
-		'types'       => $possible_types,
-		'resolveType' => function ( $value ) {
-			return ! empty( $value->taxonomyName ) ? Types::term_object( $value->taxonomyName ) : null;
-		},
-	]
-);
+	register_graphql_union_type(
+		'TermObjectUnion',
+		[
+			'types'       => $possible_types,
+			'resolveType' => function( $value ) use ( $type_registry ) {
+
+				$type = null;
+				if ( isset( $value->taxonomyName) ) {
+					$tax_object = get_taxonomy( $value->taxonomyName );
+					if ( isset( $tax_object->graphql_single_name ) ) {
+						$type = $type_registry->get_type( $tax_object->graphql_single_name );
+					}
+				}
+
+				return ! empty( $type ) ? $type : null;
+
+			},
+		]
+	);
+
+});
