@@ -3,7 +3,7 @@ namespace WPGraphQL\Type;
 
 use WPGraphQL\Registry\TypeRegistry;
 
-add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
+add_action( 'graphql_register_types', function( TypeRegistry $type_registry ) {
 
 	$possible_types = [];
 
@@ -13,16 +13,17 @@ add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 			if ( empty( $possible_types[ $allowed_taxonomy ] ) ) {
 				$tax_object = get_taxonomy( $allowed_taxonomy );
 				if ( isset( $tax_object->graphql_single_name ) ) {
-					$possible_types[ $allowed_taxonomy ] = $type_registry->get_type( $tax_object->graphql_single_name );
+					$possible_types[ $allowed_taxonomy ] = $tax_object->graphql_single_name;
 				}
 			}
 		}
 	}
 
-	register_graphql_union_type(
+	$type_registry->register_union_type(
 		'TermObjectUnion',
 		[
-			'types'       => $possible_types,
+			'kind' => 'union',
+			'typeNames'       => $possible_types,
 			'resolveType' => function( $value ) use ( $type_registry ) {
 
 				$type = null;

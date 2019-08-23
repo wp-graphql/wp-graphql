@@ -1,48 +1,16 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\ObjectType;
-use WPGraphQL\Data\DataSource;
+use GraphQL\Type\Definition\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
-/**
- * Class WPObjectType
- *
- * Object Types should extend this class to take advantage of the helper methods
- * and consistent filters.
- *
- * @package WPGraphQL\Type
- * @since   0.0.5
- */
-class WPObjectType extends ObjectType {
+class WPInterfaceType extends InterfaceType {
 
-	/**
-	 * Holds the node_interface definition allowing WPObjectTypes
-	 * to easily define themselves as a node type by implementing
-	 * self::$node_interface
-	 *
-	 * @var $node_interface
-	 * @since 0.0.5
-	 */
-	private static $node_interface;
+	protected $type_registry;
 
-	private $type_registry;
+	public function __construct( array $config, TypeRegistry $type_registry ) {
 
-	/**
-	 * WPObjectType constructor.
-	 *
-	 * @param array $config
-	 * @param TypeRegistry $type_registry
-	 *
-	 * @since 0.0.5
-	 */
-	public function __construct( $config, TypeRegistry $type_registry ) {
 		$this->type_registry = $type_registry;
-
-		/**
-		 * Set the Types to start with capitals
-		 */
-		$config['name'] = ucfirst( $config['name'] );
 
 		$config['fields'] = function() use ( $config ) {
 			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
@@ -50,53 +18,16 @@ class WPObjectType extends ObjectType {
 			return $fields;
 		};
 
-		if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
-			$interfaces = [];
-			foreach ( $config['interfaces'] as $interface_name ) {
-				$interfaces[ $interface_name ] = $this->type_registry->get_type( $interface_name );
-			}
-			if ( ! empty( $interfaces ) ) {
-				$config['interfaces'] = $interfaces;
-			}
-		}
-
 		/**
 		 * Filter the config of WPObjectType
 		 *
 		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param Object $this The instance of the WPObjectType class
+		 * @param WPInterfaceType $this The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
-		/**
-		 * Run an action when the WPObjectType is instantiating
-		 *
-		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param Object $this The instance of the WPObjectType class
-		 */
-		do_action( 'graphql_wp_object_type', $config, $this );
 
 		parent::__construct( $config );
-	}
-
-	/**
-	 * node_interface
-	 *
-	 * This returns the node_interface definition allowing
-	 * WPObjectTypes to easily implement the node_interface
-	 *
-	 * @return array|\WPGraphQL\Data\node_interface
-	 * @since 0.0.5
-	 */
-	public static function node_interface() {
-
-		if ( null === self::$node_interface ) {
-			$node_interface       = DataSource::get_node_definition();
-			self::$node_interface = $node_interface['nodeInterface'];
-		}
-
-		return self::$node_interface;
-
 	}
 
 	/**
@@ -122,7 +53,7 @@ class WPObjectType extends ObjectType {
 		 * @param array  $fields    The array of fields for the object config
 		 * @param string $type_name The name of the object type
 		 */
-		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
+		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.

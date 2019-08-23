@@ -403,8 +403,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * @access public
 	 * @return void
 	 */
-	public function testCreateMediaItemAttachToParent() {
-		$post = $this->factory()->post->create( [
+	public function testCreateMediaItemAttachToParentAsAuthor() {
+		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 			'post_status' => 'publish'
 		] );
@@ -418,8 +418,20 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 
+	}
+
+	public function testCreateMediaItemAttachToParentAsAdmin() {
+
+		$post                                        = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
+		] );
+		$this->create_variables['input']['parentId'] = absint( $post );
+
 		wp_set_current_user( $this->admin );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -1013,8 +1025,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
-		$post = get_post( $deleted_media_item );
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1048,8 +1060,48 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
 
+	/**
+	 * Set the force delete input to false and the
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
+	 * @access public
+	 * @return array $actual
+	 */
+	public function testForceDeleteMediaItemAlreadyInTrash() {
 
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
+
+		/**
+		 * Prepare the deleteMediaItem mutation
+		 */
+		$mutation = '
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
+		  deleteMediaItem(input: $input) {
+		    clientMutationId
+		    deletedId
+		    mediaItem {
+		      id
+		      mediaItemId
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$delete_trash_variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'attachment', $deleted_media_item ),
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => false,
+			]
+		];
+
+		wp_set_current_user( $this->admin );
 
 		$delete_trash_variables['input']['forceDelete'] = true;
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );

@@ -6,7 +6,7 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
-add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
+add_action( 'graphql_register_types', function( TypeRegistry $type_registry ) {
 
 	/**
 	 * The possible types for MenuItems should be just the TermObjects and PostTypeObjects that are
@@ -23,7 +23,7 @@ add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 	foreach ( get_post_types( $args ) as $type ) {
 		$post_type_object = get_post_type_object( $type );
 		if ( isset( $post_type_object->graphql_single_name ) ) {
-			$possible_types[] = $type_registry->get_type( $post_type_object->graphql_single_name );
+			$possible_types[] = $post_type_object->graphql_single_name;
 		}
 	}
 
@@ -31,18 +31,18 @@ add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 	foreach ( get_taxonomies( $args ) as $type ) {
 		$tax_object = get_taxonomy( $type );
 		if ( isset( $tax_object->graphql_single_name ) ) {
-			$possible_types[] = $type_registry->get_type( $tax_object->graphql_single_name );
+			$possible_types[] = $tax_object->graphql_single_name;
 		}
 	}
 
 	// Add the custom link type (which is just a menu item).
-	$possible_types['MenuItem'] = $type_registry->get_type( 'MenuItem' );
+	$possible_types[] = 'MenuItem';
 
 
-	register_graphql_union_type(
+	$type_registry->register_union_type(
 		'MenuItemObjectUnion',
 		[
-			'types'       => $possible_types,
+			'typeNames'       => $possible_types,
 			'resolveType' => function ( $object ) use ( $type_registry ) {
 
 				// Custom link / menu item
@@ -67,5 +67,5 @@ add_action( 'init_type_registry', function( TypeRegistry $type_registry ) {
 		]
 	);
 
-} );
+}, 50 );
 

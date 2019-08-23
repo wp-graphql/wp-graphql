@@ -8,8 +8,10 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Server\WPHelper;
+use WPGraphQL\Type\WPObjectType;
 
 /**
  * Class Request
@@ -55,9 +57,9 @@ class Request {
 	 *
 	 * @var \WPGraphQL\WPSchema
 	 */
-	private $schema;
+	public $schema;
 
-	private $type_registry;
+	public $type_registry;
 
 	/**
 	 * Constructor
@@ -65,6 +67,8 @@ class Request {
 	 * @param  array|null $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception
 	 */
 	public function __construct( $data = null ) {
 
@@ -86,19 +90,12 @@ class Request {
 		do_action( 'init_graphql_request' );
 
 		// Set request data for passed-in (non-HTTP) requests.
-		$this->data = $data;
-
-
-		$this->type_registry = new TypeRegistry();
-		$schema_config = [
-			'query' => $this->type_registry->get_type( 'RootQuery' ),
-			'mutation' => $this->type_registry->get_type( 'RootMutation' ),
-		];
-
-		// codecept_debug( $schema_config );
-
-		$this->schema      = new Schema( $schema_config );
-		$this->app_context = \WPGraphQL::get_app_context();
+		$this->data          = $data;
+//		$this->type_registry = new TypeRegistry();
+//		$schema              = new SchemaRegistry( $this->type_registry );
+//		$this->schema        = $schema->get_schema();
+		$this->schema = \WPGraphQL::get_schema();
+		$this->app_context   = \WPGraphQL::get_app_context();
 
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
@@ -109,6 +106,7 @@ class Request {
 		$app_context->viewer   = wp_get_current_user();
 		$app_context->root_url = get_bloginfo( 'url' );
 		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->type_registry = $this->type_registry;
 
 		$this->app_context = $app_context;
 	}

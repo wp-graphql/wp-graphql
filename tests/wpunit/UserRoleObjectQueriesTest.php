@@ -48,13 +48,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = sprintf( 'No user role was found with the name %s', $role_to_test );
 
-		$typeRegistry = new \WPGraphQL\Registry\TypeRegistry();
-		$schema = new \GraphQL\Type\Schema([
-			'query' => $typeRegistry->get_type( 'RootQuery' ),
-		]);
-
-		$actual = \GraphQL\GraphQL::executeQuery($schema, $query)->toArray();
-
+		$actual = graphql(['query' => $query]);
 		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual['errors'][0]['message'] );
@@ -95,15 +89,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-//		$actual = $this->request(['query' => $query]);
-
-		$typeRegistry = new \WPGraphQL\Registry\TypeRegistry();
-		$schema = new \GraphQL\Type\Schema([
-			'query' => $typeRegistry->get_type( 'RootQuery' ),
-		]);
-
-		$actual = \GraphQL\GraphQL::executeQuery($schema, $query)->toArray();
-
+		$actual = graphql(['query' => $query]);
 		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual );

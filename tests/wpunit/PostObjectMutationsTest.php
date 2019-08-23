@@ -389,7 +389,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public function testUpdatePostWithInvalidId() {
 
 		$mutation = '
-		mutation updatePostWithInvalidId($input:updatePostInput!) {
+		mutation updatePostWithInvalidId($input:UpdatePostInput!) {
 			updatePost(input:$input) {
 				clientMutationId
 			}
@@ -404,6 +404,8 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$actual = do_graphql_request( $mutation, 'updatePostWithInvalidId', $variables );
+
+		codecept_debug( $actual );
 
 		/**
 		 * We should get an error thrown if we try and update a post with an invalid id

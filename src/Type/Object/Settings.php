@@ -8,7 +8,7 @@ use WPGraphQL\Registry\TypeRegistry;
 
 add_action( 'graphql_register_types', function( TypeRegistry $type_registry ) {
 
-	register_graphql_object_type(
+	$type_registry->register_object_type(
 		'Settings',
 		[
 			'description' => __( 'All of the registered settings', 'wp-graphql' ),
@@ -16,6 +16,8 @@ add_action( 'graphql_register_types', function( TypeRegistry $type_registry ) {
 
 				$registered_settings = DataSource::get_allowed_settings();
 				$fields              = [];
+
+				var_dump( $registered_settings );
 
 				if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
 
@@ -86,6 +88,8 @@ add_action( 'graphql_register_types', function( TypeRegistry $type_registry ) {
 		]
 	);
 
-} );
+}, 55 );
+
+
 
 

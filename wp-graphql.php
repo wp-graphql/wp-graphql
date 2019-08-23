@@ -223,6 +223,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
+
 		}
 
 		/**
@@ -267,6 +268,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
 			add_action( 'init', [ $this, 'get_allowed_types' ], 999 );
+
 		}
 
 		/**
@@ -497,57 +499,52 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		}
 
-//		/**
-//		 * Returns the Schema as defined by static registrations throughout
-//		 * the WP Load.
-//		 *
-//		 * @access protected
-//		 * @return \WPGraphQL\WPSchema
-//		 */
-//		public static function get_schema() {
-//
-//			/**
-//			 * Fire an action when the Schema is returned
-//			 */
-//			do_action( 'graphql_get_schema', self::$schema );
-//
-//			/**
-//			 * Initialize the TypeRegistry
-//			 */
-//			\WPGraphQL\TypeRegistry::init();
-//			\WPGraphQL\SchemaRegistry::init();
-//
-//			if ( null === self::$schema ) {
-//
-//				/**
-//				 * Filter the Active Schema, allowing for custom Schemas to be active instead
-//				 * of the core schema
-//				 */
-//				$active_schema     = apply_filters( 'graphql_active_schema', 'core' );
-//				$executable_schema = \WPGraphQL\SchemaRegistry::get_schema( $active_schema );
-//
-//				/**
-//				 * Generate the Schema
-//				 */
-//				$schema = new \WPGraphQL\WPSchema( $executable_schema );
-//
-//				/**
-//				 * Generate & Filter the schema.
-//				 *
-//				 * @since 0.0.5
-//				 *
-//				 * @param array                 $schema      The executable Schema that GraphQL executes against
-//				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
-//				 *                                           information about the context we know at this point
-//				 */
-//				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
-//			}
-//
-//			/**
-//			 * Return the Schema after applying filters
-//			 */
-//			return ! empty( self::$schema ) ? self::$schema : null;
-//		}
+		/**
+		 * Allow Schema to be cleared
+		 */
+		public static function __clear_schema() {
+			self::$schema = null;
+		}
+
+		/**
+		 * Returns the Schema as defined by static registrations throughout
+		 * the WP Load.
+		 *
+		 * @access protected
+		 * @return \WPGraphQL\WPSchema
+		 *
+		 * @throws Exception
+		 */
+		public static function get_schema() {
+
+			/**
+			 * Fire an action when the Schema is returned
+			 */
+			do_action( 'graphql_get_schema', self::$schema );
+
+			if ( null === self::$schema ) {
+
+				$type_registry = new \WPGraphQL\Registry\TypeRegistry();
+				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry( $type_registry );
+				$schema        = $schema_registry->get_schema();
+
+				/**
+				 * Generate & Filter the schema.
+				 *
+				 * @since 0.0.5
+				 *
+				 * @param array                 $schema      The executable Schema that GraphQL executes against
+				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+				 *                                           information about the context we know at this point
+				 */
+				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
+			}
+
+			/**
+			 * Return the Schema after applying filters
+			 */
+			return ! empty( self::$schema ) ? self::$schema : null;
+		}
 
 		/**
 		 * Return the static schema if there is one
