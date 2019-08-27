@@ -14,6 +14,9 @@ register_graphql_type(
 					'non_null' => 'ID',
 				],
 				'description' => __( 'The globally unique identifier for the user', 'wp-graphql' ),
+				'resolve'     => function( $user, $args, $context, $info ) {
+					return $user->ID;
+				},
 			],
 			'capabilities'      => [
 				'type'        => [
