@@ -77,6 +77,7 @@ class UpdateSettings {
 		 * Get the allowed setting groups and their fields
 		 */
 		$allowed_setting_groups = DataSource::get_allowed_settings_by_group();
+
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
 				$setting_type = str_replace( '_', '', strtolower( $group ) );

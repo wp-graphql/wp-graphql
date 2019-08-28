@@ -79,7 +79,7 @@ use WPGraphQL\Type\Object\TermObject;
 use WPGraphQL\Type\Object\Theme;
 use WPGraphQL\Type\Object\User;
 use WPGraphQL\Type\Object\UserRole;
-use WPGraphQL\Type\Settings;
+use WPGraphQL\Type\Object\Settings;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
@@ -149,6 +149,7 @@ class TypeRegistry {
 			Plugin::register_type();
 			PostType::register_type();
 			PostTypeLabelDetails::register_type();
+			Settings::register_type();
 			Taxonomy::register_type();
 			Theme::register_type();
 			User::register_type();
