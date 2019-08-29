@@ -114,7 +114,8 @@ class Comment {
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
 				],
-			] );
+			]
+		);
 
 	}
 }

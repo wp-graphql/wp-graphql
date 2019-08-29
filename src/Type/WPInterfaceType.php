@@ -6,8 +6,21 @@ use WPGraphQL\Registry\TypeRegistry;
 
 class WPInterfaceType extends InterfaceType {
 
+	/**
+	 * Instance of the TypeRegistry as an Interface needs knowledge of available Types
+	 *
+	 * @var TypeRegistry
+	 */
 	protected $type_registry;
 
+	/**
+	 * WPInterfaceType constructor.
+	 *
+	 * @param array        $config
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @access public
+	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
 		$this->type_registry = $type_registry;
@@ -25,7 +38,6 @@ class WPInterfaceType extends InterfaceType {
 		 * @param WPInterfaceType $this The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
-
 
 		parent::__construct( $config );
 	}

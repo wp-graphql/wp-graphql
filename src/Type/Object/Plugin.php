@@ -44,6 +44,7 @@ class Plugin {
 					],
 				],
 				'interfaces'  => [ 'Node' ],
-			] );
+			]
+		);
 	}
 }

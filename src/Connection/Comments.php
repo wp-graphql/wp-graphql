@@ -25,7 +25,6 @@ class Comments {
 		 */
 		register_graphql_connection( self::get_connection_config() );
 
-
 		/**
 		 * Register connection from User to Comments
 		 */

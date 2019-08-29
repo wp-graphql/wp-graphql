@@ -22,7 +22,8 @@ class Settings {
 	 */
 	public static function register_type() {
 
-		register_graphql_object_type( 'Settings',
+		register_graphql_object_type(
+			'Settings',
 			[
 				'description' => __( 'All of the registered settings', 'wp-graphql' ),
 				'fields'      => self::get_fields(),
@@ -33,6 +34,7 @@ class Settings {
 
 	/**
 	 * Returns an array of fields for all settings based on the `register_setting` WordPress API
+	 *
 	 * @return array
 	 */
 	public static function get_fields() {
@@ -70,7 +72,7 @@ class Settings {
 						'type'        => $setting_field['type'],
 						'description' => $setting_field['description'],
 
-						'resolve' => function( $root, $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
+						'resolve'     => function( $root, $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default

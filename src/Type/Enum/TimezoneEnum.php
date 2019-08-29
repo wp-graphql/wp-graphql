@@ -27,7 +27,7 @@ class TimezoneEnum {
 			'Indian',
 			'Pacific',
 		);
-// Load translations for continents and cities.
+		// Load translations for continents and cities.
 		if ( ! $mo_loaded || $locale !== $locale_loaded ) {
 			$locale_loaded = $locale ? $locale : get_locale();
 			$mofile        = WP_LANG_DIR . '/continents-cities-' . $locale_loaded . '.mo';
@@ -91,7 +91,6 @@ class TimezoneEnum {
 				'value'       => $value,
 				'description' => $display,
 			];
-
 
 		}
 		$offset_range = array(

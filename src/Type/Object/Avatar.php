@@ -4,7 +4,8 @@ namespace WPGraphQL\Type\Object;
 
 class Avatar {
 	public static function register_type() {
-		register_graphql_object_type( 'Avatar',
+		register_graphql_object_type(
+			'Avatar',
 			[
 				'description' => __( 'Avatars are profile images for users. WordPress by default uses the Gravatar service to host and fetch avatars from.', 'wp-graphql' ),
 				'fields'      => [

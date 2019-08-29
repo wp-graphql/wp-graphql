@@ -27,6 +27,7 @@ class Request {
 	 * App context for this request.
 	 *
 	 * @var \WPGraphQL\AppContext
+	 * @access private
 	 */
 	private $app_context;
 
@@ -34,6 +35,7 @@ class Request {
 	 * Request data.
 	 *
 	 * @var array
+	 * @access private
 	 */
 	private $data;
 
@@ -41,6 +43,7 @@ class Request {
 	 * Cached global post.
 	 *
 	 * @var \WP_Post
+	 * @access private
 	 */
 	private $global_post;
 
@@ -49,6 +52,7 @@ class Request {
 	 * OperationParams.
 	 *
 	 * @var OperationParams|OperationParams[]
+	 * @access private
 	 */
 	private $params;
 
@@ -56,9 +60,14 @@ class Request {
 	 * Schema for this request.
 	 *
 	 * @var \WPGraphQL\WPSchema
+	 * @access public
 	 */
 	public $schema;
 
+	/**
+	 * @var TypeRegistry $type_registry
+	 * @access public
+	 */
 	public $type_registry;
 
 	/**
@@ -67,6 +76,8 @@ class Request {
 	 * @param  array|null $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
+	 *
+	 * @access public
 	 *
 	 * @throws \Exception
 	 */
@@ -90,12 +101,13 @@ class Request {
 		do_action( 'init_graphql_request' );
 
 		// Set request data for passed-in (non-HTTP) requests.
-		$this->data          = $data;
-//		$this->type_registry = new TypeRegistry();
-//		$schema              = new SchemaRegistry( $this->type_registry );
-//		$this->schema        = $schema->get_schema();
+		$this->data = $data;
+
+		// Get the Schema
 		$this->schema = \WPGraphQL::get_schema();
-		$this->app_context   = \WPGraphQL::get_app_context();
+
+		// Get the App Context
+		$this->app_context = \WPGraphQL::get_app_context();
 
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
@@ -106,13 +118,13 @@ class Request {
 		$app_context->viewer   = wp_get_current_user();
 		$app_context->root_url = get_bloginfo( 'url' );
 		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
-		$app_context->type_registry = $this->type_registry;
-
-		$this->app_context = $app_context;
+		$this->app_context     = $app_context;
 	}
 
 	/**
 	 * Apply filters and do actions before GraphQL execution
+	 *
+	 * @access private
 	 */
 	private function before_execute() {
 
@@ -142,6 +154,8 @@ class Request {
 	 *
 	 * @param mixed|array|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
+	 *
+	 * @access private
 	 *
 	 * @return array
 	 */
@@ -186,6 +200,8 @@ class Request {
 	 *
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
+	 *
+	 *                                 @access private
 	 *
 	 * @return array
 	 */
@@ -264,6 +280,8 @@ class Request {
 	 *
 	 * @param  OperationParams $params OperationParams for the request.
 	 *
+	 *                                 @access private
+	 *
 	 * @return void
 	 */
 	private function do_action( $params ) {
@@ -281,6 +299,7 @@ class Request {
 	/**
 	 * Execute an internal request (graphql() function call).
 	 *
+	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -294,7 +313,6 @@ class Request {
 		 */
 		$this->before_execute();
 
-
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
 			$this->params->query,
@@ -303,7 +321,6 @@ class Request {
 			$this->params->variables,
 			$this->params->operation
 		);
-
 
 		/**
 		 * Return the result of the request
@@ -328,6 +345,7 @@ class Request {
 	/**
 	 * Execute an HTTP request.
 	 *
+	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -356,6 +374,7 @@ class Request {
 	/**
 	 * Get the operation params for the request.
 	 *
+	 * @access public
 	 * @return OperationParams
 	 */
 	public function get_params() {

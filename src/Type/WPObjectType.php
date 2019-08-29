@@ -31,7 +31,7 @@ class WPObjectType extends ObjectType {
 	/**
 	 * WPObjectType constructor.
 	 *
-	 * @param array $config
+	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @since 0.0.5

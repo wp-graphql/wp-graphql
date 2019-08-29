@@ -10,169 +10,172 @@ use WPGraphQL\Data\DataSource;
 
 class RootQuery {
 	public static function register_type() {
-		register_graphql_object_type( 'RootQuery', [
-			'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
-			'fields'      => [
-				'test'        => [
-					'type'    => 'string',
-					'resolve' => function() {
-						return 'test';
-					},
-				],
-				'tests'       => [
-					'type'    => [ 'list_of' => 'string' ],
-					'resolve' => function() {
-						return [ 'test', 'another test' ];
-					},
-				],
-				'allSettings' => [
-					'type'        => 'Settings',
-					'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
-					'resolve'     => function() {
-						return true;
-					},
-				],
-				'comment'     => [
-					'type'        => 'Comment',
-					'description' => __( 'Returns a Comment', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+		register_graphql_object_type(
+			'RootQuery',
+			[
+				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
+				'fields'      => [
+					'test'        => [
+						'type'    => 'string',
+						'resolve' => function() {
+							return 'test';
+						},
+					],
+					'tests'       => [
+						'type'    => [ 'list_of' => 'string' ],
+						'resolve' => function() {
+							return [ 'test', 'another test' ];
+						},
+					],
+					'allSettings' => [
+						'type'        => 'Settings',
+						'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
+						'resolve'     => function() {
+							return true;
+						},
+					],
+					'comment'     => [
+						'type'        => 'Comment',
+						'description' => __( 'Returns a Comment', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
-					],
-					'resolve'     => function( $source, array $args, AppContext $context, $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
+						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
 
-						return DataSource::resolve_comment( $id_components['id'], $context );
-					},
-				],
-				'node'        => [
-					'type'        => 'Node',
-					'args'        => [
-						'id' => [
-							'type' => 'ID',
-							'description' => __( 'The id of the object', 'wp-graphql' ),
-						],
+							return DataSource::resolve_comment( $id_components['id'], $context );
+						},
 					],
-					'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
-					'resolve' => function( $root, $args, AppContext $context, $info ) {
-						return ! empty( $args['id'] ) ? DataSource::resolve_node( $args['id'], $context, $info ) : null;
-					},
-				],
-				'menu'        => [
-					'type'        => 'Menu',
-					'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+					'node'        => [
+						'type'        => 'Node',
+						'args'        => [
+							'id' => [
+								'type'        => 'ID',
+								'description' => __( 'The id of the object', 'wp-graphql' ),
 							],
 						],
+						'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
+						'resolve'     => function( $root, $args, AppContext $context, $info ) {
+							return ! empty( $args['id'] ) ? DataSource::resolve_node( $args['id'], $context, $info ) : null;
+						},
 					],
-					'resolve'     => function( $source, array $args, $context, $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
-
-						return DataSource::resolve_term_object( $id_components['id'], $context );
-					},
-				],
-				'menuItem'    => [
-					'type'        => 'MenuItem',
-					'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+					'menu'        => [
+						'type'        => 'Menu',
+						'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
-					],
-					'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
-						$id            = absint( $id_components['id'] );
+						'resolve'     => function( $source, array $args, $context, $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
 
-						return DataSource::resolve_menu_item( $id, $context );
-					},
-				],
-				'plugin'      => [
-					'type'        => 'Plugin',
-					'description' => __( 'A WordPress plugin', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+							return DataSource::resolve_term_object( $id_components['id'], $context );
+						},
+					],
+					'menuItem'    => [
+						'type'        => 'MenuItem',
+						'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
-					],
-					'resolve'     => function( $source, array $args, $context, $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
+						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
+							$id            = absint( $id_components['id'] );
 
-						return DataSource::resolve_plugin( $id_components['id'] );
-					},
-				],
-				'theme'       => [
-					'type'        => 'Theme',
-					'description' => __( 'A Theme object', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+							return DataSource::resolve_menu_item( $id, $context );
+						},
+					],
+					'plugin'      => [
+						'type'        => 'Plugin',
+						'description' => __( 'A WordPress plugin', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
-					],
-					'resolve'     => function( $source, array $args, $context, $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
+						'resolve'     => function( $source, array $args, $context, $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
 
-						return DataSource::resolve_theme( $id_components['id'] );
-					},
-				],
-				'user'        => [
-					'type'        => 'User',
-					'description' => __( 'Returns a user', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+							return DataSource::resolve_plugin( $id_components['id'] );
+						},
+					],
+					'theme'       => [
+						'type'        => 'Theme',
+						'description' => __( 'A Theme object', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
-					],
-					'resolve'     => function( $source, array $args, $context, $info ) {
-						$id_components = Relay::fromGlobalId( $args['id'] );
+						'resolve'     => function( $source, array $args, $context, $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
 
-						return DataSource::resolve_user( $id_components['id'], $context );
-					},
-				],
-				'userRole'    => [
-					'type'        => 'UserRole',
-					'description' => __( 'Returns a user role', 'wp-graphql' ),
-					'args'        => [
-						'id' => [
-							'type' => [
-								'non_null' => 'ID',
+							return DataSource::resolve_theme( $id_components['id'] );
+						},
+					],
+					'user'        => [
+						'type'        => 'User',
+						'description' => __( 'Returns a user', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
 							],
 						],
+						'resolve'     => function( $source, array $args, $context, $info ) {
+							$id_components = Relay::fromGlobalId( $args['id'] );
+
+							return DataSource::resolve_user( $id_components['id'], $context );
+						},
 					],
-					'resolve'     => function( $source, array $args, $context, $info ) {
+					'userRole'    => [
+						'type'        => 'UserRole',
+						'description' => __( 'Returns a user role', 'wp-graphql' ),
+						'args'        => [
+							'id' => [
+								'type' => [
+									'non_null' => 'ID',
+								],
+							],
+						],
+						'resolve'     => function( $source, array $args, $context, $info ) {
 
-						$id_components = Relay::fromGlobalId( $args['id'] );
+							$id_components = Relay::fromGlobalId( $args['id'] );
 
-						return DataSource::resolve_user_role( $id_components['id'] );
+							return DataSource::resolve_user_role( $id_components['id'] );
 
-					},
+						},
+					],
+					'viewer'      => [
+						'type'        => 'User',
+						'description' => __( 'Returns the current user', 'wp-graphql' ),
+						'resolve'     => function( $source, array $args, $context, $info ) {
+							if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
+								throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
+							}
+
+							return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+						},
+					],
 				],
-				'viewer'      => [
-					'type'        => 'User',
-					'description' => __( 'Returns the current user', 'wp-graphql' ),
-					'resolve'     => function( $source, array $args, $context, $info ) {
-						if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
-							throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
-						}
-
-						return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
-					},
-				],
-			],
-		] );
+			]
+		);
 	}
 
 	/**
@@ -211,7 +214,7 @@ class RootQuery {
 					]
 				);
 				$post_by_args = [
-					'id'                                          => [
+					'id'  => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -219,7 +222,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri'                                         => [
+					'uri' => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],

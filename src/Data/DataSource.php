@@ -26,7 +26,6 @@ use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
 use WPGraphQL\Model\UserRole;
-use WPGraphQL\Types;
 
 /**
  * Class DataSource
@@ -73,8 +72,8 @@ class DataSource {
 		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
 
 		return new Deferred(
-			function () use ( $comment_id, $context ) {
-					return $context->getLoader( 'comment' )->load( $comment_id );
+			function() use ( $comment_id, $context ) {
+				return $context->getLoader( 'comment' )->load( $comment_id );
 			}
 		);
 
@@ -92,6 +91,7 @@ class DataSource {
 		global $wpdb;
 		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
 		$comment_author = ! empty( $comment_author ) ? (array) $comment_author : [];
+
 		return new CommentAuthor( $comment_author );
 	}
 
@@ -110,6 +110,7 @@ class DataSource {
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
 		$resolver   = new CommentConnectionResolver( $source, $args, $context, $info );
 		$connection = $resolver->get_connection();
+
 		return $connection;
 	}
 
@@ -206,8 +207,8 @@ class DataSource {
 		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
 
 		return new Deferred(
-			function () use ( $post_id, $context ) {
-					return $context->getLoader( 'post_object' )->load( $post_id );
+			function() use ( $post_id, $context ) {
+				return $context->getLoader( 'post_object' )->load( $post_id );
 			}
 		);
 
@@ -228,8 +229,8 @@ class DataSource {
 		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
 
 		return new Deferred(
-			function () use ( $menu_item_id, $context ) {
-					return $context->getLoader( 'menu_item' )->load( $menu_item_id );
+			function() use ( $menu_item_id, $context ) {
+				return $context->getLoader( 'menu_item' )->load( $menu_item_id );
 			}
 		);
 	}
@@ -291,7 +292,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return Taxonomy object
-	 * @throws UserError
+	 * @throws UserError | \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -334,8 +335,8 @@ class DataSource {
 		$context->getLoader( 'term_object' )->buffer( [ $id ] );
 
 		return new Deferred(
-			function () use ( $term_id, $context ) {
-					return $context->getLoader( 'term_object' )->load( $term_id );
+			function() use ( $term_id, $context ) {
+				return $context->getLoader( 'term_object' )->load( $term_id );
 			}
 		);
 
@@ -403,7 +404,7 @@ class DataSource {
 	/**
 	 * Gets the user object for the user ID specified
 	 *
-	 * @param int        $id ID of the user you want the object for
+	 * @param int        $id      ID of the user you want the object for
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
@@ -420,8 +421,8 @@ class DataSource {
 		$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 		return new Deferred(
-			function () use ( $user_id, $context ) {
-					return $context->getLoader( 'user' )->load( $user_id );
+			function() use ( $user_id, $context ) {
+				return $context->getLoader( 'user' )->load( $user_id );
 			}
 		);
 	}
@@ -441,6 +442,7 @@ class DataSource {
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
 		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+
 		return $resolver->get_connection();
 
 	}
@@ -506,6 +508,7 @@ class DataSource {
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
+
 		return $resolver->get_connection();
 
 	}
@@ -523,8 +526,8 @@ class DataSource {
 	public static function get_setting_group_fields( $group ) {
 
 		/**
-		* Convert camelCase $group to snake_case to match $settings_groups keys retrieved from WordPress
-		*/
+		 * Convert camelCase $group to snake_case to match $settings_groups keys retrieved from WordPress
+		 */
 		$group = strtolower( preg_replace( '/(?<=[a-z])(?=[A-Z])/', '_', $group ) );
 
 		/**
@@ -647,11 +650,11 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 				// The ID fetcher definition
-				function ( $global_id, AppContext $context, ResolveInfo $info ) {
+				function( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},
 				// Type resolver
-				function ( $node ) {
+				function( $node ) {
 					self::resolve_node_type( $node );
 				}
 			);
@@ -733,9 +736,9 @@ class DataSource {
 	/**
 	 * Given the ID of a node, this resolves the data
 	 *
-	 * @param string $global_id The Global ID of the node
-	 * @param AppContext $context The Context of the GraphQL Request
-	 * @param ResolveInfo $info The ResolveInfo for the GraphQL Request
+	 * @param string      $global_id The Global ID of the node
+	 * @param AppContext  $context   The Context of the GraphQL Request
+	 * @param ResolveInfo $info      The ResolveInfo for the GraphQL Request
 	 *
 	 * @return null|string
 	 * @throws \Exception
@@ -801,7 +804,7 @@ class DataSource {
 					$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 					return new Deferred(
-						function () use ( $user_id, $context ) {
+						function() use ( $user_id, $context ) {
 							return $context->getLoader( 'user' )->load( $user_id );
 						}
 					);
@@ -851,9 +854,10 @@ class DataSource {
 	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
 	 *
+	 * @access public
 	 * @return \WP_Post|null WP_Post on success or null on failure
-	 * @see  https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
-	 * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
+	 * @see    https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
+	 * @link   http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
 	 */
 	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
 
@@ -884,6 +888,7 @@ class DataSource {
 	/**
 	 * Returns array of nav menu location names
 	 *
+	 * @access public
 	 * @return array
 	 */
 	public static function get_registered_nav_menu_locations() {
