@@ -42,7 +42,6 @@ $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
 	}'
 ] ) );
 
-$I->
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
