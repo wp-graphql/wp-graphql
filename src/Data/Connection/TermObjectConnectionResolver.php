@@ -130,7 +130,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 					$query_args['object_ids']              = $this->source->ID;
 					break;
 				case $this->source instanceof Term:
-
 					if ( is_a( $GLOBALS['post'], 'WP_Post' ) && isset( $GLOBALS['post']->ID ) ) {
 						$query_args['object_ids'] = $GLOBALS['post']->ID;
 					}

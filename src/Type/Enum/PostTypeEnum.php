@@ -22,7 +22,10 @@ if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 	}
 }
 
-register_graphql_enum_type( 'PostTypeEnum', [
-	'description' => __( 'Allowed Post Types', 'wp-graphql' ),
-	'values'      => $values
-] );
+register_graphql_enum_type(
+	'PostTypeEnum',
+	[
+		'description' => __( 'Allowed Post Types', 'wp-graphql' ),
+		'values'      => $values,
+	]
+);

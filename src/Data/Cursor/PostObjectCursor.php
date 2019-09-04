@@ -129,8 +129,7 @@ class PostObjectCursor {
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
-
-		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} elseif ( ! empty( $orderby ) && is_string( $orderby ) ) {
 
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC

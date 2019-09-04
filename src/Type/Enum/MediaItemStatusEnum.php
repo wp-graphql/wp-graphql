@@ -28,7 +28,10 @@ if ( ! empty( $post_stati ) && is_array( $post_stati ) ) {
 	}
 }
 
-register_graphql_enum_type( 'MediaItemStatusEnum', [
-	'description' => __( 'The status of the media item object.', 'wp-graphql' ),
-	'values'      => $values
-] );
+register_graphql_enum_type(
+	'MediaItemStatusEnum',
+	[
+		'description' => __( 'The status of the media item object.', 'wp-graphql' ),
+		'values'      => $values,
+	]
+);

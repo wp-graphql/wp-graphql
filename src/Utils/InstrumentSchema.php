@@ -20,9 +20,9 @@ use WPGraphQL\Type\WPObjectType;
 class InstrumentSchema {
 
 	/**
-	* Cache post for the resolvers so we can call the setup_postdata only when the actual
-	* source post changes
-	*/
+	 * Cache post for the resolvers so we can call the setup_postdata only when the actual
+	 * source post changes
+	 */
 	private static $cached_post = null;
 
 	/**
@@ -125,7 +125,7 @@ class InstrumentSchema {
 						 */
 						if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
 							self::$cached_post = $source;
-							$GLOBALS['post'] = $source;
+							$GLOBALS['post']   = $source;
 							setup_postdata( $source );
 						}
 
@@ -226,7 +226,7 @@ class InstrumentSchema {
 		 * Check to see if
 		 */
 		if ( $field instanceof FieldDefinition && (
-				isset ( $field->config['isPrivate'] ) ||
+				isset( $field->config['isPrivate'] ) ||
 				( ! empty( $field->config['auth'] ) && is_array( $field->config['auth'] ) ) )
 		) {
 
@@ -269,7 +269,6 @@ class InstrumentSchema {
 					throw new UserError( $auth_error );
 				}
 			}
-
 		}
 
 	}

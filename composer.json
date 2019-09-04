@@ -26,7 +26,10 @@
     "ivome/graphql-relay-php": "^0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^2.2."
+    "lucatume/wp-browser": "^2.2.",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+    "wp-coding-standards/wpcs": "^2.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.0"
   },
   "config": {
     "optimize-autoloader": true
@@ -37,6 +40,17 @@
     },
     "classmap": [
       "src/"
+    ]
+  },
+  "scripts": {
+    "phpcs-i": [
+      "@php ./vendor/bin/phpcs -i"
+    ],
+    "check-cs": [
+      "@php ./vendor/bin/phpcs"
+    ],
+    "fix-cs": [
+      "@php ./vendor/bin/phpcbf"
     ]
   }
 }

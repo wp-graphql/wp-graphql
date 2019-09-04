@@ -23,14 +23,16 @@ class Themes {
 		/**
 		 * Registers the RootQuery connection
 		 */
-		register_graphql_connection( [
-			'fromType'      => 'RootQuery',
-			'toType'        => 'Theme',
-			'fromFieldName' => 'themes',
-			'resolve'       => function ( $root, $args, $context, $info ) {
-				return DataSource::resolve_themes_connection( $root, $args, $context, $info );
-			},
-		] );
+		register_graphql_connection(
+			[
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Theme',
+				'fromFieldName' => 'themes',
+				'resolve'       => function ( $root, $args, $context, $info ) {
+					return DataSource::resolve_themes_connection( $root, $args, $context, $info );
+				},
+			]
+		);
 
 	}
 
