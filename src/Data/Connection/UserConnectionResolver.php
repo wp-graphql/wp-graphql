@@ -38,7 +38,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Prepare for later use
 		 */
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		
+
 		/**
 		 * Set the $query_args based on various defaults and primary input $args
 		 */
@@ -54,8 +54,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
+		 *
+		 * We query one extra than what is being asked for so that we can determine if there is a next
+		 * page.
 		 */
-		$query_args['number'] = $this->get_query_amount();
+		$query_args['number'] = $this->get_query_amount() + 1;
 
 		/**
 		 * Take any of the input $args (under the "where" input) that were part of the GraphQL query and map and
