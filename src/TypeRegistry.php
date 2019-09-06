@@ -120,6 +120,8 @@ class TypeRegistry {
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TaxonomyEnum.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/User.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/UsersConnectionOrderbyInput.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionOrderbyEnum.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UsersConnectionSearchColumnEnum.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/UserRole.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/UserRoleEnum.php';

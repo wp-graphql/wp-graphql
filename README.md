@@ -98,8 +98,12 @@ For example:
 
 `bin/install-wp-tests.sh wpgraphql_test root password 127.0.0.1 latest`
 
-*DEBUGGING*: If you have run this command before in another branch you may already have a local copy of WordPress downloaded in your `/private/tmp` directory. 
-If this is the case, please remove it and then run the install script again. Without removing this you may receive an error when running phpunit.
+*DEBUGGING*: 
+
+- If you have run this command before in another branch you may already have a local copy of WordPress downloaded in your `/private/tmp` directory. If this is the case, please remove it and then run the install script again. Without removing this you may receive an error when running phpunit.
+
+- This is installed into your machine's `tmp` directory, so if you restart your computer, you will need to re-run this script to install. 
+
 
 #### Local Environment Configuration for Codeception Tests
 

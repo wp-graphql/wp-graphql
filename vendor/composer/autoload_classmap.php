@@ -208,6 +208,7 @@ return array(
     'WPGraphQL\\Data\\Connection\\UserRoleConnectionResolver' => $baseDir . '/src/Data/Connection/UserRoleConnectionResolver.php',
     'WPGraphQL\\Data\\Cursor\\CursorBuilder' => $baseDir . '/src/Data/Cursor/CursorBuilder.php',
     'WPGraphQL\\Data\\Cursor\\PostObjectCursor' => $baseDir . '/src/Data/Cursor/PostObjectCursor.php',
+    'WPGraphQL\\Data\\Cursor\\UserCursor' => $baseDir . '/src/Data/Cursor/UserCursor.php',
     'WPGraphQL\\Data\\DataSource' => $baseDir . '/src/Data/DataSource.php',
     'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => $baseDir . '/src/Data/Loader/AbstractDataLoader.php',
     'WPGraphQL\\Data\\Loader\\CommentLoader' => $baseDir . '/src/Data/Loader/CommentLoader.php',
