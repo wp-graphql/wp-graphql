@@ -52,7 +52,7 @@ register_graphql_union_type(
 				return Types::term_object( $object->taxonomyName );
 			}
 
-			return null;
+			return apply_filters( 'resolve_menu_item_type', null, $object );
 		},
 	]
 );

@@ -198,15 +198,6 @@ class TypeRegistry {
 		}
 
 		/**
-		 * Register all Union Types
-		 * Unions need to be registered after other types as they reference other Types
-		 */
-		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/CommentAuthorUnion.php';
-		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/MenuItemObjectUnion.php';
-		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php';
-		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php';
-
-		/**
 		 * Register core connections
 		 */
 		Comments::register_connections();
@@ -243,6 +234,15 @@ class TypeRegistry {
 		if ( ! did_action( 'graphql_register_types' ) ) {
 			do_action( 'graphql_register_types' );
 		}
+
+		/**
+		 * Register all Union Types
+		 * Unions need to be registered after other types as they reference other Types
+		 */
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/CommentAuthorUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/MenuItemObjectUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/PostObjectUnion.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Union/TermObjectUnion.php';
 
 	}
 
