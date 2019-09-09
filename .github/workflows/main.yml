@@ -1,5 +1,3 @@
-name: CI
-
 on: pull_request
 name: Inspections
 jobs:
