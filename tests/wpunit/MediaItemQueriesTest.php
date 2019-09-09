@@ -336,4 +336,37 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+    /**
+     * testPostQuery
+     *
+     * This tests creates a single attachment and retrieves said post URL via a GraphQL query
+     *
+     * @since 0.3.6
+     */
+    public function testMediaItemUrl() {
+
+        $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+        $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+        $query = '
+        query GET_MEDIA_ITEM( $id: Int! ) {
+          mediaItemBy(mediaItemId: $id) {
+            mediaItemUrl
+          }
+        }
+        ';
+
+        $result = graphql([
+            'query' => $query,
+            'variables' => [
+                'id' => $attachment_id,
+            ],
+        ]);
+
+        $expected = wp_get_attachment_url( $attachment_id );
+
+        $this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
+
+    }
+
 }
