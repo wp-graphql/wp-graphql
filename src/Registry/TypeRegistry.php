@@ -35,6 +35,8 @@ use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
+use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
+use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\CommentAuthorUnion;
@@ -185,12 +187,14 @@ class TypeRegistry {
 				TermObjectsConnectionOrderbyEnum::register_type();
 				TimezoneEnum::register_type();
 				UserRoleEnum::register_type();
+				UsersConnectionOrderbyEnum::register_type();
 				UsersConnectionSearchColumnEnum::register_type();
 
 				DateInput::register_type();
 				DateQueryInput::register_type();
 				MenuItemsConnectionWhereArgs::register_type();
 				PostObjectsConnectionOrderbyInput::register_type();
+				UsersConnectionOrderbyInput::register_type();
 
 				CommentAuthorUnion::register_type( $this );
 				MenuItemObjectUnion::register_type( $this );
