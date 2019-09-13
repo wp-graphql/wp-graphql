@@ -15,18 +15,6 @@ class RootQuery {
 			[
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
 				'fields'      => [
-					'test'        => [
-						'type'    => 'string',
-						'resolve' => function() {
-							return 'test';
-						},
-					],
-					'tests'       => [
-						'type'    => [ 'list_of' => 'string' ],
-						'resolve' => function() {
-							return [ 'test', 'another test' ];
-						},
-					],
 					'allSettings' => [
 						'type'        => 'Settings',
 						'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
