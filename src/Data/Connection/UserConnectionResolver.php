@@ -37,7 +37,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		/**
 		 * Set the $query_args based on various defaults and primary input $args
@@ -100,12 +100,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
-				if ( in_array( $orderby_input['field'], [
-					'login__in',
-					'nicename__in',
-				], true ) ) {
+				if ( in_array(
+					$orderby_input['field'],
+					[
+						'login__in',
+						'nicename__in',
+					],
+					true
+				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} else if ( ! empty( $orderby_input['field'] ) ) {
+				} elseif ( ! empty( $orderby_input['field'] ) ) {
 					$query_args['orderby'] = [
 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
 					];
@@ -119,7 +123,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';

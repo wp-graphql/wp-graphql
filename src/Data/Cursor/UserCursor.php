@@ -90,7 +90,7 @@ class UserCursor {
 
 		return get_user_by( 'id', $this->cursor_offset );
 	}
-	
+
 	/**
 	 * Generate the final SQL string to be appended to WHERE clause
 	 *
@@ -99,7 +99,7 @@ class UserCursor {
 	public function to_sql() {
 		return ' AND ' . $this->builder->to_sql();
 	}
-	
+
 	/**
 	 * Get current WP_User_Query instance's query variables.
 	 *
@@ -139,15 +139,14 @@ class UserCursor {
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
-
-		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} elseif ( ! empty( $orderby ) && is_string( $orderby ) ) {
 
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
 
-		} 
+		}
 
 		/**
 		 * No custom comparing. Order by login
