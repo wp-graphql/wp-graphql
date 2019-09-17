@@ -164,10 +164,10 @@ function register_post_object_types( $post_type_object ) {
 					'type'        => 'String',
 					'description' => __( 'Type of resource', 'wp-graphql' ),
 				],
-                'mediaItemUrl' => [
-                    'type'        => 'String',
-                    'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
-                ],
+				'mediaItemUrl' => [
+					'type'        => 'String',
+					'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+				],
 				'sourceUrl'    => [
 					'type'        => 'String',
 					'description' => __( 'Url of the mediaItem if it\'s an image', 'wp-graphql' ),
