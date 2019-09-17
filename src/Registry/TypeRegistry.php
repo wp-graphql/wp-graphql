@@ -37,6 +37,7 @@ use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\CommentAuthorUnion;
@@ -141,8 +142,13 @@ class TypeRegistry {
 		 * When the Type Registry is initialized execute these files
 		 */
 		add_action(
-			'init_graphql_type_registry',
+			'graphql_register_types',
 			function( TypeRegistry $type_registry ) {
+
+				/**
+				 * Register Interfaces
+				 */
+				Node::register_type();
 
 				/**
 				 * Register Types
@@ -301,8 +307,15 @@ class TypeRegistry {
 					}
 				}
 
-			}
-		);
+				/**
+				 * Fire an action as the type registry is initialized. This executes
+				 * before the `graphql_register_types` action to allow for earlier hooking
+				 *
+				 * @param TypeRegistry $this Instance of the TypeRegistry
+				 */
+				do_action( 'init_graphql_type_registry', $this );
+
+			}, 1, 1 );
 
 		$this->register_type( 'Bool', Type::boolean() );
 		$this->register_type( 'Boolean', Type::boolean() );
@@ -312,31 +325,6 @@ class TypeRegistry {
 		$this->register_type( 'Int', Type::int() );
 		$this->register_type( 'Integer', Type::int() );
 		$this->register_type( 'String', Type::string() );
-
-		$this->register_interface_type(
-			'Node',
-			[
-				'description' => __( 'An object with an ID', 'wp-graphql' ),
-				'fields'      => [
-					'id' => [
-						'type' => [
-							'non_null' => 'ID',
-						],
-					],
-				],
-				'resolveType' => function( $node ) {
-					return DataSource::resolve_node_type( $node );
-				},
-			]
-		);
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'init_graphql_type_registry', $this );
 
 		/**
 		 * Fire an action as the Type registry is being initiated

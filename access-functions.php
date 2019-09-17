@@ -72,6 +72,18 @@ function register_graphql_type( $type_name, $config ) {
 }
 
 /**
+ * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
+ *
+ * @param string $type_name The name of the Type to register
+ * @param array  $config    The Type config
+ */
+function register_graphql_interface_type( $type_name, $config ) {
+	add_action( 'graphql_register_types', function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		$type_registry->register_interface_type( $type_name, $config );
+	} );
+}
+
+/**
  * Given a Type Name and a $config array, this adds an ObjectType to the TypeRegistry
  *
  * @param string $type_name The name of the Type to register
