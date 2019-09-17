@@ -70,63 +70,75 @@ class Config {
 		if ( ! defined( 'ABSPATH' ) ) {
 			exit;
 		}
-		
+
 		/**
 		 * Copied from https://github.com/wp-graphql/wp-graphql/issues/274#issuecomment-510150571
 		 * Shoutouts to epeli!
-		 * 
+		 *
 		 * Add missing filters to WP_User_Query class.
 		 */
-		add_filter( 'pre_user_query', function ( $query ) {
-		
-			if ( ! $query->get( 'suppress_filters' ) ) {
-				$query->set( 'suppress_filters', 0 );
-			}
-	
-			if ( ! $query->get( 'suppress_filters' ) ) {
-	
-				/**
-				 * Filters the WHERE clause of the query.
-				 *
-				 * Specifically for manipulating paging queries.
-				 **
-				*
-				* @param string $where The WHERE clause of the query.
-				* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-				*/
-				$query->query_where = apply_filters_ref_array( 'graphql_users_where', array( $query->query_where, &$query ) );
+		add_filter(
+			'pre_user_query',
+			function ( $query ) {
 
-				/**
-				 * Filters the ORDER BY clause of the query.
-				 *
-				 *
-				 * @param string $orderby The ORDER BY clause of the query.
-				 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-				 */
-				$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
-	
+				if ( ! $query->get( 'suppress_filters' ) ) {
+					$query->set( 'suppress_filters', 0 );
+				}
+
+				if ( ! $query->get( 'suppress_filters' ) ) {
+
+					/**
+					 * Filters the WHERE clause of the query.
+					 *
+					 * Specifically for manipulating paging queries.
+					 **
+					*
+					* @param string $where The WHERE clause of the query.
+					* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+					*/
+					$query->query_where = apply_filters_ref_array( 'graphql_users_where', array( $query->query_where, &$query ) );
+
+					/**
+					 * Filters the ORDER BY clause of the query.
+					 *
+					 * @param string $orderby The ORDER BY clause of the query.
+					 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+					 */
+					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', array( $query->query_orderby, &$query ) );
+
+				}
+
+				return $query;
+
 			}
-	
-			return $query;
-		
-		} );
-		
+		);
+
 		/**
 		 * Filter the WP_User_Query to support cursor based pagination where a user ID can be used
 		 * as a point of comparison when slicing the results to return.
 		 */
-		add_filter( 'graphql_users_where', [ 
-			$this, 
-			'graphql_wp_user_query_cursor_pagination_support' 
-		], 10, 2 );
+		add_filter(
+			'graphql_users_where',
+			[
+				$this,
+				'graphql_wp_user_query_cursor_pagination_support',
+			],
+			10,
+			2
+		);
 
 		/**
 		 * Filter WP_User_Query order by add some stability to meta query ordering
 		 */
-		add_filter( 'graphql_users_orderby', [
-			$this,
-			'graphql_wp_user_query_cursor_pagination_stability'
-		], 10, 2 );
+		add_filter(
+			'graphql_users_orderby',
+			[
+				$this,
+				'graphql_wp_user_query_cursor_pagination_stability',
+			],
+			10,
+			2
+		);
 
 	}
 
@@ -174,14 +186,14 @@ class Config {
 	}
 
 		/**
-	 * When users are ordered by a meta query the order might be random when
-	 * the meta values have same values multiple times. This filter adds a
-	 * secondary ordering by the post ID which forces stable order in such cases.
-	 *
-	 * @param string $orderby The ORDER BY clause of the query.
-	 *
-	 * @return string
-	 */
+		 * When users are ordered by a meta query the order might be random when
+		 * the meta values have same values multiple times. This filter adds a
+		 * secondary ordering by the post ID which forces stable order in such cases.
+		 *
+		 * @param string $orderby The ORDER BY clause of the query.
+		 *
+		 * @return string
+		 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
 		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
 			global $wpdb;
@@ -197,7 +209,7 @@ class Config {
 	 * This filters the WP_User_Query 'where' $args, enforcing the query to return results before or
 	 * after the referenced cursor
 	 *
-	 * @param string    $where The WHERE clause of the query.
+	 * @param string         $where The WHERE clause of the query.
 	 * @param \WP_User_Query $query The WP_User_Query instance (passed by reference).
 	 *
 	 * @return string
