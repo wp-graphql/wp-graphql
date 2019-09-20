@@ -78,21 +78,105 @@ class User extends Model {
 	 */
 	protected function is_private() {
 
+		/**
+		 * Filter whether the user is private.
+		 *
+		 * If true, the user will be considered private without further checks.
+		 *
+		 * @param mixed|null|boolean $is_private If set, return without executing the manual query
+		 *                                       to see if the user has published posts.
+		 * @param User               $this       Instance of the User Model
+		 */
+		$is_private = apply_filters( 'graphql_user_model_is_private', null, $this );
+
+		/**
+		 * If the filter returns true, we can return now as the user is considered private.
+		 *
+		 * Otherwise we need to continue and check if the User should be considered private or not
+		 */
+		if ( null !== $is_private ) {
+			return (bool) $is_private;
+		}
+
+		/**
+		 * If the requesting user does not have "list_users" capabilities and the current user is not
+		 * the user being requested, we need to check if the user being requested has published posts
+		 * which makes them a non-private entity.
+		 */
 		if ( ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
 
 			/**
-			 * @todo: We should handle this check in a Deferred resolver. Right now it queries once per user
-			 *      but we _could_ query once for _all_ users.
-			 *
-			 *      For now, we only query if the current user doesn't have list_users, instead of querying
-			 *      for ALL users. Slightly more efficient for authenticated users at least.
+			 * Get allowed Post Types
 			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::get_allowed_post_types(), true ) ) {
-				return true;
+			$post_types = \WPGraphQL::get_allowed_post_types();
+			unset( $post_types['revision'] );
+			unset( $post_types['attachment'] );
+
+			/**
+			 * If the user has no published posts of any allowed post type,
+			 * they are considered to be private entities.
+			 */
+			if ( 0 === $this->count_user_posts( absint( $this->data->ID ), $post_types, true ) ) {
+				$is_private = true;
 			}
 		}
 
-		return false;
+		return $is_private;
+
+	}
+
+	/**
+	 * Cached version (and variation) of count_user_posts, which is uncached but doesn't always
+	 * need to hit the db
+	 *
+	 * count_user_posts is generally fast on smaller sites, but slows on large data sets.
+	 *
+	 * It can also be easy to end up with many redundant queries if it's called several times per
+	 * request. This allows bypassing the db queries in favor of the cache
+	 *
+	 * @param int @userid ID of the User
+	 * @param mixed|string|array         $post_type   The post type(s) to check for published posts in
+	 * @param boolean                    $public_only Whether to count only publicly published posts
+	 *
+	 * @return int|mixed|boolean
+	 */
+	protected function count_user_posts( $userid, $post_type = 'post', $public_only = false ) {
+
+		if ( ! is_numeric( $userid ) ) {
+			return 0;
+		}
+
+		$cache_key   = 'graphql_user_' . (int) $userid;
+		$cache_group = 'user_posts_count';
+
+		/**
+		 * If there's no cache, query to see if the author has 1 published post.
+		 *
+		 * This method of querying is more efficient on large datasets
+		 * then the core count_user_posts() method as this stops at the first match,
+		 * where the count_user_psts() method needs to find all matches and
+		 * it can take a while to calculate.
+		 *
+		 * We only care if there's at least 1 published post, not the total.
+		 */
+		if ( false === ( $count = wp_cache_get( $cache_key, $cache_group ) ) ) {
+			global $wpdb;
+
+			$where   = get_posts_by_author_sql( $post_type, true, $userid, $public_only );
+			$results = $wpdb->get_results( "SELECT id FROM $wpdb->posts $where LIMIT 1" );
+
+			$count = $results ? count( $results ) : 0;
+		}
+
+		/**
+		 * Filters the number of posts a user has written.
+		 *
+		 * @param int          $count       The user's post count.
+		 * @param int          $userid      User ID.
+		 * @param string|array $post_type   Single post type or array of post types to count the number of posts for.
+		 * @param bool         $public_only Whether to limit counted posts to public posts.
+		 */
+		return (int) apply_filters( 'graphql_count_user_posts', $count, $userid, $post_type, $public_only );
 
 	}
 
@@ -174,6 +258,7 @@ class User extends Model {
 				},
 				'locale'            => function() {
 					$user_locale = get_user_locale( $this->data );
+
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
 				'userId'            => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
