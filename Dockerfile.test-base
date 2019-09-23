@@ -6,7 +6,7 @@
 # entrypoints are different.
 
 # Updating Software used in this Dockerfile:
-# PHP Composer: https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md
+# PHP Composer: https://github.com/composer/getcomposer.org/commits/master
 # XDebug: https://pecl.php.net/package/xdebug
 
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
@@ -26,7 +26,7 @@ RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
         docker-php-ext-enable xdebug; \
      fi \
   && docker-php-ext-install pdo_mysql \
-  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/ba13e3fc70f1c66250d1ea7ea4911d593aa1dba5/web/installer' | php -- --quiet \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/fc4099e0ac116a1c8f61fffaf6693594dda79d16/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
   && mv composer.phar /usr/local/bin/composer \
   && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \

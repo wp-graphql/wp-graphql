@@ -25,9 +25,9 @@ env:
 
     # Disabling PHP 5.6 tests until "composer.lock" is updated to work with PHP 7.X AND 5.6.
     # - WP_VERSION=5.0.2 PHP_VERSION=5.6
-    - WP_VERSION=5.2.2 PHP_VERSION=7.1
-    - WP_VERSION=5.2.2 PHP_VERSION=7.2
-    - WP_VERSION=5.2.2 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
+    - WP_VERSION=5.2.3 PHP_VERSION=7.1
+    - WP_VERSION=5.2.3 PHP_VERSION=7.2
+    - WP_VERSION=5.2.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
     - PHPCS=true
 
 matrix:
