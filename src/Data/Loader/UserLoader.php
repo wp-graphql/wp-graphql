@@ -71,16 +71,16 @@ class UserLoader extends AbstractDataLoader {
 		
 		$this->load_published_author_ids( $keys );
 		
-		foreach ( $keys as $key ) {
-			$user = get_user_by( 'id', $key );
+		foreach ( $keys as $id ) {
+			$user = get_user_by( 'id', $id );
 
-			$has_published_posts = in_array(
-				absint( $key ),
+			$user_has_published_posts = in_array(
+				absint( $id ),
 				$this->published_authors,
 				true 
 			);
 
-			$user->has_published_posts = $has_published_posts;
+			$user->has_published_posts = $user_has_published_posts;
 
 			$all_users[ $user->ID ] = new User( $user );
 		}
@@ -126,7 +126,8 @@ class UserLoader extends AbstractDataLoader {
 			'ARRAY_A'
 		);
 
-		$results = array_map( 
+		// flatten our ID's into a single level array
+		$results_flat = array_map( 
 			function( $item ) {
 				return absint( $item['ID'] ) ?? null;
 			}, 
@@ -136,7 +137,7 @@ class UserLoader extends AbstractDataLoader {
 		$this->published_authors = array_unique(
 			array_merge(
 				$this->published_authors,
-				$results
+				$results_flat
 			)
 		);
 	}
