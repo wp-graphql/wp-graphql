@@ -9,6 +9,13 @@ use WPGraphQL\Model\User;
  * @package WPGraphQL\Data\Loader
  */
 class UserLoader extends AbstractDataLoader {
+	
+	/**
+	 * This stores an array of published author ID's
+	 * 
+	 * @access protected
+	 */
+	protected $published_authors = [];
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -61,16 +68,77 @@ class UserLoader extends AbstractDataLoader {
 		if ( empty( $users ) || ! is_array( $users ) ) {
 			return [];
 		}
-
-		/**
-		 *
-		 */
+		
+		$this->load_published_author_ids( $keys );
+		
 		foreach ( $keys as $key ) {
-			$user                   = get_user_by( 'id', $key );
+			$user = get_user_by( 'id', $key );
+
+			$has_published_posts = in_array(
+				absint( $key ),
+				$this->published_authors,
+				true 
+			);
+
+			$user->has_published_posts = $has_published_posts;
+
 			$all_users[ $user->ID ] = new User( $user );
 		}
+
 		return $all_users;
 
+	}
+
+	/**
+	 * This method accepts an array of user ID's, and stores an array of 
+	 * user ID's for the subset that are published authors.
+	 * 
+	 * @param array $keys An array of post ID's
+	 */
+	protected function load_published_author_ids( $ids ) {
+		$post_types = get_post_types( [ 'show_in_graphql' => true ] );
+
+        unset( $post_types[ 'attachment' ] );
+        unset( $post_types[ 'revision' ] );
+		
+		$stringified_ids        = implode( ',', $ids );
+		$stringified_post_types = '"' . implode( '", "', $post_types ) . '"';
+
+		$where = get_posts_by_author_sql( $post_types, true, null, false );
+		
+		global $wpdb;
+        $results = $wpdb->get_results( 
+			"SELECT
+				ID
+			FROM
+				wp_users
+			WHERE
+				ID IN (
+					SELECT
+						DISTINCT post_author
+					FROM
+						wp_posts
+					WHERE
+						post_author IN ($stringified_ids)
+						AND post_type IN ($stringified_post_types)
+						AND post_status = 'publish'
+				)",
+			'ARRAY_A'
+		);
+
+		$results = array_map( 
+			function( $item ) {
+				return absint( $item['ID'] ) ?? null;
+			}, 
+			$results
+		);
+
+		$this->published_authors = array_unique(
+			array_merge(
+				$this->published_authors,
+				$results
+			)
+		);
 	}
 
 }
