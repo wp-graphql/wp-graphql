@@ -110,8 +110,6 @@ class Post extends Model {
 			'status',
 			'post_status',
 			'isRestricted',
-			'isPrivate',
-			'isPublic',
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';

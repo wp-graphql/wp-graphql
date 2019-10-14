@@ -59,8 +59,6 @@ class Comment extends Model {
 			'approved',
 			'comment_parent_id',
 			'isRestricted',
-			'isPrivate',
-			'isPublic',
 		];
 
 		$this->data = $comment;
@@ -76,7 +74,7 @@ class Comment extends Model {
 	 */
 	protected function is_private() {
 
-		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
+		if ( true !== $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
 
