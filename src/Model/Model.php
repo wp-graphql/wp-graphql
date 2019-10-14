@@ -209,17 +209,23 @@ abstract class Model {
 			$protected_cap = apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			/**
-			 * Filter to determine if the data should be considered private or not
+			 * Filter to short circuit default is_private check for the model. This is expensive in some cases so 
+			 * this filter lets you prevent this from running by returning a true or false value.
 			 *
+			 * @param null        $is_private     The initial state of the filter return.
 			 * @param string      $model_name     Name of the model the filter is currently being executed in
 			 * @param mixed       $data           The un-modeled incoming data
 			 * @param string|null $visibility     The visibility that has currently been set for the data at this point
 			 * @param null|int    $owner          The user ID for the owner of this piece of data
 			 * @param \WP_User    $current_user   The current user for the session
 			 *
-			 * @return bool
+			 * @return bool|null
 			 */
-			$is_private = apply_filters( 'graphql_data_is_private', $this->is_private(), $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+			$is_private = apply_filters( 'graphql_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+
+			if ( null !== $is_private ) {
+				$is_private = $this->is_private();
+			}
 
 			if ( true === $is_private ) {
 				$this->visibility = 'private';
