@@ -9,10 +9,10 @@ use WPGraphQL\Model\User;
  * @package WPGraphQL\Data\Loader
  */
 class UserLoader extends AbstractDataLoader {
-	
+
 	/**
 	 * This stores an array of published author ID's
-	 * 
+	 *
 	 * @access protected
 	 */
 	protected $published_authors = [];
@@ -68,16 +68,16 @@ class UserLoader extends AbstractDataLoader {
 		if ( empty( $users ) || ! is_array( $users ) ) {
 			return [];
 		}
-		
+
 		$this->load_published_author_ids( $keys );
-		
+
 		foreach ( $keys as $id ) {
 			$user = get_user_by( 'id', $id );
 
 			$user_has_published_posts = in_array(
 				absint( $id ),
 				$this->published_authors,
-				true 
+				true
 			);
 
 			$user->has_published_posts = $user_has_published_posts;
@@ -90,24 +90,24 @@ class UserLoader extends AbstractDataLoader {
 	}
 
 	/**
-	 * This method accepts an array of user ID's, and stores an array of 
+	 * This method accepts an array of user ID's, and stores an array of
 	 * user ID's for the subset that are published authors.
-	 * 
+	 *
 	 * @param array $keys An array of post ID's
 	 */
 	protected function load_published_author_ids( $ids ) {
 		$post_types = get_post_types( [ 'show_in_graphql' => true ] );
 
-        unset( $post_types[ 'attachment' ] );
-        unset( $post_types[ 'revision' ] );
-		
+		unset( $post_types['attachment'] );
+		unset( $post_types['revision'] );
+
 		$stringified_ids        = implode( ',', $ids );
 		$stringified_post_types = '"' . implode( '", "', $post_types ) . '"';
 
 		$where = get_posts_by_author_sql( $post_types, true, null, false );
-		
+
 		global $wpdb;
-        $results = $wpdb->get_results( 
+		$results = $wpdb->get_results(
 			"SELECT
 				ID
 			FROM
@@ -127,10 +127,10 @@ class UserLoader extends AbstractDataLoader {
 		);
 
 		// flatten our ID's into a single level array
-		$results_flat = array_map( 
+		$results_flat = array_map(
 			function( $item ) {
 				return absint( $item['ID'] ) ?? null;
-			}, 
+			},
 			$results
 		);
 
