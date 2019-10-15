@@ -104,20 +104,18 @@ class UserLoader extends AbstractDataLoader {
 		$stringified_ids        = implode( ',', $ids );
 		$stringified_post_types = '"' . implode( '", "', $post_types ) . '"';
 
-		$where = get_posts_by_author_sql( $post_types, true, null, false );
-
 		global $wpdb;
 		$results = $wpdb->get_results(
 			"SELECT
 				ID
 			FROM
-				wp_users
+				{$wpdb->prefix}users
 			WHERE
 				ID IN (
 					SELECT
 						DISTINCT post_author
 					FROM
-						wp_posts
+						{$wpdb->prefix}posts
 					WHERE
 						post_author IN ($stringified_ids)
 						AND post_type IN ($stringified_post_types)
@@ -127,7 +125,7 @@ class UserLoader extends AbstractDataLoader {
 		);
 
 		// flatten our ID's into a single level array
-		$results_flat = array_map(
+		$author_ids = array_map(
 			function( $item ) {
 				return absint( $item['ID'] ) ?? null;
 			},
@@ -137,7 +135,7 @@ class UserLoader extends AbstractDataLoader {
 		$this->published_authors = array_unique(
 			array_merge(
 				$this->published_authors,
-				$results_flat
+				$author_ids
 			)
 		);
 	}
