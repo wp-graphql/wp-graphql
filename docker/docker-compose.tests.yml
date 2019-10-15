@@ -6,7 +6,7 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.test-base'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
     image: 'wordpress-wp-graphql-test-base'
     container_name: 'wpgraphql-tester'
@@ -28,7 +28,7 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.test-base'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
     image: 'wordpress-wp-graphql-test-base'
     environment:
@@ -43,7 +43,7 @@ services:
     entrypoint: [ "docker-entrypoint.sut.sh" ]
 
   mysql_test:
-    image: 'mariadb:10.2.26-bionic'
+    image: 'mariadb:10.2.27-bionic'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'
