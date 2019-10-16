@@ -29,7 +29,7 @@
     "lint-staged": "^9.4.2"
   },
   "lint-staged": {
-    "*.php": "php ./vendor/bin/phpcs"
+    "*.php": "composer run check-cs"
   },
   "husky": {
     "hooks": {
