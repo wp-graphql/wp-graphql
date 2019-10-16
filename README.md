@@ -313,6 +313,9 @@ And you can output the coverage locally to HTML like so:
 
 `vendor/bin/codecept run wpunit AvatarObjectQueriesTest --coverage --coverage-html`
 
+## Linting
+As a helpful development tool, you can enable automatic linting when commiting by running `npm install`. Your changed files will be linted via phpcs and your commit will fail with a list of errors.
+
 ## Shout Outs
 This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
 
