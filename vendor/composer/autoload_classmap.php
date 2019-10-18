@@ -283,6 +283,7 @@ return array(
     'WPGraphQL\\Type\\Input\\MenuItemsConnectionWhereArgs' => $baseDir . '/src/Type/Input/MenuItemsConnectionWhereArgs.php',
     'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => $baseDir . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php',
     'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => $baseDir . '/src/Type/Input/UsersConnectionOrderbyInput.php',
+    'WPGraphQL\\Type\\InterfaceType\\Node' => $baseDir . '/src/Type/InterfaceType/Node.php',
     'WPGraphQL\\Type\\Object\\Avatar' => $baseDir . '/src/Type/Object/Avatar.php',
     'WPGraphQL\\Type\\Object\\Comment' => $baseDir . '/src/Type/Object/Comment.php',
     'WPGraphQL\\Type\\Object\\CommentAuthor' => $baseDir . '/src/Type/Object/CommentAuthor.php',

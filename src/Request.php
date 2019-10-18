@@ -216,7 +216,6 @@ class Request {
 			if ( ! $result ) {
 				throw new \Exception( __( 'Cookie nonce is invalid', 'wp-graphql' ) );
 			}
-
 		}
 
 		/**

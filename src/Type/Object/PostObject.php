@@ -164,6 +164,10 @@ class PostObject {
 							return $source->descriptionRendered;
 						},
 					],
+					'mediaItemUrl' => [
+						'type'        => 'String',
+						'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+					],
 					'mediaType'    => [
 						'type'        => 'String',
 						'description' => __( 'Type of resource', 'wp-graphql' ),
