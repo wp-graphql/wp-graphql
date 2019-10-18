@@ -25,4 +25,4 @@ coverage/*
 schema.graphql
 phpunit.xml
 docker-output
-
+node_modules
