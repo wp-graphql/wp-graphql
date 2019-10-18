@@ -408,6 +408,9 @@ class Post extends Model {
 					'mediaType'           => function() {
 						return wp_attachment_is_image( $this->data->ID ) ? 'image' : 'file';
 					},
+					'mediaItemUrl'        => function() {
+						return wp_get_attachment_url( $this->data->ID );
+					},
 					'sourceUrl'           => function( $size = 'full' ) {
 						if ( ! empty( $size ) ) {
 							$image_src = wp_get_attachment_image_src( $this->data->ID, $size );

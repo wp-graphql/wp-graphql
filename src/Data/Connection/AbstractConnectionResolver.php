@@ -154,10 +154,59 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Returns the source of the connection
+	 *
+	 * @access public
+	 * @return mixed
+	 */
+	public function getSource() {
+		return $this->source;
+	}
+
+	/**
+	 * Returns the $args passed to the connection
+	 *
+	 * @return array
+	 */
+	public function getArgs(): array {
+		return $this->args;
+	}
+
+	/**
+	 * Returns the AppContext of the connection
+	 *
+	 * @access public
+	 * @return AppContext
+	 */
+	public function getContext(): AppContext {
+		return $this->context;
+	}
+
+	/**
+	 * Returns the ResolveInfo of the connection
+	 *
+	 * @access public
+	 * @return ResolveInfo
+	 */
+	public function getInfo(): ResolveInfo {
+		return $this->info;
+	}
+
+	/**
+	 * Returns whether the connection should execute
+	 *
+	 * @access public
+	 * @return bool
+	 */
+	public function getShouldExecute(): bool {
+		return $this->should_execute;
+	}
+
+	/**
 	 * Given a key and value, this sets a query_arg which will modify the query_args used by
 	 * the connection resolvers get_query();
 	 *
-	 * @param string $key The key of the query arg to set
+	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
 	 */
 	public function setQueryArg( $key, $value ) {

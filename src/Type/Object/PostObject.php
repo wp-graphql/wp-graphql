@@ -164,13 +164,17 @@ function register_post_object_types( $post_type_object ) {
 					'type'        => 'String',
 					'description' => __( 'Type of resource', 'wp-graphql' ),
 				],
-				'sourceUrl'    => [
+				'mediaItemUrl' => [
 					'type'        => 'String',
 					'description' => __( 'Url of the mediaItem', 'wp-graphql' ),
+				],
+				'sourceUrl'    => [
+					'type'        => 'String',
+					'description' => __( 'Url of the mediaItem if it\'s an image', 'wp-graphql' ),
 					'args'        => [
 						'size' => [
 							'type'        => 'MediaItemSizeEnum',
-							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+							'description' => __( 'Size of the mediaItem to return', 'wp-graphql' ),
 						],
 					],
 					'resolve'     => function ( $image, $args, $context, $info ) {
