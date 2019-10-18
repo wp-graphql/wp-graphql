@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
+class ComposerStaticInitf97b0cd77b826aef263a89f5f772f4f7
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -230,8 +230,8 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
         'WPGraphQL\\Data\\Connection\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\UserRoleConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserRoleConnectionResolver.php',
         'WPGraphQL\\Data\\Cursor\\CursorBuilder' => __DIR__ . '/../..' . '/src/Data/Cursor/CursorBuilder.php',
-	'WPGraphQL\\Data\\Cursor\\PostObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/PostObjectCursor.php',
-	'WPGraphQL\\Data\\Cursor\\UserCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/UserCursor.php',
+        'WPGraphQL\\Data\\Cursor\\PostObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/PostObjectCursor.php',
+        'WPGraphQL\\Data\\Cursor\\UserCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/UserCursor.php',
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
         'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => __DIR__ . '/../..' . '/src/Data/Loader/AbstractDataLoader.php',
         'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
@@ -294,9 +294,9 @@ class ComposerStaticInit68000bc9c31718dac0f4c1508acc992d
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit68000bc9c31718dac0f4c1508acc992d::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit68000bc9c31718dac0f4c1508acc992d::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit68000bc9c31718dac0f4c1508acc992d::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf97b0cd77b826aef263a89f5f772f4f7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf97b0cd77b826aef263a89f5f772f4f7::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitf97b0cd77b826aef263a89f5f772f4f7::$classMap;
 
         }, null, ClassLoader::class);
     }

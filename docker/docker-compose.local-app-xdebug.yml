@@ -7,7 +7,7 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.xdebug'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.2}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.3}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
     image: 'wordpress-utc-xdebug-cache'
     environment:
