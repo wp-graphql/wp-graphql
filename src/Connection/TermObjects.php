@@ -128,14 +128,16 @@ class TermObjects {
 					],
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 				],
-				'orderby'                         => [
-					'type'        => 'TermObjectsConnectionOrderbyEnum',
-					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
-				],
-				'hideEmpty'                       => [
-					'type'        => 'Boolean',
-					'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default false', 'wp-graphql' ),
-				],
+    			'orderby'						  => [
+    				'type'        => [
+    					'list_of' => 'TermObjectsConnectionOrderbyInput',
+    				],
+    				'description' => __( 'Field(s) to order terms by. Defaults to \'name\'. Provided as an array input to future proof WP_Tax_Query supporting multiple orderby clauses.', 'wp-graphql' ),
+    			],
+    			'hideEmpty'                       => [
+    				'type'        => 'Boolean',
+    				'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default false', 'wp-graphql' ),
+    			],
 				'include'                         => [
 					'type'        => [
 						'list_of' => 'ID',

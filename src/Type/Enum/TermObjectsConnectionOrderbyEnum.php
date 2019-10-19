@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type;
 
 register_graphql_enum_type(
@@ -28,5 +29,5 @@ register_graphql_enum_type(
 				'value' => 'count',
 			],
 		],
-	]
+	],
 );

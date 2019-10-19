@@ -115,6 +115,7 @@ class TypeRegistry {
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/RelationEnum.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Settings.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TermObjectsConnectionOrderbyEnum.php';
+		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Input/TermObjectsConnectionOrderbyInput.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Enum/TimezoneEnum.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Theme.php';
 		require_once WPGRAPHQL_PLUGIN_DIR . 'src/Type/Object/Taxonomy.php';

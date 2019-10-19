@@ -72,11 +72,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->get_query_amount() ) + 1;
 
 		/**
-		 * Orderby Name by default
-		 */
-		$query_args['orderby'] = 'name';
-
-		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
 		 *
@@ -96,6 +91,27 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( ! empty( $input_fields ) ) {
 			$query_args = array_merge( $query_args, $input_fields );
 		}
+
+		/**
+		 * Orderby Name by default
+		 */
+		$query_args['orderby'] = 'name';
+
+		/**
+		 * Map the orderby inputArgs to the WP_Query
+		 */
+		// if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+		// 	// Future proofing for when WP Tax Query accepts an array of orderby
+		// 	// currently simply selecting first array element as sort criteria
+		// 	print_r($this->args['where']['orderby']);
+		// 	if ( count( $this->args['where']['orderby'] ) >= 1 ) {
+		// 		$order_by = $this->args['where']['orderby'][0];
+		// 		if ( ! empty( $order_by['field'] ) ) {
+		// 			$query_args['orderby'] = $order_by['field'];
+		// 			$query_args['order'] = $order_by['order'];
+		// 		}
+		// 	}
+		// }
 
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
@@ -186,7 +202,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @since 0.0.6
 		 */
 		$query_args = apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
-
+		
 		return $query_args;
 	}
 
