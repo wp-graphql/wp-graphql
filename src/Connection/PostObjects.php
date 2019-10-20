@@ -158,13 +158,13 @@ class PostObjects {
 			],
 			'authorIn'     => [
 				'type'        => [
-					'list_of' => 'ID',
+					'list_of' => 'Int',
 				],
 				'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
 			],
 			'authorNotIn'  => [
 				'type'        => [
-					'list_of' => 'ID',
+					'list_of' => 'Int',
 				],
 				'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s
 							userIds', 'wp-graphql' ),
@@ -178,7 +178,7 @@ class PostObjects {
 			 */
 			'categoryId'   => [
 				'type'        => 'Int',
-				'description' => __( 'Category ID', 'wp-graphql' ),
+				'description' => __( 'Use categoryId', 'wp-graphql' ),
 			],
 			'categoryName' => [
 				'type'        => 'String',
@@ -186,17 +186,17 @@ class PostObjects {
 			],
 			'categoryIn'   => [
 				'type'        => [
-					'list_of' => 'ID',
+					'list_of' => 'Int',
 				],
-				'description' => __( 'Array of category IDs, used to display objects from one
+				'description' => __( 'Array of categoryIds, used to display objects from one
 										category OR another', 'wp-graphql' ),
 			],
 			'categoryNotIn'   => [
 				'type'        => [
-					'list_of' => 'ID',
+					'list_of' => 'Int',
 				],
-				'description' => __( 'Array of category IDs, used to display objects from one
-										category OR another', 'wp-graphql' ),
+				'description' => __( 'Used to display objects that are excluded from array
+				 						of categoryIds', 'wp-graphql' ),
 			],
 
 			/**
@@ -210,22 +210,22 @@ class PostObjects {
 				'description' => __( 'Tag Slug', 'wp-graphql' ),
 			],
 			'tagId'        => [
-				'type'        => 'String',
-				'description' => __( 'Use Tag ID', 'wp-graphql' ),
+				'type'        => 'Int',
+				'description' => __( 'Use tagId', 'wp-graphql' ),
 			],
 			'tagIn'        => [
 				'type'        => [
-					'list_of' => 'ID',
+					'list_of' => 'Int',
 				],
-				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
+				'description' => __( 'Array of tagIds, used to display objects from one tag OR
 							another', 'wp-graphql' ),
 			],
 			'tagNotIn'      => [
 				'type'         => [
-					'list_of' => 'ID'
+					'list_of' => 'Int'
 				],
-				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
-							another', 'wp-graphql' ),
+				'description' => __( 'Used to display objects that are excluded from array of
+							tagIds, ', 'wp-graphql' ),
 			],
 			'tagSlugAnd'   => [
 				'type'        => [
