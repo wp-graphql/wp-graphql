@@ -142,7 +142,7 @@ class TypeRegistry {
 		 * When the Type Registry is initialized execute these files
 		 */
 		add_action(
-			'graphql_register_types',
+			'init_graphql_type_registry',
 			function( TypeRegistry $type_registry ) {
 
 				/**
@@ -313,7 +313,7 @@ class TypeRegistry {
 				 *
 				 * @param TypeRegistry $this Instance of the TypeRegistry
 				 */
-				do_action( 'init_graphql_type_registry', $this );
+				do_action( 'graphql_register_types', $this );
 
 			}, 1, 1 );
 
@@ -331,37 +331,8 @@ class TypeRegistry {
 		 *
 		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
-		do_action( 'graphql_register_types', $this );
+		do_action( 'init_graphql_type_registry', $this );
 
-	}
-
-
-	/**
-	 * @param $interface_name
-	 * @param $config
-	 *
-	 * @throws \Exception
-	 *
-	 * @return mixed
-	 */
-	public function register_interface( $interface_name, $config ) {
-		if ( isset( $this->interfaces[ $this->format_key( $interface_name ) ] ) ) {
-			return null;
-		}
-		$prepared_type = $this->prepare_type( $interface_name, $config );
-		if ( ! empty( $prepared_type ) ) {
-			$this->interfaces[ $this->format_key( $interface_name ) ] = $prepared_type;
-		}
-
-		return $this->interfaces[ $this->format_key( $interface_name ) ];
-	}
-
-	public function get_interface( $interface_name ) {
-		return isset( $this->interfaces[ $this->format_key( $interface_name ) ] ) ? ( $this->interfaces[ $this->format_key( $interface_name ) ] ) : null;
-	}
-
-	public function get_interfaces() {
-		return $this->interfaces;
 	}
 
 	/**
