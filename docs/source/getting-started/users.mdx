@@ -1,0 +1,337 @@
+---
+title: Users
+description: Learn about how to interact with Users using WPGraphQL
+---
+
+import Note from "../../src/components/Note"
+import GraphiQL from "../../src/components/GraphiQL"
+import { Button } from "antd"
+
+Users are core to WordPress and are a first class citizen in the WPGraphQL Schema. On this page we
+will look at various ways to interact with Users using WPGraphQL.
+
+<Note type="warning">
+	If any of the terminology or semantics of the GraphQL queries/mutations on this
+	page are confusing, check out the{" "}
+	<a href="/getting-started/intro-to-graphql">Intro to GraphQL Guide</a> to get
+	more familiar with the basics.
+</Note>
+
+## Queries
+
+WPGraphQL comes with RootQuery fields built-in to query User data. You can query for lists of users
+or individual users. Below, we'll look at some common examples for querying Users.
+
+### List of Users
+
+In this example, we query a list of User nodes. By default, WPGraphQL will return 10 items.
+
+<GraphiQL
+	query="
+    query GET_USERS {
+      users {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+    "
+/>
+
+<Note title="What's up with edges and nodes?" type="info">
+One of the first things you may ask when you see this is: <strong><em>"What in the world are
+'edges' and 'nodes'?"</em></strong>.
+
+We've written up a guide on what they are and why WPGraphQL makes use of this shape of data
+throughout.
+
+<a href="/guides/relay-spec"><Button type="primary">Read the Guide</Button></a>
+
+</Note>
+
+### Connected Data
+
+In WordPress, Users can be connected to Posts and Pages as the author. You can query a user's
+connected data in various ways.
+
+Here's one example, where we query for a list of users, and for each user we ask for a list of their
+recent posts (default will be 10 most recent)
+
+<GraphiQL
+	query="
+    query GET_USERS {
+      users {
+        edges {
+          node {
+            id
+            name
+            posts {
+              nodes {
+                id
+                title
+              }
+            }
+          }
+        }
+      }
+    }
+    "
+/>
+
+### Single User
+
+If we know the ID of a user, we can query for it like so:
+
+<GraphiQL
+	query='
+    query GET_USER {
+      user(id:"dXNlcjo2") {
+        id
+        name
+      }
+    }
+    '
+/>
+
+## Mutations
+
+WPGraphQL also supports mutations for users.
+
+### Register User
+
+For sites that have new user registrations enabled (under the WP-Admin Settings > General), a `registerUser` mutation will allow new users
+to register via a GraphQL Mutation.
+
+<GraphiQL
+	query="
+    mutation REGISTER_USER($input: RegisterUserInput!) {
+      registerUser(input: $input) {
+        user {
+          id
+          name
+        }
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "RegisterUser",
+			username: "newUsername",
+			email: "email@test.com",
+		},
+	}}
+/>
+
+### Create User
+
+The `createUser` mutation is different than the `registerUser` mutation, because it requires the
+request to be authenticated and for the user to have proper capabilities to create users, much
+like if a user were to create another user from the WP-Admin dashboard.
+
+<GraphiQL
+	query="
+    mutation CREATE_USER($input: CreateUserInput!) {
+      createUser(input: $input) {
+        user {
+          id
+          name
+        }
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "CreateUser",
+			username: "anotherNewUser",
+			email: "another_email@test.com",
+		},
+	}}
+/>
+
+### Update User
+
+Below is an example of updating a user. The request must be authenticated and the user making
+the request must have proper capabilities to edit the user being updated.
+
+<GraphiQL
+	query="
+    mutation UPDATE_USER($input: UpdateUserInput!) {
+      updateUser(input: $input) {
+        user {
+          id
+          name
+        }
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "UpdateUser",
+			id: "dXNlcjoxMg==",
+			firstName: "Updated First Name",
+		},
+	}}
+/>
+
+### Delete User
+
+Below is an example of deleting a user. The request must be authenticated and the user making the
+request must have proper capabilities to delete the user.
+
+<GraphiQL
+	query="
+    mutation DELETE_USER($input: DeleteUserInput!) {
+      deleteUser(input: $input) {
+        deletedId
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "DeleteUser",
+			id: "dXNlcjoxMg==",
+		},
+	}}
+/>
+
+### Send Password Reset Email
+
+When a user needs to reset their password, they'll need to have a Reset Password email sent.
+
+This mutation allows for a user to request that email:
+
+<GraphiQL
+	query="
+    mutation SEND_PASSWORD_RESET_EMAIL($input: SendPasswordResetEmailInput!) {
+      sendPasswordResetEmail(input: $input) {
+        user {
+          id
+          email
+        }
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "SendResetPasswordEmail",
+			username: "billybob",
+		},
+	}}
+/>
+
+### Reset User Password
+
+The email that is sent to a user to reset their password contains a unique key that grants them
+access to reset the password.
+
+If that key is entered along with the matching username and a new password, the password can be reset.
+
+<GraphiQL
+	query="
+    mutation RESET_USER_PASSWORD($input: ResetUserPasswordInput!) {
+      resetUserPassword(input: $input) {
+        user {
+          id
+        }
+      }
+    }
+    "
+	variables={{
+		input: {
+			clientMutationId: "ResetUserPassword",
+			key: "theKeyFromTheEmail",
+			login: "billybob",
+			password: "vw8TfH9Q94z0",
+		},
+	}}
+/>
+
+## Sensitive Data
+
+<Note title="Model Layer Coming Soon">
+There is an official "Model Layer" in the works that centralizes access to objects and provides smart
+defualts for what data should be returned to the user making the request.
+
+Keep an eye out for more news on this front, but it will restrict sensitive data by default, while
+still enabling fine-grain control for site owners.
+
+</Note>
+
+Until the official Model Layer is released, some user data that is currently exposed out of the box
+probably should _not_ be exposed to the general public. At the time of writing this, WPGraphQL
+allows you (the site owner/admin) the ability to restrict data down to the field level. (The
+fine-grain restrictions will only be enhanced by the "Model Layer" when released.)
+
+If you don't want certain fields exposed, such as the `email` field on the `User` Type or
+the `authorIp` field on the `Comment` type, you can filter the resolvers to require authentication
+so only authenticated users (like admins, etc) can see the values:
+
+```php
+add_action( 'graphql_register_types', function() {
+
+	/**
+	 * Define the Types and their Fields that we want to filter
+	 */
+	$fields_to_require_auth = [
+		'User' => [
+			'email'
+		],
+		'Comment' => [
+			'authorIp',
+		],
+	];
+
+	/**
+	 * Loop through the fields
+	 */
+	foreach ( $fields_to_require_auth as $type_name => $fields_to_filter ) {
+
+		if ( ! empty( $fields_to_filter ) && is_array( $fields_to_filter ) ) {
+
+			/**
+			 * Apply a filter to said Type's fields
+			 */
+			add_filter( 'graphql_' . $type_name . '_fields', function( $fields ) use ( $type_name, $fields_to_filter ) {
+
+				/**
+				 * Loop through each of the fields we want to filter for this Type
+				 */
+				foreach ( $fields_to_filter as $field_name ) {
+
+					/**
+					 * The registry normalizes all keys to lowercase, so we make our $field_name lowercase here too
+					 */
+					$field_key = strtolower( $field_name );
+
+					/**
+					 * Make sure the field exists in the registry (it could have been removed by another plugin)
+					 */
+					if ( isset( $fields[ $field_key ] ) ) {
+
+						/**
+						 * If the request is not authenticated (no current user is set), override the resolver for the field to throw
+						 * a UserError
+						 *
+						 * Change this to whatever condition you want
+						 */
+						if ( ! get_current_user_id() ) {
+							$fields[ $field_key ]['resolve'] = function ( $root, $args, $context, $info ) use ( $type_name, $field_name ) {
+								throw new \GraphQL\Error\UserError( __( sprintf( 'You do not have access to view the "%1$s" Field on the %2$s Type', $field_name, $type_name ), 'wp-graphql' ) );
+							};
+						}
+					}
+				}
+
+				/**
+				 * Return the fields to the filter.
+				 */
+				return $fields;
+			} );
+		}
+	}
+
+} );
+```

@@ -1,0 +1,532 @@
+---
+title: Pages
+description: Learn about how to interact with Pages using WPGraphQL
+---
+
+import Note from '../../src/components/Note'
+import GraphiQL from '../../src/components/GraphiQL'
+import { Button } from 'antd'
+
+Pages are a core WordPress Post Type and are core to the WPGraphQL Schema. On this page, we'll take
+a look at various ways to interact with Pages using WPGraphQL.
+
+<Note type="warning">
+  If any of the terminology or semantics of the GraphQL queries/mutations on
+  this page are confusing, check out the{' '}
+  <a href="/getting-started/intro-to-graphql">Intro to GraphQL Guide</a> to get
+  more familiar with the basics.
+</Note>
+
+## Queries
+
+WPGraphQL comes with RootQuery fields built-in to query Page data. You can query for lists of pages,
+or an individual page. Below, we'll look at some common examples for querying for Pages.
+
+### List of Pages
+
+In this example, we query a list of Page nodes. By default, WPGraphQL will return 10 items.
+
+<GraphiQL
+  query="
+    query GET_PAGES {
+      pages {
+        edges {
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+/>
+
+<Note title="What's up with edges and nodes?" type="info">
+One of the first things you may ask when you see this is: <strong><em>"What in the world are
+'edges' and 'nodes'?"</em></strong>.
+
+We've written up a guide on what they are and why WPGraphQL makes use of this shape of data
+throughout.
+
+<a href="/guides/relay-spec"><Button type="primary">Read the Guide</Button></a>
+
+</Note>
+
+### Hierarchical Post Types
+
+Pages are a Hierarchical Post Type in WordPress, which means they can have parents and children.
+
+By default, querying for pages returns just the top level pages, and you can get the children by using
+the `childPages` field, like so:
+
+<GraphiQL
+  query="
+    query GET_PAGES {
+      pages {
+        edges {
+          node {
+            id
+            title
+            date
+            childPages {
+              nodes {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+    "
+/>
+
+There are other fields for hierarchical post types, such as `parent` and `ancestors`.
+
+### Arguments
+
+In many cases, exactly 10 pages won't be what you need for your application. So we can use arguments
+on the `pages` field to declare how many items we want.
+
+Here we're using the `first` argument to declare that we want the first 5 pages.
+
+<Note title="Using Variables with Arguments" type="info">
+  We pass the number as a variable so that our query can be dynamic without
+  changing the actual query string.{' '}
+  <a href="/docs/getting-started/intro-to-graphql/">
+    Learn more about using variables
+  </a>
+  .
+</Note>
+
+<GraphiQL
+  query="
+    query GET_PAGES ($first: Int) {
+      pages( first: $first ) {
+        edges {
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    first: 5,
+  }}
+/>
+
+You can adjust the number of items as well. Here we'll ask for just 1 Page:
+
+<GraphiQL
+  query="
+    query GET_PAGE ($first: Int) {
+      pages( first: $first ) {
+        edges {
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    first: 1,
+  }}
+/>
+
+### whereArgs
+
+Page connections can be further filtered by using `whereArgs`.
+
+The args available are largely similar to what's available (and end up mapping to) to the underlying
+[WP_Query](https://codex.wordpress.org/Class_Reference/WP_Query). We'll look at a few quick examples,
+but it's probably best for you to spend some time exploring the Schema Docs to see what options are
+available.
+
+Also, keep in mind that the _entire_ WPGraphQL Schema is filterable should you need to extend the
+Schema and provide custom arguments for your applications needs.
+
+- **Here's an example of using the `where` argument to get a page with a specific title**
+
+<GraphiQL
+  query="
+    query GET_POSTS($first: Int $where:RootQueryToPageConnectionWhereArgs!) {
+      pages(first: $first, where: $where) {
+        edges {
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  withDocs={true}
+  variables={{
+    first: 1,
+    where: {
+      title: 'Community',
+    },
+  }}
+/>
+
+### Pagination
+
+When querying a list of nodes (Posts), it's common to need to paginate to fetch more items. The
+Schema exposes some helpful fields we can ask for to know if there are more items to fetch.
+
+Fields that are helpful for knowing if there are more items to paginate:
+
+- **pageInfo.hasNextPage:** Whether there are more items going forward
+- **pageInfo.hasPreviousPage:** Whether there are more items going backward
+- **pageInfo.endCursor:** The cursor for the last item in the list
+- **pageInfo.startCursor:** The cursor for the first item in the list
+
+The arguments used for pagination are:
+
+- **first:** The number of items to fetch. To be used along with `after` for forward pagination.
+- **after:** The cursor to reference where to fetch from. To be used along with `first` for forward
+  pagination.
+- **last:** The number of items to fetch. To be used along with `before` for backward pagination.
+- **before:** The cursor to reference where to fetch from. To be used along with `last` for backward
+  pagination.
+
+#### pageInfo
+
+Here is an example of asking for `pageInfo` fields to see if there are more items in the list of
+data.
+
+You can see that we ask for the field `pageInfo`, and on that we ask for `hasNextPage` and
+`endCursor`.
+
+The `hasNextPage` field will be either `true` or `false`, and the `endCursor` will be an opaque
+string that acts as a reference to the last node returned in the query.
+
+The cursor can then be used as an argument in a follow-up query, to ask for pages `after` that point
+in the dataset.
+
+<GraphiQL
+  query="
+    query GET_PAGES {
+      pages {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+/>
+
+#### first
+
+We can use the `first` argument to declare how many items we want from the "front" of the dataset.
+In this case, we're telling WPGraphQL we want the first 5 most recent pages.
+
+<GraphiQL
+  query="
+    query GET_PAGES($first: Int $after: String) {
+      pages(first: $first after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    first: 5,
+    after: null,
+  }}
+/>
+
+In the response, we see that `hasNextPage` responds with `true`, meaning there are more pages, and
+we can use the `endCursor` to ask for the pages `after` the last item in this list.
+
+#### after
+
+The `after` argument is to be used in conjunction with the `first` argument for pagination purposes.
+
+When querying for a list of pages, it's common to need to paginate. When we ask for the first `10`
+pages, there's a good chance we'll want to follow-up and ask for the _first_ `10` pages _after_ the
+final post in that list.
+
+<GraphiQL
+  query="
+    query GET_PAGES($first: Int $after: String) {
+      pages(first: $first after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    first: 5,
+    after: 'YXJyYXljb25uZWN0aW9uOjI=',
+  }}
+/>
+
+#### last
+
+We can use the `last` argument to declare how many items we want from the "back" of the dataset. In
+this case, we're telling WPGraphQL we want the last 5 (oldest) pages.
+
+At the bottom of the list will be the oldest item in the dataset. The top item in the list will be
+the newest of the 5 displayed (because we're going backward here).
+
+<GraphiQL
+  query="
+    query GET_PAGES($last: Int $before: String){
+      pages(last: $last before: $before) {
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    last: 5,
+    before: null,
+  }}
+/>
+
+So, we can see that `hasPreviousPage` is set to true, which means we have more items `before` this.
+
+We can take the `startCursor` and use that as the value of our next query as our `before` value.
+
+#### before
+
+Here, we take the `startCursor` from our previous query, and use it as the value for our `before`
+input.
+
+So, what we're saying is that we want `5` more items before the `startCursor` in our previous query.
+
+As long as `hasPreviousPage` returns true, that means we have more data that we can paginate through.
+
+<GraphiQL
+  query="
+    query GET_PAGES($last: Int $before: String) {
+      pages(last: $last before: $before) {
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            date
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    last: 5,
+    before: 'YXJyYXljb25uZWN0aW9uOjQyNw==',
+  }}
+/>
+
+### Page
+
+If we know the ID of a Page, we can query for the page individually like so:
+
+<GraphiQL
+  query="
+  query GET_PAGE( $id: ID! ) {
+    page( id: $id ) {
+      id
+      pageId
+      title
+      date
+      uri
+    }
+  }
+  "
+  variables={{
+    id: 'cGFnZTo1Mg==',
+  }}
+/>
+
+### PageBy
+
+Sometimes you need to query an individual Page, but you don't have the ID. There are a few other
+ways to get an individual Page, but using the `pageBy` query.
+
+**Here's an example of getting a page by it's URI.**
+
+<GraphiQL
+  query="
+  query GET_PAGE_BY_URI( $uri: String ) {
+    pageBy( uri: $uri ) {
+      id
+      pageId
+      title
+      date
+      uri
+    }
+  }
+  "
+  variables={{
+    uri: 'community',
+  }}
+/>
+
+**Here's an example of getting a page by it's database ID.**
+
+<GraphiQL
+  query="
+  query GET_PAGE( $pageId: Int ) {
+    pageBy( pageId: $pageId ) {
+      id
+      pageId
+      title
+      date
+      uri
+    }
+  }
+  "
+  variables={{
+    pageId: 52,
+  }}
+/>
+
+## Mutations
+
+In this section, we'll look at various ways to mutate Pages.
+
+<Note title="Mutations and Auth" type="info">
+WPGraphQL respects user capabilities when mutating data, so _most_ mutations in WPGraphQL require
+requests to be Authenticated, and the user making the request must have proper capabilities to mutate
+the data. Check out the <a href="/docs/guides/authentication-and-authorization">Authentication
+and Authorization Guide</a> to learn more.
+
+The demos below are public requests and will not actually mutate data, but you can get an idea of how
+to compose mutations by looking at the examples.
+
+</Note>
+
+### Create Page
+
+This is an example of a mutation to create a Page.
+
+There are two required input fields to create a page, `clientMutationId` and `title`.
+
+Here you can see that we define our input variable to be of the type `CreatePageInput!`.
+
+By defining our input in this way, it allows for flexibility for the input variables. Whatever we
+input will validate against the shape of the `CreatePageInput!` Type in the Schema. This means any
+of the `nonNull` input fields will need to be required, but any of the other fields are optional,
+but if included, still need to be of the specified Type defined in the Schema.
+
+<GraphiQL
+  query="
+  mutation CREATE_PAGE( $input:CreatePageInput! ){
+    createPage( input: $input ) {
+      page {
+        id
+        title
+        date
+        slug
+      }
+    }
+  }
+  "
+  variables={{
+    input: {
+      clientMutationId: 'CreatePage',
+      title: 'New Page Title',
+    },
+  }}
+/>
+
+### Update Page
+
+Below is an example mutation to update a page. For this, we _must_ know the ID of the Post.
+
+<GraphiQL
+  query="
+  mutation UPDATE_Page( $input:UpdatePageInput! ){
+    updatePage( input: $input ) {
+      page {
+        id
+        title
+        date
+        slug
+      }
+    }
+  }
+  "
+  variables={{
+    input: {
+      clientMutationId: 'UpdatePage',
+      id: 'cGFnZTo1Mg==',
+      title: 'New Title for the Page',
+    },
+  }}
+/>
+
+### Delete Page
+
+Below is an example mutation to delete a page. For this, we _must_ know the ID of the Page.
+
+<GraphiQL
+  query="
+  mutation DELETE_PAGE($input: DeletePageInput!) {
+    deletePage(input: $input) {
+      deletedId
+      page {
+        id
+      }
+    }
+  }
+  "
+  variables={{
+    input: {
+      clientMutationId: 'DELETE_PAGE',
+      id: 'cGFnZTo1Mg==',
+    },
+  }}
+/>

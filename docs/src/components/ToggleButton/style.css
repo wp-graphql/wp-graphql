@@ -1,0 +1,45 @@
+.toggle-button {
+    color: #444444;
+    background: #F3F3F3;
+    border: 1px #DADADA solid;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9pt;
+    outline: none;
+    margin-right: 2em; 
+}
+.toggle-button:hover {
+    border: 1px #C6C6C6 solid;
+    box-shadow: 1px 1px 1px #EAEAEA;
+    color: #333333;
+    background: #F7F7F7;
+}
+.toggle-button:active {
+    box-shadow: inset 1px 1px 1px #DFDFDF;   
+}
+.toggle-button::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: auto 0.4em auto 0;
+    padding: 0.3em;
+    border-radius: 50%;
+    transition: background-color 450ms ease;
+}
+.toggle-button.normal::before {
+    background-color: transparent;
+}
+
+.toggle-button.green::before {
+    background-color: #2dc937;
+}
+
+.toggle-button.yellow::before {
+    background-color: #e7b416;
+}
+
+.toggle-button.red::before {
+    background-color: #cc3232;
+}

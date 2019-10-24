@@ -1,0 +1,221 @@
+---
+title: The GraphQL Query Language
+description: Features of the GraphQL Query Language
+---
+
+import Note from "../../src/components/Note"
+import GraphiQL from "../../src/components/GraphiQL"
+
+On this page, we'll explore various various features of the GraphQL Query Language
+
+This page is setup as a progression, showing basic usage of GraphQL queries, to more advanced queries
+and features of the GraphQL query language
+
+## Hello World
+
+This is essentially the "hello world" of GraphQL Queries. Here, we are just asking the site for it's
+Title and URL. Basic settings almost any application built on top of WordPress would need.
+
+<GraphiQL
+	query="
+  {
+    generalSettings {
+      title
+      url
+    }
+  }
+  "
+/>
+
+## Posts
+
+At the heart of WordPress are Posts. Out of the box, WPGraphQL provides general Schema setup for
+interacting with posts.
+
+### Collection of Posts
+
+Here's an example of querying for a list of posts. By default, you will get 10 posts back.
+
+<GraphiQL
+	query="
+  {
+    posts {
+      edges {
+        node {
+          id
+          postId
+          title
+          date
+          slug
+          uri
+        }
+      }
+    }
+  }"
+/>
+
+<Note title="What's with the different IDs?" type="info">
+
+You may have noticed that we asked for both an `id` and `postId` field.
+
+The `id` field is a Global ID that is unique to _just_ that object. In WordPress, many objects can
+have the same `id`. For example, a comment can have id `1`, a post can have id `1`, a taxonomy term
+can have id `1`.
+
+The `ID` field in WPGraphQL is a hash of the Type of content it is and it's integer ID, making it
+unique across all Types.
+
+</Note>
+
+### Single Post
+
+If you know the ID of a particular Post, you can query for an individual Post, like so:
+
+<GraphiQL
+	query='
+    {
+      post( id: "cG9zdDo5Njg=" ) {
+        id
+        title
+        slug
+        uri
+      }
+    }
+   '
+/>
+
+### PostBy
+
+Sometimes, you may need to fetch an individual Post, but you don't know the ID, but have some other
+identifier, such as the `slug` or the `uri`.
+
+In that case, we can use a `postBy` query to fetch using the slug:
+
+<GraphiQL
+	query='
+    {
+      postBy( slug: "tracing-for-wpgraphql" ) {
+        id
+        title
+        slug
+        uri
+      }
+    }
+   '
+/>
+
+## Pages
+
+Pages are exposed to WPGraphQL as well, and can be queried in a similar fashion to Posts.
+
+### Collections of Pages
+
+<GraphiQL
+	query="
+  {
+    pages {
+      edges {
+        node {
+          id
+          pageId
+          title
+          date
+          slug
+          uri
+        }
+      }
+    }
+  }"
+/>
+
+### Single Page
+
+If we know the Global ID of a page, we can query for it like so:
+
+<GraphiQL
+	query='
+    {
+      page( id: "cGFnZTo0" ) {
+        id
+        title
+        slug
+        uri
+      }
+    }
+   '
+/>
+
+### PageBy
+
+Since pages are hierarchical, many pages can have the same slug, so we can't reliably use a slug as
+an identifier and thus there's no option to query a `pageBy` using the slug field in the same way
+non-hierarchical Post Types can be queried. However, if we know the URI, we can that as a unique
+identifier to fetch an individual Page.
+
+<GraphiQL
+	query='
+    {
+      pageBy( uri: "home-2" ) {
+        id
+        title
+        slug
+        uri
+      }
+    }
+   '
+/>
+
+## Custom Post Types
+
+WPGraphQL allows for Custom Post Types to be shown in the GraphQL Schema by registering support in
+the Post Type registry.
+
+There are 3 fields that need to be defined to have a Custom Post Type show in GraphQL:
+
+-   **show_in_graphql:** `true` or `false`
+-   **graphql_single_name:** camel case string with no punctuation or spaces
+-   **graphql_plural_name:** camel case string with no punctuation or spaces
+
+### Registering a new Post Type
+
+If you control the code for the Post Type being registered, you can add these three fields to the
+code that registers your Post Type.
+
+For example, here's an example that registers a Custom Post Type called `docs` and sets it to show
+in GraphQL:
+
+```php
+add_action( 'init', function() {
+   register_post_type( 'docs', [
+      'show_in_graphql' => true,
+      'hierarchical' => true,
+      'graphql_single_name' => 'Document',
+      'graphql_plural_name' => Documents',
+   ] );
+} );
+```
+
+### Filter Existing Post Type
+
+If you want to expose a Post Type that you don't directly control the registration for, such as a
+Post Type registerted in a third-party plugin, you can filter the Post Type registration like so:
+
+```php
+add_filter( 'register_post_type_args', function( $args, $post_type ) {
+
+	if ( 'docs' === $post_type ) {
+		$args['show_in_graphql'] = true;
+		$args['graphql_single_name'] = 'Document';
+		$args['graphql_plural_name'] = 'Documents';
+	}
+
+	return $args;
+
+}, 10, 2 );
+```
+
+## Terms
+
+## Comments
+
+## Users

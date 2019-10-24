@@ -1,0 +1,136 @@
+---
+title: WPGraphQL Content Blocks
+description: Access Post Content as Blocks using GraphQL
+---
+
+## About
+
+This WPGraphQL plugin returns a WordPress post’s content as a shallow tree of blocks and allows for
+some limited validation and cleanup. This is helpful for rendering post content within
+component-based front-end ecosystems like React.
+
+## What this plugin does
+
+This plugin adds a GraphQL field called blocks to Post in WPGraphQL (and any other post types configured to appear in WPGraphQL).
+
+The blocks field contains a list of the root-level blocks that comprise the post's content. Each block is a distinct HTML element, embeddable URL, shortcode, or Gutenberg block (beta!).
+
+For example, if a post’s content field in GraphQL contained:
+
+```html
+<p>Hello world</p>
+<ul>
+	<li>Here is a list</li>
+</ul>
+```
+
+Then the `blocks` field would contain:
+
+```json
+[
+	{
+		"type": "P",
+		"innerHtml": "Hello world"
+	},
+	{
+		"type": "UL",
+		"innerHTML": "<li>Here is a list</li>"
+	}
+]
+```
+
+When consuming this field, you can now easily iterate over the blocks and map them to components in
+your component library. No more `dangerouslySetInnerHTML`-ing your entire `post_content`!
+
+## GraphQL Fields and Types
+
+An exhaustive GraphQL of a post’s blocks field would look like this:
+
+```graphql
+blocks {
+	type
+	tagName
+	innerHtml
+	attributes {
+		name
+		value
+	}
+	connections {
+		... on Post {
+			...PostParts
+		}
+		... on MediaItem {
+			...MediaItemParts
+		}
+	}
+}
+```
+
+This will return a list of BlockTypes, defined in src/types/Blocktype.php. Let’s break down each of
+these fields:
+
+### type
+
+**Type:** `BlockNameEnumType` (defined in `src/types/enums/BlockNameEnumType.php`)
+
+The name of the block. For HTML blocks, this is the uppercase version of the HTML tag name, e.g.
+`P`, `UL`, `BLOCKQUOTE`, `TABLE` etc. Shortcode and embed types are name-spaced with `SHORTCODE_` and
+`EMBED_` respectively., e.g. `SHORTCODE_CAPTION`, `EMBED_INSTAGRAM`, etc.
+
+HTML block types are hardcoded, as are Gutenberg block types (for now). Embed types are determined
+by the handlers that have been registered in global ``$wp_embed->handlers` and shortcodes are
+determined by the handlers registered with global $shortcode_tags. A complete list of permissible
+block names can seen by browsing the WPGraphQL schema.
+
+You can filter the type definitions with `graphql_blocks_definitions`.
+
+### tagName
+
+**Type:** String
+
+The suggested HTML tag name for the block. For HTML blocks, this is simply a lowercased version of
+the type field. For embeds and shortcodes, it will likely be null. This field is most useful for
+Gutenberg blocks, as a hint from the server for which tag to use when wrapping the innerHtml
+(see below).
+
+### innerHtml
+
+**Type:** String
+
+The stringified inner content of the block. Can be passed into a React component using
+`dangerouslySetInnerHTML`, for example.
+
+Note that the value of `innerHtml` is the stringified version of all the block’s descendants after
+they have been parsed. This means that any invalid tags, attributes, etc. will have been stripped
+out.
+
+### attributes
+
+**Type:** List of `BlockAttributeTypes`
+
+Each item in the list is a name/value pair describing an attribute of the block. For HTML blocks,
+these are taken from the HTML attributes, e.g.
+
+```json
+{
+	"name": "id",
+	"value": "section1"
+}
+```
+
+Note that this field will only contain valid attributes for the given Block, as defined in
+BlockDefinitions. Invalid attributes are stripped out during the parsing process
+(see How Parsing Works).
+
+### connections (beta)
+
+**Type:** List of `MenuItemObjectUnion`s
+
+The `connections` field returns an array of objects that are connected to the block. For example,
+if you wanted to upload an image and associate it with a block, that image could be queried as a
+GraphQL connection here. The `connections` field will **always be empty by default**. Presumably
+there is some way to derive these connections from the block's attributes, but we have no way of
+knowing what that correspondence is. If you'd like to use this field, it's up to you to filter
+`graphql_blocks_output` and populate the connections array as you see fit.
+
+## Blocks
