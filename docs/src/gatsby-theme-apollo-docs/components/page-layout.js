@@ -7,9 +7,11 @@ import React, { createContext, useMemo, useRef, useState } from 'react'
 import SelectLink from 'gatsby-theme-apollo-docs/src/components/select-link'
 import styled from '@emotion/styled'
 import { Button } from 'gatsby-theme-apollo-docs/src/components/buttons'
+
 import {
   FlexWrapper,
   Header,
+  MobileHeader,
   Layout,
   MenuButton,
   Sidebar,
@@ -18,6 +20,7 @@ import {
   breakpoints,
   useResponsiveSidebar,
 } from 'gatsby-theme-apollo-core'
+
 import {
   GA_EVENT_CATEGORY_SIDEBAR,
   MainRefContext,
@@ -25,6 +28,7 @@ import {
   getVersionBasePath,
   trackEvent,
 } from 'gatsby-theme-apollo-docs/src/utils'
+
 import { Helmet } from 'react-helmet'
 import { IconLayoutModule } from '@apollo/space-kit/icons/IconLayoutModule'
 import { graphql, useStaticQuery } from 'gatsby'
@@ -222,17 +226,22 @@ export default function PageLayout(props) {
         </Sidebar>
         {/* we give the component a key so it resets the scroll when the pathname changes */}
         <Main ref={mainRef} key={props.location.pathname} tabIndex={0}>
-          <Header>
-            <MobileNav>
-              <MenuButton onClick={openSidebar} />
-              <StyledLogo />
-            </MobileNav>
-            {/* <Search
+          <MobileHeader>
+            <Header>
+              <MobileNav>
+                <MenuButton onClick={openSidebar} />
+                <StyledLogo />
+              </MobileNav>
+            </Header>
+          </MobileHeader>
+          {/* <Header>
+            
+            <Search
               siteName={siteName}
               apiKey={algoliaApiKey}
               indexName={algoliaIndexName}
-            /> */}
-          </Header>
+            />
+          </Header> */}
           <MainRefContext.Provider value={mainRef}>
             <NavItemsContext.Provider value={navItems}>
               {props.children}
