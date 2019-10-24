@@ -433,12 +433,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @return array
 			 */
-			self::$allowed_post_types = apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
+			return apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
 
-			/**
-			 * Returns the array of allowed_post_types
-			 */
-			return self::$allowed_post_types;
 		}
 
 		/**
