@@ -9,13 +9,13 @@ import styled from '@emotion/styled'
 import { Button } from 'gatsby-theme-apollo-docs/src/components/buttons'
 import {
   FlexWrapper,
-  //   Header,
+  Header,
   Layout,
-  //   MenuButton,
+  MenuButton,
   Sidebar,
   SidebarNav,
-  //   StyledLogo,
-  //   breakpoints,
+  StyledLogo,
+  breakpoints,
   useResponsiveSidebar,
 } from 'gatsby-theme-apollo-core'
 import {
@@ -46,14 +46,14 @@ const StyledButton = styled(Button)({
 
 const StyledIcon = styled(IconLayoutModule)(size(16), iconStyles)
 
-// const MobileNav = styled.div({
-//   display: 'none',
-//   [breakpoints.md]: {
-//     display: 'flex',
-//     alignItems: 'center',
-//     marginRight: 'auto',
-//   },
-// })
+const MobileNav = styled.div({
+  display: 'none',
+  [breakpoints.md]: {
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: 'auto',
+  },
+})
 
 const HeaderInner = styled.span({
   display: 'flex',
@@ -105,11 +105,7 @@ export default function PageLayout(props) {
     `
   )
 
-  const {
-    //   openSidebar,
-    closeSidebar,
-    sidebarOpen,
-  } = useResponsiveSidebar()
+  const { openSidebar, closeSidebar, sidebarOpen } = useResponsiveSidebar()
 
   const buttonRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -226,17 +222,17 @@ export default function PageLayout(props) {
         </Sidebar>
         {/* we give the component a key so it resets the scroll when the pathname changes */}
         <Main ref={mainRef} key={props.location.pathname} tabIndex={0}>
-          {/* <Header>
+          <Header>
             <MobileNav>
               <MenuButton onClick={openSidebar} />
               <StyledLogo />
             </MobileNav>
-            <Search
+            {/* <Search
               siteName={siteName}
               apiKey={algoliaApiKey}
               indexName={algoliaIndexName}
-            />
-          </Header> */}
+            /> */}
+          </Header>
           <MainRefContext.Provider value={mainRef}>
             <NavItemsContext.Provider value={navItems}>
               {props.children}
