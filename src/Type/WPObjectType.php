@@ -50,15 +50,18 @@ class WPObjectType extends ObjectType {
 			return $fields;
 		};
 
-		if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
-			$interfaces = [];
-			foreach ( $config['interfaces'] as $interface_name ) {
-				$interfaces[ $interface_name ] = $this->type_registry->get_type( $interface_name );
+
+
+		$config['interfaces'] = function() use ( $config ) {
+			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
+				$interfaces = [];
+				foreach ( $config['interfaces'] as $interface_name ) {
+					$interfaces[ $interface_name ] = $this->type_registry->get_type( $interface_name );
+				}
+				return $interfaces;
 			}
-			if ( ! empty( $interfaces ) ) {
-				$config['interfaces'] = $interfaces;
-			}
-		}
+		};
+
 
 		/**
 		 * Filter the config of WPObjectType

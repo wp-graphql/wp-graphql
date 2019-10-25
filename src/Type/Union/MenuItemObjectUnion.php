@@ -44,7 +44,7 @@ class MenuItemObjectUnion {
 						return $type_registry->get_type( $tax_object->graphql_single_name );
 					}
 
-					return null;
+					return $object;
 				},
 			]
 		);
@@ -63,14 +63,13 @@ class MenuItemObjectUnion {
 		 * registered to "show_in_graphql" and "show_in_nav_menus"
 		 */
 		$args = [
-			'show_in_graphql'   => true,
 			'show_in_nav_menus' => true,
 		];
 
 		$possible_types = [];
 
 		// Add post types that are allowed in WPGraphQL.
-		foreach ( get_post_types( $args ) as $type ) {
+		foreach ( \WPGraphQL::get_allowed_post_types( $args ) as $type ) {
 			$post_type_object = get_post_type_object( $type );
 			if ( isset( $post_type_object->graphql_single_name ) ) {
 				$possible_types[] = $post_type_object->graphql_single_name;

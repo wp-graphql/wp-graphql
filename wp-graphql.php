@@ -392,16 +392,18 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * are set to show_in_graphql, but allows for external code (plugins/theme) to filter the
 		 * list of allowed_post_types to add/remove additional post_types
 		 *
+		 * @param array $args Arguments to filter allowed post types
+		 *
 		 * @return array
 		 * @since  0.0.4
 		 * @access public
 		 */
-		public static function get_allowed_post_types() {
+		public static function get_allowed_post_types( $args = [] ) {
 
 			/**
 			 * Get all post_types
 			 */
-			$post_types = get_post_types( [ 'show_in_graphql' => true ] );
+			$post_types = get_post_types( array_merge( [ 'show_in_graphql' => true ], $args ) );
 
 			/**
 			 * Validate that the post_types have a graphql_single_name and graphql_plural_name
