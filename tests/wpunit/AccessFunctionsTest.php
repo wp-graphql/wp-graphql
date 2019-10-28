@@ -56,13 +56,13 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Introspection query to query the names of fields on the Type
 		 */
-		$query = '{ 
-	        __type( name: "RootQueryToTestCptConnectionWhereArgs" ) { 
-	            inputFields {
-	              name
-	            }
-	        } 
-        }';
+		$query = '{
+			__type( name: "RootQueryToTestCptConnectionWhereArgs" ) { 
+				inputFields {
+					name
+				}
+			} 
+		}';
 
 		$actual = graphql( [
 			'query' => $query,
