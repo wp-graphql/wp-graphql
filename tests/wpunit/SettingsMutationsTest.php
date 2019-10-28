@@ -244,6 +244,9 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		$actual = do_graphql_request( $mutation, 'updateSettings', $this->update_variables );
 
+		codecept_debug( $actual );
+
+
 		return $actual;
 	}
 

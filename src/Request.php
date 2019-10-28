@@ -2,10 +2,16 @@
 
 namespace WPGraphQL;
 
+use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use WPGraphQL\Registry\SchemaRegistry;
+use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Server\WPHelper;
+use WPGraphQL\Type\WPObjectType;
 
 /**
  * Class Request
@@ -21,6 +27,7 @@ class Request {
 	 * App context for this request.
 	 *
 	 * @var \WPGraphQL\AppContext
+	 * @access private
 	 */
 	private $app_context;
 
@@ -28,13 +35,15 @@ class Request {
 	 * Request data.
 	 *
 	 * @var array
+	 * @access private
 	 */
 	private $data;
 
 	/**
 	 * Cached global post.
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
+	 * @access private
 	 */
 	private $global_post;
 
@@ -43,6 +52,7 @@ class Request {
 	 * OperationParams.
 	 *
 	 * @var OperationParams|OperationParams[]
+	 * @access private
 	 */
 	private $params;
 
@@ -50,8 +60,15 @@ class Request {
 	 * Schema for this request.
 	 *
 	 * @var \WPGraphQL\WPSchema
+	 * @access public
 	 */
-	private $schema;
+	public $schema;
+
+	/**
+	 * @var TypeRegistry $type_registry
+	 * @access public
+	 */
+	public $type_registry;
 
 	/**
 	 * Constructor
@@ -59,6 +76,10 @@ class Request {
 	 * @param  array|null $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
+	 *
+	 * @access public
+	 *
+	 * @throws \Exception
 	 */
 	public function __construct( $data = null ) {
 
@@ -82,8 +103,22 @@ class Request {
 		// Set request data for passed-in (non-HTTP) requests.
 		$this->data = $data;
 
-		$this->schema      = \WPGraphQL::get_schema();
+		// Get the Schema
+		$this->schema = \WPGraphQL::get_schema();
+
+		// Get the App Context
 		$this->app_context = \WPGraphQL::get_app_context();
+
+		/**
+		 * Configure the app_context which gets passed down to all the resolvers.
+		 *
+		 * @since 0.0.4
+		 */
+		$app_context           = new AppContext();
+		$app_context->viewer   = wp_get_current_user();
+		$app_context->root_url = get_bloginfo( 'url' );
+		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$this->app_context     = $app_context;
 	}
 
 	/**
@@ -269,6 +304,8 @@ class Request {
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
 	 *
+	 *                                 @access private
+	 *
 	 * @return array
 	 */
 	private function after_execute_actions( $response, $key = null ) {
@@ -346,6 +383,8 @@ class Request {
 	 *
 	 * @param  OperationParams $params OperationParams for the request.
 	 *
+	 *                                 @access private
+	 *
 	 * @return void
 	 */
 	private function do_action( $params ) {
@@ -363,6 +402,7 @@ class Request {
 	/**
 	 * Execute an internal request (graphql() function call).
 	 *
+	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -408,6 +448,7 @@ class Request {
 	/**
 	 * Execute an HTTP request.
 	 *
+	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -436,6 +477,7 @@ class Request {
 	/**
 	 * Get the operation params for the request.
 	 *
+	 * @access public
 	 * @return OperationParams
 	 */
 	public function get_params() {

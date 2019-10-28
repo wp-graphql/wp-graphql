@@ -1,18 +1,46 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InterfaceType;
+use WPGraphQL\Registry\TypeRegistry;
 
-/**
- * Class WPInputObjectType
- *
- * Input types should extend this class to take advantage of the helper methods for formatting
- * and adding consistent filters.
- *
- * @package WPGraphQL\Type
- * @since 0.0.5
- */
-class WPInputObjectType extends InputObjectType {
+class WPInterfaceType extends InterfaceType {
+
+	/**
+	 * Instance of the TypeRegistry as an Interface needs knowledge of available Types
+	 *
+	 * @var TypeRegistry
+	 */
+	protected $type_registry;
+
+	/**
+	 * WPInterfaceType constructor.
+	 *
+	 * @param array        $config
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @access public
+	 */
+	public function __construct( array $config, TypeRegistry $type_registry ) {
+
+		$this->type_registry = $type_registry;
+
+		$config['fields'] = function() use ( $config ) {
+			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
+			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
+			return $fields;
+		};
+
+		/**
+		 * Filter the config of WPObjectType
+		 *
+		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPInterfaceType $this The instance of the WPObjectType class
+		 */
+		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
+
+		parent::__construct( $config );
+	}
 
 	/**
 	 * prepare_fields
@@ -22,11 +50,11 @@ class WPInputObjectType extends InputObjectType {
 	 *
 	 * @param array  $fields
 	 * @param string $type_name
-	 * @param array  $config
+	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( array $fields, $type_name, $config = [] ) {
+	public function prepare_fields( $fields, $type_name ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
@@ -37,7 +65,7 @@ class WPInputObjectType extends InputObjectType {
 		 * @param array  $fields    The array of fields for the object config
 		 * @param string $type_name The name of the object type
 		 */
-		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config );
+		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.
@@ -66,17 +94,11 @@ class WPInputObjectType extends InputObjectType {
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
 
 		/**
-		 * Sort the fields alphabetically by key. This makes reading through docs much easier
-		 *
-		 * @since 0.0.2
+		 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
+		 * as it ensures it's not output in just random order
 		 */
 		ksort( $fields );
-
-		/**
-		 * Return the filtered, sorted $fields
-		 *
-		 * @since 0.0.5
-		 */
 		return $fields;
 	}
+
 }
