@@ -67,6 +67,8 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -138,6 +140,8 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -172,6 +176,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
+	 * @throws Exception
 	 */
 	public function testAvatarQueryNotFound() {
 		/**
@@ -208,7 +213,9 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = graphql([ 'query' => $query ] );
+
+		codecept_debug( $actual );
 
 		/**
 		 * The avatar should be empty.

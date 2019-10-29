@@ -26,7 +26,6 @@ use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
 use WPGraphQL\Model\UserRole;
-use WPGraphQL\Types;
 
 /**
  * Class DataSource
@@ -73,8 +72,8 @@ class DataSource {
 		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
 
 		return new Deferred(
-			function () use ( $comment_id, $context ) {
-					return $context->getLoader( 'comment' )->load( $comment_id );
+			function() use ( $comment_id, $context ) {
+				return $context->getLoader( 'comment' )->load( $comment_id );
 			}
 		);
 
@@ -92,6 +91,7 @@ class DataSource {
 		global $wpdb;
 		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
 		$comment_author = ! empty( $comment_author ) ? (array) $comment_author : [];
+
 		return new CommentAuthor( $comment_author );
 	}
 
@@ -110,6 +110,7 @@ class DataSource {
 	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
 		$resolver   = new CommentConnectionResolver( $source, $args, $context, $info );
 		$connection = $resolver->get_connection();
+
 		return $connection;
 	}
 
@@ -206,8 +207,8 @@ class DataSource {
 		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
 
 		return new Deferred(
-			function () use ( $post_id, $context ) {
-					return $context->getLoader( 'post_object' )->load( $post_id );
+			function() use ( $post_id, $context ) {
+				return $context->getLoader( 'post_object' )->load( $post_id );
 			}
 		);
 
@@ -228,8 +229,8 @@ class DataSource {
 		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
 
 		return new Deferred(
-			function () use ( $menu_item_id, $context ) {
-					return $context->getLoader( 'menu_item' )->load( $menu_item_id );
+			function() use ( $menu_item_id, $context ) {
+				return $context->getLoader( 'menu_item' )->load( $menu_item_id );
 			}
 		);
 	}
@@ -291,7 +292,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return Taxonomy object
-	 * @throws UserError
+	 * @throws UserError | \Exception
 	 * @since  0.0.5
 	 * @access public
 	 */
@@ -334,8 +335,8 @@ class DataSource {
 		$context->getLoader( 'term_object' )->buffer( [ $id ] );
 
 		return new Deferred(
-			function () use ( $term_id, $context ) {
-					return $context->getLoader( 'term_object' )->load( $term_id );
+			function() use ( $term_id, $context ) {
+				return $context->getLoader( 'term_object' )->load( $term_id );
 			}
 		);
 
@@ -403,7 +404,7 @@ class DataSource {
 	/**
 	 * Gets the user object for the user ID specified
 	 *
-	 * @param int        $id ID of the user you want the object for
+	 * @param int        $id      ID of the user you want the object for
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
@@ -420,8 +421,8 @@ class DataSource {
 		$context->getLoader( 'user' )->buffer( [ $user_id ] );
 
 		return new Deferred(
-			function () use ( $user_id, $context ) {
-					return $context->getLoader( 'user' )->load( $user_id );
+			function() use ( $user_id, $context ) {
+				return $context->getLoader( 'user' )->load( $user_id );
 			}
 		);
 	}
@@ -441,6 +442,7 @@ class DataSource {
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
 		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+
 		return $resolver->get_connection();
 
 	}
@@ -506,6 +508,7 @@ class DataSource {
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
+
 		return $resolver->get_connection();
 
 	}
@@ -523,8 +526,8 @@ class DataSource {
 	public static function get_setting_group_fields( $group ) {
 
 		/**
-		* Convert camelCase $group to snake_case to match $settings_groups keys retrieved from WordPress
-		*/
+		 * Convert camelCase $group to snake_case to match $settings_groups keys retrieved from WordPress
+		 */
 		$group = strtolower( preg_replace( '/(?<=[a-z])(?=[A-Z])/', '_', $group ) );
 
 		/**
@@ -647,173 +650,12 @@ class DataSource {
 			$node_definition = Relay::nodeDefinitions(
 
 				// The ID fetcher definition
-				function ( $global_id, AppContext $context, ResolveInfo $info ) {
-
-					if ( empty( $global_id ) ) {
-						throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
-					}
-
-					/**
-					 * Convert the encoded ID into an array we can work with
-					 *
-					 * @since 0.0.4
-					 */
-					$id_components = Relay::fromGlobalId( $global_id );
-
-					/**
-					 * If the $id_components is a proper array with a type and id
-					 *
-					 * @since 0.0.5
-					 */
-					if ( is_array( $id_components ) && ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
-
-						/**
-						 * Get the allowed_post_types and allowed_taxonomies
-						 *
-						 * @since 0.0.5
-						 */
-						$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-						$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-
-						switch ( $id_components['type'] ) {
-							case in_array( $id_components['type'], $allowed_post_types, true ):
-								$node = self::resolve_post_object( $id_components['id'], $context );
-								break;
-							case in_array( $id_components['type'], $allowed_taxonomies, true ):
-								$node = self::resolve_term_object( $id_components['id'], $context );
-								break;
-							case 'comment':
-								$node = self::resolve_comment( $id_components['id'], $context );
-								break;
-							case 'commentAuthor':
-								$node = self::resolve_comment_author( $id_components['id'] );
-								break;
-							case 'plugin':
-								$node = self::resolve_plugin( $id_components['id'] );
-								break;
-							case 'postType':
-								$node = self::resolve_post_type( $id_components['id'] );
-								break;
-							case 'taxonomy':
-								$node = self::resolve_taxonomy( $id_components['id'] );
-								break;
-							case 'theme':
-								$node = self::resolve_theme( $id_components['id'] );
-								break;
-							case 'user':
-								$user_id = absint( $id_components['id'] );
-
-								if ( empty( $user_id ) || ! absint( $user_id ) ) {
-									return null;
-								}
-								$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-								return new Deferred(
-									function () use ( $user_id, $context ) {
-											return $context->getLoader( 'user' )->load( $user_id );
-									}
-								);
-								break;
-							default:
-								/**
-								 * Add a filter to allow externally registered node types to resolve based on
-								 * the id_components
-								 *
-								 * @param int    $id   The id of the node, from the global ID
-								 * @param string $type The type of node to resolve, from the global ID
-								 *
-								 * @since 0.0.6
-								 */
-								$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'], $context );
-								break;
-
-						}
-
-						/**
-						 * If the $node is not properly resolved, throw an exception
-						 *
-						 * @since 0.0.6
-						 */
-						if ( ! $node ) {
-							throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
-						}
-
-						/**
-						 * Return the resolved $node
-						 *
-						 * @since 0.0.5
-						 */
-						return $node;
-
-					} else {
-						throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
-					}
+				function( $global_id, AppContext $context, ResolveInfo $info ) {
+					self::resolve_node( $global_id, $context, $info );
 				},
 				// Type resolver
-				function ( $node ) {
-
-					if ( true === is_object( $node ) ) {
-
-						switch ( true ) {
-							case $node instanceof Post:
-								$type = Types::post_object( $node->post_type );
-								break;
-							case $node instanceof Term:
-								$type = Types::term_object( $node->taxonomy );
-								break;
-							case $node instanceof Comment:
-								$type = 'Comment';
-								break;
-							case $node instanceof PostType:
-								$type = 'PostType';
-								break;
-							case $node instanceof Taxonomy:
-								$type = 'Taxonomy';
-								break;
-							case $node instanceof Theme:
-								$type = 'Theme';
-								break;
-							case $node instanceof User:
-								$type = 'User';
-								break;
-							case $node instanceof Plugin:
-								$type = 'Plugin';
-								break;
-							case $node instanceof CommentAuthor:
-								$type = 'CommentAuthor';
-								break;
-							default:
-								$type = null;
-						}
-					}
-
-					/**
-					 * Add a filter to allow externally registered node types to return the proper type
-					 * based on the node_object that's returned
-					 *
-					 * @param mixed|object|array $type The type definition the node should resolve to.
-					 * @param mixed|object|array $node The $node that is being resolved
-					 *
-					 * @since 0.0.6
-					 */
-					$type = apply_filters( 'graphql_resolve_node_type', $type, $node );
-
-					/**
-					 * If the $type is not properly resolved, throw an exception
-					 *
-					 * @since 0.0.6
-					 */
-					if ( null === $type ) {
-						throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
-					}
-
-					/**
-					 * Return the resolved $type for the $node
-					 *
-					 * @since 0.0.5
-					 */
-					return $type;
-
+				function( $node ) {
+					self::resolve_node_type( $node );
 				}
 			);
 
@@ -822,6 +664,185 @@ class DataSource {
 		}
 
 		return self::$node_definition;
+	}
+
+	public static function resolve_node_type( $node ) {
+		$type = null;
+
+		if ( true === is_object( $node ) ) {
+
+			switch ( true ) {
+				case $node instanceof Post:
+					$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					break;
+				case $node instanceof Term:
+					$type = get_taxonomy( $node->taxonomyName )->graphql_single_name;
+					break;
+				case $node instanceof Comment:
+					$type = 'Comment';
+					break;
+				case $node instanceof PostType:
+					$type = 'PostType';
+					break;
+				case $node instanceof Taxonomy:
+					$type = 'Taxonomy';
+					break;
+				case $node instanceof Theme:
+					$type = 'Theme';
+					break;
+				case $node instanceof User:
+					$type = 'User';
+					break;
+				case $node instanceof Plugin:
+					$type = 'Plugin';
+					break;
+				case $node instanceof CommentAuthor:
+					$type = 'CommentAuthor';
+					break;
+				default:
+					$type = null;
+			}
+		}
+
+		/**
+		 * Add a filter to allow externally registered node types to return the proper type
+		 * based on the node_object that's returned
+		 *
+		 * @param mixed|object|array $type The type definition the node should resolve to.
+		 * @param mixed|object|array $node The $node that is being resolved
+		 *
+		 * @since 0.0.6
+		 */
+		$type = apply_filters( 'graphql_resolve_node_type', $type, $node );
+		$type = ucfirst( $type );
+
+		/**
+		 * If the $type is not properly resolved, throw an exception
+		 *
+		 * @since 0.0.6
+		 */
+		if ( null === $type ) {
+			throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
+		}
+
+		/**
+		 * Return the resolved $type for the $node
+		 *
+		 * @since 0.0.5
+		 */
+		return $type;
+	}
+
+	/**
+	 * Given the ID of a node, this resolves the data
+	 *
+	 * @param string      $global_id The Global ID of the node
+	 * @param AppContext  $context   The Context of the GraphQL Request
+	 * @param ResolveInfo $info      The ResolveInfo for the GraphQL Request
+	 *
+	 * @return null|string
+	 * @throws \Exception
+	 */
+	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
+		if ( empty( $global_id ) ) {
+			throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
+		}
+
+		/**
+		 * Convert the encoded ID into an array we can work with
+		 *
+		 * @since 0.0.4
+		 */
+		$id_components = Relay::fromGlobalId( $global_id );
+
+		/**
+		 * If the $id_components is a proper array with a type and id
+		 *
+		 * @since 0.0.5
+		 */
+		if ( is_array( $id_components ) && ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
+
+			/**
+			 * Get the allowed_post_types and allowed_taxonomies
+			 *
+			 * @since 0.0.5
+			 */
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+			$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+
+			switch ( $id_components['type'] ) {
+				case in_array( $id_components['type'], $allowed_post_types, true ):
+					$node = self::resolve_post_object( $id_components['id'], $context );
+					break;
+				case in_array( $id_components['type'], $allowed_taxonomies, true ):
+					$node = self::resolve_term_object( $id_components['id'], $context );
+					break;
+				case 'comment':
+					$node = self::resolve_comment( $id_components['id'], $context );
+					break;
+				case 'commentAuthor':
+					$node = self::resolve_comment_author( $id_components['id'] );
+					break;
+				case 'plugin':
+					$node = self::resolve_plugin( $id_components['id'] );
+					break;
+				case 'postType':
+					$node = self::resolve_post_type( $id_components['id'] );
+					break;
+				case 'taxonomy':
+					$node = self::resolve_taxonomy( $id_components['id'] );
+					break;
+				case 'theme':
+					$node = self::resolve_theme( $id_components['id'] );
+					break;
+				case 'user':
+					$user_id = absint( $id_components['id'] );
+
+					if ( empty( $user_id ) || ! absint( $user_id ) ) {
+						return null;
+					}
+					$context->getLoader( 'user' )->buffer( [ $user_id ] );
+
+					return new Deferred(
+						function() use ( $user_id, $context ) {
+							return $context->getLoader( 'user' )->load( $user_id );
+						}
+					);
+					break;
+				default:
+					/**
+					 * Add a filter to allow externally registered node types to resolve based on
+					 * the id_components
+					 *
+					 * @param int    $id   The id of the node, from the global ID
+					 * @param string $type The type of node to resolve, from the global ID
+					 *
+					 * @since 0.0.6
+					 */
+					$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'], $context );
+					break;
+
+			}
+
+			/**
+			 * If the $node is not properly resolved, throw an exception
+			 *
+			 * @since 0.0.6
+			 */
+			if ( ! $node ) {
+				throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
+			}
+
+			/**
+			 * Return the resolved $node
+			 *
+			 * @since 0.0.5
+			 */
+			return $node;
+
+		} else {
+			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
+		}
 	}
 
 	/**
@@ -833,9 +854,10 @@ class DataSource {
 	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
 	 *
+	 * @access public
 	 * @return \WP_Post|null WP_Post on success or null on failure
-	 * @see  https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
-	 * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
+	 * @see    https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
+	 * @link   http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
 	 */
 	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
 
@@ -866,6 +888,7 @@ class DataSource {
 	/**
 	 * Returns array of nav menu location names
 	 *
+	 * @access public
 	 * @return array
 	 */
 	public static function get_registered_nav_menu_locations() {

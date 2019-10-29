@@ -34,7 +34,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$user_id = $this->factory->user->create( $args );
+		$user_id = $this->factory()->user->create( $args );
 
 		/**
 		 * Return the $id of the post_object that was created
@@ -486,22 +486,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function testUsersQuery() {
-
-		/**
-		 * Create a user
-		 */
-		$email = 'test@test.com';
-		$user_id = $this->createUserObject(
-			[
-				'user_email' => $email,
-			]
-		);
-
-		/**
-		 * Create the global ID based on the user_type and the created $id
-		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+	public function testUsersQueryWithNoPublishedPosts() {
 
 		/**
 		 * Set the current user to nobody (unauthenticated)
@@ -535,6 +520,29 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEmpty( $actual['data']['users']['edges'] );
 
+	}
+
+	public function testUserQueryWithPublishedPosts() {
+
+		/**
+		 * Create a user
+		 */
+		$email   = 'test@test.com';
+		$user_id = $this->createUserObject(
+			[
+				'user_email' => $email,
+				'role'       => 'administrator'
+			]
+		);
+
+		$post_id = $this->factory->post->create( [ 'post_author' => $user_id, 'post_type' => 'attachment' ] );
+
+		/**
+		 * Create the global ID based on the user_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		wp_set_current_user( $user_id );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -559,6 +567,19 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * try the query again
 		 */
 		wp_set_current_user( $user_id );
+
+		$query = '
+		query {
+			users(first:1) {
+				edges{
+				  node{
+				    id
+				    userId
+				    email
+				  }
+				}
+			}
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -741,22 +762,22 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testPageInfoQuery() {
+	public function testPageInfoQueryAsSubscriber() {
 
 		/**
 		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		$this->factory->user->create([
+		$this->factory->user->create( [
 			'role' => 'administrator',
-		]);
+		] );
 
-		$admin = $this->factory->user->create([
+		$admin = $this->factory->user->create( [
 			'role' => 'administrator',
-		]);
+		] );
 
-		$this->factory->user->create([
+		$subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
-		]);
+		] );
 
 		$query = '
 		query{
@@ -773,7 +794,10 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		wp_set_current_user( $subscriber );
+
 		$actual = do_graphql_request( $query );
+
 
 		/**
 		 * Results should be empty for a non-authenticated request because the
@@ -782,20 +806,36 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEmpty( $actual['data']['users']['pageInfo']['hasNextPage'] );
 		$this->assertEmpty( $actual['data']['users']['edges'] );
 
+	}
+
+	public function testPageInfoQueryAsAdmin() {
+
 		/**
-		 * Set the current user and retry the request
+		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		wp_set_current_user( $admin );
+		$this->factory->user->create( [
+			'role' => 'administrator',
+		] );
 
-		$actual = do_graphql_request( $query );
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
 
-		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-		$this->assertCount( 2, $actual['data']['users']['edges'] );
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$subscriber = $this->factory->user->create( [
+			'role' => 'subscriber',
+		] );
 
 		$query = '
-		query{   
-		  users(first:1 where: {role:SUBSCRIBER}){
+		query{
+		  users(first:2 where: {role:ADMINISTRATOR}){
 		    pageInfo{
 		      hasNextPage
 		    }
@@ -808,7 +848,77 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		wp_set_current_user( $admin );
+
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'hasNextPage', $actual['data']['users']['pageInfo'] );
+		$this->assertNotEmpty( $actual['data']['users']['edges'] );
+		$this->assertCount( 2, $actual['data']['users']['edges'] );
+
+	}
+
+	/**
+	 * Deletes all users that were created using create_users()
+	 */
+	public function delete_users() {
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare(
+			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
+			array( 1 )
+		) );
+		$this->created_user_ids = [ 1 ];
+	}
+
+	public function testPageInfoQueryFilterBySubscriberAsAdmin() {
+
+		$this->delete_users();
+
+		/**
+		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
+		 */
+		$this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
+
+		$subscriber = $this->factory->user->create( [
+			'role' => 'subscriber',
+		] );
+
+		$query = '
+		query{
+		  users(first:2 where: {role:SUBSCRIBER}){
+		    pageInfo{
+		      hasNextPage
+		    }
+		    edges{
+		      node{
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		wp_set_current_user( $admin );
+
+		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Now let's make sure the subscriber role query worked
@@ -839,6 +949,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testFilterUsersByRole() {
 
 		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
+
 		wp_set_current_user( $subscriber );
 
 		$query = '
@@ -854,14 +965,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'where' => [
 					'role' => 'ADMINISTRATOR'
 				]
 			]
-		]);
+		] );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -869,14 +980,44 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['users'] );
 
-		$actual = graphql([
-			'query' => $query,
+	}
+
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testFilterUsersByRoleIn() {
+
+		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
+
+		wp_set_current_user( $subscriber );
+
+		$query = '
+		query getUsers($where:RootQueryToUserConnectionWhereArgs){
+		  users(where:$where){
+		    edges{
+		      node{
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleIn' => ['ADMINISTRATOR', 'SUBSCRIBER']
+					'roleIn' => [ 'ADMINISTRATOR', 'SUBSCRIBER' ]
 				]
 			]
-		]);
+		] );
+
+
+		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -884,14 +1025,43 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['users'] );
 
-		$actual = graphql([
-			'query' => $query,
+	}
+
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testFilterUsersByRoleNotIn() {
+
+		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
+
+		wp_set_current_user( $subscriber );
+
+		$query = '
+		query getUsers($where:RootQueryToUserConnectionWhereArgs){
+		  users(where:$where){
+		    edges{
+		      node{
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleNotIn' => ['ADMINISTRATOR']
+					'roleNotIn' => [ 'ADMINISTRATOR' ]
 				]
 			]
-		]);
+		] );
+
+		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -899,20 +1069,45 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['users'] );
 
-		/**
-		 * Create an Admin to make the request with again
-		 */
+	}
+
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testAdminFilterUsersByRole() {
+
 		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+
 		wp_set_current_user( $admin );
 
-		$actual = graphql([
-			'query' => $query,
+		$query = '
+		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
+		  users(where: $where) {
+		    edges {
+		      node {
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+
+		';
+
+
+		codecept_debug( get_user_by( 'id', get_current_user_id() ) );
+
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'where' => [
 					'role' => 'ADMINISTRATOR'
 				]
 			]
-		]);
+		] );
 
 		codecept_debug( $actual );
 
@@ -923,15 +1118,42 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
 
+	}
 
-		$actual = graphql([
-			'query' => $query,
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testAdminFilterUsersByRoleIn() {
+
+		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+
+		wp_set_current_user( $admin );
+
+		$query  = '
+		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
+		  users(where: $where) {
+		    edges {
+		      node {
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleIn' => ['ADMINISTRATOR']
+					'roleIn' => [ 'ADMINISTRATOR' ]
 				]
 			]
-		]);
+		] );
 
 		codecept_debug( $actual );
 
@@ -942,11 +1164,38 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
 
+	}
+
+	/**
+	 * Test to make sure only users with list_users capability can filter users by role
+	 * using GraphQL user connections
+	 *
+	 * @throws Exception
+	 */
+	public function testAdminFilterUsersByRoleNotIn() {
+
+		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
+
+		wp_set_current_user( $admin );
+
+		$query  = '
+		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
+		  users(where: $where) {
+		    edges {
+		      node {
+		        userId
+		        name
+		      }
+		    }
+		  }
+		}
+		';
+
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
 				'where' => [
-					'roleNotIn' => ['ADMINISTRATOR']
+					'roleNotIn' => [ 'SUBSCRIBER' ]
 				]
 			]
 		]);
@@ -957,7 +1206,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-
 
 
 	}

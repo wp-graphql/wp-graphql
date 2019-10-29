@@ -3,6 +3,7 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class WPObjectType
@@ -16,13 +17,6 @@ use WPGraphQL\Data\DataSource;
 class WPObjectType extends ObjectType {
 
 	/**
-	 * Holds the $prepared_fields definition for the PostObjectType
-	 *
-	 * @var $fields
-	 */
-	private static $prepared_fields;
-
-	/**
 	 * Holds the node_interface definition allowing WPObjectTypes
 	 * to easily define themselves as a node type by implementing
 	 * self::$node_interface
@@ -32,17 +26,42 @@ class WPObjectType extends ObjectType {
 	 */
 	private static $node_interface;
 
+	private $type_registry;
+
 	/**
 	 * WPObjectType constructor.
 	 *
+	 * @param array        $config
+	 * @param TypeRegistry $type_registry
+	 *
 	 * @since 0.0.5
 	 */
-	public function __construct( $config ) {
+	public function __construct( $config, TypeRegistry $type_registry ) {
+		$this->type_registry = $type_registry;
 
 		/**
 		 * Set the Types to start with capitals
 		 */
 		$config['name'] = ucfirst( $config['name'] );
+
+		$config['fields'] = function() use ( $config ) {
+			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
+			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
+			return $fields;
+		};
+
+
+
+		$config['interfaces'] = function() use ( $config ) {
+			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
+				$interfaces = [];
+				foreach ( $config['interfaces'] as $interface_name ) {
+					$interfaces[ $interface_name ] = $this->type_registry->get_type( $interface_name );
+				}
+				return $interfaces;
+			}
+		};
+
 
 		/**
 		 * Filter the config of WPObjectType
@@ -95,59 +114,51 @@ class WPObjectType extends ObjectType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( $fields, $type_name ) {
 
-		if ( null === self::$prepared_fields ) {
-			self::$prepared_fields = [];
-		}
+		/**
+		 * Filter all object fields, passing the $typename as a param
+		 *
+		 * This is useful when several different types need to be easily filtered at once. . .for example,
+		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
+		 *
+		 * @param array  $fields    The array of fields for the object config
+		 * @param string $type_name The name of the object type
+		 */
+		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
 
-		if ( empty( self::$prepared_fields[ $type_name ] ) ) {
+		/**
+		 * Filter once with lowercase, once with uppercase for Back Compat.
+		 */
+		$lc_type_name = lcfirst( $type_name );
+		$uc_type_name = ucfirst( $type_name );
 
-			/**
-			 * Filter all object fields, passing the $typename as a param
-			 *
-			 * This is useful when several different types need to be easily filtered at once. . .for example,
-			 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
-			 *
-			 * @param array  $fields    The array of fields for the object config
-			 * @param string $type_name The name of the object type
-			 */
-			$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
+		/**
+		 * Filter the fields with the typename explicitly in the filter name
+		 *
+		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+		 * more specific overrides
+		 *
+		 * @param array $fields The array of fields for the object config
+		 */
+		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields );
 
-			/**
-			 * Filter once with lowercase, once with uppercase for Back Compat.
-			 */
-			$lc_type_name = lcfirst( $type_name );
-			$uc_type_name = ucfirst( $type_name );
+		/**
+		 * Filter the fields with the typename explicitly in the filter name
+		 *
+		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+		 * more specific overrides
+		 *
+		 * @param array $fields The array of fields for the object config
+		 */
+		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
 
-			/**
-			 * Filter the fields with the typename explicitly in the filter name
-			 *
-			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-			 * more specific overrides
-			 *
-			 * @param array $fields The array of fields for the object config
-			 */
-			$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields );
-
-			/**
-			 * Filter the fields with the typename explicitly in the filter name
-			 *
-			 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-			 * more specific overrides
-			 *
-			 * @param array $fields The array of fields for the object config
-			 */
-			$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
-
-			/**
-			 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
-			 * as it ensures it's not output in just random order
-			 */
-			ksort( $fields );
-			self::$prepared_fields[ $type_name ] = $fields;
-		}
-		return ! empty( self::$prepared_fields[ $type_name ] ) ? self::$prepared_fields[ $type_name ] : null;
+		/**
+		 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
+		 * as it ensures it's not output in just random order
+		 */
+		ksort( $fields );
+		return $fields;
 	}
 
 }

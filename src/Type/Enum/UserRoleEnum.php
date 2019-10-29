@@ -1,29 +1,35 @@
 <?php
 
-namespace WPGraphQL\Type;
+namespace WPGraphQL\Type\Enum;
 
-global $wp_roles;
-$all_roles      = $wp_roles->roles;
-$editable_roles = apply_filters( 'editable_roles', $all_roles );
-$roles          = [];
+use WPGraphQL\Type\WPEnumType;
 
-if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
-	foreach ( $editable_roles as $key => $role ) {
+class UserRoleEnum {
+	public static function register_type() {
+		global $wp_roles;
+		$all_roles      = $wp_roles->roles;
+		$editable_roles = apply_filters( 'editable_roles', $all_roles );
+		$roles          = [];
 
-		$formatted_role = WPEnumType::get_safe_name( $role['name'] );
+		if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
+			foreach ( $editable_roles as $key => $role ) {
 
-		$roles[ $formatted_role ] = [
-			'value' => $key,
-		];
+				$formatted_role = WPEnumType::get_safe_name( $role['name'] );
+
+				$roles[ $formatted_role ] = [
+					'value' => $key,
+				];
+			}
+		}
+
+		if ( ! empty( $roles ) && is_array( $roles ) ) {
+			register_graphql_enum_type(
+				'UserRoleEnum',
+				[
+					'description' => __( 'Names of available user roles', 'wp-graphql' ),
+					'values'      => $roles,
+				]
+			);
+		}
 	}
-}
-
-if ( ! empty( $roles ) && is_array( $roles ) ) {
-	register_graphql_enum_type(
-		'UserRoleEnum',
-		[
-			'description' => __( 'Names of available user roles', 'wp-graphql' ),
-			'values'      => $roles,
-		]
-	);
 }

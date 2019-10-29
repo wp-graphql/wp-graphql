@@ -158,6 +158,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->postsQuery( $variables );
 
+		codecept_debug( $results );
+
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
@@ -217,6 +219,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results = $this->postsQuery( $variables );
+
+		codecept_debug( $results );
 
 		$second_post     = new WP_Query( [
 			'posts_per_page' => 1,

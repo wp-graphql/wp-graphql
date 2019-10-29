@@ -40,7 +40,9 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the current user so we can properly test the viewer query
 		 */
 		wp_set_current_user( $user_id );
-		$actual = do_graphql_request( $query );
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
 
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

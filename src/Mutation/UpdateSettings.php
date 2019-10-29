@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 
 class UpdateSettings {
+
 	/**
 	 * Registers the CommentCreate mutation.
 	 */
@@ -30,7 +31,7 @@ class UpdateSettings {
 
 		$input_fields = [];
 
-		if ( ! empty( $allowed_settings ) && empty( self::$input_fields ) ) {
+		if ( ! empty( $allowed_settings ) ) {
 
 			/**
 			 * Loop through the $allowed_settings and build fields
@@ -76,6 +77,7 @@ class UpdateSettings {
 		 * Get the allowed setting groups and their fields
 		 */
 		$allowed_setting_groups = DataSource::get_allowed_settings_by_group();
+
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
 				$setting_type = str_replace( '_', '', strtolower( $group ) );
