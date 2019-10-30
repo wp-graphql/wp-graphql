@@ -479,21 +479,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			);
 
 			/**
-			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
-			 * to allow the taxonomies to be modified (for example if a certain taxonomy should not
-			 * be exposed to the GraphQL API)
-			 *
-			 * @since 0.0.2
-			 * @return array
-			 *
-			 * @param array $taxonomies Array of taxonomy objects
-			 */
-			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
-
-			/**
 			 * Returns the array of $allowed_taxonomies
 			 */
-			return self::$allowed_taxonomies;
+			return apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
 
 		}
 
