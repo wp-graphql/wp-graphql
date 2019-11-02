@@ -1535,6 +1535,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Assert that no data is being leaked on private posts that are directly queried without auth.
+	 */
 	public function testPrivatePosts() {
 
 		$post_id = $this->factory()->post->create( [
@@ -1575,7 +1578,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$actual = do_graphql_request( $query );
-		var_dump( $actual );
 		$this->assertEquals( $expected, $actual );
 
 	}
