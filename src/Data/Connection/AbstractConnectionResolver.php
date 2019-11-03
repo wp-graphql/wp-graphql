@@ -110,7 +110,7 @@ abstract class AbstractConnectionResolver {
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
-			return null;
+			$this->should_execute = false;
 		}
 
 		/**
