@@ -45,7 +45,7 @@ class WPObjectType extends ObjectType {
 		$config['name'] = ucfirst( $config['name'] );
 
 		$config['fields'] = function() use ( $config ) {
-			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
+			$fields = $this->prepare_fields( $config['fields'], $config['name'], $config );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
 			return $fields;
 		};
@@ -103,18 +103,17 @@ class WPObjectType extends ObjectType {
 	}
 
 	/**
-	 * prepare_fields
-	 *
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
 	 * @param array  $fields
 	 * @param string $type_name
+	 * @param array  $config
 	 *
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( $fields, $type_name, $config ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
@@ -126,6 +125,22 @@ class WPObjectType extends ObjectType {
 		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
+
+		// Get any parent interface fields.
+		$parent_fields = [];
+		if ( ! empty( $config['interfaces'] ) ) {
+			foreach ( $config['interfaces'] as $name ) {
+				/**
+				 * Retrieves the field definitions for fields on any Interfaces being implemented.
+				 *
+				 * @param array $parent_fields  Holds parent field definition.
+				 */
+				$parent_fields = apply_filters( "graphql_interface_{$name}_fields", $parent_fields );
+			}
+		}
+
+		// Include any parent field definition not already defined.
+		$fields = array_merge( $parent_fields, $fields );
 
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.

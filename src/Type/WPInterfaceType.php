@@ -98,6 +98,15 @@ class WPInterfaceType extends InterfaceType {
 		 * as it ensures it's not output in just random order
 		 */
 		ksort( $fields );
+
+		// Make field definitions available for inheriting objects.
+		add_filter(
+			"graphql_interface_{$type_name}_fields",
+			function( $other_interface_fields ) use ( $fields ) {
+				return array_merge( $other_interface_fields, $fields );
+			}
+		);
+
 		return $fields;
 	}
 

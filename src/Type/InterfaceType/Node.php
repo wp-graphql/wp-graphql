@@ -14,6 +14,7 @@ class Node {
 						'type' => [
 							'non_null' => 'ID',
 						],
+						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
 					],
 				],
 				'resolveType' => function( $node ) {
