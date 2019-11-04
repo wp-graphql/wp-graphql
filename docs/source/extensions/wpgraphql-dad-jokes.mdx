@@ -1,0 +1,19 @@
+---
+title: WPGraphQL Dad Jokes
+description: This is an example plugin showing how to extend the WPGraphQL Schema. This resolves data from icanhazdadjoke.com
+---
+
+# About
+
+This is an example plugin that is intended to showcase how to extend the WPGraphQL Schema.
+
+This plugin adds a new RootQuery field to the WPGraphQL Schema that allows for random a random
+Dad Joke to be queried from [icanhazdadjoke.com](https://icanhazdadjoke.com).
+
+## Example Usage
+
+```graphql
+query GetDadJoke {
+	dadJoke
+}
+```

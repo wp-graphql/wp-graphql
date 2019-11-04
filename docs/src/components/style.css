@@ -1,0 +1,53 @@
+/**
+ * @todo: Consider reorganizing how these styles are applied?
+ * These are global styles to compensate for certain things I didn't like about Ant Design but
+ * couldn't really control (that I know of) by tweaking the LESS variables. . .not sure the best
+ * place to put them currently...
+ */
+code {
+    background-color: rgba(27, 31, 35, .05);
+    border-radius: 3px;
+    font-size: 85%;
+    margin: 0;
+    padding: .2em .4em;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 2rem;
+}
+
+p {
+    max-width: 48em;
+    margin-top: 22px;
+}
+
+.ant-alert-description {
+    margin-top: 15px;
+}
+
+.ant-alert {
+    margin-bottom: 2rem;
+}
+
+.ant-layout-sider-zero-width-trigger {
+    top: 175px;
+}
+
+.docsnav-anchor {
+    z-index: 9;
+    margin-bottom: 200px;
+}
+.docsnav-anchor .ant-anchor {
+    padding-bottom: 150px;
+}
+.docsnav-anchor .ant-anchor-ink {
+    display: none;
+}
+
+img {
+    max-width: 100%;
+}

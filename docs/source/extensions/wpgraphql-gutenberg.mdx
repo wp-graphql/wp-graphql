@@ -1,0 +1,77 @@
+---
+title: WPGraphQL Gutenberg 
+description: Expose Gutenberg content in the WPGraphQL Schema
+---
+
+
+# WPGraphQL Gutenberg
+This plugin exposes gutenberg structured content through wp-graphql.
+More information available [here](https://github.com/pristas-peter/wp-graphql-gutenberg). 
+
+
+## Query Example
+
+```graphql
+query posts {
+  postBy(slug: "hello-world") {
+    id
+    blocks {
+      __typename
+      ... on CoreHeadingBlock {
+        name
+        attributes {
+          __typename
+          ... on CoreHeadingBlockAttributes {
+            content
+            level
+          }
+        }
+      }
+      ... on CoreParagraphBlock {
+        name
+        attributes {
+          __typename
+          ... on CoreParagraphBlockAttributes {
+            backgroundColor
+            content
+          }
+          ... on CoreParagraphBlockAttributesV3 {
+            fontSize
+            content
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "postBy": {
+      "id": "cG9zdDox",
+      "blocks": [
+        {
+          "__typename": "CoreHeadingBlock",
+          "name": "core/heading",
+          "attributes": {
+            "__typename": "CoreHeadingBlockAttributes",
+            "content": "Welcome to WordPress.",
+            "level": 2
+          }
+        },
+        {
+          "__typename": "CoreParagraphBlock",
+          "name": "core/paragraph",
+          "attributes": {
+            "__typename": "CoreParagraphBlockAttributesV3",
+            "fontSize": null,
+            "content": "Welcome to WordPress. This is your first post. Edit or delete it, then start writing!"
+          }
+        }
+      ]
+    }
+  }
+}
+```

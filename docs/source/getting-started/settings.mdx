@@ -1,0 +1,193 @@
+---
+title: Settings
+description: Learn how to interact with WordPress Options (settings) using WPGraphQL
+---
+
+import GraphiQL from '../../src/components/GraphiQL'
+
+## Core Settings
+
+WPGraphQL respects the WP core Settings API and exposes all core settings in the WPGraphQL Schema for querying and mutating. Any settings that are registered through `register_settings()` can be added to the schema.
+
+## Registering Custom Settings
+
+WordPress has a `register_settings()` API that allows developers to register settings for their site. Check [here](https://developer.wordpress.org/reference/functions/register_setting/) for more information on how these settings are registered by group and name. In WordPress you could register a custom setting like so:
+
+```PHP
+/**
+ * Registers a text field setting for Wordpress 4.7 and higher.
+ **/
+function register_my_setting() {
+    $args = array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => NULL,
+            'show_in_graphql' => true,
+            );
+    register_setting( 'my_options_group', 'my_option_name', $args );
+}
+add_action( 'admin_init', 'register_my_setting' );
+```
+
+Since we set the `show_in_graphql` parameter to true the setting will now appear in the GraphQL schema under it's group name. If the setting was registered without one it will appear under generalSettings.
+
+## Queries
+
+### All Settings
+
+Site settings can be queried in two different ways. As mentioned before, you register your own setting group, say `catGifSettings`, and you would see your setting group and fields appear in the GraphQL schema. You can query this data in two different ways. First, by accessing all of the site setting groups at once using the `allSettings` root query field which will return all of the settings fields with the setting group name prepended.
+
+<GraphiQL
+  query="query {
+  allSettings {
+    generalSettingsDateFormat
+    generalSettingsDescription
+    generalSettingsEmail
+    generalSettingsLanguage
+    generalSettingsStartOfWeek
+    generalSettingsTimeFormat
+    generalSettingsTimezone
+    generalSettingsTitle
+    generalSettingsUrl
+    readingSettingsPostsPerPage
+    discussionSettingsDefaultCommentStatus
+    discussionSettingsDefaultPingStatus
+    writingSettingsDefaultCategory
+    writingSettingsDefaultPostFormat
+    writingSettingsUseSmilies
+  }
+}"
+/>
+
+### Site Settings by Settings Group
+
+Site settings can also be queried by setting group name. Field names will be the camel case version of the setting, no longer prepended by the group name since you are using it to query with.
+
+#### General Settings
+
+<GraphiQL
+  query="query{generalSettings {
+  dateFormat
+  description
+  email
+  language
+  startOfWeek
+  timeFormat
+  timezone
+  title
+  url
+}}"
+/>
+
+#### Reading Settings
+
+<GraphiQL
+  query="query{readingSettings {
+    postsPerPage
+}}"
+/>
+
+#### Discussion Settings
+
+<GraphiQL
+  query="query{discussionSettings {
+  defaultCommentStatus
+  defaultPingStatus
+}}"
+/>
+
+#### Writing Settings
+
+<GraphiQL
+  query="query{writingSettings {
+  defaultCategory
+  defaultPostFormat
+  useSmilies
+}}"
+/>
+
+## Mutations
+
+Settings can be updated using GraphQL through a mutation. Custom settings would follow the allSettings naming conventions where the group name is prepended before the setting field name.
+
+### WP Core Settings Mutation
+
+A mutation for core WP settings would look like:
+
+```graphql
+mutation updateSettings($input: UpdateSettingsInput!) {
+  updateSettings(input: $input) {
+    clientMutationId
+    allSettings {
+      generalSettingsDateFormat
+      generalSettingsDescription
+      generalSettingsEmail
+      generalSettingsLanguage
+      generalSettingsStartOfWeek
+      generalSettingsTimeFormat
+      generalSettingsTimezone
+      generalSettingsTitle
+      generalSettingsUrl
+      readingSettingsPostsPerPage
+      discussionSettingsDefaultCommentStatus
+      discussionSettingsDefaultPingStatus
+      writingSettingsDefaultCategory
+      writingSettingsDefaultPostFormat
+      writingSettingsUseSmilies
+    }
+  }
+}
+```
+
+Along with the following input variables, this mutation would update all of the core WP settings to match:
+
+```graphql
+{
+  input: {
+    "clientMutationId": "UpdateSettingsTest",
+    "discussionSettingsDefaultCommentStatus": "closed",
+    "discussionSettingsDefaultPingStatus": "open",
+    "generalSettingsDateFormat": "F j Y",
+    "generalSettingsDescription": "Super Sweet Custom Site",
+    "generalSettingsEmail": "hughie@wpgraphql.com",
+    "generalSettingsLanguage": "English",
+    "generalSettingsStartOfWeek": 1,
+    "generalSettingsTimeFormat": "g:i a",
+    "generalSettingsTimezone": "America/Denver",
+    "generalSettingsTitle": "WPGraphQL",
+    "readingSettingsPostsPerPage": 10,
+    "writingSettingsDefaultCategory": 1,
+    "writingSettingsDefaultPostFormat": "",
+    "writingSettingsUseSmilies": true
+  }
+}
+```
+
+### Custom Setting Groups and fields
+
+Mutating your custom settings is very similar to mutating the core WP settings. The custom setting will appear with the field name prepended by the group name:
+
+```graphql
+mutation updateSettings($input: UpdateSettingsInput!) {
+  updateSettings(input: $input) {
+    clientMutationId
+    allSettings {
+      clientMutationId
+      catGifSettingsCatUrl
+      catGifSettingsCatName
+      catGifSettingsCatEmoji
+    }
+  }
+}
+```
+
+```JSON
+{
+  input: {
+    "clientMutationId": "UpdateSettingsCustomSettingsTest",
+    "catGifSettingsCatUrl": "http://gph.is/1oXJHnO",
+    "catGifSettingsCatName": "Whiskers",
+    "catGifSettingsCatEmoji": ":joy_cat:"
+  }
+}
+```
