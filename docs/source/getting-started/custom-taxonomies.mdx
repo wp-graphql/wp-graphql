@@ -1,0 +1,91 @@
+---
+title: Custom Taxonomies
+description: Learn about how to register and interact with Custom Taxonomies using WPGraphQL
+---
+
+Exposing Custom Taxonomies to GraphQL requires just 3 fields to be added to the Taxonomy registration.
+
+-   **show_in_graphql**: true or false
+-   **graphql_single_name**: camel case string with no punctuation or spaces
+-   **graphql_plural_name**: camel case string with no punctuation or spaces
+
+## Register new Taxonomy
+
+This is an example of registering a new “document_tag” Taxonomy to be connected to the "docs"
+Custom Post Type and enabling GraphQL support.
+
+```php
+add_action('init', function() {
+  register_taxonomy( 'doc_tag', 'docs', [
+    'labels'  => [
+    	'menu_name' => __( 'Document Tags', 'your-textdomain' ),//@see https://developer.wordpress.org/themes/functionality/internationalization/
+    ],
+    'show_in_graphql' => true,
+    'graphql_single_name' => 'DocumentTag',
+    'graphql_plural_name' => 'DocumentTags',
+  ]);
+});
+```
+
+## Filtering existing Taxonomies
+
+If you want to expose a Taxonomy that you don’t control the registration for, such as a taxonomy
+registered by a third-party plugin, you can filter the Taxonomy registration like so:
+
+```php
+add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {
+
+	if ( 'doc_tag' === $taxonomy ) {
+		$args['show_in_graphql'] = true;
+		$args['graphql_single_name'] = 'DocumentTag';
+		$args['graphql_plural_name'] = 'DocumentTags';
+	}
+
+	return $args;
+
+}, 10, 2 );
+
+```
+
+## Querying Custom Taxonomies
+
+With just a few lines of code, our custom Taxonomy is added to the Schema in various places.
+
+Below are some examples, but it’s probably worth exploring the Schema a bit to see where all your
+new Type shows up in the Schema.
+
+### Query a single Document Tag
+
+This example shows how to query a single Document Tag by its ID.
+
+```graphql
+{
+	documentTag(id: "ZG9jX3RhZzo3") {
+		id
+		name
+		link
+	}
+}
+```
+
+### Query a DocumentTags on a Document
+
+Since the `doc_tags` Custom Taxonomy has been registered in connection to the docs Post Type, our
+Schema automatically exposes a connection between Document nodes and DocumentTags.
+
+```graphql
+query GetDocumentAndTags {
+	documentBy(uri: "parent-slug/child-document-slug") {
+		title
+		slug
+		link
+		documentTags {
+			nodes {
+				name
+				slug
+				link
+			}
+		}
+	}
+}
+```

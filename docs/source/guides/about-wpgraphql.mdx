@@ -1,0 +1,49 @@
+---
+title: About WPGraphQL
+description: Learn about the WPGraphQL Plugin
+---
+
+import Note from '../../src/components/Note'
+
+## About GraphQL
+
+[GraphQL](https://graphql.org/) is a [spec](https://facebook.github.io/graphql/) for a Query Language for application data graphs. GraphQL isn’t tied to any specific database or storage engine and is instead backed by your existing code and data. As GraphQL is a spec, there are implementations in [nearly every language](https://github.com/chentsulin/awesome-graphql#lib), and for many different systems.
+
+GraphQL is centered around a strongly typed [Schema](https://graphql.org/learn/schema/). The GraphQL Schema is composed of [Types](https://graphql.org/learn/schema/#type-system), and Types are composed of [fields](https://graphql.org/learn/schema/#object-types-and-fields). Fields are defined with Type that they should resolve to. Field’s can be defined as a [Scalar](https://graphql.org/learn/schema/#scalar-types) Type (string, integer, boolean, float), or another Type.
+
+These concepts might be hard to grasp right now, but as you continue exploring the docs, they should start to make more sense.
+
+## What is GraphQL?
+
+GraphQL is a [_specification_](https://facebook.github.io/graphql/) for a Query Language for
+interacting with data from _any_ data source.
+
+- **Graph:** stands for "application data graph"
+- **QL:** stands for "Query Language"
+
+So GraphQL is: _**A Query Language for interacting with an Application Data Graph**_.
+
+In the case of WPGraphQL, the "application data graph" that we're interacting with is data that lives
+in and makes up WordPress, such as: `posts`, `pages`, `taxonomy terms`, `comments`, `users`, `meta`,
+`settings` and more.
+
+WPGraphQL provides support for GraphQL Queries and GraphQL Mutations, where queries are meant for
+asking for data, and Mutations are meant for changing (writing) data back to the WordPress database.
+
+## What is an "Application Data Graph"?
+
+There's a fantastic [talk](https://www.youtube.com/watch?v=zWhVAN4Tg6M&feature=youtu.be) and
+[article](https://blog.apollographql.com/the-concepts-of-graphql-bc68bd819be3) by
+[Dhaivat Pandya](https://blog.apollographql.com/@dpandya) where he walks through what an application
+data graph is visually.
+
+[Jason Bahl](https://github.com/jasonbahl) gave a [talk](https://youtu.be/v3xY-rCsUYM?t=709) at
+GraphQL Summit 2017 where he shows what WordPress looks like as an Application Data Graph.
+([view the slides](https://slides.com/jasonbahl-1/graphql-summit-2017-wpgraphql#/3/3))
+
+## How WPGraphQL Brings GraphQL to WordPress
+
+WPGraphQL is built atop the [GraphQL-PHP](http://webonyx.github.io/graphql-php/) library and provides an executable, extendable Schema and resolvers for your WordPress site.
+
+WPGraphQL takes advantages of the various static registries in WordPress, such as the Post Type, Taxonomy and Settings registries to build a Schema for your WordPress site.
+

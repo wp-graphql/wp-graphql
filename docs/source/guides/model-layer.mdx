@@ -1,0 +1,151 @@
+---
+title: Model Layer
+description: Controlling access control to data objects
+---
+
+In version 0.3.0 we introduced a new "Model Layer" to handle access control for all of the data that can be accessed through WP-GraphQL.
+
+## Concept
+The idea for this new feature came about from the many issues we had open to address security concerns from exposing some pieces of data publicly that shouldn't have been exposed. The model layer provides a central place to make decisions on whether or not a piece of data should be public, private, or restricted.
+
+## Visibility States
+The model layer introduces three different states of visibility for a piece of data.
+- **Public**: All fields on the object are accessible without authentication.
+- **Restricted**: The consumer does not have the proper capabilities to view *all* of the fields on the object, the object will be considered restricted, and will only return the "Allowed restricted fields" for the object.
+- **Private**: The consumer does not have the proper capabilities to know this object even exists. The object itself will return a `null` value.
+
+You can also query the `isRestricted` field on modeled objects which will return a bool value to let the consumer know if the fields are being restricted or not.
+
+### Avatar
+All fields are public by default.
+
+----
+
+### Comment
+#### Restricted
+If the consumer does not have the `moderate_comments` capability, the object is considered restricted. The following fields are still public in a restricted state:
+- ID
+- commentId
+- contentRendered
+- date
+- dateGmt
+- karma
+- type
+- commentedOnId
+- approved
+- isRestricted
+#### Private
+If the comment is not approved, and the consumer does not have the `moder_comments` capability, the object will be considered private.
+
+----
+
+### CommentAuthor
+All fields are public by default. 
+
+----
+
+### Menu
+All fields are public by default.
+
+----
+
+### MenuItem
+All fields are public by default.
+
+----
+
+### Plugin
+#### Private
+Plugin objects are considered private unless the consumer has the `update_plugins` capability.
+
+----
+
+### Post
+#### Public
+Posts are only considered fully public if:
+- They are in the "publish" status
+- They are in the "attachment" post-type
+- The consumer has the proper permissions to view the object
+#### Restricted
+Post objects are considered restricted under the following conditions:
+- The post has a password on it, and the consumer doesn't have the `edit_others_posts` capability for the post-type
+The following fields are still public in a restricted state:
+- id
+- titleRendered
+- slug
+- post_type
+- status
+- isRestricted
+#### Private 
+Post object are considered private under the following conditions:
+- The post has a status of "private" and the consumer does not have the `read_private_posts` capability for the post-type
+- The post has a status of "draft" and the consumer does not have the `edit_posts` capability for the post-type
+- The post has a status of `revision` or `auto-draft` and either isn't the owner of the parent post object, or doesn't have the `edit_others_posts` capability
+- The post has a status of anything other than `publish`, and the consumer doesn't have the `edit_posts` capability for the post-type
+
+----
+
+### PostType
+#### Restricted
+A PostType object is considered restricted by default, unless the consumer has the `edit_posts` capability for the post-type. The following fields are still public when the object is in a restricted state:
+- id
+- name
+- description
+- hierarchical
+- slug
+- taxonomies
+- graphqlSingleName
+- graphqlPluralName
+- showInGraphql
+#### Private
+A PostType object is considered private when the `public` argument is set to false, and the consumer does not have the `edit_posts` capability for the post-type.
+
+----
+
+### Taxonomy
+#### Restricted
+A Taxonomy object is considered restricted by default, unless the consumer has the `edit_terms` capability for the taxonomy. The following fields are still public when the object is in a restricted state:
+- id
+- name
+- description
+- hierarchical
+- restBase
+- graphqlSingleName
+- graphqlPluralName
+- showInGraphql
+- connectedPostTypeNames
+#### Private
+A Taxonomy object is considered private when the `public` argument is set to false, and the consumer does not have the `edit_terms` capability for the taxonomy.
+
+----
+
+### Term
+All fields are public by default.
+
+----
+
+### Theme
+#### Private
+All theme objects are considered private unless it's the current active theme, or the consumer has the edit_themes capability.
+
+----
+
+### User
+#### Restricted
+All user objects are considered restricted unless the consumer has the `list_users` capability. The following fields are still public when the object is in a restricted state:
+- isRestricted
+- id
+- userId
+- name
+- firstName
+- lastName
+- description
+- slug
+#### Private
+A user object is considered private when the user has no published posts, and the consumer doesn't have the `list_users` capability.
+
+----
+
+### UserRole
+#### Private
+The userRole object is considered private when a consumer doesn't have the `listt_users` capability, and is trying to query roles other than the ones connected to the current user.

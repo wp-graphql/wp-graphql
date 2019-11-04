@@ -1,0 +1,271 @@
+---
+title: Intro to GraphQL
+description: Intro to the GraphQL Query language
+---
+
+import Note from '../../src/components/Note'
+import GraphiQL from '../../src/components/GraphiQL'
+
+On this page, we'll look at some of the features of the GraphQL specification and Query Language.
+After reading this page, you should have a basic understanding of how to interact with a WPGraphQL
+server.
+
+**In Depth Guides**
+
+- For more in-depth information about the GraphQL Spec, check out
+  [https://graphql.org](https://graphql.org)
+- For more in-depth about WPGraphQL, read our more detailed [About WPGraphQL guide](/guides/about-wpgraphql/)
+
+## Exploring the Schema
+
+Before we jump in to Querying the Schema, it's important to know _how_ to even find what's available
+by exploring the GraphQL Schema.
+
+<Note title="Documentation Explorer" type="info">
+  One of the easiest ways to explore what is available to be queried, is by
+  exploring the Schema using the Documentation explorer in GraphiQL.
+</Note>
+
+<GraphiQL
+  query="
+    {
+     generalSettings {
+       url
+     }
+    }
+    "
+  withDocs={true}
+  showJoyride={'docsOnly'}
+/>
+
+<Note type="warning">
+  <strong>Note:</strong> Not all instances of the interactive GraphiQL editor in
+  these docs will have the Documentation explorer available to keep distractions
+  to a minimum as you work through examples.
+</Note>
+
+## Queries
+
+To get started understanding GraphQL, it's best to look at an example of a GraphQL Query.
+
+### Hello World
+
+This is essentially the "hello world" of GraphQL queries for a site running WPGraphQL. This query
+asks for `generalSettings`, and on `generalSettings`, it's asking for the field `url`.
+
+```graphql
+{
+  generalSettings {
+    url
+  }
+}
+```
+
+The response to this query would look like:
+
+```json
+{
+  "data": {
+    "generalSettings": {
+      "url": "https://www.wpgraphql.com"
+    }
+  }
+}
+```
+
+We can see that the results match the shape of the query. We get exactly what we asked for, and
+nothing more. This is a huge feature! Not only does this **give clients control** by asking for the
+exact data they need, it means the **data is predictable** which can lead to **fewer bugs** in your
+applications, it means the **data download sizes are smaller** because it only includes the specified
+fields, and it also means the **server can be more efficient** as it can do the minimum work necessary
+to get the data the client asked for.
+
+### Using GraphiQL
+
+Let's take a look at the same query in an interactive GraphQL IDE.
+
+**Press the play button to execute the query:**
+
+<GraphiQL
+  query="
+    {
+     generalSettings {
+       url
+     }
+    }
+    "
+  showJoyride={false}
+  withDocs={false}
+/>
+
+### Built-in Queries
+
+WPGraphQL comes with many built-in queries for interacting with data from WordPress including:
+
+- [Posts](/getting-started/posts/#queries)
+- [Pages](/getting-started/pages/#queries)
+- [Custom Post Types](/getting-started/custom-post-types/#single-document-query)
+- [Categories and Tags](/getting-started/categories-and-tags/#queries)
+- [Custom Taxonomies](/getting-started/custom-taxonomies/#query-a-single-document-tag)
+- [Comments](/getting-started/comments/#queries)
+- [Users](/getting-started/users/#queries)
+- [Menus](/getting-started/menus/#queries)
+- [Plugins](/getting-started/plugins/#queries)
+- [Themes](/getting-started/themes/#queries)
+- [Settings](/getting-started/settings/#queries)
+
+### Self-documenting Schema
+
+Since GraphQL is built on a strong [Type](https://graphql.org/learn/schema/#type-system) system the
+Schema is self-documenting and queryable, meaning you can query the Schema itself!
+
+The Schema is self-documenting, meaning that as you register Fields and Types to the Schema, you
+can provide descriptions in the definitions and those are exposed to the Schema for documentation
+purposes.
+
+The Schema is queryable, meaning that it's not just one static thing. You can query the Schema as
+an interactive thing. Here's an example:
+
+<GraphiQL
+  query="
+  {
+    __schema {
+      types {
+        fields {
+          name
+          type {
+            kind
+          }
+          description
+        }
+      }
+    }
+  }
+  "
+/>
+
+## Mutations
+
+If you've explored the Schema, you likely noticed a `mutation` field at the root of the Schema
+alongside the query field.
+
+Mutations in WPGraphQL operate identically to Queries, the only difference is the keyword `mutation`
+which indicates that data will change during the operation.
+
+It's technically possible to have underlying data be changed when a query is executed, and it's also
+possible to have no data change when a mutation is executed, however it's best practice to have
+operations that are intended to change data be under the `mutation` entry point.
+
+### Hello World
+
+This is the "hello world" of WPGraphQL mutations. It really exists in the Schema solely for
+demonstration purposes.
+
+In order to execute a mutation, we first have to start the operation with the keyword `mutation`.
+
+Then we can select which fields to execute as part of the mutation.
+
+In this case, we select the `increaseCount` field, and we pass it an argument `count` with a value of `2`.
+
+<GraphiQL
+  query="
+  mutation {
+    increaseCount( count: 2 )
+  }
+  "
+/>
+
+The response of the mutation is `3`. It accepted the input of the `count` argument, and returned a
+value one higher.
+
+Give it a try with any integer as the value of the `count` argument and it will return an integer
+one number higher.
+
+### Built-in Mutations
+
+WPGraphQL provides CRUD mutations for the core WordPress data types:
+
+- Posts
+- Pages
+- Custom Post Types
+- Taxonomy Terms
+- Custom Taxonomies
+- Comments
+- Users
+- MenuItems
+- Plugins
+- Themes
+- Settings
+
+#### Authentication and Authorization
+
+Mutations that write data to the WordPress database require proper Authorization, meaning that the
+request must be able to prove that the user making the request has the proper capabilities to execute
+the mutation and write data back to the WordPress database.
+
+Here's an example of a mutation that will first check to see if you're allowed to create posts:
+
+```graphql
+mutation {
+  createPost(input: { clientMutationId: "CreatePost", title: "New Post" }) {
+    post {
+      id
+      title
+      date
+    }
+  }
+}
+```
+
+In response, we'll see the following error:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Sorry, you are not allowed to create posts",
+      "category": "user",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["createPost"]
+    }
+  ],
+  "data": {
+    "createPost": null
+  }
+}
+```
+
+This is intentional. WPGraphQL is ensuring that data cannot be written back to the WordPress server
+without verifying that the user making the request has proper capabilities to create posts.
+
+**Go ahead and try and execute the Mutation:**
+
+<GraphiQL
+  query='
+  mutation {
+    createPost( input: {
+      clientMutationId: "CreatePost"
+      title: "New Post"
+    } ) {
+      post {
+        id
+        title
+        date
+      }
+    }
+  }
+  '
+/>
+
+<Note title="Authentication & Authorization Guide" type="warning">
+Authentication and Authorization are not always easy to understand on the surface. We've written up
+a guide to help clarify how WPGraphQL works with Authentication and Authorization.
+
+<a href="/guides/authentication-and-authorization/">Read the Guide</a>
+
+</Note>

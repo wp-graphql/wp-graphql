@@ -1,0 +1,57 @@
+---
+title: GraphQL Fields API Reference
+description: Learn how to register, deregister and filter GraphQL fields
+---
+
+## Register Fields to the Schema
+
+`@todo: Document the registration API`
+
+-   **register_graphql_field()**
+-   **deregister_graphql_field()**
+
+Register field for custom post
+
+```php
+		register_graphql_field(
+			'Document',
+			'documentDateFrom',
+			[
+				'type'        => 'String',
+				'description' => __( 'Document validity from', 'wp-graphql' ),
+				'resolve'     => function( $post ) {
+					$document_date = get_post_meta( $post->ID, 'date_from', true );
+					return $document_date;
+				},
+			]
+		);
+
+```
+
+Register field for user
+
+```php
+		$hobbies = [
+			'type'        => \WPGraphQL\Types::list_of( \WPGraphQL\Types::string() ),
+			'description' => __( 'Custom field for user mutations', 'your-textdomain' ),
+			'resolve'     => function( $user ) {
+				$hobbies = get_user_meta( $user->userId, 'hobbies', true );
+				return ! empty( $hobbies ) ? $hobbies : [];
+			},
+		];
+
+		register_graphql_field( 'User', 'hobbies', $hobbies );
+		register_graphql_field( 'CreateUserInput', 'hobbies', $hobbies );
+		register_graphql_field( 'UpdateUserInput', 'hobbies', $hobbies );
+```
+
+## Filtering Field Definitions
+
+`@todo: Document how to filter existing field definitions`
+
+## Root Fields
+
+```
+@todo: Document that fields on any Type in the Schema are the same, including Root Fields, they're
+just fields on the RootQuery Type, so they serve as a root entry into the Schema.
+```
