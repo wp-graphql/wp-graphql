@@ -7,6 +7,7 @@ import useScroll from 'react-use/lib/useScroll'
 import useWindowSize from 'react-use/lib/useWindowSize'
 import { MainRefContext, trackEvent } from 'gatsby-theme-apollo-docs/src/utils'
 import { colors } from 'gatsby-theme-apollo-core'
+import wpgqlColors from '../../utils/colors'
 
 const StyledList = styled.ul({
   marginLeft: 0,
@@ -18,7 +19,7 @@ const StyledListItem = styled.li(props => ({
   listStyle: 'none',
   fontSize: '1rem',
   lineHeight: 'inherit',
-  color: props.active && colors.primary,
+  color: props.active ? wpgqlColors.primary : colors.primary,
   marginTop: props.newSection ? `1rem` : false,
   a: {
     color: 'inherit',
