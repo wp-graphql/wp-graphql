@@ -111,6 +111,19 @@ class Router {
 	}
 
 	/**
+	 * Returns true when the current request is a graphql request
+	 *
+	 * @return boolean
+	 */
+	public static function is_graphql_request() {
+		if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * This resolves the http request and ensures that WordPress can respond with the appropriate
 	 * JSON response instead of responding with a template from the standard WordPress Template
 	 * Loading process
@@ -131,7 +144,7 @@ class Router {
 		/**
 		 * Ensure we're on the registered route for graphql route
 		 */
-		if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
+		if ( ! self::is_graphql_request() ) {
 			return;
 		}
 
