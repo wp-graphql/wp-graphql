@@ -151,6 +151,11 @@ class TypeRegistry {
 				Node::register_type();
 
 				/**
+				 * Register Interfaces prior to Types being registered
+				 */
+				do_action( 'graphql_register_interfaces', $this );
+
+				/**
 				 * Register Types
 				 */
 				RootQuery::register_type();

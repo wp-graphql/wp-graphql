@@ -45,23 +45,39 @@ class WPObjectType extends ObjectType {
 		$config['name'] = ucfirst( $config['name'] );
 
 		$config['fields'] = function() use ( $config ) {
-			$fields = $this->prepare_fields( $config['fields'], $config['name'], $config );
+
+			$fields = $config['fields'];
+			$interface_fields = [];
+			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
+				foreach ( $config['interfaces'] as $interface_name ) {
+					$interface_type = $this->type_registry->get_type( $interface_name );
+					if ( $interface_type instanceof WPInterfaceType ) {
+						$interface_fields = $interface_type->getFields();
+						foreach ( $interface_fields as $interface_field ) {
+							$interface_fields[ $interface_field->name ] = $interface_field->config;
+							$fields = array_merge_recursive( $interface_fields, $fields );
+						}
+					}
+				}
+			}
+
+			$fields = $this->prepare_fields( $fields, $config['name'], $config );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
 			return $fields;
 		};
 
-
-
 		$config['interfaces'] = function() use ( $config ) {
+			$interfaces = [];
 			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
-				$interfaces = [];
 				foreach ( $config['interfaces'] as $interface_name ) {
-					$interfaces[ $interface_name ] = $this->type_registry->get_type( $interface_name );
+					$interface_type = $this->type_registry->get_type( $interface_name );
+					if ( $interface_type instanceof WPInterfaceType ) {
+						$interfaces[ $interface_name ] = $interface_type;
+					}
 				}
-				return $interfaces;
 			}
+			return $interfaces;
 		};
-
 
 		/**
 		 * Filter the config of WPObjectType
@@ -125,22 +141,6 @@ class WPObjectType extends ObjectType {
 		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
-
-		// Get any parent interface fields.
-		$parent_fields = [];
-		if ( ! empty( $config['interfaces'] ) ) {
-			foreach ( $config['interfaces'] as $name ) {
-				/**
-				 * Retrieves the field definitions for fields on any Interfaces being implemented.
-				 *
-				 * @param array $parent_fields  Holds parent field definition.
-				 */
-				$parent_fields = apply_filters( "graphql_interface_{$name}_fields", $parent_fields );
-			}
-		}
-
-		// Include any parent field definition not already defined.
-		$fields = array_merge( $parent_fields, $fields );
 
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.
