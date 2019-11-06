@@ -152,6 +152,8 @@ class TypeRegistry {
 
 				/**
 				 * Register Interfaces prior to Types being registered
+				 *
+				 * @param TypeRegistry $this Instance of the TypeRegistry
 				 */
 				do_action( 'graphql_register_interfaces', $this );
 

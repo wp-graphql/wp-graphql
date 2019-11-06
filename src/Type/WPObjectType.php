@@ -26,6 +26,10 @@ class WPObjectType extends ObjectType {
 	 */
 	private static $node_interface;
 
+	/**
+	 * Instance of the Type Registry
+	 * @var TypeRegistry
+	 */
 	private $type_registry;
 
 	/**
@@ -37,6 +41,10 @@ class WPObjectType extends ObjectType {
 	 * @since 0.0.5
 	 */
 	public function __construct( $config, TypeRegistry $type_registry ) {
+
+		/**
+		 * Get the Type Registry
+		 */
 		$this->type_registry = $type_registry;
 
 		/**
@@ -44,21 +52,32 @@ class WPObjectType extends ObjectType {
 		 */
 		$config['name'] = ucfirst( $config['name'] );
 
+		/**
+		 * Setup the fields
+		 * @return array|mixed
+		 */
 		$config['fields'] = function() use ( $config ) {
 
 			$fields = $config['fields'];
-			$interface_fields = [];
+
+			/**
+			 * Get the fields of interfaces and ensure they exist as fields of this type.
+			 *
+			 * Types are still responsible for ensuring the fields resolve properly.
+			 */
 			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
 				foreach ( $config['interfaces'] as $interface_name ) {
 					$interface_type = $this->type_registry->get_type( $interface_name );
+					$interface_fields = [];
 					if ( $interface_type instanceof WPInterfaceType ) {
-						$interface_fields = $interface_type->getFields();
-						foreach ( $interface_fields as $interface_field ) {
+						$interface_config_fields = $interface_type->getFields();
+						foreach ( $interface_config_fields as $interface_field ) {
 							$interface_fields[ $interface_field->name ] = $interface_field->config;
-							$fields = array_merge_recursive( $interface_fields, $fields );
 						}
 					}
+					$fields = array_merge_recursive( $interface_fields, $fields );
 				}
+
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
@@ -66,6 +85,9 @@ class WPObjectType extends ObjectType {
 			return $fields;
 		};
 
+		/**
+		 * Convert Interfaces from Strings to Types
+		 */
 		$config['interfaces'] = function() use ( $config ) {
 			$interfaces = [];
 			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
