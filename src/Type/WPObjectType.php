@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -65,7 +66,18 @@ class WPObjectType extends ObjectType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
+			if ( ! empty( $config['interfaces'] ) ) ) {
+        // Throw if "interfaces" invalid.
+        if ( ! is_array( $config['interfaces'] ) ) {
+          throw new UserError(
+            sprintf(
+              /* translators: %s: type name */
+              __( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
+              $type_name
+            )
+          );
+        }
+        
 				foreach ( $config['interfaces'] as $interface_name ) {
 					$interface_type = $this->type_registry->get_type( $interface_name );
 					$interface_fields = [];
@@ -163,7 +175,7 @@ class WPObjectType extends ObjectType {
 		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
-
+    
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.
 		 */

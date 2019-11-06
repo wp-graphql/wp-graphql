@@ -16,9 +16,7 @@ class Taxonomy {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'                     => [
-						'type' => [
-							'non_null' => 'ID',
-						],
+						'description' => __( 'The globally unique identifier of the taxonomy object.', 'wp-graphql' ),
 					],
 					'name'                   => [
 						'type'        => 'String',
