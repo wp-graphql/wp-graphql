@@ -99,14 +99,6 @@ class WPInterfaceType extends InterfaceType {
 		 */
 		ksort( $fields );
 
-		// Make field definitions available for inheriting objects.
-		add_filter(
-			"graphql_interface_{$type_name}_fields",
-			function( $other_interface_fields ) use ( $fields ) {
-				return array_merge( $other_interface_fields, $fields );
-			}
-		);
-
 		return $fields;
 	}
 
