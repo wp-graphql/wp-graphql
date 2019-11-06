@@ -17,12 +17,9 @@ class TermObject {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'                => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
 						'description' => sprintf(
 							/* translators: %s: taxonomy name */
-							__( 'The global ID for the %s', 'wp-graphql' ),
+							__( 'The globally unique identifier for the %s term object.', 'wp-graphql' ),
 							$taxonomy_object->name
 						),
 					],

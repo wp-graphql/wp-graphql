@@ -14,9 +14,7 @@ class PostType {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'                     => [
-						'type' => [
-							'non_null' => 'ID',
-						],
+						'description' => __( 'The globally unique identifier of the post-type object.', 'wp-graphql' ),
 					],
 					'name'                   => [
 						'type'        => 'String',

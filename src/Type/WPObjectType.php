@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -129,6 +130,16 @@ class WPObjectType extends ObjectType {
 		// Get any parent interface fields.
 		$parent_fields = [];
 		if ( ! empty( $config['interfaces'] ) ) {
+			if ( ! is_array( $config['interfaces'] ) ) {
+				throw new UserError(
+					sprintf(
+						/* translators: %s: type name */
+						__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
+						$type_name
+					)
+				);
+			}
+
 			foreach ( $config['interfaces'] as $name ) {
 				/**
 				 * Retrieves the field definitions for fields on any Interfaces being implemented.
@@ -140,7 +151,7 @@ class WPObjectType extends ObjectType {
 		}
 
 		// Include any parent field definition not already defined.
-		$fields = array_merge( $parent_fields, $fields );
+		$fields = array_replace_recursive( $parent_fields, $fields );
 
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.

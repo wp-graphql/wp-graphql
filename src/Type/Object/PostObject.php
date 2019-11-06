@@ -209,6 +209,13 @@ class PostObject {
 	public static function get_post_object_fields( $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
 		$fields      = [
+			'id'                => [
+				'description' => sprintf(
+					/* translators: %s: custom post-type name */
+					__( 'The globally unique identifier of the %s object.', 'wp-graphql' ),
+					$post_type_object->name
+				),
+			],
 			$single_name . 'Id' => [
 				'type'        => [
 					'non_null' => 'Int',
