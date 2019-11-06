@@ -66,18 +66,18 @@ class WPObjectType extends ObjectType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $config['interfaces'] ) ) ) {
-        // Throw if "interfaces" invalid.
-        if ( ! is_array( $config['interfaces'] ) ) {
-          throw new UserError(
-            sprintf(
-              /* translators: %s: type name */
-              __( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
-              $type_name
-            )
-          );
-        }
-        
+			if ( ! empty( $config['interfaces'] ) ) {
+				// Throw if "interfaces" invalid.
+				if ( ! is_array( $config['interfaces'] ) ) {
+					throw new UserError(
+						sprintf(
+							/* translators: %s: type name */
+							__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
+							$type_name
+						)
+					);
+				}
+
 				foreach ( $config['interfaces'] as $interface_name ) {
 					$interface_type = $this->type_registry->get_type( $interface_name );
 					$interface_fields = [];
