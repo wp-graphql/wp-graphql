@@ -1,14 +1,62 @@
 ---
-title: WPGraphQL for Advanced Custom Fields
-description: Expose Advanced Custom Fields in the WPGraphQL Schema
+title: WPGraphQL Advanced Custom Fields
+description: Expose Advanced Custom Fields to the WPGraphQL Schema
 ---
 
-WPGraphQL for Advanced Custom Fields automatically exposes your ACF fields to the WPGraphQL Schema
-
-https://www.wpgraphql.com/acf/
-
-Note: WPGraphQL for Advanced Custom Fields supports nearly all of the ACF (free & pro) fields. Some of the fields, such as Accordion and Tab, which are not data fields are not supported. The Clone field needs some more assessment to determine if it can properly be supported. Fields from 3rd party extensions are not supported out of the box, but we are interested in supporting the popular ones.
+**Info Page:** [https://www.wpgraphql.com/acf](https://www.wpgraphql.com/acf)<br/>
+**GitHub Repository:** [https://github.com/wp-graphql/wp-graphql-acf](https://github.com/wp-graphql/wp-graphql-acf)
 
 
-Alternatively, it's recommended to refer to the (/docs/api-reference/fields)[Fields API Reference]
+## Getting Started
+
+1. Install & activate [Advanced Custom Fields](https://www.advancedcustomfields.com/).
+2. Install & activate WPGraphQL.
+3. Clone or download the [extension](https://github.com/wp-graphql/wp-graphql-acf) from GitHub & activate the **WPGraphQL Advanced Custom Fields** plugin.
+
+## Supported Fields
+
+WPGraphQL Advanced Custom Fields supports nearly all of the ACF (free & pro) fields. Some of the fields, such as Accordion and Tab, which are not data fields are not supported. The Clone field needs some more assessment to determine if it can properly be supported. Fields from 3rd party extensions are not supported out of the box, but we are interested in supporting the popular ones.
+
+## ACF Options Page
+
+Reference: [https://www.advancedcustomfields.com/add-ons/options-page/](https://www.advancedcustomfields.com/add-ons/options-page/)
+
+To add an option page and expose it to the graphql schema, simply add `'show_in_graphql' => true` when you register an option page.
+
+
+#### Example Usage
+```php
+function register_acf_options_pages() {
+
+    // check function exists
+    if ( ! function_exists( 'acf_add_options_page' ) ) {
+        return;
+    }
+
+    // register options page
+    $my_options_page = acf_add_options_page(
+        array(
+            'page_title'      => __( 'My Options Page' ),
+            'menu_title'      => __( 'My Options Page' ),
+            'menu_slug'       => 'my-options-page',
+            'capability'      => 'edit_posts',
+            'show_in_graphql' => true,
+        )
+    );
+}
+
+add_action( 'acf/init', 'register_acf_options_pages' )
+```
+
+#### Example Query
+
+```graphql
+query GetMyOptionsPage {
+    myOptionsPage {
+        someCustomField
+    }
+}
+```
+
+Alternatively, it's you can check the [Fields API Reference](/extending/fields/)
 to learn about exposing your custom fields to the Schema.
