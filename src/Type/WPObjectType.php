@@ -75,7 +75,7 @@ class WPObjectType extends ObjectType {
 							$interface_fields[ $interface_field->name ] = $interface_field->config;
 						}
 					}
-					$fields = array_merge_recursive( $interface_fields, $fields );
+					$fields = array_replace_recursive( $interface_fields, $fields );
 				}
 
 			}
