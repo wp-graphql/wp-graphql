@@ -1659,4 +1659,53 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Test the scenario where a post is assigned to an author
+	 * who is not a user on the site. This could happen for instance,
+	 * if the user was deleted, but their posts were never trashed
+	 * or assigned to another user.
+	 */
+	public function testQueryPostsWithOrphanedAuthorDoesntThrowErrors() {
+		global $wpdb;
+
+		$highest_user_id     = (int) $wpdb->get_var( "SELECT ID FROM {$wpdb->users} ORDER BY ID DESC limit 0,1" );
+		$nonexistent_user_id = $highest_user_id + 1;
+
+		// Create a new post assigned to a nonexistent user ID.
+		$post_id = wp_insert_post( [
+			'post_title'   => 'Post assigned to a non-existent user',
+			'post_content' => 'Post assigned to a non-existent user',
+			'post_status'  => 'publish',
+			'post_author'  => $nonexistent_user_id,
+		] );
+
+		$query = "
+		{
+			posts(first: 5) {
+				nodes {
+					postId
+					author {
+						userId
+						name
+					}
+				}
+			}
+		}
+		";
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertTrue( $post_id && ! is_wp_error( $post_id ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Verify that the ID of the first post matches the one we just created.
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['postId'] );
+
+		// Verify that the 'author' field is set to null, since the user ID is invalid.
+		$this->assertEquals( null, $actual['data']['posts']['nodes'][0]['author'] );
+
+		wp_delete_post( $post_id, true );
+
+	}
+
 }
