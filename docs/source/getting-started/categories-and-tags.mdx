@@ -1,0 +1,378 @@
+---
+title: Categories and Tags
+description: Learn how to interact with Categories and Tags using WPGraphQL
+---
+
+import Note from '../../src/components/Note'
+import GraphiQL from '../../src/components/GraphiQL'
+
+Categories and Tags are core Taxonomy Types in WordPress and allow content to be grouped. Each
+individual Category or Tag is known as a "Term".
+
+Terms are exposed to the WPGraphQL Schema by default. On this page are some examples of
+interacting with Categories and Tags using WPGraphQL.
+
+<Note type="warning">
+  If any of the terminology or semantics of the GraphQL queries/mutations on
+  this page are confusing, check out the{' '}
+  <a href="/getting-started/intro-to-graphql">Intro to GraphQL Guide</a> to get
+  more familiar with the basics.
+</Note>
+
+## Queries
+
+WPGraphQL comes with RootQuery fields built-in to query Tags and Categories. You can query for
+lists of Terms, an individual term, and even Post Objects related to Terms.
+
+### List Of Tags
+
+In this example, we query a list of Tag nodes. By default, WPGraphQL will return 10 items.
+
+<GraphiQL
+  query="
+    query GET_TAGS {
+      tags {
+        edges {
+          node {
+            id
+            tagId
+            name
+          }
+        }
+      }
+    }
+    "
+/>
+
+In this example, we query a list of Category nodes. By default, WPGraphQL will return 10 items.
+
+<GraphiQL
+  query="
+    query GET_CATEGORIES {
+      categories {
+        edges {
+          node {
+            id
+            categoryId
+            name
+          }
+        }
+      }
+    }
+    "
+/>
+
+### Related Objects
+
+Tags are associated with Posts (and possibly other Post Types). Any Post Type that is registered to
+be connected with Tags can be queried for as a connection to tags.
+
+Below is an example of asking for a list of Tags, and on each Tag, a list of posts it's connected to.
+
+<GraphiQL
+  query="
+    query GET_TAGS {
+      tags {
+        edges {
+          node {
+            id
+            tagId
+            name
+            posts {
+              nodes {
+                id
+                title
+                date
+              }
+            }
+          }
+        }
+      }
+    }
+    "
+/>
+
+The same can be done with categories:
+
+<GraphiQL
+  query="
+    query GET_CATEGORIES {
+      categories {
+        edges {
+          node {
+            id
+            categoryId
+            name
+            posts {
+              nodes {
+                id
+                title
+                date
+              }
+            }
+          }
+        }
+      }
+    }
+    "
+/>
+
+### Hierarchical Taxonomies
+
+One key difference between Tags and Categories is that Categories are hierarchical, meaning they can
+have parents and children.
+
+When querying Categories, by default only the top level categories that are _not_ children of another
+term are returned.
+
+The children of those categories can be queried like so:
+
+<GraphiQL
+  query="
+    query GET_CATEGORIES {
+      categories {
+        edges {
+          node {
+            id
+            categoryId
+            name
+            children {
+              nodes {
+                id
+                name
+                children {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    "
+/>
+
+Sometimes, it makes sense to query for all categories regardless of their parent.
+
+This can be done like so:
+
+<GraphiQL
+  query="
+    query GET_CATEGORIES {
+      categories (where: { shouldOutputInFlatList: true }) {
+        edges {
+          node {
+            id
+            categoryId
+            name
+          }
+        }
+      }
+    }
+    "
+/>
+
+<Note title="More info on this feature" type="warning">
+  For more info on how this type of query works, see the{' '}
+  <a href="https://github.com/wp-graphql/wp-graphql/pull/387">details here</a>
+</Note>
+
+## Mutations
+
+Categories and Tags can also be created, updated and deleted via GraphQL mutations.
+
+PostObjects can also be associated with Categories and Tags.
+
+<Note title="Mutations and Auth" type="info">
+WPGraphQL respects user capabilities when mutating data, so _most_ mutations in WPGraphQL require
+requests to be Authenticated, and the user making the request must have proper capabilities to mutate
+the data. Check out the <a href="/guides/authentication-and-authorization">Authentication
+and Authorization Guide</a> to learn more.
+
+The demos below are public requests and will not actually mutate data, but you can get an idea of how
+to compose mutations by looking at the examples.
+
+</Note>
+
+### Create Tag
+
+This is an example of creating a tag:
+
+<GraphiQL
+  query="
+    mutation CREATE_TAG($input: CreateTagInput!) {
+      createTag(input: $input) {
+        tag {
+          id
+        }
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'CreateTag',
+      name: 'New Tag',
+    },
+  }}
+/>
+
+### Create Category
+
+This is an example of creating a category:
+
+<GraphiQL
+  query="
+    mutation CREATE_TAG($input: CreateCategoryInput!) {
+      createCategory(input: $input) {
+        category {
+          id
+        }
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'CreateCategory',
+      name: 'New Category',
+    },
+  }}
+/>
+
+### Update Tag
+
+In order to update a Tag, you must pass the ID.
+
+This is an example of updating a tag:
+
+<GraphiQL
+  query="
+    mutation UPDATE_TAG($input: UpdateTagInput!) {
+      updateTag(input: $input) {
+        tag {
+          id
+        }
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'UpdateTag',
+      id: 'cG9zdF90YWc6OA==',
+      description: 'Updated Description...',
+    },
+  }}
+/>
+
+### Update Category
+
+In order to update a Category, you must pass the ID.
+
+This is an example of updating a category:
+
+<GraphiQL
+  query="
+    mutation UPDATE_CATEGORY($input: UpdateCategoryInput!) {
+      updateCategory(input: $input) {
+        category {
+          id
+        }
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'UpdateCategory',
+      id: 'cG9zdF90YWc6OA==',
+      description: 'Updated Description...',
+    },
+  }}
+/>
+
+### Delete Tag
+
+In order to delete a Tag, you must pass the ID.
+
+This is an example of deleting a tag:
+
+<GraphiQL
+  query="
+    mutation DELETE_TAG($input: DeleteTagInput!) {
+      deleteTag(input:$input) {
+        deletedId
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'DeleteTag',
+      id: 'cG9zdF90YWc6OA==',
+    },
+  }}
+/>
+
+### Delete Category
+
+In order to delete a Category, you must pass the ID.
+
+This is an example of deleting a category:
+
+<GraphiQL
+  query="
+    mutation DELETE_CATEGORY($input: DeleteCategoryInput!) {
+      deleteCategory(input:$input) {
+        deletedId
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'DeleteCategory',
+      id: 'cG9zdF90YWc6OA==',
+    },
+  }}
+/>
+
+### Add Tag to Post
+
+This is an example of a mutation to update a Post and add a tag to it.
+
+Here we pass the ID of the Post we want to update, and an array of Tag nodes we
+want to append to the Post. We can use tag names or tag IDs to attach to posts.
+
+You can also attach terms in the `createPost` mutation.
+
+<GraphiQL
+  query="
+    mutation ADD_TAG_TO_POST($input: UpdatePostInput!) {
+      updatePost(input: $input) {
+        post {
+          id
+          title
+          tags {
+            nodes {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+    "
+  variables={{
+    input: {
+      clientMutationId: 'UpdatePost',
+      id: 'cG9zdDoxMzY0',
+      tags: {
+        append: true,
+        nodes: [
+          {
+            name: 'New Tag',
+          },
+        ],
+      },
+    },
+  }}
+/>

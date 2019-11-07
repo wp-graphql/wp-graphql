@@ -76,7 +76,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function commentsQuery( $variables ) {
-		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:RootCommentsCommentArgs){
+		$query = 'query commentsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToCommentConnectionWhereArgs ){
 			comments( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -109,6 +109,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results        = $this->commentsQuery( $variables );
+
 		$comments_query = new WP_Comment_Query;
 		$comments       = $comments_query->query( [
 			'comment_status' => 'approved',

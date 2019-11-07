@@ -1,0 +1,114 @@
+---
+title: Custom Post Types
+description: Learn about how to register and interact with Custom Post Types using WPGraphQL
+---
+
+import Note from '../../src/components/Note'
+
+Exposing Custom Post Types to GraphQL requires just 3 fields to be added to the Post Type registration.
+
+- **show_in_graphql**: true or false
+- **graphql_single_name**: camel case string with no punctuation or spaces
+- **graphql_plural_name**: camel case string with no punctuation or spaces
+
+## Register a new Post Type
+
+This is an example of registering a new “docs” post_type and enabling GraphQL support.
+
+```php
+add_action( 'init', function() {
+   register_post_type( 'docs', [
+      'show_ui' => true,
+      'labels'  => [
+      	'menu_name' => __( 'Docs', 'your-textdomain' ),//@see https://developer.wordpress.org/themes/functionality/internationalization/
+      ],
+      'show_in_graphql' => true,
+      'hierarchical' => true,
+      'graphql_single_name' => 'Document',
+      'graphql_plural_name' => 'Documents',
+   ] );
+} );
+```
+
+## Filter Existing Post Types
+
+If you want to expose a Post Type that you don’t control the registration for, such as a post type
+registered in a third-party plugin, you can filter the Post Type registration like so:
+
+```php
+add_filter( 'register_post_type_args', function( $args, $post_type ) {
+
+	if ( 'docs' === $post_type ) {
+		$args['show_in_graphql'] = true;
+		$args['graphql_single_name'] = 'Document';
+		$args['graphql_plural_name'] = 'Documents';
+	}
+
+	return $args;
+
+}, 10, 2 );
+```
+
+## Querying Custom Post Types
+
+With just a few lines of code, our custom Post Type is added to the Schema in various places.
+
+Below are some examples, but it’s probably worth exploring the Schema a bit to see where all your
+new Type shows up in the Schema
+
+### Single Document Query
+
+This example shows how to query a single document by it’s URI.
+
+<Note title="Fragments">
+This example also showcases some <a href="/getting-started/intro-to-graphql/">features of GraphQL
+queries</a> such as fragments, arguments, operation type and operation name.
+</Note>
+<br/>
+
+```graphql
+query GetDocument {
+  documentBy(uri: "/getting-started/custom-post-types-taxonomies/") {
+    title(format: RAW)
+    link
+    slug
+  }
+}
+```
+
+### Get Collection of Documents and their Children
+
+This example shows how to query a collection of documents, and their child documents
+(available for hierarchical Post Types).
+
+<Note title="Fragments">
+This example also showcases some <a href="/getting-started/intro-to-graphql/">features of GraphQL
+queries</a> such as fragments, arguments, operation type and operation name.
+</Note>
+<br/>
+
+```graphql
+query GetDocuments {
+  documents {
+    edges {
+      node {
+        ...DocumentFields
+        childDocuments {
+          edges {
+            node {
+              ...DocumentFields
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment DocumentFields on Document {
+  title(format: RAW)
+  slug
+  link
+  content
+}
+```

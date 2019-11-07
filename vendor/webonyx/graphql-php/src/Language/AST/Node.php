@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Language\AST;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 abstract class Node
@@ -131,7 +130,7 @@ abstract class Node
             if (isset($result[$prop]))
                 continue;
 
-            if ($prop === 'loc' && $propValue === null)
+            if ($propValue === null)
                 continue;
 
             if (is_array($propValue) || $propValue instanceof NodeList) {

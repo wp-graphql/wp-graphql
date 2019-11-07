@@ -78,7 +78,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->authorId         = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 	    $this->caption          = 'Shia shows off some magic in this caption.';
 	    $this->commentStatus    = 'closed';
-	    $this->date             = '2017-08-01 15:00:00';
+	    $this->date             = '2017-08-01T15:00:00';
 	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
 	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
@@ -98,7 +98,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_altText = 'Some updated alt text';
 	    $this->updated_caption = 'Shia shows off some magic in this updated caption.';
 	    $this->updated_commentStatus = 'open';
-	    $this->updated_date = '2017-08-01 16:00:00';
+	    $this->updated_date = '2017-08-01T16:00:00';
 	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';
@@ -403,9 +403,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * @access public
 	 * @return void
 	 */
-	public function testCreateMediaItemAttachToParent() {
-		$post = $this->factory()->post->create( [
+	public function testCreateMediaItemAttachToParentAsAuthor() {
+		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 		$this->create_variables['input']['parentId'] = absint( $post );
 
@@ -417,8 +418,20 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$actual = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 
+	}
+
+	public function testCreateMediaItemAttachToParentAsAdmin() {
+
+		$post                                        = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
+		] );
+		$this->create_variables['input']['parentId'] = absint( $post );
+
 		wp_set_current_user( $this->admin );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -883,6 +896,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
+
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
 		$update_variables['input']['authorId'] = false;
@@ -904,6 +918,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 
 		$actual = $this->updateMediaItemMutation();
+
 
 		/**
 		 * Define the expected output.
@@ -1010,8 +1025,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
-		$post = get_post( $deleted_media_item );
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1021,7 +1036,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
 		    deletedId
-		    mediaItem{
+		    mediaItem {
 		      id
 		      mediaItemId
 		    }
@@ -1042,7 +1057,51 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+
+
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * Set the force delete input to false and the
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
+	 * @access public
+	 * @return array $actual
+	 */
+	public function testForceDeleteMediaItemAlreadyInTrash() {
+
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
+
+		/**
+		 * Prepare the deleteMediaItem mutation
+		 */
+		$mutation = '
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
+		  deleteMediaItem(input: $input) {
+		    clientMutationId
+		    deletedId
+		    mediaItem {
+		      id
+		      mediaItemId
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$delete_trash_variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'attachment', $deleted_media_item ),
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => false,
+			]
+		];
+
+		wp_set_current_user( $this->admin );
 
 		$delete_trash_variables['input']['forceDelete'] = true;
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );

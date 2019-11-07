@@ -42,6 +42,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Create the query string to pass to the $query
 		 */
@@ -63,6 +65,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query, 'getPageByNode', $variables );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -242,6 +246,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			} 
 		}";
 
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		$expected = [
@@ -253,7 +258,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual, "Verify you have the plugin Hello Dolly in your WordPress." );
 	}
 
 	/**
@@ -274,6 +279,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 				} 
 			} 
 		}";
+		wp_set_current_user( $this->admin );
 		$actual     = do_graphql_request( $query );
 
 		$expected = [
@@ -291,9 +297,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testUserNodeQuery
 	 *
+	 * @dataProvider dataProviderUserNode
+	 *
+	 * @param bool $has_posts whether or not the user has published posts
+	 *
 	 * @since 0.0.5
 	 */
-	public function testUserNodeQuery() {
+	public function testUserNodeQuery( $has_posts, $user, $private ) {
 
 		$user_args = array(
 			'role'       => 'editor',
@@ -301,6 +311,30 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$user_id = $this->factory->user->create( $user_args );
+
+		if ( true === $has_posts ) {
+			$this->factory()->post->create( [
+				'post_author' => $user_id,
+			] );
+		}
+
+		if ( ! empty( $user ) ) {
+
+			switch ( $user ) {
+				case 'admin':
+					$current_user = $this->admin;
+					break;
+				case 'owner':
+					$current_user = $user_id;
+					break;
+				default:
+					$current_user = 0;
+					break;
+			}
+
+			wp_set_current_user( $current_user );
+
+		}
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 		$query     = "
@@ -324,7 +358,36 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		if ( true === $private ) {
+			$expected['data']['node']['userId'] = null;
+		}
+
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function dataProviderUserNode() {
+		return [
+			[
+				'has_posts' => true,
+				'user' => '',
+				'private' => false,
+			],
+			[
+				'has_posts' => false,
+				'user' => '',
+				'private' => true,
+			],
+			[
+				'has_posts' => false,
+				'user' => 'admin',
+				'private' => false,
+			],
+			[
+				'has_posts' => false,
+				'user' => 'owner',
+				'private' => false,
+			]
+		];
 	}
 
 	/**
@@ -370,6 +433,47 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Test that a comment author can be retrieved in a single node
+	 */
+	public function testCommentAuthorQuery() {
+
+		$comment_args = [
+			'comment_author_email' => 'yoyoyo@wpgraphql.com',
+			'comment_author' => 'Test Author',
+			'comment_author_url' => 'wpgraphql.com',
+			'comment_content' => 'JsOnB00l smellz',
+		];
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id );
+
+		$query = "
+		query {
+			node(id: \"{$global_id}\") {
+				__typename
+				...on CommentAuthor {
+					id
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'node' => [
+					'__typename' => 'CommentAuthor',
+					'id' => $global_id,
+				]
+			]
+		];
+
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 	/**
@@ -479,7 +583,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"Y29tbWVudDo5OTk5\"){
+		  node(id:\"nonExistentId\"){
 			...on Comment {
 			  id
 			}

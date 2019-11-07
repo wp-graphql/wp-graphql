@@ -3,6 +3,8 @@ sudo: required
 services:
   - docker
 
+language: php
+
 notifications:
   email:
     on_success: never
@@ -18,49 +20,53 @@ cache:
 
 # Set the global environment variables
 env:
-  global:
-    - COVERAGE: false
   matrix:
-    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=5.6 WP_VERSION=4.9.4
-    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=7.0 WP_VERSION=4.9.4
-    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.7.1
-    - WP_MULTISITE=1 PHP_VERSION=7.1 WP_VERSION=4.9.4
-    - PHP_VERSION=5.6 WP_VERSION=4.7.1
-    - PHP_VERSION=5.6 WP_VERSION=4.9.4
-    - PHP_VERSION=7.0 WP_VERSION=4.7.1
-    - PHP_VERSION=7.0 WP_VERSION=4.9.4
-    - PHP_VERSION=7.1 WP_VERSION=4.7.1
-    - PHP_VERSION=7.1 WP_VERSION=4.9.4 APIGEN_DOCS=true COVERAGE=true LINT_SCHEMA=true
+    # These apply to the latest WP version that is available as a Docker image: https://hub.docker.com/_/wordpress/
 
-install:
-  - docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
-  - docker-compose build
+    # Disabling PHP 5.6 tests until "composer.lock" is updated to work with PHP 7.X AND 5.6.
+    # - WP_VERSION=5.0.2 PHP_VERSION=5.6
+    - WP_VERSION=5.2.3 PHP_VERSION=7.1
+    - WP_VERSION=5.2.3 PHP_VERSION=7.2
+    - WP_VERSION=5.2.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
+    - PHPCS=true
 
-before_script:
-  - docker-compose up -d
-  - docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test $WP_VERSION true
+matrix:
+  allow_failures:
+    - env: PHPCS=true
 
-script:
-  - docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-  - docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
   - |
-    if [ $COVERAGE == true ]; then
-      docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
+    # Remove Xdebug for a huge performance increase:
+    if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
+      phpenv config-rm xdebug.ini
     else
-      docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
+      echo "xdebug.ini does not exist"
     fi
 
-after_success:
-  # Install coveralls.phar
-  # Upload coverage to coveralls
+before_script:
+  # Install PHP CodeSniffer and WPCS.
   - |
-    if [ $COVERAGE == true ]; then
-      wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-      chmod +x coveralls.phar
-      php coveralls.phar --version
-      travis_retry php coveralls.phar -v
+    if [[ "$PHPCS" == "true" ]]; then
+      composer install
+
+      phpenv rehash
+    fi
+
+script:
+  - ./run-docker-tests.sh 'wpunit'
+  - ./run-docker-tests.sh 'functional'
+  - ./run-docker-tests.sh 'acceptance'
+  - if [[ "$PHPCS" == "true" ]]; then composer check-cs; fi
+
+after_success:
+  # Upload coverage to codecov
+  - |
+    if [[ "${COVERAGE}" == 'true' ]]; then
+      bash <(curl -s https://codecov.io/bash)
     fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
@@ -74,28 +80,3 @@ after_success:
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
-  # Generate the APIGen Docs
-  #  - |
-  #    if [ $APIGEN_DOCS == true ]; then
-  #      cd $TRAVIS_BUILD_DIR
-  #      vendor/bin/apigen generate --source="src" --destination $TRAVIS_BUILD_DIR/apigen
-  #    fi
-
-deploy:
-  # Deploy the Generated API docs to the wp-graphql-api-docs repo
-  - provider: pages
-    # This is set in the Travis CI dashboard
-    github_token: $APIGEN_GITHUB_TOKEN
-    local_dir: $TRAVIS_BUILD_DIR/apigen
-    repo: wp-graphql/wp-graphql-api-docs
-    target_branch: master
-    # Make sure this is true to ensure the files that were built in the previous step are not cleaned up before deploy
-    skip_cleanup: true
-    on:
-      # Probably switch this to master?
-      all_branches: develop
-      # Only deploy when APIGEN_DOCS are generated
-      condition: $APIGEN_DOCS == true
-
-after_script:
-  - docker-compose down

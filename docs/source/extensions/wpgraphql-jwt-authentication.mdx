@@ -1,0 +1,13 @@
+---
+title: WPGraphQL JWT Authentication
+description: Authenticate to WordPress using GraphQL Mutations and use JWT tokens for subsequent requests
+---
+
+## About the plugin
+
+This extension provides GraphQL mutations to login to WordPress, and in response you can ask for
+the user and `authToken` and `refreshToken`.
+
+The `authToken` can be used in the Headers of subsequent requests as a way of identifying the user
+making the request. The `refreshToken` can be used when the `authToken` is expired and needs to
+be refreshed.

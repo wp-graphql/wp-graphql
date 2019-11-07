@@ -2,8 +2,13 @@
 
 class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public $admin;
+
 	public function setUp() {
 		parent::setUp();
+		$this->admin = $this->factory->user->create( [
+			'role' => 'administrator',
+		] );
 	}
 
 	public function tearDown() {
@@ -51,27 +56,29 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
+		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
 		$screenshot = $actual['data']['theme']['screenshot'];
 		$this->assertTrue( is_string( $screenshot ) || null === $screenshot );
 
+		$theme = wp_get_theme( $theme_slug );
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data' => [
 				'theme' => [
-					'author'      => null,
+					'author'      => $theme->author,
 					'authorUri'   => 'https://wordpress.org/',
-					'description' => null,
+					'description' => $theme->description,
 					'id'          => $global_id,
 					'name'        => 'Twenty Seventeen',
-					'screenshot'  => $screenshot,
+					'screenshot'  => $theme->get_screenshot(),
 					'slug'        => 'twentyseventeen',
-					'tags'        => null,
+					'tags'        => $theme->tags,
 					'themeUri'    => 'https://wordpress.org/themes/twentyseventeen/',
-					'version'     => null,
+					'version'     => $theme->version,
 				],
 			],
 		];

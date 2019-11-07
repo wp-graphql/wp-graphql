@@ -20,7 +20,11 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		{
 		  viewer{
 		    userId
-		    roles
+		    roles {
+		        nodes {
+		          name
+		        }
+		    }
 		  }
 		}
 		';
@@ -36,12 +40,14 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the current user so we can properly test the viewer query
 		 */
 		wp_set_current_user( $user_id );
-		$actual = do_graphql_request( $query );
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
 
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-		$this->assertContains( 'administrator', $actual['data']['viewer']['roles'] );
+		$this->assertContains( 'administrator', $actual['data']['viewer']['roles']['nodes'][0]['name'] );
 
 	}
 

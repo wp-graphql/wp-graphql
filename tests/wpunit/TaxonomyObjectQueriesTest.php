@@ -22,8 +22,9 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the category taxonomy.
 	 *
 	 * @since 0.0.5
+	 * @dataProvider dataProviderUserState
 	 */
-	public function testTaxonomyQueryForCategories() {
+	public function testTaxonomyQueryForCategories( $logged_in ) {
 		/**
 		 * Create the query string to pass to the $query
 		 */
@@ -57,10 +58,20 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}";
 
+		if ( true === $logged_in ) {
+			$user = $this->admin;
+		} else {
+			$user = 0;
+		}
+
+		wp_set_current_user( $user );
+
 		/**
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'taxonomy', 'category' );
 
@@ -96,6 +107,19 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+		if ( false === $logged_in ) {
+			$expected['data']['categories']['taxonomyInfo']['label'] = null;
+			$expected['data']['categories']['taxonomyInfo']['public'] = null;
+			$expected['data']['categories']['taxonomyInfo']['restControllerClass'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showCloud'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showInAdminColumn'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showInMenu'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showInNavMenus'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showInQuickEdit'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showInRest'] = null;
+			$expected['data']['categories']['taxonomyInfo']['showUi'] = null;
+		}
+
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -105,8 +129,9 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the post tags taxonomy.
 	 *
 	 * @since 0.0.5
+	 * @dataProvider dataProviderUserState
 	 */
-	public function testTaxonomyQueryForTags() {
+	public function testTaxonomyQueryForTags( $logged_in ) {
 		/**
 		 * Create the query string to pass to the $query
 		 */
@@ -139,6 +164,14 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 			}
 		}";
+
+		if ( true === $logged_in ) {
+			$user = $this->admin;
+		} else {
+			$user = 0;
+		}
+
+		wp_set_current_user( $user );
 
 		/**
 		 * Run the GraphQL query
@@ -178,6 +211,19 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
+
+		if ( false === $logged_in ) {
+			$expected['data']['tags']['taxonomyInfo']['label'] = null;
+			$expected['data']['tags']['taxonomyInfo']['public'] = null;
+			$expected['data']['tags']['taxonomyInfo']['restControllerClass'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showCloud'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showInAdminColumn'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showInMenu'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showInNavMenus'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showInQuickEdit'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showInRest'] = null;
+			$expected['data']['tags']['taxonomyInfo']['showUi'] = null;
+		}
 
 		$this->assertEquals( $expected, $actual );
 	}
@@ -280,6 +326,17 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual );
+	}
+
+	public function dataProviderUserState() {
+		return [
+			[
+				'logged_in' => true,
+			],
+			[
+				'logged_in' => false,
+			]
+		];
 	}
 
 }

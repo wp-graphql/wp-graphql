@@ -4,7 +4,9 @@ namespace WPGraphQL\Utils;
 
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\NonNullType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -16,6 +18,12 @@ use WPGraphQL\Type\WPObjectType;
  * @package WPGraphQL\Data
  */
 class InstrumentSchema {
+
+	/**
+	 * Cache post for the resolvers so we can call the setup_postdata only when the actual
+	 * source post changes
+	 */
+	private static $cached_post = null;
 
 	/**
 	 * @param \WPGraphQL\WPSchema $schema
@@ -42,7 +50,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config['types'] = $new_types;
+				$schema->config['types'] = $new_types;
 		}
 
 		return $schema;
@@ -109,6 +117,17 @@ class InstrumentSchema {
 					 * @throws \Exception
 					 */
 					$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+
+						/**
+						 * Setup the global post to the current post (if a post)
+						 * This ensures that functions like get_the_content() work correctly
+						 * so graphql queries can be used in the loop without issues.
+						 */
+						if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
+							self::$cached_post = $source;
+							$GLOBALS['post']   = $source;
+							setup_postdata( $source );
+						}
 
 						/**
 						 * Fire an action BEFORE the field resolves
@@ -207,7 +226,7 @@ class InstrumentSchema {
 		 * Check to see if
 		 */
 		if ( $field instanceof FieldDefinition && (
-				isset ( $field->config['isPrivate'] ) ||
+				isset( $field->config['isPrivate'] ) ||
 				( ! empty( $field->config['auth'] ) && is_array( $field->config['auth'] ) ) )
 		) {
 
@@ -224,6 +243,7 @@ class InstrumentSchema {
 			 * execute the callback before continuing resolution
 			 */
 			if ( ! empty( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
+
 				return call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
 			}
 
@@ -249,7 +269,6 @@ class InstrumentSchema {
 					throw new UserError( $auth_error );
 				}
 			}
-
 		}
 
 	}
