@@ -10,6 +10,7 @@ use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
+use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Themes;
 use WPGraphQL\Connection\UserRoles;
@@ -38,6 +39,7 @@ use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\Node;
+use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\CommentAuthorUnion;
@@ -203,6 +205,7 @@ class TypeRegistry {
 				UsersConnectionOrderbyInput::register_type();
 
 				CommentAuthorUnion::register_type( $this );
+				ContentRevisionUnion::register_type( $this );
 				MenuItemObjectUnion::register_type( $this );
 				PostObjectUnion::register_type( $this );
 				TermObjectUnion::register_type( $this );
@@ -215,6 +218,7 @@ class TypeRegistry {
 				MenuItems::register_connections();
 				Plugins::register_connections();
 				PostObjects::register_connections();
+				Revisions::register_connections( $this );
 				TermObjects::register_connections();
 				Themes::register_connections();
 				Users::register_connections();

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit24adf5b1e88927b3225c66b817898a13
+class ComposerStaticInit862d66ec8eaaa9dd3c7a1523ef6a8127
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -213,6 +213,7 @@ class ComposerStaticInit24adf5b1e88927b3225c66b817898a13
         'WPGraphQL\\Connection\\Menus' => __DIR__ . '/../..' . '/src/Connection/Menus.php',
         'WPGraphQL\\Connection\\Plugins' => __DIR__ . '/../..' . '/src/Connection/Plugins.php',
         'WPGraphQL\\Connection\\PostObjects' => __DIR__ . '/../..' . '/src/Connection/PostObjects.php',
+        'WPGraphQL\\Connection\\Revisions' => __DIR__ . '/../..' . '/src/Connection/Revisions.php',
         'WPGraphQL\\Connection\\TermObjects' => __DIR__ . '/../..' . '/src/Connection/TermObjects.php',
         'WPGraphQL\\Connection\\Themes' => __DIR__ . '/../..' . '/src/Connection/Themes.php',
         'WPGraphQL\\Connection\\UserRoles' => __DIR__ . '/../..' . '/src/Connection/UserRoles.php',
@@ -331,6 +332,7 @@ class ComposerStaticInit24adf5b1e88927b3225c66b817898a13
         'WPGraphQL\\Type\\Object\\User' => __DIR__ . '/../..' . '/src/Type/Object/User.php',
         'WPGraphQL\\Type\\Object\\UserRole' => __DIR__ . '/../..' . '/src/Type/Object/UserRole.php',
         'WPGraphQL\\Type\\Union\\CommentAuthorUnion' => __DIR__ . '/../..' . '/src/Type/Union/CommentAuthorUnion.php',
+        'WPGraphQL\\Type\\Union\\ContentRevisionUnion' => __DIR__ . '/../..' . '/src/Type/Union/ContentRevisionUnion.php',
         'WPGraphQL\\Type\\Union\\MenuItemObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/MenuItemObjectUnion.php',
         'WPGraphQL\\Type\\Union\\PostObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnion.php',
         'WPGraphQL\\Type\\Union\\TermObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnion.php',
@@ -347,9 +349,9 @@ class ComposerStaticInit24adf5b1e88927b3225c66b817898a13
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit24adf5b1e88927b3225c66b817898a13::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit24adf5b1e88927b3225c66b817898a13::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit24adf5b1e88927b3225c66b817898a13::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit862d66ec8eaaa9dd3c7a1523ef6a8127::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit862d66ec8eaaa9dd3c7a1523ef6a8127::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit862d66ec8eaaa9dd3c7a1523ef6a8127::$classMap;
 
         }, null, ClassLoader::class);
     }
