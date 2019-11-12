@@ -55,8 +55,6 @@ class User extends Model {
 
 		$allowed_restricted_fields = [
 			'isRestricted',
-			'isPrivate',
-			'isPublic',
 			'id',
 			'userId',
 			'name',
