@@ -6,7 +6,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Post;
 
 /**
  * Class AbstractConnectionResolver
@@ -107,11 +106,6 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function __construct( $source, $args, $context, $info ) {
-
-		// Bail if the Post->ID is empty, as that indicates a private post.
-		if ( $source instanceof Post && empty( $source->ID ) ) {
-			return null;
-		}
 
 		/**
 		 * Set the source (the root object) for the resolver
