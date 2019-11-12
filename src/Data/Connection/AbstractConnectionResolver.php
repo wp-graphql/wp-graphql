@@ -559,6 +559,11 @@ abstract class AbstractConnectionResolver {
 
 	}
 
+	/**
+	 * Execute the resolver query and get the data for the connection
+	 * 
+	 * @return array
+	 */
 	protected function execute_and_get_data() {
 
 		/**
@@ -567,7 +572,7 @@ abstract class AbstractConnectionResolver {
 		 * call the should_execute() method to execute any situational logic
 		 * to determine if the connection query should execute or not
 		 */
-		$should_execute       = false === $this->should_execute ? false : $this->should_execute();
+		$should_execute = false === $this->should_execute ? false : $this->should_execute();
 
 		/**
 		 * Check if the connection should execute. If conditions are met that should prevent
