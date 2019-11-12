@@ -39,6 +39,8 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['menuItemId'] );
 		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
 		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedObject']['postId'] );
