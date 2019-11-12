@@ -1536,6 +1536,53 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Assert that no data is being leaked on private posts that are directly queried without auth.
+	 */
+	public function testPrivatePosts() {
+
+		$post_id = $this->factory()->post->create( [
+			'post_status' => 'private',
+			'post_content' => 'Test',
+		] );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		$query = "
+		query {
+			postBy(id: \"{$global_id}\") {
+			    status
+			    title
+			    categories {
+			      nodes {
+			        id
+			        name
+			        slug
+			      }
+			    }
+		    }
+	    }";
+
+		$expected = [
+			'data' => [
+				'postBy' => [
+					'status' => null,
+					'title' => null,
+					'categories' => [
+						'nodes' => [],
+					],
+				]
+			]
+		];
+
+		$actual = do_graphql_request( $query );
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
 	 * Test restricted posts returned on certain statuses
 	 * @dataProvider dataProviderRestrictedPosts
 	 */
