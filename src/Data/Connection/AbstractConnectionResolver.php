@@ -110,7 +110,7 @@ abstract class AbstractConnectionResolver {
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
-			return null;
+			$this->should_execute = false;
 		}
 
 		/**
@@ -562,6 +562,14 @@ abstract class AbstractConnectionResolver {
 	protected function execute_and_get_data() {
 
 		/**
+		 * If should_execute is explicitly set to false already, we can
+		 * prevent execution quickly. If it's not, we need to
+		 * call the should_execute() method to execute any situational logic
+		 * to determine if the connection query should execute or not
+		 */
+		$should_execute       = false === $this->should_execute ? false : $this->should_execute();
+
+		/**
 		 * Check if the connection should execute. If conditions are met that should prevent
 		 * the execution, we can bail from resolving early, before the query is executed.
 		 *
@@ -570,7 +578,7 @@ abstract class AbstractConnectionResolver {
 		 * @param bool                       $should_execute Whether the connection should execute
 		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
 		 */
-		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $this->should_execute(), $this );
+		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
 		if ( false === $this->should_execute ) {
 			return [];
 		}
