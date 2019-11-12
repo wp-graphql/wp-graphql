@@ -8,6 +8,7 @@ class UserRole {
 			'UserRole',
 			[
 				'description' => __( 'A user role object', 'wp-graphql' ),
+				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier for the user role object.', 'wp-graphql' ),
