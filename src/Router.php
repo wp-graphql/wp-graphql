@@ -116,11 +116,24 @@ class Router {
 	 * @return boolean
 	 */
 	public static function is_graphql_request() {
-		if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
-			return false;
+		// If 'init' fired, check query vars.
+		if ( did_action( 'init' ) || doing_action( 'init' ) ) {
+			if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
-		return true;
+		// If before 'init' check $_SERVER.
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			$haystack = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+			$needle   = home_url( self::$route );
+			$len      = strlen( $needle );
+			return ( substr( $haystack, 0, $len ) === $needle );
+		}
+
+		return false;
 	}
 
 	/**
