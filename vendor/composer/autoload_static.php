@@ -4,25 +4,25 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitbeb2c31abb416e4cd774c173f3aee431
+class ComposerStaticInit2ef8dfc9a7893abf4de47422a2aa1bad
 {
     public static $prefixLengthsPsr4 = array (
-        'W' => 
+        'W' =>
         array (
             'WPGraphQL\\' => 10,
         ),
-        'G' => 
+        'G' =>
         array (
             'GraphQL\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'WPGraphQL\\' => 
+        'WPGraphQL\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'GraphQL\\' => 
+        'GraphQL\\' =>
         array (
             0 => __DIR__ . '/..' . '/webonyx/graphql-php/src',
         ),
@@ -347,9 +347,9 @@ class ComposerStaticInitbeb2c31abb416e4cd774c173f3aee431
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitbeb2c31abb416e4cd774c173f3aee431::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitbeb2c31abb416e4cd774c173f3aee431::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitbeb2c31abb416e4cd774c173f3aee431::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2ef8dfc9a7893abf4de47422a2aa1bad::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2ef8dfc9a7893abf4de47422a2aa1bad::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit2ef8dfc9a7893abf4de47422a2aa1bad::$classMap;
 
         }, null, ClassLoader::class);
     }
