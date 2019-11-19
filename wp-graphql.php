@@ -104,6 +104,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static $allowed_taxonomies;
 
 		/**
+		 * @var boolean
+		 */
+		protected static $is_graphql_request;
+
+		/**
 		 * The instance of the WPGraphQL object
 		 *
 		 * @return object|WPGraphQL - The one true WPGraphQL
@@ -224,6 +229,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
 
+		}
+
+		/**
+		 * Set whether the request is a GraphQL request or not
+		 * @param bool $is_graphql_request
+		 */
+		public static function __set_is_graphql_request( $is_graphql_request = false ) {
+			self::$is_graphql_request = $is_graphql_request;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public static function is_graphql_request() {
+			return self::$is_graphql_request;
 		}
 
 		/**

@@ -209,6 +209,5 @@ function register_graphql_mutation( $mutation_name, $config ) {
  * @since 0.4.1
  */
 function is_graphql_request() {
-	$is_graphql_request = false;
-	return apply_filters( 'is_graphql_request', $is_graphql_request );
+	return WPGraphQL::is_graphql_request();
 }

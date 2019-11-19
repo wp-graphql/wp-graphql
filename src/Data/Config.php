@@ -196,7 +196,6 @@ class Config {
 		 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
 
-		codecept_debug( is_graphql_request() );
 		if ( true === is_graphql_request() ) {
 			global $wpdb;
 

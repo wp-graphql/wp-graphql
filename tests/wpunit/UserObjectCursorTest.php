@@ -243,8 +243,6 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
-		add_filter( 'is_graphql_request', '__return_true' );
-
 		$where = str_replace( '"', '', json_encode( $graphql_args ) );
 
 		// Meta field orderby is not supported in schema and needs to be passed in through hook
@@ -272,7 +270,12 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		  }
 		";
 
+		codecept_debug( $query );
+
 		$first = do_graphql_request( $query, 'getUsers', [ 'cursor' => '' ] );
+
+		codecept_debug( $first );
+
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map( function( $edge ) {
@@ -282,6 +285,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$cursor = $first['data']['users']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getUsers', [ 'cursor' => $cursor ] );
+
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map( function( $edge ) {
@@ -289,6 +293,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		}, $second['data']['users']['edges']);
 
 		// Make corresponding WP_User_Query
+		WPGraphQL::__set_is_graphql_request( true );
 		$first_page = new WP_User_Query( array_merge( $wp_user_query_args, [
 			'number' => $users_per_page,
 			'paged' => 1,
@@ -298,6 +303,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'number' => $users_per_page,
 			'paged' => 2,
 		] ) );
+		WPGraphQL::__set_is_graphql_request( false );
 		$first_page_expected 	= wp_list_pluck($first_page->results, 'ID');
 		$second_page_expected = wp_list_pluck($second_page->results, 'ID');
 
