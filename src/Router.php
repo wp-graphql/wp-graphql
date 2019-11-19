@@ -113,6 +113,10 @@ class Router {
 	/**
 	 * Returns true when the current request is a GraphQL request coming from the HTTP
 	 *
+	 * NOTE: This will only indicate whether the GraphQL Request is an HTTP request. Many features
+	 * need to affect _all_ GraphQL requests, including internal requests using the `graphql()`
+	 * function, so be careful how you use this to check your conditions.
+	 *
 	 * @return boolean
 	 */
 	public static function is_graphql_http_request() {
