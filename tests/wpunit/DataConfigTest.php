@@ -1,7 +1,5 @@
 <?php
 
-use WPGraphQL\Data\Config;
-
 class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
@@ -10,6 +8,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 			define( 'GRAPHQL_REQUEST', true );
 		}
 	}
+
 
 	/**
 	 * Create n posts, making sure that publish dates are offset by at least one
@@ -61,7 +60,11 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 	 * @dataProvider get_create_posts_args
 	 */
 	public function testGraphqlWpQueryCursorPaginationSupportMethod( $operator, $offset_multiplier ) {
+
 		$posts = $this->create_posts( 15, $operator, $offset_multiplier );
+
+		$is_graphql_request = is_graphql_request();
+		WPGraphQL::__set_is_graphql_request( true );
 
 		// Simulate a GraphQL request for:
 		// posts(
@@ -77,6 +80,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 				'posts_per_page' => 11,
 			)
 		);
+		WPGraphQL::__set_is_graphql_request( true );
 
 		$this->assertTrue( $query->have_posts() );
 		$this->assertEquals( 5, count( $query->posts ) );
@@ -86,5 +90,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 		foreach ( $query->posts as $index => $post ) {
 			$this->assertEquals( $posts[ $index + 10 ]->ID, $post->ID );
 		}
+
+		add_filter( 'is_graphql_request', $is_graphql_request );
 	}
 }
