@@ -2,16 +2,10 @@
 
 namespace WPGraphQL;
 
-use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
-use WPGraphQL\Registry\SchemaRegistry;
-use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Server\WPHelper;
-use WPGraphQL\Type\WPObjectType;
 
 /**
  * Class Request
@@ -63,12 +57,6 @@ class Request {
 	 * @access public
 	 */
 	public $schema;
-
-	/**
-	 * @var TypeRegistry $type_registry
-	 * @access public
-	 */
-	public $type_registry;
 
 	/**
 	 * Constructor
@@ -129,6 +117,11 @@ class Request {
 	 * @return void
 	 */
 	private function before_execute() {
+
+		/**
+		 * Filter "is_graphql_request" to return true
+		 */
+		\WPGraphQL::__set_is_graphql_request( true );
 
 		/**
 		 * Store the global post so it can be reset after GraphQL execution
@@ -374,6 +367,11 @@ class Request {
 		 * @param array|null          $variables         Variables to passed to your GraphQL query
 		 */
 		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables );
+
+		/**
+		 * Filter "is_graphql_request" back to false.
+		 */
+		\WPGraphQL::__set_is_graphql_request( false );
 
 		return $filtered_response;
 	}

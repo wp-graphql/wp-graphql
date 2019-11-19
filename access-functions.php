@@ -202,3 +202,37 @@ function register_graphql_mutation( $mutation_name, $config ) {
 		$type_registry->register_mutation( $mutation_name, $config );
 	} );
 }
+
+/**
+ * Whether a GraphQL request is in action or not. This is determined by the WPGraphQL Request
+ * class being initiated. True while a request is in action, false after a request completes.
+ *
+ * This should be used when a condition needs to be checked for ALL GraphQL requests, such
+ * as filtering WP_Query for GraphQL requests, for example.
+ *
+ * Default false.
+ *
+ * @since 0.4.1
+ * @return bool
+ */
+function is_graphql_request() {
+	return WPGraphQL::is_graphql_request();
+}
+
+/**
+ * Whether a GraphQL HTTP request is in action or not. This is determined by
+ * checking if the request is occurring on the route defined for the GraphQL endpoint.
+ *
+ * This conditional should only be used for features that apply to HTTP requests. If you are going
+ * to apply filters to underlying WordPress core functionality that should affect _all_ GraphQL
+ * requests, you should use "is_graphql_request" but if you need to apply filters only if the
+ * GraphQL request is an HTTP request, use this conditional.
+ *
+ * Default false.
+ *
+ * @since 0.4.1
+ * @return bool
+ */
+function is_graphql_http_request() {
+	return \WPGraphQL\Router::is_graphql_http_request();
+}
