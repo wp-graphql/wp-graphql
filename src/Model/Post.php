@@ -322,16 +322,14 @@ class Post extends Model {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
 				'isFrontPage'     => function () {
-					$showOnFront = get_option( 'show_on_front' );					
-					if ( 'page' !== $showOnFront ) {
+					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {
 						return false;
-					}					
-					$pageOnFront = get_option( 'page_on_front' );
-					if ( ! empty( $pageOnFront ) && $this->data->ID === absint( $pageOnFront ) ) {
+					}
+					if ( absint( get_option( 'page_on_front', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
-					return false;					
-				},				
+					return false;
+				},
 				'toPing'          => function () {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},

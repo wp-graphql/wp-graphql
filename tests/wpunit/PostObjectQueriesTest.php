@@ -1755,4 +1755,92 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Tests to make sure the page set as the front page shows as the front page
+	 *
+	 * @throws Exception
+	 */
+	public function testIsFrontPage() {
+
+		/**
+		 * Make sure no page is set as the front page
+		 */
+		update_option( 'show_on_front', 'post' );
+		update_option( 'page_on_front', 0 );
+
+		$pageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test Front Page'
+		]);
+
+		$other_pageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test Not Front Page'
+		]);
+
+		$query = '
+		query Page( $pageId: Int ) {
+		  pageBy( pageId: $pageId ) {
+		    id
+		    title
+		    isFrontPage
+		  }
+ 		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $pageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
+
+		/**
+		 * Set the page as the front page
+		 */
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $pageId );
+
+		/**
+		 * Query again
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $pageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Assert that the page is showing as the front page
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['pageBy']['isFrontPage'] );
+
+		/**
+		 * Query a page that is NOT set as the front page
+		 * so we can assert that isFrontPage is FALSE for it
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $other_pageId, // <-- NOTE OTHER PAGE ID
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
+
+
+	}
+
 }
