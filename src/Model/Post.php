@@ -31,6 +31,7 @@ use WPGraphQL\Types;
  * @property string $commentStatus
  * @property string $pingStatus
  * @property string $slug
+ * @property boolean $isFrontPage
  * @property string $toPing
  * @property string $pinged
  * @property string $modified
@@ -320,6 +321,17 @@ class Post extends Model {
 				'slug'            => function () {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
+				'isFrontPage'     => function () {
+					$showOnFront = get_option( 'show_on_front' );					
+					if ( 'page' !== $showOnFront ) {
+						return false;
+					}					
+					$pageOnFront = get_option( 'page_on_front' );
+					if ( ! empty( $pageOnFront ) && $this->data->ID === absint( $pageOnFront ) ) {
+						return true;
+					}
+					return false;					
+				},				
 				'toPing'          => function () {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},
