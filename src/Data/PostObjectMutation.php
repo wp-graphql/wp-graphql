@@ -259,9 +259,9 @@ class PostObjectMutation {
 					/**
 					 * If there is input for the taxonomy, process it
 					 */
-					if ( ! empty( $tax_object->graphql_plural_name ) && ! empty( $input[ $tax_object->graphql_plural_name ] ) ) {
+					if ( isset( $input[ lcfirst( $tax_object->graphql_plural_name ) ] ) ) {
 
-						$term_input = $input[ $tax_object->graphql_plural_name ];
+						$term_input = $input[ lcfirst( $tax_object->graphql_plural_name ) ];
 
 						/**
 						 * Default append to true, but allow input to set it to false.

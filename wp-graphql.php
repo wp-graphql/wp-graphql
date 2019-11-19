@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.4.0
+ * Version: 0.4.1
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.4.0
+ * @version  0.4.1
  */
 
 // Exit if accessed directly.
@@ -104,6 +104,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static $allowed_taxonomies;
 
 		/**
+		 * @var boolean
+		 */
+		protected static $is_graphql_request;
+
+		/**
 		 * The instance of the WPGraphQL object
 		 *
 		 * @return object|WPGraphQL - The one true WPGraphQL
@@ -167,7 +172,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.4.0' );
+				define( 'WPGRAPHQL_VERSION', '0.4.1' );
 			}
 
 			// Plugin Folder Path.
@@ -224,6 +229,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
 
+		}
+
+		/**
+		 * Set whether the request is a GraphQL request or not
+		 * @param bool $is_graphql_request
+		 */
+		public static function __set_is_graphql_request( $is_graphql_request = false ) {
+			self::$is_graphql_request = $is_graphql_request;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public static function is_graphql_request() {
+			return self::$is_graphql_request;
 		}
 
 		/**
@@ -479,21 +499,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			);
 
 			/**
-			 * Define the $allowed_taxonomies to be exposed by GraphQL Queries Pass through a filter
-			 * to allow the taxonomies to be modified (for example if a certain taxonomy should not
-			 * be exposed to the GraphQL API)
-			 *
-			 * @since 0.0.2
-			 * @return array
-			 *
-			 * @param array $taxonomies Array of taxonomy objects
-			 */
-			self::$allowed_taxonomies = apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
-
-			/**
 			 * Returns the array of $allowed_taxonomies
 			 */
-			return self::$allowed_taxonomies;
+			return apply_filters( 'graphql_term_entities_allowed_taxonomies', $taxonomies );
 
 		}
 

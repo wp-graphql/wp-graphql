@@ -238,7 +238,7 @@ class PostObjectCursor {
 	 */
 	private function get_meta_key( $by ) {
 
-		if ( 'meta_value' === $by ) {
+		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
 			return $this->get_query_var( 'meta_key' );
 		}
 

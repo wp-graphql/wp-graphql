@@ -48,9 +48,11 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		$themes       = wp_get_themes();
+
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
-			$return_count = 3;
+			$return_count = count( $themes );
 		} else {
 			$current_user = 0;
 			$return_count = 1;

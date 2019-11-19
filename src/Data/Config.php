@@ -152,7 +152,7 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
-		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+		if ( true === is_graphql_request() ) {
 			global $wpdb;
 
 			return "{$orderby}, {$wpdb->posts}.ID DESC ";
@@ -176,7 +176,7 @@ class Config {
 		 * If there's a graphql_cursor_offset in the query, we should check to see if
 		 * it should be applied to the query
 		 */
-		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+		if ( true === is_graphql_request() ) {
 			$post_cursor = new PostObjectCursor( $query );
 
 			return $where . $post_cursor->get_where();
@@ -195,7 +195,8 @@ class Config {
 		 * @return string
 		 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
-		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+
+		if ( true === is_graphql_request() ) {
 			global $wpdb;
 
 			return "{$orderby}, {$wpdb->users}.ID DESC ";
@@ -220,7 +221,7 @@ class Config {
 		 * If there's a graphql_cursor_offset in the query, we should check to see if
 		 * it should be applied to the query
 		 */
-		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST ) {
+		if ( true === is_graphql_request() ) {
 			$user_cursor = new UserCursor( $query );
 			return $where . $user_cursor->get_where();
 		}
@@ -247,7 +248,7 @@ class Config {
 		 */
 		global $wpdb;
 
-		if ( defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST && ! empty( $args['graphql_cursor_offset'] ) ) {
+		if ( true === is_graphql_request() && ! empty( $args['graphql_cursor_offset'] ) ) {
 
 			$cursor_offset = $args['graphql_cursor_offset'];
 
@@ -280,7 +281,7 @@ class Config {
 
 	/**
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
-	 * is a GRAPHQL_REQUEST and the query has a graphql_cursor_offset defined
+	 * is a GraphQL Request and the query has a graphql_cursor_offset defined
 	 *
 	 * @param array             $pieces A compacted array of comment query clauses.
 	 * @param \WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
@@ -295,7 +296,7 @@ class Config {
 		global $wpdb;
 
 		if (
-			defined( 'GRAPHQL_REQUEST' ) && GRAPHQL_REQUEST &&
+			true === is_graphql_request() &&
 			( is_array( $query->query_vars ) && array_key_exists( 'graphql_cursor_offset', $query->query_vars ) )
 		) {
 
