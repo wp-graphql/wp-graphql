@@ -111,11 +111,11 @@ class Router {
 	}
 
 	/**
-	 * Returns true when the current request is a graphql request
+	 * Returns true when the current request is a GraphQL request coming from the HTTP
 	 *
 	 * @return boolean
 	 */
-	public static function is_graphql_request() {
+	public static function is_graphql_http_request() {
 		// If 'init' fired, check query vars.
 		if ( did_action( 'init' ) || doing_action( 'init' ) ) {
 			if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
@@ -127,14 +127,29 @@ class Router {
 
 		// If before 'init' check $_SERVER.
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$haystack = esc_url_raw( wp_unslash( $_SERVER['HTTP_HOST'] ) )
-				. esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
-			$needle   = \home_url( self::$route );
-			$len      = strlen( $needle );
+			$host        = wp_unslash( $_SERVER['HTTP_HOST'] );
+			$request_uri = wp_unslash( $_SERVER['REQUEST_URI'] );
+			$haystack    = esc_url_raw( $host ) . esc_url_raw( $request_uri );
+			$needle      = home_url( self::$route );
+			$len         = strlen( $needle );
 			return ( substr( $haystack, 0, $len ) === $needle );
 		}
 
 		return false;
+	}
+
+	/**
+	 * DEPRECATED: Returns whether a request is a GraphQL Request. Deprecated
+	 * because it's name is a bit misleading. This will only return if the request
+	 * is a GraphQL request coming from the HTTP endpoint. Internal GraphQL requests
+	 * won't be able to use this to properly determine if the request is a GraphQL request
+	 * or not.
+	 *
+	 * @return boolean
+	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
+	 */
+	public static function is_graphql_request() {
+		return self::is_graphql_http_request();
 	}
 
 	/**
@@ -158,7 +173,7 @@ class Router {
 		/**
 		 * Ensure we're on the registered route for graphql route
 		 */
-		if ( ! self::is_graphql_request() ) {
+		if ( ! self::is_graphql_http_request() ) {
 			return;
 		}
 
@@ -237,7 +252,8 @@ class Router {
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
-			'Access-Control-Max-Age'       => 600, // cache the result of preflight requests (600 is the upper limit for Chromium)
+			'Access-Control-Max-Age'       => 600,
+			// cache the result of preflight requests (600 is the upper limit for Chromium)
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
@@ -399,11 +415,11 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param array  $response        The GraphQL response
-		 * @param array  $result          The result of the GraphQL Query
-		 * @param string $operation_name  The name of the operation
-		 * @param string $query           The request that GraphQL executed
-		 * @param array  $variables       Variables to passed to your GraphQL query
+		 * @param array  $response       The GraphQL response
+		 * @param array  $result         The result of the GraphQL Query
+		 * @param string $operation_name The name of the operation
+		 * @param string $query          The request that GraphQL executed
+		 * @param array  $variables      Variables to passed to your GraphQL query
 		 *
 		 * @since 0.0.5
 		 */
