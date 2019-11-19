@@ -10,9 +10,7 @@ class Plugin {
 				'description' => __( 'An plugin object', 'wp-graphql' ),
 				'fields'      => [
 					'id'           => [
-						'type' => [
-							'non_null' => 'ID',
-						],
+						'description' => __( 'The globally unique identifier of the plugin object.', 'wp-graphql' ),
 					],
 					'name'         => [
 						'type'        => 'String',

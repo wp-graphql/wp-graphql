@@ -17,11 +17,11 @@ class TermObject {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'                => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
-						// Placeholder is the name of the taxonomy
-						'description' => __( 'The global ID for the ' . $taxonomy_object->name, 'wp-graphql' ),
+						'description' => sprintf(
+							/* translators: %s: taxonomy name */
+							__( 'The globally unique identifier for the %s term object.', 'wp-graphql' ),
+							$taxonomy_object->name
+						),
 					],
 					$single_name . 'Id' => [
 						'type'        => 'Int',

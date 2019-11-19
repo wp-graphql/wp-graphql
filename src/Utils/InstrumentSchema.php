@@ -94,8 +94,8 @@ class InstrumentSchema {
 					/**
 					 * Sanitize the description and deprecation reason
 					 */
-					$field->description       = ! empty( $field->description ) ? esc_html( $field->description ) : '';
-					$field->deprecationReason = ! empty( $field->deprecationReason ) ? esc_html( $field->deprecationReason ) : '';
+					$field->description       = ! empty( $field->description ) && is_string( $field->description ) ? esc_html( $field->description ) : '';
+					$field->deprecationReason = ! empty( $field->deprecationReason ) && is_string( $field->description ) ? esc_html( $field->deprecationReason ) : '';
 
 					/**
 					 * Replace the existing field resolve method with a new function that captures data about

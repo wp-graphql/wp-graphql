@@ -123,8 +123,8 @@ module.exports = {
             'guides/testing',
           ],
           Extensions: [
-            'extensions/wpgraphql-for-advanced-custom-fields',
-            'extensions/wpgraphql-for-woocommerce',
+            'extensions/wpgraphql-advanced-custom-fields',
+            'extensions/wpgraphql-woocommerce',
             'extensions/wpgraphql-tax-query',
             'extensions/wpgraphql-meta-query',
             'extensions/wpgraphql-insights',

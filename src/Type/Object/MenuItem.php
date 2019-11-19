@@ -12,12 +12,10 @@ class MenuItem {
 			'MenuItem',
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
+				'interfaces' => [ 'Node' ],
 				'fields'      => [
 					'id'               => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
-						'description' => __( 'Relay ID of the menu item.', 'wp-graphql' ),
+						'description' => __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' ),
 					],
 					'cssClasses'       => [
 						'type'        => [
