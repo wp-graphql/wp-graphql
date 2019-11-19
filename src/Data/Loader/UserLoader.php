@@ -63,12 +63,17 @@ class UserLoader extends AbstractDataLoader {
 		}
 
 		/**
-		 *
+		 * Populate array with User objects, or null if user does not exist.
 		 */
 		foreach ( $keys as $key ) {
 			$user                   = get_user_by( 'id', $key );
-			$all_users[ $user->ID ] = new User( $user );
+			if ( $user instanceof \WP_User ) {
+				$all_users[ $user->ID ] = new User( $user );
+			} else if ( ! isset( $all_users[ 0 ] ) ) {
+				$all_users[0] = null;
+			}
 		}
+
 		return $all_users;
 
 	}

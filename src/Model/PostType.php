@@ -69,6 +69,7 @@ class PostType extends Model {
 			'graphql_plural_name',
 			'graphqlPluralName',
 			'showInGraphql',
+			'isRestricted',
 		];
 
 		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );

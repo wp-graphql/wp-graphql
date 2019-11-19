@@ -98,6 +98,7 @@ class WPInterfaceType extends InterfaceType {
 		 * as it ensures it's not output in just random order
 		 */
 		ksort( $fields );
+
 		return $fields;
 	}
 

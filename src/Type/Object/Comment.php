@@ -15,10 +15,7 @@ class Comment {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'           => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
-						'description' => __( 'The globally unique identifier for the user', 'wp-graphql' ),
+						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
 					],
 					'commentId'    => [
 						'type'        => 'Int',

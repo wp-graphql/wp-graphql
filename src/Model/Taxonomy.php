@@ -65,6 +65,7 @@ class Taxonomy extends Model {
 			'graphql_plural_name',
 			'graphqlPluralName',
 			'showInGraphql',
+			'isRestricted',
 		];
 
 		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields );

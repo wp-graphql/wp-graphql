@@ -11,9 +11,7 @@ class Theme {
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'           => [
-						'type' => [
-							'non_null' => 'ID',
-						],
+						'description' => __( 'The globally unique identifier of the theme object.', 'wp-graphql' ),
 					],
 					'slug'         => [
 						'type'        => 'String',

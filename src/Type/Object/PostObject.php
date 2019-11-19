@@ -210,10 +210,11 @@ class PostObject {
 		$single_name = $post_type_object->graphql_single_name;
 		$fields      = [
 			'id'                => [
-				'type'        => [
-					'non_null' => 'ID',
-				],
-				'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
+				'description' => sprintf(
+					/* translators: %s: custom post-type name */
+					__( 'The globally unique identifier of the %s object.', 'wp-graphql' ),
+					$post_type_object->name
+				),
 			],
 			$single_name . 'Id' => [
 				'type'        => [
