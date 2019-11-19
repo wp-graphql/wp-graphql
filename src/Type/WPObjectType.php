@@ -73,15 +73,20 @@ class WPObjectType extends ObjectType {
 						sprintf(
 							/* translators: %s: type name */
 							__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
-							$type_name
+							$config['name']
 						)
 					);
 				}
 
 				foreach ( $config['interfaces'] as $interface_name ) {
-					$interface_type = $this->type_registry->get_type( $interface_name );
+					$interface_type = null;
+					if ( is_string( $interface_name ) ) {
+						$interface_type = $this->type_registry->get_type( $interface_name );
+					} else if ( $interface_name instanceof WPInterfaceType ) {
+						$interface_type = $interface_name;
+					}
 					$interface_fields = [];
-					if ( $interface_type instanceof WPInterfaceType ) {
+					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
 						$interface_config_fields = $interface_type->getFields();
 						foreach ( $interface_config_fields as $interface_field ) {
 							$interface_fields[ $interface_field->name ] = $interface_field->config;
@@ -104,8 +109,14 @@ class WPObjectType extends ObjectType {
 			$interfaces = [];
 			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
 				foreach ( $config['interfaces'] as $interface_name ) {
-					$interface_type = $this->type_registry->get_type( $interface_name );
-					if ( $interface_type instanceof WPInterfaceType ) {
+					$interface_type = null;
+					if ( is_string( $interface_name ) ) {
+						$interface_type = $this->type_registry->get_type( $interface_name );
+					} else if ( $interface_name instanceof WPInterfaceType ) {
+						$interface_type = $interface_name;
+					}
+
+					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
 						$interfaces[ $interface_name ] = $interface_type;
 					}
 				}
@@ -175,7 +186,7 @@ class WPObjectType extends ObjectType {
 		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
-    
+
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.
 		 */
