@@ -570,6 +570,13 @@ class PostObject {
 			],
 		];
 
+		if ( 'page' === $post_type_object->name ) {
+			$fields['isFrontPage'] = [
+				'type'        => [ 'non_null' => 'Boolean'],
+				'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' )
+			];
+		}
+
 		if ( 'attachment' === $post_type_object->name ) {
 			$fields['excerpt']['isDeprecated']      = true;
 			$fields['excerpt']['deprecationReason'] = __( 'Use the caption field instead of excerpt', 'wp-graphql' );
