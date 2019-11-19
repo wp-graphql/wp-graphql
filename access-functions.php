@@ -202,3 +202,13 @@ function register_graphql_mutation( $mutation_name, $config ) {
 		$type_registry->register_mutation( $mutation_name, $config );
 	} );
 }
+
+/**
+ * Whether a GraphQL request is in action or not. Default false.
+ *
+ * @since 0.4.1
+ */
+function is_graphql_request() {
+	$is_graphql_request = false;
+	return apply_filters( 'is_graphql_request', $is_graphql_request );
+}

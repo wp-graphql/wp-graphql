@@ -9,7 +9,6 @@ use GraphQL\Server\StandardServer;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use WPGraphQL\Registry\SchemaRegistry;
-use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Type\WPObjectType;
 
@@ -63,12 +62,6 @@ class Request {
 	 * @access public
 	 */
 	public $schema;
-
-	/**
-	 * @var TypeRegistry $type_registry
-	 * @access public
-	 */
-	public $type_registry;
 
 	/**
 	 * Constructor
@@ -129,6 +122,13 @@ class Request {
 	 * @return void
 	 */
 	private function before_execute() {
+
+		/**
+		 * Filter "is_graphql_request" to return true
+		 */
+		add_filter( 'is_graphql_request', function() {
+			return true;
+		} );
 
 		/**
 		 * Store the global post so it can be reset after GraphQL execution
@@ -290,6 +290,13 @@ class Request {
 			$GLOBALS['post'] = $this->global_post;
 			setup_postdata( $this->global_post );
 		}
+
+		/**
+		 * Filter "is_graphql_request" back to false.
+		 */
+		add_filter( 'is_graphql_request', function() {
+			return false;
+		} );
 
 		/**
 		 * Return the filtered response

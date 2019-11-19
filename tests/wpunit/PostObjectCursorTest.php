@@ -407,6 +407,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	*/
 	public function testPostOrderingStability() {
 
+		add_filter( 'is_graphql_request', '__return_true' );
+
 		foreach ($this->created_post_ids as $index => $post_id) {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
 		}

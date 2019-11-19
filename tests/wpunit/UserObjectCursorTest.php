@@ -1,7 +1,7 @@
 <?php
 
 class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
-	
+
 	public $current_time;
 	public $current_date;
 	public $created_user_ids;
@@ -20,7 +20,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
-		// Number of users to create. More created users will slow down the test. 
+		// Number of users to create. More created users will slow down the test.
 		$this->count	= 10;
 		$this->create_users();
 
@@ -96,7 +96,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function delete_users() {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare( 
+		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
 		    array( 1 )
 		) );
@@ -112,7 +112,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$expected = array_slice( $this->created_user_ids, 0, $paged_count );
 
 		codecept_debug( $expected );
-		
+
 		$actual = graphql( [
 			'query' 		=> $this->query,
 			'variables' => [
@@ -243,6 +243,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
+		add_filter( 'is_graphql_request', '__return_true' );
+
 		$where = str_replace( '"', '', json_encode( $graphql_args ) );
 
 		// Meta field orderby is not supported in schema and needs to be passed in through hook
@@ -253,7 +255,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$users_per_page = ceil( $this->count / 2 );
-		
+
 		$query = "
 		query getUsers(\$cursor: String) {
 			users(after: \$cursor, first: $users_per_page, where: $where) {
@@ -321,7 +323,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Simple login__in ordering test
 	 */
 	public function testUserOrderingByLoginInDefault() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'LOGIN_IN'
@@ -329,7 +331,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			],
 			[
 				'orderby' => 'login__in',
-			] 
+			]
 		);
 	}
 
@@ -337,7 +339,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Simple login__in ordering test by ASC
 	 */
 	public function testUserOrderingByLoginInASC() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'LOGIN_IN',
@@ -347,7 +349,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'orderby' => 'login__in',
 				'order' 	=> 'ASC'
-			] 
+			]
 		);
 	}
 
@@ -355,7 +357,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Simple login__in ordering test by DESC
 	 */
 	public function testUserOrderingByLoginInDESC() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'LOGIN_IN',
@@ -365,7 +367,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'orderby' => 'login__in',
 				'order' 	=> 'DESC'
-			] 
+			]
 		);
 	}
 
@@ -373,13 +375,13 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Simple nice name ordering test by ASC
 	 */
 	public function testUserOrderingByNiceNameASC() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'NICE_NAME',
 					'order'	=> 'ASC'
 				]
-			], 
+			],
 			[
 				'orderby' => 'nicename',
 				'order'		=> 'ASC'
@@ -391,13 +393,13 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Simple nice name ordering test by DESC
 	 */
 	public function testUserOrderingByNiceNameDESC() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'NICE_NAME',
 					'order'	=> 'DESC'
 				]
-			], 
+			],
 			[
 				'orderby' => 'nicename',
 				'order'		=> 'DESC'
@@ -414,13 +416,13 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			] );
 		}
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'NICE_NAME',
 					'order'	=> 'DESC'
 				]
-			], 
+			],
 			[
 				'orderby' => 'nicename',
 				'order'		=> 'DESC'
@@ -441,10 +443,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		// Must use dummy where args here to force
 		// graphql_map_input_fields_to_wp_query to be executed
-		$this->assertQueryInCursor(	
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -452,7 +454,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'orderby' 	=> [ 'meta_value' => 'ASC', ],
 				'meta_key' 	=> 'test_meta',
 			],
-			true 
+			true
 		);
 
 	}
@@ -468,10 +470,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 6 ) );
 		update_user_meta( $this->created_user_ids[9], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -480,7 +482,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'meta_key' => 'test_meta',
 				'meta_type' => 'DATE',
 			],
-			true 
+			true
 		);
 	}
 
@@ -494,10 +496,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->numberToMysqlDate( 14 ) );
 		update_user_meta( $this->created_user_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -506,7 +508,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'meta_key' => 'test_meta',
 				'meta_type' => 'DATE',
 			],
-			true 
+			true
 		);
 	}
 
@@ -521,10 +523,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_user_meta($this->created_user_ids[9], 'test_meta', 6 );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -547,10 +549,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 4 );
 		update_user_meta( $this->created_user_ids[2], 'test_meta', 4 );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -559,7 +561,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'meta_key' => 'test_meta',
 				'meta_type' => 'UNSIGNED',
 			],
-			true 
+			true
 		);
 	}
 
@@ -573,10 +575,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 7 );
 		update_user_meta($this->created_user_ids[2], 'test_meta', 7 );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -592,8 +594,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 						'type'    => 'UNSIGNED',
 					],
 				]
-			], 
-			true 
+			],
+			true
 		);
 
 	}
@@ -608,10 +610,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_user_meta($this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -624,7 +626,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 					]
 				]
 			],
-			true 
+			true
 		);
 	}
 
@@ -638,10 +640,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
 		update_user_meta($this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -655,7 +657,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 					]
 				]
 			],
-			true 
+			true
 		);
 
 	}
@@ -676,7 +678,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -685,15 +687,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'meta_key' => 'test_meta',
 				'meta_type' => 'DATE',
 			],
-			true 
+			true
 		);
 
 		update_user_meta( $this->created_user_ids[7], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -707,10 +709,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		update_user_meta( $this->created_user_ids[8], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -719,7 +721,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'meta_key' => 'test_meta',
 				'meta_type' => 'DATE',
 			],
-			true 
+			true
 		);
 
 	}
@@ -741,10 +743,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 6 );
 		update_user_meta($this->created_user_ids[2], 'test_meta', 6 );
 
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
-					'ADMINISTRATOR', 
+					'ADMINISTRATOR',
 					'SUBSCRIBER'
 				]
 			],
@@ -762,7 +764,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws Exception
 	 */
 	public function testOrderbyNiceNameIn() {
-		$this->assertQueryInCursor( 
+		$this->assertQueryInCursor(
 			[
 				'orderby' => [
 					'field' => 'NICE_NAME_IN',
@@ -774,6 +776,6 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'order' => 'DESC',
 			]
 		);
-	}	
+	}
 
 }
