@@ -437,7 +437,7 @@ class TypeRegistry {
 				case 'input':
 					if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
 						$config['fields'] = function() use ( $config ) {
-							$fields = WPInputObjectType::prepare_fields( $config['fields'], $config['name'] );
+							$fields = WPInputObjectType::prepare_fields( $config['fields'], $config['name'], $config, $this );
 							$fields = $this->prepare_fields( $fields, $config['name'] );
 
 							return $fields;
