@@ -198,6 +198,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Whether to run the plugin in debug mode. Default is false.
 			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
 				define( 'GRAPHQL_DEBUG', false );
+			}
 		}
 
 		/**
