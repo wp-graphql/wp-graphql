@@ -73,7 +73,7 @@ class WPObjectType extends ObjectType {
 						sprintf(
 							/* translators: %s: type name */
 							__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
-							$type_name
+							$config['name']
 						)
 					);
 				}
@@ -175,7 +175,7 @@ class WPObjectType extends ObjectType {
 		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name );
-    
+
 		/**
 		 * Filter once with lowercase, once with uppercase for Back Compat.
 		 */
