@@ -14,6 +14,7 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
+		WPGraphQL::__clear_schema();
 	}
 
 	// tests
@@ -84,6 +85,99 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		deregister_graphql_field( 'RootQueryToTestCptConnectionWhereArgs', 'testTest' );
 		unregister_post_type( 'action_monitor' );
 		WPGraphQL::__clear_schema();
+
+	}
+
+	/**
+	 * Test to make sure "testInputField" doesn't exist in the Schema already
+	 * @throws Exception
+	 */
+	public function testFilteredInputFieldDoesntExistByDefault() {
+		/**
+		 * Query the "RootQueryToPostConnectionWhereArgs" Type
+		 */
+		$query = '
+		{
+		  __type(name: "RootQueryToPostConnectionWhereArgs") {
+		    name
+		    kind
+		    inputFields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Map the names of the inputFields to be an array so we can properly
+		 * assert that the input field is there
+		 */
+		$field_names = array_map( function( $field ) {
+			return $field['name'];
+		}, $actual['data']['__type']['inputFields'] );
+
+		codecept_debug( $field_names );
+
+		/**
+		 * Assert that there is no `testInputField` on the Type already
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'testInputField', $field_names );
+	}
+
+	/**
+	 * Test to make sure filtering in "testInputField" properly adds the input to the Schema
+	 * @throws Exception
+	 */
+	public function testFilterInputFields() {
+
+		/**
+		 * Query the "RootQueryToPostConnectionWhereArgs" Type
+		 */
+		$query = '
+		{
+		  __type(name: "RootQueryToPostConnectionWhereArgs") {
+		    name
+		    kind
+		    inputFields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Filter in the "testInputField"
+		 */
+		add_filter( 'graphql_input_fields', function( $fields, $type_name, $config, $type_registry ) {
+			if ( isset( $config['queryClass'] ) && 'WP_Query' === $config['queryClass'] ) {
+				$fields['testInputField'] = [
+					'type' => 'String'
+				];
+			}
+			return $fields;
+		}, 10, 4 );
+
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Map the names of the inputFields to be an array so we can properly
+		 * assert that the input field is there
+		 */
+		$field_names = array_map( function( $field ) {
+			return $field['name'];
+		}, $actual['data']['__type']['inputFields'] );
+
+		codecept_debug( $field_names );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertContains( 'testInputField', $field_names );
 
 	}
 
