@@ -855,7 +855,7 @@ class TypeRegistry {
 					],
 					$where_args
 				),
-				'description' => sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
+				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
 				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
 
 					/**
