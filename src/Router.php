@@ -131,11 +131,14 @@ class Router {
 
 		// If before 'init' check $_SERVER.
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$host        = wp_unslash( $_SERVER['HTTP_HOST'] );
-			$request_uri = wp_unslash( $_SERVER['REQUEST_URI'] );
-			$haystack    = esc_url_raw( $host ) . esc_url_raw( $request_uri );
-			$needle      = home_url( self::$route );
-			$len         = strlen( $needle );
+			$haystack = esc_url_raw( wp_unslash( $_SERVER['HTTP_HOST'] ) )
+				. esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+			$needle   = \home_url( \WPGraphQL\Router::$route );
+
+			// Strip protocol.
+			$haystack = preg_replace( '#^(http(s)?://)#', '', $haystack );
+			$needle   = preg_replace( '#^(http(s)?://)#', '', $needle );
+			$len      = strlen( $needle );
 			return ( substr( $haystack, 0, $len ) === $needle );
 		}
 
