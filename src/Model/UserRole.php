@@ -10,6 +10,7 @@ use GraphQLRelay\Relay;
  * @property string $id
  * @property string name
  * @property array  $capabilities
+ * @property string displayName
  *
  * @package WPGraphQL\Model
  */
