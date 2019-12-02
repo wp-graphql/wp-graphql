@@ -15,11 +15,6 @@ use WPGraphQL\Model\Post;
 class PostObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @var array
-	 */
-	protected $loaded_posts;
-
-	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
 	 * posts as the values
 	 *
@@ -48,8 +43,10 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * to the count of the keys provided. The query must also return results
 		 * in the same order the keys were provided in.
 		 */
-		$args = [
-			'post_type'           => 'any',
+		$post_types = \WPGraphQL::get_allowed_post_types();
+		$post_types = array_merge( $post_types, [ 'revision', 'nav_menu_item' ] );
+		$args       = [
+			'post_type'           => $post_types,
 			'post_status'         => 'any',
 			'posts_per_page'      => count( $keys ),
 			'post__in'            => $keys,
@@ -64,7 +61,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 */
 		add_filter(
 			'split_the_query',
-			function ( $split, \WP_Query $query ) {
+			function( $split, \WP_Query $query ) {
 				if ( false === $query->get( 'split_the_query' ) ) {
 					return false;
 				}
@@ -92,41 +89,87 @@ class PostObjectLoader extends AbstractDataLoader {
 			 */
 			$post_object = get_post( (int) $key );
 
-
 			/**
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$this->loaded_posts[ $key ] = new Deferred(
-				function () use ( $post_object ) {
+			$loaded_posts[ $key ] = new Deferred(
+				function() use ( $post_object ) {
 
 					if ( ! $post_object instanceof \WP_Post ) {
-						  return null;
+						return null;
 					}
 
-						/**
-						 * If there's a Post Author connected to the post, we need to resolve the
-						 * user as it gets set in the globals via `setup_post_data()` and doing it this way
-						 * will batch the loading so when `setup_post_data()` is called the user
-						 * is already in the cache.
-						 */
+					/**
+					 * If there's a Post Author connected to the post, we need to resolve the
+					 * user as it gets set in the globals via `setup_post_data()` and doing it this way
+					 * will batch the loading so when `setup_post_data()` is called the user
+					 * is already in the cache.
+					 */
+					$context     = $this->context;
+					$user_id     = null;
+					$post_parent = null;
+
 					if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
-						$author = DataSource::resolve_user( $post_object->post_author, $this->context );
 
-						return $author->then(
-							function () use ( $post_object ) {
-								return new Post( $post_object );
-							}
-						);
-					} else {
-						return new Post( $post_object );
+						if ( ! empty( $post_object->post_author ) ) {
+							$user_id = $post_object->post_author;
+							$this->context->getLoader( 'user' )->buffer( [ $user_id ] );
+						}
+
 					}
+
+					if ( 'revision' === $post_object->post_type && ! empty( $post_object->post_parent ) && absint( $post_object->post_parent ) ) {
+						$post_parent = $post_object->post_parent;
+						$this->context->getLoader( 'post_object' )->buffer( [ $post_parent ] );
+					}
+
+					/**
+					 * This is a deferred function that allows us to do batch loading
+					 * of dependant resources. When the Model Layer attempts to determine
+					 * access control of a Post, it needs to know the owner of it, and
+					 * if it's a revision, it needs the Parent.
+					 *
+					 * This deferred function allows for the objects to be loaded all at once
+					 * instead of loading once per entity, thus reducing the n+1 problem.
+					 */
+					$load_dependencies = new Deferred(
+
+						function() use ( $post_object, $user_id, $post_parent, $context ) {
+
+							if ( ! empty( $user_id ) ) {
+								$context->getLoader( 'user' )->load( $user_id );
+							}
+							if ( ! empty( $post_parent ) ) {
+								$context->getLoader( 'post_object' )->load( $post_parent );
+							}
+
+							/**
+							 * Run an action when the dependencies are being loaded for
+							 * Post Objects
+							 */
+							do_action( 'graphql_post_object_loader_load_dependencies', $this, $post_object );
+
+							return;
+						}
+
+					);
+
+					/**
+					 * Once dependencies are loaded, return the Post Object
+					 */
+					return $load_dependencies->then(
+						function() use ( $post_object ) {
+							return new Post( $post_object );
+						}
+					);
+
 				}
 			);
 
 		}
 
-		return ! empty( $this->loaded_posts ) ? $this->loaded_posts : [];
+		return ! empty( $loaded_posts ) ? $loaded_posts : [];
 
 	}
 

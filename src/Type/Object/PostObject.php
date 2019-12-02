@@ -225,6 +225,13 @@ class PostObject {
 					return absint( $post->ID );
 				},
 			],
+			'isRevision' => [
+				'type' => 'Boolean',
+				'description' => __( 'Whether the object is a revision', 'wp-graphql' ),
+				'resolve' => function( Post $post, $args, $context, $info ) {
+					return 'revision' === $post->post_type ? true : false;
+				}
+			],
 			'ancestors'         => [
 				'type'        => [
 					'list_of' => 'PostObjectUnion',

@@ -31,8 +31,6 @@ class UserLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
-		$all_users = [];
-
 		/**
 		 * Prepare the args for the query. We're provided a specific
 		 * set of IDs, so we want to query as efficiently as possible with
@@ -53,28 +51,23 @@ class UserLoader extends AbstractDataLoader {
 		 * Query for the users and get the results
 		 */
 		$query = new \WP_User_Query( $args );
-		$users = $query->get_results();
+		$query->get_results();
 
 		/**
-		 * If no users are returned, return an empty array
-		 */
-		if ( empty( $users ) || ! is_array( $users ) ) {
-			return [];
-		}
-
-		/**
-		 * Populate array with User objects, or null if user does not exist.
+		 * Loop over the Users and return an array of loaded_users,
+		 * where the key is the ID and the value is the Post passed through
+		 * the model layer.
 		 */
 		foreach ( $keys as $key ) {
 			$user                   = get_user_by( 'id', $key );
 			if ( $user instanceof \WP_User ) {
-				$all_users[ $user->ID ] = new User( $user );
+				$loaded_users[ $user->ID ] = new User( $user );
 			} else if ( ! isset( $all_users[ 0 ] ) ) {
-				$all_users[0] = null;
+				$loaded_users[0] = null;
 			}
-		}
 
-		return $all_users;
+		}
+		return ! empty( $loaded_users ) ? $loaded_users : [];
 
 	}
 

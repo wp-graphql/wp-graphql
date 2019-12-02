@@ -28,7 +28,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory->post->create([
+		$post_id = $this->factory()->post->create([
 			'post_type' => 'post',
 			'post_status' => 'publish',
 			'post_title' => 'Post for commenting...'
@@ -251,7 +251,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testCommentQueryWithChildrenAssignedPostAndParent() {
 
 		// Post object to assign comments to.
-		$post_id = $this->factory->post->create( [
+		$post_id = $this->factory()->post->create( [
 			'post_content' => 'Post object',
 			'post_author' => $this->admin,
 			'post_status' => 'publish'
@@ -324,6 +324,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
