@@ -165,6 +165,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 		add_action( 'graphql_register_types', function( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
 			$types = $type_registry->get_types();
+			codecept_debug( array_keys( $types ) );
 			$this->assertArrayHasKey( 'mycustomtype', $types );
 			$this->assertArrayHasKey( 'string', $types );
 			$this->assertArrayHasKey( 'post', $types );
