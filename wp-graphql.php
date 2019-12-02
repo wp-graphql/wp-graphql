@@ -434,7 +434,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered type */
+							/* translators: %s will replaced with the registered type */
 								__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$post_type_object->name
 							)
@@ -488,7 +488,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered taxonomty */
+							/* translators: %s will replaced with the registered taxonomty */
 								__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$tax_object->name
 							)
