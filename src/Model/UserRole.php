@@ -10,6 +10,7 @@ use GraphQLRelay\Relay;
  * @property string $id
  * @property string name
  * @property array  $capabilities
+ * @property string displayName
  *
  * @package WPGraphQL\Model
  */
@@ -73,6 +74,9 @@ class UserRole extends Model {
 				},
 				'name'         => function() {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
+				},
+				'displayName' => function() {
+					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
 				},
 				'capabilities' => function() {
 					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {

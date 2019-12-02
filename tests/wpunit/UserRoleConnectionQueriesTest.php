@@ -28,6 +28,7 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						name
 						capabilities
 						id
+						displayName
 					}
 				}
 			}
@@ -42,6 +43,7 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$node = \WPGraphQL\Data\DataSource::resolve_user_role( $role_name );
 			$clean_node['id'] = $node->id;
 			$clean_node['name'] = $node->name;
+			$clean_node['displayName'] = $node->displayName;
 			$clean_node['capabilities'] = $node->capabilities;
 
 			$nodes[]['node'] = $clean_node;
