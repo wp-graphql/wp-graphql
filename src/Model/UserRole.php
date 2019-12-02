@@ -74,6 +74,9 @@ class UserRole extends Model {
 				'name'         => function() {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
 				},
+				'displayName' => function() {
+					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
+				},
 				'capabilities' => function() {
 					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
 						return null;
