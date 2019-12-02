@@ -173,7 +173,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Execute a GraphQL Request to instantiate the Schema
 		 */
-		$actual = graphql( [e 'query' => '{posts{nodes{id}}}'] );
+		$actual = graphql( ['query' => '{posts{nodes{id}}}'] );
 
 	}
 
