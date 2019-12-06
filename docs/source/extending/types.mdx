@@ -330,26 +330,27 @@ Now that we have a `Cat` and `Dog` Type registered to our Schema, we can registe
 below the registration for those types, we can add the following:
 
 ```php
-register_graphql_union_type( 'PetUnion', [
-  'types'       => [
-    \\WPGraphQL\\TypeRegistry::get_type( 'Dog' ),
-    \\WPGraphQL\\TypeRegistry::get_type( 'Cat' )
-  ],
-  'resolveType' => function( $pet ) {
-    // Here we receive the object or array that's being resolved by the field
-    // and we can determine what Type to return
-    $type = null;
-    switch( $pet['type'] ) {
-      case 'dog':
-        $type = \\WPGraphQL\\TypeRegistry::get_type( 'Dog' );
-        break;
-      case 'cat':
-        $type = \\WPGraphQL\\TypeRegistry::get_type( 'Dog' );
-        break;
+add_action( 'graphql_register_types', 'register_pet_union', 10, 1 );
+
+function register_pet_union( $type_registry ) {
+  register_graphql_union_type( 'PetUnion', [
+    'typeNames'       => [ 'Dog', 'Cat' ],
+    'resolveType' => function( $pet ) use ( $type_registry ) {
+      // Here we receive the object or array that's being resolved by the field
+      // and we can determine what Type to return
+      $type = null;
+      switch( $pet['type'] ) {
+        case 'dog':
+	  $type = $type_registry->get_type( 'Dog' );
+    	  break;
+        case 'cat':
+	  $type = $type_registry->get_type( 'Cat' );
+	  break;
+      }
+      return $type;
     }
-    return $type;
-  }
-] );
+  ] );
+}
 ```
 
 <Note>
