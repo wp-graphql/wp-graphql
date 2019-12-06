@@ -52,8 +52,8 @@ module.exports = {
         trackingId: 'UA-111783024-1',
         twitterHandle: 'wpgraphql',
         spectrumHandle: 'wpgraphql',
-        algoliaApiKey: 'bbd3b8557e78cdf3e0a73b5520f7f7ba',
-        algoliaIndexName: 'wp_posts',
+        algoliaApiKey: 'fb8b4503ba2093d228a6c9b72facff9b',
+        algoliaIndexName: 'wpgraphql',
         youtubeUrl: 'https://www.youtube.com/channel/UCwav5UKLaEufn0mtvaFAkYw',
         logoLink: 'https://docs.wpgraphql.com',
         navConfig: {
