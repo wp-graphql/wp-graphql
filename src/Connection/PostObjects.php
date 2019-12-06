@@ -73,7 +73,7 @@ class PostObjects {
 				if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
 					register_graphql_connection( self::get_connection_config( $post_type_object, [
 						'fromType'      => $post_type_object->graphql_single_name,
-						'toType'        => 'Revision',
+						'toType'        => $post_type_object->graphql_single_name,
 						'fromFieldName' => 'revisions',
 						'resolve'          => function ( $root, $args, $context, $info ) {
 							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );

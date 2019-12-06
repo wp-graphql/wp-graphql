@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.4.3
+ * Version: 0.5.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.4.3
+ * @version  0.5.0
  */
 
 // Exit if accessed directly.
@@ -172,7 +172,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.4.3' );
+				define( 'WPGRAPHQL_VERSION', '0.5.0' );
 			}
 
 			// Plugin Folder Path.
@@ -383,13 +383,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_post_types['post']->show_in_graphql     = true;
 				$wp_post_types['post']->graphql_single_name = 'post';
 				$wp_post_types['post']->graphql_plural_name = 'posts';
-			}
-
-			// Adds GraphQL support for posts.
-			if ( isset( $wp_post_types['revision'] ) ) {
-				$wp_post_types['revision']->show_in_graphql     = true;
-				$wp_post_types['revision']->graphql_single_name = 'revision';
-				$wp_post_types['revision']->graphql_plural_name = 'revisions';
 			}
 
 			// Adds GraphQL support for categories.

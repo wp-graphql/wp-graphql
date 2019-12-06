@@ -83,12 +83,25 @@ class Post extends Model {
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @access public
+	 * @throws \Exception
 	 * @return void
 	 */
 	public function __construct( \WP_Post $post ) {
 
-		$this->data             = $post;
+		/**
+		 * Set the data as the Post object
+		 */
+		$this->data = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
+
+		/**
+		 * If the post type is 'revision', we need to get the post_type_object
+		 * of the parent post type to determine capabilities from
+		 */
+		if ( 'revision' === $post->post_type && ! empty( $post->post_parent ) ) {
+			$parent                 = get_post( absint( $post->post_parent ) );
+			$this->post_type_object = get_post_type_object( $parent->post_type );
+		}
 
 		/**
 		 * Mimic core functionality for templates, as seen here:
@@ -116,6 +129,9 @@ class Post extends Model {
 
 	}
 
+	/**
+	 * Setup the global data for the model to have proper context when resolving
+	 */
 	public function setup() {
 		/**
 		 * Set the resolving post to the global $post. That way any filters that
@@ -158,12 +174,31 @@ class Post extends Model {
 	}
 
 	/**
-	 * Method for determining if the data should be considered private or not
+	 * Determine if the model is private
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
+
+		/**
+		 * If the post is of post_type "revision", we need to access the parent of the Post
+		 * so that we can check access rights of the parent post. Revision access is inherit
+		 * to the Parent it is a revision of.
+		 */
+		if ( 'revision' === $this->data->post_type ) {
+
+			// Get the post
+			$parent_post = get_post( $this->data->post_parent );
+
+			// If the parent post doesn't exist, the revision should be considered private
+			if ( ! $parent_post instanceof \WP_Post ) {
+				return true;
+			}
+
+			// Determine if the revision is private using capabilities relative to the parent
+			return $this->is_post_private( $parent_post );
+
+		}
 
 		/**
 		 * Media Items (attachments) are all public. Once uploaded to the media library
@@ -189,18 +224,42 @@ class Post extends Model {
 			return false;
 		}
 
+
+		return $this->is_post_private( $this->data );
+	}
+
+	/**
+	 * Method for determining if the data should be considered private or not
+	 *
+	 * @param \WP_Post $post_object The object of the post we need to verify permissions for
+	 *
+	 * @access protected
+	 * @return bool
+	 */
+	protected function is_post_private( $post_object = null ) {
+
+		$post_type_object = $this->post_type_object;
+
+		if ( empty( $post_object ) ) {
+			$post_object = $this->data;
+		}
+
+		if ( empty( $post_object ) ) {
+			return true;
+		}
+
 		/**
 		 * If the status is NOT publish and the user does NOT have capabilities to edit posts,
 		 * consider the post private.
 		 */
-		if ( ! current_user_can( $this->post_type_object->cap->edit_posts ) ) {
+		if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 			return true;
 		}
 
 		/**
 		 * If the owner of the content is the current user
 		 */
-		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $this->data->post_type ) {
+		if ( ( true === $this->owner_matches_current_user() ) && 'revision' !== $post_object->post_type ) {
 			return false;
 		}
 
@@ -208,17 +267,18 @@ class Post extends Model {
 		 * If the post_type isn't (not registered) or is not allowed in WPGraphQL,
 		 * mark the post as private
 		 */
-		if ( empty( $this->post_type_object ) || empty( $this->post_type_object->name ) || ! in_array( $this->post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
+
+		if ( empty( $post_type_object ) || empty( $post_type_object->name ) || ! in_array( $post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
 			return true;
 		}
 
-		if ( 'private' === $this->data->post_status && ! current_user_can( $this->post_type_object->cap->read_private_posts ) ) {
+		if ( 'private' === $this->data->post_status && ! current_user_can( $post_type_object->cap->read_private_posts ) ) {
 			return true;
 		}
 
 		if ( 'revision' === $this->data->post_type || 'auto-draft' === $this->data->post_status ) {
 			$parent               = get_post( (int) $this->data->post_parent );
-			$parent_post_type_obj = get_post_type_object( $parent->post_type );
+			$parent_post_type_obj = $post_type_object;
 
 			if ( 'private' === $parent->post_status ) {
 				$cap = $parent_post_type_obj->cap->read_private_posts;
@@ -256,24 +316,25 @@ class Post extends Model {
 				'post_author'     => function() {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'id'              => function () {
+				'id'              => function() {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->ID ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->ID ) : null;
 				},
 				'post_type'       => function() {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
 				},
-				'authorId'        => function () {
+				'authorId'        => function() {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'date'            => function () {
+				'date'            => function() {
 					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Types::prepare_date_response( null, $this->data->post_date ) : null;
 				},
-				'dateGmt'         => function () {
+				'dateGmt'         => function() {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
 				},
 				'contentRendered' => function() {
 					setup_postdata( $this->data );
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
+
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
 				'contentRaw'      => [
@@ -286,6 +347,7 @@ class Post extends Model {
 					setup_postdata( $this->data );
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
+
 					return apply_filters( 'the_title', $title, $id );
 				},
 				'titleRaw'        => [
@@ -298,6 +360,7 @@ class Post extends Model {
 					setup_postdata( $this->data );
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
+
 					return apply_filters( 'the_excerpt', $excerpt );
 				},
 				'excerptRaw'      => [
@@ -309,16 +372,16 @@ class Post extends Model {
 				'post_status'     => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'status'          => function () {
+				'status'          => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'commentStatus'   => function () {
+				'commentStatus'   => function() {
 					return ! empty( $this->data->comment_status ) ? $this->data->comment_status : null;
 				},
-				'pingStatus'      => function () {
+				'pingStatus'      => function() {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
 				},
-				'slug'            => function () {
+				'slug'            => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
 				'isFrontPage'     => function () {
@@ -333,50 +396,56 @@ class Post extends Model {
 				'toPing'          => function () {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},
-				'pinged'          => function () {
+				'pinged'          => function() {
 					return ! empty( $this->data->pinged ) && is_array( $this->data->pinged ) ? implode( ',', (array) $this->data->pinged ) : null;
 				},
-				'modified'        => function () {
+				'modified'        => function() {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;
 				},
-				'modifiedGmt'     => function () {
+				'modifiedGmt'     => function() {
 					return ! empty( $this->data->post_modified_gmt ) ? Types::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
-				'parentId'        => function () {
+				'parentId'        => function() {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
 				},
-				'editLastId'      => function () {
+				'editLastId'      => function() {
 					$edit_last = get_post_meta( $this->data->ID, '_edit_last', true );
+
 					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
-				'editLock'        => function () {
+				'editLock'        => function() {
 					$edit_lock       = get_post_meta( $this->data->ID, '_edit_lock', true );
 					$edit_lock_parts = explode( ':', $edit_lock );
+
 					return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 				},
-				'enclosure'       => function () {
+				'enclosure'       => function() {
 					$enclosure = get_post_meta( $this->data->ID, 'enclosure', true );
+
 					return ! empty( $enclosure ) ? $enclosure : null;
 				},
-				'guid'            => function () {
+				'guid'            => function() {
 					return ! empty( $this->data->guid ) ? $this->data->guid : null;
 				},
-				'menuOrder'       => function () {
+				'menuOrder'       => function() {
 					return ! empty( $this->data->menu_order ) ? absint( $this->data->menu_order ) : null;
 				},
-				'link'            => function () {
+				'link'            => function() {
 					$link = get_permalink( $this->data->ID );
+
 					return ! empty( $link ) ? $link : null;
 				},
-				'uri'             => function () {
+				'uri'             => function() {
 					$uri = get_page_uri( $this->data->ID );
+
 					return ! empty( $uri ) ? $uri : null;
 				},
-				'commentCount'    => function () {
+				'commentCount'    => function() {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
 				},
-				'featuredImageId' => function () {
+				'featuredImageId' => function() {
 					$thumbnail_id = get_post_thumbnail_id( $this->data->ID );
+
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
 				'password'        => [
@@ -392,6 +461,7 @@ class Post extends Model {
 					'captionRendered'     => function() {
 						setup_postdata( $this->data );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
+
 						return ! empty( $caption ) ? $caption : null;
 					},
 					'captionRaw'          => [
@@ -405,6 +475,7 @@ class Post extends Model {
 					},
 					'descriptionRendered' => function() {
 						setup_postdata( $this->data );
+
 						return ! empty( $this->data->post_content ) ? apply_filters( 'the_content', $this->data->post_content ) : null;
 					},
 					'descriptionRaw'      => [
@@ -438,6 +509,7 @@ class Post extends Model {
 								$urls[ $size ] = wp_get_attachment_image_src( $this->data->ID, $size )[0];
 							}
 						}
+
 						return $urls;
 					},
 					'mimeType'            => function() {
@@ -447,8 +519,10 @@ class Post extends Model {
 						$media_details = wp_get_attachment_metadata( $this->data->ID );
 						if ( ! empty( $media_details ) ) {
 							$media_details['ID'] = $this->data->ID;
+
 							return $media_details;
 						}
+
 						return null;
 					},
 				];

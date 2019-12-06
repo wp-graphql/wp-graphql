@@ -470,6 +470,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'stati' => [ 'PUBLISH', 'PRIVATE' ]
 			]
 		] );
+
+		codecept_debug( $actual );
+
 		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
 
 	}
@@ -539,7 +542,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		          edges {
 		            node{
 		              id
-		              revisionId
+		              postId
 		              title
 		              content
 		            }
@@ -554,10 +557,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 		if ( true === $show_revisions ) {
-			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['revisionId'] );
+			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['postId'] );
 		} else {
 			$this->assertEmpty( $actual['data']['posts']['edges'][0]['node']['revisions']['edges'] );
 		}
