@@ -3,10 +3,11 @@ import 'prismjs/plugins/line-numbers/prism-line-numbers.css'
 import DocsetSwitcher from 'gatsby-theme-apollo-docs/src/components/docset-switcher'
 import PropTypes from 'prop-types'
 import React, { createContext, useMemo, useRef, useState } from 'react'
-// import Search from 'gatsby-theme-apollo-docs/src/components/search'
+
 import SelectLink from 'gatsby-theme-apollo-docs/src/components/select-link'
 import styled from '@emotion/styled'
 import { Button } from 'gatsby-theme-apollo-docs/src/components/buttons'
+import Search from 'gatsby-theme-apollo-docs/src/components/search'
 
 import {
   FlexWrapper,
@@ -145,8 +146,8 @@ export default function PageLayout(props) {
     navConfig,
     footerNavConfig,
     logoLink,
-    // algoliaApiKey,
-    // algoliaIndexName,
+    algoliaApiKey,
+    algoliaIndexName,
     menuTitle,
   } = props.pluginOptions
 
@@ -162,10 +163,10 @@ export default function PageLayout(props) {
   return (
     <Layout>
       <Helmet titleTemplate={`%s | ${subtitle}`}>
-        {/* <link
+        <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css"
-        /> */}
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -234,14 +235,13 @@ export default function PageLayout(props) {
               </MobileNav>
             </Header>
           </MobileHeader>
-          {/* <Header>
-            
+          <Header>
             <Search
               siteName={siteName}
               apiKey={algoliaApiKey}
               indexName={algoliaIndexName}
             />
-          </Header> */}
+          </Header>
           <MainRefContext.Provider value={mainRef}>
             <NavItemsContext.Provider value={navItems}>
               {props.children}

@@ -145,4 +145,37 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 	}
 
+	/**
+	 * Ensure get_types returns types expected to be in the Schema
+	 * @throws Exception
+	 */
+	public function testTypeRegistryGetTypes() {
+
+		/**
+		 * Register a custom type to make sure new types registered
+		 * show in the get_types() method
+		 */
+		register_graphql_type( 'MyCustomType', [
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				]
+			]
+		] );
+
+		add_action( 'graphql_register_types', function( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
+			$types = $type_registry->get_types();
+			codecept_debug( array_keys( $types ) );
+			$this->assertArrayHasKey( 'mycustomtype', $types );
+			$this->assertArrayHasKey( 'string', $types );
+			$this->assertArrayHasKey( 'post', $types );
+		} );
+
+		/**
+		 * Execute a GraphQL Request to instantiate the Schema
+		 */
+		$actual = graphql( ['query' => '{posts{nodes{id}}}'] );
+
+	}
+
 }

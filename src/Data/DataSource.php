@@ -459,13 +459,16 @@ class DataSource {
 	 */
 	public static function resolve_user_role( $name ) {
 
-		$role = get_role( $name );
+		$role = isset( wp_roles()->roles[ $name ] ) ? wp_roles()->roles[ $name ] : null;
 
 		if ( null === $role ) {
 			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
 		} else {
 			$role       = (array) $role;
 			$role['id'] = $name;
+			$role['displayName'] = $role['name'];
+			$role['name'] = $name;
+
 
 			return new UserRole( $role );
 		}
