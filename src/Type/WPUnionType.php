@@ -61,8 +61,6 @@ class WPUnionType extends UnionType {
 			return apply_filters( 'graphql_union_resolve_type', $type, $object, $this );
 		};
 
-
-
 		/**
 		 * Filter the possible_types to allow systems to add to the possible resolveTypes.
 		 *
@@ -90,5 +88,17 @@ class WPUnionType extends UnionType {
 		do_action( 'graphql_wp_union_type', $config, $this );
 
 		parent::__construct( $config );
+	}
+
+	/**
+	 * Simple getter function so "$type_registry" can be used in hooks
+	 *
+	 * @param string $name  Member name.
+	 * @return TypeRegistry|null
+	 */
+	public function __get( $name ) {
+		if ( 'type_registry' === $name ) {
+			return $this->type_registry;
+		}
 	}
 }
