@@ -161,6 +161,16 @@ class Request {
 	protected function has_authentication_errors() {
 
 		/**
+		 * Bail if this is not an HTTP request.
+		 *
+		 * Auth for internal requests will happen
+		 * via WordPress internals.
+		 */
+		if ( ! is_graphql_http_request() ) {
+			return false;
+		}
+
+		/**
 		 * Access the global $wp_rest_auth_cookie
 		 */
 		global $wp_rest_auth_cookie;
