@@ -120,15 +120,6 @@ class Router {
 	 * @return boolean
 	 */
 	public static function is_graphql_http_request() {
-		// If 'init' fired, check query vars.
-		if ( did_action( 'init' ) || doing_action( 'init' ) ) {
-			if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
-				return false;
-			}
-
-			return true;
-		}
-
 		// Support wp-graphiql style request to /index.php?graphql
 		if ( isset( $_GET[ self::$route ] ) ) {
 			return true;
