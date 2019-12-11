@@ -120,20 +120,16 @@ class Router {
 	 * @return boolean
 	 */
 	public static function is_graphql_http_request() {
-		// If 'init' fired, check query vars.
-		if ( did_action( 'init' ) || doing_action( 'init' ) ) {
-			if ( empty( $GLOBALS['wp']->query_vars ) || ! is_array( $GLOBALS['wp']->query_vars ) || ! array_key_exists( self::$route, $GLOBALS['wp']->query_vars ) ) {
-				return false;
-			}
-
+		// Support wp-graphiql style request to /index.php?graphql
+		if ( isset( $_GET[ self::$route ] ) ) {
 			return true;
 		}
 
 		// If before 'init' check $_SERVER.
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$haystack = esc_url_raw( wp_unslash( $_SERVER['HTTP_HOST'] ) )
-				. esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
-			$needle   = \home_url( \WPGraphQL\Router::$route );
+			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
+				. wp_unslash( $_SERVER['REQUEST_URI'] );
+			$needle   = \home_url( self::$route );
 
 			// Strip protocol.
 			$haystack = preg_replace( '#^(http(s)?://)#', '', $haystack );
