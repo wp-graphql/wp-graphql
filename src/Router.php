@@ -129,6 +129,11 @@ class Router {
 			return true;
 		}
 
+		// Support wp-graphiql style request to /index.php?graphql
+		if ( isset( $_GET[ self::$route ] ) ) {
+			return true;
+		}
+
 		// If before 'init' check $_SERVER.
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$haystack = esc_url_raw( wp_unslash( $_SERVER['HTTP_HOST'] ) )
