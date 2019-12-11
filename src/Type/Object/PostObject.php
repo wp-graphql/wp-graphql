@@ -29,42 +29,10 @@ class PostObject {
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => [ 'Node', 'ContentNode' ],
 				'fields'      => self::get_post_object_fields( $post_type_object ),
 			]
 		);
-
-		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-			register_graphql_field(
-				$post_type_object->graphql_single_name,
-				'commentCount',
-				[
-					'type'        => 'Int',
-					'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
-				]
-			);
-		}
-
-		if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
-			register_graphql_field(
-				$post_type_object->graphql_single_name,
-				'featuredImage',
-				[
-					'type'        => 'MediaItem',
-					'description' => __( 'The featured image for the object', 'wp-graphql' ),
-					'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						// @codingStandardsIgnoreLine.
-						if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
-							return null;
-						}
-
-						// @codingStandardsIgnoreLine.
-						return DataSource::resolve_post_object( $post->featuredImageId, $context );
-					},
-				]
-			);
-
-		}
 
 		/**
 		 * Register fields to the Type used for attachments (MediaItem)
@@ -220,17 +188,12 @@ class PostObject {
 				'type'        => [
 					'non_null' => 'Int',
 				],
+				'isDeprecated' => true,
+				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 				'resolve'     => function( Post $post, $args, $context, $info ) {
 					return absint( $post->ID );
 				},
-			],
-			'isRevision' => [
-				'type' => 'Boolean',
-				'description' => __( 'Whether the object is a revision', 'wp-graphql' ),
-				'resolve' => function( Post $post, $args, $context, $info ) {
-					return 'revision' === $post->post_type ? true : false;
-				}
 			],
 			'ancestors'         => [
 				'type'        => [
@@ -260,116 +223,6 @@ class PostObject {
 					);
 				},
 			],
-			'author'            => [
-				'type'        => 'User',
-				'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-				'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-					// @codingStandardsIgnoreLine.
-					if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
-						return null;
-					};
-
-					// @codingStandardsIgnoreLine.
-					return DataSource::resolve_user( $post->authorId, $context );
-				},
-			],
-			'date'              => [
-				'type'        => 'String',
-				'description' => __( 'Post publishing date.', 'wp-graphql' ),
-			],
-			'dateGmt'           => [
-				'type'        => 'String',
-				'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
-			],
-			'content'           => [
-				'type'        => 'String',
-				'description' => __( 'The content of the post.', 'wp-graphql' ),
-				'args'        => [
-					'format' => [
-						'type'        => 'PostObjectFieldFormatEnum',
-						'description' => __( 'Format of the field output', 'wp-graphql' ),
-					],
-				],
-				'resolve'     => function( $source, $args ) {
-					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-						// @codingStandardsIgnoreLine.
-						return $source->contentRaw;
-					}
-
-					// @codingStandardsIgnoreLine.
-					return $source->contentRendered;
-				},
-			],
-			'title'             => [
-				'type'        => 'String',
-				'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-				'args'        => [
-					'format' => [
-						'type'        => 'PostObjectFieldFormatEnum',
-						'description' => __( 'Format of the field output', 'wp-graphql' ),
-					],
-				],
-				'resolve'     => function( $source, $args ) {
-					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-						// @codingStandardsIgnoreLine.
-						return $source->titleRaw;
-					}
-
-					// @codingStandardsIgnoreLine.
-					return $source->titleRendered;
-				},
-			],
-			'excerpt'           => [
-				'type'        => 'String',
-				'description' => __( 'The excerpt of the post.', 'wp-graphql' ),
-				'args'        => [
-					'format' => [
-						'type'        => 'PostObjectFieldFormatEnum',
-						'description' => __( 'Format of the field output', 'wp-graphql' ),
-					],
-				],
-				'resolve'     => function( $source, $args ) {
-					if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-						// @codingStandardsIgnoreLine.
-						return $source->excerptRaw;
-					}
-
-					// @codingStandardsIgnoreLine.
-					return $source->excerptRendered;
-				},
-			],
-			'status'            => [
-				'type'        => 'String',
-				'description' => __( 'The current status of the object', 'wp-graphql' ),
-			],
-			'commentStatus'     => [
-				'type'        => 'String',
-				'description' => __( 'Whether the comments are open or closed for this particular post.', 'wp-graphql' ),
-			],
-			'pingStatus'        => [
-				'type'        => 'String',
-				'description' => __( 'Whether the pings are open or closed for this particular post.', 'wp-graphql' ),
-			],
-			'slug'              => [
-				'type'        => 'String',
-				'description' => __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the "post_objects" table.', 'wp-graphql' ),
-			],
-			'toPing'            => [
-				'type'        => [ 'list_of' => 'String' ],
-				'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
-			],
-			'pinged'            => [
-				'type'        => [ 'list_of' => 'String' ],
-				'description' => __( 'URLs that have been pinged.', 'wp-graphql' ),
-			],
-			'modified'          => [
-				'type'        => 'String',
-				'description' => __( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
-			],
-			'modifiedGmt'       => [
-				'type'        => 'String',
-				'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
-			],
 			'parent'            => [
 				'type'        => 'PostObjectUnion',
 				'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
@@ -383,47 +236,9 @@ class PostObject {
 					return DataSource::resolve_post_object( $post->parentId, $context );
 				},
 			],
-			'editLast'          => [
-				'type'        => 'User',
-				'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
-				'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-					// @codingStandardsIgnoreLine.
-					if ( ! isset( $post->editLastId ) || ! absint( $post->editLastId ) ) {
-						return null;
-					}
-
-					// @codingStandardsIgnoreLine.
-					return DataSource::resolve_user( $post->editLastId, $context );
-				},
-			],
-			'editLock'          => [
-				'type'        => 'EditLock',
-				'description' => __( 'If a user has edited the object within the past 15 seconds, this will return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
-			],
 			'enclosure'         => [
 				'type'        => 'String',
 				'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
-			],
-			'guid'              => [
-				'type'        => 'String',
-				'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' ),
-			],
-			'menuOrder'         => [
-				'type'        => 'Int',
-				'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
-
-			],
-			'desiredSlug'       => [
-				'type'        => 'String',
-				'description' => __( 'The desired slug of the post', 'wp-graphql' ),
-			],
-			'link'              => [
-				'type'        => 'String',
-				'description' => __( 'The permalink of the post', 'wp-graphql' ),
-			],
-			'uri'               => [
-				'type'        => 'String',
-				'description' => __( 'URI path for the resource', 'wp-graphql' ),
 			],
 			'terms'             => [
 				'type'        => [
@@ -593,6 +408,68 @@ class PostObject {
 			$fields['content']['isDeprecated']      = true;
 			$fields['content']['deprecationReason'] = __( 'Use the description field instead of content', 'wp-graphql' );
 		}
+
+		/**
+		 * title
+		 * editor
+		 * author
+		 * thumbnail
+		 * excerpt
+		 * trackbacks
+		 * custom-fields
+		 * comments
+		 * revisions
+		 * page-attributes
+		 * post-formats
+		 */
+		if ( ! post_type_supports( $post_type_object->name, 'title' ) ) {
+			$fields['title']['isDeprecated'] = true;
+			$fields['title']['deprecationReason'] = __( 'This content type does not support the title field', 'wp-graphql' );
+			$fields['title']['resolve'] = function() {
+				return null;
+			};
+		}
+
+		if ( ! post_type_supports( $post_type_object->name, 'editor' ) ) {
+			$fields['content']['isDeprecated'] = true;
+			$fields['content']['deprecationReason'] = __( 'This content type does not support the content editor', 'wp-graphql' );
+			$fields['content']['resolve'] = function() {
+				return null;
+			};
+		}
+
+		if ( ! post_type_supports( $post_type_object->name, 'author' ) ) {
+			$fields['author']['isDeprecated'] = true;
+			$fields['author']['deprecationReason'] = __( 'This content type does not support authors', 'wp-graphql' );
+			$fields['author']['resolve'] = function() {
+				return null;
+			};
+		}
+
+		if ( ! post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+			$fields['featuredImage']['isDeprecated'] = true;
+			$fields['featuredImage']['deprecationReason'] = __( 'This content type does not support featured images', 'wp-graphql' );
+			$fields['featuredImage']['resolve'] = function() {
+				return null;
+			};
+		}
+
+		if ( ! post_type_supports( $post_type_object->name, 'excerpt' ) ) {
+			$fields['excerpt']['isDeprecated'] = true;
+			$fields['excerpt']['deprecationReason'] = __( 'This content type does not support excerpts', 'wp-graphql' );
+			$fields['excerpt']['resolve'] = function() {
+				return null;
+			};
+		}
+
+		if ( ! post_type_supports( $post_type_object->name, 'comments' ) ) {
+			$fields['commentCount']['isDeprecated'] = true;
+			$fields['commentCount']['deprecationReason'] = __( 'This content type does not support comments', 'wp-graphql' );
+			$fields['commentCount']['resolve'] = function() {
+				return null;
+			};
+		}
+
 
 		return $fields;
 

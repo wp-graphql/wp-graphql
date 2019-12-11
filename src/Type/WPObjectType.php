@@ -33,7 +33,7 @@ class WPObjectType extends ObjectType {
 	 *
 	 * @var TypeRegistry
 	 */
-	private $type_registry;
+	public $type_registry;
 
 	/**
 	 * WPObjectType constructor.

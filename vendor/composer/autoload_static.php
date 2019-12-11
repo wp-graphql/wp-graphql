@@ -307,6 +307,7 @@ class ComposerStaticInit0c3064dffc7f543436aa7a510453fe17
         'WPGraphQL\\Type\\Input\\MenuItemsConnectionWhereArgs' => __DIR__ . '/../..' . '/src/Type/Input/MenuItemsConnectionWhereArgs.php',
         'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php',
         'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php',
+        'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php',
         'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php',
         'WPGraphQL\\Type\\Object\\Avatar' => __DIR__ . '/../..' . '/src/Type/Object/Avatar.php',
         'WPGraphQL\\Type\\Object\\Comment' => __DIR__ . '/../..' . '/src/Type/Object/Comment.php',

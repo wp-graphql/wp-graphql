@@ -38,6 +38,7 @@ use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -151,6 +152,7 @@ class TypeRegistry {
 				 * Register Interfaces
 				 */
 				Node::register_type();
+				ContentNode::register_type( $type_registry );
 
 				/**
 				 * Register Types

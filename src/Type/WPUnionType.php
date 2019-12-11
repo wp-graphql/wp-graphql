@@ -16,7 +16,10 @@ use WPGraphQL\Registry\TypeRegistry;
  */
 class WPUnionType extends UnionType {
 
-	protected $type_registry;
+	/**
+	 * @var TypeRegistry
+	 */
+	public $type_registry;
 
 	/**
 	 * WPUnionType constructor.

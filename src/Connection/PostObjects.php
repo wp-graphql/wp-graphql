@@ -3,7 +3,6 @@
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\PostType;
 
 /**
  * Class PostObjects
@@ -18,6 +17,21 @@ class PostObjects {
 	 * Registers the various connections from other Types to PostObjects
 	 */
 	public static function register_connections() {
+
+		register_graphql_connection([
+			'fromType'         => 'RootQuery',
+			'toType'           => 'ContentNode',
+			'queryClass'       => 'WP_Query',
+			'resolveNode'      => function( $id, $args, $context, $info ) {
+				return DataSource::resolve_post_object( $id, $context );
+			},
+			'fromFieldName'    => 'contentNodes',
+			'connectionArgs'   => self::get_connection_args(),
+			'resolve'          => function ( $root, $args, $context, $info ) {
+				$post_types = \WPGraphQL::get_allowed_post_types();
+				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_types );
+			},
+		]);
 
 		/**
 		 * Register Connections to PostObjects
