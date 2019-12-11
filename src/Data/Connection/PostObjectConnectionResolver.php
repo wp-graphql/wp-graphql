@@ -39,13 +39,22 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	public function __construct( $source, $args, $context, $info, $post_type ) {
 
 		/**
-		 * Set the post type for the resolver
+		 * The $post_type can either be a single value or an array of post_types to
+		 * pass to WP_Query.
+		 *
+		 * If the value is revision or attachment, we will leave the value
+		 * as a string, as we validate against this later.
+		 *
+		 * If the value is anything else, we cast as an array. For example
+		 *
+		 * $post_type = 'post' would become [ 'post ' ], as we check later
+		 * for `in_array()` if the $post_type is not "attachment" or "revision"
 		 */
 		if ( 'revision' === $post_type || 'attachment' === $post_type ) {
 			$this->post_type = $post_type;
 		} else {
 			$post_type = is_array( $post_type ) ? $post_type : [ $post_type ];
-			unset(  $post_type['attachment'] );
+			unset( $post_type['attachment'] );
 			unset( $post_type['revision'] );
 			$this->post_type = $post_type;
 		}
