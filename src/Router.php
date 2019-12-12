@@ -129,7 +129,7 @@ class Router {
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
 				. wp_unslash( $_SERVER['REQUEST_URI'] );
-			$needle   = \home_url( self::$route );
+			$needle   = \get_site_url( self::$route );
 
 			// Strip protocol.
 			$haystack = preg_replace( '#^(http(s)?://)#', '', $haystack );
