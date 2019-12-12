@@ -61,4 +61,6 @@
 
 .graphiql-wrapper {
     margin: 20px auto;
+    z-index: 0;
+    position: relative;
 }
