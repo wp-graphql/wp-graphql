@@ -31,7 +31,7 @@ class GraphiQLComponent extends Component {
   }
 
   fetcher = graphQLParams => {
-    const { endpoint, showQueryLog, showTracing } = this.props
+    const { endpoint, showQueryLog = false, showTracing = false } = this.props
 
     return fetch(endpoint ? endpoint : 'https://www.wpgraphql.com/graphql', {
       method: 'post',
@@ -43,15 +43,15 @@ class GraphiQLComponent extends Component {
     })
       .then(response => response.json())
       .then(res => {
-        if (!showTracing) {
+        if (!showTracing && res.extensions && res.extensions.tracing) {
           delete res.extensions.tracing
         }
 
-        if (!showQueryLog) {
+        if (!showQueryLog && res.extensions && res.extensions.queryLog) {
           delete res.extensions.queryLog
         }
 
-        if (Object.keys(res.extensions).length === 0) {
+        if (res.extensions && Object.keys(res.extensions).length === 0) {
           delete res.extensions
         }
 

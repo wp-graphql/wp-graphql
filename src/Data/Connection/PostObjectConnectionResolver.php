@@ -39,9 +39,25 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	public function __construct( $source, $args, $context, $info, $post_type ) {
 
 		/**
-		 * Set the post type for the resolver
+		 * The $post_type can either be a single value or an array of post_types to
+		 * pass to WP_Query.
+		 *
+		 * If the value is revision or attachment, we will leave the value
+		 * as a string, as we validate against this later.
+		 *
+		 * If the value is anything else, we cast as an array. For example
+		 *
+		 * $post_type = 'post' would become [ 'post ' ], as we check later
+		 * for `in_array()` if the $post_type is not "attachment" or "revision"
 		 */
-		$this->post_type = $post_type;
+		if ( 'revision' === $post_type || 'attachment' === $post_type ) {
+			$this->post_type = $post_type;
+		} else {
+			$post_type = is_array( $post_type ) ? $post_type : [ $post_type ];
+			unset( $post_type['attachment'] );
+			unset( $post_type['revision'] );
+			$this->post_type = $post_type;
+		}
 
 		/**
 		 * Call the parent construct to setup class data
@@ -417,7 +433,16 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Get the Post Type object
 		 */
-		$post_type_obj = get_post_type_object( $this->post_type );
+		$post_type_objects = [];
+		if ( is_array( $this->post_type ) ) {
+			foreach ( $this->post_type as $post_type ) {
+				$post_type_objects[] = get_post_type_object( $post_type );
+			}
+
+		} else {
+			$post_type_objects[] = get_post_type_object( $this->post_type );
+		}
+
 
 		/**
 		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
@@ -426,14 +451,16 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$allowed_statuses = array_filter(
 			array_map(
-				function( $status ) use ( $post_type_obj ) {
-					if ( 'publish' === $status ) {
-						  return $status;
-					}
-					if ( current_user_can( $post_type_obj->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_obj->cap->read_private_posts ) ) {
-						return $status;
-					} else {
-						return null;
+				function( $status ) use ( $post_type_objects ) {
+					foreach( $post_type_objects as $post_type_object ) {
+						if ( 'publish' === $status ) {
+							return $status;
+						}
+						if ( current_user_can( $post_type_object->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_object->cap->read_private_posts ) ) {
+							return $status;
+						} else {
+							return null;
+						}
 					}
 				},
 				$statuses

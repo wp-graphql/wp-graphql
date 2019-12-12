@@ -1132,9 +1132,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
-		 * This should return an error as we tried to query for a deleted post
+		 * This should not return errors, and postBy should be null
 		 */
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['postBy'] );
 
 	}
 
@@ -1172,9 +1173,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		/**
-		 * This should return an error as we tried to query for a post using a Page ID
+		 * This should not return an error, but should return null for the postBy response
 		 */
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['postBy'] );
 
 	}
 
