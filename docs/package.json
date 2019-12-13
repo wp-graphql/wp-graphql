@@ -9,6 +9,7 @@
   "dependencies": {
     "antd": "^3.24.2",
     "gatsby": "^2.17.2",
+    "gatsby-cli": "^2.8.18",
     "gatsby-image": "^2.2.29",
     "gatsby-plugin-antd": "^2.0.2",
     "gatsby-plugin-manifest": "^2.2.23",
@@ -17,7 +18,7 @@
     "gatsby-plugin-sharp": "^2.2.32",
     "gatsby-theme-apollo-docs": "2.3.8",
     "gatsby-transformer-sharp": "^2.3.0",
-    "graphiql": "^0.16.0",
+    "graphiql": "^0.17.5",
     "react": "16.10.2",
     "react-dom": "16.10.2",
     "react-html-id": "^0.1.5",
