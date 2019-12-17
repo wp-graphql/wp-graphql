@@ -321,5 +321,6 @@ return array(
     'WPGraphQL\\Type\\WPUnionType' => $baseDir . '/src/Type/WPUnionType.php',
     'WPGraphQL\\Types' => $baseDir . '/src/Types.php',
     'WPGraphQL\\Utils\\InstrumentSchema' => $baseDir . '/src/Utils/InstrumentSchema.php',
+    'WPGraphQL\\Utils\\Utils' => $baseDir . '/src/Utils/Utils.php',
     'WPGraphQL\\WPSchema' => $baseDir . '/src/WPSchema.php',
 );

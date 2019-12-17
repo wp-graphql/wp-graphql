@@ -34,67 +34,67 @@ class UserMutation {
 
 			$input_fields = [
 				'password'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that contains the plain text password for the user.', 'wp-graphql' ),
 				],
 				'nicename'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that contains a URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' ),
 				],
 				'websiteUrl'  => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-grapql' ),
 				],
 				'email'       => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
 				],
 				'displayName' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that will be shown on the site. Defaults to user\'s username. It is likely that you will want to change this, for both appearance and security through obscurity (that is if you dont use and delete the default admin user).', 'wp-graphql' ),
 				],
 				'nickname'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The user\'s nickname, defaults to the user\'s username.', 'wp-graphql' ),
 				],
 				'firstName'   => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( '	The user\'s first name.', 'wp-graphql' ),
 				],
 				'lastName'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The user\'s last name.', 'wp-graphql' ),
 				],
 				'description' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing content about the user.', 'wp-graphql' ),
 				],
 				'richEditing' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string for whether to enable the rich editor or not. False if not empty.', 'wp-graphql' ),
 				],
 				'registered'  => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The date the user registered. Format is Y-m-d H:i:s.', 'wp-graphql' ),
 				],
 				'roles'       => [
-					'type'        => Types::list_of( Types::string() ),
+					'type'        => [ 'list_of' => 'String' ],
 					'description' => __( 'An array of roles to be assigned to the user.', 'wp-graphql' ),
 				],
 				'jabber'      => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s Jabber account.', 'wp-graphql' ),
 				],
 				'aim'         => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s AOL IM account.', 'wp-graphql' ),
 				],
 				'yim'         => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s Yahoo IM account.', 'wp-graphql' ),
 				],
 				'locale'      => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s locale.', 'wp-graphql' ),
 				],
 			];

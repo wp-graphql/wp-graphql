@@ -1,10 +1,12 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
 class ContentNode {
@@ -49,6 +51,34 @@ class ContentNode {
 						'non_null' => 'ID',
 					],
 					'description' => __( 'The globally unique identifier of the entity.', 'wp-graphql' ),
+				],
+				'ancestors'         => [
+					'type'        => [
+						'list_of' => 'PostObjectUnion',
+					],
+					'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
+					'args'        => [
+						'types' => [
+							'type'        => [
+								'list_of' => 'PostTypeEnum',
+							],
+							'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
+						],
+					],
+					'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
+						$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
+						if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
+							return null;
+						}
+						$context->getLoader( 'post_object' )->buffer( $ancestor_ids );
+
+						return new Deferred(
+							function() use ( $context, $ancestor_ids ) {
+								// @codingStandardsIgnoreLine.
+								return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
+							}
+						);
+					},
 				],
 				'databaseId' => [
 					'type'        => [
@@ -125,6 +155,10 @@ class ContentNode {
 						return $source->titleRendered;
 					},
 				],
+				'enclosure'         => [
+					'type'        => 'String',
+					'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
+				],
 				'excerpt'           => [
 					'type'        => 'String',
 					'description' => __( 'The excerpt of the post.', 'wp-graphql' ),
@@ -151,6 +185,19 @@ class ContentNode {
 				'commentStatus'     => [
 					'type'        => 'String',
 					'description' => __( 'Whether the comments are open or closed for this particular post.', 'wp-graphql' ),
+				],
+				'parent'            => [
+					'type'        => 'PostObjectUnion',
+					'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
+					'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						// @codingStandardsIgnoreLine.
+						if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
+							return null;
+						}
+
+						// @codingStandardsIgnoreLine.
+						return DataSource::resolve_post_object( $post->parentId, $context );
+					},
 				],
 				'pingStatus'        => [
 					'type'        => 'String',
@@ -200,7 +247,6 @@ class ContentNode {
 				'menuOrder'         => [
 					'type'        => 'Int',
 					'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
-
 				],
 				'desiredSlug'       => [
 					'type'        => 'String',
@@ -234,7 +280,150 @@ class ContentNode {
 				'commentCount' => [
 					'type'        => 'Int',
 					'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
-				]
+				],
+				'terms'             => [
+					'type'        => [
+						'list_of' => 'TermObjectUnion',
+					],
+					'args'        => [
+						'taxonomies' => [
+							'type'        => [
+								'list_of' => 'TaxonomyEnum',
+							],
+							'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+						],
+					],
+					'description' => __( 'Terms connected to the object', 'wp-graphql' ),
+					'resolve'     => function( $source, $args ) {
+						// @TODO eventually use a loader here to grab the taxonomies and pass them through the term model.
+						/**
+						 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+						 * otherwise use the default $allowed_taxonomies passed down
+						 */
+						$taxonomies = [];
+						if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+							$taxonomies = $args['taxonomies'];
+						} else {
+							$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+							foreach ( $connected_taxonomies as $taxonomy ) {
+								if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
+									$taxonomies[] = $taxonomy;
+								}
+							}
+						}
+
+						$tax_terms = [];
+						if ( ! empty( $taxonomies ) ) {
+							$term_query = new \WP_Term_Query(
+								[
+									'taxonomy'   => $taxonomies,
+									'object_ids' => $source->ID,
+								]
+							);
+
+							$fetched_terms = $term_query->get_terms();
+							$tax_terms     = [];
+							if ( ! empty( $fetched_terms ) ) {
+								foreach ( $fetched_terms as $tax_term ) {
+									$tax_terms[ $tax_term->term_id ] = new Term( $tax_term );
+								}
+							}
+						}
+
+						return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
+					},
+				],
+				'termNames'         => [
+					'type'        => [ 'list_of' => 'String' ],
+					'args'        => [
+						'taxonomies' => [
+							'type'        => [
+								'list_of' => 'TaxonomyEnum',
+							],
+							'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+						],
+					],
+					'description' => __( 'Terms connected to the object', 'wp-graphql' ),
+					'resolve'     => function( $source, $args ) {
+						/**
+						 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+						 * otherwise use the default $allowed_taxonomies passed down
+						 */
+						$taxonomies = [];
+						if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+							$taxonomies = $args['taxonomies'];
+						} else {
+							$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+							foreach ( $connected_taxonomies as $taxonomy ) {
+								if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
+									$taxonomies[] = $taxonomy;
+								}
+							}
+						}
+
+						$tax_terms = [];
+						if ( ! empty( $taxonomies ) ) {
+							$term_query = new \WP_Term_Query(
+								[
+									'taxonomy'   => $taxonomies,
+									'object_ids' => [ $source->ID ],
+								]
+							);
+
+							$tax_terms = $term_query->get_terms();
+
+						}
+						$term_names = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'name' ) : [];
+
+						return ! empty( $term_names ) ? $term_names : null;
+					},
+				],
+				'termSlugs'         => [
+					'type'        => [ 'list_of' => 'String' ],
+					'args'        => [
+						'taxonomies' => [
+							'type'        => [
+								'list_of' => 'TaxonomyEnum',
+							],
+							'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
+						],
+					],
+					'description' => __( 'Terms connected to the object', 'wp-graphql' ),
+					'resolve'     => function( $source, $args ) {
+						/**
+						 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
+						 * otherwise use the default $allowed_taxonomies passed down
+						 */
+						$taxonomies = [];
+						if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
+							$taxonomies = $args['taxonomies'];
+						} else {
+							$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
+							foreach ( $connected_taxonomies as $taxonomy ) {
+								if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
+									$taxonomies[] = $taxonomy;
+								}
+							}
+						}
+
+						$tax_terms = [];
+						if ( ! empty( $taxonomies ) ) {
+
+							$term_query = new \WP_Term_Query(
+								[
+									'taxonomy'   => $taxonomies,
+									'object_ids' => [ $source->ID ],
+								]
+							);
+
+							$tax_terms = $term_query->get_terms();
+
+						}
+						$term_slugs = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'slug' ) : [];
+
+						return ! empty( $term_slugs ) ? $term_slugs : null;
+					},
+				],
 			]
 		] );
 

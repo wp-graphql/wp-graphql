@@ -195,201 +195,6 @@ class PostObject {
 					return absint( $post->ID );
 				},
 			],
-			'ancestors'         => [
-				'type'        => [
-					'list_of' => 'PostObjectUnion',
-				],
-				'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
-				'args'        => [
-					'types' => [
-						'type'        => [
-							'list_of' => 'PostTypeEnum',
-						],
-						'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
-					],
-				],
-				'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
-					$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
-					if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
-						return null;
-					}
-					$context->getLoader( 'post_object' )->buffer( $ancestor_ids );
-
-					return new Deferred(
-						function() use ( $context, $ancestor_ids ) {
-							// @codingStandardsIgnoreLine.
-							return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
-						}
-					);
-				},
-			],
-			'parent'            => [
-				'type'        => 'PostObjectUnion',
-				'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
-				'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-					// @codingStandardsIgnoreLine.
-					if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
-						return null;
-					}
-
-					// @codingStandardsIgnoreLine.
-					return DataSource::resolve_post_object( $post->parentId, $context );
-				},
-			],
-			'enclosure'         => [
-				'type'        => 'String',
-				'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
-			],
-			'terms'             => [
-				'type'        => [
-					'list_of' => 'TermObjectUnion',
-				],
-				'args'        => [
-					'taxonomies' => [
-						'type'        => [
-							'list_of' => 'TaxonomyEnum',
-						],
-						'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-					],
-				],
-				/* translators: placeholder is the name of the post_type */
-				'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-				'resolve'     => function( $source, $args ) {
-					// @TODO eventually use a loader here to grab the taxonomies and pass them through the term model.
-					/**
-					 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
-					 * otherwise use the default $allowed_taxonomies passed down
-					 */
-					$taxonomies = [];
-					if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
-						$taxonomies = $args['taxonomies'];
-					} else {
-						$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
-						foreach ( $connected_taxonomies as $taxonomy ) {
-							if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
-								$taxonomies[] = $taxonomy;
-							}
-						}
-					}
-
-					$tax_terms = [];
-					if ( ! empty( $taxonomies ) ) {
-						$term_query = new \WP_Term_Query(
-							[
-								'taxonomy'   => $taxonomies,
-								'object_ids' => $source->ID,
-							]
-						);
-
-						$fetched_terms = $term_query->get_terms();
-						$tax_terms     = [];
-						if ( ! empty( $fetched_terms ) ) {
-							foreach ( $fetched_terms as $tax_term ) {
-								$tax_terms[ $tax_term->term_id ] = new Term( $tax_term );
-							}
-						}
-					}
-
-					return ! empty( $tax_terms ) && is_array( $tax_terms ) ? $tax_terms : null;
-				},
-			],
-			'termNames'         => [
-				'type'        => [ 'list_of' => 'String' ],
-				'args'        => [
-					'taxonomies' => [
-						'type'        => [
-							'list_of' => 'TaxonomyEnum',
-						],
-						'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-					],
-				],
-				/* translators: placeholder is the name of the post_type */
-				'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-				'resolve'     => function( $source, $args ) {
-					/**
-					 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
-					 * otherwise use the default $allowed_taxonomies passed down
-					 */
-					$taxonomies = [];
-					if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
-						$taxonomies = $args['taxonomies'];
-					} else {
-						$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
-						foreach ( $connected_taxonomies as $taxonomy ) {
-							if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
-								$taxonomies[] = $taxonomy;
-							}
-						}
-					}
-
-					$tax_terms = [];
-					if ( ! empty( $taxonomies ) ) {
-						$term_query = new \WP_Term_Query(
-							[
-								'taxonomy'   => $taxonomies,
-								'object_ids' => [ $source->ID ],
-							]
-						);
-
-						$tax_terms = $term_query->get_terms();
-
-					}
-					$term_names = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'name' ) : [];
-
-					return ! empty( $term_names ) ? $term_names : null;
-				},
-			],
-			'termSlugs'         => [
-				'type'        => [ 'list_of' => 'String' ],
-				'args'        => [
-					'taxonomies' => [
-						'type'        => [
-							'list_of' => 'TaxonomyEnum',
-						],
-						'description' => __( 'Select which taxonomies to limit the results to', 'wp-graphql' ),
-					],
-				],
-				/* translators: placeholder is the name of the post_type */
-				'description' => sprintf( __( 'Terms connected to the %1$s', 'wp-graphql' ), $single_name ),
-				'resolve'     => function( $source, $args ) {
-					/**
-					 * If the $arg for taxonomies is populated, use it as the $allowed_taxonomies
-					 * otherwise use the default $allowed_taxonomies passed down
-					 */
-					$taxonomies = [];
-					if ( ! empty( $args['taxonomies'] ) && is_array( $args['taxonomies'] ) ) {
-						$taxonomies = $args['taxonomies'];
-					} else {
-						$connected_taxonomies = get_object_taxonomies( $source->post_type, 'names' );
-						foreach ( $connected_taxonomies as $taxonomy ) {
-							if ( in_array( $taxonomy, \WPGraphQL::get_allowed_taxonomies(), true ) ) {
-								$taxonomies[] = $taxonomy;
-							}
-						}
-					}
-
-					$tax_terms = [];
-					if ( ! empty( $taxonomies ) ) {
-
-						$term_query = new \WP_Term_Query(
-							[
-								'taxonomy'   => $taxonomies,
-								'object_ids' => [ $source->ID ],
-							]
-						);
-
-						$tax_terms = $term_query->get_terms();
-
-					}
-					$term_slugs = ! empty( $tax_terms ) && is_array( $tax_terms ) ? wp_list_pluck( $tax_terms, 'slug' ) : [];
-
-					return ! empty( $term_slugs ) ? $term_slugs : null;
-				},
-			],
-			'isRestricted'      => [
-				'type'        => 'Boolean',
-				'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
-			],
 		];
 
 		if ( 'page' === $post_type_object->name ) {
@@ -425,51 +230,69 @@ class PostObject {
 		if ( ! post_type_supports( $post_type_object->name, 'title' ) ) {
 			$fields['title']['isDeprecated'] = true;
 			$fields['title']['deprecationReason'] = __( 'This content type does not support the title field', 'wp-graphql' );
-			$fields['title']['resolve'] = function() {
-				return null;
-			};
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'editor' ) ) {
 			$fields['content']['isDeprecated'] = true;
 			$fields['content']['deprecationReason'] = __( 'This content type does not support the content editor', 'wp-graphql' );
-			$fields['content']['resolve'] = function() {
-				return null;
-			};
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'author' ) ) {
 			$fields['author']['isDeprecated'] = true;
 			$fields['author']['deprecationReason'] = __( 'This content type does not support authors', 'wp-graphql' );
-			$fields['author']['resolve'] = function() {
-				return null;
-			};
+
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
 			$fields['featuredImage']['isDeprecated'] = true;
 			$fields['featuredImage']['deprecationReason'] = __( 'This content type does not support featured images', 'wp-graphql' );
-			$fields['featuredImage']['resolve'] = function() {
-				return null;
-			};
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'excerpt' ) ) {
 			$fields['excerpt']['isDeprecated'] = true;
 			$fields['excerpt']['deprecationReason'] = __( 'This content type does not support excerpts', 'wp-graphql' );
-			$fields['excerpt']['resolve'] = function() {
-				return null;
-			};
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'comments' ) ) {
 			$fields['commentCount']['isDeprecated'] = true;
 			$fields['commentCount']['deprecationReason'] = __( 'This content type does not support comments', 'wp-graphql' );
-			$fields['commentCount']['resolve'] = function() {
-				return null;
-			};
 		}
 
+		if ( ! post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
+			$fields['toPing']['isDeprecated'] = true;
+			$fields['toPing']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
+
+			$fields['pinged']['isDeprecated'] = true;
+			$fields['pinged']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
+
+			$fields['pingStatus']['isDeprecated'] = true;
+			$fields['pingStatus']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
+		}
+
+		/**
+		 * For Post Types that don't have relationships to
+		 * taxonomies, we should deprecate fields to query taxonomies
+		 */
+		$connected_taxonomies = get_object_taxonomies( $post_type_object->name );
+		if ( empty( $connected_taxonomies ) || ! is_array( $connected_taxonomies ) ) {
+			$fields['terms']['isDeprecated'] = true;
+			$fields['terms']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
+
+			$fields['termNames']['isDeprecated'] = true;
+			$fields['termNames']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
+
+			$fields['termSlugs']['isDeprecated'] = true;
+			$fields['termSlugs']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
+
+		}
+
+		if ( ! $post_type_object->hierarchical && ! in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {
+			$fields['ancestors']['isDeprecated'] = true;
+			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
+
+			$fields['parent']['isDeprecated'] = true;
+			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
+		}
 
 		return $fields;
 

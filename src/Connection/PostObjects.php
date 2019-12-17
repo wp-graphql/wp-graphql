@@ -26,7 +26,7 @@ class PostObjects {
 				return DataSource::resolve_post_object( $id, $context );
 			},
 			'fromFieldName'    => 'contentNodes',
-			'connectionArgs'   => self::get_connection_args(),
+			'connectionArgs'   => self::get_connection_args([], null ),
 			'resolve'          => function ( $root, $args, $context, $info ) {
 				$post_types = \WPGraphQL::get_allowed_post_types();
 				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_types );
@@ -112,7 +112,7 @@ class PostObjects {
 	 */
 	public static function get_connection_config( $post_type_object, $args = [] ) {
 
-		$connection_args = self::get_connection_args();
+		$connection_args = self::get_connection_args([], $post_type_object );
 
 		if ( 'revision' === $post_type_object->name ) {
 			unset( $connection_args['status'] );
@@ -148,114 +148,13 @@ class PostObjects {
 	 *
 	 * @access public
 	 * @param array $args The args to modify the defaults
+	 * @param \WP_Post_Type $post_type_object The post type the connection is going to
 	 *
 	 * @return array
 	 */
-	public static function get_connection_args( $args = [] ) {
+	public static function get_connection_args( $args = [], $post_type_object = null ) {
 
-		return array_merge( [
-
-			/**
-			 * Author $args
-			 *
-			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Author_Parameters
-			 * @since 0.0.5
-			 */
-			'author'       => [
-				'type'        => 'Int',
-				'description' => __( 'The user that\'s connected as the author of the object. Use the
-							userId for the author object.', 'wp-graphql' ),
-			],
-			'authorName'   => [
-				'type'        => 'String',
-				'description' => __( 'Find objects connected to the author by the author\'s nicename', 'wp-graphql' ),
-			],
-			'authorIn'     => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
-			],
-			'authorNotIn'  => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s
-							userIds', 'wp-graphql' ),
-			],
-
-			/**
-			 * Category $args
-			 *
-			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Category_Parameters
-			 * @since 0.0.5
-			 */
-			'categoryId'   => [
-				'type'        => 'Int',
-				'description' => __( 'Category ID', 'wp-graphql' ),
-			],
-			'categoryName' => [
-				'type'        => 'String',
-				'description' => __( 'Use Category Slug', 'wp-graphql' ),
-			],
-			'categoryIn'   => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of category IDs, used to display objects from one
-										category OR another', 'wp-graphql' ),
-			],
-			'categoryNotIn'   => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of category IDs, used to display objects from one
-										category OR another', 'wp-graphql' ),
-			],
-
-			/**
-			 * Tag $args
-			 *
-			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Tag_Parameters
-			 * @since 0.0.5
-			 */
-			'tag'          => [
-				'type'        => 'String',
-				'description' => __( 'Tag Slug', 'wp-graphql' ),
-			],
-			'tagId'        => [
-				'type'        => 'String',
-				'description' => __( 'Use Tag ID', 'wp-graphql' ),
-			],
-			'tagIn'        => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
-							another', 'wp-graphql' ),
-			],
-			'tagNotIn'      => [
-				'type'         => [
-					'list_of' => 'ID'
-				],
-				'description' => __( 'Array of tag IDs, used to display objects from one tag OR
-							another', 'wp-graphql' ),
-			],
-			'tagSlugAnd'   => [
-				'type'        => [
-					'list_of' => 'String',
-				],
-				'description' => __( 'Array of tag slugs, used to display objects from one tag OR
-							another', 'wp-graphql' ),
-			],
-			'tagSlugIn'    => [
-				'type'        => [
-					'list_of' => 'String',
-				],
-				'description' => __( 'Array of tag slugs, used to exclude objects in specified
-							tags', 'wp-graphql' ),
-			],
-
+		$fields = [
 			/**
 			 * Search Parameter
 			 *
@@ -387,6 +286,125 @@ class PostObjects {
 				'type'        => 'MimeTypeEnum',
 				'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
 			],
-		], $args );
+		];
+
+		/**
+		 * If the connection is to a single post type
+		 */
+		if ( isset( $post_type_object ) && $post_type_object instanceof \WP_Post_Type ) {
+
+			/**
+			 * Add arguments to post types that support author
+			 */
+			if ( true === post_type_supports( $post_type_object->name, 'author' ) ) {
+				/**
+				 * Author $args
+				 *
+				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Author_Parameters
+				 * @since 0.0.5
+				 */
+				$fields['author'] = [
+					'type'        => 'Int',
+					'description' => __( 'The user that\'s connected as the author of the object. Use the
+								userId for the author object.', 'wp-graphql' ),
+				];
+				$fields['authorName'] = [
+					'type'        => 'String',
+					'description' => __( 'Find objects connected to the author by the author\'s nicename', 'wp-graphql' ),
+				];
+				$fields['authorIn'] = [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+				];
+				$fields['authorNotIn']  = [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s
+								userIds', 'wp-graphql' ),
+				];
+			}
+
+			$connected_taxonomies = get_object_taxonomies( $post_type_object->name );
+			if ( ! empty( $connected_taxonomies ) && in_array( 'category', $connected_taxonomies ) ) {
+				/**
+				 * Category $args
+				 *
+				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Category_Parameters
+				 * @since 0.0.5
+				 */
+				$fields['categoryId'] = [
+					'type'        => 'Int',
+					'description' => __( 'Category ID', 'wp-graphql' ),
+				];
+				$fields['categoryName'] = [
+					'type'        => 'String',
+					'description' => __( 'Use Category Slug', 'wp-graphql' ),
+				];
+				$fields['categoryIn'] = [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Array of category IDs, used to display objects from one
+											category OR another', 'wp-graphql' ),
+				];
+				$fields['categoryNotIn'] = [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Array of category IDs, used to display objects from one
+											category OR another', 'wp-graphql' ),
+				];
+			}
+
+			if ( ! empty( $connected_taxonomies ) && in_array( 'post_tag', $connected_taxonomies ) ) {
+				/**
+				 * Tag $args
+				 *
+				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Tag_Parameters
+				 * @since 0.0.5
+				 */
+				$fields['tag'] = [
+					'type'        => 'String',
+					'description' => __( 'Tag Slug', 'wp-graphql' ),
+				];
+				$fields['tagId'] = [
+					'type'        => 'String',
+					'description' => __( 'Use Tag ID', 'wp-graphql' ),
+				];
+				$fields['tagIn'] = [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Array of tag IDs, used to display objects from one tag OR
+								another', 'wp-graphql' ),
+				];
+				$fields['tagNotIn'] = [
+					'type'         => [
+						'list_of' => 'ID'
+					],
+					'description' => __( 'Array of tag IDs, used to display objects from one tag OR
+								another', 'wp-graphql' ),
+				];
+				$fields['tagSlugAnd'] = [
+					'type'        => [
+						'list_of' => 'String',
+					],
+					'description' => __( 'Array of tag slugs, used to display objects from one tag OR
+								another', 'wp-graphql' ),
+				];
+				$fields['tagSlugIn'] = [
+					'type'        => [
+						'list_of' => 'String',
+					],
+					'description' => __( 'Array of tag slugs, used to exclude objects in specified
+								tags', 'wp-graphql' ),
+				];
+			}
+		}
+
+		return array_merge( $fields, $args );
 	}
 }
