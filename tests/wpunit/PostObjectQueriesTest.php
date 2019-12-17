@@ -1845,4 +1845,172 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * This tests to query posts using the new idType option for single
+	 * node entry points
+	 *
+	 * @throws Exception
+	 */
+	public function testQueryPostUsingIDType() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test Node',
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
+		$slug = get_post( $post_id )->post_name;
+		$uri = get_page_uri( $post_id );
+		$title = get_post( $post_id )->post_title;
+
+		$expected = [
+			'id' => $global_id,
+			'postId' => $post_id,
+			'title' => $title,
+			'uri' => $uri,
+			'slug' => $slug,
+		];
+
+		codecept_debug( $expected );
+
+		/**
+		 * Here we query a single post node by various entry points
+		 * and assert that it's the same node in each response
+		 */
+		$query = '
+		{
+		  postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
+		    ...PostFields
+		  }
+		  postByUriID: post(id: "' . $uri . '", idType: URI) {
+		    ...PostFields
+		  }
+		  postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
+		    ...PostFields
+		  }
+		  postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
+		    ...PostFields
+		  }
+		  postBySlug: postBy(slug: "' . $slug . '") {
+		    ...PostFields
+		  }
+		  postByUri: postBy(uri: "' . $uri . '") {
+		    ...PostFields
+		  }
+		  postById: postBy(id: "' . $global_id . '") {
+		    ...PostFields
+		  }
+		  postByPostId: postBy(postId: ' . $post_id . ') {
+		    ...PostFields
+		  }
+		}
+		
+		fragment PostFields on Post {
+		  id
+		  postId
+		  title
+		  uri
+		  slug
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['postBySlugID'] );
+		$this->assertSame( $expected, $actual['data']['postByUriID'] );
+		$this->assertSame( $expected, $actual['data']['postByDatabaseID'] );
+		$this->assertSame( $expected, $actual['data']['postByGlobalId'] );
+		$this->assertSame( $expected, $actual['data']['postBySlug'] );
+		$this->assertSame( $expected, $actual['data']['postByUri'] );
+		$this->assertSame( $expected, $actual['data']['postById'] );
+		$this->assertSame( $expected, $actual['data']['postByPostId'] );
+
+	}
+
+	/**
+	 * This tests to query posts using the new idType option for single
+	 * node entry points
+	 *
+	 * @throws Exception
+	 */
+	public function testQueryPageUsingIDType() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Test Node',
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', absint( $page_id ) );
+		$slug = get_post( $page_id )->post_name;
+		$uri = get_page_uri( $page_id );
+		$title = get_post( $page_id )->post_title;
+
+		$expected = [
+			'id' => $global_id,
+			'pageId' => $page_id,
+			'title' => $title,
+			'uri' => $uri,
+			'slug' => $slug,
+		];
+
+		codecept_debug( $expected );
+
+		/**
+		 * Here we query a single page node by various entry points
+		 * and assert that it's the same node in each response
+		 */
+		$query = '
+		{
+		  pageByUriID: page(id: "' . $uri . '", idType: URI) {
+		    ...pageFields
+		  }
+		  pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
+		    ...pageFields
+		  }
+		  pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
+		    ...pageFields
+		  }
+		  pageByUri: pageBy(uri: "' . $uri . '") {
+		    ...pageFields
+		  }
+		  pageById: pageBy(id: "' . $global_id . '") {
+		    ...pageFields
+		  }
+		  pageBypageId: pageBy(pageId: ' . $page_id . ') {
+		    ...pageFields
+		  }
+		}
+		
+		fragment pageFields on Page {
+		  id
+		  pageId
+		  title
+		  uri
+		  slug
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['pageByUriID'] );
+		$this->assertSame( $expected, $actual['data']['pageByDatabaseID'] );
+		$this->assertSame( $expected, $actual['data']['pageByGlobalId'] );
+		$this->assertSame( $expected, $actual['data']['pageByUri'] );
+		$this->assertSame( $expected, $actual['data']['pageById'] );
+		$this->assertSame( $expected, $actual['data']['pageBypageId'] );
+
+	}
+
 }
