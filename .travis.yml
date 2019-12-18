@@ -29,6 +29,7 @@ env:
     - WP_VERSION=5.2.3 PHP_VERSION=7.2
     - WP_VERSION=5.2.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
     - PHPCS=true
+    - SCHEMA_DOCS=true
 
 matrix:
   allow_failures:
@@ -57,9 +58,18 @@ before_script:
     fi
 
 script:
-  - ./run-docker-tests.sh 'wpunit'
-  - ./run-docker-tests.sh 'functional'
-  - ./run-docker-tests.sh 'acceptance'
+  - |
+    if [[ "$SCHEMA_DOCS" == "true" ]]; then
+      npm install netlify-cli -g
+      npm install -g @2fd/graphdoc
+      graphdoc -s ./schema.graphql -o ./doc/schema
+      bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+      netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID --prod
+    else
+      ./run-docker-tests.sh 'wpunit'
+      ./run-docker-tests.sh 'functional'
+      ./run-docker-tests.sh 'acceptance'
+    fi
   - if [[ "$PHPCS" == "true" ]]; then composer check-cs; fi
 
 after_success:
@@ -79,11 +89,6 @@ after_success:
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
-  - npm install netlify-cli -g
-  - npm install -g @2fd/graphdoc
-  - graphdoc -s ./schema.graphql -o ./doc/schema
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-  - netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID --prod
 
 #before_deploy:
 #  - npm install netlify-cli -g
