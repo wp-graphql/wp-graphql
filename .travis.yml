@@ -83,7 +83,7 @@ after_success:
   - npm install -g @2fd/graphdoc
   - graphdoc -s ./schema.graphql -o ./doc/schema
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-  - netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID
+  - netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID --prod
 
 #before_deploy:
 #  - npm install netlify-cli -g
