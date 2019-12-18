@@ -87,6 +87,6 @@ before_deploy:
   - npm install -g @2fd/graphdoc
   - graphdoc -s ./schema.graphql -o ./doc/schema
 deploy:
-  script: netlify deploy -s $NETLIFY_SITE_ID -t $NETLIFY_ACCESS_TOKEN -p  ./doc/schema
+  script: netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID
   skip_cleanup: false
 
