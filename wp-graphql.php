@@ -398,6 +398,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
 				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
 			}
+
+			// Adds GraphQL support for post formats.
+			if ( isset( $wp_taxonomies['post_format'] ) ) {
+				$wp_taxonomies['post_format']->show_in_graphql = true;
+				$wp_taxonomies['post_format']->graphql_single_name = 'postFormat';
+				$wp_taxonomies['post_format']->graphql_plural_name = 'postFormats';
+			}
 		}
 
 		/**
