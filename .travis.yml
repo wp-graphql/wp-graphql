@@ -77,7 +77,16 @@ after_success:
       npm install -g graphql-schema-linter
       cd $WP_CORE_DIR
       # Export GraphQL Schema
-      wp graphql generate-static-schema --fromat=IDL --output=./schema.graphql1082
+      wp graphql generate-static-schema --fromat=IDL --output=./schema.graphql
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
+
+before_deploy:
+  - npm install netlify-cli -g
+  - npm install -g @2fd/graphdoc
+  - graphdoc -s ./schema.graphql -o ./doc/schema
+deploy:
+  script: netlify deploy -s $NETLIFY_SITE_ID -t $NETLIFY_ACCESS_TOKEN -p  ./doc/schema
+  skip_cleanup: false
+
