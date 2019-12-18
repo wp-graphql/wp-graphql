@@ -171,6 +171,9 @@ activate_plugin() {
 
     # Export the db for codeception to use
     wp $WP_CLI_ARGS db export $PLUGIN_DIR/tests/_data/dump.sql
+
+    # Export Static Schema
+    wp graphql generate-static-schema --fromat=IDL --output=./schema.graphql
 }
 
 install_wp
