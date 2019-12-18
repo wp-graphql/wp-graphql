@@ -73,18 +73,26 @@ after_success:
   # Generate the Static Schema
   # Lint the Schema
   - |
-    if [ $LINT_SCHEMA == true ]; then
+    if [ [ $LINT_SCHEMA == true ] ]; then
       npm install -g graphql-schema-linter
       cd $WP_CORE_DIR
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
-
-before_deploy:
   - npm install netlify-cli -g
   - npm install -g @2fd/graphdoc
   - graphdoc -s ./schema.graphql -o ./doc/schema
-deploy:
-  script: netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID
-  skip_cleanup: false
+  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID
+
+#before_deploy:
+#  - npm install netlify-cli -g
+#  - npm install -g @2fd/graphdoc
+#  - graphdoc -s ./schema.graphql -o ./doc/schema
+#  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+#deploy:
+#  script: netlify deploy --dir ./doc/schema --auth $NETLIFY_ACCESS_TOKEN --site=$NETLIFY_SITE_ID
+#  skip_cleanup: false
+#  on:
+#    branch: all
 
