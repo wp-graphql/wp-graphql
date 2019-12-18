@@ -45,7 +45,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 * Format the Schema
 		 */
 		WP_CLI::line( 'Formatting the Schema...' );
-		$printed = \GraphQL\Utils\SchemaPrinter::doPrint( $schema );
+		$printed = \GraphQL\Utils\SchemaPrinter::doPrint( $schema, [ 'commentDescriptions' => true ] );
 
 		/**
 		 * Save the Schema to the file

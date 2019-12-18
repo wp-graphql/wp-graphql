@@ -76,7 +76,8 @@ after_success:
     if [ $LINT_SCHEMA == true ]; then
       npm install -g graphql-schema-linter
       cd $WP_CORE_DIR
-      wp graphql generate-static-schema
+      # Export GraphQL Schema
+      wp graphql generate-static-schema --fromat=IDL --output=./schema.graphql1082
       cd $WP_CORE_DIR/wp-content/plugins/wp-graphql
       graphql-schema-linter ./schema.graphql
     fi
