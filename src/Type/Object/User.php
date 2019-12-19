@@ -11,7 +11,7 @@ class User {
 			'User',
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => [ 'Node', 'Uri' ],
 				'fields'      => [
 					'id'                => [
 						'description' => __( 'The globally unique identifier for the user object.', 'wp-graphql' ),

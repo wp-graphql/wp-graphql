@@ -242,7 +242,7 @@ class DataSource {
 	 * @param array       $args      Arguments to pass to the resolve method
 	 * @param AppContext  $context   AppContext object to pass down
 	 * @param ResolveInfo $info      The ResolveInfo object
-	 * @param string      $post_type Post type of the post we are trying to resolve
+	 * @param mixed string|array      $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
 	 * @since  0.0.5

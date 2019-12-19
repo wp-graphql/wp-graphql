@@ -286,6 +286,8 @@ return array(
     'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => $baseDir . '/src/Type/Input/UsersConnectionOrderbyInput.php',
     'WPGraphQL\\Type\\InterfaceType\\ContentNode' => $baseDir . '/src/Type/InterfaceType/ContentNode.php',
     'WPGraphQL\\Type\\InterfaceType\\Node' => $baseDir . '/src/Type/InterfaceType/Node.php',
+    'WPGraphQL\\Type\\InterfaceType\\TermNode' => $baseDir . '/src/Type/InterfaceType/TermNode.php',
+    'WPGraphQL\\Type\\InterfaceType\\Uri' => $baseDir . '/src/Type/InterfaceType/Uri.php',
     'WPGraphQL\\Type\\Object\\Avatar' => $baseDir . '/src/Type/Object/Avatar.php',
     'WPGraphQL\\Type\\Object\\Comment' => $baseDir . '/src/Type/Object/Comment.php',
     'WPGraphQL\\Type\\Object\\CommentAuthor' => $baseDir . '/src/Type/Object/CommentAuthor.php',

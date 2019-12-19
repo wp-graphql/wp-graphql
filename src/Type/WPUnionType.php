@@ -103,5 +103,6 @@ class WPUnionType extends UnionType {
 		if ( 'type_registry' === $name ) {
 			return $this->type_registry;
 		}
+		return null;
 	}
 }

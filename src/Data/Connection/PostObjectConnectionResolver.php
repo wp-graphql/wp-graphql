@@ -32,7 +32,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @param array       $args      The input arguments for the query
 	 * @param AppContext  $context   The context of the request
 	 * @param ResolveInfo $info      The resolve info passed down the Resolve tree
-	 * @param string      $post_type The post type to resolve for
+	 * @param mixed string|array      $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
 	 */

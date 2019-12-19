@@ -22,7 +22,7 @@ class ContentNode {
 		 * across Post Type Objects
 		 */
 		register_graphql_interface_type( 'ContentNode', [
-			'description' => __( 'Object used to manage content', 'wp-graphql' ),
+			'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
 			'resolveType' => function( $post ) use ( $type_registry ) {
 
 				/**

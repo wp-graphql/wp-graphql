@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf807e743c5ad0344f938d198d8455929
+class ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -309,6 +309,8 @@ class ComposerStaticInitf807e743c5ad0344f938d198d8455929
         'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php',
         'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php',
         'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php',
+        'WPGraphQL\\Type\\InterfaceType\\TermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/TermNode.php',
+        'WPGraphQL\\Type\\InterfaceType\\Uri' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Uri.php',
         'WPGraphQL\\Type\\Object\\Avatar' => __DIR__ . '/../..' . '/src/Type/Object/Avatar.php',
         'WPGraphQL\\Type\\Object\\Comment' => __DIR__ . '/../..' . '/src/Type/Object/Comment.php',
         'WPGraphQL\\Type\\Object\\CommentAuthor' => __DIR__ . '/../..' . '/src/Type/Object/CommentAuthor.php',
@@ -351,9 +353,9 @@ class ComposerStaticInitf807e743c5ad0344f938d198d8455929
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf807e743c5ad0344f938d198d8455929::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf807e743c5ad0344f938d198d8455929::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf807e743c5ad0344f938d198d8455929::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$classMap;
 
         }, null, ClassLoader::class);
     }

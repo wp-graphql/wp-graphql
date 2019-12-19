@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -26,10 +27,17 @@ class PostObjects {
 				return DataSource::resolve_post_object( $id, $context );
 			},
 			'fromFieldName'    => 'contentNodes',
-			'connectionArgs'   => self::get_connection_args([], null ),
-			'resolve'          => function ( $root, $args, $context, $info ) {
-				$post_types = \WPGraphQL::get_allowed_post_types();
-				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_types );
+			'connectionArgs'   => self::get_connection_args([
+				'contentTypes' => [
+					'type' => [ 'list_of' => 'PostTypeEnum' ],
+					'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+				],
+			], null ),
+			'resolve'          => function ( $source, $args, $context, $info ) {
+				$post_types = isset( $args['where']['contentTypes'] ) && is_array(  $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
+				$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_types );
+				$connection = $resolver->get_connection();
+				return $connection;
 			},
 		]);
 

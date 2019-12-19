@@ -7,12 +7,7 @@
 
 namespace WPGraphQL\Type\Object;
 
-use GraphQL\Deferred;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 
 
 class PostObject {
@@ -29,7 +24,7 @@ class PostObject {
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => [ 'Node', 'ContentNode' ],
+				'interfaces'  => [ 'Node', 'ContentNode', 'Uri' ],
 				'fields'      => self::get_post_object_fields( $post_type_object ),
 			]
 		);
@@ -283,7 +278,6 @@ class PostObject {
 
 			$fields['termSlugs']['isDeprecated'] = true;
 			$fields['termSlugs']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
-
 		}
 
 		if ( ! $post_type_object->hierarchical && ! in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {

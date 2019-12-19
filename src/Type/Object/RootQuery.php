@@ -280,6 +280,10 @@ class RootQuery {
 						'description' => sprintf( __( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					];
 				}
+
+				/**
+				 * @deprecated Deprecated in favor of single node entry points
+				 */
 				register_graphql_field(
 					'RootQuery',
 					$post_type_object->graphql_single_name . 'By',
