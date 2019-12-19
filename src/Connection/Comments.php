@@ -50,6 +50,7 @@ class Comments {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+
 					register_graphql_connection(
 						self::get_connection_config(
 							[

@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\InterfaceType;
@@ -11,7 +12,7 @@ class WPInterfaceType extends InterfaceType {
 	 *
 	 * @var TypeRegistry
 	 */
-	protected $type_registry;
+	public $type_registry;
 
 	/**
 	 * WPInterfaceType constructor.
@@ -28,16 +29,17 @@ class WPInterfaceType extends InterfaceType {
 		$config['fields'] = function() use ( $config ) {
 			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
+
 			return $fields;
 		};
 
 		/**
-		 * Filter the config of WPObjectType
+		 * Filter the config of WPInterfaceType
 		 *
-		 * @param array $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPInterfaceType $this The instance of the WPObjectType class
+		 * @param array           $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
+		 * @param WPInterfaceType $this   The instance of the WPObjectType class
 		 */
-		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
+		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 
 		parent::__construct( $config );
 	}
@@ -62,8 +64,8 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array  $fields    The array of fields for the object config
-		 * @param string $type_name The name of the object type
+		 * @param array        $fields        The array of fields for the object config
+		 * @param string       $type_name     The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 

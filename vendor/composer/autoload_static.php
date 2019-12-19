@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef
+class ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -307,7 +307,10 @@ class ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef
         'WPGraphQL\\Type\\Input\\MenuItemsConnectionWhereArgs' => __DIR__ . '/../..' . '/src/Type/Input/MenuItemsConnectionWhereArgs.php',
         'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php',
         'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php',
+        'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php',
         'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php',
+        'WPGraphQL\\Type\\InterfaceType\\TermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/TermNode.php',
+        'WPGraphQL\\Type\\InterfaceType\\Uri' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Uri.php',
         'WPGraphQL\\Type\\Object\\Avatar' => __DIR__ . '/../..' . '/src/Type/Object/Avatar.php',
         'WPGraphQL\\Type\\Object\\Comment' => __DIR__ . '/../..' . '/src/Type/Object/Comment.php',
         'WPGraphQL\\Type\\Object\\CommentAuthor' => __DIR__ . '/../..' . '/src/Type/Object/CommentAuthor.php',
@@ -343,15 +346,16 @@ class ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef
         'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php',
         'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php',
         'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php',
+        'WPGraphQL\\Utils\\Utils' => __DIR__ . '/../..' . '/src/Utils/Utils.php',
         'WPGraphQL\\WPSchema' => __DIR__ . '/../..' . '/src/WPSchema.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit0e282bd0cec79c5f4cbffab4f2382eef::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit8de2bfb74fbb72baec5eb5b591d152a3::$classMap;
 
         }, null, ClassLoader::class);
     }
