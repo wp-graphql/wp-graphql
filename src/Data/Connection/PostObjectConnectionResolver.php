@@ -27,12 +27,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed       $source    The object passed down from the previous level in the Resolve
-	 *                               tree
-	 * @param array       $args      The input arguments for the query
-	 * @param AppContext  $context   The context of the request
-	 * @param ResolveInfo $info      The resolve info passed down the Resolve tree
-	 * @param mixed string|array      $post_type The post type to resolve for
+	 * @param mixed              $source    The object passed down from the previous level in the Resolve
+	 *                                      tree
+	 * @param array              $args      The input arguments for the query
+	 * @param AppContext         $context   The context of the request
+	 * @param ResolveInfo        $info      The resolve info passed down the Resolve tree
+	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
 	 */
@@ -438,11 +438,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			foreach ( $this->post_type as $post_type ) {
 				$post_type_objects[] = get_post_type_object( $post_type );
 			}
-
 		} else {
 			$post_type_objects[] = get_post_type_object( $this->post_type );
 		}
-
 
 		/**
 		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
@@ -452,7 +450,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$allowed_statuses = array_filter(
 			array_map(
 				function( $status ) use ( $post_type_objects ) {
-					foreach( $post_type_objects as $post_type_object ) {
+					foreach ( $post_type_objects as $post_type_object ) {
 						if ( 'publish' === $status ) {
 							return $status;
 						}

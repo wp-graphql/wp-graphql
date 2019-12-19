@@ -561,7 +561,7 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * Execute the resolver query and get the data for the connection
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function execute_and_get_data() {

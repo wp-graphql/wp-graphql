@@ -14,6 +14,7 @@ class TermObject {
 
 	/**
 	 * Register the Type for each kind of Taxonomy
+	 *
 	 * @param $taxonomy_object
 	 */
 	public static function register_taxonomy_object_type( $taxonomy_object ) {
@@ -26,19 +27,19 @@ class TermObject {
 				'interfaces'  => [ 'Node', 'TermNode', 'Uri' ],
 				'fields'      => [
 					$single_name . 'Id' => [
-						'type'        => 'Int',
-						'isDeprecated' => true,
+						'type'              => 'Int',
+						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
-						'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-						'resolve'     => function( Term $term, $args, $context, $info ) {
+						'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+						'resolve'           => function( Term $term, $args, $context, $info ) {
 							return absint( $term->term_id );
 						},
 					],
-					'uri' => [
+					'uri'               => [
 						'resolve' => function( $term, $args, $context, $info ) {
 							return ! empty( $term->link ) ? str_ireplace( site_url(), '', $term->link ) : null;
-						}
-					]
+						},
+					],
 				],
 			]
 		);

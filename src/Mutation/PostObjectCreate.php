@@ -37,23 +37,23 @@ class PostObjectCreate {
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		$fields = [
-			'date'          => [
+			'date'      => [
 				'type'        => 'String',
 				'description' => __( 'The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17 ', 'wp-graphql' ),
 			],
-			'menuOrder'     => [
+			'menuOrder' => [
 				'type'        => 'Int',
 				'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
 			],
-			'password'      => [
+			'password'  => [
 				'type'        => 'String',
 				'description' => __( 'The password used to protect the content of the object', 'wp-graphql' ),
 			],
-			'slug'          => [
+			'slug'      => [
 				'type'        => 'String',
 				'description' => __( 'The slug of the object', 'wp-graphql' ),
 			],
-			'status'        => [
+			'status'    => [
 				'type'        => 'PostStatusEnum',
 				'description' => __( 'The status of the object', 'wp-graphql' ),
 			],

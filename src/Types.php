@@ -1,6 +1,7 @@
 <?php
 
 namespace WPGraphQL;
+
 use WPGraphQL\Utils\Utils;
 
 /**

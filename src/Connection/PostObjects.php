@@ -19,27 +19,32 @@ class PostObjects {
 	 */
 	public static function register_connections() {
 
-		register_graphql_connection([
-			'fromType'         => 'RootQuery',
-			'toType'           => 'ContentNode',
-			'queryClass'       => 'WP_Query',
-			'resolveNode'      => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_post_object( $id, $context );
-			},
-			'fromFieldName'    => 'contentNodes',
-			'connectionArgs'   => self::get_connection_args([
-				'contentTypes' => [
-					'type' => [ 'list_of' => 'PostTypeEnum' ],
-					'description' => __( 'The Types of content to filter', 'wp-graphql' ),
-				],
-			], null ),
-			'resolve'          => function ( $source, $args, $context, $info ) {
-				$post_types = isset( $args['where']['contentTypes'] ) && is_array(  $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
-				$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_types );
-				$connection = $resolver->get_connection();
-				return $connection;
-			},
-		]);
+		register_graphql_connection(
+			[
+				'fromType'       => 'RootQuery',
+				'toType'         => 'ContentNode',
+				'queryClass'     => 'WP_Query',
+				'resolveNode'    => function( $id, $args, $context, $info ) {
+					return DataSource::resolve_post_object( $id, $context );
+				},
+				'fromFieldName'  => 'contentNodes',
+				'connectionArgs' => self::get_connection_args(
+					[
+						'contentTypes' => [
+							'type'        => [ 'list_of' => 'PostTypeEnum' ],
+							'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+						],
+					],
+					null
+				),
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
+					$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_types );
+					$connection = $resolver->get_connection();
+					return $connection;
+				},
+			]
+		);
 
 		/**
 		 * Register Connections to PostObjects
@@ -58,9 +63,14 @@ class PostObjects {
 				/**
 				 * Registers the User connection for each post_type
 				 */
-				register_graphql_connection( self::get_connection_config( $post_type_object, [
-					'fromType' => 'User'
-				] ) );
+				register_graphql_connection(
+					self::get_connection_config(
+						$post_type_object,
+						[
+							'fromType' => 'User',
+						]
+					)
+				);
 
 				/**
 				 * Registers connections for each post_type that has a connection
@@ -72,9 +82,14 @@ class PostObjects {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							$tax_object = get_taxonomy( $taxonomy );
-							register_graphql_connection( self::get_connection_config( $post_type_object, [
-								'fromType' => $tax_object->graphql_single_name,
-							] ) );
+							register_graphql_connection(
+								self::get_connection_config(
+									$post_type_object,
+									[
+										'fromType' => $tax_object->graphql_single_name,
+									]
+								)
+							);
 						}
 					}
 				}
@@ -83,26 +98,35 @@ class PostObjects {
 				 * Registers the connection to child items if the post_type is hierarchical
 				 */
 				if ( true === $post_type_object->hierarchical ) {
-					register_graphql_connection( self::get_connection_config( $post_type_object, [
-						'fromType'      => $post_type_object->graphql_single_name,
-						'fromFieldName' => 'child' . ucfirst( $post_type_object->graphql_plural_name ),
-					] ) );
+					register_graphql_connection(
+						self::get_connection_config(
+							$post_type_object,
+							[
+								'fromType'      => $post_type_object->graphql_single_name,
+								'fromFieldName' => 'child' . ucfirst( $post_type_object->graphql_plural_name ),
+							]
+						)
+					);
 				}
 
 				/**
 				 * If the post_type has revisions enabled, add a connection from the Post Object to revisions
 				 */
 				if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
-					register_graphql_connection( self::get_connection_config( $post_type_object, [
-						'fromType'      => $post_type_object->graphql_single_name,
-						'toType'        => $post_type_object->graphql_single_name,
-						'fromFieldName' => 'revisions',
-						'resolve'          => function ( $root, $args, $context, $info ) {
-							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
-						},
-					] ) );
+					register_graphql_connection(
+						self::get_connection_config(
+							$post_type_object,
+							[
+								'fromType'      => $post_type_object->graphql_single_name,
+								'toType'        => $post_type_object->graphql_single_name,
+								'fromFieldName' => 'revisions',
+								'resolve'       => function ( $root, $args, $context, $info ) {
+									return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
+								},
+							]
+						)
+					);
 				}
-
 			}
 		}
 
@@ -120,42 +144,45 @@ class PostObjects {
 	 */
 	public static function get_connection_config( $post_type_object, $args = [] ) {
 
-		$connection_args = self::get_connection_args([], $post_type_object );
+		$connection_args = self::get_connection_args( [], $post_type_object );
 
 		if ( 'revision' === $post_type_object->name ) {
 			unset( $connection_args['status'] );
 			unset( $connection_args['stati'] );
 		}
 
-		return array_merge( [
-			'fromType'         => 'RootQuery',
-			'toType'           => $post_type_object->graphql_single_name,
-			'queryClass'       => 'WP_Query',
-			'connectionFields' => [
-				'postTypeInfo' => [
-					'type'        => 'PostType',
-					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-					'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
-						return DataSource::resolve_post_type( $post_type_object->name );
-					},
+		return array_merge(
+			[
+				'fromType'         => 'RootQuery',
+				'toType'           => $post_type_object->graphql_single_name,
+				'queryClass'       => 'WP_Query',
+				'connectionFields' => [
+					'postTypeInfo' => [
+						'type'        => 'PostType',
+						'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
+						'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
+							return DataSource::resolve_post_type( $post_type_object->name );
+						},
+					],
 				],
+				'resolveNode'      => function( $id, $args, $context, $info ) {
+					return DataSource::resolve_post_object( $id, $context );
+				},
+				'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
+				'connectionArgs'   => $connection_args,
+				'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
+					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
+				},
 			],
-			'resolveNode'      => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_post_object( $id, $context );
-			},
-			'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
-			'connectionArgs'   => $connection_args,
-			'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
-				return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
-			},
-		], $args );
+			$args
+		);
 	}
 
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
 	 * @access public
-	 * @param array $args The args to modify the defaults
+	 * @param array         $args The args to modify the defaults
 	 * @param \WP_Post_Type $post_type_object The post type the connection is going to
 	 *
 	 * @return array
@@ -169,7 +196,7 @@ class PostObjects {
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Search_Parameter
 			 * @since 0.0.5
 			 */
-			'search'       => [
+			'search'      => [
 				'name'        => 'search',
 				'type'        => 'String',
 				'description' => __( 'Show Posts based on a keyword search', 'wp-graphql' ),
@@ -181,49 +208,55 @@ class PostObjects {
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Post_.26_Page_Parameters
 			 * @since 0.0.5
 			 */
-			'id'           => [
+			'id'          => [
 				'type'        => 'Int',
 				'description' => __( 'Specific ID of the object', 'wp-graphql' ),
 			],
-			'name'         => [
+			'name'        => [
 				'type'        => 'String',
 				'description' => __( 'Slug / post_name of the object', 'wp-graphql' ),
 			],
-			'title'        => [
+			'title'       => [
 				'type'        => 'String',
 				'description' => __( 'Title of the object', 'wp-graphql' ),
 			],
-			'parent'       => [
+			'parent'      => [
 				'type'        => 'String',
-				'description' => __( 'Use ID to return only children. Use 0 to return only top-level
-							items', 'wp-graphql' ),
+				'description' => __(
+					'Use ID to return only children. Use 0 to return only top-level
+							items',
+					'wp-graphql'
+				),
 			],
-			'parentIn'     => [
+			'parentIn'    => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Specify objects whose parent is in an array', 'wp-graphql' ),
 			],
-			'parentNotIn'  => [
+			'parentNotIn' => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Specify posts whose parent is not in an array', 'wp-graphql' ),
 			],
-			'in'           => [
+			'in'          => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Array of IDs for the objects to retrieve', 'wp-graphql' ),
 			],
-			'notIn'        => [
+			'notIn'       => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in",
-							it will be ignored', 'wp-graphql' ),
+				'description' => __(
+					'Specify IDs NOT to retrieve. If this is used in the same query as "in",
+							it will be ignored',
+					'wp-graphql'
+				),
 			],
-			'nameIn'       => [
+			'nameIn'      => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -236,12 +269,15 @@ class PostObjects {
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Password_Parameters
 			 * @since 0.0.2
 			 */
-			'hasPassword'  => [
+			'hasPassword' => [
 				'type'        => 'Boolean',
-				'description' => __( 'True for objects with passwords; False for objects without passwords;
-							null for all objects with or without passwords', 'wp-graphql' ),
+				'description' => __(
+					'True for objects with passwords; False for objects without passwords;
+							null for all objects with or without passwords',
+					'wp-graphql'
+				),
 			],
-			'password'     => [
+			'password'    => [
 				'type'        => 'String',
 				'description' => __( 'Show posts with a specific password.', 'wp-graphql' ),
 			],
@@ -261,14 +297,14 @@ class PostObjects {
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Status_Parameters
 			 * @since 0.0.2
 			 */
-			'status'       => [
+			'status'      => [
 				'type' => 'PostStatusEnum',
 			],
 
 			/**
 			 * List of post status parameters
 			 */
-			'stati'        => [
+			'stati'       => [
 				'type' => [
 					'list_of' => 'PostStatusEnum',
 				],
@@ -280,17 +316,17 @@ class PostObjects {
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
 			 * @since 0.0.2
 			 */
-			'orderby'      => [
+			'orderby'     => [
 				'type'        => [
 					'list_of' => 'PostObjectsConnectionOrderbyInput',
 				],
 				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 			],
-			'dateQuery'    => [
+			'dateQuery'   => [
 				'type'        => 'DateQueryInput',
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
-			'mimeType'     => [
+			'mimeType'    => [
 				'type'        => 'MimeTypeEnum',
 				'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
 			],
@@ -311,27 +347,33 @@ class PostObjects {
 				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Author_Parameters
 				 * @since 0.0.5
 				 */
-				$fields['author'] = [
+				$fields['author']      = [
 					'type'        => 'Int',
-					'description' => __( 'The user that\'s connected as the author of the object. Use the
-								userId for the author object.', 'wp-graphql' ),
+					'description' => __(
+						'The user that\'s connected as the author of the object. Use the
+								userId for the author object.',
+						'wp-graphql'
+					),
 				];
-				$fields['authorName'] = [
+				$fields['authorName']  = [
 					'type'        => 'String',
 					'description' => __( 'Find objects connected to the author by the author\'s nicename', 'wp-graphql' ),
 				];
-				$fields['authorIn'] = [
+				$fields['authorIn']    = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
 				];
-				$fields['authorNotIn']  = [
+				$fields['authorNotIn'] = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s
-								userIds', 'wp-graphql' ),
+					'description' => __(
+						'Find objects NOT connected to author(s) in the array of author\'s
+								userIds',
+						'wp-graphql'
+					),
 				];
 			}
 
@@ -343,27 +385,33 @@ class PostObjects {
 				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Category_Parameters
 				 * @since 0.0.5
 				 */
-				$fields['categoryId'] = [
+				$fields['categoryId']    = [
 					'type'        => 'Int',
 					'description' => __( 'Category ID', 'wp-graphql' ),
 				];
-				$fields['categoryName'] = [
+				$fields['categoryName']  = [
 					'type'        => 'String',
 					'description' => __( 'Use Category Slug', 'wp-graphql' ),
 				];
-				$fields['categoryIn'] = [
+				$fields['categoryIn']    = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __( 'Array of category IDs, used to display objects from one
-											category OR another', 'wp-graphql' ),
+					'description' => __(
+						'Array of category IDs, used to display objects from one
+											category OR another',
+						'wp-graphql'
+					),
 				];
 				$fields['categoryNotIn'] = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __( 'Array of category IDs, used to display objects from one
-											category OR another', 'wp-graphql' ),
+					'description' => __(
+						'Array of category IDs, used to display objects from one
+											category OR another',
+						'wp-graphql'
+					),
 				];
 			}
 
@@ -374,41 +422,53 @@ class PostObjects {
 				 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Tag_Parameters
 				 * @since 0.0.5
 				 */
-				$fields['tag'] = [
+				$fields['tag']        = [
 					'type'        => 'String',
 					'description' => __( 'Tag Slug', 'wp-graphql' ),
 				];
-				$fields['tagId'] = [
+				$fields['tagId']      = [
 					'type'        => 'String',
 					'description' => __( 'Use Tag ID', 'wp-graphql' ),
 				];
-				$fields['tagIn'] = [
+				$fields['tagIn']      = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __( 'Array of tag IDs, used to display objects from one tag OR
-								another', 'wp-graphql' ),
+					'description' => __(
+						'Array of tag IDs, used to display objects from one tag OR
+								another',
+						'wp-graphql'
+					),
 				];
-				$fields['tagNotIn'] = [
-					'type'         => [
-						'list_of' => 'ID'
+				$fields['tagNotIn']   = [
+					'type'        => [
+						'list_of' => 'ID',
 					],
-					'description' => __( 'Array of tag IDs, used to display objects from one tag OR
-								another', 'wp-graphql' ),
+					'description' => __(
+						'Array of tag IDs, used to display objects from one tag OR
+								another',
+						'wp-graphql'
+					),
 				];
 				$fields['tagSlugAnd'] = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to display objects from one tag OR
-								another', 'wp-graphql' ),
+					'description' => __(
+						'Array of tag slugs, used to display objects from one tag OR
+								another',
+						'wp-graphql'
+					),
 				];
-				$fields['tagSlugIn'] = [
+				$fields['tagSlugIn']  = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to exclude objects in specified
-								tags', 'wp-graphql' ),
+					'description' => __(
+						'Array of tag slugs, used to exclude objects in specified
+								tags',
+						'wp-graphql'
+					),
 				];
 			}
 		}

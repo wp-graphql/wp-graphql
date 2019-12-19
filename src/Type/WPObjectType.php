@@ -74,7 +74,7 @@ class WPObjectType extends ObjectType {
 				if ( ! is_array( $config['interfaces'] ) ) {
 					throw new UserError(
 						sprintf(
-						/* translators: %s: type name */
+							/* translators: %s: type name */
 							__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
 							$config['name']
 						)
@@ -85,7 +85,7 @@ class WPObjectType extends ObjectType {
 					$interface_type = null;
 					if ( is_string( $interface_name ) ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
-					} else if ( $interface_name instanceof WPInterfaceType ) {
+					} elseif ( $interface_name instanceof WPInterfaceType ) {
 						$interface_type = $interface_name;
 					}
 					$interface_fields = [];
@@ -97,7 +97,6 @@ class WPObjectType extends ObjectType {
 					}
 					$fields = array_replace_recursive( $interface_fields, $fields );
 				}
-
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
@@ -116,7 +115,7 @@ class WPObjectType extends ObjectType {
 					$interface_type = null;
 					if ( is_string( $interface_name ) ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
-					} else if ( $interface_name instanceof WPInterfaceType ) {
+					} elseif ( $interface_name instanceof WPInterfaceType ) {
 						$interface_type = $interface_name;
 					}
 

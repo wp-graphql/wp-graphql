@@ -21,7 +21,7 @@ class PostTypeEnum {
 			foreach ( $allowed_post_types as $allowed_post_type ) {
 
 				$values[ WPEnumType::get_safe_name( $allowed_post_type ) ] = [
-					'value' => $allowed_post_type,
+					'value'       => $allowed_post_type,
 					'description' => __( 'The Type of Post object', 'wp-graphql' ),
 				];
 			}

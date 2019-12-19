@@ -91,7 +91,7 @@ class Post extends Model {
 		/**
 		 * Set the data as the Post object
 		 */
-		$this->data = $post;
+		$this->data             = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
 
 		/**
@@ -223,7 +223,6 @@ class Post extends Model {
 		if ( 'publish' === $this->data->post_status ) {
 			return false;
 		}
-
 
 		return $this->is_post_private( $this->data );
 	}

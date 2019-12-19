@@ -239,10 +239,10 @@ class DataSource {
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param             $source
-	 * @param array       $args      Arguments to pass to the resolve method
-	 * @param AppContext  $context   AppContext object to pass down
-	 * @param ResolveInfo $info      The ResolveInfo object
-	 * @param mixed string|array      $post_type Post type of the post we are trying to resolve
+	 * @param array              $args      Arguments to pass to the resolve method
+	 * @param AppContext         $context   AppContext object to pass down
+	 * @param ResolveInfo        $info      The ResolveInfo object
+	 * @param mixed string|array $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
 	 * @since  0.0.5
@@ -464,11 +464,10 @@ class DataSource {
 		if ( null === $role ) {
 			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
 		} else {
-			$role       = (array) $role;
-			$role['id'] = $name;
+			$role                = (array) $role;
+			$role['id']          = $name;
 			$role['displayName'] = $role['name'];
-			$role['name'] = $name;
-
+			$role['name']        = $name;
 
 			return new UserRole( $role );
 		}

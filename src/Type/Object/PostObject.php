@@ -180,13 +180,13 @@ class PostObject {
 				),
 			],
 			$single_name . 'Id' => [
-				'type'        => [
+				'type'              => [
 					'non_null' => 'Int',
 				],
-				'isDeprecated' => true,
+				'isDeprecated'      => true,
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
-				'description' => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'     => function( Post $post, $args, $context, $info ) {
+				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
+				'resolve'           => function( Post $post, $args, $context, $info ) {
 					return absint( $post->ID );
 				},
 			],
@@ -196,9 +196,9 @@ class PostObject {
 			$fields['isFrontPage'] = [
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' ),
-				'resolve' => function( Post $page ) {
+				'resolve'     => function( Post $page ) {
 					return isset( $page->isFrontPage ) ? (bool) $page->isFrontPage : false;
-				}
+				},
 			];
 		}
 
@@ -223,44 +223,44 @@ class PostObject {
 		 * post-formats
 		 */
 		if ( ! post_type_supports( $post_type_object->name, 'title' ) ) {
-			$fields['title']['isDeprecated'] = true;
+			$fields['title']['isDeprecated']      = true;
 			$fields['title']['deprecationReason'] = __( 'This content type does not support the title field', 'wp-graphql' );
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'editor' ) ) {
-			$fields['content']['isDeprecated'] = true;
+			$fields['content']['isDeprecated']      = true;
 			$fields['content']['deprecationReason'] = __( 'This content type does not support the content editor', 'wp-graphql' );
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'author' ) ) {
-			$fields['author']['isDeprecated'] = true;
+			$fields['author']['isDeprecated']      = true;
 			$fields['author']['deprecationReason'] = __( 'This content type does not support authors', 'wp-graphql' );
 
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
-			$fields['featuredImage']['isDeprecated'] = true;
+			$fields['featuredImage']['isDeprecated']      = true;
 			$fields['featuredImage']['deprecationReason'] = __( 'This content type does not support featured images', 'wp-graphql' );
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'excerpt' ) ) {
-			$fields['excerpt']['isDeprecated'] = true;
+			$fields['excerpt']['isDeprecated']      = true;
 			$fields['excerpt']['deprecationReason'] = __( 'This content type does not support excerpts', 'wp-graphql' );
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'comments' ) ) {
-			$fields['commentCount']['isDeprecated'] = true;
+			$fields['commentCount']['isDeprecated']      = true;
 			$fields['commentCount']['deprecationReason'] = __( 'This content type does not support comments', 'wp-graphql' );
 		}
 
 		if ( ! post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
-			$fields['toPing']['isDeprecated'] = true;
+			$fields['toPing']['isDeprecated']      = true;
 			$fields['toPing']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
 
-			$fields['pinged']['isDeprecated'] = true;
+			$fields['pinged']['isDeprecated']      = true;
 			$fields['pinged']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
 
-			$fields['pingStatus']['isDeprecated'] = true;
+			$fields['pingStatus']['isDeprecated']      = true;
 			$fields['pingStatus']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
 		}
 
@@ -270,21 +270,21 @@ class PostObject {
 		 */
 		$connected_taxonomies = get_object_taxonomies( $post_type_object->name );
 		if ( empty( $connected_taxonomies ) || ! is_array( $connected_taxonomies ) ) {
-			$fields['terms']['isDeprecated'] = true;
+			$fields['terms']['isDeprecated']      = true;
 			$fields['terms']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
 
-			$fields['termNames']['isDeprecated'] = true;
+			$fields['termNames']['isDeprecated']      = true;
 			$fields['termNames']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
 
-			$fields['termSlugs']['isDeprecated'] = true;
+			$fields['termSlugs']['isDeprecated']      = true;
 			$fields['termSlugs']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
 		}
 
 		if ( ! $post_type_object->hierarchical && ! in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {
-			$fields['ancestors']['isDeprecated'] = true;
+			$fields['ancestors']['isDeprecated']      = true;
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 
-			$fields['parent']['isDeprecated'] = true;
+			$fields['parent']['isDeprecated']      = true;
 			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
 

@@ -179,35 +179,38 @@ class RootQuery {
 				$post_type_object = get_post_type_object( $post_type );
 
 				$values = [
-					'ID' => [
-						'name' => 'ID',
-						'value' => 'global_id',
+					'ID'          => [
+						'name'        => 'ID',
+						'value'       => 'global_id',
 						'description' => __( 'Identify a resource by the (hashed) Global ID.', 'wp-graphql' ),
 					],
 					'DATABASE_ID' => [
-						'name' => 'DATABASE_ID',
-						'value' => 'database_id',
+						'name'        => 'DATABASE_ID',
+						'value'       => 'database_id',
 						'description' => __( 'Identify a resource by the Database ID.', 'wp-graphql' ),
 					],
-					'URI' => [
-						'name' => 'URI',
-						'value' => 'uri',
+					'URI'         => [
+						'name'        => 'URI',
+						'value'       => 'uri',
 						'description' => __( 'Identify a resource by the URI.', 'wp-graphql' ),
 					],
 				];
 
 				if ( ! $post_type_object->hierarchical ) {
-					$values[ 'slug' ] = [
-						'name' => 'SLUG',
-						'value' => 'slug',
+					$values['slug'] = [
+						'name'        => 'SLUG',
+						'value'       => 'slug',
 						'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
 					];
 				}
 
-				register_graphql_enum_type( $post_type_object->graphql_single_name . 'IdType', [
-					'description' => __( 'The Type of Identifier used to query a single resource. Default is GLOBAL_ID.', 'wp-graphql' ),
-					'values' => $values,
-				] );
+				register_graphql_enum_type(
+					$post_type_object->graphql_single_name . 'IdType',
+					[
+						'description' => __( 'The Type of Identifier used to query a single resource. Default is GLOBAL_ID.', 'wp-graphql' ),
+						'values'      => $values,
+					]
+				);
 
 				register_graphql_field(
 					'RootQuery',
@@ -216,30 +219,30 @@ class RootQuery {
 						'type'        => $post_type_object->graphql_single_name,
 						'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type' => [
 									'non_null' => 'ID',
 								],
 							],
 							'idType' => [
-								'type' => $post_type_object->graphql_single_name . 'IdType'
-							]
+								'type' => $post_type_object->graphql_single_name . 'IdType',
+							],
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 
 							$idType = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
-							$post = null;
-							switch( $idType ) {
+							$post   = null;
+							switch ( $idType ) {
 								case 'uri':
 								case 'slug':
 									$slug        = esc_html( $args['id'] );
 									$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
 									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
-									$post = DataSource::resolve_post_object( $post_id, $context );
+									$post        = DataSource::resolve_post_object( $post_id, $context );
 									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
-									$post = DataSource::resolve_post_object( $post_id, $context );
+									$post    = DataSource::resolve_post_object( $post_id, $context );
 									break;
 								case 'global_id':
 								default:
@@ -248,7 +251,7 @@ class RootQuery {
 										throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 									}
 									$post_id = absint( $id_components['id'] );
-									$post = DataSource::resolve_post_object( $post_id, $context );
+									$post    = DataSource::resolve_post_object( $post_id, $context );
 									break;
 							}
 
@@ -288,12 +291,12 @@ class RootQuery {
 					'RootQuery',
 					$post_type_object->graphql_single_name . 'By',
 					[
-						'type'        => $post_type_object->graphql_single_name,
-						'isDeprecated' => true,
+						'type'              => $post_type_object->graphql_single_name,
+						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
-						'description' => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-						'args'        => $post_by_args,
-						'resolve'     => function( $source, array $args, $context, $info ) use ( $post_type_object ) {
+						'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+						'args'              => $post_by_args,
+						'resolve'           => function( $source, array $args, $context, $info ) use ( $post_type_object ) {
 							$post_object = null;
 							$post_id     = 0;
 							if ( ! empty( $args['id'] ) ) {

@@ -341,7 +341,10 @@ class TypeRegistry {
 				 */
 				do_action( 'graphql_register_types_late', $type_registry );
 
-			}, 1, 1 );
+			},
+			1,
+			1
+		);
 
 		$this->register_type( 'Bool', Type::boolean() );
 		$this->register_type( 'Boolean', Type::boolean() );

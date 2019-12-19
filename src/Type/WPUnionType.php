@@ -24,7 +24,7 @@ class WPUnionType extends UnionType {
 	/**
 	 * WPUnionType constructor.
 	 *
-	 * @param array $config The Config to setup a Union Type
+	 * @param array        $config The Config to setup a Union Type
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @since 0.0.30
