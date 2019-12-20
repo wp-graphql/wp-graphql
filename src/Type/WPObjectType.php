@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\InterfaceType\Node;
 
 /**
  * Class WPObjectType
@@ -132,7 +133,7 @@ class WPObjectType extends ObjectType {
 		 * Filter the config of WPObjectType
 		 *
 		 * @param array  $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param Object $this   The instance of the WPObjectType class
+		 * @param WPObjectType $this   The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
@@ -140,7 +141,7 @@ class WPObjectType extends ObjectType {
 		 * Run an action when the WPObjectType is instantiating
 		 *
 		 * @param array  $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param Object $this   The instance of the WPObjectType class
+		 * @param WPObjectType $this   The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
 
@@ -153,7 +154,7 @@ class WPObjectType extends ObjectType {
 	 * This returns the node_interface definition allowing
 	 * WPObjectTypes to easily implement the node_interface
 	 *
-	 * @return array|\WPGraphQL\Data\node_interface
+	 * @return array|Node
 	 * @since 0.0.5
 	 */
 	public static function node_interface() {
