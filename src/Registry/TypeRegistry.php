@@ -3,6 +3,9 @@
 namespace WPGraphQL\Registry;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\Definition\AbstractType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Connection\Comments;
@@ -991,6 +994,34 @@ class TypeRegistry {
 			]
 		);
 
+	}
+
+	/**
+	 * Given a Type, this returns an instance of a NonNull of that type
+	 *
+	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @return NonNull
+	 */
+	public function non_null( $type ) {
+		if ( is_string( $type ) ) {
+			$type_def = $this->get_type( $type );
+			return Type::nonNull( $type_def );
+		}
+		return Type::nonNull( $type );
+	}
+
+	/**
+	 * Given a Type, this returns an instance of a listOf of that type
+	 *
+	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @return ListOfType
+	 */
+	public function list_of( $type ) {
+		if ( is_string( $type ) ) {
+			$type_def = $this->get_type( $type );
+			return Type::listOf( $type_def );
+		}
+		return Type::listOf( $type );
 	}
 
 }
