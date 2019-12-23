@@ -79,7 +79,7 @@ export default function Category(props) {
       ) : (
         <StyledButton
           onClick={props.onClick ? () => props.onClick(props.title) : null}
-          aria-label="hello"
+          aria-label={props.title}
         >
           {contents}
         </StyledButton>
