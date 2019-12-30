@@ -274,8 +274,10 @@ class PostObjects {
 
 			/**
 			 * post_type
-			 * NOTE: post_type is intentionally not supported as it's the post_type is the entity entry
-			 * point for the queries
+			 *
+			 * NOTE: post_type is intentionally not supported on connections to Single post types as
+			 * the connection to the singular Post Type already sets this argument as the entry
+			 * point to the Graph
 			 *
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Type_Parameters
 			 * @since 0.0.2
@@ -323,7 +325,64 @@ class PostObjects {
 		];
 
 		/**
-		 * If the connection is to a single post type
+		 * If the connection is to a single post type, add additional arguments.
+		 *
+		 * If the connection is to many post types, the `$post_type_object` will not be an instance
+		 * of \WP_Post_Type, and we should not add these additional arguments because it
+		 * confuses the connection args for connections of plural post types.
+		 *
+		 * For example, if you have one Post Type that supports author and another that doesn't
+		 * we don't want to expose the `author` filter for a plural connection of multiple post types
+		 * as it's misleading to be able to filter by author on a post type that doesn't have
+		 * authors.
+		 *
+		 * If folks want to enable these arguments, they can filter them back in per-connection, but
+		 * by default WPGraphQL is exposing the least common denominator (the fields that are shared
+		 * by _all_ post types in a multi-post-type connection)
+		 *
+		 * Here's a practical example:
+		 *
+		 * Lets's say you register a "House" post type and it doesn't support author.
+		 *
+		 * The "House" Post Type will show in the `contentNodes` connection, which is a connection
+		 * to many post types.
+		 *
+		 * We could (pseudo code) query like so:
+		 *
+		 * {
+		 *   contentNodes( where: { contentTypes: [ HOUSE ] ) {
+		 *     nodes {
+		 *       id
+		 *       title
+		 *       ...on House {
+		 *         ...someHouseFields
+		 *       }
+		 *     }
+		 *   }
+		 * }
+		 *
+		 * But since houses don't have authors, it doesn't make sense to have WPGraphQL expose the
+		 * ability to query four houses filtered by author.
+		 *
+		 * ```
+		 *{
+		 *   contentNodes( where: { author: "some author input" contentTypes: [ HOUSE ] ) {
+		 *     nodes {
+		 *       id
+		 *       title
+		 *       ...on House {
+		 *         ...someHouseFields
+		 *       }
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * We want to output filters on connections based on what's actually possible, and filtering
+		 * houses by author isn't possible, so exposing it in the Schema is quite misleading to
+		 * consumers.
+		 *
+		 *
 		 */
 		if ( isset( $post_type_object ) && $post_type_object instanceof \WP_Post_Type ) {
 
