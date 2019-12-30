@@ -3,7 +3,6 @@
 namespace WPGraphQL\Registry;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
