@@ -9,7 +9,7 @@ use WPGraphQL\Registry\TypeRegistry;
 class Uri {
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
-			'Uri',
+			'UniformResourceIdentifiable',
 			[
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
 				'fields'      => [

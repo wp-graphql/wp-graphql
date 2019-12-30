@@ -92,17 +92,4 @@ class WPUnionType extends UnionType {
 
 		parent::__construct( $config );
 	}
-
-	/**
-	 * Simple getter function so "$type_registry" can be used in hooks
-	 *
-	 * @param string $name  Member name.
-	 * @return TypeRegistry|null
-	 */
-	public function __get( $name ) {
-		if ( 'type_registry' === $name ) {
-			return $this->type_registry;
-		}
-		return null;
-	}
 }

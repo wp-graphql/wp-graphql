@@ -53,7 +53,7 @@ class ContentNode {
 						'type'        => [
 							'non_null' => 'ID',
 						],
-						'description' => __( 'The globally unique identifier of the entity.', 'wp-graphql' ),
+						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
 					],
 					'ancestors'     => [
 						'type'        => [

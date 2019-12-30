@@ -24,7 +24,7 @@ class TermObject {
 			$single_name,
 			[
 				'description' => __( sprintf( 'The %s type', $single_name ), 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'TermNode', 'Uri' ],
+				'interfaces'  => [ 'Node', 'TermNode', 'UniformResourceIdentifiable' ],
 				'fields'      => [
 					$single_name . 'Id' => [
 						'type'              => 'Int',

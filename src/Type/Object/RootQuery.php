@@ -52,7 +52,7 @@ class RootQuery {
 						},
 					],
 					'nodeByUri'   => [
-						'type'    => 'Uri',
+						'type'    => 'UniformResourceIdentifiable',
 						'args'    => [
 							'uri' => [
 								'type'        => [ 'non_null' => 'String' ],
@@ -243,18 +243,16 @@ class RootQuery {
 						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 
 							$idType = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
-							$post   = null;
+							$post_id = null;
 							switch ( $idType ) {
 								case 'uri':
 								case 'slug':
 									$slug        = esc_html( $args['id'] );
 									$post_object = DataSource::get_post_object_by_uri( $slug, 'OBJECT', $post_type_object->name );
 									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
-									$post        = DataSource::resolve_post_object( $post_id, $context );
 									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
-									$post    = DataSource::resolve_post_object( $post_id, $context );
 									break;
 								case 'global_id':
 								default:
@@ -263,7 +261,6 @@ class RootQuery {
 										throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 									}
 									$post_id = absint( $id_components['id'] );
-									$post    = DataSource::resolve_post_object( $post_id, $context );
 									break;
 							}
 
@@ -271,12 +268,12 @@ class RootQuery {
 							 * @todo: Need to filter this so the switch statement can apply before resolution
 							 */
 
-							return $post;
+							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
 						},
 					]
 				);
 				$post_by_args = [
-					'id'  => [
+					'id'                                          => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -284,7 +281,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri' => [
+					'uri'                                         => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],

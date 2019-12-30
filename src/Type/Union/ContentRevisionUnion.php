@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\Union;
 
 use WPGraphQL\Model\Post;
@@ -15,8 +16,9 @@ class ContentRevisionUnion {
 
 			$type_names = array_map(
 				function( $post_type ) {
-						$post_type_object = get_post_type_object( $post_type );
-						return $post_type_object->graphql_single_name;
+					$post_type_object = get_post_type_object( $post_type );
+
+					return $post_type_object->graphql_single_name;
 				},
 				$post_types_with_revision_support
 			);

@@ -24,7 +24,7 @@ class PostObject {
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => [ 'Node', 'ContentNode', 'Uri' ],
+				'interfaces'  => [ 'Node', 'ContentNode', 'UniformResourceIdentifiable' ],
 				'fields'      => self::get_post_object_fields( $post_type_object ),
 			]
 		);
@@ -174,7 +174,7 @@ class PostObject {
 		$fields      = [
 			'id'                => [
 				'description' => sprintf(
-					/* translators: %s: custom post-type name */
+				/* translators: %s: custom post-type name */
 					__( 'The globally unique identifier of the %s object.', 'wp-graphql' ),
 					$post_type_object->name
 				),
@@ -280,7 +280,10 @@ class PostObject {
 			$fields['termSlugs']['deprecationReason'] = __( 'This content type does not have connections to any terms', 'wp-graphql' );
 		}
 
-		if ( ! $post_type_object->hierarchical && ! in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {
+		if ( ! $post_type_object->hierarchical && ! in_array( $post_type_object->name, [
+				'attachment',
+				'revision'
+			] ) ) {
 			$fields['ancestors']['isDeprecated']      = true;
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 
