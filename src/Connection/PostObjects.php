@@ -37,10 +37,11 @@ class PostObjects {
 					],
 					null
 				),
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'resolve'        => function( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
 					$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_types );
 					$connection = $resolver->get_connection();
+
 					return $connection;
 				},
 			]
@@ -120,7 +121,7 @@ class PostObjects {
 								'fromType'      => $post_type_object->graphql_single_name,
 								'toType'        => $post_type_object->graphql_single_name,
 								'fromFieldName' => 'revisions',
-								'resolve'       => function ( $root, $args, $context, $info ) {
+								'resolve'       => function( $root, $args, $context, $info ) {
 									return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 								},
 							]
@@ -160,7 +161,7 @@ class PostObjects {
 					'postTypeInfo' => [
 						'type'        => 'PostType',
 						'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-						'resolve'     => function ( $source, array $args, $context, $info ) use ( $post_type_object ) {
+						'resolve'     => function( $source, array $args, $context, $info ) use ( $post_type_object ) {
 							return DataSource::resolve_post_type( $post_type_object->name );
 						},
 					],
@@ -170,7 +171,7 @@ class PostObjects {
 				},
 				'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
 				'connectionArgs'   => $connection_args,
-				'resolve'          => function ( $root, $args, $context, $info ) use ( $post_type_object ) {
+				'resolve'          => function( $root, $args, $context, $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
 				},
 			],
@@ -182,7 +183,8 @@ class PostObjects {
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
 	 * @access public
-	 * @param array         $args The args to modify the defaults
+	 *
+	 * @param array         $args             The args to modify the defaults
 	 * @param \WP_Post_Type $post_type_object The post type the connection is going to
 	 *
 	 * @return array
@@ -222,11 +224,7 @@ class PostObjects {
 			],
 			'parent'      => [
 				'type'        => 'String',
-				'description' => __(
-					'Use ID to return only children. Use 0 to return only top-level
-							items',
-					'wp-graphql'
-				),
+				'description' => __( 'Use ID to return only children. Use 0 to return only top-level items', 'wp-graphql' ),
 			],
 			'parentIn'    => [
 				'type'        => [
@@ -250,11 +248,7 @@ class PostObjects {
 				'type'        => [
 					'list_of' => 'ID',
 				],
-				'description' => __(
-					'Specify IDs NOT to retrieve. If this is used in the same query as "in",
-							it will be ignored',
-					'wp-graphql'
-				),
+				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
 			],
 			'nameIn'      => [
 				'type'        => [
@@ -271,11 +265,7 @@ class PostObjects {
 			 */
 			'hasPassword' => [
 				'type'        => 'Boolean',
-				'description' => __(
-					'True for objects with passwords; False for objects without passwords;
-							null for all objects with or without passwords',
-					'wp-graphql'
-				),
+				'description' => __( 'True for objects with passwords; False for objects without passwords; null for all objects with or without passwords', 'wp-graphql' ),
 			],
 			'password'    => [
 				'type'        => 'String',
@@ -349,11 +339,7 @@ class PostObjects {
 				 */
 				$fields['author']      = [
 					'type'        => 'Int',
-					'description' => __(
-						'The user that\'s connected as the author of the object. Use the
-								userId for the author object.',
-						'wp-graphql'
-					),
+					'description' => __( 'The user that\'s connected as the author of the object. Use the userId for the author object.', 'wp-graphql' ),
 				];
 				$fields['authorName']  = [
 					'type'        => 'String',
@@ -369,11 +355,7 @@ class PostObjects {
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __(
-						'Find objects NOT connected to author(s) in the array of author\'s
-								userIds',
-						'wp-graphql'
-					),
+					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
 				];
 			}
 
@@ -397,21 +379,13 @@ class PostObjects {
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __(
-						'Array of category IDs, used to display objects from one
-											category OR another',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of category IDs, used to display objects from one category OR another', 'wp-graphql' ),
 				];
 				$fields['categoryNotIn'] = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __(
-						'Array of category IDs, used to display objects from one
-											category OR another',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of category IDs, used to display objects from one category OR another', 'wp-graphql' ),
 				];
 			}
 
@@ -434,41 +408,25 @@ class PostObjects {
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __(
-						'Array of tag IDs, used to display objects from one tag OR
-								another',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
 				];
 				$fields['tagNotIn']   = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
-					'description' => __(
-						'Array of tag IDs, used to display objects from one tag OR
-								another',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
 				];
 				$fields['tagSlugAnd'] = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __(
-						'Array of tag slugs, used to display objects from one tag OR
-								another',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
 				];
 				$fields['tagSlugIn']  = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __(
-						'Array of tag slugs, used to exclude objects in specified
-								tags',
-						'wp-graphql'
-					),
+					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
 		}
