@@ -1,8 +1,10 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use WPGraphQL\Registry\TypeRegistry;
+
 class Uri {
-	public static function register_type() {
+	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'Uri',
 			[
@@ -13,6 +15,9 @@ class Uri {
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
+				'resolveType' => function() {
+				
+				}
 			]
 		);
 	}

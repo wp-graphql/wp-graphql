@@ -3,7 +3,6 @@
 namespace WPGraphQL\Registry;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -146,209 +145,6 @@ class TypeRegistry {
 	 */
 	public function init() {
 
-		/**
-		 * When the Type Registry is initialized execute these files
-		 */
-		add_action(
-			'init_graphql_type_registry',
-			function( TypeRegistry $type_registry ) {
-
-				/**
-				 * Register Interfaces
-				 */
-				Node::register_type();
-				ContentNode::register_type( $type_registry );
-				TermNode::register_type( $type_registry );
-				Uri::register_type( $type_registry );
-
-				/**
-				 * Register Types
-				 */
-				RootQuery::register_type();
-				RootQuery::register_post_object_fields();
-				RootQuery::register_term_object_fields();
-				RootMutation::register_type();
-				Avatar::register_type();
-				Comment::register_type();
-				CommentAuthor::register_type();
-				EditLock::register_type();
-				MediaDetails::register_type();
-				MediaItemMeta::register_type();
-				MediaSize::register_type();
-				Menu::register_type();
-				MenuItem::register_type();
-				PageInfo::register_type();
-				Plugin::register_type();
-				PostType::register_type();
-				PostTypeLabelDetails::register_type();
-				Settings::register_type();
-				Taxonomy::register_type();
-				Theme::register_type();
-				User::register_type();
-				UserRole::register_type();
-
-				AvatarRatingEnum::register_type();
-				CommentsConnectionOrderbyEnum::register_type();
-				MediaItemSizeEnum::register_type();
-				MediaItemStatusEnum::register_type();
-				MenuLocationEnum::register_type();
-				MimeTypeEnum::register_type();
-				OrderEnum::register_type();
-				PostObjectFieldFormatEnum::register_type();
-				PostObjectsConnectionDateColumnEnum::register_type();
-				PostObjectsConnectionOrderbyEnum::register_type();
-				PostStatusEnum::register_type();
-				PostTypeEnum::register_type();
-				RelationEnum::register_type();
-				TaxonomyEnum::register_type();
-				TermObjectsConnectionOrderbyEnum::register_type();
-				TimezoneEnum::register_type();
-				UserRoleEnum::register_type();
-				UsersConnectionOrderbyEnum::register_type();
-				UsersConnectionSearchColumnEnum::register_type();
-
-				DateInput::register_type();
-				DateQueryInput::register_type();
-				MenuItemsConnectionWhereArgs::register_type();
-				PostObjectsConnectionOrderbyInput::register_type();
-				UsersConnectionOrderbyInput::register_type();
-
-				CommentAuthorUnion::register_type( $this );
-				ContentRevisionUnion::register_type( $this );
-				MenuItemObjectUnion::register_type( $this );
-				PostObjectUnion::register_type( $this );
-				TermObjectUnion::register_type( $this );
-
-				/**
-				 * Register core connections
-				 */
-				Comments::register_connections();
-				Menus::register_connections();
-				MenuItems::register_connections();
-				Plugins::register_connections();
-				PostObjects::register_connections();
-				Revisions::register_connections( $this );
-				TermObjects::register_connections();
-				Themes::register_connections();
-				Users::register_connections();
-				UserRoles::register_connections();
-
-				/**
-				 * Register core mutations
-				 */
-				CommentCreate::register_mutation();
-				CommentDelete::register_mutation();
-				CommentRestore::register_mutation();
-				CommentUpdate::register_mutation();
-				MediaItemCreate::register_mutation();
-				MediaItemDelete::register_mutation();
-				MediaItemUpdate::register_mutation();
-				ResetUserPassword::register_mutation();
-				SendPasswordResetEmail::register_mutation();
-				UserCreate::register_mutation();
-				UserDelete::register_mutation();
-				UserUpdate::register_mutation();
-				UserRegister::register_mutation();
-				UpdateSettings::register_mutation();
-
-				/**
-				 * Register PostObject types based on post_types configured to show_in_graphql
-				 */
-				$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-				if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-					foreach ( $allowed_post_types as $post_type ) {
-						$post_type_object = get_post_type_object( $post_type );
-						PostObject::register_post_object_types( $post_type_object );
-
-						/**
-						 * Mutations for attachments are handled differently
-						 * because they require different inputs
-						 */
-						if ( 'attachment' !== $post_type_object->name ) {
-
-							/**
-							 * Revisions are created behind the scenes as a side effect of post updates,
-							 * they aren't created manually.
-							 */
-							if ( 'revision' !== $post_type_object->name ) {
-								PostObjectCreate::register_mutation( $post_type_object );
-								PostObjectUpdate::register_mutation( $post_type_object );
-							}
-
-							PostObjectDelete::register_mutation( $post_type_object );
-
-						}
-					}
-				}
-
-				/**
-				 * Register TermObject types based on taxonomies configured to show_in_graphql
-				 */
-				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
-						$taxonomy_object = get_taxonomy( $taxonomy );
-						TermObject::register_taxonomy_object_type( $taxonomy_object );
-						TermObjectCreate::register_mutation( $taxonomy_object );
-						TermObjectUpdate::register_mutation( $taxonomy_object );
-						TermObjectDelete::register_mutation( $taxonomy_object );
-					}
-				}
-
-				/**
-				 * Create the root query fields for any setting type in
-				 * the $allowed_setting_types array.
-				 */
-				$allowed_setting_types = DataSource::get_allowed_settings_by_group();
-
-				if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-					foreach ( $allowed_setting_types as $group => $setting_type ) {
-
-						$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
-						SettingGroup::register_settings_group( $group_name );
-
-						register_graphql_field(
-							'RootQuery',
-							$group_name . 'Settings',
-							[
-								'type'    => ucfirst( $group_name ) . 'Settings',
-								'resolve' => function() use ( $setting_type ) {
-									return $setting_type;
-								},
-							]
-						);
-					}
-				}
-
-				/**
-				 * Fire an action as the type registry is initialized. This executes
-				 * before the `graphql_register_types` action to allow for earlier hooking
-				 *
-				 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
-				 */
-				do_action( 'graphql_register_initial_types', $type_registry );
-
-				/**
-				 * Fire an action as the type registry is initialized. This executes
-				 * before the `graphql_register_types` action to allow for earlier hooking
-				 *
-				 * @param TypeRegistry $this Instance of the TypeRegistry
-				 */
-				do_action( 'graphql_register_types', $this );
-
-				/**
-				 * Fire an action as the type registry is initialized. This executes
-				 * during the `graphql_register_types` action to allow for earlier hooking
-				 *
-				 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
-				 */
-				do_action( 'graphql_register_types_late', $type_registry );
-
-			},
-			1,
-			1
-		);
-
 		$this->register_type( 'Bool', Type::boolean() );
 		$this->register_type( 'Boolean', Type::boolean() );
 		$this->register_type( 'Float', Type::float() );
@@ -359,11 +155,215 @@ class TypeRegistry {
 		$this->register_type( 'String', Type::string() );
 
 		/**
+		 * When the Type Registry is initialized execute these files
+		 */
+		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 1, 1 );
+
+		/**
 		 * Fire an action as the Type registry is being initiated
 		 *
 		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
 		do_action( 'init_graphql_type_registry', $this );
+
+	}
+
+	/**
+	 * Initialize the Type Registry
+	 * @param TypeRegistry $type_registry
+	 */
+	public function init_type_registry( TypeRegistry $type_registry ) {
+
+		/**
+		 * Register Interfaces
+		 */
+		Node::register_type();
+		ContentNode::register_type( $type_registry );
+		TermNode::register_type( $type_registry );
+		Uri::register_type( $type_registry );
+
+		/**
+		 * Register Types
+		 */
+		RootQuery::register_type();
+		RootQuery::register_post_object_fields();
+		RootQuery::register_term_object_fields();
+		RootMutation::register_type();
+		Avatar::register_type();
+		Comment::register_type();
+		CommentAuthor::register_type();
+		EditLock::register_type();
+		MediaDetails::register_type();
+		MediaItemMeta::register_type();
+		MediaSize::register_type();
+		Menu::register_type();
+		MenuItem::register_type();
+		PageInfo::register_type();
+		Plugin::register_type();
+		PostType::register_type();
+		PostTypeLabelDetails::register_type();
+		Settings::register_type();
+		Taxonomy::register_type();
+		Theme::register_type();
+		User::register_type();
+		UserRole::register_type();
+
+		AvatarRatingEnum::register_type();
+		CommentsConnectionOrderbyEnum::register_type();
+		MediaItemSizeEnum::register_type();
+		MediaItemStatusEnum::register_type();
+		MenuLocationEnum::register_type();
+		MimeTypeEnum::register_type();
+		OrderEnum::register_type();
+		PostObjectFieldFormatEnum::register_type();
+		PostObjectsConnectionDateColumnEnum::register_type();
+		PostObjectsConnectionOrderbyEnum::register_type();
+		PostStatusEnum::register_type();
+		PostTypeEnum::register_type();
+		RelationEnum::register_type();
+		TaxonomyEnum::register_type();
+		TermObjectsConnectionOrderbyEnum::register_type();
+		TimezoneEnum::register_type();
+		UserRoleEnum::register_type();
+		UsersConnectionOrderbyEnum::register_type();
+		UsersConnectionSearchColumnEnum::register_type();
+
+		DateInput::register_type();
+		DateQueryInput::register_type();
+		MenuItemsConnectionWhereArgs::register_type();
+		PostObjectsConnectionOrderbyInput::register_type();
+		UsersConnectionOrderbyInput::register_type();
+
+		CommentAuthorUnion::register_type( $this );
+		ContentRevisionUnion::register_type( $this );
+		MenuItemObjectUnion::register_type( $this );
+		PostObjectUnion::register_type( $this );
+		TermObjectUnion::register_type( $this );
+
+		/**
+		 * Register core connections
+		 */
+		Comments::register_connections();
+		Menus::register_connections();
+		MenuItems::register_connections();
+		Plugins::register_connections();
+		PostObjects::register_connections();
+		Revisions::register_connections( $this );
+		TermObjects::register_connections();
+		Themes::register_connections();
+		Users::register_connections();
+		UserRoles::register_connections();
+
+		/**
+		 * Register core mutations
+		 */
+		CommentCreate::register_mutation();
+		CommentDelete::register_mutation();
+		CommentRestore::register_mutation();
+		CommentUpdate::register_mutation();
+		MediaItemCreate::register_mutation();
+		MediaItemDelete::register_mutation();
+		MediaItemUpdate::register_mutation();
+		ResetUserPassword::register_mutation();
+		SendPasswordResetEmail::register_mutation();
+		UserCreate::register_mutation();
+		UserDelete::register_mutation();
+		UserUpdate::register_mutation();
+		UserRegister::register_mutation();
+		UpdateSettings::register_mutation();
+
+		/**
+		 * Register PostObject types based on post_types configured to show_in_graphql
+		 */
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+				PostObject::register_post_object_types( $post_type_object );
+
+				/**
+				 * Mutations for attachments are handled differently
+				 * because they require different inputs
+				 */
+				if ( 'attachment' !== $post_type_object->name ) {
+
+					/**
+					 * Revisions are created behind the scenes as a side effect of post updates,
+					 * they aren't created manually.
+					 */
+					if ( 'revision' !== $post_type_object->name ) {
+						PostObjectCreate::register_mutation( $post_type_object );
+						PostObjectUpdate::register_mutation( $post_type_object );
+					}
+
+					PostObjectDelete::register_mutation( $post_type_object );
+
+				}
+			}
+		}
+
+		/**
+		 * Register TermObject types based on taxonomies configured to show_in_graphql
+		 */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			foreach ( $allowed_taxonomies as $taxonomy ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				TermObject::register_taxonomy_object_type( $taxonomy_object );
+				TermObjectCreate::register_mutation( $taxonomy_object );
+				TermObjectUpdate::register_mutation( $taxonomy_object );
+				TermObjectDelete::register_mutation( $taxonomy_object );
+			}
+		}
+
+		/**
+		 * Create the root query fields for any setting type in
+		 * the $allowed_setting_types array.
+		 */
+		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
+
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+			foreach ( $allowed_setting_types as $group => $setting_type ) {
+
+				$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
+				SettingGroup::register_settings_group( $group_name );
+
+				register_graphql_field(
+					'RootQuery',
+					$group_name . 'Settings',
+					[
+						'type'    => ucfirst( $group_name ) . 'Settings',
+						'resolve' => function() use ( $setting_type ) {
+							return $setting_type;
+						},
+					]
+				);
+			}
+		}
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_initial_types', $type_registry );
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $this );
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * during the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types_late', $type_registry );
 
 	}
 
