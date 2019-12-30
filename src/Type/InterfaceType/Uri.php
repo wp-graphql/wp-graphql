@@ -1,12 +1,9 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-<<<<<<< HEAD
-=======
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
->>>>>>> feature/#263-get-single-nodes-by-uri
 use WPGraphQL\Registry\TypeRegistry;
 
 class Uri {
@@ -21,11 +18,6 @@ class Uri {
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
-<<<<<<< HEAD
-				'resolveType' => function() {
-				
-				}
-=======
 				'resolveType' => function( $node ) use ( $type_registry ) {
 
 					switch ( true ) {
@@ -46,7 +38,6 @@ class Uri {
 					return $type;
 
 				},
->>>>>>> feature/#263-get-single-nodes-by-uri
 			]
 		);
 	}
