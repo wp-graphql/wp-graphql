@@ -239,9 +239,9 @@ class DataSource {
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param             $source
-	 * @param array              $args      Arguments to pass to the resolve method
-	 * @param AppContext         $context   AppContext object to pass down
-	 * @param ResolveInfo        $info      The ResolveInfo object
+	 * @param array              $args    Arguments to pass to the resolve method
+	 * @param AppContext         $context AppContext object to pass down
+	 * @param ResolveInfo        $info    The ResolveInfo object
 	 * @param mixed string|array $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
@@ -898,4 +898,24 @@ class DataSource {
 
 		return ! empty( $_wp_registered_nav_menus ) && is_array( $_wp_registered_nav_menus ) ? array_keys( $_wp_registered_nav_menus ) : [];
 	}
+
+	/**
+	 * This resolves a resource, given a URI (the path / permalink to a resource)
+	 *
+	 * Based largely on the core parse_request function in wp-includes/class-wp.php
+	 *
+	 * @param string      $uri     The URI to fetch a resource from
+	 * @param AppContext  $context The AppContext passed through the GraphQL Resolve Tree
+	 * @param ResolveInfo $info    The ResolveInfo passed through the GraphQL Resolve tree
+	 *
+	 * @return mixed
+	 * @throws \Exception
+	 */
+	public static function resolve_resource_by_uri( $uri, $context, $info ) {
+
+		$node_resolver = new NodeResolver();
+		return $node_resolver->resolve_uri( $uri );
+
+	}
+
 }

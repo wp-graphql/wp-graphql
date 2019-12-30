@@ -218,6 +218,7 @@ return array(
     'WPGraphQL\\Data\\Loader\\TermObjectLoader' => $baseDir . '/src/Data/Loader/TermObjectLoader.php',
     'WPGraphQL\\Data\\Loader\\UserLoader' => $baseDir . '/src/Data/Loader/UserLoader.php',
     'WPGraphQL\\Data\\MediaItemMutation' => $baseDir . '/src/Data/MediaItemMutation.php',
+    'WPGraphQL\\Data\\NodeResolver' => $baseDir . '/src/Data/NodeResolver.php',
     'WPGraphQL\\Data\\PostObjectMutation' => $baseDir . '/src/Data/PostObjectMutation.php',
     'WPGraphQL\\Data\\TermObjectMutation' => $baseDir . '/src/Data/TermObjectMutation.php',
     'WPGraphQL\\Data\\UserMutation' => $baseDir . '/src/Data/UserMutation.php',

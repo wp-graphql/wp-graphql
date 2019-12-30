@@ -8,7 +8,8 @@ class MimeTypeEnum {
 	public static function register_type() {
 		$values = [
 			'IMAGE_JPEG' => [
-				'value' => 'image/jpeg',
+				'value'       => 'image/jpeg',
+				'description' => __( 'An image in the JPEG format', 'wp-graphql' ),
 			],
 		];
 

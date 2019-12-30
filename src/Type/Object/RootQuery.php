@@ -43,12 +43,24 @@ class RootQuery {
 						'args'        => [
 							'id' => [
 								'type'        => 'ID',
-								'description' => __( 'The id of the object', 'wp-graphql' ),
+								'description' => __( 'The unique identifier of the node', 'wp-graphql' ),
 							],
 						],
 						'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
-						'resolve'     => function( $root, $args, AppContext $context, $info ) {
+						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $args['id'] ) ? DataSource::resolve_node( $args['id'], $context, $info ) : null;
+						},
+					],
+					'nodeByUri'   => [
+						'type'    => 'Uri',
+						'args'    => [
+							'uri' => [
+								'type'        => [ 'non_null' => 'String' ],
+								'description' => __( 'Unique Resource Identifier in the form of a path or permalink for a node. Ex: "/hello-world"', 'wp-graphql' ),
+							],
+						],
+						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+							return ! empty( $args['uri'] ) ? DataSource::resolve_resource_by_uri( $args['uri'], $context, $info ) : null;
 						},
 					],
 					'menu'        => [
