@@ -12,10 +12,13 @@ class ContentNodeIdTypeEnum {
 	 */
 	public static function register_type() {
 
-		register_graphql_enum_type( 'ContentNodeIdTypeEnum', [
-			'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-			'values'      => self::get_values(),
-		] );
+		register_graphql_enum_type(
+			'ContentNodeIdTypeEnum',
+			[
+				'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+				'values'      => self::get_values(),
+			]
+		);
 
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {

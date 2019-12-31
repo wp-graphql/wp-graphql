@@ -381,8 +381,6 @@ class PostObjects {
 		 * We want to output filters on connections based on what's actually possible, and filtering
 		 * houses by author isn't possible, so exposing it in the Schema is quite misleading to
 		 * consumers.
-		 *
-		 *
 		 */
 		if ( isset( $post_type_object ) && $post_type_object instanceof \WP_Post_Type ) {
 

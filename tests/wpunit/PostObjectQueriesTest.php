@@ -965,7 +965,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get the uri to the Child Page
 		 */
-		$uri = get_page_uri( $child_id );
+		$uri = rtrim( str_ireplace( home_url(), '', get_permalink( $child_id ) ), '');
 
 		/**
 		 * Create the query string to pass to the $query
@@ -1863,12 +1863,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$slug = get_post( $post_id )->post_name;
 		$uri = get_page_uri( $post_id );
 		$title = get_post( $post_id )->post_title;
+		$permalink = get_permalink( $post_id );
 
 		$expected = [
 			'id' => $global_id,
 			'postId' => $post_id,
 			'title' => $title,
-			'uri' => $uri,
+			'uri' => str_ireplace( home_url(), '', $permalink ),
 			'slug' => $slug,
 		];
 
@@ -1956,7 +1957,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'id' => $global_id,
 			'pageId' => $page_id,
 			'title' => $title,
-			'uri' => $uri,
+			'uri' => str_ireplace( home_url(), '', get_permalink( $page_id ) ),
 			'slug' => $slug,
 		];
 

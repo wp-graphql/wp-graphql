@@ -40,6 +40,7 @@ class ContentNode {
 
 					if ( isset( $post->post_type ) ) {
 						$post_type_object = get_post_type_object( $post->post_type );
+
 						if ( isset( $post_type_object->graphql_single_name ) ) {
 							$type = $type_registry->get_type( $post_type_object->graphql_single_name );
 						}

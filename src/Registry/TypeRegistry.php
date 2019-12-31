@@ -172,6 +172,7 @@ class TypeRegistry {
 
 	/**
 	 * Initialize the Type Registry
+	 *
 	 * @param TypeRegistry $type_registry
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {

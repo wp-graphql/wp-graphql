@@ -12,10 +12,13 @@ class TermNodeIdTypeEnum {
 	 */
 	public static function register_type() {
 
-		register_graphql_enum_type( 'TermNodeIdTypeEnum', [
-			'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-			'values'      => self::get_values(),
-		] );
+		register_graphql_enum_type(
+			'TermNodeIdTypeEnum',
+			[
+				'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+				'values'      => self::get_values(),
+			]
+		);
 
 		/**
 		 * Register a unique Enum per Taxonomy. This allows for granular control
@@ -26,10 +29,13 @@ class TermNodeIdTypeEnum {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
 
-				register_graphql_enum_type( $taxonomy_object->graphql_single_name . 'IdType', [
-					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-					'values'      => self::get_values(),
-				] );
+				register_graphql_enum_type(
+					$taxonomy_object->graphql_single_name . 'IdType',
+					[
+						'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+						'values'      => self::get_values(),
+					]
+				);
 
 			}
 		}

@@ -44,16 +44,16 @@ class RootQuery {
 						},
 					],
 					'contentNode' => [
-						'type' => 'ContentNode',
+						'type'        => 'ContentNode',
 						'description' => __( 'A node used to manage content', 'wp-graphql' ),
-						'args' => [
-							'id'       => [
+						'args'        => [
+							'id'          => [
 								'type' => [
 									'non_null'    => 'ID',
 									'description' => __( 'Unique identifier for the content node', 'wp-graphql' ),
 								],
 							],
-							'idType'   => [
+							'idType'      => [
 								'type'        => 'ContentNodeIdTypeEnum',
 								'description' => __( 'Type of unique identifier to fetch a content node by. Default is Global ID', 'wp-graphql' ),
 							],
@@ -62,7 +62,7 @@ class RootQuery {
 								'description' => __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
 
 							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$post_id = null;
@@ -86,7 +86,7 @@ class RootQuery {
 
 							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
 
-						}
+						},
 					],
 					'node'        => [
 						'type'        => 'Node',
@@ -216,7 +216,7 @@ class RootQuery {
 
 							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
 
-						}
+						},
 					],
 					'theme'       => [
 						'type'        => 'Theme',
@@ -341,7 +341,7 @@ class RootQuery {
 					]
 				);
 				$post_by_args = [
-					'id'                                          => [
+					'id'  => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -349,7 +349,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri'                                         => [
+					'uri' => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -433,7 +433,7 @@ class RootQuery {
 							],
 							'idType' => [
 								'type' => $taxonomy_object->graphql_single_name . 'IdType',
-							]
+							],
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
 

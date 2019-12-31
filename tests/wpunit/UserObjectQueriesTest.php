@@ -13,7 +13,20 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown() {
+		$this->delete_users();
 		parent::tearDown();
+	}
+
+	/**
+	 * Deletes all users that were created using create_users()
+	 */
+	public function delete_users() {
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare(
+			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
+			array( 1 )
+		) );
+		$this->created_user_ids = [ 1 ];
 	}
 
 	public function createUserObject( $args = [] ) {
@@ -522,7 +535,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testUserQueryWithPublishedPosts() {
+
+		$this->delete_users();
 
 		/**
 		 * Create a user
@@ -535,7 +553,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id, 'post_type' => 'attachment' ] );
+		$post_id = $this->factory()->post->create( [ 'post_author' => $user_id, 'post_type' => 'attachment' ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -860,17 +878,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	/**
-	 * Deletes all users that were created using create_users()
-	 */
-	public function delete_users() {
-		global $wpdb;
-		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			array( 1 )
-		) );
-		$this->created_user_ids = [ 1 ];
-	}
 
 	public function testPageInfoQueryFilterBySubscriberAsAdmin() {
 
