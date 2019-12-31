@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Term;
 
 class RootQuery {
 	public static function register_type() {
@@ -219,7 +220,7 @@ class RootQuery {
 				register_graphql_enum_type(
 					$post_type_object->graphql_single_name . 'IdType',
 					[
-						'description' => __( 'The Type of Identifier used to query a single resource. Default is GLOBAL_ID.', 'wp-graphql' ),
+						'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
 						'values'      => $values,
 					]
 				);
@@ -350,6 +351,38 @@ class RootQuery {
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
+
+				register_graphql_enum_type( $taxonomy_object->graphql_single_name . 'IdType', [
+					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is GLOBAL_ID.', 'wp-graphql' ),
+					'values' => [
+						'SLUG' => [
+							'name' => 'SLUG',
+							'value' => 'slug',
+							'description' => __( 'Url friendly name of the node', 'wp-graphql' ),
+						],
+						'NAME' => [
+							'name' => 'NAME',
+							'value' => 'name',
+							'description' => __( 'The name of the node', 'wp-graphql' ),
+						],
+						'ID' => [
+							'name' => 'ID',
+							'value' => 'global_id',
+							'description' => __( 'The hashed Global ID', 'wp-graphql' ),
+						],
+						'DATABASE_ID' => [
+							'name' => 'DATABASE_ID',
+							'value' => 'database_id',
+							'description' => __( 'The Database ID for the node', 'wp-graphql' ),
+						],
+						'URI' => [
+							'name' => 'URI',
+							'value' => 'uri',
+							'description' => __( 'The URI for the node', 'wp-graphql' ),
+						],
+					],
+				] );
+
 				register_graphql_field(
 					'RootQuery',
 					$taxonomy_object->graphql_single_name,
@@ -362,14 +395,40 @@ class RootQuery {
 									'non_null' => 'ID',
 								],
 							],
+							'idType' => [
+								'type' => $taxonomy_object->graphql_single_name . 'IdType',
+							]
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
-							if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-								throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+
+							$idType = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+							$term_id = null;
+
+							switch( $idType ) {
+								case 'slug':
+								case 'name':
+								case 'id':
+									$term = get_term_by( $args['idType'], $args['id'], $taxonomy_object->name );
+									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
+									break;
+								case 'uri':
+									$term = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
+									if ( $term instanceof Term ) {
+										$term_id = $term->term_id;
+									}
+									break;
+								case 'global_id':
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$term_id = absint( $id_components['id'] );
+									break;
+
 							}
 
-							return DataSource::resolve_term_object( $id_components['id'], $context );
+							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
 						},
 					]
 				);

@@ -176,7 +176,7 @@ class Router {
 		/**
 		 * Ensure we're on the registered route for graphql route
 		 */
-		if ( ! self::is_graphql_http_request() ) {
+		if ( ! self::is_graphql_http_request() || is_graphql_request() ) {
 			return;
 		}
 
