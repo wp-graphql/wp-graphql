@@ -38,6 +38,8 @@ use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
+use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
@@ -210,6 +212,7 @@ class TypeRegistry {
 
 		AvatarRatingEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
+		ContentNodeIdTypeEnum::register_type();
 		MediaItemSizeEnum::register_type();
 		MediaItemStatusEnum::register_type();
 		MenuLocationEnum::register_type();
@@ -222,6 +225,7 @@ class TypeRegistry {
 		PostTypeEnum::register_type();
 		RelationEnum::register_type();
 		TaxonomyEnum::register_type();
+		TermNodeIdTypeEnum::register_type();
 		TermObjectsConnectionOrderbyEnum::register_type();
 		TimezoneEnum::register_type();
 		UserRoleEnum::register_type();
@@ -777,7 +781,6 @@ class TypeRegistry {
 
 			$where_args = [
 				'where' => [
-					// @TODO: Same as above ^ description seems a little vague
 					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
 					'type'        => $connection_name . 'WhereArgs',
 				],
@@ -990,7 +993,6 @@ class TypeRegistry {
 				],
 				'type'        => $mutation_name . 'Payload',
 				'resolve'     => function( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
-					// @todo: Might want to check that this is callable before invoking, otherwise errors could happen
 					if ( ! is_callable( $mutateAndGetPayload ) ) {
 						// Translators: The placeholder is the name of the mutation
 						throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );

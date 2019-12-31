@@ -10,6 +10,10 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
 class RootQuery {
+
+	/**
+	 * Register the RootQuery type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'RootQuery',
@@ -38,6 +42,51 @@ class RootQuery {
 
 							return DataSource::resolve_comment( $id_components['id'], $context );
 						},
+					],
+					'contentNode' => [
+						'type' => 'ContentNode',
+						'description' => __( 'A node used to manage content', 'wp-graphql' ),
+						'args' => [
+							'id'       => [
+								'type' => [
+									'non_null'    => 'ID',
+									'description' => __( 'Unique identifier for the content node', 'wp-graphql' ),
+								],
+							],
+							'idType'   => [
+								'type'        => 'ContentNodeIdTypeEnum',
+								'description' => __( 'Type of unique identifier to fetch a content node by. Default is Global ID', 'wp-graphql' ),
+							],
+							'contentType' => [
+								'type'        => 'PostTypeEnum',
+								'description' => __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
+							],
+						],
+						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+
+							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+							$post_id = null;
+							switch ( $idType ) {
+								case 'uri':
+									$post_object = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
+									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+									break;
+								case 'database_id':
+									$post_id = absint( $args['id'] );
+									break;
+								case 'global_id':
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
+									}
+									$post_id = absint( $id_components['id'] );
+									break;
+							}
+
+							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
+
+						}
 					],
 					'node'        => [
 						'type'        => 'Node',
@@ -112,6 +161,62 @@ class RootQuery {
 
 							return DataSource::resolve_plugin( $id_components['id'] );
 						},
+					],
+					'termNode'    => [
+						'type'        => 'TermNode',
+						'description' => __( 'A node in a taxonomy used to group and relate content nodes', 'wp-graphql' ),
+						'args'        => [
+							'id'       => [
+								'type' => [
+									'non_null'    => 'ID',
+									'description' => __( 'Unique identifier for the term node', 'wp-graphql' ),
+								],
+							],
+							'idType'   => [
+								'type'        => 'TermNodeIdTypeEnum',
+								'description' => __( 'Type of unique identifier to fetch a term node by. Default is Global ID', 'wp-graphql' ),
+							],
+							'taxonomy' => [
+								'type'        => 'TaxonomyEnum',
+								'description' => __( 'The taxonomy of the tern node. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
+							],
+						],
+						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+
+							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+							$term_id = null;
+
+							switch ( $idType ) {
+								case 'slug':
+								case 'name':
+								case 'database_id':
+									$taxonomy = isset( $args['taxonomy'] ) ? $args['taxonomy'] : null;
+									if ( empty( $taxonomy ) && in_array( $args['idType'], [ 'name', 'slug' ], true ) ) {
+										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
+									}
+									$term    = get_term_by( $args['idType'], $args['id'], $taxonomy );
+									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
+									break;
+								case 'uri':
+									$term = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
+									if ( $term instanceof Term ) {
+										$term_id = $term->term_id;
+									}
+									break;
+								case 'global_id':
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$term_id = absint( $id_components['id'] );
+									break;
+
+							}
+
+							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
+
+						}
 					],
 					'theme'       => [
 						'type'        => 'Theme',
@@ -191,40 +296,6 @@ class RootQuery {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 
-				$values = [
-					'ID'          => [
-						'name'        => 'ID',
-						'value'       => 'global_id',
-						'description' => __( 'Identify a resource by the (hashed) Global ID.', 'wp-graphql' ),
-					],
-					'DATABASE_ID' => [
-						'name'        => 'DATABASE_ID',
-						'value'       => 'database_id',
-						'description' => __( 'Identify a resource by the Database ID.', 'wp-graphql' ),
-					],
-					'URI'         => [
-						'name'        => 'URI',
-						'value'       => 'uri',
-						'description' => __( 'Identify a resource by the URI.', 'wp-graphql' ),
-					],
-				];
-
-				if ( ! $post_type_object->hierarchical ) {
-					$values['slug'] = [
-						'name'        => 'SLUG',
-						'value'       => 'slug',
-						'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
-					];
-				}
-
-				register_graphql_enum_type(
-					$post_type_object->graphql_single_name . 'IdType',
-					[
-						'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-						'values'      => $values,
-					]
-				);
-
 				register_graphql_field(
 					'RootQuery',
 					$post_type_object->graphql_single_name,
@@ -243,7 +314,7 @@ class RootQuery {
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 
-							$idType = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$post_id = null;
 							switch ( $idType ) {
 								case 'uri':
@@ -264,10 +335,6 @@ class RootQuery {
 									$post_id = absint( $id_components['id'] );
 									break;
 							}
-
-							/**
-							 * @todo: Need to filter this so the switch statement can apply before resolution
-							 */
 
 							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
 						},
@@ -352,37 +419,6 @@ class RootQuery {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
 
-				register_graphql_enum_type( $taxonomy_object->graphql_single_name . 'IdType', [
-					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is GLOBAL_ID.', 'wp-graphql' ),
-					'values' => [
-						'SLUG' => [
-							'name' => 'SLUG',
-							'value' => 'slug',
-							'description' => __( 'Url friendly name of the node', 'wp-graphql' ),
-						],
-						'NAME' => [
-							'name' => 'NAME',
-							'value' => 'name',
-							'description' => __( 'The name of the node', 'wp-graphql' ),
-						],
-						'ID' => [
-							'name' => 'ID',
-							'value' => 'global_id',
-							'description' => __( 'The hashed Global ID', 'wp-graphql' ),
-						],
-						'DATABASE_ID' => [
-							'name' => 'DATABASE_ID',
-							'value' => 'database_id',
-							'description' => __( 'The Database ID for the node', 'wp-graphql' ),
-						],
-						'URI' => [
-							'name' => 'URI',
-							'value' => 'uri',
-							'description' => __( 'The URI for the node', 'wp-graphql' ),
-						],
-					],
-				] );
-
 				register_graphql_field(
 					'RootQuery',
 					$taxonomy_object->graphql_single_name,
@@ -390,7 +426,7 @@ class RootQuery {
 						'type'        => $taxonomy_object->graphql_single_name,
 						'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type' => [
 									'non_null' => 'ID',
 								],
@@ -401,14 +437,14 @@ class RootQuery {
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
 
-							$idType = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$term_id = null;
 
-							switch( $idType ) {
+							switch ( $idType ) {
 								case 'slug':
 								case 'name':
 								case 'id':
-									$term = get_term_by( $args['idType'], $args['id'], $taxonomy_object->name );
+									$term    = get_term_by( $args['idType'], $args['id'], $taxonomy_object->name );
 									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 									break;
 								case 'uri':

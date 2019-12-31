@@ -74,4 +74,85 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $page_id, $actual['data']['contentNodes']['nodes'][1]['pageId'] );
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testContentNodeField() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Test Page',
+		]);
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test Post',
+		]);
+
+		$query = '
+		query TestContentNode( $postId: ID! $pageId: ID! $postIdType: ContentNodeIdTypeEnum $pageIdType: ContentNodeIdTypeEnum ){
+		  post: contentNode(id: $postId, idType: $postIdType) {
+		    ...ContentFields
+		  }
+		  page: contentNode(id: $pageId, idType: $pageIdType, contentType: PAGE) {
+		    ...ContentFields
+		  }
+		}
+		
+		fragment ContentFields on ContentNode {
+		  __typename
+		  id
+		  title
+		  slug
+		  uri
+		  ... on Post {
+		    postId
+		  }
+		  ... on Page {
+		    pageId
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'postIdType' => 'DATABASE_ID',
+				'postId' => $post_id,
+				'pageIdType' => 'DATABASE_ID',
+				'pageId' => $page_id,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'Post', $actual['data']['post']['__typename'] );
+		$this->assertEquals( 'Page', $actual['data']['page']['__typename'] );
+		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
+		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
+
+		codecept_debug( get_permalink( $post_id ) );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'postIdType' => 'URI',
+				'postId' => get_permalink( $post_id ),
+				'pageIdType' => 'URI',
+				'pageId' => get_permalink( $page_id ),
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'Post', $actual['data']['post']['__typename'] );
+		$this->assertEquals( 'Page', $actual['data']['page']['__typename'] );
+		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
+		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
+	}
+
 }

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data;
 
+use GraphQL\Error\UserError;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
@@ -28,7 +29,27 @@ class NodeResolver {
 
 		global $wp_rewrite;
 
-		$this->wp->query_vars     = array();
+		$parsed_url = parse_url( $uri );
+
+
+		if ( isset( $parsed_url['host'] ) ) {
+			if ( ! in_array( $parsed_url['host'], [
+				parse_url( site_url() )['host'],
+				parse_url( home_url() )['host']
+			] ) ) {
+				throw new UserError( __( 'Cannot return a resource for an external URI', 'wp-graphql' ) );
+			}
+		}
+
+
+		if ( isset( $parsed_url['query'] ) && '/' === $parsed_url['path'] ) {
+			$uri = $parsed_url['query'];
+		} else if ( isset( $parsed_url['path'] ) ) {
+			$uri = $parsed_url['path'];
+		}
+
+
+		$this->wp->query_vars = array();
 		$post_type_query_vars = array();
 
 		if ( is_array( $extra_query_vars ) ) {
@@ -41,13 +62,18 @@ class NodeResolver {
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
 
+
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
-			$error               = '404';
+			$error                   = '404';
 			$this->wp->did_permalink = true;
 
 			$pathinfo = isset( $uri ) ? $uri : '';
+
+//			wp_send_json( $pathinfo );
+
 			list( $pathinfo ) = explode( '?', $pathinfo );
+
 			$pathinfo = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
@@ -65,7 +91,6 @@ class NodeResolver {
 			$pathinfo = trim( $pathinfo, '/' );
 			$pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
 			$pathinfo = trim( $pathinfo, '/' );
-
 
 			// The requested permalink is in $pathinfo for path info requests and
 			//  $req_uri for other requests.
@@ -88,8 +113,8 @@ class NodeResolver {
 				// An empty request could only match against ^$ regex
 				if ( isset( $rewrite['$'] ) ) {
 					$this->wp->matched_rule = '$';
-					$query              = $rewrite['$'];
-					$matches            = array( '' );
+					$query                  = $rewrite['$'];
+					$matches                = array( '' );
 				}
 			} else {
 				foreach ( (array) $rewrite as $match => $query ) {
@@ -123,16 +148,20 @@ class NodeResolver {
 			}
 
 			if ( isset( $this->wp->matched_rule ) ) {
+
+
 				// Trim the query of everything up to the '?'.
-				$query = preg_replace( '!^.+\?!', '', $query );
+				$query = preg_replace( '!^.+\?!', '', $uri );
 
 				// Substitute the substring matches into the query.
 				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) );
 
 				$this->wp->matched_query = $query;
 
+
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
+
 
 				// If we're processing a 404 request, clear the error var since we found something.
 				if ( '404' == $error ) {
@@ -164,17 +193,15 @@ class NodeResolver {
 
 			if ( isset( $this->wp->extra_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $this->wp->extra_query_vars[ $wpvar ];
+			} elseif ( isset( $perma_query_vars[ $wpvar ] ) ) {
+				$this->wp->query_vars[ $wpvar ] = $perma_query_vars[ $wpvar ];
 			} elseif ( isset( $_GET[ $wpvar ] ) && isset( $_POST[ $wpvar ] ) && $_GET[ $wpvar ] !== $_POST[ $wpvar ] ) {
 				wp_die( __( 'A variable mismatch has been detected.' ), __( 'Sorry, you are not allowed to view this item.' ), 400 );
 			} elseif ( isset( $_POST[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $_POST[ $wpvar ];
 			} elseif ( isset( $_GET[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $_GET[ $wpvar ];
-			} elseif ( isset( $perma_query_vars[ $wpvar ] ) ) {
-				$this->wp->query_vars[ $wpvar ] = $perma_query_vars[ $wpvar ];
 			}
-
-
 
 			if ( ! empty( $this->wp->query_vars[ $wpvar ] ) ) {
 
@@ -256,7 +283,8 @@ class NodeResolver {
 
 		$node = null;
 
-		if ( isset( $this->wp->query_vars['name'] ) ) {
+
+		if ( isset( $this->wp->query_vars['p'] ) ) {
 
 			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
@@ -265,23 +293,51 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$args = array(
-				'name'        => $this->wp->query_vars['name'],
-				'post_type'   => $post_type,
-				'post_status' => 'publish',
-				'posts_per_page' => 1
+			$args  = array(
+				'ID'             => absint( $this->wp->query_vars['p'] ),
+				'post_type'      => $post_type,
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'ignore_sticky_posts' => true,
+				'no_found_rows' => true,
 			);
-			$posts = new \WP_Query($args);
+			$posts = new \WP_Query( $args );
+
+			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
+
+
+		} else if ( isset( $this->wp->query_vars['name'] ) ) {
+
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+
+			$post_type = 'post';
+			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
+				$post_type = $this->wp->query_vars['post_type'];
+			}
+
+			$args  = array(
+				'name'           => $this->wp->query_vars['name'],
+				'post_type'      => $post_type,
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'ignore_sticky_posts' => true,
+				'no_found_rows' => true,
+			);
+			$posts = new \WP_Query( $args );
+
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
 
 		} else if ( isset( $this->wp->query_vars['pagename'] ) ) {
-			$args = array(
-				'name'        => $this->wp->query_vars['pagename'],
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'posts_per_page' => 1
+			$args  = array(
+				'name'           => $this->wp->query_vars['pagename'],
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'ignore_sticky_posts' => true,
+				'no_found_rows' => true,
 			);
-			$posts = new \WP_Query($args);
+			$posts = new \WP_Query( $args );
+
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
 		} else if ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
@@ -289,15 +345,18 @@ class NodeResolver {
 			return new User( $user );
 		} else if ( isset( $this->wp->query_vars['category_name'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
+
 			return new Term( $node );
 		} else {
-			$taxonomies = get_taxonomies([ 'show_in_graphql' => true ], 'objects');
+			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
 			foreach ( $taxonomies as $taxonomy ) {
 				if ( isset( $this->wp->query_vars[ $taxonomy->query_var ] ) ) {
 					$node = get_term_by( 'slug', $this->wp->query_vars[ $taxonomy->query_var ], $taxonomy->name );
+
 					return new Term( $node );
 				}
 			}
+
 		}
 
 		return $node;

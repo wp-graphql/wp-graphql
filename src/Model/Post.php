@@ -435,9 +435,9 @@ class Post extends Model {
 					return ! empty( $link ) ? $link : null;
 				},
 				'uri'             => function() {
-					$uri = get_page_uri( $this->data->ID );
+					$uri = get_permalink( $this->data->ID );
 
-					return ! empty( $uri ) ? $uri : null;
+					return ! empty( $uri ) ? ltrim( str_ireplace( home_url(), '', $uri ), '/' ) : null;
 				},
 				'commentCount'    => function() {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;

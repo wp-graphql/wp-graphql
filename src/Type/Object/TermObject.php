@@ -37,7 +37,7 @@ class TermObject {
 					],
 					'uri'               => [
 						'resolve' => function( $term, $args, $context, $info ) {
-							return ! empty( $term->link ) ? ltrim( str_ireplace( site_url(), '', $term->link ), '/' ) : '';
+							return ! empty( $term->link ) ? ltrim( str_ireplace( home_url(), '', $term->link ), '/' ) : '';
 						},
 					],
 				],
