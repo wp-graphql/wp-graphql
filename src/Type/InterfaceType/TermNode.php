@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
 use WPGraphQL\Data\DataSource;
@@ -90,6 +91,10 @@ class TermNode {
 					'link'           => [
 						'type'        => 'String',
 						'description' => __( 'The link to the term', 'wp-graphql' ),
+					],
+					'uri'            => [
+						'type'        => 'String',
+						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
 			]

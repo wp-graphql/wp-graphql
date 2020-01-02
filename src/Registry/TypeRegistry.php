@@ -40,12 +40,13 @@ use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\TermNode;
-use WPGraphQL\Type\InterfaceType\Uri;
+use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
@@ -183,7 +184,7 @@ class TypeRegistry {
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
-		Uri::register_type( $type_registry );
+		UniformResourceIdentifiable::register_type( $type_registry );
 
 		/**
 		 * Register Types
@@ -229,6 +230,7 @@ class TypeRegistry {
 		TermNodeIdTypeEnum::register_type();
 		TermObjectsConnectionOrderbyEnum::register_type();
 		TimezoneEnum::register_type();
+		UserNodeIdTypeEnum::register_type();
 		UserRoleEnum::register_type();
 		UsersConnectionOrderbyEnum::register_type();
 		UsersConnectionSearchColumnEnum::register_type();

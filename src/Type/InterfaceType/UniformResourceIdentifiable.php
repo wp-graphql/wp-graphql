@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
 use WPGraphQL\Model\Post;
@@ -6,7 +7,7 @@ use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Registry\TypeRegistry;
 
-class Uri {
+class UniformResourceIdentifiable {
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'UniformResourceIdentifiable',

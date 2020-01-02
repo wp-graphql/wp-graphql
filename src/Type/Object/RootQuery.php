@@ -191,11 +191,19 @@ class RootQuery {
 								case 'name':
 								case 'database_id':
 									$taxonomy = isset( $args['taxonomy'] ) ? $args['taxonomy'] : null;
-									if ( empty( $taxonomy ) && in_array( $args['idType'], [ 'name', 'slug' ], true ) ) {
+									if ( empty( $taxonomy ) && in_array( $idType, [
+											'name',
+											'slug'
+										], true ) ) {
 										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
-									$term    = get_term_by( $args['idType'], $args['id'], $taxonomy );
+									if ( 'database_id' === $idType ) {
+										$term = get_term( absint( $args['id'] ) );
+									} else {
+										$term = get_term_by( $idType, $args['id'], $taxonomy );
+									}
 									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
+
 									break;
 								case 'uri':
 									$term = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
@@ -238,16 +246,67 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns a user', 'wp-graphql' ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type' => [
 									'non_null' => 'ID',
 								],
 							],
+							'idType' => [
+								'type' => 'UserNodeIdTypeEnum',
+							],
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
 
-							return DataSource::resolve_user( $id_components['id'], $context );
+							$idType = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							switch ( $idType ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								case 'uri':
+									$user = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
+									$id   = null;
+									if ( $user instanceof \WPGraphQL\Model\User ) {
+										$id = $user->userId;
+									}
+									break;
+								case 'login':
+
+									$current_user = wp_get_current_user();
+									if ( $current_user->user_login !== $args['id'] ) {
+										if ( ! current_user_can( 'list_users' ) ) {
+											throw new UserError( __( 'You do not have permission to request a User by Username', 'wp-graphql' ) );
+										}
+									}
+
+									$user = get_user_by( 'login', $args['id'] );
+									$id   = isset( $user->ID ) ? $user->ID : null;
+									break;
+								case 'email':
+
+									$current_user = wp_get_current_user();
+									if ( $current_user->user_email !== $args['id'] ) {
+										if ( ! current_user_can( 'list_users' ) ) {
+											throw new UserError( __( 'You do not have permission to request a User by Email', 'wp-graphql' ) );
+										}
+									}
+
+									$user = get_user_by( 'email', $args['id'] );
+									$id   = isset( $user->ID ) ? $user->ID : null;
+									break;
+								case 'slug':
+									$user = get_user_by( 'slug', $args['id'] );
+									$id   = isset( $user->ID ) ? $user->ID : null;
+									break;
+								case 'id':
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									$id            = absint( $id_components['id'] );
+									break;
+							}
+
+
+							return ! empty( $id ) ? DataSource::resolve_user( $id, $context ) : null;
 						},
 					],
 					'userRole'    => [
@@ -341,7 +400,7 @@ class RootQuery {
 					]
 				);
 				$post_by_args = [
-					'id'  => [
+					'id'                                          => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -349,7 +408,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri' => [
+					'uri'                                         => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -443,8 +502,11 @@ class RootQuery {
 							switch ( $idType ) {
 								case 'slug':
 								case 'name':
-								case 'id':
-									$term    = get_term_by( $args['idType'], $args['id'], $taxonomy_object->name );
+								case 'database_id':
+									if ( 'database_id' === $idType ) {
+										$idType = 'id';
+									}
+									$term    = get_term_by( $idType, $args['id'], $taxonomy_object->name );
 									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 									break;
 								case 'uri':

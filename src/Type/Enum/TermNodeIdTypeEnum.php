@@ -15,7 +15,7 @@ class TermNodeIdTypeEnum {
 		register_graphql_enum_type(
 			'TermNodeIdTypeEnum',
 			[
-				'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+				'description' => __( 'The Type of Identifier used to fetch a single resource. Default is "ID". To be used along with the "id" field.', 'wp-graphql' ),
 				'values'      => self::get_values(),
 			]
 		);

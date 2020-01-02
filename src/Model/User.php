@@ -63,6 +63,7 @@ class User extends Model {
 			'lastName',
 			'description',
 			'slug',
+			'uri',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
