@@ -74,7 +74,7 @@ after_success:
   - |
     if [[ "${COVERAGE}" == 'true' ]]; then
       bash <(curl -s https://codecov.io/bash)
-      php vendor/bin/coveralls
+      travis_retry php vendor/bin/php-coveralls
     fi
   # Install GraphQL Schema Linter
   # Move to the WordPress Install
