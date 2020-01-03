@@ -124,6 +124,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
+	 * @throws Exception
 	 */
 	public function testPostQuery() {
 
@@ -248,7 +249,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'mediaItemId' => $featured_image_id,
 						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
 						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
-						'full' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0],
+						'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
 						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
 					],
 				],
