@@ -27,13 +27,13 @@ env:
     # - WP_VERSION=5.0.2 PHP_VERSION=5.6
     - WP_VERSION=5.2.3 PHP_VERSION=7.1
     - WP_VERSION=5.2.3 PHP_VERSION=7.2
-    - WP_VERSION=5.2.3 PHP_VERSION=7.4 ALLOW_FAIL=true
+    - WP_VERSION=5.3 PHP_VERSION=7.4 ALLOW_FAIL=true
     - WP_VERSION=5.2.3 PHP_VERSION=7.3 COVERAGE=true LINT_SCHEMA=true
     - PHPCS=true ALLOW_FAIL=true
 
 matrix:
   allow_failures:
-    - env: ALLOW_FAIL=true
+    - env: ALLOW_FAIL
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
