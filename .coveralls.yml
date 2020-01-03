@@ -1,3 +1,2 @@
 service_name: travis-ci
-coverage_clover: tests/_output/coverage.xml
-json_path: tests/_output/coverage.json
+coverage_clover: docker-output/wpunit/_output/coverage.xml
