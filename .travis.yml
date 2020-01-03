@@ -74,6 +74,10 @@ after_success:
   - |
     if [[ "${COVERAGE}" == 'true' ]]; then
       bash <(curl -s https://codecov.io/bash)
+
+      composer self-update # This should not be required, but it is always a good practice to update composer
+      composer install
+      composer require php-coveralls/php-coveralls
       travis_retry php vendor/bin/php-coveralls
     fi
   # Install GraphQL Schema Linter
