@@ -28,13 +28,10 @@ matrix:
     - php: 7.3
       env: WP_VERSION=5.3.2 PHP_VERSION=7.3
     - php: 7.4
-      env: WP_VERSION=5.3.2 PHP_VERSION=7.4
-    - php: 7.4
       env: WP_VERSION=5.3.2 PHP_VERSION=7.4 COVERAGE=true LINT_SCHEMA=true
     - php: 7.4
       env: WP_VERSION=5.3.2 PHP_VERSION=7.4 PHPCS=true
   allow_failures:
-    - env: WP_VERSION=5.3.2 PHP_VERSION=7.4
     - env: WP_VERSION=5.3.2 PHP_VERSION=7.4 PHPCS=true
 
 before_install:
