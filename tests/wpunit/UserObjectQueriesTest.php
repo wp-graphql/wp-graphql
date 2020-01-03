@@ -134,6 +134,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -798,13 +800,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-
+		codecept_debug( $actual );
 		/**
 		 * Results should be empty for a non-authenticated request because the
 		 * users have no published posts and are not considered public
 		 */
-		$this->assertEmpty( $actual['data']['users']['pageInfo']['hasNextPage'] );
-		$this->assertEmpty( $actual['data']['users']['edges'] );
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users'] );
 
 	}
 
