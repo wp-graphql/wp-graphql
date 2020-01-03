@@ -146,7 +146,11 @@ class PostObject {
 						],
 						'resolve'     => function( $image, $args, $context, $info ) {
 							// @codingStandardsIgnoreLine.
-							return ! empty( $args['size'] ) ? $image->sourceUrlsBySize[ $args['size'] ] : $image->sourceUrl;
+							$size = null;
+							if ( isset( $args['size'] ) ) {
+								$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
+							}
+							return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->sourceUrl;
 						},
 					],
 					'mimeType'     => [

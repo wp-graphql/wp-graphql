@@ -32,12 +32,15 @@ Below are some situations you may come across and some tips on how to debug them
 
 ### Internal Server Error / Schema Won’t Load in GraphiQL
 
-Sometimes you make a change to your Schema and you begin to get Internal server error responses and
-even refreshing WPGraphiQL won’t load your Schema.
+If you see an error that says "Internal Server Error" in the GraphQL response, this means something
+occurred during execution that caused an error. Not all errors are intended for public viewing as they
+can expose sensitive details about the system. To expose the errors, you can (https://docs.wpgraphql.com/guides/debugging/#graphql-debug)[enable GRAPHQL_DEBUG]:
 
-This typically occurs when a Field or Type has been registered incorrectly.
+One common reason for seeing the `Internal Server Error` response is when a Field or Type has been
+registered incorrectly.
 
-For example, when registering a Field, a Type is required as part of the config.
+For example, when registering a Field, a Type is required as part of the config. If a Type is not
+declared when registering a Field, an `Internal Server Error` will be thrown.
 
 #### Invalid Field
 

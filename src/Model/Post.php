@@ -489,16 +489,9 @@ class Post extends Model {
 					'mediaItemUrl'        => function() {
 						return wp_get_attachment_url( $this->data->ID );
 					},
-					'sourceUrl'           => function( $size = 'full' ) {
-						if ( ! empty( $size ) ) {
-							$image_src = wp_get_attachment_image_src( $this->data->ID, $size );
-
-							if ( ! empty( $image_src ) ) {
-								return $image_src[0];
-							}
-						}
-
-						return wp_get_attachment_image_src( $this->data->ID, $size );
+					'sourceUrl'           => function() {
+						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
+						return isset( $source_url[0] ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function() {
 						$sizes = get_intermediate_image_sizes();
