@@ -50,6 +50,7 @@ class NodeResolver {
 			$uri = $parsed_url['path'];
 		}
 
+
 		$this->wp->query_vars = array();
 		$post_type_query_vars = array();
 
@@ -148,6 +149,7 @@ class NodeResolver {
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );
 
+
 				// Substitute the substring matches into the query.
 				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) );
 
@@ -176,18 +178,22 @@ class NodeResolver {
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
-		foreach ( get_post_types( array(), 'objects' ) as $post_type => $t ) {
-			if ( is_post_type_viewable( $t ) && $t->query_var ) {
+		foreach ( get_post_types( array( 'show_in_graphql' => true ), 'objects' ) as $post_type => $t ) {
+
+			if ( true === $t->show_in_graphql && $t->query_var ) {
 				$post_type_query_vars[ $t->query_var ] = $post_type;
 			}
 		}
 
+
 		foreach ( $this->wp->public_query_vars as $wpvar ) {
+
 
 			$parsed_query = [];
 			if ( isset( $parsed_url['query'] ) ) {
 				parse_str( $parsed_url['query'], $parsed_query );
 			}
+
 			if ( isset( $this->wp->extra_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $this->wp->extra_query_vars[ $wpvar ];
 			} elseif ( isset( $_GET[ $wpvar ] ) && isset( $_POST[ $wpvar ] ) && $_GET[ $wpvar ] !== $_POST[ $wpvar ] ) {
@@ -201,6 +207,8 @@ class NodeResolver {
 			} elseif ( isset( $parsed_query[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $parsed_query[ $wpvar ];
 			}
+
+
 
 			if ( ! empty( $this->wp->query_vars[ $wpvar ] ) ) {
 
@@ -221,6 +229,7 @@ class NodeResolver {
 			}
 		}
 
+
 		// Convert urldecoded spaces back into +
 		foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy => $t ) {
 			if ( $t->query_var && isset( $this->wp->query_vars[ $t->query_var ] ) ) {
@@ -228,22 +237,10 @@ class NodeResolver {
 			}
 		}
 
-		// Don't allow non-publicly queryable taxonomies to be queried from the front end.
-		if ( ! is_admin() ) {
-			foreach ( get_taxonomies( array( 'publicly_queryable' => false ), 'objects' ) as $taxonomy => $t ) {
-				/*
-				 * Disallow when set to the 'taxonomy' query var.
-				 * Non-publicly queryable taxonomies cannot register custom query vars. See register_taxonomy().
-				 */
-				if ( isset( $this->wp->query_vars['taxonomy'] ) && $taxonomy === $this->wp->query_vars['taxonomy'] ) {
-					unset( $this->wp->query_vars['taxonomy'], $this->wp->query_vars['term'] );
-				}
-			}
-		}
-
 		// Limit publicly queried post_types to those that are publicly_queryable
 		if ( isset( $this->wp->query_vars['post_type'] ) ) {
-			$queryable_post_types = get_post_types( array( 'publicly_queryable' => true ) );
+			$queryable_post_types = get_post_types( array( 'show_in_graphql' => true ) );
+
 			if ( ! is_array( $this->wp->query_vars['post_type'] ) ) {
 				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types ) ) {
 					unset( $this->wp->query_vars['post_type'] );
@@ -280,6 +277,7 @@ class NodeResolver {
 		do_action_ref_array( 'parse_request', array( &$this ) );
 
 		$node = null;
+
 
 		if ( isset( $this->wp->query_vars['page_id'] ) ) {
 
@@ -344,7 +342,15 @@ class NodeResolver {
 
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
 
-		} elseif ( isset( $this->wp->query_vars['pagename'] ) ) {
+		} else if ( isset( $this->wp->query_vars['cat'] ) ) {
+			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
+
+			return ! empty( $node ) ? new Term( $node ) : null;
+
+		} else if ( isset( $this->wp->query_vars['tag'] ) ) {
+			$node = get_term_by( 'slug', $this->wp->query_vars['tag'], 'post_tag' );
+			return ! empty( $node ) ? new Term( $node ) : null;
+		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
 			$args  = array(
 				'name'                => $this->wp->query_vars['pagename'],
 				'post_type'           => 'page',
@@ -364,6 +370,7 @@ class NodeResolver {
 			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
 
 			return new Term( $node );
+
 		} else {
 			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
 			foreach ( $taxonomies as $taxonomy ) {

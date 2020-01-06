@@ -1567,14 +1567,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * by email so there SHOULD be errors
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString']);
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt']);
-		$this->assertSame( $expected_user, $actual['data']['userById']);
-		$this->assertSame( $expected_user, $actual['data']['userByIdWithType']);
-		$this->assertSame( $expected_user, $actual['data']['userBySlug']);
-		$this->assertSame( $expected_user, $actual['data']['userByUri']);
-		$this->assertSame( $expected_user, $actual['data']['userByEmail']);
-		$this->assertSame( $expected_user, $actual['data']['userByUsername']);
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt'] );
+		$this->assertSame( $expected_user, $actual['data']['userById'] );
+		$this->assertSame( $expected_user, $actual['data']['userByIdWithType'] );
+		$this->assertSame( $expected_user, $actual['data']['userBySlug'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
+		$this->assertSame( $expected_user, $actual['data']['userByEmail'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 
 	}
 
