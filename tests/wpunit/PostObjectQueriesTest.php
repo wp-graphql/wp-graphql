@@ -182,7 +182,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				excerpt
 				status
 				link
-				menuOrder
 				postId
 				slug
 				toPing
@@ -206,6 +205,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -236,7 +237,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'status'        => 'publish',
 					'link'          => get_permalink( $post_id ),
-					'menuOrder'     => null,
 					'postId'        => $post_id,
 					'slug'          => 'test-title',
 					'toPing'        => null,
@@ -333,7 +333,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 					}
-					content
 					date
 					dateGmt
 					description
@@ -345,7 +344,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						editTime
 					}
 					enclosure
-					excerpt
 					guid
 					id
 					link
@@ -378,7 +376,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 					mediaItemId
 					mediaType
-					menuOrder
 					mimeType
 					modified
 					modifiedGmt
@@ -387,18 +384,18 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							id
 						}
 					}
-					pingStatus
 					slug
 					sourceUrl
 					status
 					title
-					toPing
 				}
 			}
 		}
     ";
 
 		$actual   = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 		$expected = [
 			"data" => [
 				"post" => [
@@ -949,6 +946,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'  => 'page',
 			'post_title' => 'Parent Page',
 			'post_name'  => 'parent-page',
+			'post_status' => 'publish'
 		] );
 
 		$child_id = $this->createPostObject( [
@@ -956,6 +954,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Child Page',
 			'post_name'   => 'child-page',
 			'post_parent' => $parent_id,
+			'post_status' => 'publish'
 		] );
 
 		/**
@@ -980,10 +979,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}";
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query

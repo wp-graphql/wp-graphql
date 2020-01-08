@@ -180,7 +180,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    }
 				  }
 				}
-				content
 				date
 				dateGmt
 				description
@@ -192,7 +191,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  editTime
 				}
 				enclosure
-				excerpt
 				guid
 				id
 				link
@@ -224,8 +222,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  width
 				}
 				mediaItemId
-				mediaType
-				menuOrder
+				mediaType				
 				mimeType
 				modified
 				modifiedGmt
@@ -234,12 +231,10 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    id
 				  }
 				}
-				pingStatus
 				slug
 				sourceUrl
 				status
 				title
-				toPing
 				srcSet
 			}
 		}";
@@ -261,7 +256,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( null === $mediaItem['commentCount'] || is_int( $mediaItem['commentCount'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentStatus'] || is_string( $mediaItem['commentStatus'] ) ) );
 		$this->assertTrue( ( empty( $mediaItem['comments']['edges'] ) || is_string( $mediaItem['comments']['edges'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['content'] || is_string( $mediaItem['content'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['date'] || is_string( $mediaItem['date'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['dateGmt'] || is_string( $mediaItem['dateGmt'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['description'] || is_string( $mediaItem['description'] ) ) );
@@ -269,22 +263,17 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( empty( $mediaItem['editLast'] ) || is_integer( $mediaItem['editLast']['userId'] ) ) );
 		$this->assertTrue( ( empty( $mediaItem['editLock'] ) || is_string( $mediaItem['editLock']['editTime'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['enclosure'] || is_string( $mediaItem['enclosure'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['excerpt'] || is_string( $mediaItem['excerpt'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['guid'] || is_string( $mediaItem['guid'] ) ) );
 		$this->assertEquals( $attachment_global_id, $mediaItem['id'] );
 		$this->assertEquals( $attachment_id, $mediaItem['mediaItemId'] );
 		$this->assertTrue( ( null === $mediaItem['mediaType'] || is_string( $mediaItem['mediaType'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['menuOrder'] || is_integer( $mediaItem['menuOrder'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['mimeType'] || is_string( $mediaItem['mimeType'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['modified'] || is_string( $mediaItem['modified'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['modifiedGmt'] || is_string( $mediaItem['modifiedGmt'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['pingStatus'] || is_string( $mediaItem['pingStatus'] ) ) );
-		$this->assertTrue( ( empty( $mediaItem['pinged'] ) || is_array( $mediaItem['pinged'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['slug'] || is_string( $mediaItem['slug'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['sourceUrl'] || is_string( $mediaItem['sourceUrl'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
-		$this->assertTrue( ( empty( $mediaItem['toPing'] ) || is_array( $mediaItem['toPing'] ) ) );
 		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
 		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
 		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );

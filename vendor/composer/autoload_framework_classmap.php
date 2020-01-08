@@ -2692,6 +2692,7 @@ return array(
     'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => $baseDir . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php', 
     'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => $baseDir . '/src/Type/Input/UsersConnectionOrderbyInput.php', 
     'WPGraphQL\\Type\\InterfaceType\\ContentNode' => $baseDir . '/src/Type/InterfaceType/ContentNode.php', 
+    'WPGraphQL\\Type\\InterfaceType\\HasTitle' => $baseDir . '/src/Type/InterfaceType/HasTitle.php', 
     'WPGraphQL\\Type\\InterfaceType\\Node' => $baseDir . '/src/Type/InterfaceType/Node.php', 
     'WPGraphQL\\Type\\InterfaceType\\TermNode' => $baseDir . '/src/Type/InterfaceType/TermNode.php', 
     'WPGraphQL\\Type\\InterfaceType\\UniformResourceIdentifiable' => $baseDir . '/src/Type/InterfaceType/UniformResourceIdentifiable.php', 

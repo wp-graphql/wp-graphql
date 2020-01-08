@@ -3,7 +3,6 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
-use GraphQL\Error\UserError;
 
 /**
  * Class Router

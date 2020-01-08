@@ -13,49 +13,50 @@ use WPGraphQL\Types;
 /**
  * Class Post - Models data for the Post object type
  *
- * @property int    $ID
- * @property string $post_author
- * @property string $id
- * @property string $post_type
- * @property string $authorId
- * @property string $date
- * @property string $dateGmt
- * @property string $contentRendered
- * @property string $contentRaw
- * @property string $titleRendered
- * @property string $titleRaw
- * @property string $excerptRendered
- * @property string $excerptRaw
- * @property string $post_status
- * @property string $status
- * @property string $commentStatus
- * @property string $pingStatus
- * @property string $slug
+ * @property int     $ID
+ * @property string  $post_author
+ * @property string  $id
+ * @property string  $post_type
+ * @property string  $authorId
+ * @property string  $date
+ * @property string  $dateGmt
+ * @property string  $contentRendered
+ * @property string  $contentRaw
+ * @property string  $titleRendered
+ * @property string  $titleRaw
+ * @property string  $excerptRendered
+ * @property string  $excerptRaw
+ * @property string  $post_status
+ * @property string  $status
+ * @property string  $commentStatus
+ * @property string  $pingStatus
+ * @property string  $slug
  * @property boolean $isFrontPage
- * @property string $toPing
- * @property string $pinged
- * @property string $modified
- * @property string $modifiedGmt
- * @property int    $parentId
- * @property int    $editLastId
- * @property array  $editLock
- * @property string $enclosure
- * @property string $guid
- * @property int    $menuOrder
- * @property string $link
- * @property string $uri
- * @property int    $commentCount
- * @property int    $featuredImageId
+ * @property string  $toPing
+ * @property string  $pinged
+ * @property string  $modified
+ * @property string  $modifiedGmt
+ * @property int     $parentId
+ * @property int     $editLastId
+ * @property array   $editLock
+ * @property string  $enclosure
+ * @property string  $guid
+ * @property int     $menuOrder
+ * @property string  $link
+ * @property string  $uri
+ * @property int     $commentCount
+ * @property int     $featuredImageId
+ * @property string  $pageTemplate
  *
- * @property string $captionRaw
- * @property string $captionRendered
- * @property string $altText
- * @property string $descriptionRaw
- * @property string $descriptionRendered
- * @property string $mediaType
- * @property string $sourceUrl
- * @property string $mimeType
- * @property array  $mediaDetails
+ * @property string  $captionRaw
+ * @property string  $captionRendered
+ * @property string  $altText
+ * @property string  $descriptionRaw
+ * @property string  $descriptionRendered
+ * @property string  $mediaType
+ * @property string  $sourceUrl
+ * @property string  $mimeType
+ * @property array   $mediaDetails
  *
  * @package WPGraphQL\Model
  */
@@ -336,6 +337,11 @@ class Post extends Model {
 
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
+				'pageTemplate'    => function() {
+					$slug = get_page_template_slug( $this->data->ID );
+
+					return ! empty( $slug ) ? $slug : null;
+				},
 				'contentRaw'      => [
 					'callback'   => function() {
 						return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
@@ -383,16 +389,17 @@ class Post extends Model {
 				'slug'            => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
-				'isFrontPage'     => function () {
+				'isFrontPage'     => function() {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {
 						return false;
 					}
 					if ( absint( get_option( 'page_on_front', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
+
 					return false;
 				},
-				'toPing'          => function () {
+				'toPing'          => function() {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},
 				'pinged'          => function() {
@@ -491,6 +498,7 @@ class Post extends Model {
 					},
 					'sourceUrl'           => function() {
 						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
+
 						return isset( $source_url[0] ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function() {

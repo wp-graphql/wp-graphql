@@ -8,24 +8,79 @@
 namespace WPGraphQL\Type\Object;
 
 use WPGraphQL\Model\Post;
+use WPGraphQL\Registry\TypeRegistry;
 
 
 class PostObject {
+
 	/**
 	 * Registers a post_type WPObject type to the schema.
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param TypeRegistry $type_registry The Type Registry
 	 */
-	public static function register_post_object_types( $post_type_object ) {
+	public static function register_post_object_types( $post_type_object, $type_registry ) {
+
 		$single_name = $post_type_object->graphql_single_name;
+
+		$interfaces = [ 'Node', 'ContentNode', 'UniformResourceIdentifiable' ];
+
+		if( post_type_supports( $post_type_object->name, 'title' ) ) {
+			$interfaces[] = 'NodeWithTitle';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'editor' ) ) {
+			$interfaces[] = 'NodeWithContentEditor';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'author' ) ) {
+			$interfaces[] = 'NodeWithAuthor';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
+			$interfaces[] = 'NodeWithFeaturedImage';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'excerpt' ) ) {
+			$interfaces[] = 'NodeWithExcerpt';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+			$interfaces[] = 'NodeWithComments';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
+			$interfaces[] = 'NodeWithTrackbacks';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'revisions' ) ) {
+			$interfaces[] = 'NodeWithRevisions';
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'page-attributes' ) ) {
+			$interfaces[] = 'NodeWithPageAttributes';
+		}
+
+		if ( ! $post_type_object->hierarchical && ! in_array(
+				$post_type_object->name,
+				[
+					'attachment',
+					'revision',
+				]
+			) ) {
+
+			$interfaces[] = 'NodeWithHierarchy';
+
+		}
+
 
 		register_graphql_object_type(
 			$single_name,
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => [ 'Node', 'ContentNode', 'UniformResourceIdentifiable' ],
-				'fields'      => self::get_post_object_fields( $post_type_object ),
+				'interfaces'  => $interfaces,
+				'fields'      => self::get_post_object_fields( $post_type_object, $type_registry ),
 			]
 		);
 
@@ -170,10 +225,11 @@ class PostObject {
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param TypeRegistry $type_registry The Type Registry
 	 *
 	 * @return array
 	 */
-	public static function get_post_object_fields( $post_type_object ) {
+	public static function get_post_object_fields( $post_type_object, $type_registry ) {
 		$single_name = $post_type_object->graphql_single_name;
 		$fields      = [
 			'id'                => [
@@ -214,61 +270,6 @@ class PostObject {
 		}
 
 		/**
-		 * title
-		 * editor
-		 * author
-		 * thumbnail
-		 * excerpt
-		 * trackbacks
-		 * custom-fields
-		 * comments
-		 * revisions
-		 * page-attributes
-		 * post-formats
-		 */
-		if ( ! post_type_supports( $post_type_object->name, 'title' ) ) {
-			$fields['title']['isDeprecated']      = true;
-			$fields['title']['deprecationReason'] = __( 'This content type does not support the title field', 'wp-graphql' );
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'editor' ) ) {
-			$fields['content']['isDeprecated']      = true;
-			$fields['content']['deprecationReason'] = __( 'This content type does not support the content editor', 'wp-graphql' );
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'author' ) ) {
-			$fields['author']['isDeprecated']      = true;
-			$fields['author']['deprecationReason'] = __( 'This content type does not support authors', 'wp-graphql' );
-
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'thumbnail' ) ) {
-			$fields['featuredImage']['isDeprecated']      = true;
-			$fields['featuredImage']['deprecationReason'] = __( 'This content type does not support featured images', 'wp-graphql' );
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'excerpt' ) ) {
-			$fields['excerpt']['isDeprecated']      = true;
-			$fields['excerpt']['deprecationReason'] = __( 'This content type does not support excerpts', 'wp-graphql' );
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'comments' ) ) {
-			$fields['commentCount']['isDeprecated']      = true;
-			$fields['commentCount']['deprecationReason'] = __( 'This content type does not support comments', 'wp-graphql' );
-		}
-
-		if ( ! post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
-			$fields['toPing']['isDeprecated']      = true;
-			$fields['toPing']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
-
-			$fields['pinged']['isDeprecated']      = true;
-			$fields['pinged']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
-
-			$fields['pingStatus']['isDeprecated']      = true;
-			$fields['pingStatus']['deprecationReason'] = __( 'This content type does not support trackbacks', 'wp-graphql' );
-		}
-
-		/**
 		 * For Post Types that don't have relationships to
 		 * taxonomies, we should deprecate fields to query taxonomies
 		 */
@@ -297,6 +298,33 @@ class PostObject {
 			$fields['parent']['isDeprecated']      = true;
 			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
+
+		$fields['template'] = [
+			'description' => __( 'The template assigned to the node', 'wp-graphql' ),
+			'type' => 'ContentTemplateUnion',
+			'resolve' => function( Post $post_object, $args, $context, $info ) use ( $post_type_object, $type_registry ) {
+
+				$registered_templates = wp_get_theme()->get_post_templates();
+				if ( ! isset( $registered_templates[ $post_object->post_type ] ) ) {
+					return null;
+				}
+
+				$set_template = get_post_meta( $post_object->ID, '_wp_page_template', true );
+
+				$template = [];
+				if ( ! empty( $registered_templates[ $post_object->post_type ][ $set_template ] ) ) {
+					$name               = ucwords( $registered_templates[ $post_object->post_type ][ $set_template ] );
+					$name               = preg_replace( '/[^\w]/', '', $name );
+					$template = [
+						'__typename' => $name . 'Template',
+						'templateName' => $registered_templates[ $post_object->post_type ][ $set_template ],
+						'templateFile' => $set_template,
+					];
+				}
+
+				return ! empty( $template ) ? $template : 'default';
+			},
+		];
 
 		return $fields;
 

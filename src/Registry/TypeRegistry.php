@@ -44,10 +44,20 @@ use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
+use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
+use WPGraphQL\Type\InterfaceType\NodeWithComments;
+use WPGraphQL\Type\InterfaceType\NodeWithContentEditor;
+use WPGraphQL\Type\InterfaceType\NodeWithExcerpt;
+use WPGraphQL\Type\InterfaceType\NodeWithFeaturedImage;
+use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
+use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\Node;
+use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
+use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\CommentAuthorUnion;
@@ -183,8 +193,18 @@ class TypeRegistry {
 		 */
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
+		ContentTemplate::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
+		NodeWithAuthor::register_type( $type_registry );
+		NodeWithComments::register_type( $type_registry );
+		NodeWithContentEditor::register_type( $type_registry );
+		NodeWithExcerpt::register_type( $type_registry );
+		NodeWithFeaturedImage::register_type( $type_registry );
+		NodeWithRevisions::register_type( $type_registry );
+		NodeWithTitle::register_type( $type_registry );
+		NodeWithTrackbacks::register_type( $type_registry );
+
 
 		/**
 		 * Register Types
@@ -243,6 +263,7 @@ class TypeRegistry {
 
 		CommentAuthorUnion::register_type( $this );
 		ContentRevisionUnion::register_type( $this );
+		ContentTemplateUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
@@ -286,7 +307,7 @@ class TypeRegistry {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
-				PostObject::register_post_object_types( $post_type_object );
+				PostObject::register_post_object_types( $post_type_object, $type_registry );
 
 				/**
 				 * Mutations for attachments are handled differently

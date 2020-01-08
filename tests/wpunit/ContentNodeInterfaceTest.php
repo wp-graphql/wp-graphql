@@ -73,7 +73,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		      __typename
 		      id
 		      databaseId
-		      title
+		      ...on NodeWithTitle {
+		        title
+		      }
 		      ...on Post {
 		        postId
 		      }
@@ -119,7 +121,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		fragment ContentFields on ContentNode {
 		  __typename
 		  id
-		  title
+		  ...on NodeWithTitle {
+	        title
+	      }
 		  slug
 		  uri
 		  ... on Post {
