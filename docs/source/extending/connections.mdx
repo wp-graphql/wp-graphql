@@ -89,10 +89,10 @@ function register_my_custom_graphql_connection() {
     'fromFieldName' => 'postsFromThisWeek',
     'connectionTypeName' => 'PostsFromThisWeekConnection',
     'resolve' => function( $id, $args, $context, $info ) {
-      return \\WPGraphQL\\Data\\DataSource::resolve_post_objects_connection( $id, $args, $context, $info, 'post' );
+      return \WPGraphQL\Data\DataSource::resolve_post_objects_connection( $id, $args, $context, $info, 'post' );
     },
     'resolveNode' => function( $id, $args, $context, $info ) {
-      return \\WPGraphQL\\Data\\DataSource::resolve_post_object( $id, $context );
+      return \WPGraphQL\Data\DataSource::resolve_post_object( $id, $context );
     }
   ];
   register_graphql_connection( $config );
