@@ -7,6 +7,9 @@
 
 namespace WPGraphQL\Type\Object;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
+use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -61,16 +64,8 @@ class PostObject {
 			$interfaces[] = 'NodeWithPageAttributes';
 		}
 
-		if ( ! $post_type_object->hierarchical && ! in_array(
-				$post_type_object->name,
-				[
-					'attachment',
-					'revision',
-				]
-			) ) {
-
-			$interfaces[] = 'NodeWithHierarchy';
-
+		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
+			$interfaces[] = 'HierarchicalContentNode';
 		}
 
 

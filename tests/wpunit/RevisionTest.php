@@ -111,7 +111,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 						postId
 						title
 						content
-						parent {
+						revisionOf {
 							__typename
 							...on Post {
 							  postId
@@ -137,10 +137,10 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['__typename'] );
 
 		// Type of Parent should be Post
-		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['parent']['__typename'] );
+		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['revisionOf']['__typename'] );
 
 		// postId of parent should be ID of post we revised
-		$this->assertEquals( $post_id, $actual['data']['revisions']['nodes'][0]['parent']['postId'] );
+		$this->assertEquals( $post_id, $actual['data']['revisions']['nodes'][0]['revisionOf']['postId'] );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 				revisions {
 					nodes {
 						__typename
-						parent {
+						revisionOf {
 							__typename
 							...on Post {
 							  postId
@@ -215,7 +215,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Post', $actual['data']['postBy']['revisions']['nodes'][0]['__typename'] );
 
 		// postId of parent of the revision should be ID of post we revised
-		$this->assertEquals( $post_id, $actual['data']['postBy']['revisions']['nodes'][0]['parent']['postId'] );
+		$this->assertEquals( $post_id, $actual['data']['postBy']['revisions']['nodes'][0]['revisionOf']['postId'] );
 
 	}
 

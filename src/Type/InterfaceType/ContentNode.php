@@ -56,34 +56,7 @@ class ContentNode {
 						],
 						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
 					],
-					'ancestors'     => [
-						'type'        => [
-							'list_of' => 'PostObjectUnion',
-						],
-						'description' => esc_html__( 'Ancestors of the object', 'wp-graphql' ),
-						'args'        => [
-							'types' => [
-								'type'        => [
-									'list_of' => 'PostTypeEnum',
-								],
-								'description' => __( 'The types of ancestors to check for. Defaults to the same type as the current object', 'wp-graphql' ),
-							],
-						],
-						'resolve'     => function( $source, $args, AppContext $context, ResolveInfo $info ) {
-							$ancestor_ids = get_ancestors( $source->ID, $source->post_type );
-							if ( empty( $ancestor_ids ) || ! is_array( $ancestor_ids ) ) {
-								return null;
-							}
-							$context->getLoader( 'post_object' )->buffer( $ancestor_ids );
 
-							return new Deferred(
-								function() use ( $context, $ancestor_ids ) {
-									// @codingStandardsIgnoreLine.
-									return $context->getLoader( 'post_object' )->loadMany( $ancestor_ids );
-								}
-							);
-						},
-					],
 					'databaseId'    => [
 						'type'        => [
 							'non_null' => 'Int',
@@ -91,19 +64,6 @@ class ContentNode {
 						'description' => __( 'The ID of the object in the database.', 'wp-graphql' ),
 						'resolve'     => function( Post $post, $args, $context, $info ) {
 							return absint( $post->ID );
-						},
-					],
-					'author'        => [
-						'type'        => 'User',
-						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// @codingStandardsIgnoreLine.
-							if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
-								return null;
-							};
-
-							// @codingStandardsIgnoreLine.
-							return DataSource::resolve_user( $post->authorId, $context );
 						},
 					],
 					'date'          => [
@@ -114,7 +74,6 @@ class ContentNode {
 						'type'        => 'String',
 						'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
 					],
-
 					'enclosure'     => [
 						'type'        => 'String',
 						'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
@@ -122,19 +81,6 @@ class ContentNode {
 					'status'        => [
 						'type'        => 'String',
 						'description' => __( 'The current status of the object', 'wp-graphql' ),
-					],
-					'parent'        => [
-						'type'        => 'PostObjectUnion',
-						'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
-						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// @codingStandardsIgnoreLine.
-							if ( ! isset( $post->parentId ) || ! absint( $post->parentId ) ) {
-								return null;
-							}
-
-							// @codingStandardsIgnoreLine.
-							return DataSource::resolve_post_object( $post->parentId, $context );
-						},
 					],
 					'slug'          => [
 						'type'        => 'String',
@@ -169,7 +115,6 @@ class ContentNode {
 						'type'        => 'String',
 						'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' ),
 					],
-
 					'desiredSlug'   => [
 						'type'        => 'String',
 						'description' => __( 'The desired slug of the post', 'wp-graphql' ),
@@ -185,19 +130,6 @@ class ContentNode {
 					'isRestricted'  => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
-					],
-					'featuredImage' => [
-						'type'        => 'MediaItem',
-						'description' => __( 'The featured image for the object', 'wp-graphql' ),
-						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// @codingStandardsIgnoreLine.
-							if ( empty( $post->featuredImageId ) || ! absint( $post->featuredImageId ) ) {
-								return null;
-							}
-
-							// @codingStandardsIgnoreLine.
-							return DataSource::resolve_post_object( $post->featuredImageId, $context );
-						},
 					],
 					'terms'         => [
 						'type'        => [

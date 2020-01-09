@@ -45,6 +45,7 @@ use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
 use WPGraphQL\Type\InterfaceType\NodeWithContentEditor;
@@ -194,8 +195,7 @@ class TypeRegistry {
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
-		TermNode::register_type( $type_registry );
-		UniformResourceIdentifiable::register_type( $type_registry );
+		HierarchicalContentNode::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
 		NodeWithContentEditor::register_type( $type_registry );
@@ -204,6 +204,8 @@ class TypeRegistry {
 		NodeWithRevisions::register_type( $type_registry );
 		NodeWithTitle::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
+		TermNode::register_type( $type_registry );
+		UniformResourceIdentifiable::register_type( $type_registry );
 
 
 		/**
