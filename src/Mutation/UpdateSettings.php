@@ -50,6 +50,11 @@ class UpdateSettings {
 					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
 				}
 
+				$individual_setting_key = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $individual_setting_key ) );
+				$individual_setting_key = lcfirst( str_replace( '_', ' ', ucwords( $individual_setting_key, '_' ) ) );
+				$individual_setting_key = lcfirst( str_replace( '-', ' ', ucwords( $individual_setting_key, '_' ) ) );
+				$individual_setting_key = lcfirst( str_replace( ' ', '', ucwords( $individual_setting_key, ' ' ) ) );
+
 				/**
 				 * Dynamically build the individual setting,
 				 * then add it to the $input_fields
@@ -80,7 +85,11 @@ class UpdateSettings {
 
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
-				$setting_type = str_replace( '_', '', strtolower( $group ) );
+
+				$setting_type = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $group ) );
+				$setting_type = lcfirst( str_replace( '_', ' ', ucwords( $setting_type, '_' ) ) );
+				$setting_type = lcfirst( str_replace( '-', ' ', ucwords( $setting_type, '_' ) ) );
+				$setting_type = lcfirst( str_replace( ' ', '', ucwords( $setting_type, ' ' ) ) );
 
 				$output_fields[ $setting_type . 'Settings' ] = [
 					'type'    => $setting_type . 'Settings',

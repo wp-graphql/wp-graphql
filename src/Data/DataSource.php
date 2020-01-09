@@ -529,11 +529,6 @@ class DataSource {
 	public static function get_setting_group_fields( $group ) {
 
 		/**
-		 * Convert camelCase $group to snake_case to match $settings_groups keys retrieved from WordPress
-		 */
-		$group = strtolower( preg_replace( '/(?<=[a-z])(?=[A-Z])/', '_', $group ) );
-
-		/**
 		 * Get all of the settings, sorted by group
 		 */
 		$settings_groups = self::get_allowed_settings_by_group();
