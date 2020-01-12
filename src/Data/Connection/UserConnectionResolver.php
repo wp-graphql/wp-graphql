@@ -226,4 +226,15 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
 	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the user corresponding to the offset exists.
+	 * Offset is equivalent to user_id. So this function is equivalent
+	 * to checking if the user with the given ID exists.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_user_by( 'ID', $offset ) );
+	}
 }

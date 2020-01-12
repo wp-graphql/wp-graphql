@@ -276,6 +276,17 @@ abstract class AbstractConnectionResolver {
 	abstract public function should_execute();
 
 	/**
+	 * is_valid_offset
+	 *
+	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
+	 * Offset is equivalent to WordPress ID (e.g post_id, term_id). So this function is equivalent
+	 * to checking if the WordPress object exists for the given ID.
+	 *
+	 * @return bool
+	 */
+	abstract public function is_valid_offset( $offset );
+
+	/**
 	 * get_query_amount
 	 *
 	 * Returns the max between what was requested and what is defined as the $max_query_amount to
@@ -393,13 +404,22 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Whether there is a next page in the connection.
 	 *
-	 * If there are more "items" than were asked for in the "first" argument, has_next_page()
+	 * If there are more "items" than were asked for in the "first" argument
+	 * ore if there are more "items" after the "before" argument, has_next_page()
 	 * will be set to true
 	 *
 	 * @return boolean
 	 */
 	public function has_next_page() {
-		return ! empty( $this->args['first'] ) && ( count( $this->items ) > $this->query_amount ) ? true : false;
+		if ( ! empty( $this->args['first'] ) ) {
+			return count( $this->items ) > $this->query_amount;
+		}
+
+		if ( ! empty( $this->args['before'] ) ) {
+			return $this->is_valid_offset( $this->get_offset() );
+		}
+
+		return false;
 	}
 
 	/**
@@ -407,13 +427,22 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Whether there is a previous page in the connection.
 	 *
-	 * If there are more "items" than were asked for in the "last" argument, has_previous_page()
-	 * will be set to true
+	 * If there are more "items" than were asked for in the "last" argument
+	 * or if there are more "items" before the "after" argument, has_previous_page()
+	 * will be set to true.
 	 *
 	 * @return boolean
 	 */
 	public function has_previous_page() {
-		return ! empty( $this->args['last'] ) && ( count( $this->items ) > $this->query_amount ) ? true : false;
+		if ( ! empty( $this->args['last'] ) ) {
+			return count( $this->items ) > $this->query_amount;
+		}
+
+		if ( ! empty( $this->args['after'] ) ) {
+			return $this->is_valid_offset( $this->get_offset() );
+		}
+
+		return false;
 	}
 
 	/**
@@ -561,7 +590,7 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * Execute the resolver query and get the data for the connection
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function execute_and_get_data() {

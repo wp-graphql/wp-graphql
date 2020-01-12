@@ -39,7 +39,6 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 			$roles = ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
 		}
 
-
 		$roles = ! empty( $roles ) ? array_filter(
 			array_map(
 				function( $role ) use ( $current_user_roles ) {
@@ -54,7 +53,8 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 					return null;
 				},
 				$roles
-			) ) : $roles;
+			)
+		) : $roles;
 
 		return $roles;
 	}
@@ -72,6 +72,17 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return true;
+	}
+
+	/**
+	 * TODO: Temporarily return false for all offsets, as pagination
+	 * does not work for user roles. Will need to be updated when
+	 * proper pagination is implemented for user roles.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return false;
 	}
 
 }

@@ -245,4 +245,15 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	}
 
+	/**
+	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the offset exists.
+	 * Offset is equivalent to comment_id. So this function is equivalent
+	 * to checking if the comment with the given ID exists.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_comment( $offset ) );
+	}
+
 }
