@@ -18,9 +18,11 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time        = strtotime( '- 1 day' );
 		$this->current_date        = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt    = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin               = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin               = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->created_comment_ids = $this->create_comments();
 	}
 
@@ -66,10 +68,12 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$created_comments = [];
 		for ( $i = 1; $i <= 20; $i ++ ) {
 			$date                   = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
-			$created_comments[ $i ] = $this->createCommentObject( [
-				'comment_content' => $i,
-				'comment_date'    => $date,
-			] );
+			$created_comments[ $i ] = $this->createCommentObject(
+				[
+					'comment_content' => $i,
+					'comment_date'    => $date,
+				]
+			);
 		}
 
 		return $created_comments;
@@ -108,16 +112,18 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'first' => 1,
 		];
 
-		$results        = $this->commentsQuery( $variables );
+		$results = $this->commentsQuery( $variables );
 
-		$comments_query = new WP_Comment_Query;
-		$comments       = $comments_query->query( [
-			'comment_status' => 'approved',
-			'number'         => 1,
-			'order'          => 'DESC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		] );
+		$comments_query = new WP_Comment_Query();
+		$comments       = $comments_query->query(
+			[
+				'comment_status' => 'approved',
+				'number'         => 1,
+				'order'          => 'DESC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			]
+		);
 		$first_comment  = $comments[0];
 
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_comment->comment_ID );
@@ -128,6 +134,8 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
 		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( false, $results['data']['comments']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasNextPage'] );
 
 	}
 
@@ -151,15 +159,17 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$results = $this->commentsQuery( $variables );
 
-		$comments_query  = new WP_Comment_Query;
-		$comments        = $comments_query->query( [
-			'comment_status' => 'approved',
-			'number'         => 1,
-			'offset'         => 1,
-			'order'          => 'DESC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		] );
+		$comments_query  = new WP_Comment_Query();
+		$comments        = $comments_query->query(
+			[
+				'comment_status' => 'approved',
+				'number'         => 1,
+				'offset'         => 1,
+				'order'          => 'DESC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			]
+		);
 		$second_comment  = $comments[0];
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_comment->comment_ID );
 		$this->assertNotEmpty( $results );
@@ -168,6 +178,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasPreviousPage'] );
 
 	}
 
@@ -179,14 +190,16 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->commentsQuery( $variables );
 
-		$comments_query = new WP_Comment_Query;
-		$comments       = $comments_query->query( [
-			'comment_status' => 'approved',
-			'number'         => 1,
-			'order'          => 'ASC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		] );
+		$comments_query = new WP_Comment_Query();
+		$comments       = $comments_query->query(
+			[
+				'comment_status' => 'approved',
+				'number'         => 1,
+				'order'          => 'ASC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			]
+		);
 		$last_comment   = $comments[0];
 
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_comment->comment_ID );
@@ -196,7 +209,8 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
-
+		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $results['data']['comments']['pageInfo']['hasNextPage'] );
 
 	}
 
@@ -214,15 +228,17 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->commentsQuery( $variables );
 
-		$comments_query         = new WP_Comment_Query;
-		$comments               = $comments_query->query( [
-			'comment_status' => 'approved',
-			'number'         => 1,
-			'offset'         => 1,
-			'order'          => 'ASC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		] );
+		$comments_query         = new WP_Comment_Query();
+		$comments               = $comments_query->query(
+			[
+				'comment_status' => 'approved',
+				'number'         => 1,
+				'offset'         => 1,
+				'order'          => 'ASC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			]
+		);
 		$second_to_last_comment = $comments[0];
 
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_comment->comment_ID );
@@ -233,6 +249,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasNextPage'] );
 
 	}
 
