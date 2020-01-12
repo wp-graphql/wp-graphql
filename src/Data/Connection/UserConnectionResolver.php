@@ -180,11 +180,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Only users with the "list_users" capability can filter users by roles
 		 */
 		if ( (
-				 ! empty( $args['roleIn'] ) ||
-				 ! empty( $args['roleNotIn'] ) ||
-				 ! empty( $args['role'] )
-			 ) &&
-			 ! current_user_can( 'list_users' )
+			 ! empty( $args['roleIn'] ) ||
+			 ! empty( $args['roleNotIn'] ) ||
+			 ! empty( $args['role'] )
+		 ) &&
+		 ! current_user_can( 'list_users' )
 		) {
 			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}
@@ -235,6 +235,12 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_user_by( 'ID', $offset ) );
+		global $wpdb;
+
+		if ( ! empty( wp_cache_get( $offset, 'users' ) ) ) {
+			return true;
+		}
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS (SELECT 1 FROM $wpdb->users WHERE ID = %d)", $offset ) );
 	}
 }

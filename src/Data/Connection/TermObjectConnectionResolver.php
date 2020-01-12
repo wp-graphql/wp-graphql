@@ -284,7 +284,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_term( $offset ) );
+		if ( ! empty( wp_cache_get( $offset, 'terms' ) ) ) {
+			return true;
+		}
+
+		return ! empty( term_exists( $offset ) );
 	}
 
 }
