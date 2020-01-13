@@ -470,6 +470,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		$actual = $this->updateSettingsMutation();
 
+		codecept_debug( $actual );
+
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 
 		$this->assertEquals( 0, $start_of_week);

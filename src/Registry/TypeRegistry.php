@@ -329,6 +329,8 @@ class TypeRegistry {
 					PostObjectDelete::register_mutation( $post_type_object );
 
 				}
+
+
 			}
 		}
 
@@ -352,24 +354,27 @@ class TypeRegistry {
 		 */
 		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
 
-		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
+ 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+		    foreach ( $allowed_setting_types as $group => $setting_type ) {
 
-				$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
-				SettingGroup::register_settings_group( $group_name );
+			    $group_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $group ) );
+			    $group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
+			    $group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
+			    $group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
+			    SettingGroup::register_settings_group( $group_name, $group );
 
-				register_graphql_field(
-					'RootQuery',
-					$group_name . 'Settings',
-					[
-						'type'    => ucfirst( $group_name ) . 'Settings',
-						'resolve' => function() use ( $setting_type ) {
-							return $setting_type;
-						},
-					]
-				);
-			}
-		}
+			    register_graphql_field(
+				    'RootQuery',
+				    $group_name . 'Settings',
+				    [
+					    'type'    => ucfirst( $group_name ) . 'Settings',
+					    'resolve' => function() use ( $setting_type ) {
+						    return $setting_type;
+					    },
+				    ]
+			    );
+		    }
+	    }
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes

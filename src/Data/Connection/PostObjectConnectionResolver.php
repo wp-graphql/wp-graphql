@@ -221,6 +221,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 							'taxonomy' => $this->source->taxonomyName,
 							'terms'    => [ $this->source->term_id ],
 							'field'    => 'term_id',
+							'include_children' => false,
 						],
 					];
 					break;
@@ -488,6 +489,23 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Return the $allowed_statuses to the query args
 		 */
 		return $allowed_statuses;
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the post corresponding to the offset exists.
+	 * Offset is equivalent to post_id. So this function is equivalent
+	 * to checking if the post with the given ID exists.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		global $wpdb;
+
+		if ( ! empty( wp_cache_get( $offset, 'posts' ) ) ) {
+			return true;
+		}
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS (SELECT 1 FROM $wpdb->posts WHERE ID = %d)", $offset ) );
 	}
 
 }
