@@ -306,18 +306,23 @@ class PostObject {
 
 				$set_template = get_post_meta( $post_object->ID, '_wp_page_template', true );
 
-				$template = [];
+				$template_name = get_page_template_slug( $post_object->ID );
+
+				$template = [
+					'__typename' => 'DefaultTemplate',
+					'templateName' => ! empty( $template_name ) ? $template_name : 'Default',
+				];
+
 				if ( ! empty( $registered_templates[ $post_object->post_type ][ $set_template ] ) ) {
 					$name               = ucwords( $registered_templates[ $post_object->post_type ][ $set_template ] );
 					$name               = preg_replace( '/[^\w]/', '', $name );
 					$template = [
 						'__typename' => $name . 'Template',
-						'templateName' => $registered_templates[ $post_object->post_type ][ $set_template ],
-						'templateFile' => $set_template,
+						'templateName' => ucwords( $registered_templates[ $post_object->post_type ][ $set_template ] ),
 					];
 				}
 
-				return ! empty( $template ) ? $template : 'default';
+				return $template;
 			},
 		];
 

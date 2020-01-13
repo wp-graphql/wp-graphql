@@ -11,10 +11,6 @@ class ContentTemplate {
 					'type' => 'String',
 					'description' => __( 'The name of the template', 'wp-graphql' ),
 				],
-				'templateFile' => [
-					'type' => 'String',
-					'description' => __( 'The file associated with the template', 'wp-graphql' ),
-				],
 			],
 			'resolveType' => function( $value ) use ( $type_registry ) {
 				return isset( $value[ '__typename' ] ) ? $value[ '__typename' ] : 'DefaultTemplate';

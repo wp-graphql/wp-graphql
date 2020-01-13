@@ -45,15 +45,23 @@ class Comments {
 		/**
 		 * Register Connections from all existing PostObject Types to Comments
 		 */
-		register_graphql_connection(
-			self::get_connection_config(
-				[
-					'fromType'      => 'NodeWithComments',
-					'toType'        => 'Comment',
-					'fromFieldName' => 'comments',
-				]
-			)
-		);
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+					register_graphql_connection(
+						self::get_connection_config(
+							[
+								'fromType'      => $post_type_object->graphql_single_name,
+								'toType'        => 'Comment',
+								'fromFieldName' => 'comments',
+							]
+						)
+					);
+				}
+			}
+		}
 	}
 
 	/**
@@ -72,10 +80,10 @@ class Comments {
 			'toType'         => 'Comment',
 			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'resolveNode'    => function ( $id, $args, $context, $info ) {
+			'resolveNode'    => function( $id, $args, $context, $info ) {
 				return DataSource::resolve_comment( $id, $context );
 			},
-			'resolve'        => function ( $root, $args, $context, $info ) {
+			'resolve'        => function( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];
