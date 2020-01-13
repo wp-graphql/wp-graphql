@@ -245,4 +245,21 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	}
 
+	/**
+	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the offset exists.
+	 * Offset is equivalent to comment_id. So this function is equivalent
+	 * to checking if the comment with the given ID exists.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		global $wpdb;
+
+		if ( ! empty( wp_cache_get( $offset, 'comment' ) ) ) {
+			return true;
+		}
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS (SELECT 1 FROM $wpdb->comments WHERE comment_ID = %d)", $offset ) );
+	}
+
 }

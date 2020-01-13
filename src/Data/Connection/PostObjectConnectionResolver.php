@@ -438,11 +438,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			foreach ( $this->post_type as $post_type ) {
 				$post_type_objects[] = get_post_type_object( $post_type );
 			}
-
 		} else {
 			$post_type_objects[] = get_post_type_object( $this->post_type );
 		}
-
 
 		/**
 		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
@@ -452,7 +450,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$allowed_statuses = array_filter(
 			array_map(
 				function( $status ) use ( $post_type_objects ) {
-					foreach( $post_type_objects as $post_type_object ) {
+					foreach ( $post_type_objects as $post_type_object ) {
 						if ( 'publish' === $status ) {
 							return $status;
 						}
@@ -490,6 +488,23 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Return the $allowed_statuses to the query args
 		 */
 		return $allowed_statuses;
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the post corresponding to the offset exists.
+	 * Offset is equivalent to post_id. So this function is equivalent
+	 * to checking if the post with the given ID exists.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		global $wpdb;
+
+		if ( ! empty( wp_cache_get( $offset, 'posts' ) ) ) {
+			return true;
+		}
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS (SELECT 1 FROM $wpdb->posts WHERE ID = %d)", $offset ) );
 	}
 
 }
