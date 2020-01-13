@@ -298,8 +298,11 @@ class TypeRegistry {
 				if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 					foreach ( $allowed_setting_types as $group => $setting_type ) {
 
-						$group_name = lcfirst( str_replace( '_', '', ucwords( $group, '_' ) ) );
-						SettingGroup::register_settings_group( $group_name );
+						$group_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $group ) );
+						$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
+						$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
+						$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
+						SettingGroup::register_settings_group( $group_name, $group );
 
 						register_graphql_field(
 							'RootQuery',
