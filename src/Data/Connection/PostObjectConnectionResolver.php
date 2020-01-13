@@ -221,6 +221,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 							'taxonomy' => $this->source->taxonomyName,
 							'terms'    => [ $this->source->term_id ],
 							'field'    => 'term_id',
+							'include_children' => false,
 						],
 					];
 					break;
