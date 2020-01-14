@@ -39,10 +39,7 @@ class PostObjects {
 				),
 				'resolve'        => function( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
-					$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_types );
-					$connection = $resolver->get_connection();
-
-					return $connection;
+					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
 				},
 			]
 		);

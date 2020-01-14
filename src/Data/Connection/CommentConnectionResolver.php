@@ -258,7 +258,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_comment( absint( $offset ) ) );
+		return ! empty( get_comment( $offset ) );
 	}
 
 }

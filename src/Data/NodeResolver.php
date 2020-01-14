@@ -11,19 +11,28 @@ class NodeResolver {
 
 	protected $wp;
 
+	/**
+	 * NodeResolver constructor.
+	 *
+	 * @access public
+	 */
 	public function __construct() {
-
 		global $wp;
 		$this->wp = $wp;
 	}
 
 	/**
-	 * @param array|string $uri
-	 * @param string       $extra_query_vars
+	 * Given the URI of a resource, this method attempts to resolve it and return the
+	 * appropriate related object
+	 *
+	 * @access public
+	 *
+	 * @param array|string $uri              The path to be used as an identifier for the resource.
+	 * @param string       $extra_query_vars Any extra query vars to consider
 	 *
 	 * @throws \Exception
 	 *
-	 * @return mixed
+	 * @return mixed|Term|Post|User|null
 	 */
 	public function resolve_uri( $uri, $extra_query_vars = '' ) {
 
