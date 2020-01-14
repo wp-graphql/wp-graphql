@@ -27,11 +27,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed              $source    The object passed down from the previous level in the Resolve
-	 *                                      tree
-	 * @param array              $args      The input arguments for the query
-	 * @param AppContext         $context   The context of the request
-	 * @param ResolveInfo        $info      The resolve info passed down the Resolve tree
+	 * @param mixed       $source           The object passed down from the previous level in the
+	 *                                      Resolve tree
+	 * @param array       $args             The input arguments for the query
+	 * @param AppContext  $context          The context of the request
+	 * @param ResolveInfo $info             The resolve info passed down the Resolve tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
@@ -218,9 +218,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				case $this->source instanceof Term:
 					$query_args['tax_query'] = [
 						[
-							'taxonomy' => $this->source->taxonomyName,
-							'terms'    => [ $this->source->term_id ],
-							'field'    => 'term_id',
+							'taxonomy'         => $this->source->taxonomyName,
+							'terms'            => [ $this->source->term_id ],
+							'field'            => 'term_id',
 							'include_children' => false,
 						],
 					];
@@ -492,20 +492,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Determine whether or not the the offset is valid, i.e the post corresponding to the offset exists.
-	 * Offset is equivalent to post_id. So this function is equivalent
-	 * to checking if the post with the given ID exists.
+	 * Determine whether or not the the offset is valid, i.e the post corresponding to the offset
+	 * exists. Offset is equivalent to post_id. So this function is equivalent to checking if the
+	 * post with the given ID exists.
+	 *
+	 * @access public
+	 *
+	 * @param int $offset The ID of the node used in the cursor offset
 	 *
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		global $wpdb;
-
-		if ( ! empty( wp_cache_get( $offset, 'posts' ) ) ) {
-			return true;
-		}
-
-		return $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS (SELECT 1 FROM $wpdb->posts WHERE ID = %d)", $offset ) );
+		return ! empty( get_post( absint( $offset ) ) );
 	}
 
 }
