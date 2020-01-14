@@ -56,7 +56,9 @@ class PostObjects {
 				/**
 				 * Registers the RootQuery connection for each post_type
 				 */
-				register_graphql_connection( self::get_connection_config( $post_type_object ) );
+				if ( 'revision' !== $post_type ) {
+					register_graphql_connection( self::get_connection_config( $post_type_object ) );
+				}
 
 				/**
 				 * Registers the User connection for each post_type

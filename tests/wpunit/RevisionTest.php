@@ -68,10 +68,11 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		/**
-		 * This query should error, because the user is asking for
-		 * things they don't have permission to ask for
+		 * This query should not return any revisions because
+		 * the user doesn't have permission to see them
 		 */
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['revisions']['nodes'] );
 
 	}
 

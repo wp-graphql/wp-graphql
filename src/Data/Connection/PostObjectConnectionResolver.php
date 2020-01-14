@@ -104,11 +104,23 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If the user doesn't have permission to edit the parent post, then we shouldn't
 		 * even execute the connection
 		 */
-		if ( isset( $this->post_type ) && 'revision' === $this->post_type && $this->source instanceof Post ) {
-			$parent_post_type_obj = get_post_type_object( $this->source->post_type );
-			if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
-				$this->should_execute = false;
+		if ( isset( $this->post_type ) && 'revision' === $this->post_type ) {
+
+			if ( $this->source instanceof Post ) {
+				$parent_post_type_obj = get_post_type_object( $this->source->post_type );
+				if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
+					$this->should_execute = false;
+				}
+				/**
+				 * If the connection is from the RootQuery, check if the user
+				 * has the 'edit_posts' capability
+				 */
+			} else {
+				if ( ! current_user_can( 'edit_posts' ) ) {
+					$this->should_execute = false;
+				}
 			}
+
 		}
 
 		return $this->should_execute;
