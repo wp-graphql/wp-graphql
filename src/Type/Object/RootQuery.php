@@ -385,6 +385,10 @@ class RootQuery {
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
+								case 'source_url':
+									$url = $args['id'];
+									$post_id = absint( attachment_url_to_postid( $url ) );
+									break;
 								case 'global_id':
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );

@@ -33,6 +33,14 @@ class ContentNodeIdTypeEnum {
 					];
 				}
 
+				if ( $post_type_object->name === 'attachment' ) {
+					$values['source_url'] = [
+						'name' => 'SOURCE_URL',
+						'value' => 'source_url',
+						'description' => __( 'Identify a media item by its source url', 'wp-graphql' ),
+					];
+				}
+
 				/**
 				 * Register a unique Enum per Post Type. This allows for granular control
 				 * over filtering and customizing the values available per Post Type.
