@@ -996,7 +996,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'pageBy' => [
 					'id'    => $global_child_id,
 					'title' => 'Child Page',
-					'uri'   => $uri
+					'uri'   => ltrim( $uri, '/' ),
 				],
 			],
 		];
@@ -1873,7 +1873,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'id' => $global_id,
 			'postId' => $post_id,
 			'title' => $title,
-			'uri' => str_ireplace( home_url(), '', $permalink ),
+			'uri' => ltrim( str_ireplace( home_url(), '', $permalink ), '/' ),
 			'slug' => $slug,
 		];
 
@@ -1961,7 +1961,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'id' => $global_id,
 			'pageId' => $page_id,
 			'title' => $title,
-			'uri' => str_ireplace( home_url(), '', get_permalink( $page_id ) ),
+			'uri' => ltrim( str_ireplace( home_url(), '', get_permalink( $page_id ) ), '/' ),
 			'slug' => $slug,
 		];
 

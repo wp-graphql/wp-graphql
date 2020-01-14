@@ -444,7 +444,11 @@ class Post extends Model {
 				'uri'             => function() {
 					$uri = get_permalink( $this->data->ID );
 
-					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
+					if ( true === $this->isFrontPage ) {
+						return '/';
+					}
+
+					return ! empty( $uri ) ? ltrim( str_ireplace( home_url(), '', $uri ), '/' ) : null;
 				},
 				'commentCount'    => function() {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
