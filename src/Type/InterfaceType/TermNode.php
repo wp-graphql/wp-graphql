@@ -47,7 +47,7 @@ class TermNode {
 						'description' => __( 'Unique identifier for the term', 'wp-graphql' ),
 					],
 					'databaseId'     => [
-						'type'        => 'Int',
+						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
 						'resolve'     => function( Term $term, $args, $context, $info ) {
 							return absint( $term->term_id );

@@ -19,11 +19,11 @@ class UniformResourceIdentifiable {
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 					'id' => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 					'databaseId' => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
