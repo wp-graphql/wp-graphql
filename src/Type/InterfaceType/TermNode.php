@@ -93,7 +93,7 @@ class TermNode {
 						'description' => __( 'The link to the term', 'wp-graphql' ),
 					],
 					'uri'            => [
-						'type'        => 'String',
+						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
