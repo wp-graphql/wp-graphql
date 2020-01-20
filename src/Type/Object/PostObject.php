@@ -7,10 +7,8 @@
 
 namespace WPGraphQL\Type\Object;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
 
