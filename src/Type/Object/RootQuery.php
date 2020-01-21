@@ -413,7 +413,7 @@ class RootQuery {
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
 					'uri'                                         => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
 				];
