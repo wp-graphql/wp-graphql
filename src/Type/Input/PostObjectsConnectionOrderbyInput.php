@@ -13,9 +13,13 @@ class PostObjectsConnectionOrderbyInput {
 						'type' => [
 							'non_null' => 'PostObjectsConnectionOrderbyEnum',
 						],
+						'description' => __( 'The field to order by', 'wp-graphql' )
 					],
 					'order' => [
-						'type' => 'OrderEnum',
+						'type' => [
+							'non_null' => 'OrderEnum'
+						],
+						'description' => __( 'The direction to order by', 'wp-graphql' ),
 					],
 				],
 			]
