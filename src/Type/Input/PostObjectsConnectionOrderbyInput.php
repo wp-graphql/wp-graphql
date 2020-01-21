@@ -16,7 +16,9 @@ class PostObjectsConnectionOrderbyInput {
 						'description' => __( 'The field to order the connection by', 'wp-graphql' ),
 					],
 					'order' => [
-						'type'        => 'OrderEnum',
+						'type'        => [
+							'non_null' => 'OrderEnum',
+						],
 						'description' => __( 'Possible directions in which to order a list of items', 'wp-graphql' ),
 					],
 				],

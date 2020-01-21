@@ -133,6 +133,7 @@ module.exports = {
             'extensions/wpgraphiql',
             'extensions/wpgraphql-content-blocks',
             'extensions/wpgraphql-gutenberg',
+            'extensions/wp-graphql-seopress',
           ],
         },
       },
