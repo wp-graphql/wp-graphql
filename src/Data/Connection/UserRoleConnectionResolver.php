@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Data\Connection;
 
 use WPGraphQL\Model\User;
@@ -33,12 +34,12 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		$current_user_roles = wp_get_current_user()->roles;
 
 		if ( $this->source instanceof User ) {
-			$roles = $this->source->roles;
+			$roles = ! empty( $this->source->roles ) ? $this->source->roles : [];
 		} else {
 			$roles = ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
 		}
 
-		$roles = array_filter(
+		$roles = ! empty( $roles ) ? array_filter(
 			array_map(
 				function( $role ) use ( $current_user_roles ) {
 					if ( current_user_can( 'list_users' ) ) {
@@ -48,11 +49,12 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 					if ( in_array( $role, $current_user_roles, true ) ) {
 						return $role;
 					}
+
 					return null;
 				},
 				$roles
 			)
-		);
+		) : $roles;
 
 		return $roles;
 	}
@@ -68,7 +70,19 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}
+
 		return true;
+	}
+
+	/**
+	 * TODO: Temporarily return false for all offsets, as pagination
+	 * does not work for user roles. Will need to be updated when
+	 * proper pagination is implemented for user roles.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return false;
 	}
 
 }

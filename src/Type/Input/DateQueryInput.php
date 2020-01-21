@@ -38,10 +38,12 @@ class DateQueryInput {
 						'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
 					],
 					'after'     => [
-						'type' => 'DateInput',
+						'type'        => 'DateInput',
+						'description' => __( 'Nodes should be returned after this date', 'wp-graphql' ),
 					],
 					'before'    => [
-						'type' => 'DateInput',
+						'type'        => 'DateInput',
+						'description' => __( 'Nodes should be returned before this date', 'wp-graphql' ),
 					],
 					'inclusive' => [
 						'type'        => 'Boolean',

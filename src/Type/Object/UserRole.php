@@ -23,8 +23,8 @@ class UserRole {
 						],
 						'description' => __( 'The capabilities that belong to this role', 'wp-graphql' ),
 					],
-					'displayName' => [
-						'type' => 'String',
+					'displayName'  => [
+						'type'        => 'String',
 						'description' => __( 'The display name of the role', 'wp-graphql' ),
 					],
 					'isRestricted' => [

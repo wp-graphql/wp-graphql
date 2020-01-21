@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -22,6 +23,32 @@ class TermObjects {
 
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+
+		register_graphql_connection(
+			[
+				'fromType'       => 'RootQuery',
+				'toType'         => 'TermNode',
+				'queryClass'     => 'WP_Term_Query',
+				'resolveNode'    => function( $id, $args, $context, $info ) {
+					return DataSource::resolve_term_object( $id, $context );
+				},
+				'fromFieldName'  => 'terms',
+				'connectionArgs' => self::get_connection_args(
+					[
+						'taxonomies' => [
+							'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+							'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+						],
+					]
+				),
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
+					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
+					$connection = $resolver->get_connection();
+					return $connection;
+				},
+			]
+		);
 
 		/**
 		 * Loop through the allowed_taxonomies to register appropriate connections

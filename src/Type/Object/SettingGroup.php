@@ -10,12 +10,12 @@ class SettingGroup {
 	/**
 	 * @param string $group_name
 	 */
-	public static function register_settings_group( $group_name ) {
+	public static function register_settings_group( $group_name, $group ) {
 		register_graphql_object_type(
 			ucfirst( $group_name ) . 'Settings',
 			[
 				'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
-				'fields'      => self::get_settings_group_fields( $group_name ),
+				'fields'      => self::get_settings_group_fields( $group_name, $group ),
 			]
 		);
 	}
@@ -28,9 +28,9 @@ class SettingGroup {
 	 * @return array
 	 * @access public
 	 */
-	public static function get_settings_group_fields( $group_name ) {
+	public static function get_settings_group_fields( $group_name, $group ) {
 
-		$setting_fields = DataSource::get_setting_group_fields( $group_name );
+		$setting_fields = DataSource::get_setting_group_fields( $group );
 
 		$fields = [];
 
@@ -48,7 +48,13 @@ class SettingGroup {
 				} else {
 					$field_key = $key;
 				}
-				$field_key = lcfirst( str_replace( '_', '', ucwords( $field_key, '_' ) ) );
+
+				$field_key = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $field_key ) );
+				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
+				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
+				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
+
+
 
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
@@ -76,22 +82,22 @@ class SettingGroup {
 							switch ( $setting_field['type'] ) {
 								case 'integer':
 								case 'int':
-									$option = absint( $option );
+									return absint( $option );
 									break;
 								case 'string':
-									$option = (string) $option;
+									return (string) $option;
 									break;
 								case 'boolean':
 								case 'bool':
-									$option = (bool) $option;
+								return (bool) $option;
 									break;
 								case 'number':
 								case 'float':
-									$option = (float) $option;
+									return (float) $option;
 									break;
 							}
 
-							return ! empty( $option ) ? $option : '';
+							return ! empty( $option ) ? $option : null;
 						},
 					];
 

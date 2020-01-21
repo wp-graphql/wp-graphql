@@ -11,7 +11,7 @@ class Node {
 				'description' => __( 'An object with an ID', 'wp-graphql' ),
 				'fields'      => [
 					'id' => [
-						'type' => [
+						'type'        => [
 							'non_null' => 'ID',
 						],
 						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),

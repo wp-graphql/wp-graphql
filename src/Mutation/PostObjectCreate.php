@@ -37,75 +37,98 @@ class PostObjectCreate {
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		$fields = [
-			'authorId'      => [
-				'type'        => 'ID',
-				'description' => __( 'The userId to assign as the author of the post', 'wp-graphql' ),
-			],
-			'commentCount'  => [
-				'type'        => 'INT',
-				'description' => __( 'The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility.', 'wp-graphql' ),
-			],
-			'commentStatus' => [
-				'type'        => 'String',
-				'description' => __( 'The comment status for the object', 'wp-graphql' ),
-			],
-			'content'       => [
-				'type'        => 'String',
-				'description' => __( 'The content of the object', 'wp-graphql' ),
-			],
-			'date'          => [
+			'date'      => [
 				'type'        => 'String',
 				'description' => __( 'The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17 ', 'wp-graphql' ),
 			],
-			'excerpt'       => [
-				'type'        => 'String',
-				'description' => __( 'The excerpt of the object', 'wp-graphql' ),
-			],
-			'menuOrder'     => [
+			'menuOrder' => [
 				'type'        => 'Int',
 				'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
 			],
-			'mimeType'      => [
-				'type'        => 'MimeTypeEnum',
-				'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the "post_objects" database table.', 'wp-graphql' ),
-			],
-			'parentId'      => [
-				'type'        => 'Id',
-				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
-			],
-			'password'      => [
+			'password'  => [
 				'type'        => 'String',
 				'description' => __( 'The password used to protect the content of the object', 'wp-graphql' ),
 			],
-			'pinged'        => [
+			'slug'      => [
+				'type'        => 'String',
+				'description' => __( 'The slug of the object', 'wp-graphql' ),
+			],
+			'status'    => [
+				'type'        => 'PostStatusEnum',
+				'description' => __( 'The status of the object', 'wp-graphql' ),
+			],
+		];
+
+		if ( post_type_supports( $post_type_object->name, 'author' ) ) {
+			$fields['authorId'] = [
+				'type'        => 'ID',
+				'description' => __( 'The userId to assign as the author of the object', 'wp-graphql' ),
+			];
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+			$fields['commentStatus'] = [
+				'type'        => 'String',
+				'description' => __( 'The comment status for the object', 'wp-graphql' ),
+			];
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'editor' ) ) {
+			$fields['content'] = [
+				'type'        => 'String',
+				'description' => __( 'The content of the object', 'wp-graphql' ),
+			];
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'excerpt' ) ) {
+			$fields['excerpt'] = [
+				'type'        => 'String',
+				'description' => __( 'The excerpt of the object', 'wp-graphql' ),
+			];
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
+			$fields['title'] = [
+				'type'        => 'String',
+				'description' => __( 'The title of the object', 'wp-graphql' ),
+			];
+		}
+
+		if ( post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
+
+			$fields['pinged'] = [
 				'type'        => [
 					'list_of' => 'String',
 				],
 				'description' => __( 'URLs that have been pinged.', 'wp-graphql' ),
-			],
-			'pingStatus'    => [
+			];
+
+			$fields['pingStatus'] = [
 				'type'        => 'String',
 				'description' => __( 'The ping status for the object', 'wp-graphql' ),
-			],
-			'slug'          => [
-				'type'        => 'String',
-				'description' => __( 'The slug of the object', 'wp-graphql' ),
-			],
-			'status'        => [
-				'type'        => 'PostStatusEnum',
-				'description' => __( 'The status of the object', 'wp-graphql' ),
-			],
-			'title'         => [
-				'type'        => 'String',
-				'description' => __( 'The title of the post', 'wp-graphql' ),
-			],
-			'toPing'        => [
+			];
+
+			$fields['toPing'] = [
 				'type'        => [
 					'list_of' => 'String',
 				],
 				'description' => __( 'URLs queued to be pinged.', 'wp-graphql' ),
-			],
-		];
+			];
+		}
+
+		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {
+			$fields['parentId'] = [
+				'type'        => 'Id',
+				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
+			];
+		}
+
+		if ( 'attachment' === $post_type_object->name ) {
+			$fields['mimeType'] = [
+				'type'        => 'MimeTypeEnum',
+				'description' => __( 'If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the "post_objects" database table.', 'wp-graphql' ),
+			];
+		}
 
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {

@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.5.1
+ * Version: 0.6.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.5.1
+ * @version  0.6.0
  */
 
 // Exit if accessed directly.
@@ -172,7 +172,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.5.1' );
+				define( 'WPGRAPHQL_VERSION', '0.6.0' );
 			}
 
 			// Plugin Folder Path.
@@ -199,6 +199,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
 				define( 'GRAPHQL_DEBUG', false );
 			}
+
+			// The minimum version of PHP this plugin requires to work properly
+			if ( ! defined( 'GRAPQHL_MIN_PHP_VERSION' ) ) {
+				define( 'GRAPQHL_MIN_PHP_VERSION', '7.0' );
+			}
+
 		}
 
 		/**
@@ -286,6 +292,25 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
+
+			// Throw an exception
+			add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+
+		}
+
+		/**
+		 * Check if the minimum PHP version requirement is met before execution begins.
+		 *
+		 * If the server is running a lower version than required, throw an exception and prevent
+		 * further execution.
+		 *
+		 * @throws Exception
+		 */
+		public function min_php_version_check() {
+
+			if ( defined( 'GRAPQHL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPQHL_MIN_PHP_VERSION, '<' ) ) {
+				throw new \Exception( sprintf( __( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ), PHP_VERSION, GRAPQHL_MIN_PHP_VERSION ) );
+			}
 
 		}
 
@@ -397,6 +422,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_taxonomies['post_tag']->show_in_graphql     = true;
 				$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
 				$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
+			}
+
+			// Adds GraphQL support for post formats.
+			if ( isset( $wp_taxonomies['post_format'] ) ) {
+				$wp_taxonomies['post_format']->show_in_graphql = true;
+				$wp_taxonomies['post_format']->graphql_single_name = 'postFormat';
+				$wp_taxonomies['post_format']->graphql_plural_name = 'postFormats';
 			}
 		}
 

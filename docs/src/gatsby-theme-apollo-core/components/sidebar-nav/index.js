@@ -1,4 +1,4 @@
-import Category from 'gatsby-theme-apollo-core/src/components/sidebar-nav/category'
+import Category from './category'
 import PropTypes from 'prop-types'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import styled from '@emotion/styled'

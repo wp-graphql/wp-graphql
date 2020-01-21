@@ -180,11 +180,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Only users with the "list_users" capability can filter users by roles
 		 */
 		if ( (
-				 ! empty( $args['roleIn'] ) ||
-				 ! empty( $args['roleNotIn'] ) ||
-				 ! empty( $args['role'] )
-			 ) &&
-			 ! current_user_can( 'list_users' )
+			     ! empty( $args['roleIn'] ) ||
+			     ! empty( $args['roleNotIn'] ) ||
+			     ! empty( $args['role'] )
+		     ) &&
+		     ! current_user_can( 'list_users' )
 		) {
 			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}
@@ -225,5 +225,20 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the user corresponding to the offset
+	 * exists. Offset is equivalent to user_id. So this function is equivalent to checking if the
+	 * user with the given ID exists.
+	 *
+	 * @access public
+	 *
+	 * @param int $offset The ID of the node used as the offset in the cursor
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_user_by( 'ID', absint( $offset ) ) );
 	}
 }

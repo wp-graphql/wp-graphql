@@ -116,7 +116,6 @@ class PostObjectLoader extends AbstractDataLoader {
 							$user_id = $post_object->post_author;
 							$this->context->getLoader( 'user' )->buffer( [ $user_id ] );
 						}
-
 					}
 
 					if ( 'revision' === $post_object->post_type && ! empty( $post_object->post_parent ) && absint( $post_object->post_parent ) ) {
@@ -152,7 +151,6 @@ class PostObjectLoader extends AbstractDataLoader {
 
 							return;
 						}
-
 					);
 
 					/**

@@ -276,4 +276,19 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 	}
 
+	/**
+	 * Determine whether or not the the offset is valid, i.e the term corresponding to the offset
+	 * exists. Offset is equivalent to term_id. So this function is equivalent to checking if the
+	 * term with the given ID exists.
+	 *
+	 * @access public
+	 *
+	 * @param int $offset The ID of the node used in the cursor for offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_term( absint( $offset ) ) );
+	}
+
 }

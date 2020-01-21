@@ -59,13 +59,12 @@ class UserLoader extends AbstractDataLoader {
 		 * the model layer.
 		 */
 		foreach ( $keys as $key ) {
-			$user                   = get_user_by( 'id', $key );
+			$user = get_user_by( 'id', $key );
 			if ( $user instanceof \WP_User ) {
 				$loaded_users[ $user->ID ] = new User( $user );
-			} else if ( ! isset( $all_users[ 0 ] ) ) {
+			} elseif ( ! isset( $all_users[0] ) ) {
 				$loaded_users[0] = null;
 			}
-
 		}
 		return ! empty( $loaded_users ) ? $loaded_users : [];
 

@@ -80,10 +80,10 @@ class Comments {
 			'toType'         => 'Comment',
 			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'resolveNode'    => function ( $id, $args, $context, $info ) {
+			'resolveNode'    => function( $id, $args, $context, $info ) {
 				return DataSource::resolve_comment( $id, $context );
 			},
-			'resolve'        => function ( $root, $args, $context, $info ) {
+			'resolve'        => function( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];

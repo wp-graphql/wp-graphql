@@ -126,8 +126,11 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							[
 								'name' => 'post_tag'
 							],
+							[
+								'name' => 'post_format'
+							],
 						],
-						'connectedTaxonomyNames' => [ 'category', 'post_tag' ],
+						'connectedTaxonomyNames' => [ 'category', 'post_tag', 'post_format' ],
 						'deleteWithUser' => true,
 						'description' => '',
 						'excludeFromSearch' => false,

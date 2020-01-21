@@ -25,6 +25,7 @@ use GraphQLRelay\Relay;
  * @property string $nicename
  * @property string $locale
  * @property int    $userId
+ * @property string $uri
  *
  * @package WPGraphQL\Model
  */
@@ -62,6 +63,7 @@ class User extends Model {
 			'lastName',
 			'description',
 			'slug',
+			'uri',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
@@ -172,9 +174,15 @@ class User extends Model {
 				},
 				'locale'            => function() {
 					$user_locale = get_user_locale( $this->data );
+
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
 				'userId'            => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
+				'uri'               => function() {
+					$user_profile_url = get_author_posts_url( $this->data->ID );
+
+					return ! empty( $user_profile_url ) ? ltrim( str_ireplace( home_url(), '', $user_profile_url ), '/' ) : '';
+				},
 			];
 
 		}

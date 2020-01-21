@@ -6,8 +6,8 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.test-base'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.3}"
-        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
     image: 'wordpress-wp-graphql-test-base'
     container_name: 'wpgraphql-tester'
     environment:
@@ -28,8 +28,8 @@ services:
       context: '../'
       dockerfile: 'Dockerfile.test-base'
       args:
-        DESIRED_WP_VERSION: "${WP_VERSION:-5.2.3}"
-        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.3}"
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
     image: 'wordpress-wp-graphql-test-base'
     environment:
       WORDPRESS_DB_HOST: 'mysql_test'

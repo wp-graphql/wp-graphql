@@ -72,7 +72,11 @@ the plugin screen, or via WP CLI `wp plugin activate wp-graphql`
 The most common use of WPGraphQL is as an API endpoint that can be accessed via HTTP requests
 (although it can be used without remote HTTP requests as well)
 
-In order for the `/graphql` endpoint to work, **you must have pretty permalinks enabled** and any permalink structure other than the default WordPress permalink structure.
+In order for the `/graphql` endpoint to work, **you must have pretty permalinks enabled** and any permalink structure other than the default WordPress permalink structure. In addition, if your site url and wordpress address url don't match, the graphql endpoint will be available at the wordpress address url. These settings can be checked at `/wp-admin/options-general.php` For instance:
+
+- **Site Address** - `http://localhost`
+- **Wordpress Address** - `http://localhost/wordpress`
+- **graphql endpoint** - `http://localhost/wordpress/graphql`
 
 Once the plugin is active, your site should have a `example.com/graphql` endpoint and you the
 expected response is a JSON payload like so:

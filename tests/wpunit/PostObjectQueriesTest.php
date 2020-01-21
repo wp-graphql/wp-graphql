@@ -124,6 +124,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
+	 * @throws Exception
 	 */
 	public function testPostQuery() {
 
@@ -181,7 +182,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				excerpt
 				status
 				link
-				menuOrder
 				postId
 				slug
 				toPing
@@ -205,6 +205,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -235,7 +237,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'status'        => 'publish',
 					'link'          => get_permalink( $post_id ),
-					'menuOrder'     => null,
 					'postId'        => $post_id,
 					'slug'          => 'test-title',
 					'toPing'        => null,
@@ -248,7 +249,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'mediaItemId' => $featured_image_id,
 						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
 						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
-						'full' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0],
+						'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
 						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
 					],
 				],
@@ -332,7 +333,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 					}
-					content
 					date
 					dateGmt
 					description
@@ -344,7 +344,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						editTime
 					}
 					enclosure
-					excerpt
 					guid
 					id
 					link
@@ -377,7 +376,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 					mediaItemId
 					mediaType
-					menuOrder
 					mimeType
 					modified
 					modifiedGmt
@@ -386,18 +384,18 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							id
 						}
 					}
-					pingStatus
 					slug
 					sourceUrl
 					status
 					title
-					toPing
 				}
 			}
 		}
     ";
 
 		$actual   = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 		$expected = [
 			"data" => [
 				"post" => [
@@ -948,6 +946,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'  => 'page',
 			'post_title' => 'Parent Page',
 			'post_name'  => 'parent-page',
+			'post_status' => 'publish'
 		] );
 
 		$child_id = $this->createPostObject( [
@@ -955,6 +954,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Child Page',
 			'post_name'   => 'child-page',
 			'post_parent' => $parent_id,
+			'post_status' => 'publish'
 		] );
 
 		/**
@@ -965,7 +965,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get the uri to the Child Page
 		 */
-		$uri = get_page_uri( $child_id );
+		$uri = rtrim( str_ireplace( home_url(), '', get_permalink( $child_id ) ), '');
 
 		/**
 		 * Create the query string to pass to the $query
@@ -979,10 +979,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}";
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -992,7 +996,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'pageBy' => [
 					'id'    => $global_child_id,
 					'title' => 'Child Page',
-					'uri'   => $uri
+					'uri'   => ltrim( $uri, '/' ),
 				],
 			],
 		];
@@ -1842,6 +1846,175 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
 
+
+	}
+
+	/**
+	 * This tests to query posts using the new idType option for single
+	 * node entry points
+	 *
+	 * @throws Exception
+	 */
+	public function testQueryPostUsingIDType() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test Node',
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
+		$slug = get_post( $post_id )->post_name;
+		$uri = get_page_uri( $post_id );
+		$title = get_post( $post_id )->post_title;
+		$permalink = get_permalink( $post_id );
+
+		$expected = [
+			'id' => $global_id,
+			'postId' => $post_id,
+			'title' => $title,
+			'uri' => ltrim( str_ireplace( home_url(), '', $permalink ), '/' ),
+			'slug' => $slug,
+		];
+
+		codecept_debug( $expected );
+
+		/**
+		 * Here we query a single post node by various entry points
+		 * and assert that it's the same node in each response
+		 */
+		$query = '
+		{
+		  postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
+		    ...PostFields
+		  }
+		  postByUriID: post(id: "' . $uri . '", idType: URI) {
+		    ...PostFields
+		  }
+		  postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
+		    ...PostFields
+		  }
+		  postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
+		    ...PostFields
+		  }
+		  postBySlug: postBy(slug: "' . $slug . '") {
+		    ...PostFields
+		  }
+		  postByUri: postBy(uri: "' . $uri . '") {
+		    ...PostFields
+		  }
+		  postById: postBy(id: "' . $global_id . '") {
+		    ...PostFields
+		  }
+		  postByPostId: postBy(postId: ' . $post_id . ') {
+		    ...PostFields
+		  }
+		}
+		
+		fragment PostFields on Post {
+		  id
+		  postId
+		  title
+		  uri
+		  slug
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['postBySlugID'] );
+		$this->assertSame( $expected, $actual['data']['postByUriID'] );
+		$this->assertSame( $expected, $actual['data']['postByDatabaseID'] );
+		$this->assertSame( $expected, $actual['data']['postByGlobalId'] );
+		$this->assertSame( $expected, $actual['data']['postBySlug'] );
+		$this->assertSame( $expected, $actual['data']['postByUri'] );
+		$this->assertSame( $expected, $actual['data']['postById'] );
+		$this->assertSame( $expected, $actual['data']['postByPostId'] );
+
+	}
+
+	/**
+	 * This tests to query posts using the new idType option for single
+	 * node entry points
+	 *
+	 * @throws Exception
+	 */
+	public function testQueryPageUsingIDType() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Test Node',
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', absint( $page_id ) );
+		$slug = get_post( $page_id )->post_name;
+		$uri = get_page_uri( $page_id );
+		$title = get_post( $page_id )->post_title;
+
+		$expected = [
+			'id' => $global_id,
+			'pageId' => $page_id,
+			'title' => $title,
+			'uri' => ltrim( str_ireplace( home_url(), '', get_permalink( $page_id ) ), '/' ),
+			'slug' => $slug,
+		];
+
+		codecept_debug( $expected );
+
+		/**
+		 * Here we query a single page node by various entry points
+		 * and assert that it's the same node in each response
+		 */
+		$query = '
+		{
+		  pageByUriID: page(id: "' . $uri . '", idType: URI) {
+		    ...pageFields
+		  }
+		  pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
+		    ...pageFields
+		  }
+		  pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
+		    ...pageFields
+		  }
+		  pageByUri: pageBy(uri: "' . $uri . '") {
+		    ...pageFields
+		  }
+		  pageById: pageBy(id: "' . $global_id . '") {
+		    ...pageFields
+		  }
+		  pageBypageId: pageBy(pageId: ' . $page_id . ') {
+		    ...pageFields
+		  }
+		}
+		
+		fragment pageFields on Page {
+		  id
+		  pageId
+		  title
+		  uri
+		  slug
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['pageByUriID'] );
+		$this->assertSame( $expected, $actual['data']['pageByDatabaseID'] );
+		$this->assertSame( $expected, $actual['data']['pageByGlobalId'] );
+		$this->assertSame( $expected, $actual['data']['pageByUri'] );
+		$this->assertSame( $expected, $actual['data']['pageById'] );
+		$this->assertSame( $expected, $actual['data']['pageBypageId'] );
 
 	}
 

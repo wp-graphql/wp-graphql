@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
@@ -195,7 +196,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * @param array $args     The array of query arguments
+	 * @param array $args The array of query arguments
 	 *
 	 * @since  0.0.5
 	 * @access private
@@ -243,6 +244,21 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the
+	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
+	 * checking if the comment with the given ID exists.
+	 *
+	 * @access public
+	 *
+	 * @param int $offset The ID of the node used for the cursor offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_comment( $offset ) );
 	}
 
 }

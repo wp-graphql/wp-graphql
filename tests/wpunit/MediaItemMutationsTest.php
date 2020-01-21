@@ -16,7 +16,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $slug;
 	public $status;
 	public $title;
-	public $pingStatus;
 	public $parentId;
 	public $clientMutationId;
 	public $updated_title;
@@ -28,7 +27,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $updated_dateGmt;
 	public $updated_slug;
 	public $updated_status;
-	public $updated_pingStatus;
 	public $updated_clientMutationId;
 
 	public $create_variables;
@@ -86,7 +84,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->slug             = 'magic-shia';
 	    $this->status           = 'INHERIT';
 	    $this->title            = 'Magic Shia Gif';
-	    $this->pingStatus       = 'closed';
 	    $this->parentId         = null;
 	    $this->clientMutationId = 'someUniqueId';
 
@@ -102,7 +99,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';
-	    $this->updated_pingStatus = 'open';
 	    $this->updated_clientMutationId = 'someUpdatedUniqueId';
 
 	    /**
@@ -130,7 +126,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->dateGmt,
 			    'slug'             => $this->slug,
 			    'status'           => $this->status,
-			    'pingStatus'       => $this->pingStatus,
 			    'authorId'         => $this->authorId,
 		    ],
 	    ];
@@ -151,7 +146,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->updated_dateGmt,
 			    'slug'             => $this->updated_slug,
 			    'status'           => $this->updated_status,
-			    'pingStatus'       => $this->updated_pingStatus,
 			    'fileType'         => $this->fileType,
 		    ]
 	    ];
@@ -203,7 +197,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			      status
 			      title
 			      commentStatus
-			      pingStatus
 			      altText
 			      caption
 			      description
@@ -352,7 +345,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 				'dateGmt'          => $this->dateGmt,
 				'slug'             => $this->slug,
 				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
 				'authorId'         => $this->admin,
 			],
 		];
@@ -416,6 +408,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		wp_set_current_user( $this->author );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -454,7 +449,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->dateGmt,
 						'slug'             => $this->slug,
 						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
 						'mimeType'         => 'image/gif',
 						'parent'           => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
@@ -717,7 +711,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->dateGmt,
 						'slug'             => $this->slug,
 						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
 						'mimeType'         => 'image/gif',
 						'parent'           => null,
 						'mediaType'        => 'image',
@@ -784,7 +777,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      status
 		      title
 		      commentStatus
-		      pingStatus
 		      altText
 		      caption
 		      description
@@ -939,7 +931,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->updated_dateGmt,
 						'slug'             => $this->updated_slug,
 						'status'           => strtolower( $this->updated_status ),
-						'pingStatus'       => $this->updated_pingStatus,
 						'mimeType'         => 'image/gif',
 						'author'           => [
 							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),

@@ -14,12 +14,16 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->subscriber       = $this->factory()->user->create( [
-			'role' => 'subscriber'
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->subscriber       = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
 		$this->created_post_ids = $this->create_posts();
 
@@ -90,12 +94,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		for ( $i = 1; $i <= $count; $i ++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
-			$created_posts[ $i ] = $this->createPostObject( [
-				'post_type'   => 'post',
-				'post_date'   => $date,
-				'post_status' => 'publish',
-				'post_title'  => $i,
-			] );
+			$created_posts[ $i ] = $this->createPostObject(
+				[
+					'post_type'   => 'post',
+					'post_date'   => $date,
+					'post_status' => 'publish',
+					'post_title'  => $i,
+				]
+			);
 		}
 
 		return $created_posts;
@@ -140,7 +146,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		if ( empty( $field ) ) {
 			return $data;
-		} else if ( ! empty( $data ) ) {
+		} elseif ( ! empty( $data ) ) {
 			$data = $data[ $field ];
 		}
 
@@ -163,9 +169,11 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
-		$first_post      = new WP_Query( [
-			'posts_per_page' => 1,
-		] );
+		$first_post      = new WP_Query(
+			[
+				'posts_per_page' => 1,
+			]
+		);
 		$first_post_id   = $first_post->posts[0]->ID;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_post_id );
 		$this->assertNotEmpty( $results );
@@ -175,6 +183,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
 		$this->assertEquals( $first_post_id, $results['data']['posts']['nodes'][0]['postId'] );
+		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 		$this->forwardPagination( $expected_cursor );
 
@@ -192,10 +202,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Let's query the last post in our data set so we can test against it
 		 */
-		$last_post    = new WP_Query( [
-			'posts_per_page' => 1,
-			'order'          => 'ASC',
-		] );
+		$last_post    = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'order'          => 'ASC',
+			]
+		);
 		$last_post_id = $last_post->posts[0]->ID;
 
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_post_id );
@@ -206,6 +218,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 		$this->backwardPagination( $expected_cursor );
 
@@ -222,10 +236,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $results );
 
-		$second_post     = new WP_Query( [
-			'posts_per_page' => 1,
-			'paged'          => 2,
-		] );
+		$second_post     = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'paged'          => 2,
+			]
+		);
 		$second_post_id  = $second_post->posts[0]->ID;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_post_id );
 		$this->assertNotEmpty( $results );
@@ -234,6 +250,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+
 	}
 
 	public function backwardPagination( $cursor ) {
@@ -245,11 +263,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->postsQuery( $variables );
 
-		$second_to_last_post    = new WP_Query( [
-			'posts_per_page' => 1,
-			'paged'          => 2,
-			'order'          => 'ASC',
-		] );
+		$second_to_last_post    = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'paged'          => 2,
+				'order'          => 'ASC',
+			]
+		);
 		$second_to_last_post_id = $second_to_last_post->posts[0]->ID;
 		$expected_cursor        = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_post_id );
 		$this->assertNotEmpty( $results );
@@ -258,6 +278,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}
 
@@ -280,18 +301,24 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Test the filter to make sure it's capping the results properly
 		 */
-		add_filter( 'graphql_connection_max_query_amount', function() {
-			return 20;
-		} );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			function() {
+				return 20;
+			}
+		);
 
 		$variables = [
 			'first' => 150,
 		];
 		$results   = $this->postsQuery( $variables );
 
-		add_filter( 'graphql_connection_max_query_amount', function() {
-			return 100;
-		} );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			function() {
+				return 100;
+			}
+		);
 
 		$this->assertCount( 20, $results['data']['posts']['edges'] );
 		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
@@ -299,19 +326,23 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPostHasPassword() {
 		// Create a test post with a password
-		$this->createPostObject( [
-			'post_title'    => 'Password protected',
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_password' => 'password',
-		] );
+		$this->createPostObject(
+			[
+				'post_title'    => 'Password protected',
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'password',
+			]
+		);
 
 		/**
 		 * WP_Query posts with a password
 		 */
-		$wp_query_posts_with_password = new WP_Query( [
-			'has_password' => true,
-		] );
+		$wp_query_posts_with_password = new WP_Query(
+			[
+				'has_password' => true,
+			]
+		);
 
 		/**
 		 * GraphQL query posts that have a password
@@ -349,14 +380,18 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPageWithChildren() {
 
-		$parent_id = $this->factory->post->create( [
-			'post_type' => 'page'
-		] );
+		$parent_id = $this->factory->post->create(
+			[
+				'post_type' => 'page',
+			]
+		);
 
-		$child_id = $this->factory->post->create( [
-			'post_type'   => 'page',
-			'post_parent' => $parent_id
-		] );
+		$child_id = $this->factory->post->create(
+			[
+				'post_type'   => 'page',
+				'post_parent' => $parent_id,
+			]
+		);
 
 		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
 		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
@@ -396,7 +431,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $global_child_id, $child['id'] );
 		$this->assertEquals( $child_id, $child['pageId'] );
 
-
 	}
 
 	/**
@@ -432,20 +466,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPrivatePostsWithoutProperCaps() {
 
-		$private_post = $this->createPostObject( [
-			'post_status' => 'private',
-		] );
-		$public_post  = $this->createPostObject( [
-			'post_status' => 'publish',
-		] );
+		$private_post = $this->createPostObject(
+			[
+				'post_status' => 'private',
+			]
+		);
+		$public_post  = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $private_post, $public_post ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $private_post, $public_post ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
 
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
@@ -464,12 +504,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->admin );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $post_id ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $post_id ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
 
 		codecept_debug( $actual );
 
@@ -488,12 +530,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $post_id ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $post_id ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
 
 		/**
 		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
@@ -510,7 +554,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 *
 		 * We're going in the direction of the REST API here. Where certain statuses can only be
 		 * queried by users with certain capabilities.
-		 *
 		 */
 		$this->assertEmpty( $actual['data']['posts']['edges'] );
 		$this->assertEmpty( $actual['data']['posts']['nodes'] );
@@ -523,11 +566,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
 
 		$parent_post = $this->createPostObject( [] );
-		$revision    = $this->createPostObject( [
-			'post_type'   => 'revision',
-			'post_parent' => $parent_post,
-			'post_status' => 'inherit',
-		] );
+		$revision    = $this->createPostObject(
+			[
+				'post_type'   => 'revision',
+				'post_parent' => $parent_post,
+				'post_status' => 'inherit',
+			]
+		);
 
 		$query = "
 		{
@@ -584,12 +629,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $public_post, $draft_post ],
-				'stati' => [ 'PUBLISH', 'DRAFT' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $public_post, $draft_post ],
+					'stati' => [ 'PUBLISH', 'DRAFT' ],
+				],
 			]
-		] );
+		);
 
 		if ( 'admin' === $role ) {
 
@@ -610,7 +657,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				$this->assertNull( $content_field );
 				$this->assertNull( $excerpt_field );
 			}
-		} else if ( 'subscriber' === $role ) {
+		} elseif ( 'subscriber' === $role ) {
 
 			/**
 			 * The subscriber should only have access to 1 post, the public one.
@@ -636,12 +683,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $public_post, $draft_post ],
-				'stati' => [ 'PUBLISH', 'TRASH' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $public_post, $draft_post ],
+					'stati' => [ 'PUBLISH', 'TRASH' ],
+				],
 			]
-		] );
+		);
 
 		if ( 'admin' === $role ) {
 			/**
@@ -660,7 +709,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				$this->assertNull( $content_field );
 				$this->assertNull( $excerpt_field );
 			}
-		} else if ( 'subscriber' === $role ) {
+		} elseif ( 'subscriber' === $role ) {
 			/**
 			 * The subscriber should only be able to see 1 post, the public one, not the trashed post.
 			 */
@@ -679,7 +728,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'admin',
 				true,
-			]
+			],
 		];
 	}
 

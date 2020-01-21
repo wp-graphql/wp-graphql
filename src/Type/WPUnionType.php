@@ -16,12 +16,15 @@ use WPGraphQL\Registry\TypeRegistry;
  */
 class WPUnionType extends UnionType {
 
-	protected $type_registry;
+	/**
+	 * @var TypeRegistry
+	 */
+	public $type_registry;
 
 	/**
 	 * WPUnionType constructor.
 	 *
-	 * @param array $config The Config to setup a Union Type
+	 * @param array        $config The Config to setup a Union Type
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @since 0.0.30
@@ -88,17 +91,5 @@ class WPUnionType extends UnionType {
 		do_action( 'graphql_wp_union_type', $config, $this );
 
 		parent::__construct( $config );
-	}
-
-	/**
-	 * Simple getter function so "$type_registry" can be used in hooks
-	 *
-	 * @param string $name  Member name.
-	 * @return TypeRegistry|null
-	 */
-	public function __get( $name ) {
-		if ( 'type_registry' === $name ) {
-			return $this->type_registry;
-		}
 	}
 }

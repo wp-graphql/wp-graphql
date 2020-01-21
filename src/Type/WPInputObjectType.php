@@ -21,9 +21,9 @@ class WPInputObjectType extends InputObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array  $fields
-	 * @param string $type_name
-	 * @param array  $config
+	 * @param array        $fields
+	 * @param string       $type_name
+	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 * @return mixed
 	 * @since 0.0.5
