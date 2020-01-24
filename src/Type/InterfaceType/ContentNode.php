@@ -50,14 +50,14 @@ class ContentNode {
 
 				},
 				'fields'      => [
-					'id'            => [
+					'id'           => [
 						'type'        => [
 							'non_null' => 'ID',
 						],
 						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
 					],
 
-					'databaseId'    => [
+					'databaseId'   => [
 						'type'        => [
 							'non_null' => 'Int',
 						],
@@ -66,35 +66,35 @@ class ContentNode {
 							return absint( $post->ID );
 						},
 					],
-					'date'          => [
+					'date'         => [
 						'type'        => 'String',
 						'description' => __( 'Post publishing date.', 'wp-graphql' ),
 					],
-					'dateGmt'       => [
+					'dateGmt'      => [
 						'type'        => 'String',
 						'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
 					],
-					'enclosure'     => [
+					'enclosure'    => [
 						'type'        => 'String',
 						'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
 					],
-					'status'        => [
+					'status'       => [
 						'type'        => 'String',
 						'description' => __( 'The current status of the object', 'wp-graphql' ),
 					],
-					'slug'          => [
+					'slug'         => [
 						'type'        => 'String',
 						'description' => __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the "post_objects" table.', 'wp-graphql' ),
 					],
-					'modified'      => [
+					'modified'     => [
 						'type'        => 'String',
 						'description' => __( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
 					],
-					'modifiedGmt'   => [
+					'modifiedGmt'  => [
 						'type'        => 'String',
 						'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 					],
-					'editLast'      => [
+					'editLast'     => [
 						'type'        => 'User',
 						'description' => __( 'The user that most recently edited the object', 'wp-graphql' ),
 						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
@@ -107,27 +107,27 @@ class ContentNode {
 							return DataSource::resolve_user( $post->editLastId, $context );
 						},
 					],
-					'editLock'      => [
+					'editLock'     => [
 						'type'        => 'EditLock',
 						'description' => __( 'If a user has edited the object within the past 15 seconds, this will return the user and the time they last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
 					],
-					'guid'          => [
+					'guid'         => [
 						'type'        => 'String',
 						'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' ),
 					],
-					'desiredSlug'   => [
+					'desiredSlug'  => [
 						'type'        => 'String',
 						'description' => __( 'The desired slug of the post', 'wp-graphql' ),
 					],
-					'link'          => [
+					'link'         => [
 						'type'        => 'String',
 						'description' => __( 'The permalink of the post', 'wp-graphql' ),
 					],
-					'uri'           => [
+					'uri'          => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'URI path for the resource', 'wp-graphql' ),
 					],
-					'isRestricted'  => [
+					'isRestricted' => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
