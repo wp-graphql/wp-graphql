@@ -54,8 +54,6 @@ class SettingGroup {
 				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
 				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
 
-
-
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
 					/**
@@ -89,7 +87,7 @@ class SettingGroup {
 									break;
 								case 'boolean':
 								case 'bool':
-								return (bool) $option;
+									return (bool) $option;
 									break;
 								case 'number':
 								case 'float':
