@@ -2,6 +2,7 @@
 /**
  * Plugin Name: WP GraphQL
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
+ * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
