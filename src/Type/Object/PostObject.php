@@ -62,13 +62,16 @@ class PostObject {
 			$interfaces[] = 'NodeWithPageAttributes';
 		}
 
-		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [
+		if ( $post_type_object->hierarchical || in_array(
+			$post_type_object->name,
+			[
 				'attachment',
-				'revision'
-			], true ) ) {
+				'revision',
+			],
+			true
+		) ) {
 			$interfaces[] = 'HierarchicalContentNode';
 		}
-
 
 		register_graphql_object_type(
 			$single_name,
@@ -231,7 +234,7 @@ class PostObject {
 		$fields      = [
 			'id'                => [
 				'description' => sprintf(
-				/* translators: %s: custom post-type name */
+					/* translators: %s: custom post-type name */
 					__( 'The globally unique identifier of the %s object.', 'wp-graphql' ),
 					$post_type_object->name
 				),
@@ -411,12 +414,12 @@ class PostObject {
 		}
 
 		if ( ! $post_type_object->hierarchical && ! in_array(
-				$post_type_object->name,
-				[
-					'attachment',
-					'revision',
-				]
-			) ) {
+			$post_type_object->name,
+			[
+				'attachment',
+				'revision',
+			]
+		) ) {
 			$fields['ancestors']['isDeprecated']      = true;
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 

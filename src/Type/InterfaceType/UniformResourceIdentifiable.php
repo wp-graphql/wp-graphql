@@ -14,11 +14,11 @@ class UniformResourceIdentifiable {
 			[
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
 				'fields'      => [
-					'uri' => [
+					'uri'        => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
-					'id' => [
+					'id'         => [
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
