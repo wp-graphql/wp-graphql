@@ -191,10 +191,14 @@ class RootQuery {
 								case 'name':
 								case 'database_id':
 									$taxonomy = isset( $args['taxonomy'] ) ? $args['taxonomy'] : null;
-									if ( empty( $taxonomy ) && in_array( $idType, [
+									if ( empty( $taxonomy ) && in_array(
+										$idType,
+										[
 											'name',
-											'slug'
-										], true ) ) {
+											'slug',
+										],
+										true
+									) ) {
 										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
 									if ( 'database_id' === $idType ) {
@@ -271,7 +275,6 @@ class RootQuery {
 									}
 									break;
 								case 'login':
-
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_login !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
@@ -283,7 +286,6 @@ class RootQuery {
 									$id   = isset( $user->ID ) ? $user->ID : null;
 									break;
 								case 'email':
-
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_email !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
@@ -304,7 +306,6 @@ class RootQuery {
 									$id            = absint( $id_components['id'] );
 									break;
 							}
-
 
 							return ! empty( $id ) ? DataSource::resolve_user( $id, $context ) : null;
 						},
@@ -386,7 +387,7 @@ class RootQuery {
 									$post_id = absint( $args['id'] );
 									break;
 								case 'source_url':
-									$url = $args['id'];
+									$url     = $args['id'];
 									$post_id = absint( attachment_url_to_postid( $url ) );
 									break;
 								case 'global_id':
@@ -404,7 +405,7 @@ class RootQuery {
 					]
 				);
 				$post_by_args = [
-					'id'                                          => [
+					'id'  => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -412,7 +413,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri'                                         => [
+					'uri' => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],

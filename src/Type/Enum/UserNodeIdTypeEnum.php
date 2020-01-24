@@ -8,13 +8,15 @@ class UserNodeIdTypeEnum {
 	 *
 	 * @access public
 	 * @return void
-	 *
 	 */
 	public static function register_type() {
-		register_graphql_enum_type( 'UserNodeIdTypeEnum', [
-			'description' => __( 'The Type of Identifier used to fetch a single User node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' ),
-			'values' => self::get_values(),
-		]);
+		register_graphql_enum_type(
+			'UserNodeIdTypeEnum',
+			[
+				'description' => __( 'The Type of Identifier used to fetch a single User node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' ),
+				'values'      => self::get_values(),
+			]
+		);
 	}
 
 	/**
@@ -24,8 +26,8 @@ class UserNodeIdTypeEnum {
 	 */
 	public static function get_values() {
 		return [
-			'ID' => [
-				'name' => 'ID',
+			'ID'          => [
+				'name'        => 'ID',
 				'value'       => 'global_id',
 				'description' => __( 'The hashed Global ID', 'wp-graphql' ),
 			],
@@ -39,17 +41,17 @@ class UserNodeIdTypeEnum {
 				'value'       => 'uri',
 				'description' => __( 'The URI for the node', 'wp-graphql' ),
 			],
-			'SLUG'         => [
+			'SLUG'        => [
 				'name'        => 'SLUG',
 				'value'       => 'slug',
 				'description' => __( 'The slug of the User', 'wp-graphql' ),
 			],
-			'EMAIL'         => [
+			'EMAIL'       => [
 				'name'        => 'EMAIL',
 				'value'       => 'email',
 				'description' => __( 'The Email of the User', 'wp-graphql' ),
 			],
-			'USERNAME'         => [
+			'USERNAME'    => [
 				'name'        => 'USERNAME',
 				'value'       => 'login',
 				'description' => __( 'The username the User uses to login with', 'wp-graphql' ),

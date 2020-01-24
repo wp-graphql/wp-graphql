@@ -73,7 +73,6 @@ class Settings {
 
 				$field_key = $group . 'Settings' . ucfirst( $field_key );
 
-
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
 					/**
