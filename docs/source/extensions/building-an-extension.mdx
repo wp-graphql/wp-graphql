@@ -1,0 +1,176 @@
+---
+title: Building a WPGraphQL Extension
+description: Learn how to build a WPGraphQL Extension
+---
+
+WPGraphQL extensions are WordPress Plugins that hook into specific APIs to modify the
+behavior of WPGraphQL.
+
+Common extension plugins for WPGraphQL include modifying the Schema to expose custom data from other
+popular WordPress plugins, such as Yoast SEO, Advanced Custom Fields, or WooCommerce.
+
+Other extensions may include logging utilities, caching utilities or any number of other plugins
+that can interact with, extend and enhance WPGraphQL.
+
+## Build a WPGraphQL Extension
+
+In this guide, we will build a simple WPGraphQL extension.
+
+### Create the Plugin
+
+The first step to create a WPGraphQL Extension plugin is to create the plugin file itself.
+
+First, using the command line, navigate to your WordPress plugins directory:
+
+```bash
+cd /path/to/your/wordpress/wp-content/plugins
+```
+
+Then create a directory within the Plugins directory where your plugin will live.
+
+```bash
+mkdir my-plugin
+```
+
+Navigate into that directory:
+
+```bash
+cd my-plugin
+```
+
+Then create a new file. It's best practice for WordPress plugins to have the main file be the same name
+as the plugin directory.
+
+```bash
+touch my-plugin.php
+```
+
+Now that we have the plugin file created at `/wp-content/plugins/my-plugin/my-plugin.php`, open the
+`my-plugin.php` file in your favorite text editor.
+
+Add the following to the `my-plugin.php` file:
+
+```php
+<?php
+/**
+ * Plugin Name: My Plugin
+ */
+```
+
+### Activate the Plugin
+
+Now that we have a plugin created, we can activate it by navigating to the Plugins page in the
+WordPress dashboard.
+
+Click "activate" on the plugin.
+
+The plugin is now active. It's not doing anything, but as we write code our code will now be executed by
+WordPress.
+
+If you haven't done so already, also [install and activate](/getting-started/install-and-activate/)
+the WPGraphQL plugin and the [WPGraphiQL](https://github.com/wp-graphql/wp-graphiql) plugin.
+
+### Register a new GraphQL Field
+
+One of the most common ways to extend WPGraphQL is to extend the Schema by adding a field to the Schema.
+
+We can do this using the `register_graphql_field` function. Add the below code to the `my-plugin.php`
+file below the code that named the plugin.
+
+
+```php
+add_action( 'graphql_register_types', function() {
+    register_graphql_field( 'RootQuery', 'myNewField', [
+        'type' => 'String',
+        'description' => __( 'Description of the field', 'your-textdomain' ),
+        'resolve' => function() {
+            return 'my value...';
+        }
+    ] );
+});
+```
+
+The plugin file should now include:
+
+```php
+<?php
+/**
+ * Plugin Name: My Plugin
+ */
+
+ add_action( 'graphql_register_types', function() {
+     register_graphql_field( 'RootQuery', 'myNewField', [
+         'type' => 'String',
+         'description' => __( 'Description of the field', 'your-textdomain' ),
+         'resolve' => function() {
+             return 'my value...';
+         }
+     ] );
+ });
+```
+
+The code we added hooks into `graphql_register_types`, which runs when the WPGraphQL Schema is being
+generated. This allows for our code to be executed only when the GraphQL Schema is needed, and our
+code will be ignored when the WPGraphQL Schema is not needed.
+
+The code then makes use of the `register_graphql_field` function.
+
+The first argument, `RootQuery`, is the Type in the GraphQL Schema that we are registering a field to.
+
+The second argument, `myNewField`, is the name of the field we are registering.
+
+The third argument is an array to configure the field. We must pass the following `key => value` pairs
+to the array to configure the field:
+
+- type: The Type the field will resolve as. This is the contract between the Server and the Client.
+- resolve: The function to execute when the field is asked for in a GraphQL query.
+- description (optional): The description of the field. Used for Introspection and documentation.
+
+We passed the following:
+
+- `'type' => 'String'`: Here, we are telling the WPGraphQL Schema that when someone asks for
+`myNewField` on the `RootQuery` type, that it will always return a string. This is the contract
+between the client and the server.
+- `'description' => __( 'Description of the field', 'your-textdomain' )`: Here we are describing the
+ field. This is useful for code documentation, but also useful for consumers of the API to be able
+ to understand the intent of the field. Normally, you would write a more appropriate description
+ than `Description of the field`.
+ - `'resolve' => function() { return 'my value...'; }`: This is the callback function when a user
+ asks for the field. This can call other functions, talk to a database, etc. As long as it returns a
+ String, we can fulfill the contract between the client and the server.
+
+ ### Testing the new field
+
+ Now that we have registered a new field to the Schema, we can test the field using [WPGraphiQL](https://github.com/wp-graphql/wp-graphiql).
+
+ Navigate to WPGraphiQL in your WordPress dashboard by clicking the `GraphiQL` button in the main
+ dashboard menu on the left of the screen.
+
+ Paste the following query:
+
+ ```graphql
+ query {
+   myNewField
+ }
+ ```
+
+ Then click the Play button.
+
+ The results should be:
+
+ ```json
+
+ {
+   "data": {
+     "myNewField": "my value..."
+   }
+ }
+ ```
+
+Here, we can see that we can query for `myNewField` at the Root of the Schema, and when
+we query for that field, the response is a string, with a value of `my value...`, the same string
+we returned in our `resolve` function.
+
+Try changing the string in the resolve function to some other string, such as `hello!`, and press the
+play button again to see how the resolve function maps to the value that WPGraphQL returns.
+
