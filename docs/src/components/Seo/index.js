@@ -60,7 +60,12 @@ function Seo({ description, lang, meta, keywords, title }) {
                   : []
               )
               .concat(meta)}
-          />
+          >
+            <link
+              href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css"
+              rel="stylesheet"
+            ></link>
+          </Helmet>
         )
       }}
     />

@@ -30,7 +30,6 @@ import {
   trackEvent,
 } from 'gatsby-theme-apollo-docs/src/utils'
 
-import { Helmet } from 'react-helmet'
 import { IconLayoutModule } from '@apollo/space-kit/icons/IconLayoutModule'
 import { graphql, useStaticQuery } from 'gatsby'
 import { iconStyles } from 'gatsby-theme-apollo-docs/src/components/select'
@@ -162,16 +161,6 @@ export default function PageLayout(props) {
 
   return (
     <Layout>
-      <Helmet titleTemplate={`%s | ${subtitle}`}>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css"
-        />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"
-        />
-      </Helmet>
       <FlexWrapper onClick={handleWrapperClick}>
         <Sidebar
           responsive
