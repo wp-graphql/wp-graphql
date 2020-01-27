@@ -35,7 +35,7 @@ import { graphql, useStaticQuery } from 'gatsby'
 import { iconStyles } from 'gatsby-theme-apollo-docs/src/components/select'
 import { size } from 'polished'
 
-const Main = styled.main({
+const Main = styled.div({
   flexGrow: 1,
   outline: 'none',
   overflowY: 'auto',
