@@ -87,6 +87,7 @@ module.exports = {
         Extensions: [
             'extensions/all',
             'extensions/building-an-extension',
+            'extensions/wpgraphql-woocommerce'
         ],
     },
 };
