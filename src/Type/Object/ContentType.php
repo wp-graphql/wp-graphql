@@ -2,13 +2,13 @@
 
 namespace WPGraphQL\Type\Object;
 
-class PostType {
+class ContentType {
 	public static function register_type() {
 
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		register_graphql_object_type(
-			'PostType',
+			'ContentType',
 			[
 				'description' => __( 'An Post Type object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],

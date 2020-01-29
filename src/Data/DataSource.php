@@ -679,7 +679,7 @@ class DataSource {
 					$type = 'Comment';
 					break;
 				case $node instanceof PostType:
-					$type = 'PostType';
+					$type = 'ContentType';
 					break;
 				case $node instanceof Taxonomy:
 					$type = 'Taxonomy';
@@ -783,7 +783,7 @@ class DataSource {
 				case 'plugin':
 					$node = self::resolve_plugin( $id_components['id'] );
 					break;
-				case 'postType':
+				case 'contentType':
 					$node = self::resolve_post_type( $id_components['id'] );
 					break;
 				case 'taxonomy':

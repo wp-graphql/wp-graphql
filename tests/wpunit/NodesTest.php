@@ -483,8 +483,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"cG9zdFR5cGU6cG9zdA==\"){
-			...on PostType {
+		  node(id:\"Y29udGVudFR5cGU6cG9zdA==\"){
+			...on ContentType {
 			  name
 			}
 		  }
@@ -512,8 +512,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"cG9zdFR5cGU6dGVzdA==\"){
-			...on PostType {
+		  node(id:\"Y29udGVudFR5cGU6dGVzdA==\"){
+			...on ContentType {
 			  name
 			}
 		  }

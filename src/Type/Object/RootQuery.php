@@ -58,7 +58,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a content node by. Default is Global ID', 'wp-graphql' ),
 							],
 							'contentType' => [
-								'type'        => 'PostTypeEnum',
+								'type'        => 'ContentTypeEnum',
 								'description' => __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
 							],
 						],
@@ -85,6 +85,74 @@ class RootQuery {
 							}
 
 							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
+
+						},
+					],
+					'contentType' => [
+						'type' => 'ContentType',
+						'description' => __( 'Fetch a Content Type node by unique Identifier', 'wp-graphql' ),
+						'args' => [
+							'id' => [
+								'type' => [ 'non_null' => 'ID' ],
+								'description' => __( 'Unique Identifier for the Content Type node', 'wp-graphql' ),
+							],
+							'idType' => [
+								'type' => 'ContentTypeIdTypeEnum',
+								'description' => __( 'The type of Identifier used in the ID field', 'wp-graphql' ),
+							],
+						],
+						'resolve' => function( $root, $args, $context, $info ) {
+
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							$id = null;
+							switch ( $id_type ) {
+								case 'name':
+									$id = $args['id'];
+									break;
+								case 'id':
+								default:
+									$id_parts = Relay::fromGlobalId( $args['id'] );
+									if ( isset( $id_parts['id'] ) ) {
+										$id = $id_parts['id'];
+									}
+							}
+
+							return ! empty( $id ) ? DataSource::resolve_post_type( $id ) : null;
+
+						},
+					],
+					'taxonomy' => [
+						'type' => 'Taxonomy',
+						'description' => __( 'Fetch a Taxonomy node by unique Identifier', 'wp-graphql' ),
+						'args' => [
+							'id' => [
+								'type' => [ 'non_null' => 'ID' ],
+								'description' => __( 'Unique Identifier for the Taxonomy node', 'wp-graphql' ),
+							],
+							'idType' => [
+								'type' => 'TaxonomyIdTypeEnum',
+								'description' => __( 'The type of Identifier used in the ID field', 'wp-graphql' ),
+							],
+						],
+						'resolve' => function( $root, $args, $context, $info ) {
+
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							$id = null;
+							switch ( $id_type ) {
+								case 'name':
+									$id = $args['id'];
+									break;
+								case 'id':
+								default:
+									$id_parts = Relay::fromGlobalId( $args['id'] );
+									if ( isset( $id_parts['id'] ) ) {
+										$id = $id_parts['id'];
+									}
+							}
+
+							return ! empty( $id ) ? DataSource::resolve_taxonomy( $id ) : null;
 
 						},
 					],

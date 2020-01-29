@@ -118,15 +118,6 @@ class TermObjects {
 			'toType'           => $tax_object->graphql_single_name,
 			'fromFieldName'    => $tax_object->graphql_plural_name,
 			'connectionArgs'   => self::get_connection_args(),
-			'connectionFields' => [
-				'taxonomyInfo' => [
-					'type'        => 'Taxonomy',
-					'description' => __( 'Information about the type of content being queried', 'wp-graphql' ),
-					'resolve'     => function ( $source, array $args, $context, $info ) use ( $tax_object ) {
-						return DataSource::resolve_taxonomy( $tax_object->name );
-					},
-				],
-			],
 			'resolveNode'      => function( $id, $args, $context, $info ) {
 				return DataSource::resolve_term_object( $id, $context );
 			},

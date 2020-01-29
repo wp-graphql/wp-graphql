@@ -88,7 +88,7 @@ class Users {
 			],
 			'hasPublishedPosts' => [
 				'type'        => [
-					'list_of' => 'PostTypeEnum',
+					'list_of' => 'ContentTypeEnum',
 				],
 				'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
 			],
