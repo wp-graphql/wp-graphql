@@ -89,19 +89,19 @@ class RootQuery {
 						},
 					],
 					'contentType' => [
-						'type' => 'ContentType',
+						'type'        => 'ContentType',
 						'description' => __( 'Fetch a Content Type node by unique Identifier', 'wp-graphql' ),
-						'args' => [
-							'id' => [
-								'type' => [ 'non_null' => 'ID' ],
+						'args'        => [
+							'id'     => [
+								'type'        => [ 'non_null' => 'ID' ],
 								'description' => __( 'Unique Identifier for the Content Type node', 'wp-graphql' ),
 							],
 							'idType' => [
-								'type' => 'ContentTypeIdTypeEnum',
+								'type'        => 'ContentTypeIdTypeEnum',
 								'description' => __( 'The type of Identifier used in the ID field', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( $root, $args, $context, $info ) {
+						'resolve'     => function( $root, $args, $context, $info ) {
 
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
@@ -122,20 +122,20 @@ class RootQuery {
 
 						},
 					],
-					'taxonomy' => [
-						'type' => 'Taxonomy',
+					'taxonomy'    => [
+						'type'        => 'Taxonomy',
 						'description' => __( 'Fetch a Taxonomy node by unique Identifier', 'wp-graphql' ),
-						'args' => [
-							'id' => [
-								'type' => [ 'non_null' => 'ID' ],
+						'args'        => [
+							'id'     => [
+								'type'        => [ 'non_null' => 'ID' ],
 								'description' => __( 'Unique Identifier for the Taxonomy node', 'wp-graphql' ),
 							],
 							'idType' => [
-								'type' => 'TaxonomyIdTypeEnum',
+								'type'        => 'TaxonomyIdTypeEnum',
 								'description' => __( 'The type of Identifier used in the ID field', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( $root, $args, $context, $info ) {
+						'resolve'     => function( $root, $args, $context, $info ) {
 
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 

@@ -799,7 +799,7 @@ class TypeRegistry {
 		};
 		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type );
 		$where_args         = [];
-		$one_to_one = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
+		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
 
 		/**
 		 * If there are any $connectionArgs,
@@ -857,29 +857,35 @@ class TypeRegistry {
 
 		if ( true === $one_to_one ) {
 
-			$this->register_object_type( $connection_name, [
-				'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
-				'fields' => array_merge([
-					'node' => [
-						'type' => $to_type,
-						'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-						'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
-							$nodes = [];
-							if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-								if ( is_callable( $resolve_node ) ) {
-									foreach ( $source['nodes'] as $node ) {
-										$nodes[] = $resolve_node( $node, $args, $context, $info );
+			$this->register_object_type(
+				$connection_name,
+				[
+					'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+					'fields'      => array_merge(
+						[
+							'node' => [
+								'type'        => $to_type,
+								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
+									$nodes = [];
+									if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
+										if ( is_callable( $resolve_node ) ) {
+											foreach ( $source['nodes'] as $node ) {
+												$nodes[] = $resolve_node( $node, $args, $context, $info );
+											}
+										} else {
+											return $source['nodes'];
+										}
 									}
-								} else {
-									return $source['nodes'];
-								}
-							}
 
-							return $nodes[0];
-						},
-					]
-				], $edge_fields )
-			]);
+									return $nodes[0];
+								},
+							],
+						],
+						$edge_fields
+					),
+				]
+			);
 
 		} else {
 
@@ -928,8 +934,6 @@ class TypeRegistry {
 			);
 
 		}
-
-
 
 		if ( true === $one_to_one ) {
 			$pagination_args = [];

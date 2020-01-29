@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-
 use WPGraphQL\Model\Post;
 
 class ContentTypeConnectionResolver extends AbstractConnectionResolver {

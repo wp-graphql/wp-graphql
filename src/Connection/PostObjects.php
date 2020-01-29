@@ -153,15 +153,15 @@ class PostObjects {
 
 		return array_merge(
 			[
-				'fromType'         => 'RootQuery',
-				'toType'           => $post_type_object->graphql_single_name,
-				'queryClass'       => 'WP_Query',
-				'resolveNode'      => function( $id, $args, $context, $info ) {
+				'fromType'       => 'RootQuery',
+				'toType'         => $post_type_object->graphql_single_name,
+				'queryClass'     => 'WP_Query',
+				'resolveNode'    => function( $id, $args, $context, $info ) {
 					return DataSource::resolve_post_object( $id, $context );
 				},
-				'fromFieldName'    => lcfirst( $post_type_object->graphql_plural_name ),
-				'connectionArgs'   => $connection_args,
-				'resolve'          => function( $root, $args, $context, $info ) use ( $post_type_object ) {
+				'fromFieldName'  => lcfirst( $post_type_object->graphql_plural_name ),
+				'connectionArgs' => $connection_args,
+				'resolve'        => function( $root, $args, $context, $info ) use ( $post_type_object ) {
 					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
 				},
 			],
