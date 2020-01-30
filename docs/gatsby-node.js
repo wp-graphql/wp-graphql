@@ -99,7 +99,7 @@ exports.sourceNodes = async ({boundActionCreators, createNodeId, createContentDi
 
                     const {data: {repository}} = res;
 
-                    if (repository && repository.id) {
+                    if (repository && repository.id && repository.object && repository.object.text) {
 
                         const parentId = createNodeId(`plugin ${repository.id}`);
                         const readmeNode = {
