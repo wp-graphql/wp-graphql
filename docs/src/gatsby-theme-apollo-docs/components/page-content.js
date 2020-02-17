@@ -60,7 +60,6 @@ const BodyContent = styled.div({
   // this helps avoid anchors with names and styled buttons
   'a[href]:not([class])': {
     color: colors.primary,
-    textDecoration: 'none',
     ':hover': {
       textDecoration: 'underline',
     },
