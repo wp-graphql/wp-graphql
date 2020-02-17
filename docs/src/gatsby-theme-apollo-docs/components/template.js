@@ -1,7 +1,7 @@
 import CodeBlock from 'gatsby-theme-apollo-docs/src/components/code-block'
 import MDXRenderer from 'gatsby-plugin-mdx/mdx-renderer'
-import PageContent from 'gatsby-theme-apollo-docs/src/components/page-content'
 import PageHeader from 'gatsby-theme-apollo-docs/src/components/page-header'
+import PageContent from './page-content'
 import PropTypes from 'prop-types'
 import React, { Fragment, createContext, useContext } from 'react'
 import SEO from '../../components/SEO/index'
