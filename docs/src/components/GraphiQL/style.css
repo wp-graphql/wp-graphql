@@ -69,3 +69,7 @@ a {
   color: #1474ce;
   text-decoration: underline;
 }
+
+.content-wrapper p > code[class*='language-'] {
+  color: #b9358e;
+}
