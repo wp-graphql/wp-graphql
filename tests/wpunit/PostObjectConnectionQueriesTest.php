@@ -732,4 +732,84 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
+
+		$public_post_id = $this->factory()->post->create( [
+			'post_type' => 'Post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$private_post_id = $this->factory()->post->create( [
+			'post_type' => 'Post',
+			'post_status' => 'publish',
+			'post_title' => 'Private Post',
+		] );
+
+		update_post_meta( $private_post_id, '_private_key', true );
+
+		$query = '
+		{
+		  posts {
+		    nodes {
+		      id
+		      databaseId
+		      title
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$nodes = $actual['data']['posts']['nodes'];
+
+		$ids = [];
+		foreach ( $nodes as $node ) {
+			$ids[$node['databaseId']] = $node;
+		}
+
+		$this->assertArrayHasKey( $private_post_id, $ids );
+
+		/**
+		 * Filter posts with a certain meta key to be private. These posts
+		 * should NOT be returned as nodes at all. They should be stripped before
+		 * nodes array is returned.
+		 */
+		add_filter( 'graphql_data_is_private', function( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
+			if ( 'PostObject' === $model_name ) {
+				$is_private_meta = get_post_meta( $data->ID, '_private_key' );
+				if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
+					$is_private = true;
+				}
+			}
+			return $is_private;
+		}, 10, 6 );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		codecept_debug( $actual );
+
+		$nodes = $actual['data']['posts']['nodes'];
+
+		$ids = [];
+		foreach ( $nodes as $node ) {
+			$ids[$node['databaseId']] = $node;
+		}
+
+		$this->assertArrayNotHasKey( $private_post_id, $ids );
+
+
+	}
+
 }
