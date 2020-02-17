@@ -117,10 +117,11 @@ class PostObjects {
 						self::get_connection_config(
 							$post_type_object,
 							[
-								'fromType'      => $post_type_object->graphql_single_name,
-								'toType'        => $post_type_object->graphql_single_name,
-								'fromFieldName' => 'revisions',
-								'resolve'       => function( $root, $args, $context, $info ) {
+								'connectionTypeName'	=> $post_type_object->graphql_single_name . 'ToRevisionConnection',
+								'fromType'      			=> $post_type_object->graphql_single_name,
+								'toType'        			=> $post_type_object->graphql_single_name,
+								'fromFieldName' 			=> 'revisions',
+								'resolve'       			=> function( $root, $args, $context, $info ) {
 									return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 								},
 							]
