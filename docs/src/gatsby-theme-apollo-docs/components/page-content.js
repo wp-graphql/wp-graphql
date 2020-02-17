@@ -126,12 +126,15 @@ const Aside = styled.div({
   },
 })
 
-const AsideHeading = styled.h4({
+const AsideHeading = styled.h3({
   fontWeight: 600,
+  fontSize: '1.225rem',
+  marginBottom: '1.0875rem',
 })
 
-const AsideLinkWrapper = styled.h5({
+const AsideLinkWrapper = styled.h4({
   display: 'flex',
+  fontSize: '1rem',
   marginBottom: 0,
   ':not(:last-child)': {
     marginBottom: 16,
