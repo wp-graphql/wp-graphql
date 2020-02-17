@@ -9,7 +9,7 @@ const Heading = styled.h1({
   },
 })
 
-const Subheading = styled.h3({
+const Subheading = styled.h2({
   color: colors.text2,
   fontSize: `1.4427rem`,
 })
