@@ -21,7 +21,7 @@ const Container = styled.div({
   maxWidth: 1200,
 })
 
-const MainContent = styled.main({
+const MainContent = styled.div({
   flexGrow: 1,
   width: 0,
   maxWidth: '100ch',
@@ -103,7 +103,7 @@ const BodyContent = styled.div({
   table,
 })
 
-const Aside = styled.aside({
+const Aside = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flexShrink: 0,
