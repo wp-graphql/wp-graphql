@@ -186,7 +186,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				slug
 				taxonomy {
-					name
+					node {
+						name
+					}
 				}
 				termGroupId
 				termTaxonomyId
@@ -218,7 +220,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'slug'           => 'a-category',
 					'taxonomy'       => [
-						'name' => 'category',
+						'node' => [
+							'name' => 'category',
+						],
 					],
 					'termGroupId'    => null,
 					'termTaxonomyId' => $term_id,
