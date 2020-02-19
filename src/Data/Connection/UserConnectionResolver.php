@@ -5,6 +5,7 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -24,6 +25,21 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function should_execute() {
 		return true;
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed|null|\WPGraphQL\Model\Model|User
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$user = get_user_by( 'id', $id );
+		return ! empty( $user ) ? new User( $user ) : null;
+	}
+
+	public function get_loader_name() {
+		return 'user';
 	}
 
 	/**
@@ -150,12 +166,12 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns an array of items from the query being executed.
+	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function get_items() {
+	public function get_ids() {
 		$results = $this->query->get_results();
 
 		return ! empty( $results ) ? $results : [];

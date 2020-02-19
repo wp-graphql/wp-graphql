@@ -29,9 +29,9 @@ class TermObjects {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'TermNode',
 				'queryClass'     => 'WP_Term_Query',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_term_object( $id, $context );
-				},
+//				'resolveNode'    => function( $id, $args, $context, $info ) {
+//					return DataSource::resolve_term_object( $id, $context );
+//				},
 				'fromFieldName'  => 'terms',
 				'connectionArgs' => self::get_connection_args(
 					[

@@ -67,6 +67,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return the name of the loader
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'post_object';
+	}
+
+	/**
 	 * @return \WP_Query
 	 */
 	public function get_query() {
@@ -78,8 +86,22 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->posts ) ? $this->query->posts : [];
+	}
+
+	/**
+	 * Given an ID, return the model for the entity or null
+	 *
+	 * @param $id
+	 *
+	 * @return mixed|Post|null
+	 *
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$post = get_post( $id );
+		return ! empty( $post ) ? new Post( $post ) : null;
 	}
 
 	/**

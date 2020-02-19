@@ -28,9 +28,9 @@ class Users {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'User',
 				'fromFieldName'  => 'users',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_user( $id, $context );
-				},
+//				'resolveNode'    => function( $id, $args, $context, $info ) {
+//					return DataSource::resolve_user( $id, $context );
+//				},
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
 				},

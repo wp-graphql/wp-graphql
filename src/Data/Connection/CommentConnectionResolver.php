@@ -168,10 +168,32 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return the name of the loader
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'comment';
+	}
+
+	/**
+	 * Given an ID, return the model for the entity or null
+	 *
+	 * @param $id
+	 *
+	 * @return mixed|Comment|null
+	 *
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$comment = \WP_Comment::get_instance( $id );
+		return ! empty( $comment ) ? new Comment( $comment ) : null;
+	}
+
+	/**
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
 	}
 

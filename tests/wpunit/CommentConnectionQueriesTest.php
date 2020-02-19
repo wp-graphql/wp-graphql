@@ -103,7 +103,10 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}';
 
-		return do_graphql_request( $query, 'commentsQuery', $variables );
+		return graphql([
+			'query' => $query,
+			'variables' => $variables
+		]);
 	}
 
 	public function testFirstComment() {
@@ -113,6 +116,8 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results = $this->commentsQuery( $variables );
+
+		codecept_debug( $results );
 
 		$comments_query = new WP_Comment_Query();
 		$comments       = $comments_query->query(

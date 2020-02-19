@@ -170,7 +170,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'capKey'            => 'wp_capabilities',
 					'capabilities'      => [ 'read', 'level_0', 'subscriber' ],
 					'comments'          => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'description'       => null,
 					'email'             => 'test@test.com',
@@ -180,15 +180,15 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'lastName'          => null,
 					'locale'            => 'en_US',
 					'mediaItems'        => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'name'              => $user->data->display_name,
 					'nickname'          => $user->nickname,
 					'pages'             => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'posts'             => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
 					'roles'             => [
@@ -223,7 +223,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$user_id = $this->createUserObject();
 
-		$comment_id = $this->factory->comment->create( [ 'user_id' => $user_id ] );
+		$comment_id = $this->factory()->comment->create( [ 'user_id' => $user_id ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -353,7 +353,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory->post->create( [
+		$post_id = $this->factory()->post->create( [
 			'post_author' => $user_id,
 			'post_type'   => 'page'
 		] );
@@ -622,6 +622,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * The authenticated user should see their own user in the result
