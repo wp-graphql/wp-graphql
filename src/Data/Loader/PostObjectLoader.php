@@ -151,7 +151,11 @@ class PostObjectLoader extends AbstractDataLoader {
 			 */
 			$loaded_posts[ $key ] = $load_dependencies->then(
 				function() use ( $post_object ) {
-					return new Post( $post_object );
+					$post = new Post( $post_object );
+					if ( ! isset( $post->fields ) || empty( $post->fields ) ) {
+						return null;
+					}
+					return $post;
 				}
 			);
 

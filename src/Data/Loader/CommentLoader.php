@@ -69,7 +69,12 @@ class CommentLoader extends AbstractDataLoader {
 			 * Return the instance through the Model Layer to ensure we only return
 			 * values the consumer has access to.
 			 */
-			$loaded[ $key ] = new Comment( $comment_object );
+			$comment = new Comment( $comment_object );
+			if ( ! isset( $comment->fields ) || empty( $comment->fields ) ) {
+				$loaded[ $key ] = null;
+			} else {
+				$loaded[ $key ] = $comment;
+			}
 		}
 
 		return ! empty( $loaded ) ? $loaded : [];

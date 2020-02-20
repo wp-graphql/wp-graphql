@@ -1578,17 +1578,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'data' => [
-				'postBy' => [
-					'status' => null,
-					'title' => null,
-					'categories' => [
-						'nodes' => [],
-					],
-				]
+				'postBy' => null
 			]
 		];
 
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
 		$this->assertEquals( $expected, $actual );
 
 	}
@@ -1673,10 +1670,18 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		/**
 		 * If the status is not "publish" and the user is a subscriber, the Post is considered
-		 * private, so trying to fetch a private post by ID will return an error
+		 * private, so trying to fetch a private post by ID will return null, but no error
 		 */
 		if ( 'publish' !== $status && ! current_user_can( get_post_type_object( get_post( $post_id )->post_type )->cap->edit_posts ) ) {
-			$this->assertArrayHasKey( 'errors', $actual );
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$expected = [
+				'data' => [
+					'post' => null,
+				],
+			];
+
+			$this->assertEquals( $expected, $actual );
 		} else {
 			$this->assertEquals( $expected, $actual );
 		}

@@ -83,9 +83,19 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * For nav_menu_item terms, we want to pass through a different model
 			 */
 			if ( 'nav_menu' === $term_object->taxonomy ) {
-				$loaded_terms[ $key ] = new Menu( $term_object );
+				$menu = new Menu( $term_object );
+				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+					$loaded_terms[ $key ] = null;
+				} else {
+					$loaded_terms[ $key ] = $menu;
+				}
 			} else {
-				$loaded_terms[ $key ] = new Term( $term_object );
+				$term = new Term( $term_object );
+				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+					$loaded_terms[ $key ] = null;
+				} else {
+					$loaded_terms[ $key ] = $term;
+				}
 			}
 		}
 
