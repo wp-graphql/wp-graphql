@@ -43,9 +43,6 @@ class Menus {
 						'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 					],
 				],
-//				'resolveNode'    => function ( $id, $args, $context, $info ) {
-//					return DataSource::resolve_term_object( $id, $context );
-//				},
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					$resolver   = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
 					$connection = $resolver->get_connection();

@@ -21,9 +21,6 @@ class Revisions {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'ContentRevisionUnion',
 				'queryClass'     => 'WP_Query',
-//				'resolveNode'    => function( $id, $args, $context, $info ) {
-//					return DataSource::resolve_post_object( $id, $context );
-//				},
 				'fromFieldName'  => 'revisions',
 				'connectionArgs' => PostObjects::get_connection_args(),
 				'resolve'        => function( $root, $args, $context, $info ) {
@@ -37,9 +34,6 @@ class Revisions {
 				'fromType'       => 'User',
 				'toType'         => 'ContentRevisionUnion',
 				'queryClass'     => 'WP_Query',
-//				'resolveNode'    => function( $id, $args, $context, $info ) {
-//					return DataSource::resolve_post_object( $id, $context );
-//				},
 				'fromFieldName'  => 'revisions',
 				'description'    => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
 				'connectionArgs' => PostObjects::get_connection_args(),

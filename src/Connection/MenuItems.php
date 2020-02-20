@@ -76,9 +76,6 @@ class MenuItems {
 						'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
 					],
 				],
-//				'resolveNode'    => function( $id, $args, $context, $info ) {
-//					return ! empty( $id ) ? DataSource::resolve_menu_item( $id, $context ) : null;
-//				},
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
 					$connection = $resolver->get_connection();
