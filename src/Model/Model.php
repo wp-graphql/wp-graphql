@@ -145,7 +145,15 @@ abstract class Model {
 	 */
 	public function __get( $key ) {
 		if ( ! empty( $this->fields[ $key ] ) ) {
-			if ( is_callable( $this->fields[ $key ] ) ) {
+			/**
+			 * If the property has already been processed and cached to the model
+			 * return the processed value.
+			 *
+			 * Otherwise, if it's a callable, process it and cache the value.
+			 */
+			if ( is_scalar( $this->fields[ $key ] ) || ( is_object( $this->fields[ $key ] ) && ! is_callable( $this->fields[ $key ] ) ) || is_array( $this->fields[ $key ] ) ) {
+				return $this->fields[ $key ];
+			} else if ( is_callable( $this->fields[ $key ] ) ) {
 				$data       = call_user_func( $this->fields[ $key ] );
 				$this->$key = $data;
 				return $data;
