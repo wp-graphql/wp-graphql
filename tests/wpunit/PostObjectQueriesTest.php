@@ -11,7 +11,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp() {
 		// before
 		parent::setUp();
-
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -74,6 +74,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
+	}
+
+	/**
+	 * @param string $structure
+	 */
+	public function set_permalink_structure( $structure = '' ) {
+		global $wp_rewrite;
+		$wp_rewrite->init();
+		$wp_rewrite->set_permalink_structure( $structure );
+		$wp_rewrite->flush_rules();
 	}
 
 	public function createPostObject( $args ) {
@@ -522,11 +532,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						pageId
 					}
 				}
-				ancestors {
-					... on Page {
-						pageId
-					}
-				}
 			}
 		}";
 
@@ -534,6 +539,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -544,11 +551,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'id'        => $global_id,
 					'parent'    => [
 						'pageId' => $parent_id,
-					],
-					'ancestors' => [
-						[
-							'pageId' => $parent_id,
-						],
 					],
 				],
 			],
@@ -944,6 +946,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$parent_id = $this->createPostObject( [
 			'post_type'  => 'page',
+			'post_type'  => 'page',
 			'post_title' => 'Parent Page',
 			'post_name'  => 'parent-page',
 			'post_status' => 'publish'
@@ -966,6 +969,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Get the uri to the Child Page
 		 */
 		$uri = rtrim( str_ireplace( home_url(), '', get_permalink( $child_id ) ), '');
+
+		codecept_debug( $uri );
 
 		/**
 		 * Create the query string to pass to the $query

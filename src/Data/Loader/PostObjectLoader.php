@@ -29,6 +29,10 @@ class PostObjectLoader extends AbstractDataLoader {
 	 */
 	public function loadKeys( array $keys ) {
 
+		if ( empty( $keys ) ) {
+			return $keys;
+		}
+
 		/**
 		 * Prepare the args for the query. We're provided a specific
 		 * set of IDs, so we want to query as efficiently as possible with
@@ -67,10 +71,6 @@ class PostObjectLoader extends AbstractDataLoader {
 		);
 
 		new \WP_Query( $args );
-
-		if ( empty( $keys ) ) {
-			return $keys;
-		}
 
 		$loaded_posts = [];
 

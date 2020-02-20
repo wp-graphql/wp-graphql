@@ -500,7 +500,6 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_start_cursor() {
 		$first_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[0] : null;
-
 		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
 	}
 
@@ -542,7 +541,7 @@ abstract class AbstractConnectionResolver {
 			}
 		}
 		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
-		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes ) ) : $nodes;
+		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
 	}
 
 	/**
@@ -566,6 +565,7 @@ abstract class AbstractConnectionResolver {
 	public function get_edges() {
 		$edges = [];
 		if ( ! empty( $this->nodes ) ) {
+
 			foreach ( $this->nodes as $id => $node ) {
 
 				$edge = [
