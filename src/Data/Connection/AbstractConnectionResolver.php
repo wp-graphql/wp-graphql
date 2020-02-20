@@ -185,10 +185,11 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Get the loader name
 	 *
+	 * @access protected
 	 * @return AbstractDataLoader
 	 * @throws \Exception
 	 */
-	public function getLoader() {
+	protected function getLoader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
 			throw new \Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
@@ -229,10 +230,11 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns whether the connection should execute
 	 *
+	 * @access protected
 	 * @access public
 	 * @return bool
 	 */
-	public function getShouldExecute(): bool {
+	protected function getShouldExecute(): bool {
 		return $this->should_execute;
 	}
 
@@ -338,10 +340,11 @@ abstract class AbstractConnectionResolver {
 	 * Returns the max between what was requested and what is defined as the $max_query_amount to
 	 * ensure that queries don't exceed unwanted limits when querying data.
 	 *
+	 * @access protected
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function get_query_amount() {
+	protected function get_query_amount() {
 
 		/**
 		 * Filter the maximum number of posts per page that should be quried. The default is 100 to prevent queries from
@@ -368,10 +371,11 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * This checks the $args to determine the amount requested, and if
 	 *
+	 * @access protected
 	 * @return int|null
 	 * @throws \Exception
 	 */
-	public function get_amount_requested() {
+	protected function get_amount_requested() {
 
 		/**
 		 * Set the default amount
@@ -420,9 +424,10 @@ abstract class AbstractConnectionResolver {
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
 	 * GraphQL query.
 	 *
+	 * @access protected
 	 * @return int|mixed
 	 */
-	public function get_offset() {
+	protected function get_offset() {
 
 		/**
 		 * Defaults
@@ -454,9 +459,10 @@ abstract class AbstractConnectionResolver {
 	 * ore if there are more "items" after the "before" argument, has_next_page()
 	 * will be set to true
 	 *
+	 * @access protected
 	 * @return boolean
 	 */
-	public function has_next_page() {
+	protected function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
 			return count( $this->ids ) > $this->query_amount;
 		}
@@ -477,9 +483,10 @@ abstract class AbstractConnectionResolver {
 	 * or if there are more "items" before the "after" argument, has_previous_page()
 	 * will be set to true.
 	 *
+	 * @access protected
 	 * @return boolean
 	 */
-	public function has_previous_page() {
+	protected function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
 			return count( $this->ids ) > $this->query_amount;
 		}
@@ -496,10 +503,12 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine the start cursor from the connection
 	 *
+	 * @access protected
 	 * @return mixed string|null
 	 */
-	public function get_start_cursor() {
+	protected function get_start_cursor() {
 		$first_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[0] : null;
+
 		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
 	}
 
@@ -508,9 +517,10 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine the end cursor from the connection
 	 *
+	 * @access protected
 	 * @return mixed string|null
 	 */
-	public function get_end_cursor() {
+	protected function get_end_cursor() {
 		$last_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[ count( $this->edges ) - 1 ] : null;
 
 		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
@@ -526,9 +536,10 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * For backward pagination, we reverse the order of nodes.
 	 *
+	 * @access protected
 	 * @return array
 	 */
-	public function get_nodes() {
+	protected function get_nodes() {
 		if ( empty( $this->ids ) ) {
 			return [];
 		}
@@ -541,6 +552,7 @@ abstract class AbstractConnectionResolver {
 			}
 		}
 		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
+
 		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
 	}
 
@@ -549,6 +561,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @param int $id
 	 *
+	 * @access protected
 	 * @return string
 	 */
 	protected function get_cursor_for_node( $id ) {
@@ -560,9 +573,10 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * This iterates over the nodes and returns edges
 	 *
-	 * @return mixed
+	 * @access protected
+	 * @return array
 	 */
-	public function get_edges() {
+	protected function get_edges() {
 		$edges = [];
 		if ( ! empty( $this->nodes ) ) {
 
@@ -581,7 +595,9 @@ abstract class AbstractConnectionResolver {
 				 * @param AbstractConnectionResolver $this Instance of the connection resolver class
 				 */
 				$edge = apply_filters(
-					'graphql_connection_edge', $edge, $this
+					'graphql_connection_edge',
+					$edge,
+					$this
 				);
 
 				/**
@@ -601,9 +617,10 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Returns pageInfo for the connection
 	 *
+	 * @access protected
 	 * @return array
 	 */
-	public function get_page_info() {
+	protected function get_page_info() {
 
 		$page_info = [
 			'startCursor'     => $this->get_start_cursor(),
@@ -727,44 +744,49 @@ abstract class AbstractConnectionResolver {
 		 * Return a Deferred function to load all buffered nodes before
 		 * returning the connection.
 		 */
-		return new Deferred( function() {
-			$this->loader->loadMany( $this->ids );
+		return new Deferred(
+			function() {
+					$this->loader->loadMany( $this->ids );
 
-			/**
-			 * Set the items. These are the "nodes" that make up the connection.
-			 *
-			 * Filters the nodes in the connection
-			 *
-			 * @param array                      $nodes The nodes in the connection
-			 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-			 */
-			$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+					/**
+					 * Set the items. These are the "nodes" that make up the connection.
+					 *
+					 * Filters the nodes in the connection
+					 *
+					 * @param array                      $nodes The nodes in the connection
+					 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+					 */
+					$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
-			/**
-			 * Filters the edges in the connection
-			 *
-			 * @param array                      $nodes The nodes in the connection
-			 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-			 */
-			$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+					/**
+					 * Filters the edges in the connection
+					 *
+					 * @param array                      $nodes The nodes in the connection
+					 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+					 */
+					$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
-			/**
-			 * Filter the connection. In some cases, connections will want to provide
-			 * additional information other than edges, nodes, and pageInfo
-			 *
-			 * This filter allows additional fields to be returned to the connection resolver
-			 *
-			 * @param array                      $connection The connection data being returned
-			 * @param AbstractConnectionResolver $this       The instance of the connection resolver
-			 */
-			return apply_filters( 'graphql_connection', [
-				'nodes' => $this->nodes,
-				'edges' => $this->edges,
-				'pageInfo' => $this->get_page_info(),
-			], $this );
+					/**
+					 * Filter the connection. In some cases, connections will want to provide
+					 * additional information other than edges, nodes, and pageInfo
+					 *
+					 * This filter allows additional fields to be returned to the connection resolver
+					 *
+					 * @param array                      $connection The connection data being returned
+					 * @param AbstractConnectionResolver $this       The instance of the connection resolver
+					 */
+					return apply_filters(
+						'graphql_connection',
+						[
+							'nodes'    => $this->nodes,
+							'edges'    => $this->edges,
+							'pageInfo' => $this->get_page_info(),
+						],
+						$this
+					);
 
-		} );
-
+			}
+		);
 
 	}
 

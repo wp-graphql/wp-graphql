@@ -14,7 +14,7 @@ class HierarchicalContentNode {
 			[
 				'description' => __( 'Content node with hierarchical (parent/child) relationships', 'wp-graphql' ),
 				'fields'      => [
-					'parent'    => [
+					'parent' => [
 						'type'        => 'PostObjectUnion',
 						'description' => __( 'The parent of the object. The parent object can be of various types', 'wp-graphql' ),
 						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {

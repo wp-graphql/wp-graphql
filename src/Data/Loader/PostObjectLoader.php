@@ -90,7 +90,7 @@ class PostObjectLoader extends AbstractDataLoader {
 			$post_object = get_post( (int) $key );
 
 			if ( ! $post_object instanceof \WP_Post ) {
-				$loaded_posts[$key] = null;
+				$loaded_posts[ $key ] = null;
 			}
 
 			/**

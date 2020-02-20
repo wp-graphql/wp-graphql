@@ -87,7 +87,6 @@ class TermObjectLoader extends AbstractDataLoader {
 			} else {
 				$loaded_terms[ $key ] = new Term( $term_object );
 			}
-
 		}
 
 		return ! empty( $loaded_terms ) ? $loaded_terms : [];

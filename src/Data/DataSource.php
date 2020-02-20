@@ -250,7 +250,7 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
-		$resolver   = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
 		return $resolver->get_connection();
 	}
 

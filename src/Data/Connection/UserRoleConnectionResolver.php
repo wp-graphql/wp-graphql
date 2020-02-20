@@ -36,7 +36,7 @@ class UserRoleConnectionResolver {
 			$roles = ! empty( $source->roles ) ? $source->roles : [];
 		} else {
 			$wp_roles = wp_roles();
-			$roles = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
+			$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
 		}
 
 		$roles = ! empty( $roles ) ? array_filter(

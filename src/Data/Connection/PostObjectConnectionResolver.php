@@ -68,6 +68,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * Return the name of the loader
+	 *
 	 * @return string
 	 */
 	public function get_loader_name() {
