@@ -1,14 +1,13 @@
 import CodeBlock from 'gatsby-theme-apollo-docs/src/components/code-block'
 import MDXRenderer from 'gatsby-plugin-mdx/mdx-renderer'
-import PageContent from 'gatsby-theme-apollo-docs/src/components/page-content'
-import PageHeader from 'gatsby-theme-apollo-docs/src/components/page-header'
+import PageContent from './page-content'
+import PageHeader from './page-header'
 import PropTypes from 'prop-types'
 import React, { Fragment, createContext, useContext } from 'react'
-import SEO from 'gatsby-theme-apollo-docs/src/components/seo'
+import SEO from '../../components/Seo/index'
 import rehypeReact from 'rehype-react'
 import styled from '@emotion/styled'
 import { ContentWrapper } from 'gatsby-theme-apollo-core'
-import { Helmet } from 'react-helmet'
 import { MDXProvider } from '@mdx-js/react'
 import { TypescriptApiBoxContext } from 'gatsby-theme-apollo-docs/src/components/typescript-api-box'
 import { graphql, navigate, useStaticQuery } from 'gatsby'
@@ -125,8 +124,6 @@ export default function Template(props) {
   // see note above for more info
   headings = availableTempHeadingsQueryData.headings
 
-  const { title, description, twitterHandle } = site.siteMetadata
-
   const {
     sidebarContents,
     githubUrl,
@@ -141,16 +138,9 @@ export default function Template(props) {
 
   return (
     <Fragment>
-      <Helmet>
-        <title>{frontmatter.title}</title>
-      </Helmet>
       <SEO
         title={frontmatter.title}
-        description={frontmatter.description || description}
-        siteName={title}
-        twitterHandle={twitterHandle}
-        baseUrl={baseUrl}
-        image={fields.image}
+        description={frontmatter.description || site.siteMetadata.description}
       />
       <StyledContentWrapper>
         <PageHeader {...frontmatter} />
