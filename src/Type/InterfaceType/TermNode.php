@@ -69,13 +69,6 @@ class TermNode {
 						'type'        => 'String',
 						'description' => __( 'An alphanumeric identifier for the object unique to its type.', 'wp-graphql' ),
 					],
-					'taxonomy'       => [
-						'type'        => 'Taxonomy',
-						'description' => __( 'The name of the taxonomy this term belongs to', 'wp-graphql' ),
-						'resolve'     => function( $source, $args, $context, $info ) {
-							return DataSource::resolve_taxonomy( $source->taxonomyName );
-						},
-					],
 					'termGroupId'    => [
 						'type'        => 'Int',
 						'description' => __( 'The ID of the term group that this term object belongs to', 'wp-graphql' ),

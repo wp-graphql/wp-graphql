@@ -4,7 +4,7 @@ namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Type\WPEnumType;
 
-class PostTypeEnum {
+class ContentTypeEnum {
 	public static function register_type() {
 		$values = [];
 
@@ -22,15 +22,15 @@ class PostTypeEnum {
 
 				$values[ WPEnumType::get_safe_name( $allowed_post_type ) ] = [
 					'value'       => $allowed_post_type,
-					'description' => __( 'The Type of Post object', 'wp-graphql' ),
+					'description' => __( 'The Type of Content object', 'wp-graphql' ),
 				];
 			}
 		}
 
 		register_graphql_enum_type(
-			'PostTypeEnum',
+			'ContentTypeEnum',
 			[
-				'description' => __( 'Allowed Post Types', 'wp-graphql' ),
+				'description' => __( 'Allowed Content Types', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);

@@ -231,7 +231,7 @@ class Comments {
 			],
 			'contentType'        => [
 				'type'        => [
-					'list_of' => 'PostTypeEnum',
+					'list_of' => 'ContentTypeEnum',
 				],
 				'description' => __( 'Content object type or array of types to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' ),
 			],
