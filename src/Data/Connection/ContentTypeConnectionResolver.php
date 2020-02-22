@@ -1,34 +1,60 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\PostType;
 
-class ContentTypeConnectionResolver extends AbstractConnectionResolver {
+class ContentTypeConnectionResolver {
 
-	public function get_query_args() {
+	/**
+	 * Creates the connection for post types (content types)
+	 *
+	 * @param mixed       $source  The query results
+	 * @param array       $args    The query arguments
+	 * @param AppContext  $context The AppContext object
+	 * @param ResolveInfo $info    The ResolveInfo object
+	 *
+	 * @since  0.8.0
+	 * @return array
+	 * @access public
+	 * @throws \Exception
+	 */
+	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
-		if ( $this->source instanceof Post ) {
-			$query_args['name'] = $this->source->post_type;
+		$query_args = [];
+
+		if ( $source instanceof Post ) {
+			$query_args['name'] = $source->post_type;
 		}
-
 		$query_args['show_in_graphql'] = true;
-		return $query_args;
-	}
 
-	public function is_valid_offset( $offset ) {
-		// TODO: Implement is_valid_offset() method.
-	}
+		$post_types = get_post_types( $query_args );
 
-	public function should_execute() {
-		return true;
-	}
+		$post_types_array = [];
+		foreach( $post_types as $post_type ) {
 
-	public function get_items() {
-		return $this->get_query();
-	}
+			$post_type_object = get_post_type_object( $post_type );
+			$model = ! empty( $post_type_object ) ? new PostType( $post_type_object ) : null;
 
-	public function get_query() {
-		return get_post_types( $this->get_query_args() );
+			if ( 'private' !== $model->get_visibility() ) {
+				$post_types_array[] = $model;
+			}
+		}
+		$connection = Relay::connectionFromArray( $post_types_array, $args );
+
+		$nodes = [];
+		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
+			foreach ( $connection['edges'] as $edge ) {
+				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
+			}
+		}
+		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
+
+		return ! empty( $post_types_array ) ? $connection : null;
+
 	}
 
 }

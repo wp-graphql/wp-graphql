@@ -868,17 +868,18 @@ class TypeRegistry {
 								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
 									$nodes = [];
+
 									if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
 										if ( is_callable( $resolve_node ) ) {
 											foreach ( $source['nodes'] as $node ) {
 												$nodes[] = $resolve_node( $node, $args, $context, $info );
 											}
 										} else {
-											return $source['nodes'];
+											return $source['nodes'][0];
 										}
 									}
 
-									return $nodes[0];
+									return null;
 								},
 							],
 						],

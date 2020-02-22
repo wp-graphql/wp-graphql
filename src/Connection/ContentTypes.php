@@ -2,7 +2,6 @@
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
-use WPGraphQL\Data\DataSource;
 
 class ContentTypes {
 
@@ -16,12 +15,8 @@ class ContentTypes {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'ContentType',
 				'fromFieldName' => 'contentTypes',
-				'resolveNode'   => function( $type ) {
-					return DataSource::resolve_post_type( $type );
-				},
 				'resolve'       => function( $source, $args, $context, $info ) {
-					$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
-					return $resolver->get_connection();
+					return ContentTypeConnectionResolver::resolve( $source, $args, $context, $info );
 				},
 			]
 		);
@@ -35,12 +30,8 @@ class ContentTypes {
 						'fromType'      => $post_type->graphql_single_name,
 						'toType'        => 'ContentType',
 						'fromFieldName' => 'contentType',
-						'resolveNode'   => function( $type ) {
-							return DataSource::resolve_post_type( $type );
-						},
 						'resolve'       => function( $source, $args, $context, $info ) {
-							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
-							return $resolver->get_connection();
+							return ContentTypeConnectionResolver::resolve( $source, $args, $context, $info );
 						},
 						'oneToOne'      => true,
 					]
