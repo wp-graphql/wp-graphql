@@ -216,7 +216,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'link'           => get_term_link( $term_id ),
 					'name'           => 'A Category',
 					'posts'          => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'slug'           => 'a-category',
 					'taxonomy'       => [

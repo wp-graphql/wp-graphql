@@ -29,9 +29,6 @@ class TermObjects {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'TermNode',
 				'queryClass'     => 'WP_Term_Query',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_term_object( $id, $context );
-				},
 				'fromFieldName'  => 'terms',
 				'connectionArgs' => self::get_connection_args(
 					[
@@ -118,9 +115,6 @@ class TermObjects {
 			'toType'         => $tax_object->graphql_single_name,
 			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
-			'resolveNode'    => function( $id, $args, $context, $info ) {
-				return DataSource::resolve_term_object( $id, $context );
-			},
 			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
 			},

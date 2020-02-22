@@ -106,9 +106,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		// The query should return no menu items since no where args were specified.
-		$this->assertEquals( 0, count( $actual['data']['menuItems']['edges'] ) );
-		$this->assertEquals( 0, count( $actual['data']['menuItems']['edges'] ) );
+		$this->assertEquals( null, $actual['data']['menuItems']['edges'] );
+		$this->assertEquals( null, $actual['data']['menuItems']['edges'] );
 	}
 
 	public function testMenuItemsQueryNodes() {

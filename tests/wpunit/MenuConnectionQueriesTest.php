@@ -14,12 +14,15 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$menu_slug = 'my-test-menu-by-id';
 		$menu_id = wp_create_nav_menu( $menu_slug );
 
+		codecept_debug( $menu_id );
+
 		$query = '
 		{
 			menus( where: { id: ' . intval( $menu_id ) . ' } ) {
 				edges {
 					node {
 						menuId
+						id
 						name
 					}
 				}
@@ -28,6 +31,8 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][0]['node']['menuId'] );

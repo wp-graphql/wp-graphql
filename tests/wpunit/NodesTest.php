@@ -302,6 +302,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param bool $has_posts whether or not the user has published posts
 	 *
 	 * @since 0.0.5
+	 *
+	 * @throws Exception
 	 */
 	public function testUserNodeQuery( $has_posts, $user, $private ) {
 
@@ -359,9 +361,10 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		if ( true === $private ) {
-			$expected['data']['node']['userId'] = null;
+			$expected['data']['node'] = null;
 		}
 
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual );
 	}
 
