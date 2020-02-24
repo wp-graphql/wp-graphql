@@ -34,10 +34,10 @@ class TaxonomyConnectionResolver {
 		$taxonomies = get_taxonomies( $query_args );
 
 		$tax_array = [];
-		foreach( $taxonomies as $taxonomy ) {
+		foreach ( $taxonomies as $taxonomy ) {
 
 			$tax_object = get_taxonomy( $taxonomy );
-			$model = ! empty( $tax_object ) ? new Taxonomy( $tax_object ) : null;
+			$model      = ! empty( $tax_object ) ? new Taxonomy( $tax_object ) : null;
 
 			if ( 'private' !== $model->get_visibility() ) {
 				$tax_array[] = $model;

@@ -77,9 +77,9 @@ class NodeResolver {
 			$error                   = '404';
 			$this->wp->did_permalink = true;
 
-			$pathinfo = isset( $uri ) ? $uri : '';
+			$pathinfo         = isset( $uri ) ? $uri : '';
 			list( $pathinfo ) = explode( '?', $pathinfo );
-			$pathinfo = str_replace( '%', '%25', $pathinfo );
+			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
 			$home_path       = trim( parse_url( home_url(), PHP_URL_PATH ), '/' );
@@ -129,7 +129,7 @@ class NodeResolver {
 					}
 
 					if ( preg_match( "#^$match#", $request_match, $matches ) ||
-					     preg_match( "#^$match#", urldecode( $request_match ), $matches ) ) {
+						 preg_match( "#^$match#", urldecode( $request_match ), $matches ) ) {
 
 						if ( $wp_rewrite->use_verbose_page_rules && preg_match( '/pagename=\$matches\[([0-9]+)\]/', $query, $varmatch ) ) {
 							// This is a verbose page match, let's check to be sure about it.
@@ -140,7 +140,7 @@ class NodeResolver {
 
 							$post_status_obj = get_post_status_object( $page->post_status );
 							if ( ! $post_status_obj->public && ! $post_status_obj->protected
-							     && ! $post_status_obj->private && $post_status_obj->exclude_from_search ) {
+								 && ! $post_status_obj->private && $post_status_obj->exclude_from_search ) {
 								continue;
 							}
 						}

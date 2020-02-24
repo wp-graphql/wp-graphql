@@ -34,10 +34,10 @@ class ContentTypeConnectionResolver {
 		$post_types = get_post_types( $query_args );
 
 		$post_types_array = [];
-		foreach( $post_types as $post_type ) {
+		foreach ( $post_types as $post_type ) {
 
 			$post_type_object = get_post_type_object( $post_type );
-			$model = ! empty( $post_type_object ) ? new PostType( $post_type_object ) : null;
+			$model            = ! empty( $post_type_object ) ? new PostType( $post_type_object ) : null;
 
 			if ( 'private' !== $model->get_visibility() ) {
 				$post_types_array[] = $model;
