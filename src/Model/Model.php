@@ -153,7 +153,7 @@ abstract class Model {
 			 */
 			if ( is_scalar( $this->fields[ $key ] ) || ( is_object( $this->fields[ $key ] ) && ! is_callable( $this->fields[ $key ] ) ) || is_array( $this->fields[ $key ] ) ) {
 				return $this->fields[ $key ];
-			} else if ( is_callable( $this->fields[ $key ] ) ) {
+			} elseif ( is_callable( $this->fields[ $key ] ) ) {
 				$data       = call_user_func( $this->fields[ $key ] );
 				$this->$key = $data;
 				return $data;
