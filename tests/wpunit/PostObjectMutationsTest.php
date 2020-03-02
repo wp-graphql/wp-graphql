@@ -405,7 +405,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $mutation, 'updatePostWithInvalidId', $variables );
 
-		codecept_debug( $actual );
+		//codecept_debug( $actual );
 
 		/**
 		 * We should get an error thrown if we try and update a post with an invalid id
@@ -480,6 +480,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * This tests to make sure a user without proper capabilities cannot create a post
 	 */
+
 	public function testCreatePostObjectWithoutProperCapabilities() {
 
 		/**
@@ -502,6 +503,91 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['errors'] );
 
 	}
+
+    /**
+     * This tests to make sure a user with proper capabilities can create a post on behalf of others
+     */
+    public function testEditOthersPostObjectWithProperCapabilities() {
+        /**
+         * Create a post by an author
+         */
+        wp_set_current_user( $this->admin );
+
+        /**
+         * Create a post to test against and set global ID
+         */
+        $test_post = $this->factory()->post->create( [
+            'post_title' => 'My Test Post',
+            'post_status' => 'draft',
+        ] );
+
+        $global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
+
+        /**
+         *  Give the subscriber role that capability to edit another post
+         */
+        $role = get_role( 'subscriber' );
+        $role->add_cap( 'edit_posts' );
+        $role->add_cap( 'edit_others_posts' );
+
+
+        /**
+         * Set the current user as the subscriber role so we
+         * can test the mutation and make sure they can create a post
+         * since they should have have proper 'other user' permissions now
+         */
+        wp_set_current_user( $this->subscriber );
+
+        /**
+         * Prepare mutation for GQL request
+         */
+        $mutation = 'mutation UPDATE_POST( $input:UpdatePostInput! ) {
+          updatePost(input: $input) {
+            post {
+              id
+              postId
+              title
+              date
+              dateGmt
+              modified
+              modifiedGmt
+            }
+          }
+		}
+        ';
+
+        $defaults = [
+            'clientMutationId' => uniqid(),
+            'id' => $global_id,
+            'title' => 'New Post Update',
+        ];
+
+        $variables = [
+            'input' => $defaults,
+        ];
+
+        /**
+         * Run GQL request
+         */
+        $actual = do_graphql_request( $mutation, 'updatePost', $variables );
+
+        /**
+         * We're asserting that this will NOT return an error
+         * because this user has permissions to create a post as a
+         * subscriber on behalf of another user
+         *
+         * We also assert that the title is now changed to "New Post Update"
+         */
+
+        /**
+         * Make sure there are no errors
+         */
+
+        //codecept_debug($actual);
+
+        $this->assertArrayNotHasKey( 'errors', $actual );
+        $this->assertEquals( 'New Post Update', $actual['data']['updatePost']['post']['title'] );
+    }
 
 	/**
 	 * This tests a createPage mutation by an admin, to verify that a user WITH proper
@@ -535,7 +621,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
-
+        //codecept_debug($actual);
 		$this->assertEquals( $expected, $actual );
 
 	}
