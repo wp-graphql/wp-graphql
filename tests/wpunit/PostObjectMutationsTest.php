@@ -594,6 +594,12 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase
          * Make sure there are no errors
          */
 
+        /**
+         * remove the extra permissions as they will bleed into following test otherwise.
+         */
+        $role->remove_cap('edit_posts');
+        $role->remove_cap('edit_others_posts');
+
         //codecept_debug($actual);
 
         $this->assertArrayNotHasKey('errors', $actual);
