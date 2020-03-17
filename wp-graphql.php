@@ -202,8 +202,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			}
 
 			// The minimum version of PHP this plugin requires to work properly
-			if ( ! defined( 'GRAPQHL_MIN_PHP_VERSION' ) ) {
-				define( 'GRAPQHL_MIN_PHP_VERSION', '7.0' );
+			if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
+				define( 'GRAPHQL_MIN_PHP_VERSION', '7.0' );
 			}
 
 		}
@@ -313,8 +313,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public function min_php_version_check() {
 
-			if ( defined( 'GRAPQHL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPQHL_MIN_PHP_VERSION, '<' ) ) {
-				throw new \Exception( sprintf( __( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ), PHP_VERSION, GRAPQHL_MIN_PHP_VERSION ) );
+			if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
+				throw new \Exception( sprintf( __( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ), PHP_VERSION, GRAPHQL_MIN_PHP_VERSION ) );
 			}
 
 		}

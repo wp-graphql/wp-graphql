@@ -4,7 +4,7 @@ const wpgqlColors = require('../../utils/colors')
 exports.colors = {
   primary: wpgqlColors.primary,
   primaryLight: wpgqlColors.primaryLight,
-  secondary: colors.pink.base,
+  secondary: colors.pink.dark,
   tertiary: colors.teal.dark,
   divider: colors.silver.dark,
   background: colors.silver.light,
