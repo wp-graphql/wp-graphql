@@ -75,14 +75,28 @@ class CommentUpdate {
 			$user_id = $comment_args['user_id'];
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
+
+			// Prevent comment deletions by default
+			$not_allowed = true;
+
+			// If the current user can moderate comments proceed
+			if ( current_user_can( 'moderate_comments' ) ) {
+				$not_allowed = false;
+			} else {
+				// Get the current user id
+				$current_user_id = absint( get_current_user_id() );
+				// If the current user ID is the same as the comment author's ID, then the
+				// current user is the comment author and can delete the comment
+				if ( 0 !== $current_user_id && $current_user_id === absint( $user_id ) ) {
+					$not_allowed = false;
+				}
+			}
+
 			/**
-			 * Check if use has required capabilities
+			 * If the mutation has been prevented
 			 */
-			if (
-				! current_user_can( 'moderate_comments' ) &&
-				absint( get_current_user_id() ) !== absint( $user_id )
-			) {
-				throw new UserError( __( 'You do not have the appropriate capabilities to update this comment.', 'wp-graphql' ) );
+			if ( $not_allowed === true ) {
+				throw new UserError( __( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
 			/**
