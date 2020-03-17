@@ -6,19 +6,19 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.7.0
+ * Version: 0.7.1
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
  * Tested up to: 4.7.1
- * Requires PHP: 7.0
+ * Requires PHP: 7.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.7.0
+ * @version  0.7.1
  */
 
 // Exit if accessed directly.
@@ -173,7 +173,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.7.0' );
+				define( 'WPGRAPHQL_VERSION', '0.7.1' );
 			}
 
 			// Plugin Folder Path.
@@ -239,6 +239,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Set whether the request is a GraphQL request or not
+		 *
 		 * @param bool $is_graphql_request
 		 */
 		public static function __set_is_graphql_request( $is_graphql_request = false ) {
@@ -286,7 +287,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Hook in before fields resolve to check field permissions
 			 */
-			add_action( 'graphql_before_resolve_field', [ '\WPGraphQL\Utils\InstrumentSchema', 'check_field_permissions' ], 10, 8 );
+			add_action( 'graphql_before_resolve_field', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'check_field_permissions'
+			], 10, 8 );
 
 			/**
 			 * Determine what to show in graphql
@@ -354,7 +358,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			/**
 			 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 			 */
-			add_filter( 'graphql_schema', [ '\WPGraphQL\Utils\InstrumentSchema', 'instrument_schema' ], 10, 1 );
+			add_filter( 'graphql_schema', [
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'instrument_schema'
+			], 10, 1 );
 		}
 
 		/**
@@ -427,7 +434,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Adds GraphQL support for post formats.
 			if ( isset( $wp_taxonomies['post_format'] ) ) {
-				$wp_taxonomies['post_format']->show_in_graphql = true;
+				$wp_taxonomies['post_format']->show_in_graphql     = true;
 				$wp_taxonomies['post_format']->graphql_single_name = 'postFormat';
 				$wp_taxonomies['post_format']->graphql_plural_name = 'postFormats';
 			}
@@ -556,9 +563,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			if ( null === self::$schema ) {
 
-				$type_registry = new \WPGraphQL\Registry\TypeRegistry();
+				$type_registry   = new \WPGraphQL\Registry\TypeRegistry();
 				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry( $type_registry );
-				$schema        = $schema_registry->get_schema();
+				$schema          = $schema_registry->get_schema();
 
 				/**
 				 * Generate & Filter the schema.
