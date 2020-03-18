@@ -27,11 +27,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed              $source           The object passed down from the previous level in the
-	 *                                             Resolve tree
-	 * @param array              $args             The input arguments for the query
-	 * @param AppContext         $context          The context of the request
-	 * @param ResolveInfo        $info             The resolve info passed down the Resolve tree
+	 * @param mixed       $source                  The object passed down from the previous level
+	 *                                             in the Resolve tree
+	 * @param array       $args                    The input arguments for the query
+	 * @param AppContext  $context                 The context of the request
+	 * @param ResolveInfo $info                    The resolve info passed down the Resolve tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
@@ -259,6 +259,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
+		 * If the query contains search default the results to
+		 */
+		if ( isset( $query_args['s'] ) && ! empty( $query_args['s'] ) ) {
+			/**
+			 * Don't order search results by title (causes funky issues with cursors)
+			 */
+			$query_args['search_orderby_title'] = false;
+			$query_args['orderby']              = 'date';
+			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
+		}
+
+		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
@@ -295,18 +307,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
-		}
-
-		/**
-		 * If the query contains search default the results to
-		 */
-		if ( isset( $query_args['s'] ) && ! empty( $query_args['s'] ) ) {
-			/**
-			 * Don't order search results by title (causes funky issues with cursors)
-			 */
-			$query_args['search_orderby_title'] = false;
-			$query_args['orderby']              = 'date';
-			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**
