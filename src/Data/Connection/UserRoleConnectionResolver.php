@@ -2,41 +2,41 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use GraphQLRelay\Relay;
+use WPGraphQL\AppContext;
 use WPGraphQL\Model\User;
 
-class UserRoleConnectionResolver extends AbstractConnectionResolver {
+/**
+ * Class PluginConnectionResolver - Connects plugins to other objects
+ *
+ * @package WPGraphQL\Data\Resolvers
+ * @since 0.0.5
+ */
+class UserRoleConnectionResolver {
 
 	/**
-	 * No args needed to be passed to the query
+	 * Creates the connection for plugins
 	 *
+	 * @param mixed       $source  The query results
+	 * @param array       $args    The query arguments
+	 * @param AppContext  $context The AppContext object
+	 * @param ResolveInfo $info    The ResolveInfo object
+	 *
+	 * @since  0.5.0
 	 * @return array
+	 * @access public
+	 * @throws \Exception
 	 */
-	public function get_query_args() {
-		return [];
-	}
-
-	/**
-	 * Get the defined wp_roles
-	 *
-	 * @return mixed|\WP_Roles
-	 */
-	public function get_query() {
-		return wp_roles();
-	}
-
-	/**
-	 * Get the items from WP_Roles
-	 *
-	 * @return array|mixed|\WP_Roles
-	 */
-	public function get_items() {
+	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		$current_user_roles = wp_get_current_user()->roles;
 
-		if ( $this->source instanceof User ) {
-			$roles = ! empty( $this->source->roles ) ? $this->source->roles : [];
+		if ( $source instanceof User ) {
+			$roles = ! empty( $source->roles ) ? $source->roles : [];
 		} else {
-			$roles = ! empty( $this->query->get_names() ) ? array_keys( $this->query->get_names() ) : [];
+			$wp_roles = wp_roles();
+			$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
 		}
 
 		$roles = ! empty( $roles ) ? array_filter(
@@ -54,35 +54,20 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 				},
 				$roles
 			)
-		) : $roles;
+		) : [];
 
-		return $roles;
-	}
+		$connection = Relay::connectionFromArray( $roles, $args );
 
-	/**
-	 * If the request is not from an authenticated user we can prevent
-	 * the connection query from being executed at all as we know they shouldn't have access
-	 * to the data.
-	 *
-	 * @return bool
-	 */
-	public function should_execute() {
-		if ( ! is_user_logged_in() ) {
-			return false;
+		$nodes = [];
+		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
+			foreach ( $connection['edges'] as $edge ) {
+				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
+			}
 		}
+		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
-		return true;
-	}
+		return ! empty( $roles ) ? $connection : null;
 
-	/**
-	 * TODO: Temporarily return false for all offsets, as pagination
-	 * does not work for user roles. Will need to be updated when
-	 * proper pagination is implemented for user roles.
-	 *
-	 * @return bool
-	 */
-	public function is_valid_offset( $offset ) {
-		return false;
 	}
 
 }

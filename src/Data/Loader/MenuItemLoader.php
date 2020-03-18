@@ -90,7 +90,16 @@ class MenuItemLoader extends AbstractDataLoader {
 			 * Return the instance through the Model to ensure we only
 			 * return fields the consumer has access to.
 			 */
-			$all_posts[ $key ] = ! empty( $post_object ) ? new MenuItem( $post_object ) : null;
+			if ( empty( $post_object ) ) {
+				$all_posts[ $key ] = null;
+			} else {
+				$menu_item = new MenuItem( $post_object );
+				if ( ! isset( $menu_item->fields ) || empty( $menu_item->fields ) ) {
+					$all_posts[ $key ] = null;
+				} else {
+					$all_posts[ $key ] = $menu_item;
+				}
+			}
 		}
 
 		return $all_posts;

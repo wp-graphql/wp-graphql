@@ -136,6 +136,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -150,7 +152,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'authorIp'    => null,
 					'children'    => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,

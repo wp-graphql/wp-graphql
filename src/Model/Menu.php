@@ -57,7 +57,7 @@ class Menu extends Model {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'menuId' => function() {
-					return ! empty( $this->data->term_id ) ? $this->data->term_id : null;
+					return ! empty( $this->data->term_id ) ? absint( $this->data->term_id ) : null;
 				},
 				'name'   => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;

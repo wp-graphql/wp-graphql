@@ -27,11 +27,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed       $source                  The object passed down from the previous level
-	 *                                             in the Resolve tree
-	 * @param array       $args                    The input arguments for the query
-	 * @param AppContext  $context                 The context of the request
-	 * @param ResolveInfo $info                    The resolve info passed down the Resolve tree
+	 * @param mixed              $source                  The object passed down from the previous level
+	 *                                                    in the Resolve tree
+	 * @param array              $args                    The input arguments for the query
+	 * @param AppContext         $context                 The context of the request
+	 * @param ResolveInfo        $info                    The resolve info passed down the Resolve tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
@@ -67,6 +67,15 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return the name of the loader
+	 *
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'post_object';
+	}
+
+	/**
 	 * @return \WP_Query
 	 */
 	public function get_query() {
@@ -78,8 +87,22 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->posts ) ? $this->query->posts : [];
+	}
+
+	/**
+	 * Given an ID, return the model for the entity or null
+	 *
+	 * @param $id
+	 *
+	 * @return mixed|Post|null
+	 *
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$post = get_post( $id );
+		return ! empty( $post ) ? new Post( $post ) : null;
 	}
 
 	/**
@@ -261,7 +284,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If the query contains search default the results to
 		 */
-		if ( isset( $query_args['s'] ) && ! empty( $query_args['s'] ) ) {
+		if ( isset( $query_args['search'] ) && ! empty( $query_args['search'] ) ) {
 			/**
 			 * Don't order search results by title (causes funky issues with cursors)
 			 */
@@ -273,7 +296,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
-		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
 			$query_args['orderby'] = [];
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**

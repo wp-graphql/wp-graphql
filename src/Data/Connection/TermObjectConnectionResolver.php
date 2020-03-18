@@ -208,8 +208,26 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'term_object';
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed|null|\WPGraphQL\Model\Model|Term
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$term = get_term( $id );
+		return ! empty( $term ) && ! is_wp_error( $term ) ? new Term( $term ) : null;
 	}
 
 	/**

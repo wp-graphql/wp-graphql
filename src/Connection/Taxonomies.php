@@ -13,13 +13,8 @@ class Taxonomies {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'taxonomies',
-				'resolveNode'   => function( $taxonomy ) {
-					return DataSource::resolve_taxonomy( $taxonomy );
-				},
 				'resolve'       => function( $source, $args, $context, $info ) {
-					$connection = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-
-					return $connection->get_connection();
+					return TaxonomyConnectionResolver::resolve( $source, $args, $context, $info );
 				},
 			]
 		);
@@ -34,12 +29,8 @@ class Taxonomies {
 						'toType'        => 'Taxonomy',
 						'fromFieldName' => 'taxonomy',
 						'oneToOne'      => true,
-						'resolveNode'   => function( $taxonomy ) {
-							return DataSource::resolve_taxonomy( $taxonomy );
-						},
 						'resolve'       => function( $source, $args, $context, $info ) {
-							$connection = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-							return $connection->get_connection();
+							return TaxonomyConnectionResolver::resolve( $source, $args, $context, $info );
 						},
 					]
 				);

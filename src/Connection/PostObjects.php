@@ -24,9 +24,6 @@ class PostObjects {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'ContentNode',
 				'queryClass'     => 'WP_Query',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_post_object( $id, $context );
-				},
 				'fromFieldName'  => 'contentNodes',
 				'connectionArgs' => self::get_connection_args(
 					[
@@ -117,11 +114,11 @@ class PostObjects {
 						self::get_connection_config(
 							$post_type_object,
 							[
-								'connectionTypeName'	=> $post_type_object->graphql_single_name . 'ToRevisionConnection',
-								'fromType'      			=> $post_type_object->graphql_single_name,
-								'toType'        			=> $post_type_object->graphql_single_name,
-								'fromFieldName' 			=> 'revisions',
-								'resolve'       			=> function( $root, $args, $context, $info ) {
+								'connectionTypeName' => $post_type_object->graphql_single_name . 'ToRevisionConnection',
+								'fromType'           => $post_type_object->graphql_single_name,
+								'toType'             => $post_type_object->graphql_single_name,
+								'fromFieldName'      => 'revisions',
+								'resolve'            => function( $root, $args, $context, $info ) {
 									return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 								},
 							]
@@ -157,9 +154,6 @@ class PostObjects {
 				'fromType'       => 'RootQuery',
 				'toType'         => $post_type_object->graphql_single_name,
 				'queryClass'     => 'WP_Query',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_post_object( $id, $context );
-				},
 				'fromFieldName'  => lcfirst( $post_type_object->graphql_plural_name ),
 				'connectionArgs' => $connection_args,
 				'resolve'        => function( $root, $args, $context, $info ) use ( $post_type_object ) {

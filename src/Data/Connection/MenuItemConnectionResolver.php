@@ -28,6 +28,17 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	}
 
 	/**
+	 * @param $id
+	 *
+	 * @return mixed|null|MenuItem|\WPGraphQL\Model\Post
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		$post = get_post( $id );
+		return ! empty( $post ) ? new MenuItem( $post ) : null;
+	}
+
+	/**
 	 * Return an array of menu items associated with the menu connection, the
 	 * requested menu location, or the specific menu item.
 	 *

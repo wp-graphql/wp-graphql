@@ -75,7 +75,6 @@ class CommentUpdate {
 			$user_id = $comment_args['user_id'];
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
-
 			// Prevent comment deletions by default
 			$not_allowed = true;
 
