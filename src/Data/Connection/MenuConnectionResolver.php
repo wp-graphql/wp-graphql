@@ -14,7 +14,7 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 	/**
 	 * @param $id
 	 *
-	 * @return mixed|null|\WPGraphQL\Model\Model|Menu
+	 * @return Menu|null
 	 * @throws \Exception
 	 */
 	public function get_node_by_id( $id ) {

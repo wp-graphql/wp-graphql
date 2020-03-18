@@ -186,8 +186,8 @@ abstract class AbstractConnectionResolver {
 	 * Get the loader name
 	 *
 	 * @access protected
-	 * @return AbstractDataLoader
 	 * @throws \Exception
+	 * @return AbstractDataLoader
 	 */
 	protected function getLoader() {
 		$name = $this->get_loader_name();
@@ -706,9 +706,18 @@ abstract class AbstractConnectionResolver {
 		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
 		 * the query to that instead of a native WP_Query class. You could override this with a
 		 * query to that datasource instead.
+		 *
+		 * @param mixed                      $query Instance of the Query for the resolver
+		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
 		 */
 		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
 
+		/**
+		 * Filter the connection IDs
+		 *
+		 * @param array                      $ids  Array of IDs this connection will be resolving
+		 * @param AbstractConnectionResolver $this Instance of the Connection Resolver
+		 */
 		$this->ids = apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
 
 		if ( empty( $this->ids ) ) {
@@ -746,44 +755,44 @@ abstract class AbstractConnectionResolver {
 		 */
 		return new Deferred(
 			function() {
-					$this->loader->loadMany( $this->ids );
+				$this->loader->loadMany( $this->ids );
 
-					/**
-					 * Set the items. These are the "nodes" that make up the connection.
-					 *
-					 * Filters the nodes in the connection
-					 *
-					 * @param array                      $nodes The nodes in the connection
-					 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-					 */
-					$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+				/**
+				 * Set the items. These are the "nodes" that make up the connection.
+				 *
+				 * Filters the nodes in the connection
+				 *
+				 * @param array                      $nodes The nodes in the connection
+				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+				 */
+				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
-					/**
-					 * Filters the edges in the connection
-					 *
-					 * @param array                      $nodes The nodes in the connection
-					 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
-					 */
-					$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+				/**
+				 * Filters the edges in the connection
+				 *
+				 * @param array                      $nodes The nodes in the connection
+				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+				 */
+				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
-					/**
-					 * Filter the connection. In some cases, connections will want to provide
-					 * additional information other than edges, nodes, and pageInfo
-					 *
-					 * This filter allows additional fields to be returned to the connection resolver
-					 *
-					 * @param array                      $connection The connection data being returned
-					 * @param AbstractConnectionResolver $this       The instance of the connection resolver
-					 */
-					return apply_filters(
-						'graphql_connection',
-						[
-							'nodes'    => $this->nodes,
-							'edges'    => $this->edges,
-							'pageInfo' => $this->get_page_info(),
-						],
-						$this
-					);
+				/**
+				 * Filter the connection. In some cases, connections will want to provide
+				 * additional information other than edges, nodes, and pageInfo
+				 *
+				 * This filter allows additional fields to be returned to the connection resolver
+				 *
+				 * @param array                      $connection The connection data being returned
+				 * @param AbstractConnectionResolver $this       The instance of the connection resolver
+				 */
+				return apply_filters(
+					'graphql_connection',
+					[
+						'nodes'    => $this->nodes,
+						'edges'    => $this->edges,
+						'pageInfo' => $this->get_page_info(),
+					],
+					$this
+				);
 
 			}
 		);

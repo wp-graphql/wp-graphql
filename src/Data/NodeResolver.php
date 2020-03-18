@@ -290,7 +290,7 @@ class NodeResolver {
 			}
 
 			$args  = array(
-				'ID'                  => absint( $this->wp->query_vars['page_id'] ),
+				'page_id'             => absint( $this->wp->query_vars['page_id'] ),
 				'post_type'           => $post_type,
 				'post_status'         => 'publish',
 				'posts_per_page'      => 1,
@@ -311,7 +311,7 @@ class NodeResolver {
 			}
 
 			$args  = array(
-				'ID'                  => absint( $this->wp->query_vars['p'] ),
+				'p'                   => absint( $this->wp->query_vars['p'] ),
 				'post_type'           => $post_type,
 				'post_status'         => 'publish',
 				'posts_per_page'      => 1,

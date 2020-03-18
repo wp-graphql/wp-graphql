@@ -179,9 +179,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Given an ID, return the model for the entity or null
 	 *
-	 * @param $id
+	 * @param int $id Comment ID
 	 *
-	 * @return mixed|Comment|null
+	 * @return Comment|null
 	 *
 	 * @throws \Exception
 	 */
