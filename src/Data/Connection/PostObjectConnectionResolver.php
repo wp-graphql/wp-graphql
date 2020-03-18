@@ -27,11 +27,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed       $source                  The object passed down from the previous level
-	 *                                             in the Resolve tree
-	 * @param array       $args                    The input arguments for the query
-	 * @param AppContext  $context                 The context of the request
-	 * @param ResolveInfo $info                    The resolve info passed down the Resolve tree
+	 * @param mixed              $source                  The object passed down from the previous level
+	 *                                                    in the Resolve tree
+	 * @param array              $args                    The input arguments for the query
+	 * @param AppContext         $context                 The context of the request
+	 * @param ResolveInfo        $info                    The resolve info passed down the Resolve tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
