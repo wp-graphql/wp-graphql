@@ -27,7 +27,6 @@ When contributing please ensure you follow the guidelines below so that we can k
 
 * We strive for full doc coverage and follow the standards set by phpDoc
 * Please make sure that every function is documented so that when we update our API Documentation things don't go awry!
-	* If you're adding/editing a function in a class, make sure to add `@access {private|public|protected}`
 * Finally, please use tabs and not spaces.
 
 At this point you're waiting on us to merge your pull request. We'll review all pull requests, and make suggestions and changes if necessary.

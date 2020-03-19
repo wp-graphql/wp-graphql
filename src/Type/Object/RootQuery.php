@@ -415,7 +415,6 @@ class RootQuery {
 	/**
 	 * Register RootQuery fields for Post Objects of supported post types
 	 *
-	 * @access public
 	 */
 	public static function register_post_object_fields() {
 
@@ -542,7 +541,6 @@ class RootQuery {
 	/**
 	 * Register RootQuery fields for Term Objects of supported taxonomies
 	 *
-	 * @access public
 	 */
 	public static function register_term_object_fields() {
 

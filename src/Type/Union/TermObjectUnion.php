@@ -10,7 +10,6 @@ class TermObjectUnion {
 	 *
 	 * @param TypeRegistry $type_registry
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -39,7 +38,6 @@ class TermObjectUnion {
 	/**
 	 * Returns a list of possible types for the union
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public static function get_possible_types() {

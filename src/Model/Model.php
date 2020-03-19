@@ -13,7 +13,6 @@ abstract class Model {
 	 * Stores the name of the type the child class extending this one represents
 	 *
 	 * @var string $model_name
-	 * @access protected
 	 */
 	protected $model_name;
 
@@ -21,7 +20,6 @@ abstract class Model {
 	 * Stores the raw data passed to the child class when it's instantiated before it's transformed
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -29,7 +27,6 @@ abstract class Model {
 	 * Stores the capability name for what to check on the user if the data should be considered "Restricted"
 	 *
 	 * @var string $restricted_cap
-	 * @access protected
 	 */
 	protected $restricted_cap;
 
@@ -37,7 +34,6 @@ abstract class Model {
 	 * Stores the array of allowed fields to show if the data is restricted
 	 *
 	 * @var array $allowed_restricted_fields
-	 * @access protected
 	 */
 	protected $allowed_restricted_fields;
 
@@ -45,7 +41,6 @@ abstract class Model {
 	 * Stores the DB ID of the user that owns this piece of data, or null if there is no owner
 	 *
 	 * @var int|null $owner
-	 * @access protected
 	 */
 	protected $owner;
 
@@ -53,7 +48,6 @@ abstract class Model {
 	 * Stores the WP_User object for the current user in the session
 	 *
 	 * @var \WP_User $current_user
-	 * @access protected
 	 */
 	protected $current_user;
 
@@ -61,7 +55,6 @@ abstract class Model {
 	 * Stores the visibility value for the current piece of data
 	 *
 	 * @var string
-	 * @access protected
 	 */
 	protected $visibility;
 
@@ -69,7 +62,6 @@ abstract class Model {
 	 * The fields for the modeled object. This will be populated in the child class
 	 *
 	 * @var array $fields
-	 * @access public
 	 */
 	public $fields;
 
@@ -82,7 +74,6 @@ abstract class Model {
 	 * @param null|int $owner                     Database ID of the user that owns this piece of
 	 *                                            data to compare with the current user ID
 	 *
-	 * @access protected
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -112,7 +103,6 @@ abstract class Model {
 	 *
 	 * @param string $key The name of the field you are trying to retrieve
 	 *
-	 * @access public
 	 * @return bool
 	 */
 	public function __isset( $key ) {
@@ -126,7 +116,6 @@ abstract class Model {
 	 * @param string                    $key   Name of the key to set the data to
 	 * @param callable|int|string|mixed $value The value to set to the key
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __set( $key, $value ) {
@@ -140,7 +129,6 @@ abstract class Model {
 	 *
 	 * @param string $key Name of the property that is trying to be accessed
 	 *
-	 * @access public
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
@@ -174,7 +162,6 @@ abstract class Model {
 	/**
 	 * Returns the name of the model, built from the child className
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function get_model_name() {
@@ -196,7 +183,6 @@ abstract class Model {
 	 * Return the visibility state for the current piece of data
 	 *
 	 * @return string
-	 * @access public
 	 */
 	public function get_visibility() {
 
@@ -259,7 +245,6 @@ abstract class Model {
 	 * Method to return the private state of the object. Can be overwritten in classes extending
 	 * this one.
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -270,7 +255,6 @@ abstract class Model {
 	 * Whether or not the owner of the data matches the current user
 	 *
 	 * @return bool
-	 * @access protected
 	 */
 	protected function owner_matches_current_user() {
 		if ( empty( $this->current_user->ID ) || empty( $this->owner ) ) {
@@ -282,7 +266,6 @@ abstract class Model {
 	/**
 	 * Restricts fields for the data to only return the allowed fields if the data is restricted
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function restrict_fields() {
@@ -310,7 +293,6 @@ abstract class Model {
 	/**
 	 * Wraps all fields with another callback layer so we can inject hooks & filters into them
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function wrap_fields() {
@@ -439,7 +421,6 @@ abstract class Model {
 	/**
 	 * Returns instance of the data fully modeled
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function prepare_fields() {
@@ -474,7 +455,6 @@ abstract class Model {
 	 *                                  to build an object with those keys and their respective
 	 *                                  values.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function filter( $fields ) {

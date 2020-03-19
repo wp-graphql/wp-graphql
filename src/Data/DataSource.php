@@ -46,7 +46,6 @@ class DataSource {
 	 *
 	 * @var array $node_definition
 	 * @since  0.0.4
-	 * @access protected
 	 */
 	protected static $node_definition;
 
@@ -59,7 +58,6 @@ class DataSource {
 	 * @return Deferred object
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_comment( $id, $context ) {
@@ -123,7 +121,6 @@ class DataSource {
 	 * @return Plugin
 	 * @throws \Exception
 	 * @since  0.0.5
-	 * @access public
 	 */
 	public static function resolve_plugin( $info ) {
 
@@ -177,7 +174,6 @@ class DataSource {
 	 *
 	 * @return array
 	 * @since  0.0.5
-	 * @access public
 	 *
 	 * @throws \Exception
 	 */
@@ -194,7 +190,6 @@ class DataSource {
 	 * @throws UserError
 	 * @since  0.0.5
 	 * @return Deferred
-	 * @access public
 	 *
 	 * @throws \Exception
 	 */
@@ -246,7 +241,6 @@ class DataSource {
 	 *
 	 * @return mixed
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
@@ -262,7 +256,6 @@ class DataSource {
 	 * @return PostType object
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_post_type( $post_type ) {
@@ -291,7 +284,6 @@ class DataSource {
 	 * @return Taxonomy object
 	 * @throws UserError | \Exception
 	 * @since  0.0.5
-	 * @access public
 	 */
 	public static function resolve_taxonomy( $taxonomy ) {
 
@@ -320,7 +312,6 @@ class DataSource {
 	 * @return mixed
 	 * @throws \Exception
 	 * @since  0.0.5
-	 * @access public
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
 
@@ -350,7 +341,6 @@ class DataSource {
 	 *
 	 * @return array
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
@@ -368,7 +358,6 @@ class DataSource {
 	 * @return Theme object
 	 * @throws UserError
 	 * @since  0.0.5
-	 * @access public
 	 *
 	 * @throws \Exception
 	 */
@@ -391,7 +380,6 @@ class DataSource {
 	 *
 	 * @return array
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
@@ -406,7 +394,6 @@ class DataSource {
 	 *
 	 * @return Deferred
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
@@ -434,7 +421,6 @@ class DataSource {
 	 *
 	 * @return array
 	 * @since  0.0.5
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
@@ -452,7 +438,6 @@ class DataSource {
 	 * @return UserRole
 	 * @throws \Exception
 	 * @since  0.0.30
-	 * @access public
 	 */
 	public static function resolve_user_role( $name ) {
 
@@ -513,7 +498,6 @@ class DataSource {
 	 * Get all of the allowed settings by group and return the
 	 * settings group that matches the group param
 	 *
-	 * @access public
 	 *
 	 * @param string $group
 	 *
@@ -533,7 +517,6 @@ class DataSource {
 	/**
 	 * Get all of the allowed settings by group
 	 *
-	 * @access public
 	 * @return array $allowed_settings_by_group
 	 */
 	public static function get_allowed_settings_by_group() {
@@ -579,7 +562,6 @@ class DataSource {
 	/**
 	 * Get all of the $allowed_settings
 	 *
-	 * @access public
 	 * @return array $allowed_settings
 	 */
 	public static function get_allowed_settings() {
@@ -632,7 +614,6 @@ class DataSource {
 	 *
 	 * @return array
 	 * @throws UserError
-	 * @access public
 	 */
 	public static function get_node_definition() {
 
@@ -845,7 +826,6 @@ class DataSource {
 	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
 	 *
-	 * @access public
 	 * @return \WP_Post|null WP_Post on success or null on failure
 	 * @see    https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
 	 * @link   http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
@@ -879,7 +859,6 @@ class DataSource {
 	/**
 	 * Returns array of nav menu location names
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public static function get_registered_nav_menu_locations() {

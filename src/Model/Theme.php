@@ -26,7 +26,6 @@ class Theme extends Model {
 	 * Stores the incoming WP_Theme to be modeled
 	 *
 	 * @var \WP_Theme $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -36,7 +35,6 @@ class Theme extends Model {
 	 * @param \WP_Theme $theme The incoming WP_Theme to be modeled
 	 *
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Theme $theme ) {
@@ -47,7 +45,6 @@ class Theme extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -67,7 +64,6 @@ class Theme extends Model {
 	/**
 	 * Initialize the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

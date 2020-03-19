@@ -11,7 +11,6 @@ class CommentAuthorUnion {
 	 *
 	 * @param TypeRegistry $type_registry
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {

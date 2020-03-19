@@ -28,7 +28,6 @@ class Term extends Model {
 	 * Stores the incoming WP_Term object
 	 *
 	 * @var \WP_Term $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -36,7 +35,6 @@ class Term extends Model {
 	 * Stores the taxonomy object for the term being modeled
 	 *
 	 * @var null|\WP_Taxonomy $taxonomy_object
-	 * @access protected
 	 */
 	protected $taxonomy_object;
 
@@ -45,7 +43,6 @@ class Term extends Model {
 	 *
 	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -58,7 +55,6 @@ class Term extends Model {
 	/**
 	 * Initializes the Term object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
