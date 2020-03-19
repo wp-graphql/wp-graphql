@@ -66,7 +66,6 @@ class Post extends Model {
 	 * Stores the incoming post data
 	 *
 	 * @var \WP_Post $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -74,7 +73,6 @@ class Post extends Model {
 	 * Stores the incoming post type object for the post being modeled
 	 *
 	 * @var null|\WP_Post_Type $post_type_object
-	 * @access protected
 	 */
 	protected $post_type_object;
 
@@ -83,7 +81,6 @@ class Post extends Model {
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
-	 * @access public
 	 * @throws \Exception
 	 * @return void
 	 */
@@ -148,7 +145,6 @@ class Post extends Model {
 	/**
 	 * Retrieve the cap to check if the data should be restricted for the post
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function get_restricted_cap() {
@@ -233,7 +229,6 @@ class Post extends Model {
 	 *
 	 * @param \WP_Post $post_object The object of the post we need to verify permissions for
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_post_private( $post_object = null ) {
@@ -298,7 +293,6 @@ class Post extends Model {
 	/**
 	 * Initialize the Post object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

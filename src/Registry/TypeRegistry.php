@@ -132,14 +132,12 @@ class TypeRegistry {
 	 * The registered Types
 	 *
 	 * @var array
-	 * @access protected
 	 */
 	protected $types;
 
 	/**
 	 * TypeRegistry constructor.
 	 *
-	 * @access public
 	 */
 	public function __construct() {
 		$this->types = [];
@@ -151,7 +149,6 @@ class TypeRegistry {
 	 * @param string $key Name of the array key to format
 	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function format_key( $key ) {
 		return strtolower( $key );
@@ -550,7 +547,6 @@ class TypeRegistry {
 	 * @param array  $fields    Array of fields and their settings to register on a Type
 	 * @param string $type_name Name of the Type to register the fields to
 	 *
-	 * @access protected
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -580,7 +576,6 @@ class TypeRegistry {
 	 * @param array  $field_config Config data about the field to prepare
 	 * @param string $type_name    Name of the type to prepare the field for
 	 *
-	 * @access protected
 	 * @return array|null
 	 * @throws \Exception
 	 */
@@ -663,7 +658,6 @@ class TypeRegistry {
 	 * @param string $type_name Name of the type in the Type Registry to add the fields to
 	 * @param array  $fields    Fields to register
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function register_fields( $type_name, $fields ) {
@@ -683,7 +677,6 @@ class TypeRegistry {
 	 * @param string $field_name Name of the field to add to the type
 	 * @param array  $config     Info about the field to register to the type
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function register_field( $type_name, $field_name, $config ) {
@@ -724,7 +717,6 @@ class TypeRegistry {
 	 * @param string $type_name  Name of the Type the field is registered to
 	 * @param string $field_name Name of the field you would like to remove from the type
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function deregister_field( $type_name, $field_name ) {
@@ -755,7 +747,6 @@ class TypeRegistry {
 	 * @param string $from_type Name of the Type the connection is coming from
 	 * @param string $to_type   Name of the Type the connection is going to
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function get_connection_name( $from_type, $to_type ) {
@@ -767,7 +758,6 @@ class TypeRegistry {
 	 *
 	 * @param array $config The info about the connection being registered
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
@@ -1009,7 +999,6 @@ class TypeRegistry {
 	 * @param string $mutation_name Name of the mutation being registered
 	 * @param array  $config        Info about the mutation being registered
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */

@@ -35,7 +35,6 @@ class User extends Model {
 	 * Stores the WP_User object for the incoming data
 	 *
 	 * @var \WP_User $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -44,7 +43,6 @@ class User extends Model {
 	 *
 	 * @param \WP_User $user The incoming WP_User object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -73,7 +71,6 @@ class User extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -99,7 +96,6 @@ class User extends Model {
 	/**
 	 * Initialize the User object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

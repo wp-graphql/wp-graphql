@@ -13,7 +13,6 @@ class SchemaRegistry {
 
 	/**
 	 * @var TypeRegistry
-	 * @access protected
 	 */
 	protected $type_registry;
 

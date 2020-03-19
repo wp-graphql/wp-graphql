@@ -16,7 +16,6 @@ class Users {
 	/**
 	 * Register connections to Users
 	 *
-	 * @access public
 	 */
 	public static function register_connections() {
 
@@ -41,7 +40,6 @@ class Users {
 	 * Returns the connection args for use in the connection
 	 *
 	 * @return array
-	 * @access public
 	 */
 	public static function get_connection_args() {
 		return [

@@ -23,7 +23,6 @@ class Plugin extends Model {
 	 * Stores the incoming plugin data to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -32,7 +31,6 @@ class Plugin extends Model {
 	 *
 	 * @param array $plugin The incoming Plugin data to be modeled
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( $plugin ) {
@@ -43,7 +41,6 @@ class Plugin extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -59,7 +56,6 @@ class Plugin extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

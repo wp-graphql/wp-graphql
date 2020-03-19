@@ -369,7 +369,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * now this gets the job done.
 	 *
 	 * @since  0.0.5
-	 * @access public
 	 * @return array
 	 */
 	public function sanitize_input_fields( $where_args ) {
@@ -530,7 +529,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * exists. Offset is equivalent to post_id. So this function is equivalent to checking if the
 	 * post with the given ID exists.
 	 *
-	 * @access public
 	 *
 	 * @param int $offset The ID of the node used in the cursor offset
 	 *

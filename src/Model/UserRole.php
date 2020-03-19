@@ -20,7 +20,6 @@ class UserRole extends Model {
 	 * Stores the incoming user role to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -29,7 +28,6 @@ class UserRole extends Model {
 	 *
 	 * @param array $user_role The incoming user role to be modeled
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -41,7 +39,6 @@ class UserRole extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -61,7 +58,6 @@ class UserRole extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

@@ -24,7 +24,6 @@ class PluginConnectionResolver {
 	 *
 	 * @since  0.5.0
 	 * @return array
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {

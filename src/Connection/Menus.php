@@ -17,7 +17,6 @@ class Menus {
 	/**
 	 * Registers connections to Menus
 	 *
-	 * @access public
 	 */
 	public static function register_connections() {
 
