@@ -21,8 +21,8 @@ Download and install like any WordPress plugin.
 
 Documentation can be found [here](https://docs.wpgraphql.com). The repository where the Documentation content lives is [here](https://github.com/wp-graphql/docs.wpgraphql.com)
 
-- Requires PHP 5.5+
-- Requires WordPress 4.7+
+- Requires PHP 7.0+
+- Requires WordPress 5.0+
 
 ## Overview
 This plugin brings the power of GraphQL to WordPress.
