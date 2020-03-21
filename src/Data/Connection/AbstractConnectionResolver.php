@@ -332,7 +332,9 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed|Model|null
 	 */
-	abstract public function get_node_by_id( $id );
+	public function get_node_by_id( $id ) {
+		return $this->loader->get( $id );
+	}
 
 	/**
 	 * get_query_amount

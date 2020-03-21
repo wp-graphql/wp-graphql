@@ -177,20 +177,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Given an ID, return the model for the entity or null
-	 *
-	 * @param int $id Comment ID
-	 *
-	 * @return Comment|null
-	 *
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$comment = \WP_Comment::get_instance( $id );
-		return ! empty( $comment ) ? new Comment( $comment ) : null;
-	}
-
-	/**
 	 * @return array
 	 * @throws \Exception
 	 */
