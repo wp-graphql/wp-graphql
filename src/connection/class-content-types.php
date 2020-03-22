@@ -1,10 +1,22 @@
 <?php
+/**
+ * This class organizes the registration of connections to ContentTypes.
+ *
+ * @package WPGraphQL\Connection
+ */
+
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 
-class ContentTypes {
+/**
+ * Class Content_Types
+ */
+class Content_Types {
 
+	/**
+	 * Registers core content-type connections.
+	 */
 	public static function register_connections() {
 
 		/**
@@ -38,7 +50,5 @@ class ContentTypes {
 				);
 			}
 		}
-
 	}
-
 }

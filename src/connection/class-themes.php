@@ -1,4 +1,9 @@
 <?php
+/**
+ * This class organizes registering connections to Themes
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
@@ -6,16 +11,11 @@ use WPGraphQL\Data\DataSource;
 
 /**
  * Class Themes
- *
- * This class organizes registering connections to Themes
- *
- * @package WPGraphQL\Connection
  */
 class Themes {
 
 	/**
 	 * Register the connections
-	 *
 	 */
 	public static function register_connections() {
 
@@ -32,7 +32,5 @@ class Themes {
 				},
 			]
 		);
-
 	}
-
 }
