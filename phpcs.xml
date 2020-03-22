@@ -15,6 +15,14 @@
 		</properties>
 	</rule>
 
+	<!-- Disallow long array syntax -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- Allow short array syntax -->
+	<rule ref="Generic.Arrays.DisallowShortArraySyntax.Found">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found"/>
+	</rule>
+
 	<!-- Will check the code compatiblity for PHP no less than version 7.0 -->
 	<rule ref="PHPCompatibilityWP"/>
 	<config name="testVersion" value="7.0-"/>
