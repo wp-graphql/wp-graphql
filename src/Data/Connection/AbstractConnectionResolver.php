@@ -549,13 +549,27 @@ abstract class AbstractConnectionResolver {
 		$nodes = [];
 		foreach ( $this->ids as $id ) {
 			$model = $this->get_node_by_id( $id );
-			if ( isset( $model ) && ! empty( $model->fields ) ) {
+			if ( $this->is_valid_model( $model ) ) {
 				$nodes[ $id ] = $model;
 			}
 		}
 		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
 
 		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
+	}
+
+	/**
+	 * Validates Model.
+	 *
+	 * If model isn't a class with a `fields` member, this function with have be overridden in
+	 * the Connection class.
+	 *
+	 * @param array $model model.
+	 *
+	 * @return bool
+	 */
+	protected function is_valid_model( $model ) {
+		return isset( $model ) && ! empty( $model->fields );
 	}
 
 	/**
