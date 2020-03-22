@@ -285,22 +285,6 @@ abstract class AbstractDataLoader {
 	}
 
 	/**
-	 * Returns objects connected to the provided by checking if the object is cached,
-	 * if the object associated with the key is loaded in the spot.
-	 *
-	 * @param mixed $key Object key.
-	 *
-	 * @return mixed
-	 */
-	public function get( $key ) {
-		if ( ! empty( $this->cached[ $key ] ) ) {
-			return $this->cached[ $key ];
-		} else {
-			return $this->load( $key );
-		}
-	}
-
-	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
 	 * values
 	 *
