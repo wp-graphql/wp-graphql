@@ -1,4 +1,9 @@
 <?php
+/**
+ * This class organizes the registration of connections to Comments
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
@@ -6,16 +11,11 @@ use WPGraphQL\Data\DataSource;
 
 /**
  * Class Comments
- *
- * This class organizes the registration of connections to Comments
- *
- * @package WPGraphQL\Connection
  */
 class Comments {
 
 	/**
 	 * Register connections to Comments
-	 *
 	 */
 	public static function register_connections() {
 
@@ -67,8 +67,7 @@ class Comments {
 	 * Given an array of $args, this returns the connection config, merging the provided args
 	 * with the defaults
 	 *
-	 *
-	 * @param array $args
+	 * @param array $args  Connection configurations.
 	 *
 	 * @return array
 	 */

@@ -1,21 +1,21 @@
 <?php
+/**
+ * This registers the connections to UserRoles
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
 
 /**
- * Class UserRoles
- *
- * This registers the connections to UserRoles
- *
- * @package WPGraphQL\Connection
+ * Class User_Roles
  */
-class UserRoles {
+class User_Roles {
 
 	/**
 	 * Register the connections
-	 *
 	 */
 	public static function register_connections() {
 
@@ -49,7 +49,7 @@ class UserRoles {
 	/**
 	 * Given an array of config, returns a config with the custom config merged with the defaults
 	 *
-	 * @param array $config
+	 * @param array $config Connection configurations.
 	 *
 	 * @return array
 	 */

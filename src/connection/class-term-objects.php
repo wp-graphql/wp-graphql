@@ -1,4 +1,9 @@
 <?php
+/**
+ * This class organizes the registration of connections to TermObjects
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
@@ -6,17 +11,12 @@ use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
- * Class TermObjects
- *
- * This class organizes the registration of connections to TermObjects
- *
- * @package WPGraphQL\Connection
+ * Class Term_Objects
  */
-class TermObjects {
+class Term_Objects {
 
 	/**
 	 * Register connections to TermObjects
-	 *
 	 */
 	public static function register_connections() {
 
@@ -100,8 +100,8 @@ class TermObjects {
 	 * registering a connection.
 	 *
 	 * @param \WP_Taxonomy $tax_object        The taxonomy object for the taxonomy having a
-	 *                                        connection registered to it
-	 * @param array        $args              The custom args to modify the connection registration
+	 *                                        connection registered to it.
+	 * @param array        $args              The custom args to modify the connection registration.
 	 *
 	 * @return array
 	 */
@@ -124,7 +124,7 @@ class TermObjects {
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
-	 * @param array $args The args to modify the defaults
+	 * @param array $args The args to modify the defaults.
 	 *
 	 * @return array
 	 */

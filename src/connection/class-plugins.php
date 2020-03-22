@@ -1,4 +1,9 @@
 <?php
+/**
+ * This class organizes the registration of connections to Plugins
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
@@ -6,16 +11,11 @@ use WPGraphQL\Data\DataSource;
 
 /**
  * Class Plugins
- *
- * This class organizes the registration of connections to Plugins
- *
- * @package WPGraphQL\Connection
  */
 class Plugins {
 
 	/**
 	 * Register connections to Plugins
-	 *
 	 */
 	public static function register_connections() {
 		register_graphql_connection(

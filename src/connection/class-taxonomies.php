@@ -1,11 +1,22 @@
 <?php
+/**
+ * This class organizes the registration of connections to Taxonomies
+ *
+ * @package WPGraphQL\Connection
+ */
 
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class Taxonomies
+ */
 class Taxonomies {
+	/**
+	 * Registers connections
+	 */
 	public static function register_connections() {
 
 		register_graphql_connection(

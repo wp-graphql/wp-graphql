@@ -1,4 +1,10 @@
 <?php
+/**
+ * This class organizes the registration of connections to Users
+ *
+ * @package WPGraphQL\Connection
+ */
+
 namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\DataSource;
@@ -6,16 +12,11 @@ use WPGraphQL\Data\DataSource;
 
 /**
  * Class Users
- *
- * This class organizes the registration of connections to Users
- *
- * @package WPGraphQL\Connection
  */
 class Users {
 
 	/**
 	 * Register connections to Users
-	 *
 	 */
 	public static function register_connections() {
 
@@ -33,7 +34,6 @@ class Users {
 				'connectionArgs' => self::get_connection_args(),
 			]
 		);
-
 	}
 
 	/**
@@ -123,5 +123,4 @@ class Users {
 			],
 		];
 	}
-
 }
