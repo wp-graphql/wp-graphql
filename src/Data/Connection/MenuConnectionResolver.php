@@ -12,17 +12,6 @@ use WPGraphQL\Model\Menu;
 class MenuConnectionResolver extends TermObjectConnectionResolver {
 
 	/**
-	 * @param $id
-	 *
-	 * @return Menu|null
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$term = get_term( $id );
-		return ! empty( $term ) && ! is_wp_error( $term ) ? new Menu( $term ) : null;
-	}
-
-	/**
 	 * Get the connection args for use in WP_Term_Query to query the menus
 	 *
 	 * @return array

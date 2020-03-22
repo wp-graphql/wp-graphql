@@ -220,17 +220,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @param $id
-	 *
-	 * @return mixed|null|\WPGraphQL\Model\Model|Term
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$term = get_term( $id );
-		return ! empty( $term ) && ! is_wp_error( $term ) ? new Term( $term ) : null;
-	}
-
-	/**
 	 * Whether the connection query should execute. Certain contexts _may_ warrant
 	 * restricting the query to execute at all. Default is true, meaning any time
 	 * a TermObjectConnection resolver is asked for, it will execute.
