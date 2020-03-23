@@ -5,7 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\TermObjectMutation;
+use WPGraphQL\Data\Mutation\Term_Object_Mutation;
 
 class TermObjectCreate {
 	/**
@@ -118,7 +118,7 @@ class TermObjectCreate {
 			/**
 			 * Prepare the object for insertion
 			 */
-			$args = TermObjectMutation::prepare_object( $input, $taxonomy, $mutation_name );
+			$args = Term_Object_Mutation::prepare_object( $input, $taxonomy, $mutation_name );
 
 			/**
 			 * Ensure a name was provided

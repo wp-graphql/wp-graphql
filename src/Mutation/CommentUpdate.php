@@ -6,7 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\CommentMutation;
+use WPGraphQL\Data\Mutation\Comment_Mutation;
 
 class CommentUpdate {
 	/**
@@ -73,7 +73,7 @@ class CommentUpdate {
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
 			$user_id = $comment_args['user_id'];
-			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
+			Comment_Mutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
 			// Prevent comment deletions by default
 			$not_allowed = true;
@@ -110,14 +110,6 @@ class CommentUpdate {
 			if ( ! $success ) {
 				throw new UserError( __( 'The comment failed to update', 'wp-graphql' ) );
 			}
-
-			/**
-			 * This updates additional data not part of the comments table ( commentmeta, other relations, etc )
-			 *
-			 * The input for the commentMutation will be passed, along with the $new_comment_id for the
-			 * comment that was created so that relations can be set, meta can be updated, etc.
-			 */
-			CommentMutation::update_additional_comment_data( $comment_id, $input, 'create', $context, $info );
 
 			/**
 			 * Return the comment object

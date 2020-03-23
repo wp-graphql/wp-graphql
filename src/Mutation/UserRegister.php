@@ -5,7 +5,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\UserMutation;
+use WPGraphQL\Data\Mutation\User_Mutation;
 
 class UserRegister {
 	/**
@@ -87,7 +87,7 @@ class UserRegister {
 			/**
 			 * Map all of the args from GQL to WP friendly
 			 */
-			$user_args = UserMutation::prepare_user_object( $input, 'registerUser' );
+			$user_args = User_Mutation::prepare_user_object( $input, 'registerUser' );
 
 			/**
 			 * Register the new user
@@ -141,7 +141,7 @@ class UserRegister {
 			/**
 			 * Update additional user data
 			 */
-			UserMutation::update_additional_user_object_data( $user_id, $input, 'registerUser', $context, $info );
+			User_Mutation::update_additional_user_object_data( $user_id, $input, 'registerUser', $context, $info );
 
 			/**
 			 * Return the new user ID

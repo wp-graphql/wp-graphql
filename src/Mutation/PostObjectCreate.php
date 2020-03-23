@@ -7,7 +7,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\PostObjectMutation;
+use WPGraphQL\Data\Mutation\Post_Object_Mutation;
 
 class PostObjectCreate {
 	/**
@@ -258,7 +258,7 @@ class PostObjectCreate {
 			/**
 			 * insert the post object and get the ID
 			 */
-			$post_args = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
+			$post_args = Post_Object_Mutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 
 			/**
 			 * Filter the default post status to use when the post is initially created. Pass through a filter to
@@ -315,7 +315,7 @@ class PostObjectCreate {
 			 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 			 * postObject that was created so that relations can be set, meta can be updated, etc.
 			 */
-			PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
+			Post_Object_Mutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
 			/**
 			 * Determine whether the intended status should be set or not.

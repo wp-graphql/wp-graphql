@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\PostObjectMutation;
+use WPGraphQL\Data\Mutation\Post_Object_Mutation;
 
 class PostObjectUpdate {
 	/**
@@ -118,7 +118,7 @@ class PostObjectUpdate {
 			/**
 			 * insert the post object and get the ID
 			 */
-			$post_args       = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
+			$post_args       = Post_Object_Mutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 			$post_args['ID'] = absint( $id_parts['id'] );
 
 			/**
@@ -150,7 +150,7 @@ class PostObjectUpdate {
 			 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 			 * postObject that was updated so that relations can be set, meta can be updated, etc.
 			 */
-			PostObjectMutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
+			Post_Object_Mutation::update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 			/**
 			 * Return the payload

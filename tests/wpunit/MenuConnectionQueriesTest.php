@@ -32,6 +32,7 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
 		codecept_debug( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
@@ -69,6 +70,7 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
 		codecept_debug( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
@@ -94,6 +96,9 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
+		// use --debug to view
+		codecept_debug( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][0]['node']['menuId'] );
@@ -122,10 +127,12 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$this->assertEquals( count( $menu_ids ), count( $actual['data']['menus']['edges'] ) );
 		foreach( $menu_ids as $index => $menu_id ) {
 			$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][ $index ]['node']['menuId'] );
 		}
 	}
-
 }

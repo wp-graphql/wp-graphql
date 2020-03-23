@@ -7,7 +7,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\MediaItemMutation;
+use WPGraphQL\Data\Mutation\Media_Item_Mutation;
 
 class MediaItemCreate {
 	/**
@@ -193,7 +193,7 @@ class MediaItemCreate {
 			/**
 			 * Insert the mediaItem object and get the ID
 			 */
-			$media_item_args = MediaItemMutation::prepare_media_item( $input, get_post_type_object( 'attachment' ), 'createMediaItem', $file );
+			$media_item_args = Media_Item_Mutation::prepare_media_item( $input, get_post_type_object( 'attachment' ), 'createMediaItem', $file );
 
 			/**
 			 * Get the post parent and if it's not set, set it to false
@@ -248,7 +248,7 @@ class MediaItemCreate {
 			/**
 			 * Update alt text postmeta for mediaItem
 			 */
-			MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, get_post_type_object( 'attachment' ), 'createMediaItem', $context, $info );
+			Media_Item_Mutation::update_additional_media_item_data( $attachment_id, $input, get_post_type_object( 'attachment' ), 'createMediaItem', $context, $info );
 
 			return [
 				'postObjectId' => $attachment_id,

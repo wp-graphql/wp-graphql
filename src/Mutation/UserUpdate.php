@@ -5,7 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\UserMutation;
+use WPGraphQL\Data\Mutation\User_Mutation;
 
 class UserUpdate {
 	/**
@@ -78,7 +78,7 @@ class UserUpdate {
 				throw new UserError( __( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 			}
 
-			$user_args       = UserMutation::prepare_user_object( $input, 'updateUser' );
+			$user_args       = User_Mutation::prepare_user_object( $input, 'updateUser' );
 			$user_args['ID'] = absint( $id_parts['id'] );
 
 			/**
@@ -108,7 +108,7 @@ class UserUpdate {
 			/**
 			 * Update additional user data
 			 */
-			UserMutation::update_additional_user_object_data( $user_id, $input, 'updateUser', $context, $info );
+			User_Mutation::update_additional_user_object_data( $user_id, $input, 'updateUser', $context, $info );
 
 			/**
 			 * Return the new user ID

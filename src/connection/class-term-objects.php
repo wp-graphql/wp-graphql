@@ -7,7 +7,6 @@
 
 namespace WPGraphQL\Connection;
 
-use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -38,10 +37,10 @@ class Term_Objects {
 					]
 				),
 				'resolve'        => function ( $source, $args, $context, $info ) {
-					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
-					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
-					$connection = $resolver->get_connection();
-					return $connection;
+					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] )
+						? $args['where']['taxonomies']
+						: \WPGraphQL::get_allowed_taxonomies();
+					return DataSource::resolve_term_objects_connection( $source, $args, $context, $info, array_values( $taxonomies ) );
 				},
 			]
 		);

@@ -7,7 +7,6 @@
 
 namespace WPGraphQL\Connection;
 
-use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -25,7 +24,7 @@ class Taxonomies {
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'taxonomies',
 				'resolve'       => function( $source, $args, $context, $info ) {
-					return TaxonomyConnectionResolver::resolve( $source, $args, $context, $info );
+					return DataSource::resolve_taxonomy_connection( $source, $args, $context, $info );
 				},
 			]
 		);
@@ -41,7 +40,7 @@ class Taxonomies {
 						'fromFieldName' => 'taxonomy',
 						'oneToOne'      => true,
 						'resolve'       => function( $source, $args, $context, $info ) {
-							return TaxonomyConnectionResolver::resolve( $source, $args, $context, $info );
+							return DataSource::resolve_taxonomy_connection( $source, $args, $context, $info );
 						},
 					]
 				);

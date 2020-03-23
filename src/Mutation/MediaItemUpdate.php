@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\MediaItemMutation;
+use WPGraphQL\Data\Mutation\Media_Item_Mutation;
 
 class MediaItemUpdate {
 	/**
@@ -110,7 +110,7 @@ class MediaItemUpdate {
 			/**
 			 * insert the post object and get the ID
 			 */
-			$post_args                = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
+			$post_args                = Media_Item_Mutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
 			$post_args['ID']          = absint( $id_parts['id'] );
 			$post_args['post_author'] = $author_id;
 
@@ -128,7 +128,7 @@ class MediaItemUpdate {
 			 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
 			 * postObject that was updated so that relations can be set, meta can be updated, etc.
 			 */
-			MediaItemMutation::update_additional_media_item_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
+			Media_Item_Mutation::update_additional_media_item_data( $post_id, $input, $post_type_object, $mutation_name, $context, $info );
 
 			/**
 			 * Return the payload

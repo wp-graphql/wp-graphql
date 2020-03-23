@@ -7,7 +7,6 @@
 
 namespace WPGraphQL\Connection;
 
-use WPGraphQL\Data\Connection\MenuConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -42,11 +41,8 @@ class Menus {
 						'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 					],
 				],
-				'resolve'        => function ( $source, $args, $context, $info ) {
-					$resolver   = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
-					$connection = $resolver->get_connection();
-
-					return $connection;
+				'resolve'        => function( $root, $args, $context, $info ) {
+					return DataSource::resolve_menu_connection( $root, $args, $context, $info );
 				},
 			]
 		);

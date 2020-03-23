@@ -66,6 +66,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query, 'getPageByNode', $variables );
 
+		// use --debug to view
 		codecept_debug( $actual );
 
 		/**
@@ -130,6 +131,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query, '', '' );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -175,6 +179,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}";
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -215,6 +222,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}";
 		$actual        = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -249,6 +259,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -281,6 +294,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}";
 		wp_set_current_user( $this->admin );
 		$actual     = do_graphql_request( $query );
+
+		// use --debug to view
+		codecept_debug( $actual );
 
 		$expected = [
 			'data' => [
@@ -350,6 +366,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 		$actual    = do_graphql_request( $query );
+
+		// use --debug to view
+		codecept_debug( $actual );
 
 		$expected = [
 			'data' => [
@@ -426,6 +445,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		";
 		$actual    = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -466,6 +488,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -496,6 +521,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$expected = [
 			'data' => [
 				'node' => [
@@ -525,6 +553,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -545,6 +576,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		";
 
 		$actual = do_graphql_request( $query );
+
+		// use --debug to view
+		codecept_debug( $actual );
 
 		$expected = [
 			'data' => [
@@ -575,6 +609,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
+		// use --debug to view
+		codecept_debug( $actual );
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -595,6 +632,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		";
 
 		$actual = do_graphql_request( $query );
+
+		// use --debug to view
+		codecept_debug( $actual );
 
 		$this->assertArrayHasKey( 'errors', $actual );
 

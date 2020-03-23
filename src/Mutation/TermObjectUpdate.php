@@ -5,7 +5,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\TermObjectMutation;
+use WPGraphQL\Data\Mutation\Term_Object_Mutation;
 
 class TermObjectUpdate {
 	/**
@@ -113,7 +113,7 @@ class TermObjectUpdate {
 			/**
 			 * Prepare the $args for mutation
 			 */
-			$args = TermObjectMutation::prepare_object( $input, $taxonomy, $mutation_name );
+			$args = Term_Object_Mutation::prepare_object( $input, $taxonomy, $mutation_name );
 
 			if ( ! empty( $args ) ) {
 
