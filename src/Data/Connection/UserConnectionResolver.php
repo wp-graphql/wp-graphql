@@ -27,17 +27,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		return true;
 	}
 
-	/**
-	 * @param $id
-	 *
-	 * @return mixed|null|\WPGraphQL\Model\Model|User
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$user = get_user_by( 'id', $id );
-		return ! empty( $user ) ? new User( $user ) : null;
-	}
-
 	public function get_loader_name() {
 		return 'user';
 	}
