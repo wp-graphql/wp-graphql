@@ -8,6 +8,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public $query;
 	public $count;
 	public $db;
+	public $admin;
 
 	public function setUp() {
 
@@ -15,8 +16,12 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->delete_users();
 
+		$this->admin = $this->factory()->user->create([
+			'role' => 'administrator'
+		]);
+
 		// Set admin as current user to authorize 'users' queries
-		wp_set_current_user( 1 );
+		wp_set_current_user( $this->admin );
 
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
@@ -87,6 +92,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			$created_user_ids[ $i ] = $this->createUserObject(
 				[
 					'user_email' => 'test_user_' . $i . '@test.com',
+					'role'       => 'administrator'
 				]
 			);
 		}
@@ -265,9 +271,10 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
+	public function assertQueryInCursor( $graphql_args = [], $wp_user_query_args, $order_by_meta_field = false ) {
 
-		$where = str_replace( '"', '', json_encode( $graphql_args ) );
+		$graphql_args = ! empty( $graphql_args ) ? $graphql_args : [];
+
 
 		// Meta field orderby is not supported in schema and needs to be passed in through hook
 		if ( $order_by_meta_field ) {
@@ -283,9 +290,12 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$users_per_page = ceil( $this->count / 2 );
 
-		$query = "
-		query getUsers(\$cursor: String) {
-			users(after: \$cursor, first: $users_per_page, where: $where) {
+		codecept_debug( $graphql_args );
+
+
+		$query = '
+		query getUsers($cursor: String $first: Int $where:RootQueryToUserConnectionWhereArgs) {
+			users(after: $cursor, first: $first, where: $where) {
 				pageInfo {
 					endCursor
 				}
@@ -297,11 +307,14 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				}
 			}
 		  }
-		";
+		';
 
 		codecept_debug( $query );
 
-		$first = do_graphql_request( $query, 'getUsers', [ 'cursor' => '' ] );
+		$first = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
+			'first' => $users_per_page,
+			'cursor' => null
+		]) );
 
 		codecept_debug( $first );
 
@@ -315,7 +328,12 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$cursor = $first['data']['users']['pageInfo']['endCursor'];
-		$second = do_graphql_request( $query, 'getUsers', [ 'cursor' => $cursor ] );
+		$second = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
+			'first' => $users_per_page,
+			'cursor' => $cursor
+		]) );
+
+		codecept_debug( $second );
 
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
@@ -348,18 +366,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			)
 		);
 		WPGraphQL::__set_is_graphql_request( false );
-		$first_page_expected  = wp_list_pluck( $first_page->results, 'ID' );
-		$second_page_expected = wp_list_pluck( $second_page->results, 'ID' );
 
-		// WPGraphQL uses reverse ordering compared to WP_User_Query ordering	if orderby arg is not specified
-		if ( empty( $wp_user_query_args['orderby'] ) ) {
-			$first_page_expected  = array_reverse( wp_list_pluck( $second_page->results, 'ID' ) );
-			$second_page_expected = array_reverse( wp_list_pluck( $first_page->results, 'ID' ) );
-		}
-
-		// Aserting like this we get more readable assertion fail message
-		$this->assertEquals( implode( ',', $first_page_expected ), implode( ',', $first_page_actual ), 'First page' );
-		$this->assertEquals( implode( ',', $second_page_expected ), implode( ',', $second_page_actual ), 'Second page' );
 	}
 
 	/**
@@ -627,6 +634,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->deleteByMetaKey( 'test_meta', 7 );
 		update_user_meta( $this->created_user_ids[2], 'test_meta', 7 );
 
+		wp_set_current_user( $this->admin );
 		$this->assertQueryInCursor(
 			[
 				'roleIn' => [

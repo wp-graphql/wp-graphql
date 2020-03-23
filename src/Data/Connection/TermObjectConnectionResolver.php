@@ -208,8 +208,15 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'term_object';
 	}
 
 	/**
