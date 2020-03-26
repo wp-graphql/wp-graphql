@@ -134,9 +134,19 @@ class UserRegister {
 			unset( $user_args['role'] );
 
 			/**
+			 * Disable "Password Changed" emails from being sent.
+			 */
+			add_filter( 'send_password_change_email', '__return_false' );
+
+			/**
 			 * Update the registered user with the additional input (firstName, lastName, etc) from the mutation
 			 */
 			wp_update_user( $user_args );
+
+			/**
+			 * Re-enable "Password Changed" emails.
+			 */
+			remove_filter( 'send_password_change_email', '__return_false' );
 
 			/**
 			 * Update additional user data
