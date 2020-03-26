@@ -1,6 +1,6 @@
 <?php
 
-class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCase  {
+class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 	public $clientMutationId;
 	public $defaultCategory;
@@ -23,6 +23,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	public $subscriber;
 	public $subscriber_name;
 	public $author;
+	public $editor;
 	public $author_name;
 	public $admin;
 	public $admin_name;
@@ -37,6 +38,11 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		$this->author = $this->factory->user->create( [
 			'role' => 'author',
 		] );
+
+		$this->editor = $this->factory->user->create( [
+			'role' => 'editor',
+		] );
+
 		$this->author_name = 'User ' . $this->author;
 
 		$this->admin = $this->factory->user->create( [
@@ -132,7 +138,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	 * This function tests the updateSettings mutation
 	 * and is reused throughout the updateSettings tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function updateSettingsMutation() {
@@ -238,6 +243,9 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 
 		$actual = do_graphql_request( $mutation, 'updateSettings', $this->update_variables );
 
+		codecept_debug( $actual );
+
+
 		return $actual;
 	}
 
@@ -245,7 +253,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	 * This function tests whether a user can update settings if they don't have the right credentials
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:51
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsAsAuthor() {
@@ -268,7 +275,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	 * They should not be able to query for the admin email
 	 * so we should receive an error back
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testSettingsQueryAsEditor() {
@@ -279,6 +285,7 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		 * Validate the request has errors
 		 */
 		wp_set_current_user( $this->editor );
+
 		$query = "
 			query {
 				allSettings {
@@ -287,7 +294,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		    }
 	    ";
 		$actual = do_graphql_request( $query );
-
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -297,7 +303,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	 * when trying to update the site's URL
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:63
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsSiteURLMutation() {
@@ -319,7 +324,6 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 	 * This function tests the updateSettings mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsMutation() {
@@ -435,6 +439,36 @@ class WP_GraphQL_Test_Settings_Mutations extends \Codeception\TestCase\WPTestCas
 		 */
 		$this->assertEquals( $actual, $expected );
 
+	}
+
+	/**
+	 * This function tests whether we can update and successfully retrieve
+	 * StartOfWeek = 0 (Sunday)
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:63
+	 * @return void
+	 */
+	public function testUpdateSettingsStartOfWeekMutation() {
+		/**
+		 * Set the current user as the admin role so we
+		 * successfully run the mutation
+		 */
+		wp_set_current_user( $this->admin );
+
+		/*
+		 * start updating settings with start_of_week=2, then set to 0 and check
+		 */
+		$this->updateSettingsMutation();
+
+		$this->update_variables['input']['generalSettingsStartOfWeek'] = 0;
+
+		$actual = $this->updateSettingsMutation();
+
+		codecept_debug( $actual );
+
+		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
+
+		$this->assertEquals( 0, $start_of_week);
 	}
 
 }

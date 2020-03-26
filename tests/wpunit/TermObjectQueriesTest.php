@@ -4,10 +4,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
+
 	}
 
 	public function tearDown() {
 		parent::tearDown();
+
 	}
 
 	public function createTermObject( $args = [] ) {
@@ -184,7 +186,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				slug
 				taxonomy {
-					name
+					node {
+						name
+					}
 				}
 				termGroupId
 				termTaxonomyId
@@ -196,6 +200,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -206,14 +213,16 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'count'          => null,
 					'description'    => 'just a description',
 					'id'             => $global_id,
-					'link'           => "http://wpgraphql.test/?cat={$term_id}",
+					'link'           => get_term_link( $term_id ),
 					'name'           => 'A Category',
 					'posts'          => [
-						'edges' => [],
+						'edges' => null,
 					],
 					'slug'           => 'a-category',
 					'taxonomy'       => [
-						'name' => 'category',
+						'node' => [
+							'name' => 'category',
+						],
 					],
 					'termGroupId'    => null,
 					'termTaxonomyId' => $term_id,
@@ -298,6 +307,73 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	/**
+	 * testTermQueryWithChildTerm
+	 *
+	 * Tests query for term children
+	 *
+	 * @since 0.2.2
+	 */
+	public function testTermQueryWithChildTerm() {
+
+		$parent_id = $this->createTermObject( [
+			'name'     => 'Parent Category',
+			'taxonomy' => 'category',
+		] );
+
+		$child_id = $this->createTermObject( [
+			'name'     => 'Child category',
+			'taxonomy' => 'category',
+			'parent'   => $parent_id,
+		] );
+
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+
+		$query = "
+		query {
+			category(id: \"{$global_parent_id}\") {
+				id
+				categoryId
+				children {
+					nodes {
+						id
+						categoryId
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		$expected = [
+			'data' => [
+				'category' => [
+					'id'         => $global_parent_id,
+					'categoryId' => $parent_id,
+					'children'   => [
+						'nodes' => [
+							[
+								'id'         => $global_child_id,
+								'categoryId' => $child_id,
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	/**
+	 * testTermQueryWithParentTerm
+	 *
+	 * Tests query for term ancestors
+	 *
+	 */
 	public function testTermQueryWithParentTerm() {
 
 		$parent_id = $this->createTermObject( [
@@ -316,10 +392,10 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		query {
-			category(id: \"{$global_child_id}\"){
+			category(id: \"{$global_child_id}\") {
 				id
 				categoryId
-				ancestors{
+				ancestors {
 					id
 					categoryId
 				}
@@ -344,6 +420,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
+
 		$this->assertEquals( $expected, $actual );
 
 	}
@@ -351,7 +428,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testTermQueryWhereTermDoesNotExist
 	 *
-	 * Tests a query for non existant term.
+	 * Tests a query for non existent term.
 	 *
 	 * @since 0.0.5
 	 */
@@ -387,7 +464,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			'errors' => [
 				[
-					'message'   => 'No category was found with the ID: doesNotExist',
+					'message'   => 'The ID input is invalid',
 					'locations' => [
 						[
 							'line'   => 3,

@@ -1,0 +1,217 @@
+---
+title: WPGraphQL Advanced Custom Fields
+description: Expose Advanced Custom Fields to the WPGraphQL Schema
+---
+
+**Info Page:** [https://www.wpgraphql.com/acf](https://www.wpgraphql.com/acf)<br/>
+**GitHub Repository:** [https://github.com/wp-graphql/wp-graphql-acf](https://github.com/wp-graphql/wp-graphql-acf)
+
+
+## Getting Started
+
+1. Install & activate [Advanced Custom Fields](https://www.advancedcustomfields.com/).
+2. Install & activate WPGraphQL.
+3. Clone or download the [extension](https://github.com/wp-graphql/wp-graphql-acf) from GitHub & activate the **WPGraphQL Advanced Custom Fields** plugin.
+
+Now if you want to expose an ACF field group, make sure to activate `Show in GraphQL` and set the `GraphQL Field Name` in the settings of the field group. To be consistent with the schema, make sure it is written in `camelCase`.
+
+## Supported Fields
+
+WPGraphQL Advanced Custom Fields supports nearly all of the ACF (free & pro) fields. Some of the fields, such as Accordion and Tab, which are not data fields are not supported. The Clone field needs some more assessment to determine if it can properly be supported. Fields from 3rd party extensions are not supported out of the box, but we are interested in supporting the popular ones.
+
+
+### Flexible Content
+
+Lets say we have the following ACF structure with a flexible content field:
+
+#### Example Setup
+
+```json
+{
+    "title": "Flexible Content Field Group",
+    "fields": [
+        {
+            "label": "Flexible Contents",
+            "name": "flexible_contents",
+            "type": "flexible_content",
+            "show_in_graphql": 1,
+            "layouts": {
+                "layout_1": {
+                    "name": "layout_1",
+                    "label": "Layout 1",
+                    "show_in_graphql": 1,
+                    "sub_fields": [
+                        {
+                            "label": "Title",
+                            "name": "title",
+                            "type": "text",
+                            "show_in_graphql": 1
+                        }
+                    ]
+                },
+                "layout_2": {
+                    "name": "layout_2",
+                    "label": "Layout 2",
+                    "show_in_graphql": 1,
+                    "sub_fields": [
+                        {
+                            "label": "Description",
+                            "name": "description",
+                            "type": "textarea",
+                            "show_in_graphql": 1
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "show_in_graphql": 1,
+    "graphql_field_name": "flexibleContentFieldGroup"
+}
+```
+> This is not an importable ACF JSON-File. This is simplified for illustration purposes.
+
+#### Example Query
+
+If you mapped the field group to a page, an example query would look like this:
+
+```graphql
+query GetFlexibleContentFields {
+  pages {
+    nodes {
+      flexibleContentFieldGroup {
+        flexibleContents {
+          ... on Page_Flexiblecontentfieldgroup_FlexibleContents_Layout1 {
+            title
+            fieldGroupName
+          }
+          ... on Page_Flexiblecontentfieldgroup_FlexibleContents_Layout2 {
+            description
+            fieldGroupName
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+In the response, `flexibleContents` will be an array with whatever type of layout (flexible content field) has been added to the page. With the `fieldGroupName` you can then figure out, what type of layout it is and treat it accordingly.
+
+
+### Repeater
+
+Lets say we have the following ACF structure with a repeater field:
+
+#### Example Setup
+
+```json
+{
+    "title": "Reapeater Field Group",
+    "fields": [
+        {
+            "label": "Reapeater Fields",
+            "name": "reapeater_fields",
+            "type": "repeater",
+            "show_in_graphql": 1,
+            "sub_fields": [
+                {
+                    "label": "Title",
+                    "name": "title",
+                    "type": "text",
+                    "show_in_graphql": 1
+                },
+                {
+                    "label": "Description",
+                    "name": "description",
+                    "type": "textarea",
+                    "show_in_graphql": 1
+                }
+            ]
+        }
+    ],
+    "show_in_graphql": 1,
+    "graphql_field_name": "reapeaterFieldGroup"
+}
+```
+> This is not an importable ACF JSON-File. This is simplified for illustration purposes.
+
+#### Example Query
+
+If you mapped the field group to a page, an example query would look like this:
+
+```graphql
+query GetRepeaterFields {
+  pages {
+    nodes {
+      reapeaterFieldGroup {
+        reapeaterFields {
+          title
+          description
+        }
+      }
+    }
+  }
+}
+```
+
+In the response, `reapeaterFields` will be an array of objects like: 
+
+#### Example Output
+
+```
+"reapeaterFields": [
+  {
+    "title": "test1"
+    "description": "test1"
+  },
+  {
+    "title": "test2"
+    "description": "test2"
+  },
+]
+```
+
+## ACF Options Page
+
+Reference: [https://www.advancedcustomfields.com/add-ons/options-page/](https://www.advancedcustomfields.com/add-ons/options-page/)
+
+To add an option page and expose it to the graphql schema, simply add `'show_in_graphql' => true` when you register an option page.
+
+
+#### Example Usage
+```php
+function register_acf_options_pages() {
+
+    // check function exists
+    if ( ! function_exists( 'acf_add_options_page' ) ) {
+        return;
+    }
+
+    // register options page
+    $my_options_page = acf_add_options_page(
+        array(
+            'page_title'      => __( 'My Options Page' ),
+            'menu_title'      => __( 'My Options Page' ),
+            'menu_slug'       => 'my-options-page',
+            'capability'      => 'edit_posts',
+            'show_in_graphql' => true,
+        )
+    );
+}
+
+add_action( 'acf/init', 'register_acf_options_pages' )
+```
+
+#### Example Query
+
+```graphql
+query GetMyOptionsPage {
+    myOptionsPage {
+        someCustomField
+    }
+}
+```
+
+Alternatively, it's you can check the [Fields API Reference](/extending/fields/)
+to learn about exposing your custom fields to the Schema.

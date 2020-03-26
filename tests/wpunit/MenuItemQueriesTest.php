@@ -20,7 +20,7 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$menu_item_relay_id = Relay::toGlobalId( 'MenuItem', $menu_item_id );
+		$menu_item_relay_id = Relay::toGlobalId( 'nav_menu_item', $menu_item_id );
 
 		$query = '
 		{
@@ -38,6 +38,8 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['menuItemId'] );
 		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );

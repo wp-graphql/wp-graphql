@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<ruleset name="Coding standards for the WP GraphQL plugin">
+
+	<!-- Set a description for this ruleset -->
+	<description>Coding standards that will be run on the WP GraphQL plugin.</description>
+
+	<config name="encoding" value="utf-8"/>
+
+	<!-- Check code for cross-version PHP compatibility. -->
+	<!-- Will check the code compatiblity for PHP greater than 5.6 -->
+	<config name="testVersion" value="5.6-"/>
+
+	<!-- Check against minimum WP version. -->
+	<config name="minimum_supported_wp_version" value="4.7"/>
+
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Load WordPress Coding standards -->
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
+
+	<!-- What to exclude -->
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<!-- What to scan -->
+	<file>src</file>
+
+	<!-- Enable colors in report -->
+	<arg name="colors"/>
+
+	<!-- Add source codes in the report -->
+	<arg value="s"/>
+
+	<!-- Remove the class naming error temporarily -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<severity>0</severity>
+	</rule>
+
+</ruleset>

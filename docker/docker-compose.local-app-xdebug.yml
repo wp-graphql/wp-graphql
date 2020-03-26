@@ -1,0 +1,17 @@
+# This file is intended to override "docker/docker-compose.local-app.yml"
+version: "3.4"
+
+services:
+  wpgraphql.test:
+    build:
+      context: '../'
+      dockerfile: 'Dockerfile.xdebug'
+      args:
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
+    image: 'wordpress-utc-xdebug-cache'
+    environment:
+      # XDebug remote debugging: https://xdebug.org/docs/remote
+      # Getting XDebug+Docker+PHPStorm working: https://serversforhackers.com/c/getting-xdebug-working
+      XDEBUG_CONFIG: "remote_enable=1 remote_autostart=1 remote_connect_back=0 idekey=wpgraphql remote_host=${DOCKER_HOST_IP}"
+      PHP_IDE_CONFIG: 'serverName=wpgraphql'

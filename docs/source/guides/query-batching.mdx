@@ -1,0 +1,29 @@
+---
+title: Query Batching with WPGraphQL
+description: How to make Batch Requests with WPGraphQL
+---
+
+WPGraphQL allows clients to interact with WordPress via HTTP requests the `/graphql` API endpoint,
+or within the PHP context via execution of the `graphql()` function.
+
+Many GraphQL Queries or Mutations can be executed in one API request or one page-load.
+
+For example, if I were to use GraphQL to hydrate data for a shortcode I could have many shortcodes
+on my page and GraphQL would execute multiple times on that page.
+
+Making many requests via the `/graphql` API endpoint is similar. An array of requests can be
+sent to the endpoint and an array of responses will be returned.
+
+![Screenshot showing a batch request from Postman](../../images/batch-requests.png)
+
+_Screenshot showing multiple GraphQL queries in a single HTTP request, in the Postman API client_
+
+Smart GraphQL clients, such as [Apollo Client](https://www.apollographql.com/client), can take
+advantage of this feature to process multiple GraphQL requests in a single API call, making
+interactions with the server more efficient by reducing the number of round-trips needed.
+
+If you use Apollo Client, you can read about configuring the batch HTTP link
+[here](https://github.com/apollographql/apollo-link/tree/master/packages/apollo-link-batch-http).
+
+You can read more about Query Batching [here](https://blog.apollographql.com/query-batching-in-apollo-63acfd859862).
+

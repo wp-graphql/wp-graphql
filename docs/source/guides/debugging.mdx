@@ -1,0 +1,109 @@
+---
+title: Debugging
+description: Tips and tricks on how to debug when working with WPGraphQL
+---
+
+import Note from '../../src/components/Note'
+
+Debugging GraphQL can be intimidating. Because GraphQL provides a single entry point to all kinds
+of data, it’s hard to know exactly how to begin debugging, as it seems like the kind of thing where
+either everything is working or nothing is working.
+
+Below are some tips to help with debugging.
+
+## GraphQL Debug
+
+When debugging WPGraphQL, in your wp-config.php you can add the following
+`define( 'GRAPHQL_DEBUG', true );` and in some cases you will get more helpful debug messages
+returned with the response to your GraphQL requests.
+
+## WPGraphiQL IDE
+
+One of the best ways to debug your WPGraphQL API (for now) is by using the [WPGraphiQL IDE](https://wpgraphql.wpengine.com/docs/extensions/wpgraphiql/)
+and the network tab in your browser (I prefer Chrome).
+
+<Note>
+  <strong>Note:</strong> Any time you register new fields, or modify your Schema
+  in any way, it’s best to refresh the WPGraphiQL page in your WordPress
+  dashboard to ensure your Schema is fresh with any changes.
+</Note>
+
+Below are some situations you may come across and some tips on how to debug them.
+
+### Internal Server Error / Schema Won’t Load in GraphiQL
+
+If you see an error that says "Internal Server Error" in the GraphQL response, this means something
+occurred during execution that caused an error. Not all errors are intended for public viewing as they
+can expose sensitive details about the system. To expose the errors, you can (https://docs.wpgraphql.com/guides/debugging/#graphql-debug)[enable GRAPHQL_DEBUG]:
+
+One common reason for seeing the `Internal Server Error` response is when a Field or Type has been
+registered incorrectly.
+
+For example, when registering a Field, a Type is required as part of the config. If a Type is not
+declared when registering a Field, an `Internal Server Error` will be thrown.
+
+#### Invalid Field
+
+```php
+add_action( 'graphql_register_types', function() {
+  register_graphql_field( 'Post', 'invalidField', [
+    'description' => __( 'Invalid field with no Type', 'your-textdomain' ),
+  ] );
+});
+```
+
+#### Valid Field
+
+```php
+add_action( 'graphql_register_types', function() {
+  register_graphql_field( 'Post', 'validField', [
+    'type' => 'String',
+    'description' => __( 'Valid field with a Type defined', 'your-textdomain' ),
+  ] );
+});
+```
+
+## WPGraphQL Insights
+
+If you’re trying to debug performance issues and reduce the number of queries happening behind the
+scenes, we recommend activating the [WPGraphQL Insights](https://github.com/wp-graphql/wp-graphql-insights)
+plugin. With this plugin active, there will be a Query Log returned with the GraphQL response which
+can help identify potential performance problems or other issues.
+
+WPGraphQL Insights also returns trace information about each resolver so you can determine which
+resolvers are the slowest, which enables you to pinpoint bottlenecks.
+
+<Note>
+  <strong>NOTE:</strong> The trace data returned by WPGraphQL Insights is
+  compatible with the trace tracking provided by{' '}
+  <a href="https://www.apollographql.com/engine/">Apollo Engine</a>.
+</Note>
+
+## Resolver not executing properly
+
+If you’re experiencing a field resolving differently then expected, one way to debug would be to
+`var_dump()` within the resolver, and inspect with WPGraphiQL and your network tab.
+
+For example:
+
+```php
+add_action( 'graphql_register_types', function() {
+  register_graphql_field( 'RootQuery', 'debugField', [
+    'type' => 'String',
+    'description' => __( 'Field registered to demonstrate debugging', 'wp-graphql' ),
+    'resolve' => function( $root, $args, $context, $info ) {
+      var_dump( $root );
+      var_dump( $args );
+      var_dump( $context );
+      var_dump( $info );
+      die();
+    }
+  ] );
+} );
+```
+
+**Here's a GIF showing how to use the Network tab to inspect the `var_dump()` output:**
+
+![Screenshot showing debugging with the Chrome network tab](../../images/wpgraphql-debug-with-network-tab.gif)
+
+_Screenshot showing debugging with the Chrome network tab_

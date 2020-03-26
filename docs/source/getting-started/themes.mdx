@@ -1,0 +1,64 @@
+---
+title: Themes
+description: Learn about how to interact with Themes using WPGraphQL
+---
+
+import GraphiQL from '../../src/components/GraphiQL'
+
+Themes are a core tenant in every WordPress site. WPGraphQL exposes native ways to interact with
+Themes via GraphQL.
+
+## Queries
+
+Query all themes on the site:
+
+<GraphiQL
+  query="{
+	themes {
+    nodes {
+      id
+      author
+      authorUri
+      description
+      name
+      screenshot
+      slug
+      tags
+      themeUri
+      version
+    }
+  }
+}"
+/>
+
+Query a specific theme by ID by replacing the ID below with an ID from the response above to query a specific theme:
+
+<GraphiQL
+  query="{
+  theme(id: 1) {
+    id
+    author
+    authorUri
+    description
+    name
+    screenshot
+    slug
+    tags
+    themeUri
+    version
+  }
+}"
+/>
+
+**also see:**
+
+- [https://github.com/wp-graphql/wp-graphql/issues/606](https://github.com/wp-graphql/wp-graphql/issues/606)
+- [https://github.com/wp-graphql/wp-graphql/pull/571](https://github.com/wp-graphql/wp-graphql/pull/571)
+
+## Mutations
+
+Right now there are no Mutations related to Themes.
+
+If anyone feels that adding mutations for themes, such as changing the active theme, installing new
+themes, or deleting themes should be added to WPGraphQL,
+[open an issue](https://github.com/wp-graphql/wp-graphql/issues) and let's discuss.

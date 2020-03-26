@@ -1,0 +1,51 @@
+---
+title: Deferred Resolvers
+description: Learn how to make use of deferred resolvers to make GraphQL requests more efficient
+---
+
+One of the most frustrating problems with data fetching is a so-called "N+1 problem". Consider the
+following GraphQL Query:
+
+```graphql
+{
+	posts(first: 10) {
+		nodes {
+			author {
+				name
+				email
+			}
+		}
+	}
+}
+```
+
+Naive field resolution process would query once for the 10 posts, then make _10 more_ calls to get
+the author for each author of each of the 10 posts. (get me author for post 1, get me author for
+post 2, and so on)
+
+The GraphQL-PHP library under WPGraphQL provides tools to mitigate this problem by allowing you to
+defer [actual field resolution](http://webonyx.github.io/graphql-php/data-fetching/#solving-n1-problem)
+to a later stage when one batched query could be executed instead of 10 distinct queries.
+
+## How does deferred resolving work?
+
+Instead of resolving a field immediately, part of the data will be added to a cache for execution
+later.
+
+In the case above, we are querying for a list of posts, and on each post we have a `post_author`
+attribute which is the ID of the User that authored the post.
+
+Instead of querying for the Author immediately, we cache the user ID, and once all posts have been
+resolved, GraphQL comes back and [executes a single
+WP_User_Query](https://github.com/wp-graphql/wp-graphql/blob/develop/src/Data/Loader.php#L131-L154)
+to get all users connected to all of the posts, then returns the data in the field resolver.
+
+You can read more about how GraphQL-PHP handles this
+[here](http://webonyx.github.io/graphql-php/data-fetching/#solving-n1-problem).
+
+## Deferred Resolvers in WPGraphQL
+
+In v0.3.0 of WPGraphQL, Deferred resolution was implemented across the codebase and centralized
+in a way that makes it easy for extending plugins to take advantage of.
+
+You can read more about it [here](https://github.com/wp-graphql/wp-graphql/pull/722#issue-261315185).

@@ -1,0 +1,30 @@
+---
+title: Hooks and Filters
+description: Overview of hooks and filters in WPGraphQL
+---
+
+## Helpful Hooks
+
+### init_graphql_request
+
+#### Description
+
+`init_graphql_request`
+Action that executes when a GraphQL Request begins. The base class hooks into this action to kick off the schema creation, types are not set up until this action has run.
+
+## Helpful Filters
+
+### graphql_request_data
+
+#### Description
+`graphql_request_data( array $parsed_query_params, array $request_context )`
+Returns the parsed request parameters. In POST requests the query params are ignored by default but users can merge them into the body params manually using the $request_context if needed.
+
+#### Parameters
+`$parsed_query_params`
+An array containing the pieces of the data of the GraphQL request.
+
+`$request_context`
+An array containing the both body and query params.
+#### Return Values
+GraphQL OperationParams or array of OperationParams in case of batch operation.

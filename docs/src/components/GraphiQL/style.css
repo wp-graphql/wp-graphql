@@ -1,0 +1,75 @@
+.wedocs-single-wrap .wedocs-single-content article .entry-content .graphiql-container pre {
+    background-color: transparent;
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+.graphiql-container .topBar{
+    height: auto;
+}
+
+.graphiql-wrapper .graphiql-container .docExplorerShow{
+    background: -webkit-gradient(linear, left top, left bottom, from(#272c30), to(#62707c));
+    background: linear-gradient(#272c30, #62707c);
+    color: #fff;
+}
+
+.graphiql-container .docExplorerShow:before{
+    border-color:#fff;
+}
+.graphiql-container .doc-explorer-title-bar, .graphiql-container .history-title-bar{
+    padding-bottom: 0;
+}
+
+.graphiql-wrapper.without-docs .graphiql-container .docExplorerShow,
+.graphiql-wrapper.without-docs .graphiql-container .docExplorerWrap{
+    display: none!important;
+}
+
+.graphiql-wrapper .graphiql-container .topBar .title {
+    display: none;
+}
+
+.graphiql-wrapper .graphiql-container .topBar .execute-button-wrap {
+    margin-left: 0;
+}
+
+.graphiql-wrapper .graphiql-container .history-title{
+    padding-bottom: 18px;
+}
+
+.graphiql-wrapper .graphiql-container .topBar {
+    background: -webkit-gradient(linear, left top, left bottom, from(#62707c), to(#272c30));
+    background: linear-gradient(#62707c, #272c30);
+}
+
+.graphiql-wrapper .graphiql-container .execute-button{
+    -webkit-box-shadow: 0 1px 0 #444444;
+    box-shadow: 0 1px 0 #444444;
+}
+
+.graphiql-wrapper .graphiql-container .toolbar-button{
+    display: none;
+    -webkit-box-shadow: inset 0 0 0 1px rgba(0,0,0,0.20), 0 1px 0 #555, inset 0 1px #444;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.20), 0 1px 0 #555, inset 0 1px #444;
+}
+
+.graphiql-wrapper .graphiql-container .editorBar {
+    border: 1px solid #ddd;
+    border-top: 0;
+}
+
+.graphiql-wrapper {
+    margin: 20px auto;
+    z-index: 0;
+    position: relative;
+}
+
+a {
+  color: #1474ce;
+  text-decoration: underline;
+}
+
+.content-wrapper p > code[class*='language-'] {
+  color: #b9358e;
+}

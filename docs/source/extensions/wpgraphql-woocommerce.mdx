@@ -1,0 +1,113 @@
+---
+title: WPGraphQL WooCommerce (WooGraphQL)
+description: Expose WooCommerce in the WPGraphQL Schema
+---
+
+import GraphiQL from '../../src/components/GraphiQL'
+import Note from '../../src/components/Note'
+
+# WPGraphQL WooCommerce
+
+[WPGraphQL WooCommerce](https://github.com/wp-graphql/wp-graphql-woocommerce) is a free, open-source WPGraphQL extension that adds WooCommerce functionality to the WPGraphQL API.
+
+<Note title="In Development" type="warning">
+  This plugin is still in the early stages of the development and may contain
+  many bugs or lack some functionality. Using in production is not recommended.
+</Note>
+
+# Getting Started
+
+1. Install & activate [WooCommerce](https://woocommerce.com/)
+2. Install & activate WPGraphQL.
+3. (Optional) Install & activate [WPGraphQL-JWT-Authentication](https://github.com/wp-graphql/wp-graphql-jwt-authentication) to add a `login` mutation that returns a JSON Web Token.
+4. Clone or download the [extension](https://github.com/wp-graphql/wp-graphql-woocommerce) & activate the **WP GraphQL WooCommerce** plugin
+
+# Playground
+
+This is a playground connected to the most stable release of the extension.
+
+<GraphiQL
+  endpoint="https://woographql.axistaylor.com/graphql"
+  authButtons={{
+    Customer: ['customer', 'graphql_rocks'],
+    ShopManager: ['shop_manager', 'graphql_rocks'],
+  }}
+  query="
+    {
+      products {
+        nodes {
+            id
+            productId
+            name
+            type
+            price
+            variations {
+                nodes {
+                    id
+                    variationId
+                }
+            }
+        }
+      }
+    }
+    "
+  withDocs={true}
+  showJoyride={false}
+/>
+
+<Note title="Query as a Customer or Shop Manager" type="success">
+  WooGraphQL has many features not available to anomymous user. Try selecting one of the users above and once the indicator on the button is green your logged in.
+
+Here an example queries exclusive to registered customer.
+
+<pre style={{ fontSize: '0.8em', padding: '0 2em' }}>
+  {`query {
+  customer {
+    firstName
+    lastName
+  }
+  cart {
+    contents {
+      nodes {
+        product {
+          id
+          name
+          sku
+        }
+      }
+    }
+  }
+}`}
+</pre>
+
+Here a query exclusive to shop managers and administrators.
+
+<pre style={{ fontSize: '0.8em', padding: '0 2em' }}>
+  {`query {
+  orders {
+    edges {
+      cursor
+      node {
+        id
+        orderId
+        lineItems {
+          nodes {
+            itemId
+            product {
+              id
+              name
+              price
+            }
+            quantity
+            total
+          }
+        }
+        subtotal
+        total
+      }
+    }
+  }
+}`}
+</pre>
+
+</Note>

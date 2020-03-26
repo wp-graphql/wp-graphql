@@ -16,7 +16,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $slug;
 	public $status;
 	public $title;
-	public $pingStatus;
 	public $parentId;
 	public $clientMutationId;
 	public $updated_title;
@@ -28,7 +27,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $updated_dateGmt;
 	public $updated_slug;
 	public $updated_status;
-	public $updated_pingStatus;
 	public $updated_clientMutationId;
 
 	public $create_variables;
@@ -78,7 +76,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->authorId         = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
 	    $this->caption          = 'Shia shows off some magic in this caption.';
 	    $this->commentStatus    = 'closed';
-	    $this->date             = '2017-08-01 15:00:00';
+	    $this->date             = '2017-08-01T15:00:00';
 	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
 	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
@@ -86,7 +84,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->slug             = 'magic-shia';
 	    $this->status           = 'INHERIT';
 	    $this->title            = 'Magic Shia Gif';
-	    $this->pingStatus       = 'closed';
 	    $this->parentId         = null;
 	    $this->clientMutationId = 'someUniqueId';
 
@@ -98,11 +95,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_altText = 'Some updated alt text';
 	    $this->updated_caption = 'Shia shows off some magic in this updated caption.';
 	    $this->updated_commentStatus = 'open';
-	    $this->updated_date = '2017-08-01 16:00:00';
+	    $this->updated_date = '2017-08-01T16:00:00';
 	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';
-	    $this->updated_pingStatus = 'open';
 	    $this->updated_clientMutationId = 'someUpdatedUniqueId';
 
 	    /**
@@ -130,7 +126,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->dateGmt,
 			    'slug'             => $this->slug,
 			    'status'           => $this->status,
-			    'pingStatus'       => $this->pingStatus,
 			    'authorId'         => $this->authorId,
 		    ],
 	    ];
@@ -151,7 +146,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->updated_dateGmt,
 			    'slug'             => $this->updated_slug,
 			    'status'           => $this->updated_status,
-			    'pingStatus'       => $this->updated_pingStatus,
 			    'fileType'         => $this->fileType,
 		    ]
 	    ];
@@ -181,7 +175,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and is reused throughout the createMediaItem tests
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
-	 * @access public
 	 * @return array $actual
 	 */
 	public function createMediaItemMutation() {
@@ -203,7 +196,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			      status
 			      title
 			      commentStatus
-			      pingStatus
 			      altText
 			      caption
 			      description
@@ -255,7 +247,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:54
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemAsSubscriber() {
@@ -269,7 +260,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * does not exist on the test server.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:89
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemFilePath() {
@@ -286,7 +276,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * get an error back from the source because they are required.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:211
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemNoInput() {
@@ -315,7 +304,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts with someone else's id
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemOtherAuthor() {
@@ -352,7 +340,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 				'dateGmt'          => $this->dateGmt,
 				'slug'             => $this->slug,
 				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
 				'authorId'         => $this->admin,
 			],
 		];
@@ -367,7 +354,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * still get created
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:89
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemWithInvalidUrl() {
@@ -383,7 +369,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * still get created
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:121
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemWithNoFile() {
@@ -400,12 +385,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * succeed as an admin
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:142
-	 * @access public
 	 * @return void
 	 */
-	public function testCreateMediaItemAttachToParent() {
-		$post = $this->factory()->post->create( [
+	public function testCreateMediaItemAttachToParentAsAuthor() {
+		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
+			'post_status' => 'publish'
 		] );
 		$this->create_variables['input']['parentId'] = absint( $post );
 
@@ -415,10 +400,25 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		wp_set_current_user( $this->author );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
+
 		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	public function testCreateMediaItemAttachToParentAsAdmin() {
+
+		$post                                        = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
+		] );
+		$this->create_variables['input']['parentId'] = absint( $post );
 
 		wp_set_current_user( $this->admin );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -441,7 +441,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->dateGmt,
 						'slug'             => $this->slug,
 						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
 						'mimeType'         => 'image/gif',
 						'parent'           => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
@@ -492,7 +491,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:151
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemEditOthersPosts() {
@@ -524,7 +522,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * post_mime_type
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemMutation.php:171
 	 *
-	 * @access public
 	 * @returnn void
 	 */
 	public function testCreateMediaItemDefaultValues() {
@@ -667,7 +664,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the createMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemMutation() {
@@ -704,7 +700,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->dateGmt,
 						'slug'             => $this->slug,
 						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
 						'mimeType'         => 'image/gif',
 						'parent'           => null,
 						'mediaType'        => 'image',
@@ -750,7 +745,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the updateMediaItem mutation
 	 * and is reused throughout the updateMediaItem tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function updateMediaItemMutation() {
@@ -771,7 +765,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      status
 		      title
 		      commentStatus
-		      pingStatus
 		      altText
 		      caption
 		      description
@@ -795,7 +788,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * wanted to update.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:57
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemInvalidId() {
@@ -809,7 +801,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Test whether the mediaItem we're updating is actually a mediaItem
 	 *
 	 * @souce wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:67
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemUpdatePost() {
@@ -825,7 +816,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:74
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAsSubscriber() {
@@ -840,7 +830,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemEditOthersPosts() {
@@ -860,7 +849,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAuthor() {
@@ -876,13 +864,13 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * to that post as an admin. It should be created.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual = $this->updateMediaItemMutation();
+
 		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
 		$this->assertArrayHasKey( 'id', $actual_created );
 		$update_variables['input']['authorId'] = false;
@@ -892,7 +880,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the updateMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemMutation() {
@@ -904,6 +891,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 
 		$actual = $this->updateMediaItemMutation();
+
 
 		/**
 		 * Define the expected output.
@@ -924,7 +912,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'dateGmt'          => $this->updated_dateGmt,
 						'slug'             => $this->updated_slug,
 						'status'           => strtolower( $this->updated_status ),
-						'pingStatus'       => $this->updated_pingStatus,
 						'mimeType'         => 'image/gif',
 						'author'           => [
 							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
@@ -947,7 +934,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the deletMediaItem mutation
 	 * and is reused throughout the deleteMediaItem tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function deleteMediaItemMutation() {
@@ -977,7 +963,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Set the mediaItem id to a fake id and the mutation should fail
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemInvalidId() {
@@ -992,7 +977,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * the deletion should fail because we're a subscriber.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:86
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemAsSubscriber() {
@@ -1005,13 +989,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Set the force delete input to false and the
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
-	 * @access public
 	 * @return array $actual
 	 */
 	public function testDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
-		$post = get_post( $deleted_media_item );
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1021,7 +1004,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		  deleteMediaItem(input: $input) {
 		    clientMutationId
 		    deletedId
-		    mediaItem{
+		    mediaItem {
 		      id
 		      mediaItemId
 		    }
@@ -1042,7 +1025,50 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+
+
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * Set the force delete input to false and the
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
+	 * @return array $actual
+	 */
+	public function testForceDeleteMediaItemAlreadyInTrash() {
+
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
+
+		/**
+		 * Prepare the deleteMediaItem mutation
+		 */
+		$mutation = '
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
+		  deleteMediaItem(input: $input) {
+		    clientMutationId
+		    deletedId
+		    mediaItem {
+		      id
+		      mediaItemId
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$delete_trash_variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'attachment', $deleted_media_item ),
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => false,
+			]
+		];
+
+		wp_set_current_user( $this->admin );
 
 		$delete_trash_variables['input']['forceDelete'] = true;
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
@@ -1056,7 +1082,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * instead of an attachment
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:103
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemAsPost() {
@@ -1099,7 +1124,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the deleteMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemMutation() {

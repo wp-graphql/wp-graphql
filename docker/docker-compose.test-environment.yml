@@ -1,0 +1,26 @@
+# This file is intended to override "docker/docker-compose.tests.yml"
+version: "3.4"
+
+services:
+
+  wpgraphql-tester:
+    container_name: 'wpgraphql-tester-shell'
+    volumes:
+      # The only reason this bind mount is not read-only is because the tests need to write to 'schema.graphql'.
+      - '../:/tmp/wordpress/wp-content/plugins/wp-graphql/'
+
+      # These volume mounts prevent PHP Composer files, and other random files from writing to the host's filesystem
+      - 'php-composer-vendor:/tmp/wordpress/wp-content/plugins/wp-graphql/vendor:ro'
+      - 'codeception-generated:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_support/_generated'
+      - 'codeception-output:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_output'
+
+    entrypoint: [ "docker-entrypoint.tester-shell.sh" ]
+
+  wpgraphql.test:
+    volumes:
+      - '../:/var/www/html/wp-content/plugins/wp-graphql:ro'
+
+volumes:
+  php-composer-vendor:
+  codeception-output:
+  codeception-generated:

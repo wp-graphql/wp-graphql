@@ -1,0 +1,455 @@
+---
+title: Register GraphQL Types
+description: Learn how to register GraphQL types
+---
+
+import Note from "../../src/components/Note"
+import GraphiQL from "../../src/components/GraphiQL"
+
+## Existing Types in WPGraphQL
+
+GraphQL provides a number of Scalar types out of the box:
+
+-   Boolean
+-   Float
+-   Integer
+-   ID
+-   String
+
+And when you activate WPGraphQL, your WPGraphQL Schema automatically gets hundreds of new Types added
+to the Schema.
+
+You can look in the `TypeRegistry.php` file within the plugin to see all the Types that are registered
+by the plugin for use within your Schema.
+
+Additionally, since the GraphQL Schema is queryable, you can check out the Types that are available '
+in your Schema by running the following Query:
+
+<GraphiQL
+	query="
+  {
+  	__schema {
+      types {
+        name
+        kind
+        description
+      }
+    }
+  }
+  "
+/>
+
+## Registering New Types
+
+In many cases, your data needs to be represented by something more complex than a string or number.
+
+If an existing Type in the Schema has the shape you need, you can use that Type to return your data.
+
+For example, if you had a field called `profilePic` and wanted to return an item from the media
+library, you might be able to use the existing `MediaItem` Type, which provides fields for `sourceUrl`,
+`altText` and `caption`, and more.
+
+However, if no existing Type in the Schema provides the shape you need, you might need to register
+a new Type to the Schema.
+
+The following APIs can be used to register new Types to the Schema.
+
+### Object Types
+
+GraphQL Object types are a great fit for representing data that's more complex than a simple scalar.
+
+There are a lot of Object Types in the GraphQL Schema. For example `Post`, `Page`, `MediaItem`,
+`Tag`, `Category` and many more. When you register a Post Type or Taxonomy to "show_in_graphql", you
+automatically get a new Type added to the Schema to represent that Entity, so you may not always
+need to register a new Type to the Schema manually, depending on your use case.
+
+If you do need to register a new Object Type in the Schema, you can use the
+`register_graphql_object_type()` method within the `graphql_register_types` action.
+
+#### register_graphql_object_type
+
+The `register_graphql_object_type( $type_name, $config )` method takes 2 arguments:
+
+-   **type_name (required | string):** The name of the Type in the Schema. This must be unique amongst
+    the entire Schema. There cannot be multiple Types in the Schema with the same name.
+-   **config (array | required):** An array of config for the Type, consisting of the following:
+    -   **description (string):** Description of the Type
+    -   **fields (array | required):** The fields that should be on the Type.
+        -   Each field should have the name as the key, and the field config as the value. The field config
+            should contain a description, Type and optional resolve function. (see example below)
+
+Let's say we wanted to register an Object Type to represent a Dog. We might determine that the
+dog should have the following fields:
+
+-   **name:** String
+-   **breed:** String
+-   **age:** Int
+
+We could <a href="/extending/fields">register a field</a> `getDog` to our Schema that resolves to the `Dog` Type like so:
+
+```php
+add_action( 'graphql_register_types', 'register_dog_type' );
+
+function register_dog_type() {
+    register_graphql_object_type( 'Dog', [
+      'description' => __( "Man's best friend", 'your-textdomain' ),
+      'fields' => [
+        'name' => [
+            'type' => 'String',
+            'description' => __( 'The name of the dog', 'your-textdomain' ),
+        ],
+        'breed' => [
+            'type' => 'String',
+            'description' => __( 'The Breed of the dog', 'your-textdomain' ),
+        ],
+        'age' => [
+            'type' => 'Integer',
+            'description' => __( 'The age, in years, of the dog', 'your-textdomain' ),
+        ],
+      ],
+    ] );
+}
+```
+
+#### Register a field using the Type
+
+We have now added a Type to the Type registry, but it's not used anywhere until we have a field
+that resolves to the Type.
+
+We could add a field to the Schema to allow us to query for the Dog.
+
+For example:
+
+```php
+add_action( 'graphql_register_types', 'register_dog_field' );
+
+function register_dog_field() {
+
+    register_graphql_field( 'RootQuery', 'getDog', [
+      'description' => __( 'Get a dog', 'your-textdomain' ),
+      'type' => 'Dog',
+      'resolve' => function() {
+
+        // Here you need to return data that matches the shape of the "Dog" type. You could get
+        // the data from the WP Database, an external API, or static values. For example sake,
+        // we will just return a hard-coded array.
+        return [
+            'name' => 'Sparky',
+            'breed' => 'Golden Retriever',
+            'age' => 8
+        ];
+
+      }
+    ] );
+
+}
+```
+
+At this point, we have a field `getDog` on the `RootQuery` of our Schema, which would allow us to
+query like so:
+
+```graphql
+{
+	getDog {
+		name
+		breed
+		age
+	}
+}
+```
+
+And in response, we would get the following:
+
+```json
+{
+	"data": {
+		"getDog": {
+			"name": "Sparky",
+			"breed": "Golden Retriever",
+			"age": 8
+		}
+	}
+}
+```
+
+### Enum Types
+
+In GraphQL, Enum Types are used to provide a predefined set of values.
+
+An example of an Enum in WPGraphQL is the `AvatarRatingEnum`. Avatars in GraphQL can have a rating
+that is one of a predefined list of values: `G`, `PG`, `R`, and `X`. Since we know all the options
+before hand, we can expose fields to resolve to the `AvatarRatingEnum` type and ensure that it's
+always one of those predefined values.
+
+Let's say we wanted to be able to query for the current weather, and the responses should always
+be one of the following: `Sunny`, `Cloudy`, `Rainy`
+
+#### register_graphql_enum_type
+
+The `register_graphql_enum_type( $type_name, $config )` takes to arguments:
+
+-   **type_name (string | required):** The name of the Type in the Schema. This must be unique amongst
+    the entire Schema. There cannot be multiple Types in the Schema with the same name.
+-   **config (array | required):** An array of config for the Type, consisting of the following:
+    -   **description (string):** Description of the type and what it represents
+    -   **values (array):** The possible values of the Enum
+
+We could define an enum like so:
+
+```php
+add_action( 'graphql_register_types', 'register_weather_enum_type' );
+
+function register_weather_enum_type() {
+    register_graphql_enum_type( 'WeatherEnum', [
+      'description' => __( 'Condition of weather', 'your-textdomain' ),
+      'values' => [
+        'SUNNY' => [
+          'value' => 'sunny'
+        ],
+        'CLOUDY' => [
+          'value' => 'cloudy'
+        ],
+        'RAINY' => [
+          'value' => 'rainy'
+        ],
+      ],
+    ] );
+}
+```
+
+#### Register a field using the Type
+
+This would add an Enum to our Type registry, but it wouldn't be in use yet. We could add a field
+that resolves to this Type:
+
+```php
+add_action( 'graphql_register_types', 'register_weather_field' );
+
+function register_weather_field() {
+  register_graphql_field( 'RootQuery', 'currentWeather', [
+    'type' => 'WeatherEnum',
+    'description' => __( 'Get the weather', 'your-textdomain' ),
+    'resolve' => function() {
+      // Here you could fetch data from a database, an external API, or whatever you like.
+      // In this case, we'll just return static data. It has to return one of the values
+      // defined by the enum to fulfill the contract of the Schema.
+      return 'rainy'; //sunny, cloudy
+    },
+  ] );
+}
+```
+
+Now we could query:
+
+```graphql
+{
+	currentWeather
+}
+```
+
+And get a response like:
+
+```json
+{
+	"data": {
+		"currentWeather": "RAINY"
+	}
+}
+```
+
+### Union Types
+
+When a field can return one of many possible Types, Unions can be used.
+
+An example of a Union in WPGraphQL would be the `parent` field on `MediaItems`. Media Items
+(attachments) can be uploaded to a Page, Post, or any other custom post type. The Type of parent
+isn't known until the MediaItem is queried.
+
+If there's a case where your data can be conditionally represented by different Types, a Union could
+be used to represent the data.
+
+#### register_graphql_union_type
+
+The `register_graphql_union_type( $type_name, $config )` accepts 2 arguments:
+
+-   **type_name (string | required ):** The name of the Type in the Schema. This must be unique amongst
+    the entire Schema. There cannot be multiple Types in the Schema with the same name.
+-   **config (array | required):** Config for the Union Type
+    -   **types (array | required):** An array of Types that the union _could_ return
+    -   **resolveType (function | required):** A function that takes the resolving data and determines
+        what GraphQL Type should be returned.
+
+Let's say we wanted to query for a Pet, but the Pet could either be a Dog or Cat, each with their
+own Type definition.
+
+Let's start by registering a Dog and Cat Type:
+
+```php
+add_action( 'graphql_register_types', 'register_pet_types' );
+
+function register_pet_types() {
+    register_graphql_object_type( 'Dog', [
+      'description' => __( "Man's best friend", 'your-textdomain' ),
+      'fields' => [
+        'name' => [
+            'type' => 'String',
+            'description' => __( 'The name of the dog', 'your-textdomain' ),
+        ],
+        'breed' => [
+            'type' => 'String',
+            'description' => __( 'The Breed of the dog', 'your-textdomain' ),
+        ],
+        'age' => [
+            'type' => 'Integer',
+            'description' => __( 'The age, in years, of the dog', 'your-textdomain' ),
+        ],
+      ],
+    ] );
+
+    register_graphql_object_type( 'Cat', [
+      'description' => __( "Not man's best friend...", 'your-textdomain' ),
+      'fields' => [
+        'name' => [
+            'type' => 'String',
+            'description' => __( 'The name of the cat', 'your-textdomain' ),
+        ],
+        'age' => [
+            'type' => 'Integer',
+            'description' => __( 'The age, in years, of the cat', 'your-textdomain' ),
+        ],
+        'isHighOnCatnip' => [
+          'type' => 'Boolean',
+          'description' => __( 'Whether the cat is high on Catnip.', 'your-textdomain' ),
+        ]
+      ],
+    ] );
+}
+```
+
+Now that we have a `Cat` and `Dog` Type registered to our Schema, we can register our Union. Right
+below the registration for those types, we can add the following:
+
+```php
+add_action( 'graphql_register_types', 'register_pet_union', 10, 1 );
+
+function register_pet_union( $type_registry ) {
+  register_graphql_union_type( 'PetUnion', [
+    'typeNames'       => [ 'Dog', 'Cat' ],
+    'resolveType' => function( $pet ) use ( $type_registry ) {
+      // Here we receive the object or array that's being resolved by the field
+      // and we can determine what Type to return
+      $type = null;
+      switch( $pet['type'] ) {
+        case 'dog':
+	  $type = $type_registry->get_type( 'Dog' );
+    	  break;
+        case 'cat':
+	  $type = $type_registry->get_type( 'Cat' );
+	  break;
+      }
+      return $type;
+    }
+  ] );
+}
+```
+
+<Note>
+	You must register Unions after Types that it references have already been
+	registered. In our case, we registered Dog and Cat before registering the union,
+	but you may not be able to register all types of the union in the same spot. So
+	one option would be too hook the union registration to a late priority of the
+	"graphql_register_types" action
+</Note>
+
+This registers a Union type. The `types` defines what Types are possible to be returned. In this
+case, the `Dog` or `Cat` Type.
+
+Then the `resolveType` is the function that runs during execution to determine what Type should be
+returned. It accepts the resolving data, and you can use that data to determine what Type to return.
+
+Let's register a field that returns the `PetUnion` Type to see how this works:
+
+```php
+add_action( 'graphql_register_types', function() {
+
+ register_graphql_field( 'RootQuery', 'myPets', [
+    'description' => __( 'My pets (could be dogs or cats)', 'your-textdomain' ),
+    'type' => [ 'list_of' => 'PetUnion' ],
+    'resolve' => function() {
+        // You would probably get data from a database or remote API here, but we're
+        // just going to return hard coded data
+        $pets = [
+          [
+            'type' => 'dog',
+            'name' => 'Bender',
+            'age' => 3,
+            'breed' => 'Golden Retriever',
+          ],
+          [
+            'type' => 'cat',
+            'name' => 'Speckles',
+            'age' => 2,
+            'isHighOnCatnip' => true,
+          ],
+        ];
+
+        return $pets;
+    }
+ ] );
+});
+```
+
+Now we have a `myPets` field on our `RootQuery` that returns a list of Pets. The Pets could
+either be a Dog or Cat, and depending on which Type of animal it is, we can ask for different fields.
+
+Now, we can query like so:
+
+```graphql
+{
+	myPets {
+		__typename
+		... on Dog {
+			name
+			age
+		}
+		... on Cat {
+			name
+			isHighOnCatnip
+		}
+	}
+}
+```
+
+And we'll receive the following data:
+
+```json
+{
+	"data": {
+		"myPets": [
+			{
+				"__typename": "Dog",
+				"name": "Bender",
+				"age": 3,
+				"breed": "Golden Retriever"
+			},
+			{
+				"__typename": "Cat",
+				"name": "Speckles",
+				"isHighOnCatnip": true
+			}
+		]
+	}
+}
+```
+
+### Scalar Types
+
+WPGraphQL doesn't have a formal mechanism (yet) for registering new Scalar Types. Coming Soon!
+
+### Interfaces
+
+WPGraphQL doesn't have a formal mechanism (yet) for registering new Interface Types. Coming Soon!
+
+### Input Types
+
+@todo: need to document

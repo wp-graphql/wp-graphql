@@ -71,6 +71,8 @@ class Helper
                 }
             } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
+            } else if (stripos($contentType, 'multipart/form-data') !== false) {
+                $bodyParams = $_POST;
             } else if (null === $contentType) {
                 throw new RequestError('Missing "Content-Type" header');
             } else {
@@ -491,15 +493,6 @@ class Helper
                     throw new InvariantViolation(
                         "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got null"
                     );
-                }
-
-                // Try parsing ourselves if PSR-7 implementation doesn't parse JSON automatically
-                if (is_array($bodyParams) && empty($bodyParams)) {
-                    $bodyParams = json_decode($request->getBody(), true);
-
-                    if (json_last_error()) {
-                        throw new RequestError("Could not parse JSON: " . json_last_error_msg());
-                    }
                 }
 
                 if (!is_array($bodyParams)) {

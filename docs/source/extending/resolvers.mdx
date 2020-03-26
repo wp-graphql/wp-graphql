@@ -1,0 +1,134 @@
+---
+title: GraphQL Resolvers
+description: Get an understanding of how GraphQL Resolvers work and how to customize their behavior
+---
+
+A GraphQL Schema consists of Types and Fields. At the root of the Schema are the `RootQuery` and
+`RootMutation` types. These Types have fields, and when we ask for fields and execute a request,
+those fields return data by way of "resolvers".
+
+When defining fields, we have the option to define a resolver.
+
+Let's take a look at a very basic example of a field with a resolver:
+
+```php
+add_action( 'graphql_register_types', 'register_hello_field' );
+
+function register_hello_field() {
+
+    register_graphql_field( 'RootQuery', 'hello', [
+        'type' => 'String',
+        'resolve' => function( $root, $args, $context, $info ) {
+          return 'world';
+        }
+    ]);
+
+}
+```
+
+Here, we've defined a `hello` field on the `RootQuery` and it will return a `String`, and in this case
+that string will simply be "world".
+
+We can query like so:
+
+```graphql
+{
+	hello
+}
+```
+
+And receive a response like:
+
+```json
+{
+	"data": {
+		"hello": "world"
+	}
+}
+```
+
+### Resolver Arguments
+
+One thing you might notice is that the resolver was passed 4 arguments: `$root`, `$args`, `$context`, and `$info`.
+
+-   **\$root (mixed):** This first argument is whatever previous object or array was being resolved. In this case, our field is at the Root, so it's passed a null value. If our field was on a `Post` type, for example, it would be passed an instance of a Post (`\WPGraphQL\Post\Model`)
+-   **\$args (array):** The 2nd argument is the args on the field. The field we registered doesn't have any args, but if it did, the input values of the args would be passed here as an array.
+-   **\$context (AppContext):** The 3rd argument is an instance of the AppContext class. This class is passed to every resolver and is used for things like DataLoading so resolvers can pull from centrally cached data instead of fetching fresh data, etc.
+-   **\$info (ResolveInfo):** The 4th argument is an instance of ResolveInfo, which can be used to determine things about where in the resolveTree the field is, what the Parent Type is, what fields have been selected on this Type, and more.
+
+### Overriding Resolvers
+
+One common ask is "How can I override a resolver?"
+
+There are many ways to do this, but one of the best ways would be to override the resolve function altogether.
+
+Let's say we wanted to filter our "hello" field that we just registered above, and instead of returning "world", we wanted to return "goodbye".
+
+We could to that like so:
+
+```php
+add_filter( 'graphql_RootQuery_fields', function( $fields ) {
+
+
+    // First, make sure there's actually a "hello" field registered
+    if ( isset( $fields['hello'] ) {
+
+      // Override the resolve function completely
+      $fields['hello']['resolve'] => function() {
+        return 'goodbye';
+      }
+    }
+
+    return $fields;
+
+} );
+```
+
+Now, when we execute the query:
+
+```graphql
+{
+	hello
+}
+```
+
+We get this response:
+
+```json
+{
+	"data": {
+		"hello": "world"
+	}
+}
+```
+
+## graphql_resolve_field filter
+
+Another option for overriding resolvers is using the `graphql_resolve_field` filter.
+
+This filter passes the following context:
+
+```php
+/**
+ * $result         The result of the field resolution.
+ * $source         The source passed down the Resolve Tree.
+ * $args           The args for the field.
+ * $context        The AppContext passed down the ResolveTree.
+ * $info           The ResolveInfo passed down the ResolveTree.
+ * $type_name      The name of the type the fields belong to.
+ * $field_key      The name of the field.
+ * $field          The Field Definition for the resolving field.
+ * $field_resolver The default field resolver.
+ */
+```
+
+We could override the result of the resolver this way using this filter like so:
+
+```php
+add_filter( 'graphql_resolve_field', function( $result, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
+    if ( $type_name === 'RootQuery' && $field_key === 'hello' ) {
+        $result = 'goodbye';
+    }
+    return $result;
+}, 10, 9 );
+```

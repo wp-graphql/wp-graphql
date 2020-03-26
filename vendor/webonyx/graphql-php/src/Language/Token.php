@@ -27,40 +27,8 @@ class Token
     const INT = 'Int';
     const FLOAT = 'Float';
     const STRING = 'String';
+    const BLOCK_STRING = 'BlockString';
     const COMMENT = 'Comment';
-
-    /**
-     * @param $kind
-     * @return mixed
-     */
-    public static function getKindDescription($kind)
-    {
-        trigger_error('Deprecated as of 16.10.2016 ($kind itself contains description string now)', E_USER_DEPRECATED);
-
-        $description = [];
-        $description[self::SOF] = '<SOF>';
-        $description[self::EOF] = '<EOF>';
-        $description[self::BANG] = '!';
-        $description[self::DOLLAR] = '$';
-        $description[self::PAREN_L] = '(';
-        $description[self::PAREN_R] = ')';
-        $description[self::SPREAD] = '...';
-        $description[self::COLON] = ':';
-        $description[self::EQUALS] = '=';
-        $description[self::AT] = '@';
-        $description[self::BRACKET_L] = '[';
-        $description[self::BRACKET_R] = ']';
-        $description[self::BRACE_L] = '{';
-        $description[self::PIPE] = '|';
-        $description[self::BRACE_R] = '}';
-        $description[self::NAME] = 'Name';
-        $description[self::INT] = 'Int';
-        $description[self::FLOAT] = 'Float';
-        $description[self::STRING] = 'String';
-        $description[self::COMMENT] = 'Comment';
-
-        return $description[$kind];
-    }
 
     /**
      * The kind of Token (see one of constants above).

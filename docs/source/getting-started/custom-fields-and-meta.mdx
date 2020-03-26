@@ -1,0 +1,159 @@
+---
+title: Custom Fields and Meta
+description: Learn about how to expose Custom Fields and Meta in the WPGraphQL Schema
+---
+
+import Note from '../../src/components/Note'
+
+WPGraphQL exposes an API to [register fields](/extending/fields/) to any Type in the Schema.
+We can use this API to register fields that expose custom fields, such as Post Meta, Term Meta, etc.
+
+Let’s say we stored some meta called color on our docs Post Type and we wanted to expose this on our
+Document objects. We could do that like so:
+
+```php
+add_action( 'graphql_register_types', function() {
+  register_graphql_field( 'Post', 'color', [
+     'type' => 'String',
+     'description' => __( 'The color of the post', 'wp-graphql' ),
+     'resolve' => function( $post ) {
+       $color = get_post_meta( $post->ID, 'color', true );
+       return ! empty( $color ) ? $color : 'blue';
+     }
+  ] );
+} );
+```
+
+Here, we hook into `graphql_register_types` as that’s when the GraphQL Type registry is being built
+and our registration methods are ready for use.
+
+Then we call `register_graphql_field`, where the first argument is the Type we want to register the
+field to, in this case Post. The second argument is the name of the field, and the third argument
+is an array used to configure the field. For this config array we need at minimum a Type defined,
+in this case the type is String.
+
+Here we also define a field description and a resolve function. If no resolve function is defined,
+GraphQL will attempt to resolve using the field name as the property of the object being passed
+down. We know that Post objects in WordPress don’t have a color property, so we need to tell GraphQL
+how to resolve color on Posts in the Schema. In our case, the data is in post_meta, so we tell
+GraphQL to resolve the color field by getting the color post_meta for the Post being resolved, and
+if there is no color returned, let’s just default to blue.
+
+```graphql
+{
+  posts {
+    nodes {
+      id
+      link
+      color
+    }
+  }
+}
+```
+
+## Register fields to many types
+
+Let’s say we wanted to register the same color field to ALL Post Types that are exposed in the Schema.
+
+We could to that like so:
+
+```php
+add_action( 'graphql_register_types', function() {
+
+  $post_types = \WPGraphQL::$allowed_post_types;
+
+  if ( ! empty( $post_types ) && is_array( $post_types ) ) {
+    foreach ( $post_types as $post_type ) {
+       $post_type_object = get_post_type_object( $post_type );
+
+       register_graphql_field( $post_type_object->graphql_single_name, 'color', [
+         'type' => 'String',
+         'description' => __( 'The color of the post', 'wp-graphql' ),
+         'resolve' => function( $post ) {
+           $color = get_post_meta( $post->ID, 'color', true );
+           return ! empty( $color ) ? $color : 'blue';
+         }
+      ] );
+
+    }
+  }
+});
+```
+
+Here, we hook once again into `graphql_register_types`.
+
+From there, we access the list of Post Types that have been registered as allowed in WPGraphQL,
+then we loop through the list and register the color field to each Type, via the
+`$post_type_object->graphql_single_name` property.
+
+Now, we can query the color field on ANY exposed Custom Post Type in our Schema.
+
+```graphql
+{
+  documents {
+    nodes {
+      id
+      title
+      link
+      color
+    }
+  }
+}
+```
+
+## Register multiple fields, specifying type
+
+If instead we want to register multiple fields (in this case blurb and price), but control which Post Types they are exposed to, we could do the following:
+
+```php
+add_action( 'graphql_register_types', function() {
+
+  $post_types = WPGraphQL::$allowed_post_types;
+
+  if ( ! empty( $post_types ) && is_array( $post_types ) ) {
+    foreach ( $post_types as $post_type ) {
+			$post_type_object = get_post_type_object( $post_type );
+
+			if ($post_type === 'post') {
+				register_graphql_field( $post_type_object->graphql_single_name, 'blurb', [
+					'type' => 'String',
+					'description' => __( 'The blurb of the post', 'wp-graphql' ),
+					'resolve' => function( $post ) {
+						$blurb = get_post_meta( $post->ID, 'blurb', true );
+						return ! empty( $blurb ) ? $blurb : 'blue';
+					}
+				]);
+			}
+
+			if ($post_type === 'product') {
+				register_graphql_field( $post_type_object->graphql_single_name, 'price', [
+					'type' => 'String',
+					'description' => __( 'The price of the post', 'wp-graphql' ),
+					'resolve' => function( $post ) {
+						$price = get_post_meta( $post->ID, 'price', true );
+						return ! empty( $price ) ? $price : 'blue';
+					}
+				]);
+			}
+    }
+  }
+});
+```
+
+This is very similar to the example above, but we only add a given field if the proper Post Type is currently being looped over.
+
+## Resolving external (non-WordPress) data
+
+Just because WPGraphQL exposes a lot of ways to interact with data stored in the WordPress database,
+resolvers allow data to be returned from any data source.
+
+For example, we could make external API calls to other services such as Google Analytics, or
+whatever you could imagine, and resolve data from that API response from within GraphQL. We could
+even connect to any other database, or custom tables, static data, .csv files, etc. The potential
+is really quite expansive.
+
+<Note>
+  Take a look at the{' '}
+  <a href="/extensions/wpgraphql-dad-jokes/">WPGraphQL Dad Jokes</a> extension
+  for an example of registering fields that resolve data from an external API.
+</Note>

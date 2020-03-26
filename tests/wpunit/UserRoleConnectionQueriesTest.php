@@ -28,6 +28,7 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						name
 						capabilities
 						id
+						displayName
 					}
 				}
 			}
@@ -38,9 +39,14 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$roles = wp_roles();
 		foreach ( $roles->roles as $role_name => $data ) {
 
-			$data['id'] = \GraphQLRelay\Relay::toGlobalId( 'role', $role_name );
-			$data['capabilities'] = array_keys( $data['capabilities'], true, true );
-			$nodes[]['node'] = $data;
+			$clean_node = [];
+			$node = \WPGraphQL\Data\DataSource::resolve_user_role( $role_name );
+			$clean_node['id'] = $node->id;
+			$clean_node['name'] = $node->name;
+			$clean_node['displayName'] = $node->displayName;
+			$clean_node['capabilities'] = $node->capabilities;
+
+			$nodes[]['node'] = $clean_node;
 
 		}
 
@@ -53,6 +59,7 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$actual = do_graphql_request( $query );
+		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual );
 

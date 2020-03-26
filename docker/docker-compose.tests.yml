@@ -1,0 +1,52 @@
+version: "3.4"
+
+services:
+  wpgraphql-tester:
+    build:
+      context: '../'
+      dockerfile: 'Dockerfile.test-base'
+      args:
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
+    image: 'wordpress-wp-graphql-test-base'
+    container_name: 'wpgraphql-tester'
+    environment:
+      WORDPRESS_DB_NAME: 'wpgraphql_test'
+      WORDPRESS_DB_HOST: 'mysql_test'
+      WORDPRESS_DB_USER: 'root'
+      WORDPRESS_DB_PASSWORD: 'testing'
+      TEST_TYPE: "${TEST_TYPE}"
+      COVERAGE: "${COVERAGE}"
+    volumes:
+      # This container will read exported WordPress DB data from the volume so that Codeception can run properly.
+      - 'codeception-test-data:/tmp/wordpress/wp-content/plugins/wp-graphql/tests/_data:ro'
+    working_dir: '/tmp/wordpress/wp-content/plugins/wp-graphql/'
+    entrypoint: [ "docker-entrypoint.tester.sh" ]
+
+  wpgraphql.test:
+    build:
+      context: '../'
+      dockerfile: 'Dockerfile.test-base'
+      args:
+        DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
+        DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
+    image: 'wordpress-wp-graphql-test-base'
+    environment:
+      WORDPRESS_DB_HOST: 'mysql_test'
+      WORDPRESS_DB_NAME: 'wpgraphql_test'
+      WORDPRESS_DB_USER: 'root'
+      WORDPRESS_DB_PASSWORD: 'testing'
+    volumes:
+      # This container will write exported WordPress DB data into the volume so that Codeception in the tester container
+      # can run properly.
+      - 'codeception-test-data:/usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data'
+    entrypoint: [ "docker-entrypoint.sut.sh" ]
+
+  mysql_test:
+    image: 'mariadb:10.2.27-bionic'
+    environment:
+      MYSQL_DATABASE: 'wpgraphql_test'
+      MYSQL_ROOT_PASSWORD: 'testing'
+
+volumes:
+  codeception-test-data:

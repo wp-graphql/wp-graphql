@@ -1,26 +1,28 @@
-![Logo](https://d2ffutrenqvap3.cloudfront.net/items/1i0F192I0j3F042t3S3R/logo-250.png)
+![Logo](./img/logo.png)
 
 # WPGraphQL 
 
-<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://wpgraphql.com/docs/getting-started/about/" target="_blank">Docs</a> • <a href="https://wp-graphql.github.io/wp-graphql-api-docs/" target="_blank">ApiGen Code Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Slack</a>
+<a href="https://www.wpgraphql.com" target="_blank">Website</a> • <a href="https://docs.wpgraphql.com/" target="_blank">Docs</a> • <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Join Slack</a>
 
 GraphQL API for WordPress.
 
-[![Build Status](https://travis-ci.org/wp-graphql/wp-graphql.svg?branch=master)](https://travis-ci.org/wp-graphql/wp-graphql)
-[![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg?branch=master)](https://coveralls.io/github/wp-graphql/wp-graphql?branch=master)
+[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22) [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
+[![codecov](https://codecov.io/gh/wp-graphql/wp-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/wp-graphql/wp-graphql)
+[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](#sponsors) 
 
 ------
 
 ## Quick Install
 Download and install like any WordPress plugin.
-[Details on Install and Activation](https://wpgraphql.com/docs/getting-started/install-and-activate/)
+[Details on Install and Activation](https://docs.wpgraphql.com/getting-started/install-and-activate)
 
 ## Documentation
 
-Documentation is being moved [here](https://wpgraphql.com/docs/getting-started/about), but some can still be found [on the Wiki](https://github.com/wp-graphql/wp-graphql/wiki) on this repository.
+Documentation can be found [here](https://docs.wpgraphql.com). The content for the documentation lives [here](https://github.com/wp-graphql/wp-graphql/tree/develop/docs/source)
 
-- Requires PHP 5.5+
-- Requires WordPress 4.7+
+- Requires PHP 7.0+
+- Requires WordPress 5.0+
 
 ## Overview
 This plugin brings the power of GraphQL to WordPress.
@@ -96,8 +98,12 @@ For example:
 
 `bin/install-wp-tests.sh wpgraphql_test root password 127.0.0.1 latest`
 
-DEBUGGING: If you have run this command before in another branch you may already have a local copy of WordPress downloaded in your `/private/tmp` directory. 
-If this is the case, please remove it and then run the install script again. Without removing this you may receive an error when running phpunit.
+*DEBUGGING*: 
+
+- If you have run this command before in another branch you may already have a local copy of WordPress downloaded in your `/private/tmp` directory. If this is the case, please remove it and then run the install script again. Without removing this you may receive an error when running phpunit.
+
+- This is installed into your machine's `tmp` directory, so if you restart your computer, you will need to re-run this script to install. 
+
 
 #### Local Environment Configuration for Codeception Tests
 
@@ -126,64 +132,165 @@ Perhaps someone who's more of a Composer expert could lend some advise?:
     - You can specify which tests to run like: 
         - `vendor/bin/codecept run wpunit`
         - `vendor/bin/codecept run functional`
-        - `vendor/bin/codecept run unit`
         - `vendor/bin/codecept run acceptance`
+    - If you're working on a class, or with a specific test, you can run that class/test with:
+        - `vendor/bin/codecept run tests/wpunit/NodesTest.php`
+        - `vendor/bin/codecept run tests/wpunit/NodesTest.php:testPluginNodeQuery`
 
 
-### Testing in Docker
+### Using Docker
+Docker can be used to run tests or a local application instance in an isolated environment. It can also take care of most
+of the set up and configuration tasks performed by a developer.   
 
-A `docker-compose` file in the root of this repo provides all of the testing prerequisites, allowing you to run
-tests in isolation without installing anything locally (besides Docker).
-
-Install dependencies using Composer. Note the `--ignore-platform-reqs` which skips the checks for PHP extensions
-inside the barebones Docker container.
-
-```
-docker run --rm -v $(pwd):/app composer install --ignore-platform-reqs
-```
-
-Now you're ready to start the Docker containers: a PHP container to hold the code under test, a PHP/Apache
-container to serve WordPress, and a MariaDB container.
-
-```
-docker-compose build
-docker-compose up -d
-```
-
-Your stack is starting! If this is your first time running that command, it will take a few minutes to download the
-referenced Docker images. Note that it takes about 15-30 seconds after this process completes for MariaDB to be
-ready to accept connections, so you'll need to wait that long before running the next command.
-
-Now we install the WordPress testing suite inside the container, link the local codebase inside it, and activate it
-as a plugin. Note that we are skipping database creation (handled by our `docker-compose` file). The WordPress
-version you pass here should match what is specified in `docker-compose.yml`.
-
-```
-docker-compose run --rm tests ./bin/install-wp-tests.sh ignored root testing mysql_test 4.9.4 true
-```
-
-You now have a stable testing environment. The WPGraphQL codebase is mapped inside your containers and any changes
-you make will be reflected almost immediately. We use Codeception Environments (`--env`) to point tests to our
-database container instead of `127.0.0.1`. Run your tests and repeat as necessary, e.g.:
-
-```
-docker-compose run --rm tests ./vendor/bin/codecept run acceptance --env docker
-docker-compose run --rm tests ./vendor/bin/codecept run functional --env docker
-docker-compose run --rm tests ./vendor/bin/codecept run wpunit --env docker
-```
-
-Code coverage for `wpunit` tests can be generated using `phpdbg` (note that Codeception currently segfaults under 
-phpdbg and PHP 7.2):
-
-```
-docker-compose run --rm tests phpdbg -qrr ./vendor/bin/codecept run wpunit --env docker --coverage --coverage-xml
-```
-
-If you need to test against a different WordPress version, you will need to destroy your environemnt, update
-`docker-compose.yml` and `bin/Dockerfile` to point to the desired version, then recreate your environment.
+1. Verify [Docker CE](https://www.docker.com/community-edition) 17.09.0+ is installed:
+   ```
+   sudo docker --version
+   ```
+   
+1. Verify [Docker Compose](https://docs.docker.com/compose/install/) is installed:
+   ```
+   sudo docker-compose --version
+   ```
+1. (Optional, but handy) How to use Docker without having to type, `sudo`.   
+   * https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
 
 
+#### Running Wordpress + wp-graphql
+1. Start a local instance of WordPress. This will run the instance in the foreground:
+   ```
+   ./run-docker-local-app.sh
+   ```
+1. Visit http://127.0.0.1:8000.
 
+#### Using PHPStorm/IntelliJ+XDebug (OS X and Linux)
+
+1. Make sure PHPStorm/IntelliJ is listenting on port 9000 for incoming XDebug connections from the WP container (for more info on remote XDebug debugging, visit https://xdebug.org/docs/remote):
+   ![alt text](img/intellij-php-debug-config.png)
+   
+1. Create a PHP server mapping. This tells the debugger how to map a file path in the container to a file path on the host OS.
+   ![alt text](img/intellij-php-servers.png)
+
+1. Create a PHP Debug run configuration.
+   ![alt text](img/intellij-php-debug-run-config.png) 
+
+1. Run WordPress+the plugin with XDebug enabled. Here's an example:
+   ```
+   ./run-docker-local-app-xdebug.sh
+   ```
+
+1. Start the debugger:
+   ![alt text](img/intellij-php-start-debug.png)
+   
+1. Now when you visit http://127.0.0.1:8000 you can use the debugger.           
+
+
+#### Using MySQL clients to connect to MySQL containers
+1. Run the application with desired sites. Here's an example:
+   ```
+   ./run-docker-local-app.sh
+   ```
+
+1. List the MySQL containers that are running and their MySQL port mappings. These ports will change each time the app is run:  
+   ```
+   ./list-mysql-containers.sh
+   ```
+   
+   You should see output like the following:
+   ```
+   aa38d8d7eff1        mariadb:10.2.24-bionic          "docker-entrypoint.s…"   14 seconds ago      Up 13 seconds       0.0.0.0:32772->3306/tcp   docker_mysql_test_1
+   ```
+   
+1. Configure your MySQL client to connect to `localhost` and the appropriate ***host*** port. For example, to connect
+   to the MySQL container shown above, have the MySQL client connect with this configuration:
+   * IP/Hostname: `localhost`
+   * Port: `32772`
+   * Database: `wpgraphql_test`
+   * User: `root`
+   * Password: `testing`
+
+   
+#### Running tests with Docker
+
+##### For developers
+You'll need two terminal windows for this. The first window is to start the Docker containers needed for running tests. The
+second window is where you'll log into one of the running Docker containers (which will have OS dependencies already installed) and run 
+your tests as you make code changes.
+
+1. In the first terminal window, start up a pristine Docker testing environment by running this command:
+   ```
+   ./run-docker-test-environment.sh
+   ```
+   This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
+   be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step when you
+   see output similar to the following:
+   ```
+   wpgraphql.test_1  | [Tue Oct 30 15:04:33.917067 2018] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
+   
+   ```
+1. In the second terminal window, access the Docker container shell from which you can run tests:
+   ```
+   ./run-docker-test-environment-shell.sh
+   ```
+   You should eventually see a prompt like this:
+   ```
+   root@cd8e4375eb6f:/tmp/wordpress/wp-content/plugins/wp-graphql
+   ```   
+1. Now you are ready to work in your IDE and test your changes by running any of the following commands in the second
+terminal window):
+   ```
+   vendor/bin/codecept run wpunit --env docker
+   vendor/bin/codecept run functional --env docker
+   vendor/bin/codecept run acceptance --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php --env docker
+   vendor/bin/codecept run tests/wpunit/NodesTest.php:testPluginNodeQuery --env docker
+   ```
+Notes:
+* If you make a change that requires `composer install` to be rerun, shutdown the testing environment and restart it to 
+automatically rerun the `composer install` in the testing environment.
+* Leave the container shell (the second terminal window) by typing `exit`.
+* Shutdown the testing environment (the first terminal window) by typing `Ctrl + c` 
+* Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job,
+try these solutions:
+   * Run this command: `docker system prune`
+   * https://docs.docker.com/config/pruning/#prune-containers
+
+
+##### For CI tools (e.g. Travis)
+* Run the tests in pristine Docker environments by running any of these commands: 
+   ```
+   ./run-docker-tests.sh 'wpunit'
+   ./run-docker-tests.sh 'functional'
+   ./run-docker-tests.sh 'acceptance'
+   ```
+
+* Run the tests in pristine Docker environments with different configurations. Here are some examples: 
+   ```
+   env PHP_VERSION='7.1' ./run-docker-tests.sh 'wpunit'
+   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh 'functional'
+   ```
+If `COVERAGE='true'` is set, results will appear in `docker-output/`.
+
+
+Notes:
+* Code coverage for `functional` and `acceptance` tests is only supported for PHP 7.X. 
+  
+
+#### Updating WP Docker software versions
+Make sure the `docker/docker-compose*.yml` files refer to the most recent and specific version of the official WordPress Docker and MySQL compatible images.
+Please avoid using the `latest` Docker tag. Once Docker caches a Docker image for a given tag onto your machine, it won't automatically
+check for updates. Using an actual version number ensures Docker image caches are updated at the right time.
+
+List of software versions to check:
+* Travis config `.travis.yml`
+* Test base Dockerfile (`Dockerfile.test-base`)
+   * XDebug
+   * Official WordPress/PHP Docker image
+   * PHP Composer
+
+* XDebug Dockerfile (`Dockerfile.xdebug`)
+   * XDebug
+
+  
 ### Generating Code Coverage
 You can generate code coverage for tests by passing `--coverage`, `--coverage-xml` or `--coverage-html` with the tests. 
 
@@ -206,17 +313,23 @@ And you can output the coverage locally to HTML like so:
 
 `vendor/bin/codecept run wpunit AvatarObjectQueriesTest --coverage --coverage-html`
 
+## Linting
+As a helpful development tool, you can enable automatic linting before commiting.
+1. Run `npm install`. 
+2. Before development, run `composer install`
+3. After you're done run `composer install --no-dev` to remove development dependencies
+
+(Steps 2 and 3 will be removed once we have an automated build process. See https://github.com/wp-graphql/wp-graphql/issues/224) 
+
+Your changed files will now be linted via phpcs and your commit will fail with a list of errors if there are any.
+
 ## Shout Outs
 This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
-
-This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of Digital First Media (https://github.com/dfmedia),
-and Edwin Cromley of BE-Webdesign (https://github.com/BE-Webdesign).
 
 The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes use 
 of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
 
-Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development resources to push the 
-project forward.
+Special thanks to Gatsby (http://gatsbyjs.com) for allocating development resources to push the project forward.
 
 Some of the concepts and code are based on the WordPress Rest API. Much love to the folks (https://github.com/orgs/WP-API/people) 
 that put their blood, sweat and tears into the WP-API project, as it's been huge in moving WordPress forward as a 
@@ -228,3 +341,33 @@ implementation (https://github.com/graphql/graphql-js)
 
 Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a lot of insight 
 into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.com/
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/wp-graphql#backer)]
+
+<a href="https://opencollective.com/wp-graphql#backers" target="_blank"><img src="https://opencollective.com/wp-graphql/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/wp-graphql#sponsor)]
+
+<a href="https://opencollective.com/wp-graphql/sponsor/0/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/1/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/2/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/3/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/4/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/5/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/6/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/7/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/8/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/wp-graphql/sponsor/9/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/9/avatar.svg"></a>
+
+

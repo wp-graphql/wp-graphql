@@ -25,12 +25,13 @@ foreach ($test_posts_statuses as $post_status) {
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 /**
- * Query for only posts with a status of published and draft.
+ * Query for posts with all 3 statuses. Since it's a public request, we should
+ * ONLY get the published post in response.
  */
 $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
 	'query' => '
 	{
-		posts( where: { stati: [ PUBLISH, DRAFT ] } ){
+		posts( where: { stati: [ PUBLISH, DRAFT, FUTURE ] } ){
 			edges {
 				node {
 				    title
@@ -40,6 +41,7 @@ $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
 		}
 	}'
 ] ) );
+
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
@@ -56,7 +58,6 @@ $I->assertArrayNotHasKey( 'errors', $response_array );
  */
 $I->assertArrayHasKey( 'data', $response_array );
 
-// Only 2 posts are returned
-$I->assertEquals( 2, count( $response_array['data']['posts']['edges'] ) );
+// Only 1 posts are returned, the published post. The other posts would require authentication
+$I->assertEquals( 1, count( $response_array['data']['posts']['edges'] ) );
 $I->assertEquals( 'test publish post', $response_array['data']['posts']['edges'][0]['node']['title'] );
-$I->assertEquals( 'test draft post', $response_array['data']['posts']['edges'][1]['node']['title'] );

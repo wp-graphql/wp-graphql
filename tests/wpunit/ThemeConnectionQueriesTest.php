@@ -27,9 +27,10 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * testThemesQuery
+	 * @dataProvider dataProviderUser
 	 * This tests querying for themes to ensure that we're getting back a proper connection
 	 */
-	public function testThemesQuery() {
+	public function testThemesQuery( $user ) {
 
 		$query = '
 		{
@@ -47,6 +48,17 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		$themes       = wp_get_themes();
+
+		if ( ! empty( $user ) ) {
+			$current_user = $this->admin;
+			$return_count = count( $themes );
+		} else {
+			$current_user = 0;
+			$return_count = 1;
+		}
+
+		wp_set_current_user( $current_user );
 		$actual = do_graphql_request( $query );
 
 		/**
@@ -59,10 +71,22 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['name'] );
 		$this->assertNotEmpty( $actual['data']['themes']['nodes'][0]['id'] );
 		$this->assertEquals( $actual['data']['themes']['nodes'][0]['id'], $actual['data']['themes']['edges'][0]['node']['id'] );
+		$this->assertCount( $return_count, $actual['data']['themes']['edges'] );
 
 		foreach ( $actual['data']['themes']['edges'] as $key => $edge ) {
 			$this->assertEquals( $actual['data']['themes']['nodes'][ $key ]['id'], $edge['node']['id'] );
 		}
 
+	}
+
+	public function dataProviderUser() {
+		return [
+			[
+				'user' => 'admin'
+			],
+			[
+				'user' => '',
+			]
+		];
 	}
 }

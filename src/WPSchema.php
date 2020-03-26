@@ -2,13 +2,9 @@
 
 namespace WPGraphQL;
 
-use GraphQL\Error\UserError;
-use GraphQL\Executor\Executor;
-use GraphQL\Schema;
-use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\Type\WPObjectType;
+use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
+
 
 /**
  * Class WPSchema
@@ -18,6 +14,11 @@ use WPGraphQL\Type\WPObjectType;
  * @package WPGraphQL
  */
 class WPSchema extends Schema {
+
+	/**
+	 * @var SchemaConfig
+	 */
+	public $config;
 
 	/**
 	 * Holds the $filterable_config which allows WordPress access to modifying the
@@ -36,6 +37,8 @@ class WPSchema extends Schema {
 	 * @since 0.0.9
 	 */
 	public function __construct( $config ) {
+
+		$this->config = $config;
 
 		/**
 		 * Set the $filterable_config as the $config that was passed to the WPSchema when instantiated

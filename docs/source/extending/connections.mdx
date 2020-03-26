@@ -1,0 +1,224 @@
+---
+title: API Reference for WPGraphQL Connections
+description: Learn how to register connections and hook into existing connections
+---
+
+import Note from "../../src/components/Note"
+
+Below you will find information on extending WPGraphQL with custom connections.
+
+<Note title="Wait, what are connections?">
+	Not sure what connections are and how they fit in WPGraphQL?{" "}
+	<a href="/guides/extensions">Read the connections guide to learn more</a>.
+</Note>
+
+## register_graphql_connection( \$config )
+
+The `register_graphql_connection( $config )` function is used to add a Connection to the WPGraphQL
+Schema.
+
+### \$config
+
+The function accepts one argument, a `$config` array containing the following config:
+
+-   **fromType: (required | string)** The name of the Type the connection is coming _from_
+-   **toType: (required | string)** The name of the Type the connection is going _to_
+-   **fromFieldName: (required | string)** The name of the field on the from Type that should resolve
+    to the connection
+-   **connectionTypeName: (string)** The name of the Connection Type. If not provided, the Type name will
+    be derived from the `fromType` and `toType` names.
+-   **resolve: (required | function)** The function that is used to resolve the connection
+-   **resolveNode (function):** The function that is used to resolve an individual node within the
+    connection (required for deferred resolution)
+    -   **Note:** This arg is required for connections using Deferred resolvers
+-   **connectionArgs (array):** Array of GraphQL input fields that will be added to the connection's
+    "where" args
+-   **connectionFields (array):** Array of GraphQL fields to expose as a field of the connection.
+
+## Usage
+
+The use of `register_graphql_connection( $config )` should be happen within the
+`graphql_register_types` action, as that's when GraphQL builds the Schema. Since Connections require
+a `fromType` and `toType`, the connection must be registered _after_ those types have been
+registered. A lower priority (such as 99) will allow for other Types to be registered before the
+connection references them.
+
+## Example
+
+The below snippet will add a connection to the WPGraphQL Schema, and will use the built-in
+Post Object Connection Resolver, so it will return data, but it won't be limited to "the last week"
+as the connection name implies.
+
+### Register the connection
+
+In this example, we define the following:
+
+-   **fromType => 'RootQuery':** This tells GraphQL the connection will be coming from the RootQuery,
+    which means we can query this connection at the root of the graph. This from Type could be any
+    existing Type, and that Type is where the connection can be entered when querying.
+-   **toType => 'Post':** This tells GraphQL the connection will resolve to nodes of the Post type.
+    This can be configured to any existing Type in the Schema, but you have to hold up your end of the
+    contract and resolve the connection to the Type promised.
+-   **fromFieldName => 'postsFromThisWeek':** This is the field name that is added to the "fromType".
+    In this case, the `RootQuery` type gets a field `postsFromThisWeek` added to it which resolves to
+    the connection.
+-   **connectionTypeName => 'PostsFromThisWeekConnection':** If this field is blank, the connection name
+    would be derived from the `fromType` and `toType`. In this case, there's already a
+    `RootQueryToPostConnection` in the Schema, which we _could_ resolve to, but it's probably safer to
+    resolve to our own Connection Type so we could customize in a more isolated way down the road. You
+    will now see (by browsing GraphiQL or similar) that our Schema includes a
+    `PostsFromThisWeekConnection` Type
+-   **resolve:** This is set to a function, like all resolve fields in the Schema. This function is
+    what is executed when the connection is queried. In our case, we return the results of
+    `\WPGraphQL\Data\DataSource::resolve_post_objects_connection`. (we'll look at customizing the
+    resolver below).
+-   **resolveNode:** This is set to a function, which receives and ID of a node. The Connection Resolver
+    queries for and returns IDs of objects, and the `resolveNode` function is responsible for resolving
+    the object based on the ID provided to it. Here, we are accepting an ID of a Post and using the
+    `\WPGraphQL\Data\DataSource::resolve_post_object` to resolve it. This method makes use of Deferred
+    resolution, allowing for our objects to be fetched all at once, instead of immediately when the
+    resolver is called.
+
+```php
+add_action( 'graphql_register_types', 'register_my_custom_graphql_connection', 99 );
+
+function register_my_custom_graphql_connection() {
+  $config = [
+    'fromType' => 'RootQuery',
+    'toType' => 'Post',
+    'fromFieldName' => 'postsFromThisWeek',
+    'connectionTypeName' => 'PostsFromThisWeekConnection',
+    'resolve' => function( $id, $args, $context, $info ) {
+      return \WPGraphQL\Data\DataSource::resolve_post_objects_connection( $id, $args, $context, $info, 'post' );
+    },
+    'resolveNode' => function( $id, $args, $context, $info ) {
+      return \WPGraphQL\Data\DataSource::resolve_post_object( $id, $context );
+    }
+  ];
+  register_graphql_connection( $config );
+};
+```
+
+### Query the connection
+
+Now that we have a connection registered to our Schema, we can query the following:
+
+```graphql
+{
+	postsFromThisWeek(first: 3) {
+		nodes {
+			id
+			title
+			date
+			link
+		}
+	}
+}
+```
+
+### Connection Query Results
+
+And get a result like so (of course, the data is relative to the content in your database):
+
+```json
+{
+	"data": {
+		"postsFromThisWeek": {
+			"nodes": [
+				{
+					"id": "cG9zdDoxMzYz",
+					"title": "New Post From This Week",
+					"date": "2019-04-04 19:24:22",
+					"link": "https://demowpgraphql.local/new-post/"
+				},
+				{
+					"id": "cG9zdDox",
+					"title": "Hello world!",
+					"date": "2019-01-28 23:50:02",
+					"link": "https://demowpgraphql.local/hello-world/"
+				},
+				{
+					"id": "cG9zdDoxMDMx",
+					"title": "Tiled Gallery",
+					"date": "2013-03-15 17:23:27",
+					"link": "https://demowpgraphql.local/tiled-gallery/"
+				}
+			]
+		}
+	}
+}
+```
+
+The problem with this is that we want to limit our connection to _just_ posts from this week, because
+the connection is called `postsFromThisWeek`.
+
+So, let's look at overriding the connection resolver.
+
+### Custom Connection Resolvers
+
+If we take a look at the `DataSource::resolve_post_objects_connection()` method, we can see it does
+the following:
+
+```php
+public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
+$resolver   = new \\WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+$connection = $resolver->get_connection();
+
+return $connection;
+```
+
+It instantiates an new instance of `PostObjectConnectionResolver`, then asks for the `get_connection`
+in response.
+
+We want to modify the args of the underlying `\WP_Query` to limit posts to the last 7 days.
+
+We can do so by removing the call to `DataSource::resolve_post_objects_connection()` and changing
+our `resolve` field to look like the following:
+
+```php
+'resolve' => function( $id, $args, $context, $info ) {
+    $resolver   = new \\WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
+    $resolver->setQueryArg('date_query', [
+        'after' => '1 week ago',
+    ]);
+    $connection = $resolver->get_connection();
+    return $connection;
+}
+```
+
+This will override the query_args configured by PostObjectConnectionResolver query args, which get passed to
+`\WP_Query`, with a custom `date_query` query arg, limiting posts to just the last week.
+
+Now, we can execute the same query:
+
+```graphql
+{
+	postsFromThisWeek(first: 3) {
+		nodes {
+			id
+			title
+			date
+			link
+		}
+	}
+}
+```
+
+And we get results limited to the last 7 days! Amazing!
+
+```json
+{
+	"data": {
+		"postsFromThisWeek": {
+			"nodes": [
+				{
+					"id": "cG9zdDoxMzYz",
+					"title": "New Post From This Week",
+					"date": "2019-04-04 19:24:22",
+					"link": "https://demowpgraphql.local/new-post/"
+				}
+			]
+		}
+	}
+}
+```
