@@ -177,7 +177,7 @@ class User extends Model {
 				'uri'               => function() {
 					$user_profile_url = get_author_posts_url( $this->data->ID );
 
-					return ! empty( $user_profile_url ) ? ltrim( str_ireplace( home_url(), '', $user_profile_url ), '/' ) : '';
+					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
 				},
 			];
 
