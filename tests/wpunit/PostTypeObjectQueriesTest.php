@@ -96,7 +96,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							itemsListNavigation
 							itemsList
 						}
-						menuIcon
 						menuPosition
 						name
 						public
@@ -184,7 +183,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 										'itemsListNavigation' => 'Posts list navigation',
 										'itemsList'           => 'Posts list',
 									],
-									'menuIcon'               => null,
 									'menuPosition'           => 5,
 									'name'                   => 'post',
 									'public'                 => true,
@@ -253,7 +251,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						hierarchical
 						id
 						label
-						menuIcon
 						menuPosition
 						name
 						public
@@ -300,7 +297,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'hierarchical'           => true,
 									'id'                     => $global_id,
 									'label'                  => 'Pages',
-									'menuIcon'               => null,
 									'menuPosition'           => 20,
 									'name'                   => 'page',
 									'public'                 => true,
@@ -374,7 +370,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						hierarchical
 						id
 						label
-						menuIcon
 						menuPosition
 						name
 						public
@@ -421,7 +416,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'hierarchical'           => false,
 									'id'                     => $global_id,
 									'label'                  => 'Media',
-									'menuIcon'               => null,
 									'menuPosition'           => null,
 									'name'                   => 'attachment',
 									'public'                 => true,

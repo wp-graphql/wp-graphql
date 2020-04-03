@@ -245,9 +245,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$variables = [
 			'postIdType' => 'URI',
-			'postId'     => ltrim( parse_url( get_permalink( $post_id ) )['path'], '/' ),
+			'postId'     => parse_url( get_permalink( $post_id ) )['path'],
 			'pageIdType' => 'URI',
-			'pageId'     => ltrim( parse_url( get_permalink( $page_id ) )['path'], '/' ),
+			'pageId'     => parse_url( get_permalink( $page_id ) )['path'],
 		];
 
 		codecept_debug( $variables );

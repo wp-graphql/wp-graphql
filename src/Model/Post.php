@@ -442,7 +442,7 @@ class Post extends Model {
 						return '/';
 					}
 
-					return ! empty( $uri ) ? ltrim( str_ireplace( home_url(), '', $uri ), '/' ) : null;
+					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
 				'commentCount'    => function() {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
