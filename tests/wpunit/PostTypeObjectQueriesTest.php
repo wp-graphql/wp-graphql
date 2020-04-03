@@ -174,7 +174,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 										'attributes'          => 'Post Attributes',
 										'insertIntoItem'      => 'Insert into post',
 										'uploadedToThisItem'  => 'Uploaded to this post',
-										'featuredImage'       => 'Featured image',
+										'featuredImage'       => 'Featured Image',
 										'setFeaturedImage'    => 'Set featured image',
 										'removeFeaturedImage' => 'Remove featured image',
 										'useFeaturedImage'    => null,
