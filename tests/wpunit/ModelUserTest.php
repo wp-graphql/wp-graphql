@@ -1,4 +1,4 @@
-~<?php
+<?php
 class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 
 	public $administrator;
