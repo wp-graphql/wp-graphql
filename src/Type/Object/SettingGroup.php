@@ -26,7 +26,6 @@ class SettingGroup {
 	 * @param string $group_name Name  of the settings group to retrieve fields for
 	 *
 	 * @return array
-	 * @access public
 	 */
 	public static function get_settings_group_fields( $group_name, $group ) {
 

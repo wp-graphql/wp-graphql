@@ -175,7 +175,6 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the source of the connection
 	 *
-	 * @access public
 	 * @return mixed
 	 */
 	public function getSource() {
@@ -185,7 +184,6 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Get the loader name
 	 *
-	 * @access protected
 	 * @throws \Exception
 	 * @return AbstractDataLoader
 	 */
@@ -210,7 +208,6 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the AppContext of the connection
 	 *
-	 * @access public
 	 * @return AppContext
 	 */
 	public function getContext(): AppContext {
@@ -220,7 +217,6 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the ResolveInfo of the connection
 	 *
-	 * @access public
 	 * @return ResolveInfo
 	 */
 	public function getInfo(): ResolveInfo {
@@ -230,8 +226,6 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns whether the connection should execute
 	 *
-	 * @access protected
-	 * @access public
 	 * @return bool
 	 */
 	protected function getShouldExecute(): bool {
@@ -342,7 +336,6 @@ abstract class AbstractConnectionResolver {
 	 * Returns the max between what was requested and what is defined as the $max_query_amount to
 	 * ensure that queries don't exceed unwanted limits when querying data.
 	 *
-	 * @access protected
 	 * @return int
 	 * @throws \Exception
 	 */
@@ -373,7 +366,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * This checks the $args to determine the amount requested, and if
 	 *
-	 * @access protected
 	 * @return int|null
 	 * @throws \Exception
 	 */
@@ -426,7 +418,6 @@ abstract class AbstractConnectionResolver {
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
 	 * GraphQL query.
 	 *
-	 * @access protected
 	 * @return int|mixed
 	 */
 	protected function get_offset() {
@@ -461,7 +452,6 @@ abstract class AbstractConnectionResolver {
 	 * ore if there are more "items" after the "before" argument, has_next_page()
 	 * will be set to true
 	 *
-	 * @access protected
 	 * @return boolean
 	 */
 	protected function has_next_page() {
@@ -485,7 +475,6 @@ abstract class AbstractConnectionResolver {
 	 * or if there are more "items" before the "after" argument, has_previous_page()
 	 * will be set to true.
 	 *
-	 * @access protected
 	 * @return boolean
 	 */
 	protected function has_previous_page() {
@@ -505,7 +494,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine the start cursor from the connection
 	 *
-	 * @access protected
 	 * @return mixed string|null
 	 */
 	protected function get_start_cursor() {
@@ -519,7 +507,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine the end cursor from the connection
 	 *
-	 * @access protected
 	 * @return mixed string|null
 	 */
 	protected function get_end_cursor() {
@@ -538,7 +525,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * For backward pagination, we reverse the order of nodes.
 	 *
-	 * @access protected
 	 * @return array
 	 */
 	protected function get_nodes() {
@@ -577,7 +563,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @param int $id
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function get_cursor_for_node( $id ) {
@@ -589,7 +574,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * This iterates over the nodes and returns edges
 	 *
-	 * @access protected
 	 * @return array
 	 */
 	protected function get_edges() {
@@ -602,6 +586,7 @@ abstract class AbstractConnectionResolver {
 					'cursor' => $this->get_cursor_for_node( $id ),
 					'node'   => $node,
 					'source' => $this->source,
+					'connection' => $this,
 				];
 
 				/**
@@ -633,7 +618,6 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Returns pageInfo for the connection
 	 *
-	 * @access protected
 	 * @return array
 	 */
 	protected function get_page_info() {

@@ -16,7 +16,6 @@ class Themes {
 	/**
 	 * Register the connections
 	 *
-	 * @access public
 	 */
 	public static function register_connections() {
 

@@ -26,7 +26,6 @@ class AppContext {
 	 * Stores the url string for the current site
 	 *
 	 * @var string $root_url
-	 * @access public
 	 */
 	public $root_url;
 
@@ -34,7 +33,6 @@ class AppContext {
 	 * Stores the WP_User object of the current user
 	 *
 	 * @var \WP_User $viewer
-	 * @access public
 	 */
 	public $viewer;
 
@@ -42,7 +40,6 @@ class AppContext {
 	 * Stores everything from the $_REQUEST global
 	 *
 	 * @var \mixed $request
-	 * @access public
 	 */
 	public $request;
 
@@ -50,7 +47,6 @@ class AppContext {
 	 * Stores additional $config properties
 	 *
 	 * @var \mixed $config
-	 * @access public
 	 */
 	public $config;
 

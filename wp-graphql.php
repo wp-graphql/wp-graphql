@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.8.0
+ * Version: 0.8.1
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.8.0
+ * @version  0.8.1
  */
 
 // Exit if accessed directly.
@@ -75,7 +75,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @var WPGraphQL The one true WPGraphQL
 		 * @since  0.0.1
-		 * @access private
 		 */
 		private static $instance;
 
@@ -91,7 +90,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @var array allowed_post_types
 		 * @since  0.0.5
-		 * @access public
 		 */
 		public static $allowed_post_types;
 
@@ -100,7 +98,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @var array allowed_taxonomies
 		 * @since  0.0.5
-		 * @access public
 		 */
 		public static $allowed_taxonomies;
 
@@ -114,7 +111,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @return object|WPGraphQL - The one true WPGraphQL
 		 * @since  0.0.1
-		 * @access public
 		 */
 		public static function instance() {
 
@@ -138,7 +134,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * therefore, we don't want the object to be cloned.
 		 *
 		 * @since  0.0.1
-		 * @access public
 		 * @return void
 		 */
 		public function __clone() {
@@ -152,7 +147,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Disable unserializing of the class.
 		 *
 		 * @since  0.0.1
-		 * @access protected
 		 * @return void
 		 */
 		public function __wakeup() {
@@ -165,7 +159,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * Setup plugin constants.
 		 *
-		 * @access private
 		 * @since  0.0.1
 		 * @return void
 		 */
@@ -173,7 +166,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.8.0' );
+				define( 'WPGRAPHQL_VERSION', '0.8.1' );
 			}
 
 			// Plugin Folder Path.
@@ -212,7 +205,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Include required files.
 		 * Uses composer's autoload
 		 *
-		 * @access private
 		 * @since  0.0.1
 		 * @return void
 		 */
@@ -390,7 +382,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
 		 *
 		 * @since  0.0.2
-		 * @access public
 		 * @return void
 		 */
 		public static function show_in_graphql() {
@@ -449,7 +440,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @return array
 		 * @since  0.0.4
-		 * @access public
 		 */
 		public static function get_allowed_post_types( $args = [] ) {
 
@@ -498,7 +488,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * the list of allowed_taxonomies to add/remove additional taxonomies
 		 *
 		 * @since  0.0.4
-		 * @access public
 		 * @return array
 		 */
 		public static function get_allowed_taxonomies() {
@@ -549,7 +538,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
-		 * @access protected
 		 * @return \WPGraphQL\WPSchema
 		 *
 		 * @throws Exception
@@ -589,7 +577,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Return the static schema if there is one
 		 *
 		 * @return null|string
-		 * @access public
 		 */
 		public static function get_static_schema() {
 			$schema = null;
@@ -604,7 +591,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Get the AppContext for use in passing down the Resolve Tree
 		 *
 		 * @return \WPGraphQL\AppContext
-		 * @access public
 		 */
 		public static function get_app_context() {
 

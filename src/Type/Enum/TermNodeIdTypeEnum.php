@@ -7,7 +7,6 @@ class TermNodeIdTypeEnum {
 	/**
 	 * Register the Enum used for setting the field to identify term nodes by
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function register_type() {

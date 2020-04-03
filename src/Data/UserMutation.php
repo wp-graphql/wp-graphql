@@ -18,7 +18,6 @@ class UserMutation {
 	 * Stores the input fields static definition
 	 *
 	 * @var array $input_fields
-	 * @access private
 	 */
 	private static $input_fields = [];
 
@@ -26,7 +25,6 @@ class UserMutation {
 	 * Defines the accepted input arguments
 	 *
 	 * @return array|null
-	 * @access public
 	 */
 	public static function input_fields() {
 
@@ -118,7 +116,6 @@ class UserMutation {
 	 * @param array  $input         Data coming from the GraphQL mutation query input
 	 * @param string $mutation_name Name of the mutation being performed
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
@@ -242,7 +239,6 @@ class UserMutation {
 	 * @param int   $user_id The ID of the user
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
-	 * @access private
 	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
@@ -281,7 +277,6 @@ class UserMutation {
 	 * @param int    $user_id The ID of the user being mutated
 	 *
 	 * @return mixed|bool|\WP_Error
-	 * @access private
 	 */
 	private static function verify_user_role( $role, $user_id ) {
 

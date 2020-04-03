@@ -21,7 +21,6 @@ class Menu extends Model {
 	 * Stores the incoming WP_Term object
 	 *
 	 * @var \WP_Term $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -30,7 +29,6 @@ class Menu extends Model {
 	 *
 	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -42,7 +40,6 @@ class Menu extends Model {
 	/**
 	 * Initializes the Menu object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

@@ -37,7 +37,6 @@ class Taxonomy extends Model {
 	 * Stores the incoming WP_Taxonomy object to be modeled
 	 *
 	 * @var \WP_Taxonomy $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -46,7 +45,6 @@ class Taxonomy extends Model {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The incoming Taxonomy to model
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Taxonomy $taxonomy ) {
@@ -75,7 +73,6 @@ class Taxonomy extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -91,7 +88,6 @@ class Taxonomy extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

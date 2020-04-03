@@ -7,7 +7,6 @@ class ContentNodeIdTypeEnum {
 	/**
 	 * Register the Enum used for setting the field to identify content nodes by
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function register_type() {

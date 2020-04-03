@@ -16,7 +16,6 @@ class Comments {
 	/**
 	 * Register connections to Comments
 	 *
-	 * @access public
 	 */
 	public static function register_connections() {
 
@@ -68,7 +67,6 @@ class Comments {
 	 * Given an array of $args, this returns the connection config, merging the provided args
 	 * with the defaults
 	 *
-	 * @access public
 	 *
 	 * @param array $args
 	 *
@@ -91,7 +89,6 @@ class Comments {
 	/**
 	 * This returns the connection args for the Comment connection
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public static function get_connection_args() {

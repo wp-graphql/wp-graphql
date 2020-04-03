@@ -177,7 +177,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @since  0.0.5
 	 * @return array
-	 * @access protected
 	 */
 	protected function sanitize_input_fields( array $args ) {
 
@@ -237,7 +236,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * exists. Offset is equivalent to user_id. So this function is equivalent to checking if the
 	 * user with the given ID exists.
 	 *
-	 * @access public
 	 *
 	 * @param int $offset The ID of the node used as the offset in the cursor
 	 *
