@@ -96,7 +96,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							itemsListNavigation
 							itemsList
 						}
-						menuIcon
 						menuPosition
 						name
 						public
@@ -253,7 +252,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						hierarchical
 						id
 						label
-						menuIcon
 						menuPosition
 						name
 						public
@@ -374,7 +372,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						hierarchical
 						id
 						label
-						menuIcon
 						menuPosition
 						name
 						public
