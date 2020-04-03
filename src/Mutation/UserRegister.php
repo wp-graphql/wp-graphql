@@ -136,7 +136,7 @@ class UserRegister {
 			/**
 			 * Prevent "Password Changed" emails from being sent.
 			 */
-			add_filter( 'send_password_change_email', [ self, 'return_false' ] );
+			add_filter( 'send_password_change_email', `WPGraphQL\Mutation\UserRegister\return_false` );
 
 			/**
 			 * Update the registered user with the additional input (firstName, lastName, etc) from the mutation
@@ -146,7 +146,7 @@ class UserRegister {
 			/**
 			 * Remove filter preventing "Password Changed" emails.
 			 */
-			remove_filter( 'send_password_change_email', [ self, 'return_false' ] );
+			remove_filter( 'send_password_change_email', `WPGraphQL\Mutation\UserRegister\return_false` );
 
 			/**
 			 * Update additional user data
