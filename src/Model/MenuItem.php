@@ -26,7 +26,6 @@ class MenuItem extends Model {
 	 * Stores the incoming post data
 	 *
 	 * @var \WP_Post $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -35,7 +34,6 @@ class MenuItem extends Model {
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -47,7 +45,6 @@ class MenuItem extends Model {
 	/**
 	 * Initialize the Post object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

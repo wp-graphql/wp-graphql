@@ -24,7 +24,6 @@ class Avatar extends Model {
 	 * Stores the incoming avatar to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -34,7 +33,6 @@ class Avatar extends Model {
 	 * @param array $avatar The incoming avatar to be modeled
 	 *
 	 * @throws \Exception
-	 * @access public
 	 */
 	public function __construct( $avatar ) {
 		$this->data = $avatar;
@@ -44,7 +42,6 @@ class Avatar extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

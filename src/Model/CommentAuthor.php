@@ -20,7 +20,6 @@ class CommentAuthor extends Model {
 	 * Stores the comment author to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -30,7 +29,6 @@ class CommentAuthor extends Model {
 	 * @param array $comment_author The incoming comment author array to be modeled
 	 *
 	 * @throws \Exception
-	 * @access public
 	 */
 	public function __construct( $comment_author ) {
 		$this->data = $comment_author;
@@ -40,7 +38,6 @@ class CommentAuthor extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

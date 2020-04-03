@@ -10,7 +10,6 @@
  *
  * @param string $field_name Name of the field
  *
- * @access public
  * @return string Name of the field
  * @since  0.0.2
  */
@@ -27,7 +26,6 @@ function graphql_format_field_name( $field_name ) {
  *
  * @param array $request_data The GraphQL request data (query, variables, operation_name).
  *
- * @access public
  * @return array
  * @since  0.2.0
  * @throws Exception
@@ -45,7 +43,6 @@ function graphql( $request_data = [] ) {
  * @param string $operation_name The name of the operation
  * @param array  $variables      Variables to be passed to your GraphQL request
  *
- * @access public
  * @return array
  * @since  0.0.2
  * @throws \Exception

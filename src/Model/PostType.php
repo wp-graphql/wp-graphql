@@ -41,7 +41,6 @@ class PostType extends Model {
 	 * Stores the incoming WP_Post_Type to be modeled
 	 *
 	 * @var \WP_Post_Type $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -50,7 +49,6 @@ class PostType extends Model {
 	 *
 	 * @param \WP_Post_Type $post_type The incoming post type to model
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
@@ -79,7 +77,6 @@ class PostType extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -95,7 +92,6 @@ class PostType extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

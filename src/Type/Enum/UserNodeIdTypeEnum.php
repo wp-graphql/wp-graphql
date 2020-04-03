@@ -6,7 +6,6 @@ class UserNodeIdTypeEnum {
 	/**
 	 * Register the Enum used for setting the field to identify User nodes by
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function register_type() {

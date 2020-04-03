@@ -21,7 +21,6 @@ class Request {
 	 * App context for this request.
 	 *
 	 * @var \WPGraphQL\AppContext
-	 * @access private
 	 */
 	private $app_context;
 
@@ -29,7 +28,6 @@ class Request {
 	 * Request data.
 	 *
 	 * @var array
-	 * @access private
 	 */
 	private $data;
 
@@ -37,7 +35,6 @@ class Request {
 	 * Cached global post.
 	 *
 	 * @var \WP_Post
-	 * @access private
 	 */
 	private $global_post;
 
@@ -46,7 +43,6 @@ class Request {
 	 * OperationParams.
 	 *
 	 * @var OperationParams|OperationParams[]
-	 * @access private
 	 */
 	private $params;
 
@@ -54,7 +50,6 @@ class Request {
 	 * Schema for this request.
 	 *
 	 * @var \WPGraphQL\WPSchema
-	 * @access public
 	 */
 	public $schema;
 
@@ -65,7 +60,6 @@ class Request {
 	 *
 	 * @return void
 	 *
-	 * @access public
 	 *
 	 * @throws \Exception
 	 */
@@ -112,7 +106,6 @@ class Request {
 	/**
 	 * Apply filters and do actions before GraphQL execution
 	 *
-	 * @access private
 	 *
 	 * @return void
 	 */
@@ -153,7 +146,6 @@ class Request {
 	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
 	 * request.
 	 *
-	 * @access protected
 	 * @throws \Exception
 	 *
 	 * @return boolean
@@ -233,7 +225,6 @@ class Request {
 	 *
 	 * @param boolean $authentication_errors Whether there are authentication errors with the request
 	 *
-	 * @access protected
 	 * @return boolean
 	 */
 	protected function filtered_authentication_errors( $authentication_errors = false ) {
@@ -254,7 +245,6 @@ class Request {
 	 * @param mixed|array|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
 	 * @return array
-	 * @access private
 	 *
 	 * @throws \Exception
 	 */
@@ -307,7 +297,6 @@ class Request {
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
 	 *
-	 *                                 @access private
 	 *
 	 * @return array
 	 */
@@ -391,7 +380,6 @@ class Request {
 	 *
 	 * @param  OperationParams $params OperationParams for the request.
 	 *
-	 *                                 @access private
 	 *
 	 * @return void
 	 */
@@ -410,7 +398,6 @@ class Request {
 	/**
 	 * Execute an internal request (graphql() function call).
 	 *
-	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -456,7 +443,6 @@ class Request {
 	/**
 	 * Execute an HTTP request.
 	 *
-	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -485,7 +471,6 @@ class Request {
 	/**
 	 * Get the operation params for the request.
 	 *
-	 * @access public
 	 * @return OperationParams
 	 */
 	public function get_params() {

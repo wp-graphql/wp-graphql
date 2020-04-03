@@ -19,7 +19,6 @@ class Types {
 	 * @param array $args The raw query args from the GraphQL query
 	 * @param array $map  The mapping of where each of the args should go
 	 * @return array
-	 * @access public
 	 */
 	public static function map_input( $args, $map ) {
 		return Utils::map_input( $args, $map );

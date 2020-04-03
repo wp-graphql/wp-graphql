@@ -208,7 +208,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @param array $args The array of query arguments
 	 *
 	 * @since  0.0.5
-	 * @access private
 	 * @return array
 	 */
 	public function sanitize_input_fields( array $args ) {
@@ -260,7 +259,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
 	 * checking if the comment with the given ID exists.
 	 *
-	 * @access public
 	 *
 	 * @param int $offset The ID of the node used for the cursor offset
 	 *

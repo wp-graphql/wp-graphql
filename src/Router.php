@@ -17,7 +17,6 @@ class Router {
 	 * Sets the route to use as the endpoint
 	 *
 	 * @var string $route
-	 * @access public
 	 */
 	public static $route = 'graphql';
 
@@ -39,7 +38,6 @@ class Router {
 	 * Router constructor.
 	 *
 	 * @since  0.0.1
-	 * @access public
 	 */
 	public function __construct() {
 
@@ -79,7 +77,6 @@ class Router {
 	 *
 	 * @uses   add_rewrite_rule()
 	 * @since  0.0.1
-	 * @access public
 	 * @return void
 	 */
 	public static function add_rewrite_rule() {
@@ -97,7 +94,6 @@ class Router {
 	 *
 	 * @param array $query_vars The array of whitelisted query variables
 	 *
-	 * @access public
 	 * @since  0.0.1
 	 * @return array
 	 */
@@ -160,7 +156,6 @@ class Router {
 	 * Loading process
 	 *
 	 * @since  0.0.1
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 * @throws \Throwable
@@ -203,7 +198,6 @@ class Router {
 	 * Sends an HTTP header.
 	 *
 	 * @since  0.0.5
-	 * @access public
 	 *
 	 * @param string $key   Header key.
 	 * @param string $value Header value.
@@ -225,7 +219,6 @@ class Router {
 	 * Sends an HTTP status code.
 	 *
 	 * @since  0.0.5
-	 * @access protected
 	 */
 	protected static function set_status() {
 		status_header( self::$http_status_code );
@@ -286,7 +279,6 @@ class Router {
 	 * Set the response headers
 	 *
 	 * @since  0.0.1
-	 * @access public
 	 * @return void
 	 */
 	public static function set_headers() {
@@ -327,7 +319,6 @@ class Router {
 	 * Retrieves the raw request entity (body).
 	 *
 	 * @since  0.0.5
-	 * @access public
 	 * @global string $HTTP_RAW_POST_DATA Raw post data.
 	 * @return string Raw request data.
 	 */
@@ -352,7 +343,6 @@ class Router {
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
 	 * @since  0.0.1
-	 * @access public
 	 * @return mixed
 	 * @throws \Throwable
 	 */

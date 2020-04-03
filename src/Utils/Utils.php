@@ -11,7 +11,6 @@ class Utils {
 	 *
 	 * @since  0.5.0
 	 * @return array
-	 * @access public
 	 */
 	public static function map_input( $args, $map ) {
 

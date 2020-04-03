@@ -237,7 +237,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @since  0.0.5
 	 * @return array
-	 * @access public
 	 */
 	public function sanitize_input_fields() {
 
@@ -288,7 +287,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * exists. Offset is equivalent to term_id. So this function is equivalent to checking if the
 	 * term with the given ID exists.
 	 *
-	 * @access public
 	 *
 	 * @param int $offset The ID of the node used in the cursor for offset
 	 *

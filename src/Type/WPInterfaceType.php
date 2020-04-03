@@ -20,7 +20,6 @@ class WPInterfaceType extends InterfaceType {
 	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 *
-	 * @access public
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
