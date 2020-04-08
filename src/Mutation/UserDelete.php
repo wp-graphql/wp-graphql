@@ -120,7 +120,7 @@ class UserDelete {
 			}
 
 			if ( true !== $deleted_user ) {
-				throw new UserError( __( 'Could not delete the user.', 'wp-grapgql' ) );
+				throw new UserError( __( 'Could not delete the user.', 'wp-graphql' ) );
 			}
 
 			return [
