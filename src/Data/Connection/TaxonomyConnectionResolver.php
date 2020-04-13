@@ -7,6 +7,11 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Model\Taxonomy;
 use WPGraphQL\Model\Term;
 
+/**
+ * Class TaxonomyConnectionResolver
+ *
+ * @package WPGraphQL\Data\Connection
+ */
 class TaxonomyConnectionResolver {
 
 	/**
@@ -19,7 +24,7 @@ class TaxonomyConnectionResolver {
 	 *
 	 * @since  0.8.0
 	 * @return array
-	 * @throws \Exception
+	 * @throws \Exception Throws Exception.
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 

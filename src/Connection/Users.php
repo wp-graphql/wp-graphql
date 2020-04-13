@@ -15,7 +15,6 @@ class Users {
 
 	/**
 	 * Register connections to Users
-	 *
 	 */
 	public static function register_connections() {
 

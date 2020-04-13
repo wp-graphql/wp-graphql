@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
@@ -7,6 +8,11 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\UserMutation;
 use WPGraphQL\Model\User;
 
+/**
+ * Class UserCreate
+ *
+ * @package WPGraphQL\Mutation
+ */
 class UserCreate {
 	/**
 	 * Registers the CommentCreate mutation.
@@ -118,8 +124,9 @@ class UserCreate {
 		return [
 			'user' => [
 				'type'    => 'User',
-				'resolve' => function ( $payload ) {
+				'resolve' => function( $payload ) {
 					$user = get_user_by( 'ID', $payload['id'] );
+
 					return new User( $user );
 				},
 			],
@@ -132,7 +139,7 @@ class UserCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return function( $input, AppContext $context, ResolveInfo $info ) {
 			if ( ! current_user_can( 'create_users' ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
 			}

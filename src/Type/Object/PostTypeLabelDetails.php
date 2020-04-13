@@ -2,7 +2,16 @@
 
 namespace WPGraphQL\Type\Object;
 
+/**
+ * Class PostTypeLabelDetails
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class PostTypeLabelDetails {
+
+	/**
+	 * Register the PostTypeLabelDetails type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'PostTypeLabelDetails',

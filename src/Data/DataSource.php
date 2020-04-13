@@ -52,13 +52,14 @@ class DataSource {
 	/**
 	 * Retrieves a WP_Comment object for the id that gets passed
 	 *
-	 * @param int        $id      ID of the comment we want to get the object for
-	 * @param AppContext $context The context of the request
+	 * @param int        $id      ID of the comment we want to get the object for.
+	 * @param AppContext $context The context of the request.
 	 *
 	 * @return Deferred object
-	 * @throws UserError
 	 * @since  0.0.5
-	 * @throws \Exception
+	 *
+	 * @throws UserError Throws UserError.
+	 * @throws \Exception Throws UserError.
 	 */
 	public static function resolve_comment( $id, $context ) {
 
@@ -83,7 +84,7 @@ class DataSource {
 	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
 	 * @return CommentAuthor
-	 * @throws
+	 * @throws \Exception Throws Exception.
 	 */
 	public static function resolve_comment_author( $comment_id ) {
 		global $wpdb;
@@ -97,9 +98,9 @@ class DataSource {
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
 	 * @param mixed  object $source
-	 * @param array         $args    Query args to pass to the connection resolver
-	 * @param AppContext    $context The context of the query to pass along
-	 * @param ResolveInfo   $info    The ResolveInfo object
+	 * @param array       $args    Query args to pass to the connection resolver
+	 * @param AppContext  $context The context of the query to pass along
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return mixed
 	 * @since 0.0.5
@@ -234,9 +235,9 @@ class DataSource {
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param             $source
-	 * @param array              $args    Arguments to pass to the resolve method
-	 * @param AppContext         $context AppContext object to pass down
-	 * @param ResolveInfo        $info    The ResolveInfo object
+	 * @param array       $args    Arguments to pass to the resolve method
+	 * @param AppContext  $context AppContext object to pass down
+	 * @param ResolveInfo $info    The ResolveInfo object
 	 * @param mixed string|array $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
@@ -245,6 +246,7 @@ class DataSource {
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
 		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
+
 		return $resolver->get_connection();
 	}
 
@@ -498,7 +500,6 @@ class DataSource {
 	 * Get all of the allowed settings by group and return the
 	 * settings group that matches the group param
 	 *
-	 *
 	 * @param string $group
 	 *
 	 * @return array $settings_groups[ $group ]
@@ -534,11 +535,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key'] = $key;
+					$setting['key']                                         = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key'] = $key;
+				$setting['key']                                         = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
@@ -620,7 +621,6 @@ class DataSource {
 		if ( null === self::$node_definition ) {
 
 			$node_definition = Relay::nodeDefinitions(
-
 				// The ID fetcher definition
 				function( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
@@ -882,6 +882,7 @@ class DataSource {
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
 
 		$node_resolver = new NodeResolver();
+
 		return $node_resolver->resolve_uri( $uri );
 
 	}

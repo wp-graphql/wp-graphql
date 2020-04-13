@@ -64,7 +64,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 		$posts = $this->create_posts( 15, $operator, $offset_multiplier );
 
 		$is_graphql_request = is_graphql_request();
-		WPGraphQL::__set_is_graphql_request( true );
+		WPGraphQL::set_is_graphql_request( true );
 
 		// Simulate a GraphQL request for:
 		// posts(
@@ -80,7 +80,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 				'posts_per_page' => 11,
 			)
 		);
-		WPGraphQL::__set_is_graphql_request( true );
+		WPGraphQL::set_is_graphql_request( true );
 
 		$this->assertTrue( $query->have_posts() );
 		$this->assertEquals( 5, count( $query->posts ) );

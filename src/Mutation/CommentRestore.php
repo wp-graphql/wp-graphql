@@ -8,6 +8,11 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class CommentRestore
+ *
+ * @package WPGraphQL\Mutation
+ */
 class CommentRestore {
 	/**
 	 * Registers the CommentRestore mutation.

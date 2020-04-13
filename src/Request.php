@@ -60,7 +60,6 @@ class Request {
 	 *
 	 * @return void
 	 *
-	 *
 	 * @throws \Exception
 	 */
 	public function __construct( $data = null ) {
@@ -106,7 +105,6 @@ class Request {
 	/**
 	 * Apply filters and do actions before GraphQL execution
 	 *
-	 *
 	 * @return void
 	 */
 	private function before_execute() {
@@ -114,7 +112,7 @@ class Request {
 		/**
 		 * Filter "is_graphql_request" to return true
 		 */
-		\WPGraphQL::__set_is_graphql_request( true );
+		\WPGraphQL::set_is_graphql_request( true );
 
 		/**
 		 * Store the global post so it can be reset after GraphQL execution
@@ -297,7 +295,6 @@ class Request {
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
 	 *
-	 *
 	 * @return array
 	 */
 	private function after_execute_actions( $response, $key = null ) {
@@ -370,7 +367,7 @@ class Request {
 		/**
 		 * Filter "is_graphql_request" back to false.
 		 */
-		\WPGraphQL::__set_is_graphql_request( false );
+		\WPGraphQL::set_is_graphql_request( false );
 
 		return $filtered_response;
 	}
@@ -379,7 +376,6 @@ class Request {
 	 * Run action for a request.
 	 *
 	 * @param  OperationParams $params OperationParams for the request.
-	 *
 	 *
 	 * @return void
 	 */

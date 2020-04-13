@@ -14,7 +14,7 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
-		WPGraphQL::__clear_schema();
+		WPGraphQL::clear_schema();
 	}
 
 	// tests
@@ -84,7 +84,7 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		deregister_graphql_field( 'RootQueryToTestCptConnectionWhereArgs', 'testTest' );
 		unregister_post_type( 'action_monitor' );
-		WPGraphQL::__clear_schema();
+		WPGraphQL::clear_schema();
 
 	}
 

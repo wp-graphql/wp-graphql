@@ -2,7 +2,16 @@
 
 namespace WPGraphQL\Type\Object;
 
+/**
+ * Class MediaItemMeta
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class MediaItemMeta {
+
+	/**
+	 * Register the MediaItemMeta Type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'MediaItemMeta',

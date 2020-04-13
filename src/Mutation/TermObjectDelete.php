@@ -3,9 +3,13 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
+/**
+ * Class TermObjectDelete
+ *
+ * @package WPGraphQL\Mutation
+ */
 class TermObjectDelete {
 	/**
 	 * Registers the TermObjectDelete mutation.

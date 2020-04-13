@@ -529,7 +529,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * exists. Offset is equivalent to post_id. So this function is equivalent to checking if the
 	 * post with the given ID exists.
 	 *
-	 *
 	 * @param int $offset The ID of the node used in the cursor offset
 	 *
 	 * @return bool

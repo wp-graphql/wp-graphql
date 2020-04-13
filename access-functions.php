@@ -57,13 +57,14 @@ function do_graphql_request( $query, $operation_name = '', $variables = [] ) {
 
 /**
  * Determine when to register types
+ *
  * @return string
  */
 function get_graphql_register_action() {
 	$action = 'graphql_register_types_late';
 	if ( ! did_action( 'graphql_register_initial_types' ) ) {
 		$action = 'graphql_register_initial_types';
-	} else if ( ! did_action( 'graphql_register_types' ) ) {
+	} elseif ( ! did_action( 'graphql_register_types' ) ) {
 		$action = 'graphql_register_types';
 	}
 	return $action;
@@ -126,7 +127,7 @@ function register_graphql_union_type( $type_name, $config ) {
 
 	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $config ) {
 		$config['kind'] = 'union';
-		$type_registry->register_type( $type_name, $config  );
+		$type_registry->register_type( $type_name, $config );
 	}, 10 );
 }
 
@@ -151,7 +152,7 @@ function register_graphql_enum_type( $type_name, $config ) {
  */
 function register_graphql_field( $type_name, $field_name, $config ) {
 	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $field_name, $config ) {
-		$type_registry->register_field( $type_name, $field_name, $config  );
+		$type_registry->register_field( $type_name, $field_name, $config );
 	}, 10 );
 }
 
@@ -164,7 +165,7 @@ function register_graphql_field( $type_name, $field_name, $config ) {
  */
 function register_graphql_fields( $type_name, array $fields ) {
 	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $fields ) {
-		$type_registry->register_fields( $type_name, $fields  );
+		$type_registry->register_fields( $type_name, $fields );
 	}, 10 );
 }
 
