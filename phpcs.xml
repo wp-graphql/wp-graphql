@@ -105,7 +105,7 @@
 	</rule>
 
 	<!-- Tests for PHP version compatibility -->
-	<rule ref="PHPCompatibility">
+	<rule ref="PHPCompatibilityWP">
 		<config name="testVersion" value="7.0-"/>
 
 		<!-- Needs to be inspected manually, but not an issue with current version of PHP -->
