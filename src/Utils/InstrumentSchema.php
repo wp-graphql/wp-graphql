@@ -1,12 +1,9 @@
 <?php
-
 namespace WPGraphQL\Utils;
 
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\Language\AST\NonNullType;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -22,11 +19,13 @@ class InstrumentSchema {
 	/**
 	 * Cache post for the resolvers so we can call the setup_postdata only when the actual
 	 * source post changes
+	 *
+	 * @var mixed The WP_Post object, or null
 	 */
 	private static $cached_post = null;
 
 	/**
-	 * @param \WPGraphQL\WPSchema $schema
+	 * @param \WPGraphQL\WPSchema $schema Instance of the Schema.
 	 *
 	 * @return \WPGraphQL\WPSchema
 	 */

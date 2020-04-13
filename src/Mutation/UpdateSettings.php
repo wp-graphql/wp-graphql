@@ -5,6 +5,11 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class UpdateSettings
+ *
+ * @package WPGraphQL\Mutation
+ */
 class UpdateSettings {
 
 	/**

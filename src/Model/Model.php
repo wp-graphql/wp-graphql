@@ -75,7 +75,7 @@ abstract class Model {
 	 *                                            data to compare with the current user ID
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws \Exception Throws Exception.
 	 */
 	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 

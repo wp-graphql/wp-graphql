@@ -9,6 +9,11 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
+/**
+ * Class RootQuery
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class RootQuery {
 
 	/**

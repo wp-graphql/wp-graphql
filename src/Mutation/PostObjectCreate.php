@@ -2,13 +2,17 @@
 
 namespace WPGraphQL\Mutation;
 
-use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\PostObjectMutation;
 
+/**
+ * Class PostObjectCreate
+ *
+ * @package WPGraphQL\Mutation
+ */
 class PostObjectCreate {
 	/**
 	 * Registers the PostObjectCreate mutation.

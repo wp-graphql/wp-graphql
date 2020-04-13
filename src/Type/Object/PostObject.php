@@ -1,9 +1,4 @@
 <?php
-/**
- * WPObject - PostObject
- *
- * @package WPGraphQL\Type
- */
 
 namespace WPGraphQL\Type\Object;
 
@@ -11,7 +6,11 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
-
+/**
+ * WPObject - PostObject
+ *
+ * @package WPGraphQL\Type
+ */
 class PostObject {
 
 	/**

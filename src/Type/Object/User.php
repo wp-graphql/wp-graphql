@@ -5,7 +5,16 @@ namespace WPGraphQL\Type\Object;
 
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class User
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class User {
+
+	/**
+	 * Registers the User type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'User',

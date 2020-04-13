@@ -6,6 +6,11 @@ use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Model\User;
 
+/**
+ * Class UserDelete
+ *
+ * @package WPGraphQL\Mutation
+ */
 class UserDelete {
 	/**
 	 * Registers the CommentCreate mutation.
