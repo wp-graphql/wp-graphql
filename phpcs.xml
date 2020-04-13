@@ -21,8 +21,6 @@
 
 	<!-- Rules -->
 	<rule ref="WordPress-Core">
-		<exclude-pattern>*/vendor/*</exclude-pattern>
-
 		<!-- Definitely should not be added back -->
 		<exclude name="WordPress.NamingConventions.ValidVariableName" />
 		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid"/>
@@ -86,8 +84,6 @@
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
-		<exclude-pattern>*/vendor/*</exclude-pattern>
-
 		<exclude name="Generic.Commenting.DocComment.MissingShort" />
 		<exclude name="Generic.Files.LowercasedFilename" />
 		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
