@@ -10,7 +10,7 @@
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
- * Tested up to: 5.3.2
+ * Tested up to: 5.4
  * Requires PHP: 7.0
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
