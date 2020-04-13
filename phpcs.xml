@@ -1,46 +1,112 @@
 <?xml version="1.0"?>
-<ruleset name="Coding standards for the WP GraphQL plugin">
+<ruleset name="WP">
+	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<!-- Set a description for this ruleset -->
-	<description>Coding standards that will be run on the WP GraphQL plugin.</description>
+	<config name="ignore_errors_on_exit" value="0" />
+	<config name="ignore_warnings_on_exit" value="0" />
+	<arg name="colors" />
+	<arg value="p" />
+	<arg name="extensions" value="php"/>
 
-	<config name="encoding" value="utf-8"/>
+	<!-- Run the lints in parallel so they run faster. This will separate the files into 20 chunks to be linted -->
+	<arg name="parallel" value="20"/>
 
-	<!-- Check code for cross-version PHP compatibility. -->
-	<!-- Will check the code compatiblity for PHP greater than 5.6 -->
-	<config name="testVersion" value="5.6-"/>
+	<!-- Includes -->
+	<file>./access-functions.php</file>
+	<file>./wp-graphql.php</file>
+	<file>./src</file>
 
-	<!-- Check against minimum WP version. -->
-	<config name="minimum_supported_wp_version" value="4.7"/>
+	<!-- Files that are too big -->
+	<exclude-pattern>./vendor/*</exclude-pattern>
 
-	<rule ref="PHPCompatibilityWP"/>
+	<!-- Rules -->
+	<rule ref="WordPress-Core">
+		<!-- Definitely should not be added back -->
+		<exclude name="WordPress.NamingConventions.ValidVariableName" />
+		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid"/>
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
 
-	<!-- Load WordPress Coding standards -->
-	<rule ref="WordPress-Docs"/>
-	<rule ref="WordPress-Extra"/>
+		<!-- Should probably not be added back -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.Found"/>
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
+		<exclude name="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment"/>
+		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
 
-	<!-- What to exclude -->
-	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>*/vendor/*</exclude-pattern>
+		<!-- Should Maybe Add Back -->
+		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentAfterOpen"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd"/>
+		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
+		<exclude name="WordPress.WhiteSpace.PrecisionAlignment.Found"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeOpen"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentAfterEnd"/>
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment.LongIndexSpaceBeforeDoubleArrow"/>
 
-	<!-- What to scan -->
-	<file>src</file>
-
-	<!-- Enable colors in report -->
-	<arg name="colors"/>
-
-	<!-- Add source codes in the report -->
-	<arg value="s"/>
-
-	<!-- Remove the class naming error temporarily -->
-	<rule ref="WordPress.Files.FileName">
-		<properties>
-			<property name="strict_class_file_names" value="false"/>
-		</properties>
+		<!-- Should Definitely Add Back Later -->
+		<exclude name="WordPress.Arrays.CommaAfterArrayItem.NoComma"/>
+		<exclude name="WordPress.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed"/>
+		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
+		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison"/>
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
+		<exclude name="WordPress.Arrays.ArrayIndentation.MultiLineArrayItemNotAligned"/>
+		<exclude name="WordPress.Arrays.ArrayIndentation.ItemNotAligned"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.NoSemicolon"/>
+		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
+		<exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore"/>
+		<exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter"/>
+		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.SpaceBeforeComma"/>
+		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"/>
+		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma"/>
+		<exclude name="Squiz.WhiteSpace.SemicolonSpacing.Incorrect"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment.IncorrectWarning"/>
+		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
+		<exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
+		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceAfterOpen"/>
+		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose"/>
+		<exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE"/>
+		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE"/>
+		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT"/>
+		<exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenerdefault"/>
+		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
 	</rule>
 
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-		<severity>0</severity>
+	<!-- Tests for inline documentation of code -->
+	<rule ref="WordPress-Docs">
+		<exclude name="Generic.Commenting.DocComment.MissingShort" />
+		<exclude name="Generic.Files.LowercasedFilename" />
+		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
+		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
+		<exclude name="Squiz.Commenting.InlineComment.SpacingBefore" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
+		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
+		<exclude name="WordPress.Files.FileName" />
+
+		<!-- Should be re-enabled -->
+		<exclude name="Squiz.Commenting"/>
+		<exclude name="WordPress.WP.I18n.UnorderedPlaceholders" />
+		<exclude name="Generic.Commenting.DocComment.ShortNotCapital"/>
+		<exclude name="Generic.Commenting.DocComment.LongNotCapital"/>
 	</rule>
 
+	<!-- Tests for PHP version compatibility -->
+	<rule ref="PHPCompatibilityWP">
+		<config name="testVersion" value="7.0-"/>
+
+		<!-- Needs to be inspected manually, but not an issue with current version of PHP -->
+		<exclude name="PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated"/>
+		<exclude name="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection"/>
+	</rule>
 </ruleset>

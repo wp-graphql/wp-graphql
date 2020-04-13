@@ -7,9 +7,16 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
 
+/**
+ * Class TermObjectUpdate
+ *
+ * @package WPGraphQL\Mutation
+ */
 class TermObjectUpdate {
 	/**
 	 * Registers the TermObjectUpdate mutation.
+	 *
+	 * @param \WP_Taxonomy $taxonomy The Taxonomy the mutation is registered for.
 	 */
 	public static function register_mutation( \WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );

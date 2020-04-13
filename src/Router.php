@@ -92,7 +92,7 @@ class Router {
 	/**
 	 * Adds the query_var for the route
 	 *
-	 * @param array $query_vars The array of whitelisted query variables
+	 * @param array $query_vars The array of whitelisted query variables.
 	 *
 	 * @since  0.0.1
 	 * @return array
@@ -115,7 +115,7 @@ class Router {
 	 * @return boolean
 	 */
 	public static function is_graphql_http_request() {
-		// Support wp-graphiql style request to /index.php?graphql
+		// Support wp-graphiql style request to /index.php?graphql.
 		if ( isset( $_GET[ self::$route ] ) ) {
 			return true;
 		}
@@ -157,8 +157,8 @@ class Router {
 	 *
 	 * @since  0.0.1
 	 * @return void
-	 * @throws \Exception
-	 * @throws \Throwable
+	 * @throws \Exception Throws exception.
+	 * @throws \Throwable Throws exception.
 	 */
 	public static function resolve_http_request() {
 
@@ -248,7 +248,7 @@ class Router {
 			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
 			'Access-Control-Max-Age'       => 600,
-			// cache the result of preflight requests (600 is the upper limit for Chromium)
+			// cache the result of preflight requests (600 is the upper limit for Chromium).
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
@@ -319,22 +319,12 @@ class Router {
 	 * Retrieves the raw request entity (body).
 	 *
 	 * @since  0.0.5
-	 * @global string $HTTP_RAW_POST_DATA Raw post data.
+	 * @global string php://input Raw post data.
 	 * @return string Raw request data.
 	 */
 	public static function get_raw_data() {
 
-		global $HTTP_RAW_POST_DATA;
-
-		/*
-		 * A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
-		 * but we can do it ourself.
-		 */
-		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
-			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
-		}
-
-		return $HTTP_RAW_POST_DATA;
+		return file_get_contents( 'php://input' );
 
 	}
 
@@ -344,7 +334,8 @@ class Router {
 	 *
 	 * @since  0.0.1
 	 * @return mixed
-	 * @throws \Throwable
+	 * @throws \Exception Throws Exception.
+	 * @throws \Throwable Throws Exception.
 	 */
 	public static function process_http_request() {
 
@@ -427,12 +418,12 @@ class Router {
 	/**
 	 * Prepare headers for response
 	 *
-	 * @param array    $response        The response of the GraphQL Request
-	 * @param array    $graphql_results The results of the GraphQL execution
-	 * @param string   $query           The GraphQL query
-	 * @param string   $operation_name  The operation name of the GraphQL Request
-	 * @param array    $variables       The variables applied to the GraphQL Request
-	 * @param \WP_User $user            The current user object
+	 * @param array    $response        The response of the GraphQL Request.
+	 * @param array    $graphql_results The results of the GraphQL execution.
+	 * @param string   $query           The GraphQL query.
+	 * @param string   $operation_name  The operation name of the GraphQL Request.
+	 * @param array    $variables       The variables applied to the GraphQL Request.
+	 * @param \WP_User $user            The current user object.
 	 */
 	protected static function prepare_headers( $response, $graphql_results, $query, $operation_name, $variables, $user = null ) {
 

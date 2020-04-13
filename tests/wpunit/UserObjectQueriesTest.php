@@ -1266,7 +1266,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $admin->ID );
 
-		$uri = ltrim( str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ), '/' );
+		$uri = str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) );
 		codecept_debug( $uri );
 
 		$query = '
@@ -1312,7 +1312,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'userId' => $admin->ID,
 			'username' => $admin->user_login,
 			'slug' => $admin->user_nicename,
-			'uri' => ltrim( str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ), '/' ),
+			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
 			'email' => $admin->user_email,
 		];
 
@@ -1397,7 +1397,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_status' => 'publish'
 		] );
 
-		$uri = ltrim( str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ), '/' );
+		$uri = str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) );
 		codecept_debug( $uri );
 
 		$query = '
@@ -1443,7 +1443,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'userId' => $admin->ID,
 			'username' => $admin->user_login,
 			'slug' => $admin->user_nicename,
-			'uri' => ltrim( str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ), '/' ),
+			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
 			'email' => $admin->user_email,
 		];
 
@@ -1508,7 +1508,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $subscriber->ID );
 
-		$uri = ltrim( str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ), '/' );
+		$uri = str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) );
 		codecept_debug( $uri );
 
 		$query = '
@@ -1560,7 +1560,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'userId' => $subscriber->ID,
 			'username' => $subscriber->user_login,
 			'slug' => $subscriber->user_nicename,
-			'uri' => ltrim( str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ), '/' ),
+			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ),
 			'email' => $subscriber->user_email,
 		];
 

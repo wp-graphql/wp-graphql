@@ -6,11 +6,11 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.8.1
+ * Version: 0.8.2
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
- * Tested up to: 5.3.2
+ * Tested up to: 5.4
  * Requires PHP: 7.0
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.8.1
+ * @version  0.8.2
  */
 
 // Exit if accessed directly.
@@ -166,7 +166,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.8.1' );
+				define( 'WPGRAPHQL_VERSION', '0.8.2' );
 			}
 
 			// Plugin Folder Path.
@@ -234,7 +234,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 *
 		 * @param bool $is_graphql_request
 		 */
-		public static function __set_is_graphql_request( $is_graphql_request = false ) {
+		public static function set_is_graphql_request( $is_graphql_request = false ) {
 			self::$is_graphql_request = $is_graphql_request;
 		}
 
@@ -457,7 +457,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-							/* translators: %s will replaced with the registered type */
+								/* translators: %s will replaced with the registered type */
 								__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$post_type_object->name
 							)
@@ -510,7 +510,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-							/* translators: %s will replaced with the registered taxonomty */
+								/* translators: %s will replaced with the registered taxonomty */
 								__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$tax_object->name
 							)
@@ -530,7 +530,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * Allow Schema to be cleared
 		 */
-		public static function __clear_schema() {
+		public static function clear_schema() {
 			self::$schema = null;
 		}
 

@@ -9,6 +9,11 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
+/**
+ * Class RootQuery
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class RootQuery {
 
 	/**
@@ -414,7 +419,6 @@ class RootQuery {
 
 	/**
 	 * Register RootQuery fields for Post Objects of supported post types
-	 *
 	 */
 	public static function register_post_object_fields() {
 
@@ -428,7 +432,7 @@ class RootQuery {
 					$post_type_object->graphql_single_name,
 					[
 						'type'        => $post_type_object->graphql_single_name,
-						'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+						'description' => sprintf( __( 'An object of the %1$s Type. %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_type_object->description ),
 						'args'        => [
 							'id'     => [
 								'type' => [
@@ -540,7 +544,6 @@ class RootQuery {
 
 	/**
 	 * Register RootQuery fields for Term Objects of supported taxonomies
-	 *
 	 */
 	public static function register_term_object_fields() {
 

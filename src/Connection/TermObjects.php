@@ -16,7 +16,6 @@ class TermObjects {
 
 	/**
 	 * Register connections to TermObjects
-	 *
 	 */
 	public static function register_connections() {
 

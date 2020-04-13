@@ -121,6 +121,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		$post_type_object = get_post_type_object( 'post' );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -175,7 +177,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 										'attributes'          => 'Post Attributes',
 										'insertIntoItem'      => 'Insert into post',
 										'uploadedToThisItem'  => 'Uploaded to this post',
-										'featuredImage'       => 'Featured Image',
+										'featuredImage'       =>  $post_type_object->labels->featured_image,
 										'setFeaturedImage'    => 'Set featured image',
 										'removeFeaturedImage' => 'Remove featured image',
 										'useFeaturedImage'    => null,
@@ -184,7 +186,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 										'itemsListNavigation' => 'Posts list navigation',
 										'itemsList'           => 'Posts list',
 									],
-									'menuIcon'               => null,
+									'menuIcon'               => $post_type_object->menu_icon,
 									'menuPosition'           => 5,
 									'name'                   => 'post',
 									'public'                 => true,
@@ -229,6 +231,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'contentType', 'page' );
+
+		$post_type_object = get_post_type_object( 'page' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -300,7 +304,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'hierarchical'           => true,
 									'id'                     => $global_id,
 									'label'                  => 'Pages',
-									'menuIcon'               => null,
+									'menuIcon'               => $post_type_object->menu_icon,
 									'menuPosition'           => 20,
 									'name'                   => 'page',
 									'public'                 => true,
@@ -350,6 +354,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'contentType', 'attachment' );
+
+		$post_type_object = get_post_type_object( 'attachment' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -421,7 +427,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'hierarchical'           => false,
 									'id'                     => $global_id,
 									'label'                  => 'Media',
-									'menuIcon'               => null,
+									'menuIcon'               => $post_type_object->menu_icon,
 									'menuPosition'           => null,
 									'name'                   => 'attachment',
 									'public'                 => true,

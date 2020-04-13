@@ -167,7 +167,6 @@ class PostObjects {
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
-	 *
 	 * @param array         $args             The args to modify the defaults
 	 * @param \WP_Post_Type $post_type_object The post type the connection is going to
 	 *
