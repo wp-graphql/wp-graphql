@@ -106,11 +106,14 @@ class UserDelete {
 			$reassign_id       = ( ! empty( $reassign_id_parts ) ) ? absint( $reassign_id_parts['id'] ) : null;
 
 			/**
-			 * If the wp_delete_user doesn't exist yet, load the file in which it is
-			 * registered so it is available in this context. I think we need to
+			 * If wpmu_delete_user() or wp_delete_user() doesn't exist yet,
+			 * load the files in which each is defined. I think we need to
 			 * load this manually here because WordPress only uses this
 			 * function on the user edit screen normally.
 			 */
+			if ( ! function_exists( 'wpmu_delete_user' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/ms.php';
+			}
 			if ( ! function_exists( 'wp_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
@@ -122,7 +125,7 @@ class UserDelete {
 			}
 
 			if ( true !== $deleted_user ) {
-				throw new UserError( __( 'Could not delete the user.', 'wp-grapgql' ) );
+				throw new UserError( __( 'Could not delete the user.', 'wp-graphql' ) );
 			}
 
 			return [
