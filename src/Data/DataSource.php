@@ -621,7 +621,7 @@ class DataSource {
 		if ( null === self::$node_definition ) {
 
 			$node_definition = Relay::nodeDefinitions(
-			// The ID fetcher definition
+				// The ID fetcher definition
 				function( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},

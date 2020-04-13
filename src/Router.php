@@ -319,22 +319,12 @@ class Router {
 	 * Retrieves the raw request entity (body).
 	 *
 	 * @since  0.0.5
-	 * @global string $HTTP_RAW_POST_DATA Raw post data.
+	 * @global string php://input Raw post data.
 	 * @return string Raw request data.
 	 */
 	public static function get_raw_data() {
 
-		global $HTTP_RAW_POST_DATA;
-
-		/*
-		 * A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
-		 * but we can do it ourself.
-		 */
-		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
-			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
-		}
-
-		return $HTTP_RAW_POST_DATA;
+		return file_get_contents( 'php://input' );
 
 	}
 

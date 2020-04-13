@@ -112,7 +112,7 @@ class Request {
 		/**
 		 * Filter "is_graphql_request" to return true
 		 */
-		\WPGraphQL::__set_is_graphql_request( true );
+		\WPGraphQL::set_is_graphql_request( true );
 
 		/**
 		 * Store the global post so it can be reset after GraphQL execution
@@ -367,7 +367,7 @@ class Request {
 		/**
 		 * Filter "is_graphql_request" back to false.
 		 */
-		\WPGraphQL::__set_is_graphql_request( false );
+		\WPGraphQL::set_is_graphql_request( false );
 
 		return $filtered_response;
 	}
