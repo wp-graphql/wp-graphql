@@ -2,7 +2,6 @@
 <ruleset name="WP">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/phpcompatibility/php-compatibility"/>
 	<config name="ignore_errors_on_exit" value="0" />
 	<config name="ignore_warnings_on_exit" value="0" />
 	<arg name="colors" />
@@ -22,8 +21,6 @@
 
 	<!-- Rules -->
 	<rule ref="WordPress-Core">
-		<exclude-pattern>*/vendor/*</exclude-pattern>
-
 		<!-- Definitely should not be added back -->
 		<exclude name="WordPress.NamingConventions.ValidVariableName" />
 		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid"/>
@@ -41,6 +38,9 @@
 		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
 		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
 		<exclude name="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment"/>
+		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
 
 		<!-- Should Maybe Add Back -->
 		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
@@ -77,12 +77,13 @@
 		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE"/>
 		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT"/>
 		<exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenerdefault"/>
+		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
-		<exclude-pattern>*/vendor/*</exclude-pattern>
-
 		<exclude name="Generic.Commenting.DocComment.MissingShort" />
 		<exclude name="Generic.Files.LowercasedFilename" />
 		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
@@ -91,38 +92,21 @@
 		<exclude name="Squiz.Commenting.InlineComment.SpacingBefore" />
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
 		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
-		<exclude name="WordPress.WP.I18n.UnorderedPlaceholders" />
 		<exclude name="WordPress.Files.FileName" />
-		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
+
+		<!-- Should be re-enabled -->
+		<exclude name="Squiz.Commenting"/>
+		<exclude name="WordPress.WP.I18n.UnorderedPlaceholders" />
+		<exclude name="Generic.Commenting.DocComment.ShortNotCapital"/>
+		<exclude name="Generic.Commenting.DocComment.LongNotCapital"/>
 	</rule>
 
 	<!-- Tests for PHP version compatibility -->
-	<rule ref="PHPCompatibility">
-		<config name="testVersion" value="7.3"/>
-
-		<!-- Temporarily set severity to 0 for this rule block so tests can pass -->
-		<severity>0</severity>
-		<!-- We may want to consider adding these back, and just whitelisting the existing problematic paths -->
-		<exclude name="PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore"/>
-		<exclude name="PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.MethodDoubleUnderscore"/>
-
-		<!-- Warning from template engines using syntax like <%= =%>, again may want to just whitelist existing problematic paths. -->
-		<exclude name="PHPCompatibility.Miscellaneous.RemovedAlternativePHPTags.MaybeASPOpenTagFound"/>
+	<rule ref="PHPCompatibilityWP">
+		<config name="testVersion" value="7.0-"/>
 
 		<!-- Needs to be inspected manually, but not an issue with current version of PHP -->
 		<exclude name="PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated"/>
 		<exclude name="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection"/>
-
-		<!-- This lib has some removed mycrypt functions & constants that is tripping up the linter, it was
-		manually inspected and the lib has OpenSSL counterparts, so the problematic code is never executed -->
-		<exclude-pattern>./wordpress/wp-content/plugins/wp-saml-auth/vendor/onelogin/php-saml/extlib/xmlseclibs</exclude-pattern>
-	</rule>
-
-	<!-- Whitelist the WP Core mysql_to_rfc3339() function. -->
-	<rule ref="PHPCompatibility.Extensions.RemovedExtensions">
-		<properties>
-			<!-- Contained in /wp-includes/functions.php. -->
-			<property name="functionWhitelist" type="array" value="mysql_to_rfc3339"/>
-		</properties>
 	</rule>
 </ruleset>
