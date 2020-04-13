@@ -83,7 +83,7 @@ class UserDelete {
 			 */
 			$id_parts = Relay::fromGlobalId( $input['id'] );
 
-			if ( ! current_user_can( 'delete_users' ) ) {
+			if ( ! current_user_can( 'delete_users', absint( $id_parts['id'] ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to delete users.', 'wp-graphql' ) );
 			}
 
