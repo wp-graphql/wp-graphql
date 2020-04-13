@@ -259,7 +259,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
 	 * checking if the comment with the given ID exists.
 	 *
-	 *
 	 * @param int $offset The ID of the node used for the cursor offset
 	 *
 	 * @return bool

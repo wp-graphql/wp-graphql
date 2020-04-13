@@ -272,7 +272,6 @@ abstract class Model {
 		$this->fields = array_intersect_key(
 			$this->fields,
 			array_flip(
-
 				/**
 				* Filter for the allowed restricted fields
 				*

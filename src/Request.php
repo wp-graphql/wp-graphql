@@ -60,7 +60,6 @@ class Request {
 	 *
 	 * @return void
 	 *
-	 *
 	 * @throws \Exception
 	 */
 	public function __construct( $data = null ) {
@@ -105,7 +104,6 @@ class Request {
 
 	/**
 	 * Apply filters and do actions before GraphQL execution
-	 *
 	 *
 	 * @return void
 	 */
@@ -297,7 +295,6 @@ class Request {
 	 * @param array          $response The response for your GraphQL request
 	 * @param mixed|Int|null $key      The array key of the params for batch requests
 	 *
-	 *
 	 * @return array
 	 */
 	private function after_execute_actions( $response, $key = null ) {
@@ -379,7 +376,6 @@ class Request {
 	 * Run action for a request.
 	 *
 	 * @param  OperationParams $params OperationParams for the request.
-	 *
 	 *
 	 * @return void
 	 */

@@ -16,7 +16,6 @@ class MenuItems {
 
 	/**
 	 * Register connections to MenuItems
-	 *
 	 */
 	public static function register_connections() {
 

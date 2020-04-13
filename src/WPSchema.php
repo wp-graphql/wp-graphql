@@ -32,7 +32,7 @@ class WPSchema extends Schema {
 	/**
 	 * WPSchema constructor.
 	 *
-	 * @param array|null $config
+	 * @param array|null $config The config for the Schema.
 	 *
 	 * @since 0.0.9
 	 */

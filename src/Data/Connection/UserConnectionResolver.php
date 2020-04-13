@@ -236,7 +236,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * exists. Offset is equivalent to user_id. So this function is equivalent to checking if the
 	 * user with the given ID exists.
 	 *
-	 *
 	 * @param int $offset The ID of the node used as the offset in the cursor
 	 *
 	 * @return bool

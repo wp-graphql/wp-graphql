@@ -16,7 +16,6 @@ class Settings {
 	 * Registers a Settings Type with fields for all settings based on settings
 	 * registered using the core register_setting API
 	 *
-	 *
 	 * @return void
 	 */
 	public static function register_type() {
