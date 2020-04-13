@@ -8,7 +8,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
         // before
         parent::setUp();
 
-        WPGraphQL::__clear_schema();
+        WPGraphQL::clear_schema();
 
         // your set up methods here
     }

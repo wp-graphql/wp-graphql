@@ -25,7 +25,7 @@ class UserRoleConnectionResolver {
 	 *
 	 * @since  0.5.0
 	 * @return array
-	 * @throws \Exception
+	 * @throws \Exception Throws Exception.
 	 */
 	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
 

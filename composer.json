@@ -23,13 +23,14 @@
   ],
   "require": {
     "webonyx/graphql-php": "0.12.6",
-    "ivome/graphql-relay-php": "^0.3.1"
+    "ivome/graphql-relay-php": "0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^2.2.",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
-    "wp-coding-standards/wpcs": "^2.1",
-    "phpcompatibility/phpcompatibility-wp": "^2.0"
+    "lucatume/wp-browser": "2.2.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+    "wp-coding-standards/wpcs": "2.1.1",
+    "phpcompatibility/phpcompatibility-wp": "2.1.0",
+    "squizlabs/php_codesniffer": "3.5.4"
   },
   "config": {
     "optimize-autoloader": true

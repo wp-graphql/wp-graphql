@@ -345,7 +345,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		// Make corresponding WP_User_Query
-		WPGraphQL::__set_is_graphql_request( true );
+		WPGraphQL::set_is_graphql_request( true );
 		$first_page = new WP_User_Query(
 			array_merge(
 				$wp_user_query_args,
@@ -365,7 +365,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				]
 			)
 		);
-		WPGraphQL::__set_is_graphql_request( false );
+		WPGraphQL::set_is_graphql_request( false );
 
 	}
 

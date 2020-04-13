@@ -126,7 +126,6 @@ class PostObjectLoader extends AbstractDataLoader {
 			 * instead of loading once per entity, thus reducing the n+1 problem.
 			 */
 			$load_dependencies = new Deferred(
-
 				function() use ( $post_object, $user_id, $post_parent, $context ) {
 
 					if ( ! empty( $user_id ) ) {

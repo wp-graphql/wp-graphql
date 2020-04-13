@@ -137,7 +137,6 @@ class TypeRegistry {
 
 	/**
 	 * TypeRegistry constructor.
-	 *
 	 */
 	public function __construct() {
 		$this->types = [];

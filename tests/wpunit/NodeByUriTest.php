@@ -12,7 +12,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 
-		WPGraphQL::__clear_schema();
+		WPGraphQL::clear_schema();
 
 		register_post_type('custom_type', [
 			'show_in_graphql' => true,
@@ -73,7 +73,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown() {
 
 		unregister_post_type( 'custom_type' );
-		WPGraphQL::__clear_schema();
+		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
 		wp_delete_post( $this->post );
