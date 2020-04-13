@@ -432,7 +432,7 @@ class RootQuery {
 					$post_type_object->graphql_single_name,
 					[
 						'type'        => $post_type_object->graphql_single_name,
-						'description' => sprintf( __( 'A % object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+						'description' => sprintf( __( 'An object of the %1$s Type. %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_type_object->description ),
 						'args'        => [
 							'id'     => [
 								'type' => [
