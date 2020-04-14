@@ -85,7 +85,6 @@ use WPGraphQL\Type\Enum\TermObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\TimezoneEnum;
 use WPGraphQL\Type\Enum\UserRoleEnum;
 use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
-use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
@@ -260,7 +259,6 @@ class TypeRegistry {
 		UsersConnectionOrderbyEnum::register_type();
 		UsersConnectionSearchColumnEnum::register_type();
 
-		DateInput::register_type();
 		DateQueryInput::register_type();
 		MenuItemsConnectionWhereArgs::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
