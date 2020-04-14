@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use WPGraphQL\Model\Menu;
-
 /**
  * Class MenuConnectionResolver
  *
