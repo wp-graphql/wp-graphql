@@ -228,7 +228,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return bool
 	 */
-	protected function getShouldExecute(): bool {
+	public function getShouldExecute(): bool {
 		return $this->should_execute;
 	}
 
@@ -279,7 +279,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_query();
 
 	/**
-	 * get_items
+	 * get_ids
 	 *
 	 * Return an array of ids from the query
 	 *
@@ -325,6 +325,7 @@ abstract class AbstractConnectionResolver {
 	 * @param $id
 	 *
 	 * @return mixed|Model|null
+	 * @throws \Exception
 	 */
 	public function get_node_by_id( $id ) {
 		return $this->loader->load( $id );
@@ -339,7 +340,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int
 	 * @throws \Exception
 	 */
-	protected function get_query_amount() {
+	public function get_query_amount() {
 
 		/**
 		 * Filter the maximum number of posts per page that should be quried. The default is 100 to prevent queries from
@@ -369,7 +370,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|null
 	 * @throws \Exception
 	 */
-	protected function get_amount_requested() {
+	public function get_amount_requested() {
 
 		/**
 		 * Set the default amount
@@ -420,7 +421,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int|mixed
 	 */
-	protected function get_offset() {
+	public function get_offset() {
 
 		/**
 		 * Defaults
@@ -454,7 +455,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return boolean
 	 */
-	protected function has_next_page() {
+	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
 			return count( $this->ids ) > $this->query_amount;
 		}
@@ -477,7 +478,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return boolean
 	 */
-	protected function has_previous_page() {
+	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
 			return count( $this->ids ) > $this->query_amount;
 		}
@@ -496,7 +497,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed string|null
 	 */
-	protected function get_start_cursor() {
+	public function get_start_cursor() {
 		$first_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[0] : null;
 
 		return isset( $first_edge['cursor'] ) ? $first_edge['cursor'] : null;
@@ -509,7 +510,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed string|null
 	 */
-	protected function get_end_cursor() {
+	public function get_end_cursor() {
 		$last_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[ count( $this->edges ) - 1 ] : null;
 
 		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
@@ -526,8 +527,9 @@ abstract class AbstractConnectionResolver {
 	 * For backward pagination, we reverse the order of nodes.
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
-	protected function get_nodes() {
+	public function get_nodes() {
 		if ( empty( $this->ids ) ) {
 			return [];
 		}
@@ -576,7 +578,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	protected function get_edges() {
+	public function get_edges() {
 		$edges = [];
 		if ( ! empty( $this->nodes ) ) {
 
@@ -620,7 +622,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	protected function get_page_info() {
+	public function get_page_info() {
 
 		$page_info = [
 			'startCursor'     => $this->get_start_cursor(),
@@ -744,10 +746,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_connection() {
 
-		$ids = $this->execute_and_get_ids();
-		if ( empty( $ids ) ) {
-			return $ids;
-		}
+		$this->execute_and_get_ids();
 
 		/**
 		 * Return a Deferred function to load all buffered nodes before
