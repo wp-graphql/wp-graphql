@@ -754,7 +754,10 @@ abstract class AbstractConnectionResolver {
 		 */
 		return new Deferred(
 			function() {
-				$this->loader->loadMany( $this->ids );
+
+				if ( ! empty( $this->ids ) ) {
+					$this->loader->loadMany( $this->ids );
+				}
 
 				/**
 				 * Set the items. These are the "nodes" that make up the connection.

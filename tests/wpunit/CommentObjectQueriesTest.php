@@ -152,7 +152,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'authorIp'    => null,
 					'children'    => [
-						'edges' => null,
+						'edges' => [],
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => null,

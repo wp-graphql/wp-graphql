@@ -109,8 +109,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		// The query should return no menu items since no where args were specified.
-		$this->assertEquals( null, $actual['data']['menuItems']['edges'] );
-		$this->assertEquals( null, $actual['data']['menuItems']['edges'] );
+		$this->assertEquals( [], $actual['data']['menuItems']['edges'] );
 	}
 
 	public function testMenuItemsQueryNodes() {

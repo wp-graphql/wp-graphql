@@ -170,7 +170,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'capKey'            => 'wp_capabilities',
 					'capabilities'      => [ 'read', 'level_0', 'subscriber' ],
 					'comments'          => [
-						'edges' => null,
+						'edges' => [],
 					],
 					'description'       => null,
 					'email'             => 'test@test.com',
@@ -180,15 +180,15 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'lastName'          => null,
 					'locale'            => 'en_US',
 					'mediaItems'        => [
-						'edges' => null,
+						'edges' => [],
 					],
 					'name'              => $user->data->display_name,
 					'nickname'          => $user->nickname,
 					'pages'             => [
-						'edges' => null,
+						'edges' => [],
 					],
 					'posts'             => [
-						'edges' => null,
+						'edges' => [],
 					],
 					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
 					'roles'             => [
