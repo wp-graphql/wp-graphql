@@ -356,7 +356,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
+		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 1000, $this->source, $this->args, $this->context, $this->info );
 
 		return min( $max_query_amount, absint( $this->get_amount_requested() ) );
 
