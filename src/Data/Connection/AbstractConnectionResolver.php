@@ -409,7 +409,13 @@ abstract class AbstractConnectionResolver {
 			}
 		}
 
-		return max( 0, $amount_requested );
+		/**
+		 * This filter allows to modify the requested connection page size
+		 *
+		 * @param int                        $amount the requested amount
+		 * @param AbstractConnectionResolver $this Instance of the connection resolver class
+		 */
+		return max( 0, apply_filters( 'graphql_connection_amount_requested',  $amount_requested, $this ) );
 
 	}
 
