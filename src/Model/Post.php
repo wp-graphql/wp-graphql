@@ -109,16 +109,8 @@ class Post extends Model {
 			remove_filter( 'the_content', 'prepend_attachment' );
 		}
 
-		$allowed_restricted_fields = [
-			'id',
-			'titleRendered',
-			'slug',
-			'post_type',
-			'status',
-			'post_status',
-			'isRestricted',
-		];
-
+		// Get public fields.
+		$allowed_restricted_fields = $this->get_allowed_restricted_fields();
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
 
 		$restricted_cap = $this->get_restricted_cap();
@@ -168,6 +160,23 @@ class Post extends Model {
 
 		return $cap;
 
+	}
+	
+	/**
+	 * Return the fields allowed to be displayed even if this entry is restricted.
+	 *
+	 * @return array
+	 */
+	protected function get_allowed_restricted_fields() {
+		return [
+			'id',
+			'titleRendered',
+			'slug',
+			'post_type',
+			'status',
+			'post_status',
+			'isRestricted',
+		];
 	}
 
 	/**
