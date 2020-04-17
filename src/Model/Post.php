@@ -161,7 +161,7 @@ class Post extends Model {
 		return $cap;
 
 	}
-	
+
 	/**
 	 * Return the fields allowed to be displayed even if this entry is restricted.
 	 *
