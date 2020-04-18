@@ -27,6 +27,8 @@
 		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
+
 
 		<!-- Should maybe Add Back Later -->
 		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
