@@ -818,45 +818,6 @@ class DataSource {
 	}
 
 	/**
-	 * Cached version of get_page_by_path so that we're not making unnecessary SQL all the time
-	 *
-	 * This is a modified version of the cached function from WordPress.com VIP MU Plugins here.
-	 *
-	 * @param string $uri
-	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
-	 * @param string $post_type Optional. Post type; default is 'post'.
-	 *
-	 * @return \WP_Post|null WP_Post on success or null on failure
-	 * @see    https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
-	 * @link   http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
-	 */
-	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
-
-		if ( is_array( $post_type ) ) {
-			$cache_key = sanitize_key( $uri ) . '_' . md5( serialize( $post_type ) );
-		} else {
-			$cache_key = $post_type . '_' . sanitize_key( $uri );
-		}
-		$post_id = wp_cache_get( $cache_key, 'get_post_object_by_path' );
-
-		if ( false === $post_id ) {
-			$post    = get_page_by_path( $uri, $output, $post_type );
-			$post_id = $post ? $post->ID : 0;
-			if ( 0 === $post_id ) {
-				wp_cache_set( $cache_key, $post_id, 'get_post_object_by_path', ( 1 * HOUR_IN_SECONDS + mt_rand( 0, HOUR_IN_SECONDS ) ) ); // We only store the ID to keep our footprint small
-			} else {
-				wp_cache_set( $cache_key, $post_id, 'get_post_object_by_path', 0 ); // We only store the ID to keep our footprint small
-			}
-		}
-		if ( $post_id ) {
-			return get_post( absint( $post_id ) );
-		}
-
-		return null;
-
-	}
-
-	/**
 	 * Returns array of nav menu location names
 	 *
 	 * @return array
