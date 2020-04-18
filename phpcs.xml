@@ -40,14 +40,7 @@
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
 
 		<!-- Should Maybe Add Back -->
-		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
-		<exclude name="Squiz.PHP.EmbeddedPhp.ContentAfterOpen"/>
-		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd"/>
-		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
 		<exclude name="WordPress.WhiteSpace.PrecisionAlignment.Found"/>
-		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeOpen"/>
-		<exclude name="Squiz.PHP.EmbeddedPhp.ContentAfterEnd"/>
-		<exclude name="WordPress.Arrays.MultipleStatementAlignment.LongIndexSpaceBeforeDoubleArrow"/>
 
 		<!-- Should Definitely Add Back Later -->
 		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
@@ -58,13 +51,6 @@
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
 		<exclude name="Generic.Commenting.DocComment.MissingShort" />
-		<exclude name="Generic.Files.LowercasedFilename" />
-		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
-		<exclude name="Squiz.Commenting.FileComment.Missing" />
-		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
-		<exclude name="Squiz.Commenting.InlineComment.SpacingBefore" />
-		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
-		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
 		<exclude name="WordPress.Files.FileName" />
 
 		<!-- Should be re-enabled -->
@@ -77,10 +63,6 @@
 	<!-- Tests for PHP version compatibility -->
 	<rule ref="PHPCompatibilityWP">
 		<config name="testVersion" value="7.0-"/>
-
-		<!-- Needs to be inspected manually, but not an issue with current version of PHP -->
-		<exclude name="PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated"/>
-		<exclude name="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection"/>
 	</rule>
 
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
