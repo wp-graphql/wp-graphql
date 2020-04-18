@@ -39,9 +39,9 @@ jobs:
           WP_VERSION: ${{ matrix.wordpress }}
           COVERAGE: ${{ matrix.coverage }}
         run: |
-          ./run-docker-tests.sh 'wpunit'
-          ./run-docker-tests.sh 'functional'
-          ./run-docker-tests.sh 'acceptance'
+          ./bin/run-docker-tests.sh 'wpunit'
+          ./bin/run-docker-tests.sh 'functional'
+          ./bin/run-docker-tests.sh 'acceptance'
 
       - name: Setup PHP
         if: matrix.coverage == true
