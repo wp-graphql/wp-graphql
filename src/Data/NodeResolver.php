@@ -100,7 +100,7 @@ class NodeResolver {
 				$requested_path = $pathinfo;
 			} else {
 				// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-				if ( $req_uri == $wp_rewrite->index ) {
+				if ( $req_uri === $wp_rewrite->index ) {
 					$req_uri = '';
 				}
 				$requested_path = $req_uri;
@@ -121,7 +121,7 @@ class NodeResolver {
 			} else {
 				foreach ( (array) $rewrite as $match => $query ) {
 					// If the requested file is the anchor of the match, prepend it to the path info.
-					if ( ! empty( $requested_file ) && strpos( $match, $requested_file ) === 0 && $requested_file != $requested_path ) {
+					if ( ! empty( $requested_file ) && strpos( $match, $requested_file ) === 0 && $requested_file !== $requested_path ) {
 						$request_match = $requested_file . '/' . $requested_path;
 					}
 
@@ -163,7 +163,7 @@ class NodeResolver {
 				parse_str( $query, $perma_query_vars );
 
 				// If we're processing a 404 request, clear the error var since we found something.
-				if ( '404' == $error ) {
+				if ( '404' === $error ) {
 					unset( $error );
 				}
 			}
