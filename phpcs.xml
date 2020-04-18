@@ -34,8 +34,6 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName" />
-
-
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
@@ -52,5 +50,6 @@
 		<config name="testVersion" value="7.0-"/>
 	</rule>
 
+	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 </ruleset>
