@@ -50,7 +50,6 @@
 		<exclude name="WordPress.Arrays.MultipleStatementAlignment.LongIndexSpaceBeforeDoubleArrow"/>
 
 		<!-- Should Definitely Add Back Later -->
-		<exclude name="WordPress.Arrays.CommaAfterArrayItem.NoComma"/>
 		<exclude name="WordPress.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed"/>
 		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
 		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison"/>
@@ -66,14 +65,6 @@
 		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma"/>
 		<exclude name="Squiz.WhiteSpace.SemicolonSpacing.Incorrect"/>
 		<exclude name="Generic.Formatting.MultipleStatementAlignment.IncorrectWarning"/>
-		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
-		<exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
-		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceAfterOpen"/>
-		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose"/>
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE"/>
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE"/>
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT"/>
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenerdefault"/>
 		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
 		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
 	</rule>
