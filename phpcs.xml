@@ -30,11 +30,6 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
-		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
-		<exclude name="Squiz.PHP.DisallowMultipleAssignments.Found"/>
-		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
-		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment"/>
 		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
