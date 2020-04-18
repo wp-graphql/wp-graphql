@@ -34,9 +34,6 @@
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
 
-		<!-- Should Maybe Add Back -->
-		<exclude name="WordPress.WhiteSpace.PrecisionAlignment.Found"/>
-
 		<!-- Should Definitely Add Back Later -->
 		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
 		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>

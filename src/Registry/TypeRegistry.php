@@ -686,7 +686,7 @@ class TypeRegistry {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					if ( true === GRAPHQL_DEBUG ) {
-						 throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
 					}
 
 					return $fields;
