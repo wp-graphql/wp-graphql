@@ -86,7 +86,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			}
 		}
 
-		return array();
+		return [];
 	}
 
 	/**

@@ -16,9 +16,6 @@
 	<file>./wp-graphql.php</file>
 	<file>./src</file>
 
-	<!-- Files that are too big -->
-	<exclude-pattern>./vendor/*</exclude-pattern>
-
 	<!-- Rules -->
 	<rule ref="WordPress-Core">
 		<!-- Definitely should not be added back -->
@@ -109,4 +106,6 @@
 		<exclude name="PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated"/>
 		<exclude name="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection"/>
 	</rule>
+
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 </ruleset>
