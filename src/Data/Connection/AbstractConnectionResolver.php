@@ -244,7 +244,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_loader_name
+	 * Get_loader_name
 	 *
 	 * Return the name of the loader to be used with the connection resolver
 	 *
@@ -253,7 +253,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_loader_name();
 
 	/**
-	 * get_query_args
+	 * Get_query_args
 	 *
 	 * This method is used to accept the GraphQL Args input to the connection and return args
 	 * that can be used in the Query to the datasource.
@@ -266,7 +266,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_query_args();
 
 	/**
-	 * get_query
+	 * Get_query
 	 *
 	 * The Query used to get items from the database (or even external datasource) are all
 	 * different.
@@ -279,7 +279,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_query();
 
 	/**
-	 * get_ids
+	 * Get_ids
 	 *
 	 * Return an array of ids from the query
 	 *
@@ -291,7 +291,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_ids();
 
 	/**
-	 * should_execute
+	 * Should_execute
 	 *
 	 * Determine whether or not the query should execute.
 	 *
@@ -309,7 +309,7 @@ abstract class AbstractConnectionResolver {
 	abstract public function should_execute();
 
 	/**
-	 * is_valid_offset
+	 * Is_valid_offset
 	 *
 	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset
 	 * exists. Offset is equivalent to WordPress ID (e.g post_id, term_id). So this function is
@@ -332,7 +332,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_query_amount
+	 * Get_query_amount
 	 *
 	 * Returns the max between what was requested and what is defined as the $max_query_amount to
 	 * ensure that queries don't exceed unwanted limits when querying data.
@@ -363,7 +363,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_amount_requested
+	 * Get_amount_requested
 	 *
 	 * This checks the $args to determine the amount requested, and if
 	 *
@@ -414,7 +414,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_offset
+	 * Get_offset
 	 *
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
 	 * GraphQL query.
@@ -445,7 +445,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * has_next_page
+	 * Has_next_page
 	 *
 	 * Whether there is a next page in the connection.
 	 *
@@ -468,7 +468,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * has_previous_page
+	 * Has_previous_page
 	 *
 	 * Whether there is a previous page in the connection.
 	 *
@@ -491,7 +491,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_start_cursor
+	 * Get_start_cursor
 	 *
 	 * Determine the start cursor from the connection
 	 *
@@ -504,7 +504,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_end_cursor
+	 * Get_end_cursor
 	 *
 	 * Determine the end cursor from the connection
 	 *
@@ -517,7 +517,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_nodes
+	 * Get_nodes
 	 *
 	 * Get the nodes from the query.
 	 *
@@ -572,7 +572,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_edges
+	 * Get_edges
 	 *
 	 * This iterates over the nodes and returns edges
 	 *
@@ -616,7 +616,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_page_info
+	 * Get_page_info
 	 *
 	 * Returns pageInfo for the connection
 	 *
@@ -736,7 +736,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_connection
+	 * Get_connection
 	 *
 	 * Get the connection to return to the Connection Resolver
 	 *

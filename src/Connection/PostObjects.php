@@ -256,8 +256,6 @@ class PostObjects {
 			],
 
 			/**
-			 * post_type
-			 *
 			 * NOTE: post_type is intentionally not supported on connections to Single post types as
 			 * the connection to the singular Post Type already sets this argument as the entry
 			 * point to the Graph

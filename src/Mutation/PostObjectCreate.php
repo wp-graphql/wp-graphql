@@ -260,7 +260,7 @@ class PostObjectCreate {
 			 */
 
 			/**
-			 * insert the post object and get the ID
+			 * Insert the post object and get the ID
 			 */
 			$post_args = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 

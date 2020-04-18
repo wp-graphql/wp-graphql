@@ -48,8 +48,6 @@
 		<!-- Should be re-enabled -->
 		<exclude name="Squiz.Commenting"/>
 		<exclude name="WordPress.WP.I18n.UnorderedPlaceholders" />
-		<exclude name="Generic.Commenting.DocComment.ShortNotCapital"/>
-		<exclude name="Generic.Commenting.DocComment.LongNotCapital"/>
 	</rule>
 
 	<!-- Tests for PHP version compatibility -->

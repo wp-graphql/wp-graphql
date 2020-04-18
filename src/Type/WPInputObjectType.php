@@ -16,7 +16,7 @@ use WPGraphQL\Registry\TypeRegistry;
 class WPInputObjectType extends InputObjectType {
 
 	/**
-	 * prepare_fields
+	 * Prepare_fields
 	 *
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
