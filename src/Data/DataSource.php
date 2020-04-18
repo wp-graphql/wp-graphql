@@ -818,6 +818,21 @@ class DataSource {
 	}
 
 	/**
+	 * This was used for caching the get_page_by_path function, which is now cached in core,
+	 * please use that function directly instead.
+	 *
+	 * @param string $uri
+	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
+	 * @param string $post_type Optional. Post type; default is 'post'.
+	 *
+	 * @return \WP_Post|null WP_Post on success or null on failure
+	 * @deprecated since 0.8.4 Use the get_page_by_path function instead.
+	 */
+	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
+		return get_page_by_path( $uri, $output, $post_type );
+	}
+
+	/**
 	 * Returns array of nav menu location names
 	 *
 	 * @return array
