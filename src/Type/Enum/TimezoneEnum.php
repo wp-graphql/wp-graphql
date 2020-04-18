@@ -38,7 +38,7 @@ class TimezoneEnum {
 		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );
-			if ( ! in_array( $zone[0], $continents ) ) {
+			if ( ! in_array( $zone[0], $continents, true ) ) {
 				continue;
 			}
 			// This determines what gets set and translated - we don't translate Etc/* strings here, they are done later

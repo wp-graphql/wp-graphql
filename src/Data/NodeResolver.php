@@ -42,7 +42,8 @@ class NodeResolver {
 				[
 					parse_url( site_url() )['host'],
 					parse_url( home_url() )['host'],
-				]
+				],
+				true
 			) ) {
 				throw new UserError( __( 'Cannot return a resource for an external URI', 'wp-graphql' ) );
 			}
@@ -240,7 +241,7 @@ class NodeResolver {
 			$queryable_post_types = get_post_types( [ 'show_in_graphql' => true ] );
 
 			if ( ! is_array( $this->wp->query_vars['post_type'] ) ) {
-				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types ) ) {
+				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types, true ) ) {
 					unset( $this->wp->query_vars['post_type'] );
 				}
 			} else {

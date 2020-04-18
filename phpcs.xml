@@ -50,8 +50,6 @@
 		<exclude name="WordPress.Arrays.MultipleStatementAlignment.LongIndexSpaceBeforeDoubleArrow"/>
 
 		<!-- Should Definitely Add Back Later -->
-		<exclude name="WordPress.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed"/>
-		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
 		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison"/>
 		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
 		<exclude name="WordPress.Arrays.ArrayIndentation.MultiLineArrayItemNotAligned"/>

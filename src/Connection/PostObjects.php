@@ -400,7 +400,7 @@ class PostObjects {
 			}
 
 			$connected_taxonomies = get_object_taxonomies( $post_type_object->name );
-			if ( ! empty( $connected_taxonomies ) && in_array( 'category', $connected_taxonomies ) ) {
+			if ( ! empty( $connected_taxonomies ) && in_array( 'category', $connected_taxonomies, true ) ) {
 				/**
 				 * Category $args
 				 *
@@ -429,7 +429,7 @@ class PostObjects {
 				];
 			}
 
-			if ( ! empty( $connected_taxonomies ) && in_array( 'post_tag', $connected_taxonomies ) ) {
+			if ( ! empty( $connected_taxonomies ) && in_array( 'post_tag', $connected_taxonomies, true ) ) {
 				/**
 				 * Tag $args
 				 *
