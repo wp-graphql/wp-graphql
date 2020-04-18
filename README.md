@@ -158,7 +158,7 @@ of the set up and configuration tasks performed by a developer.
 #### Running Wordpress + wp-graphql
 1. Start a local instance of WordPress. This will run the instance in the foreground:
    ```
-   ./run-docker-local-app.sh
+   ./bin/run-docker-local-app.sh
    ```
 1. Visit http://127.0.0.1:8000.
 
@@ -175,7 +175,7 @@ of the set up and configuration tasks performed by a developer.
 
 1. Run WordPress+the plugin with XDebug enabled. Here's an example:
    ```
-   ./run-docker-local-app-xdebug.sh
+   ./bin/run-docker-local-app-xdebug.sh
    ```
 
 1. Start the debugger:
@@ -187,12 +187,12 @@ of the set up and configuration tasks performed by a developer.
 #### Using MySQL clients to connect to MySQL containers
 1. Run the application with desired sites. Here's an example:
    ```
-   ./run-docker-local-app.sh
+   ./bin/run-docker-local-app.sh
    ```
 
 1. List the MySQL containers that are running and their MySQL port mappings. These ports will change each time the app is run:  
    ```
-   ./list-mysql-containers.sh
+   ./bin/list-mysql-containers.sh
    ```
    
    You should see output like the following:
@@ -218,7 +218,7 @@ your tests as you make code changes.
 
 1. In the first terminal window, start up a pristine Docker testing environment by running this command:
    ```
-   ./run-docker-test-environment.sh
+   ./bin/run-docker-test-environment.sh
    ```
    This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will
    be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step when you
@@ -229,7 +229,7 @@ your tests as you make code changes.
    ```
 1. In the second terminal window, access the Docker container shell from which you can run tests:
    ```
-   ./run-docker-test-environment-shell.sh
+   ./bin/run-docker-test-environment-shell.sh
    ```
    You should eventually see a prompt like this:
    ```
@@ -258,15 +258,15 @@ try these solutions:
 ##### For CI tools (e.g. Travis)
 * Run the tests in pristine Docker environments by running any of these commands: 
    ```
-   ./run-docker-tests.sh 'wpunit'
-   ./run-docker-tests.sh 'functional'
-   ./run-docker-tests.sh 'acceptance'
+   ./bin/run-docker-tests.sh 'wpunit'
+   ./bin/run-docker-tests.sh 'functional'
+   ./bin/run-docker-tests.sh 'acceptance'
    ```
 
 * Run the tests in pristine Docker environments with different configurations. Here are some examples: 
    ```
-   env PHP_VERSION='7.1' ./run-docker-tests.sh 'wpunit'
-   env PHP_VERSION='7.1' COVERAGE='true' ./run-docker-tests.sh 'functional'
+   env PHP_VERSION='7.1' ./bin/run-docker-tests.sh 'wpunit'
+   env PHP_VERSION='7.1' COVERAGE='true' ./bin/run-docker-tests.sh 'functional'
    ```
 If `COVERAGE='true'` is set, results will appear in `docker-output/`.
 
@@ -344,7 +344,7 @@ into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.c
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute. [[Contribute](.github/CONTRIBUTING.md)].
 <a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
 
 
