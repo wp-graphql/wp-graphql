@@ -35,9 +35,6 @@
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
 
 		<!-- Should Definitely Add Back Later -->
-		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
-		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
-		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
@@ -47,7 +44,6 @@
 
 		<!-- Should be re-enabled -->
 		<exclude name="Squiz.Commenting"/>
-		<exclude name="WordPress.WP.I18n.UnorderedPlaceholders" />
 	</rule>
 
 	<!-- Tests for PHP version compatibility -->

@@ -23,7 +23,7 @@ class TermObject {
 		register_graphql_object_type(
 			$single_name,
 			[
-				'description' => __( sprintf( 'The %s type', $single_name ), 'wp-graphql' ),
+				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
 				'interfaces'  => [ 'Node', 'TermNode', 'UniformResourceIdentifiable' ],
 				'fields'      => [
 					$single_name . 'Id' => [
