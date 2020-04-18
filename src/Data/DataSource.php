@@ -535,11 +535,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                                         = $key;
+					$setting['key'] = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                                         = $key;
+				$setting['key'] = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};

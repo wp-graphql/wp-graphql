@@ -51,13 +51,6 @@
 
 		<!-- Should Definitely Add Back Later -->
 		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
-		<exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore"/>
-		<exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter"/>
-		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.SpaceBeforeComma"/>
-		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"/>
-		<exclude name="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma"/>
-		<exclude name="Squiz.WhiteSpace.SemicolonSpacing.Incorrect"/>
-		<exclude name="Generic.Formatting.MultipleStatementAlignment.IncorrectWarning"/>
 		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
 		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
 	</rule>
