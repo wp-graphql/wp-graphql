@@ -50,10 +50,6 @@
 		<exclude name="WordPress.Arrays.MultipleStatementAlignment.LongIndexSpaceBeforeDoubleArrow"/>
 
 		<!-- Should Definitely Add Back Later -->
-		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
-		<exclude name="WordPress.Arrays.ArrayIndentation.MultiLineArrayItemNotAligned"/>
-		<exclude name="WordPress.Arrays.ArrayIndentation.ItemNotAligned"/>
-		<exclude name="Squiz.PHP.EmbeddedPhp.NoSemicolon"/>
 		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
 		<exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore"/>
 		<exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter"/>

@@ -585,9 +585,9 @@ abstract class AbstractConnectionResolver {
 			foreach ( $this->nodes as $id => $node ) {
 
 				$edge = [
-					'cursor' => $this->get_cursor_for_node( $id ),
-					'node'   => $node,
-					'source' => $this->source,
+					'cursor'     => $this->get_cursor_for_node( $id ),
+					'node'       => $node,
+					'source'     => $this->source,
 					'connection' => $this,
 				];
 
