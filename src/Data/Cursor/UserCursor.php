@@ -227,7 +227,7 @@ class UserCursor {
 		/**
 		 * wp uses mt1, mt2 etc. style aliases for additional meta value joins.
 		 */
-		if ( $this->meta_join_alias !== 0 ) {
+		if ( 0 !== $this->meta_join_alias ) {
 			$key = "mt{$this->meta_join_alias}.meta_value";
 
 		}

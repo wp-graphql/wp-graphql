@@ -76,7 +76,6 @@
 		<exclude name="PSR2.ControlStructures.SwitchDeclaration.WrongOpenerdefault"/>
 		<exclude name="WordPress.WP.I18n.MixedOrderedPlaceholdersText"/>
 		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
-		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
