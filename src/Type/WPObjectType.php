@@ -149,7 +149,7 @@ class WPObjectType extends ObjectType {
 	}
 
 	/**
-	 * node_interface
+	 * Node_interface
 	 *
 	 * This returns the node_interface definition allowing
 	 * WPObjectTypes to easily implement the node_interface

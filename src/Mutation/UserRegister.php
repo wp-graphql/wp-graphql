@@ -46,7 +46,7 @@ class UserRegister {
 		);
 
 		/**
-		 * make sure we don't allow input for role or roles
+		 * Make sure we don't allow input for role or roles
 		 */
 		unset( $input_fields['role'] );
 		unset( $input_fields['roles'] );

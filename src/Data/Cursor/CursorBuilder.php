@@ -121,7 +121,7 @@ class CursorBuilder {
 		if ( ! preg_match( '/^(?:BINARY|CHAR|DATE|DATETIME|SIGNED|UNSIGNED|TIME|NUMERIC(?:\(\d+(?:,\s?\d+)?\))?|DECIMAL(?:\(\d+(?:,\s?\d+)?\))?)$/', $meta_type ) ) {
 			return 'CHAR';
 		}
-		if ( 'NUMERIC' == $meta_type ) {
+		if ( 'NUMERIC' === $meta_type ) {
 			$meta_type = 'SIGNED';
 		}
 

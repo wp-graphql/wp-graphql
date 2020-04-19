@@ -15,7 +15,7 @@ class TimezoneEnum {
 
 		$locale           = get_locale();
 		static $mo_loaded = false, $locale_loaded = null;
-		$continents       = array(
+		$continents       = [
 			'Africa',
 			'America',
 			'Antarctica',
@@ -26,7 +26,7 @@ class TimezoneEnum {
 			'Europe',
 			'Indian',
 			'Pacific',
-		);
+		];
 		// Load translations for continents and cities.
 		if ( ! $mo_loaded || $locale !== $locale_loaded ) {
 			$locale_loaded = $locale ? $locale : get_locale();
@@ -35,37 +35,37 @@ class TimezoneEnum {
 			load_textdomain( 'continents-cities', $mofile );
 			$mo_loaded = true;
 		}
-		$zonen = array();
+		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );
-			if ( ! in_array( $zone[0], $continents ) ) {
+			if ( ! in_array( $zone[0], $continents, true ) ) {
 				continue;
 			}
 			// This determines what gets set and translated - we don't translate Etc/* strings here, they are done later
-			$exists    = array(
+			$exists    = [
 				0 => ( isset( $zone[0] ) && $zone[0] ),
 				1 => ( isset( $zone[1] ) && $zone[1] ),
 				2 => ( isset( $zone[2] ) && $zone[2] ),
-			);
+			];
 			$exists[3] = ( $exists[0] && 'Etc' !== $zone[0] );
 			$exists[4] = ( $exists[1] && $exists[3] );
 			$exists[5] = ( $exists[2] && $exists[3] );
 			// phpcs:disable WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText
-			$zonen[] = array(
+			$zonen[] = [
 				'continent'   => ( $exists[0] ? $zone[0] : '' ),
 				'city'        => ( $exists[1] ? $zone[1] : '' ),
 				'subcity'     => ( $exists[2] ? $zone[2] : '' ),
 				't_continent' => ( $exists[3] ? translate( str_replace( '_', ' ', $zone[0] ), 'continents-cities' ) : '' ),
 				't_city'      => ( $exists[4] ? translate( str_replace( '_', ' ', $zone[1] ), 'continents-cities' ) : '' ),
 				't_subcity'   => ( $exists[5] ? translate( str_replace( '_', ' ', $zone[2] ), 'continents-cities' ) : '' ),
-			);
+			];
 			// phpcs:enable
 		}
 		usort( $zonen, '_wp_timezone_choice_usort_callback' );
 
 		foreach ( $zonen as $key => $zone ) {
 			// Build value in an array to join later
-			$value = array( $zone['continent'] );
+			$value = [ $zone['continent'] ];
 			if ( empty( $zone['city'] ) ) {
 				// It's at the continent level (generally won't happen)
 				$display = $zone['t_continent'];
@@ -93,7 +93,7 @@ class TimezoneEnum {
 			];
 
 		}
-		$offset_range = array(
+		$offset_range = [
 			- 12,
 			- 11.5,
 			- 11,
@@ -149,7 +149,7 @@ class TimezoneEnum {
 			13,
 			13.75,
 			14,
-		);
+		];
 		foreach ( $offset_range as $offset ) {
 
 			if ( 0 <= $offset ) {
@@ -159,12 +159,12 @@ class TimezoneEnum {
 			}
 			$offset_value = $offset_name;
 			$offset_name  = str_replace(
-				array( '.25', '.5', '.75' ),
-				array(
+				[ '.25', '.5', '.75' ],
+				[
 					':15',
 					':30',
 					':45',
-				),
+				],
 				$offset_name
 			);
 			$offset_name  = 'UTC' . $offset_name;

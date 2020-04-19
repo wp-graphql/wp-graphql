@@ -293,9 +293,10 @@ class UserMutation {
 		 * Don't let anyone with 'edit_users' (admins) edit their own role to something without it.
 		 * Multisite super admins can freely edit their blog roles -- they possess all caps.
 		 */
-		if ( ! ( is_multisite() && current_user_can( 'manage_sites' ) )
-			 && get_current_user_id() === $user_id
-			 && ! $potential_role->has_cap( 'edit_users' )
+		if (
+			! ( is_multisite() && current_user_can( 'manage_sites' ) ) &&
+			get_current_user_id() === $user_id &&
+			! $potential_role->has_cap( 'edit_users' )
 		) {
 			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you cannot remove user editing permissions for your own account.', 'wp-graphql' ) );
 		}
