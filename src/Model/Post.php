@@ -80,12 +80,12 @@ class Post extends Model {
 	 * Post constructor.
 	 *
 	 * @param \WP_Post $post      The incoming WP_Post object that needs modeling.
-	 * @param $int     $owner_id  Owner of incoming WP_Post object.
+	 * @param integer  $owner_id  Owner of incoming WP_Post object.
 	 *
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function __construct( \WP_Post $post, $owner_id = 0 ) {
+	public function __construct( \WP_Post $post, $owner_id = null ) {
 
 		/**
 		 * Set the data as the Post object
@@ -115,9 +115,9 @@ class Post extends Model {
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
 
 		$restricted_cap = $this->get_restricted_cap();
-		
+
 		// Check for provided owner
-		$owner_id ? $owner_id : $post->post_author
+		$owner_id = $owner_id ?? $post->post_author;
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, $owner_id );
 
