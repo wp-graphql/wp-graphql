@@ -111,7 +111,7 @@ class Post extends Model {
 		}
 
 		// Get public fields.
-		$allowed_restricted_fields = $this->get_allowed_restricted_fields();
+		$allowed_restricted_fields   = $this->get_allowed_restricted_fields();
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
 
 		$restricted_cap = $this->get_restricted_cap();
