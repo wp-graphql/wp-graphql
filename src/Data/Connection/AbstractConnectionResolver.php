@@ -415,7 +415,7 @@ abstract class AbstractConnectionResolver {
 		 * @param int                        $amount the requested amount
 		 * @param AbstractConnectionResolver $this Instance of the connection resolver class
 		 */
-		return max( 0, apply_filters( 'graphql_connection_amount_requested',  $amount_requested, $this ) );
+		return max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
 
 	}
 
