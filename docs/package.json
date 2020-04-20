@@ -14,6 +14,7 @@
     "gatsby-plugin-netlify": "^2.1.22",
     "gatsby-plugin-react-axe": "^0.4.0",
     "gatsby-plugin-sharp": "^2.2.32",
+    "gatsby-source-packagist": "^1.0.0",
     "gatsby-theme-apollo-docs": "2.3.8",
     "gatsby-transformer-sharp": "^2.3.0",
     "graphiql": "^0.17.5",
