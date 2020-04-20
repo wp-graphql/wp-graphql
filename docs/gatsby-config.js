@@ -1,5 +1,9 @@
 const themeOptions = require('gatsby-theme-apollo-docs/theme-options')
 
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     siteName: `WPGraphQL`,
@@ -17,6 +21,19 @@ module.exports = {
       options: {
         name: `images`,
         path: `${__dirname}/source/images`,
+      },
+    },
+    {
+      resolve: `gatsby-source-packagist`,
+      options: {
+        query: {
+          name: 'wp-graphql',
+          tags: '',
+          type: ''
+        },
+        githubApi: {
+          auth: process.env.GITHUB_TOKEN
+        }
       },
     },
     // transformer plugins

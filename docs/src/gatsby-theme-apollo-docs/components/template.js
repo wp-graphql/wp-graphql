@@ -10,7 +10,7 @@ import styled from '@emotion/styled'
 import { ContentWrapper } from 'gatsby-theme-apollo-core'
 import { MDXProvider } from '@mdx-js/react'
 import { TypescriptApiBoxContext } from 'gatsby-theme-apollo-docs/src/components/typescript-api-box'
-import { graphql, navigate, useStaticQuery } from 'gatsby'
+import { graphql, navigate } from 'gatsby'
 
 const StyledContentWrapper = styled(ContentWrapper)({
   paddingBottom: 0,

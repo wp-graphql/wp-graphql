@@ -22,5 +22,7 @@
     "react-html-id": "^0.1.5",
     "react-joyride": "^2.1.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "dotenv": "^8.2.0"
+  }
 }
