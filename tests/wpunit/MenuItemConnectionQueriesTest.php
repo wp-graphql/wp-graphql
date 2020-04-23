@@ -465,4 +465,41 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->compareResults( $menu_item_ids, $post_ids, $actual );
 	}
 
+	public function testMenuItemsOrder() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
+		$query = "
+		{
+			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
+				nodes {
+					databaseId
+					order
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+
+		// Assert that the `order` field actually exists and is an int
+		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order']  );
+
+		$orders = array_map( function( $node ) {
+			return $node['order'];
+		}, 	$actual['data']['menuItems']['nodes'] );
+
+		// Make copy of the results that are sorted by the order
+		$sorted_orders = $orders;
+		asort( $sorted_orders );
+
+		// Assert that the returned list was in the sorted order
+		$this->assertEquals( $orders, $sorted_orders );
+
+
+	}
+
 }

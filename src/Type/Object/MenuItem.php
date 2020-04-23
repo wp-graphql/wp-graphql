@@ -69,6 +69,10 @@ class MenuItem {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
+					'order'     => [
+						'type'        => 'Int',
+						'description' => __( 'Menu item order', 'wp-graphql' ),
+					],
 					'connectedObject'  => [
 						'type'        => 'MenuItemObjectUnion',
 						'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),

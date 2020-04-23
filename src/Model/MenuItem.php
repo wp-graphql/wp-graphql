@@ -97,6 +97,9 @@ class MenuItem extends Model {
 				'url'              => function() {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
+				'order'             => function() {
+					return $this->data->menu_order;
+				},
 			];
 
 		}
