@@ -55,6 +55,9 @@ class MenuItem extends Model {
 				'id'               => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
+				'parentId'               => function() {
+					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->menu_item_parent ) : null;
+				},
 				'parentDatabaseId'               => function() {
 					return $this->data->menu_item_parent;
 				},

@@ -227,12 +227,18 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testMenuItemsQueryWithChildItemsAsFlat() {
 		$created = $this->createNestedMenu( 3 );
 
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
 		$query = '
 		{
 			menuItems(first: 99, where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
+						id
 						databaseId
+						parentId
+						parentDatabaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -246,7 +252,37 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		$this->assertEquals(13, count($actual['data']['menuItems']['edges']));
+		$this->assertEquals( 13, count( $actual['data']['menuItems']['edges'] ) );
+
+
+		$child_items_via_database_id = [];
+		$parent_id = null;
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			if ( $edge['node']['databaseId'] === $parent_database_id ) {
+				$parent_id = $edge['node']['id'];
+			}
+
+			// Child items have the correct parenDatabaseId
+			if ( $edge['node']['parentDatabaseId'] === $parent_database_id ) {
+				$child_items_via_database_id[] = $edge['node'];
+			}
+		}
+
+		$this->assertNotNull( $parent_id );
+		$this->assertEquals( 3, count( $child_items_via_database_id ) );
+
+		$child_items_via_relay_id = [];
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			// Child items have the correct relay parentId
+			if ( $edge['node']['parentId'] === $parent_id ) {
+				$child_items_via_relay_id[] = $edge['node'];
+			}
+		}
+
+		$this->assertEquals( 3, count( $child_items_via_relay_id ) );
+
 	}
 
 	public function testMenuItemsQueryWithChildItemsUsingRelayParentId() {
