@@ -17,11 +17,11 @@ class MenuItem {
 					'id'               => [
 						'description' => __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' ),
 					],
-					'parentId'               => [
+					'parentId'         => [
 						'type'        => 'ID',
 						'description' => __( 'The globally unique identifier of the parent nav menu item object.', 'wp-graphql' ),
 					],
-					'parentDatabaseId'               => [
+					'parentDatabaseId' => [
 						'type'        => 'Int',
 						'description' => __( 'The database id of the parent menu item or null if it is the root', 'wp-graphql' ),
 					],
@@ -44,8 +44,8 @@ class MenuItem {
 						'description' => __( 'Link relationship (XFN) of the menu item.', 'wp-graphql' ),
 					],
 					'menuItemId'       => [
-						'type'        => 'Int',
-						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
+						'type'              => 'Int',
+						'description'       => __( 'WP ID of the menu item.', 'wp-graphql' ),
 						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 					],
@@ -69,7 +69,7 @@ class MenuItem {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
-					'order'     => [
+					'order'            => [
 						'type'        => 'Int',
 						'description' => __( 'Menu item order', 'wp-graphql' ),
 					],

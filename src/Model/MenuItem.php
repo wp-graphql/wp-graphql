@@ -55,10 +55,10 @@ class MenuItem extends Model {
 				'id'               => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
-				'parentId'               => function() {
+				'parentId'         => function() {
 					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->menu_item_parent ) : null;
 				},
-				'parentDatabaseId'               => function() {
+				'parentDatabaseId' => function() {
 					return $this->data->menu_item_parent;
 				},
 				'cssClasses'       => function() {
@@ -97,7 +97,7 @@ class MenuItem extends Model {
 				'url'              => function() {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
-				'order'             => function() {
+				'order'            => function() {
 					return $this->data->menu_order;
 				},
 			];
