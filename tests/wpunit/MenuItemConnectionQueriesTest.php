@@ -343,6 +343,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				edges {
 					node {
 						databaseId
+						parentDatabaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -356,8 +357,12 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		// Perform some common assertions.
+
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
+
+		// The parentDatabaseId matches with the requested parent database id
+		$this->assertEquals( $parent_database_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
+
 	}
 
 	public function testMenuItemsQueryWithExplicitParentId() {
