@@ -1,5 +1,7 @@
 <?php
 
+use GraphQLRelay\Relay;
+
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public static function setUpBeforeClass() {
@@ -245,6 +247,41 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$this->assertEquals(13, count($actual['data']['menuItems']['edges']));
+	}
+
+	public function testMenuItemsQueryWithChildItemsUsingRelayParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		$query = '
+		{
+			menuItems( where: { parentId: "0", location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+						childItems {
+							edges {
+								node {
+									menuItemId
+									connectedObject {
+										... on Post {
+											postId
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
 
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
@@ -303,6 +340,36 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		{
 			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		// Perform some common assertions.
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
+	}
+
+	public function testMenuItemsQueryWithExplicitParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item.
+		// Convernt it to the global relay id from the database id.
+		$parent_id = Relay::toGlobalId( 'nav_menu_item', $created['menu_item_ids'][3] );
+
+		$query = "
+		{
+			menuItems( where: { parentId: \"${parent_id}\", location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
 						menuItemId

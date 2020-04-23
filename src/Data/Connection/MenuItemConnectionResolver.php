@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
+use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Menu;
@@ -147,6 +148,14 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		if ( $source instanceof MenuItem && 'childItems' === $this->info->fieldName ) {
 			// In nested `childItems` field
 			$parent_id = $source->menuItemId;
+		} else if ( isset( $args['where']['parentId'] ) ) {
+			$parent_id = $args['where']['parentId'];
+			// "0" is a special case in the relay ids
+			if ($parent_id === "0") {
+				$parent_id = intval( $parent_id );
+			} else {
+				$parent_id = intval( Relay::fromGlobalId( $parent_id )['id'] );
+			}
 		} else if ( isset( $args['where']['parentDatabaseId'] ) ) {
 			$parent_id = $args['where']['parentDatabaseId'];
 		}
