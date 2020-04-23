@@ -76,6 +76,9 @@ class MenuItem extends Model {
 				'menuItemId'       => function() {
 					return absint( $this->data->ID );
 				},
+				'databaseId'       => function() {
+					return absint( $this->data->ID );
+				},
 				'objectId'         => function() {
 					return ( absint( $this->data->object_id ) );
 				},

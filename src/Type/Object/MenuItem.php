@@ -38,6 +38,12 @@ class MenuItem {
 					'menuItemId'       => [
 						'type'        => 'Int',
 						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
+						'isDeprecated'      => true,
+						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
+					],
+					'databaseId'       => [
+						'type'        => 'Int',
+						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
 					],
 					'target'           => [
 						'type'        => 'String',

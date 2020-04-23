@@ -69,7 +69,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals(
 			$created_menu_ids,
 			array_map( function( $menu_item ) {
-				return $menu_item['node']['menuItemId'];
+				return $menu_item['node']['databaseId'];
 			}, $edges )
 		);
 
@@ -91,7 +91,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -100,7 +100,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				nodes {
-				  menuItemId
+					databaseId
 				}
 			}
 		}
@@ -126,7 +126,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		{
 			menuItems( where: { id: ' . $menu_item_id . ' } ) {
 				nodes {
-				   menuItemId
+					databaseId
 				}
 			}
 		}
@@ -135,7 +135,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		foreach ( $actual['data']['menuItems']['nodes'] as $node ) {
-			$this->assertTrue( in_array( $node['menuItemId'], [ $menu_item_id ], true ) );
+			$this->assertTrue( in_array( $node['databaseId'], [ $menu_item_id ], true ) );
 		}
 
 		$this->assertEquals( 1, count( $actual['data']['menuItems']['nodes'] ) );
@@ -154,7 +154,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { id: ' . $menu_item_id . ' } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -181,7 +181,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -232,7 +232,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems(first: 99, where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -257,7 +257,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { parentId: "0", location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -266,7 +266,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						childItems {
 							edges {
 								node {
-									menuItemId
+									databaseId
 									connectedObject {
 										... on Post {
 											postId
@@ -298,7 +298,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { parentDatabaseId: 0, location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -307,7 +307,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						childItems {
 							edges {
 								node {
-									menuItemId
+									databaseId
 									connectedObject {
 										... on Post {
 											postId
@@ -342,7 +342,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -372,7 +372,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { parentId: \"${parent_id}\", location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -403,7 +403,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
