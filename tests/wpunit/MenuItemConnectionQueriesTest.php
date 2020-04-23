@@ -294,6 +294,35 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 
+	public function testMenuItemsQueryWithExplicitParentDatabseId() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
+		$query = "
+		{
+			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		// Perform some common assertions.
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
+	}
+
 	public function testMenuItemsQueryWithLimit() {
 		$count = 10;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
