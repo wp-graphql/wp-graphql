@@ -32,6 +32,7 @@ function graphql_format_field_name( $field_name ) {
  */
 function graphql( $request_data = [] ) {
 	$request = new \WPGraphQL\Request( $request_data );
+
 	return $request->execute();
 }
 
@@ -67,7 +68,55 @@ function get_graphql_register_action() {
 	} elseif ( ! did_action( 'graphql_register_types' ) ) {
 		$action = 'graphql_register_types';
 	}
+
 	return $action;
+}
+
+/**
+ * Given a type name and interface name, this applies the interface to the Type.
+ *
+ * Should be used at the `graphql_register_types` hook.
+ *
+ * @param array $interface_names Array of one or more names of the GraphQL Interfaces to apply to
+ *                               the GraphQL Types
+ * @param array $type_names      Array of one or more names of the GraphQL Types to apply the
+ *                               interfaces to
+ *
+ * example:
+ * The following would register the "MyNewInterface" interface to the Post and Page type in the
+ * Schema.
+ *
+ * register_graphql_interfaces_to_types( [ 'MyNewInterface' ], [ 'Post', 'Page' ] );
+ */
+function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
+
+	if ( is_string( $type_names ) ) {
+		$type_names = [ $type_names ];
+	}
+
+	if ( is_string( $interface_names ) ) {
+		$interface_names[] = $interface_names;
+	}
+
+
+
+	if ( ! empty( $type_names ) && is_array( $type_names ) && ! empty( $interface_names ) && is_array( $interface_names ) ) {
+		foreach ( $type_names as $type_name ) {
+
+			// Filter the GraphQL Object Type Interface to apply the interface
+			add_filter( 'graphql_object_type_interfaces', function( $interfaces, $config ) use ( $type_name, $interface_names ) {
+
+				$interfaces = is_array( $interfaces ) ? $interfaces : [];
+
+				if ( strtolower( $type_name ) === strtolower( $config['name'] ) ) {
+					$interfaces = array_unique( array_merge( $interfaces, $interface_names ) );
+				}
+
+				return $interfaces;
+			}, 10, 2 );
+
+		}
+	}
 }
 
 /**
@@ -220,6 +269,7 @@ function register_graphql_mutation( $mutation_name, $config ) {
 function is_graphql_request() {
 	return WPGraphQL::is_graphql_request();
 }
+
 /**
  * Whether a GraphQL HTTP request is in action or not. This is determined by
  * checking if the request is occurring on the route defined for the GraphQL endpoint.

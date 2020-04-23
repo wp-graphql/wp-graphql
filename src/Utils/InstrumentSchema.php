@@ -141,6 +141,7 @@ class InstrumentSchema {
 						 */
 						do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
+
 						/**
 						 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
 						 * otherwise use the $field_resolver

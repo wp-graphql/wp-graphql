@@ -172,7 +172,7 @@ class TypeRegistry {
 		/**
 		 * When the Type Registry is initialized execute these files
 		 */
-		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 1, 1 );
+		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
 
 		/**
 		 * Fire an action as the Type registry is being initiated
@@ -191,8 +191,22 @@ class TypeRegistry {
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
 		/**
-		 * Register Interfaces
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
 		 */
+		do_action( 'graphql_register_initial_types', $type_registry );
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $type_registry );
+
+		// Register Interfaces.
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
@@ -209,9 +223,7 @@ class TypeRegistry {
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
-		/**
-		 * Register Types
-		 */
+		// register types
 		RootQuery::register_type();
 		RootQuery::register_post_object_fields();
 		RootQuery::register_term_object_fields();
@@ -378,22 +390,6 @@ class TypeRegistry {
 				);
 			}
 		}
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_initial_types', $type_registry );
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_types', $this );
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes

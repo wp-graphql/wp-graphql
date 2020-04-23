@@ -306,7 +306,6 @@ abstract class Model {
 
 			$clean_array[ $key ] = function() use ( $key, $data, $self ) {
 				$self->setup();
-
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
 

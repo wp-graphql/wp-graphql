@@ -168,13 +168,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 			codecept_debug( array_keys( $types ) );
 			$this->assertArrayHasKey( 'mycustomtype', $types );
 			$this->assertArrayHasKey( 'string', $types );
-			$this->assertArrayHasKey( 'post', $types );
 		} );
-
-		/**
-		 * Execute a GraphQL Request to instantiate the Schema
-		 */
-		$actual = graphql( ['query' => '{posts{nodes{id}}}'] );
 
 	}
 

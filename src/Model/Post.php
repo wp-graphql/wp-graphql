@@ -86,11 +86,14 @@ class Post extends Model {
 	 */
 	public function __construct( \WP_Post $post ) {
 
+		global $wp_query;
+
 		/**
 		 * Set the data as the Post object
 		 */
 		$this->data             = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
+
 
 		/**
 		 * If the post type is 'revision', we need to get the post_type_object
@@ -137,6 +140,13 @@ class Post extends Model {
 		 * post data being set up.
 		 */
 		if ( $this->data ) {
+			global $wp_query;
+
+
+			if ( isset( $this->data->post_type ) ) {
+				$wp_query->parse_query(['p' => $this->data->ID ]);
+			}
+
 			$GLOBALS['post'] = $this->data;
 			setup_postdata( $this->data );
 		}
@@ -458,6 +468,13 @@ class Post extends Model {
 					},
 					'capability' => $this->post_type_object->cap->edit_others_posts,
 				],
+				'isSingular' => function() {
+					return is_singular();
+				},
+				'wpQuery' => function() {
+					global $wp_query;
+					return wp_json_encode( $wp_query );
+				}
 			];
 
 			if ( 'attachment' === $this->data->post_type ) {
