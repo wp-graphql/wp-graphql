@@ -200,12 +200,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 	}
 
-	public function testMenuItemsQueryWithChildItems() {
+	public function createNestedMenu( $child_count ) {
 		$count = 10;
 		$created = $this->createMenuItems( 'my-test-menu-with-child-items', $count );
 
 		// Add some child items to the fourth menu item.
-		$child_count = 3;
 		for ( $x = 1; $x <= $child_count; $x++ ) {
 			$options = [
 				'menu-item-title'     => "Child menu item {$x}",
@@ -219,9 +218,47 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$this->createMenuItem( $created['menu_id'], $options );
 		}
 
+		return $created;
+
+	}
+
+	public function testMenuItemsQueryWithChildItemsAsFlat() {
+		$created = $this->createNestedMenu( 3 );
+
 		$query = '
 		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
+			menuItems(first: 99, where: { location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						menuItemId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertEquals(13, count($actual['data']['menuItems']['edges']));
+
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
+
+		// The fourth menu item has the expected number of child items.
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
+	}
+
+	public function testMenuItemsQueryWithChildItemsUsingDatabaseParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		$query = '
+		{
+			menuItems( where: { parentDatabaseId: 0, location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
 						menuItemId
@@ -254,7 +291,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 
 		// The fourth menu item has the expected number of child items.
-		$this->assertEquals( $child_count, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 
 	public function testMenuItemsQueryWithLimit() {

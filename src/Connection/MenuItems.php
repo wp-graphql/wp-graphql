@@ -68,6 +68,10 @@ class MenuItems {
 						'type'        => 'Int',
 						'description' => __( 'The ID of the object', 'wp-graphql' ),
 					],
+					'parentDatabaseId'       => [
+						'type'        => 'Int',
+						'description' => __( 'The database ID of the parent menu object', 'wp-graphql' ),
+					],
 					'location' => [
 						'type'        => 'MenuLocationEnum',
 						'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
