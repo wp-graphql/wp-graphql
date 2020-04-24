@@ -52,15 +52,6 @@ class Term extends Model {
 		parent::__construct();
 	}
 
-	public function setup() {
-//		global $wp_query;
-//		if ( isset( $this->data->taxonomy ) && 'category' === $this->data->taxonomy ) {
-//			$wp_query->parse_query([
-//				'category_name' =>  $this->data->name,
-//			]);
-//		}
-	}
-
 	/**
 	 * Initializes the Term object
 	 *
@@ -105,16 +96,6 @@ class Term extends Model {
 				'parentId'       => function() {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
-				'isSingular' => function() {
-					return is_singular();
-				},
-				'isTax' => function() {
-					return is_tax();
-				},
-				'wpQuery' => function() {
-					global $wp_query;
-					return wp_json_encode( $wp_query );
-				}
 			];
 
 			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
