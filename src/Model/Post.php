@@ -36,7 +36,8 @@ use WPGraphQL\Types;
  * @property string  $pinged
  * @property string  $modified
  * @property string  $modifiedGmt
- * @property int     $parentId
+ * @property string  $parentId
+ * @property int     $parentDatabaseId
  * @property int     $editLastId
  * @property array   $editLock
  * @property string  $enclosure
@@ -419,6 +420,9 @@ class Post extends Model {
 					return ! empty( $this->data->post_modified_gmt ) ? Types::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
 				'parentId'        => function() {
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->post_parent ) : null;
+				},
+				'parentDatabaseId'        => function() {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
 				},
 				'editLastId'      => function() {
