@@ -79,13 +79,13 @@ class Post extends Model {
 	/**
 	 * Post constructor.
 	 *
-	 * @param \WP_Post $post      The incoming WP_Post object that needs modeling.
-	 * @param integer  $owner_id  Owner of incoming WP_Post object.
+	 * @param \WP_Post|mixed $post      The incoming WP_Post object that needs modeling.
+	 * @param integer        $owner_id  Owner of incoming WP_Post object.
 	 *
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function __construct( \WP_Post $post, $owner_id = null ) {
+	public function __construct( $post, $owner_id = null ) {
 
 		/**
 		 * Set the data as the Post object
