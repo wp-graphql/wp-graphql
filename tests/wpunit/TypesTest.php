@@ -22,6 +22,88 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
     }
 
 	/**
+	 * Tests whether custom scalars can be registered and used in the Schema
+	 *
+	 * @throws Exception
+	 */
+    public function testCustomScalarCanBeUsedInSchema() {
+
+	    $test_value = 'test';
+
+    	// Register a custom Email scalar
+    	register_graphql_scalar([
+    		'name' => 'TestScalar',
+		    'description' => __( 'Test Scalar', 'wp-graphql' ),
+		    'serialize' => function( $value ) {
+			    return $value;
+		    },
+		    'parseValue' => function( $value ) {
+			    return $value;
+		    },
+		    'parseLiteral' => function( $valueNode, array $variables = null ) {
+			    return $valueNode->value;
+		    }
+	    ]);
+
+    	register_graphql_field( 'RootQuery', 'testScalar', [
+    		'type' => 'TestScalar',
+		    'resolve' => function() use ( $test_value ) {
+    		    return $test_value;
+		    }
+	    ] );
+
+    	$actual = graphql([
+    		'query' => '
+    		{
+			  __type(name: "Email") {
+			    kind
+			  }
+			}
+    		'
+	    ]);
+
+    	$this->assertArrayNotHasKey( 'errors', $actual );
+    	$this->assertEquals( 'SCALAR', $actual['data']['__type']['kind'] );
+
+    	$actual = graphql([
+		    'query' => '
+    		{
+			  __schema {
+			    queryType {
+			      fields {
+			        name
+			        type {
+			          name
+			          kind
+			        }
+			      }
+			    }
+			  }
+			}
+    		'
+	    ]);
+
+	    $fields = $actual['data']['__schema']['queryType']['fields'];
+
+	    $email = array_filter( $fields, function( $field ) {
+		    return $field['type']['name'] === 'Email' && $field['type']['kind'] === 'SCALAR' ? $field : null;
+	    });
+
+	    $this->assertNotEmpty( $email );
+
+	    $actual = graphql([
+		    'query' => '
+    		{
+			  testEmail
+			}
+    		'
+	    ]);
+
+	    $this->assertEquals( $test_value, $actual['data']['testEmail'] );
+
+    }
+
+	/**
 	 * This registers a field that's already been registered, and asserts that
 	 * an exception is being thrown.
 	 *
