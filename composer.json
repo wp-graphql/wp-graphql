@@ -39,19 +39,11 @@
     "psr-4": {
       "WPGraphQL\\": "src/"
     },
-    "classmap": [
-      "src/"
-    ]
+    "classmap": ["src/"]
   },
   "scripts": {
-    "phpcs-i": [
-      "@php ./vendor/bin/phpcs -i"
-    ],
-    "check-cs": [
-      "@php ./vendor/bin/phpcs"
-    ],
-    "fix-cs": [
-      "@php ./vendor/bin/phpcbf"
-    ]
+    "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
+    "check-cs": ["@php ./vendor/bin/phpcs"],
+    "fix-cs": ["@php ./vendor/bin/phpcbf"]
   }
 }
