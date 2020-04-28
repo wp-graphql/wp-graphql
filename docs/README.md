@@ -41,11 +41,10 @@ The navigation is controlled by the `/src/content/nav.yml` file. Add your page t
 It's not necessary to run the site locally to contribute, but if you would like to get it up and running on your machine, below are instructions for running the WPGraphQL Docs site locally. 
 
 - Make sure you have [node](https://nodejs.org/en/dow) installed on your machine
-- Make sure you have Gatsby CLI installed. You can install with the following command: `npm i -g gatsby-cli`
 - Clone this repo
 - Navigate to the cloned repo directory. ex: `cd /path/to/docs.wpgraphql.com`
 - Within that directory, create a file named: `.env.development`
   - [Create a Github Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
   - Add the token to `.env.development` file like so: `GITHUB_TOKEN=123456` (replacing 123456 with your token)
-- Using the command line, run the command `npm install` to install dependencies
-- Using the command line, run the command `gatsby develop` to start the site
+- Using the command line, run the command `yarn` to install dependencies
+- Using the command line, run the command `yarn start` to start the development site

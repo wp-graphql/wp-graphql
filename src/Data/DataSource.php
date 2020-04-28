@@ -60,22 +60,11 @@ class DataSource {
 	 *
 	 * @throws UserError Throws UserError.
 	 * @throws \Exception Throws UserError.
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_comment( $id, $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$comment_id = absint( $id );
-		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
-
-		return new Deferred(
-			function() use ( $comment_id, $context ) {
-				return $context->getLoader( 'comment' )->load( $comment_id );
-			}
-		);
-
+		return $context->get_loader( 'comment' )->load_deferred( $id );
 	}
 
 	/**
@@ -193,21 +182,11 @@ class DataSource {
 	 * @return Deferred
 	 *
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$post_id = absint( $id );
-		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
-
-		return new Deferred(
-			function() use ( $post_id, $context ) {
-				return $context->getLoader( 'post_object' )->load( $post_id );
-			}
-		);
-
+		return $context->get_loader( 'post_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -216,19 +195,11 @@ class DataSource {
 	 *
 	 * @return Deferred|null
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( $id, AppContext $context ) {
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$menu_item_id = absint( $id );
-		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
-
-		return new Deferred(
-			function() use ( $menu_item_id, $context ) {
-				return $context->getLoader( 'menu_item' )->load( $menu_item_id );
-			}
-		);
+		return $context->get_loader( 'menu_item' )->load_deferred( $id );
 	}
 
 	/**
@@ -314,22 +285,11 @@ class DataSource {
 	 * @return mixed
 	 * @throws \Exception
 	 * @since  0.0.5
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$term_id = absint( $id );
-		$context->getLoader( 'term_object' )->buffer( [ $id ] );
-
-		return new Deferred(
-			function() use ( $term_id, $context ) {
-				return $context->getLoader( 'term_object' )->load( $term_id );
-			}
-		);
-
+		return $context->get_loader( 'term_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -397,20 +357,11 @@ class DataSource {
 	 * @return Deferred
 	 * @since  0.0.5
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
-
-		if ( empty( $id ) ) {
-			return null;
-		}
-		$user_id = absint( $id );
-		$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-		return new Deferred(
-			function() use ( $user_id, $context ) {
-				return $context->getLoader( 'user' )->load( $user_id );
-			}
-		);
+		return $context->get_loader( 'user' )->load_deferred( $id );
 	}
 
 	/**
@@ -535,11 +486,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                                         = $key;
+					$setting['key'] = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                                         = $key;
+				$setting['key'] = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
@@ -769,17 +720,7 @@ class DataSource {
 					break;
 				case 'user':
 					$user_id = absint( $id_components['id'] );
-
-					if ( empty( $user_id ) || ! absint( $user_id ) ) {
-						return null;
-					}
-					$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-					return new Deferred(
-						function() use ( $user_id, $context ) {
-							return $context->getLoader( 'user' )->load( $user_id );
-						}
-					);
+					return $context->get_loader( 'user' )->load_deferred( $user_id );
 					break;
 				default:
 					/**
@@ -818,42 +759,18 @@ class DataSource {
 	}
 
 	/**
-	 * Cached version of get_page_by_path so that we're not making unnecessary SQL all the time
-	 *
-	 * This is a modified version of the cached function from WordPress.com VIP MU Plugins here.
+	 * This was used for caching the get_page_by_path function, which is now cached in core,
+	 * please use that function directly instead.
 	 *
 	 * @param string $uri
 	 * @param string $output    Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
 	 * @param string $post_type Optional. Post type; default is 'post'.
 	 *
 	 * @return \WP_Post|null WP_Post on success or null on failure
-	 * @see    https://github.com/Automattic/vip-go-mu-plugins/blob/52549ae9a392fc1343b7ac9dba4ebcdca46e7d55/vip-helpers/vip-caching.php#L186
-	 * @link   http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
+	 * @deprecated since 0.8.4 Use the get_page_by_path function instead.
 	 */
 	public static function get_post_object_by_uri( $uri, $output = OBJECT, $post_type = 'post' ) {
-
-		if ( is_array( $post_type ) ) {
-			$cache_key = sanitize_key( $uri ) . '_' . md5( serialize( $post_type ) );
-		} else {
-			$cache_key = $post_type . '_' . sanitize_key( $uri );
-		}
-		$post_id = wp_cache_get( $cache_key, 'get_post_object_by_path' );
-
-		if ( false === $post_id ) {
-			$post    = get_page_by_path( $uri, $output, $post_type );
-			$post_id = $post ? $post->ID : 0;
-			if ( 0 === $post_id ) {
-				wp_cache_set( $cache_key, $post_id, 'get_post_object_by_path', ( 1 * HOUR_IN_SECONDS + mt_rand( 0, HOUR_IN_SECONDS ) ) ); // We only store the ID to keep our footprint small
-			} else {
-				wp_cache_set( $cache_key, $post_id, 'get_post_object_by_path', 0 ); // We only store the ID to keep our footprint small
-			}
-		}
-		if ( $post_id ) {
-			return get_post( absint( $post_id ) );
-		}
-
-		return null;
-
+		return get_page_by_path( $uri, $output, $post_type );
 	}
 
 	/**

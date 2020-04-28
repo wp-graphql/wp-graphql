@@ -412,13 +412,10 @@ class PostObject {
 			];
 		}
 
-		if ( ! $post_type_object->hierarchical && ! in_array(
-			$post_type_object->name,
-			[
-				'attachment',
-				'revision',
-			]
-		) ) {
+		if (
+			! $post_type_object->hierarchical &&
+			! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true )
+		) {
 			$fields['ancestors']['isDeprecated']      = true;
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 

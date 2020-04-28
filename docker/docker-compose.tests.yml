@@ -4,7 +4,7 @@ services:
   wpgraphql-tester:
     build:
       context: '../'
-      dockerfile: 'Dockerfile.test-base'
+      dockerfile: './docker/Dockerfile.test-base'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.4}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"
@@ -26,7 +26,7 @@ services:
   wpgraphql.test:
     build:
       context: '../'
-      dockerfile: 'Dockerfile.test-base'
+      dockerfile: './docker/Dockerfile.test-base'
       args:
         DESIRED_WP_VERSION: "${WP_VERSION:-5.3.2}"
         DESIRED_PHP_VERSION: "${PHP_VERSION:-7.4}"

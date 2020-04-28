@@ -86,7 +86,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			}
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -145,7 +145,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$matched_items = array_filter(
 			$menu_items,
 			function ( $item ) use ( $parent_id ) {
-				return $parent_id === intval( $item->menu_item_parent );
+				return intval( $item->menu_item_parent ) === $parent_id;
 			}
 		);
 

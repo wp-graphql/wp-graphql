@@ -120,7 +120,7 @@ class PostObjectCreate {
 			];
 		}
 
-		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [ 'attachment', 'revision' ] ) ) {
+		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
 			$fields['parentId'] = [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
@@ -260,7 +260,7 @@ class PostObjectCreate {
 			 */
 
 			/**
-			 * insert the post object and get the ID
+			 * Insert the post object and get the ID
 			 */
 			$post_args = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 
