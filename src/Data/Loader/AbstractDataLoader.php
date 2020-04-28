@@ -61,7 +61,7 @@ abstract class AbstractDataLoader {
 	 * @return Deferred|null
 	 * @throws \Exception
 	 */
-	public function loadDeferred( $database_id ) {
+	public function load_deferred( $database_id ) {
 
 		if ( empty( $database_id ) || ! absint( $database_id ) ) {
 			return null;
@@ -87,12 +87,12 @@ abstract class AbstractDataLoader {
 	 */
 	public function buffer( array $keys ) {
 		foreach ( $keys as $index => $key ) {
-			$key = $this->keyToScalar( $key );
+			$key = $this->key_to_scalar( $key );
 			if ( ! is_scalar( $key ) ) {
 				throw new \Exception(
 					get_class( $this ) . '::buffer expects all keys to be scalars, but key ' .
 					'at position ' . $index . ' is ' . Utils::printSafe( $keys ) . '. ' .
-					$this->getScalarKeyHint( $key )
+					$this->get_scalar_key_hint( $key )
 				);
 			}
 			$this->buffer[ $key ] = 1;
@@ -111,11 +111,11 @@ abstract class AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function load( $key ) {
-		$key = $this->keyToScalar( $key );
+		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new \Exception(
 				get_class( $this ) . '::load expects key to be scalar, but got ' . Utils::printSafe( $key ) .
-				$this->getScalarKeyHint( $key )
+				$this->get_scalar_key_hint( $key )
 			);
 		}
 		if ( ! $this->shouldCache ) {
@@ -123,9 +123,9 @@ abstract class AbstractDataLoader {
 		}
 		$keys = [ $key ];
 		$this->buffer( $keys );
-		$result = $this->loadBuffered();
+		$result = $this->load_buffered();
 
-		return isset( $result[ $key ] ) ? $this->normalizeEntry( $result[ $key ], $key ) : null;
+		return isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
 	}
 
 	/**
@@ -139,11 +139,11 @@ abstract class AbstractDataLoader {
 	 * @return $this
 	 */
 	public function prime( $key, $value ) {
-		$key = $this->keyToScalar( $key );
+		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new \Exception(
 				get_class( $this ) . '::prime is expecting scalar $key, but got ' . Utils::printSafe( $key )
-				. $this->getScalarKeyHint( $key )
+				. $this->get_scalar_key_hint( $key )
 			);
 		}
 		if ( null === $value ) {
@@ -169,7 +169,7 @@ abstract class AbstractDataLoader {
 	 */
 	public function clear( array $keys ) {
 		foreach ( $keys as $key ) {
-			$key = $this->keyToScalar( $key );
+			$key = $this->key_to_scalar( $key );
 			if ( isset( $this->cached[ $key ] ) ) {
 				unset( $this->cached[ $key ] );
 			}
@@ -182,8 +182,19 @@ abstract class AbstractDataLoader {
 	 * Clears the entire cache. To be used when some event results in unknown
 	 * invalidations across this particular `DataLoader`. Returns itself for
 	 * method chaining.
+	 *
+	 * @deprecated in favor of clear_all
 	 */
 	public function clearAll() {
+		return $this->clear_all();
+	}
+
+	/**
+	 * Clears the entire cache. To be used when some event results in unknown
+	 * invalidations across this particular `DataLoader`. Returns itself for
+	 * method chaining.
+	 */
+	public function clear_all() {
 		$this->cached = [];
 
 		return $this;
@@ -198,8 +209,24 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return array|\Generator
 	 * @throws \Exception
+	 *
+	 * @deprecated Use load_many instead
 	 */
 	public function loadMany( array $keys, $asArray = false ) {
+		return $this->load_many( $keys, $asArray );
+	}
+
+	/**
+	 * Loads multiple keys. Returns generator where each entry directly corresponds to entry in
+	 * $keys. If second argument $asArray is set to true, returns array instead of generator
+	 *
+	 * @param array $keys
+	 * @param bool  $asArray
+	 *
+	 * @return array|\Generator
+	 * @throws \Exception
+	 */
+	public function load_many( array $keys, $asArray = false ) {
 		if ( empty( $keys ) ) {
 			return [];
 		}
@@ -207,7 +234,7 @@ abstract class AbstractDataLoader {
 			$this->buffer = [];
 		}
 		$this->buffer( $keys );
-		$generator = $this->generateMany( $keys, $this->loadBuffered() );
+		$generator = $this->generate_many( $keys, $this->load_buffered() );
 
 		return $asArray ? iterator_to_array( $generator ) : $generator;
 	}
@@ -220,10 +247,10 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return \Generator
 	 */
-	private function generateMany( $keys, $result ) {
+	private function generate_many( $keys, $result ) {
 		foreach ( $keys as $key ) {
-			$key = $this->keyToScalar( $key );
-			yield isset( $result[ $key ] ) ? $this->normalizeEntry( $result[ $key ], $key ) : null;
+			$key = $this->key_to_scalar( $key );
+			yield isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
 		}
 	}
 
@@ -235,7 +262,7 @@ abstract class AbstractDataLoader {
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function loadBuffered() {
+	private function load_buffered() {
 		// Do not load previously-cached entries:
 		$keysToLoad = array_keys( array_diff_key( $this->buffer, $this->cached ) );
 		$result     = [];
@@ -261,7 +288,7 @@ abstract class AbstractDataLoader {
 			}
 		}
 		// Re-include previously-cached entries to result:
-		$result      += array_intersect_key( $this->cached, $this->buffer );
+		$result       += array_intersect_key( $this->cached, $this->buffer );
 		$this->buffer = [];
 
 		return $result;
@@ -274,11 +301,11 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return string
 	 */
-	private function getScalarKeyHint( $key ) {
+	private function get_scalar_key_hint( $key ) {
 		if ( null === $key ) {
 			return ' Make sure to add additional checks for null values.';
 		} else {
-			return ' Try overriding ' . __CLASS__ . '::keyToScalar if your keys are composite.';
+			return ' Try overriding ' . __CLASS__ . '::key_to_scalar if your keys are composite.';
 		}
 	}
 
@@ -292,9 +319,20 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return mixed
 	 */
-	protected function keyToScalar( $key ) {
+	protected function key_to_scalar( $key ) {
 		return $key;
 	}
+
+	/**
+	 * @param $key
+	 *
+	 * @return mixed
+	 * @deprecated Use key_to_scalar instead
+	 */
+	protected function keyToScalar( $key ) {
+		return $this->key_to_scalar( $key );
+	}
+
 
 	/**
 	 * If the loader needs to do any tweaks between getting raw data from the DB and caching,
@@ -305,8 +343,19 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return mixed
 	 */
-	protected function normalizeEntry( $entry, $key ) {
+	protected function normalize_entry( $entry, $key ) {
 		return $entry;
+	}
+
+	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return mixed
+	 * @deprecated Use normalize_entry instead
+	 */
+	protected function normalizeEntry( $entry, $key ) {
+		return $this->normalize_entry( $entry, $key );
 	}
 
 	/**

@@ -64,7 +64,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_comment( $id, $context ) {
-		return $context->getLoader( 'comment' )->loadDeferred( $id );
+		return $context->get_loader( 'comment' )->load_deferred( $id );
 	}
 
 	/**
@@ -186,7 +186,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( $id, AppContext $context ) {
-		return $context->getLoader( 'post_object' )->loadDeferred( $id );
+		return $context->get_loader( 'post_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -199,7 +199,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( $id, AppContext $context ) {
-		return $context->getLoader( 'menu_item' )->loadDeferred( $id );
+		return $context->get_loader( 'menu_item' )->load_deferred( $id );
 	}
 
 	/**
@@ -289,7 +289,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
-		return $context->getLoader( 'term_object' )->loadDeferred( $id );
+		return $context->get_loader( 'term_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -361,7 +361,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
-		return $context->getLoader( 'user' )->loadDeferred( $id );
+		return $context->get_loader( 'user' )->load_deferred( $id );
 	}
 
 	/**
@@ -720,7 +720,7 @@ class DataSource {
 					break;
 				case 'user':
 					$user_id = absint( $id_components['id'] );
-					return $context->getLoader( 'user' )->loadDeferred( $user_id );
+					return $context->get_loader( 'user' )->load_deferred( $user_id );
 					break;
 				default:
 					/**
