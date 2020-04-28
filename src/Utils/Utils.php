@@ -15,7 +15,7 @@ class Utils {
 	public static function map_input( $args, $map ) {
 
 		if ( ! is_array( $args ) || ! is_array( $map ) ) {
-			return array();
+			return [];
 		}
 
 		$query_args = [];

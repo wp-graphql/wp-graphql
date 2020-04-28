@@ -42,7 +42,8 @@ class NodeResolver {
 				[
 					parse_url( site_url() )['host'],
 					parse_url( home_url() )['host'],
-				]
+				],
+				true
 			) ) {
 				throw new UserError( __( 'Cannot return a resource for an external URI', 'wp-graphql' ) );
 			}
@@ -55,8 +56,8 @@ class NodeResolver {
 			$uri = $parsed_url['path'];
 		}
 
-		$this->wp->query_vars = array();
-		$post_type_query_vars = array();
+		$this->wp->query_vars = [];
+		$post_type_query_vars = [];
 
 		if ( is_array( $extra_query_vars ) ) {
 			$this->wp->extra_query_vars = &$extra_query_vars;
@@ -99,7 +100,7 @@ class NodeResolver {
 				$requested_path = $pathinfo;
 			} else {
 				// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-				if ( $req_uri == $wp_rewrite->index ) {
+				if ( $req_uri === $wp_rewrite->index ) {
 					$req_uri = '';
 				}
 				$requested_path = $req_uri;
@@ -115,17 +116,19 @@ class NodeResolver {
 				if ( isset( $rewrite['$'] ) ) {
 					$this->wp->matched_rule = '$';
 					$query                  = $rewrite['$'];
-					$matches                = array( '' );
+					$matches                = [ '' ];
 				}
 			} else {
 				foreach ( (array) $rewrite as $match => $query ) {
 					// If the requested file is the anchor of the match, prepend it to the path info.
-					if ( ! empty( $requested_file ) && strpos( $match, $requested_file ) === 0 && $requested_file != $requested_path ) {
+					if ( ! empty( $requested_file ) && strpos( $match, $requested_file ) === 0 && $requested_file !== $requested_path ) {
 						$request_match = $requested_file . '/' . $requested_path;
 					}
 
-					if ( preg_match( "#^$match#", $request_match, $matches ) ||
-						 preg_match( "#^$match#", urldecode( $request_match ), $matches ) ) {
+					if (
+						preg_match( "#^$match#", $request_match, $matches ) ||
+						preg_match( "#^$match#", urldecode( $request_match ), $matches )
+					) {
 
 						if ( $wp_rewrite->use_verbose_page_rules && preg_match( '/pagename=\$matches\[([0-9]+)\]/', $query, $varmatch ) ) {
 							// This is a verbose page match, let's check to be sure about it.
@@ -135,8 +138,12 @@ class NodeResolver {
 							}
 
 							$post_status_obj = get_post_status_object( $page->post_status );
-							if ( ! $post_status_obj->public && ! $post_status_obj->protected
-								 && ! $post_status_obj->private && $post_status_obj->exclude_from_search ) {
+							if (
+								! $post_status_obj->public &&
+								! $post_status_obj->protected &&
+								! $post_status_obj->private &&
+								$post_status_obj->exclude_from_search
+							) {
 								continue;
 							}
 						}
@@ -162,7 +169,7 @@ class NodeResolver {
 				parse_str( $query, $perma_query_vars );
 
 				// If we're processing a 404 request, clear the error var since we found something.
-				if ( '404' == $error ) {
+				if ( '404' === $error ) {
 					unset( $error );
 				}
 			}
@@ -181,7 +188,7 @@ class NodeResolver {
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
-		foreach ( get_post_types( array( 'show_in_graphql' => true ), 'objects' ) as $post_type => $t ) {
+		foreach ( get_post_types( [ 'show_in_graphql' => true ], 'objects' ) as $post_type => $t ) {
 
 			if ( true === $t->show_in_graphql && $t->query_var ) {
 				$post_type_query_vars[ $t->query_var ] = $post_type;
@@ -229,7 +236,7 @@ class NodeResolver {
 		}
 
 		// Convert urldecoded spaces back into +
-		foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy => $t ) {
+		foreach ( get_taxonomies( [], 'objects' ) as $taxonomy => $t ) {
 			if ( $t->query_var && isset( $this->wp->query_vars[ $t->query_var ] ) ) {
 				$this->wp->query_vars[ $t->query_var ] = str_replace( ' ', '+', $this->wp->query_vars[ $t->query_var ] );
 			}
@@ -237,10 +244,10 @@ class NodeResolver {
 
 		// Limit publicly queried post_types to those that are publicly_queryable
 		if ( isset( $this->wp->query_vars['post_type'] ) ) {
-			$queryable_post_types = get_post_types( array( 'show_in_graphql' => true ) );
+			$queryable_post_types = get_post_types( [ 'show_in_graphql' => true ] );
 
 			if ( ! is_array( $this->wp->query_vars['post_type'] ) ) {
-				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types ) ) {
+				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types, true ) ) {
 					unset( $this->wp->query_vars['post_type'] );
 				}
 			} else {
@@ -272,7 +279,7 @@ class NodeResolver {
 
 		unset( $this->wp->query_vars['graphql'] );
 
-		do_action_ref_array( 'parse_request', array( &$this ) );
+		do_action_ref_array( 'parse_request', [ &$this ] );
 
 		$node = null;
 
@@ -285,14 +292,14 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$args  = array(
+			$args  = [
 				'page_id'             => absint( $this->wp->query_vars['page_id'] ),
 				'post_type'           => $post_type,
 				'post_status'         => 'publish',
 				'posts_per_page'      => 1,
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
-			);
+			];
 			$posts = new \WP_Query( $args );
 
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
@@ -306,14 +313,14 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$args  = array(
+			$args  = [
 				'p'                   => absint( $this->wp->query_vars['p'] ),
 				'post_type'           => $post_type,
 				'post_status'         => 'publish',
 				'posts_per_page'      => 1,
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
-			);
+			];
 			$posts = new \WP_Query( $args );
 
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
@@ -327,14 +334,14 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$args  = array(
+			$args  = [
 				'name'                => $this->wp->query_vars['name'],
 				'post_type'           => $post_type,
 				'post_status'         => 'publish',
 				'posts_per_page'      => 1,
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
-			);
+			];
 			$posts = new \WP_Query( $args );
 
 			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;

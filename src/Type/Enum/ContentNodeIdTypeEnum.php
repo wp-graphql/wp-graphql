@@ -32,7 +32,7 @@ class ContentNodeIdTypeEnum {
 					];
 				}
 
-				if ( $post_type_object->name === 'attachment' ) {
+				if ( 'attachment' === $post_type_object->name ) {
 					$values['source_url'] = [
 						'name'        => 'SOURCE_URL',
 						'value'       => 'source_url',

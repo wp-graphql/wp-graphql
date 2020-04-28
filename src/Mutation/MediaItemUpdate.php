@@ -108,7 +108,7 @@ class MediaItemUpdate {
 			}
 
 			/**
-			 * insert the post object and get the ID
+			 * Insert the post object and get the ID
 			 */
 			$post_args                = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
 			$post_args['ID']          = absint( $id_parts['id'] );

@@ -4,12 +4,14 @@ module.exports = {
   siteMetadata: {
     siteName: `WPGraphQL`,
     title: `WPGraphQL Docs`,
+    subtitle: `WPGraphQL Docs`,
     description: `WPGraphQL (GraphQL for WordPress) documentation.`,
     twitterHandle: `wpgraphql`,
     author: `WPGraphQL`,
   },
+  pathPrefix: ``,
   plugins: [
-    `gatsby-plugin-sharp`,
+    // Data source Plugins
     {
       resolve: `gatsby-source-filesystem`,
       options: {
@@ -17,8 +19,12 @@ module.exports = {
         path: `${__dirname}/source/images`,
       },
     },
+    // transformer plugins
+    `gatsby-plugin-sharp`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
+
+    // meta tools
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -37,6 +43,8 @@ module.exports = {
         style: false,
       },
     },
+
+    //Theme config
     {
       resolve: 'gatsby-theme-apollo-docs',
       options: {
@@ -48,7 +56,6 @@ module.exports = {
         subtitle: 'WPGraphQL',
         description: 'WPGraphQL (GraphQL for WordPress) documentation.',
         githubRepo: 'wp-graphql/wp-graphql',
-        defaultVersion: 0.4,
         trackingId: 'UA-111783024-1',
         twitterHandle: 'wpgraphql',
         spectrumHandle: 'wpgraphql',
@@ -138,8 +145,10 @@ module.exports = {
         },
       },
     },
+    //Hosting integration
     `gatsby-plugin-netlify`,
-    `gatsby-plugin-netlify-cache`,
+
+    //Testing plugins
     {
       resolve: `gatsby-plugin-react-axe`,
       options: {

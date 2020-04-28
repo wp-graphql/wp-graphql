@@ -72,6 +72,7 @@ class Comment extends Model {
 	protected function is_private() {
 
 		// NOTE: Do a non-strict check here, as the return is a `1` or `0`.
+		// phpcs:disable WordPress.PHP.StrictComparisons.LooseComparison
 		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}

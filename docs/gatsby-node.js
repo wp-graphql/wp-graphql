@@ -1,5 +1,5 @@
 exports.createSchemaCustomization = ({ actions }) => {
-  actions.createTypes(`
+    actions.createTypes(`
         type File implements Node @infer {
             childMarkdownRemark: MarkdownRemark
         }

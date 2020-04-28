@@ -281,7 +281,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'graphql_before_resolve_field', [
 				'\WPGraphQL\Utils\InstrumentSchema',
-				'check_field_permissions'
+				'check_field_permissions',
 			], 10, 8 );
 
 			/**
@@ -352,7 +352,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_filter( 'graphql_schema', [
 				'\WPGraphQL\Utils\InstrumentSchema',
-				'instrument_schema'
+				'instrument_schema',
 			], 10, 1 );
 		}
 

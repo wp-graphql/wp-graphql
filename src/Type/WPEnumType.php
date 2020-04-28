@@ -41,8 +41,6 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
-	 * prepare_values
-	 *
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
@@ -56,7 +54,7 @@ class WPEnumType extends EnumType {
 		/**
 		 * Pass the values through a filter
 		 *
-		 * lcfirst( $type_name ) filter was added for backward compatibility
+		 * Filter for lcfirst( $type_name ) was added for backward compatibility
 		 *
 		 * @param array $values
 		 *

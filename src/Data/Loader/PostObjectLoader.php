@@ -107,13 +107,13 @@ class PostObjectLoader extends AbstractDataLoader {
 
 				if ( ! empty( $post_object->post_author ) ) {
 					$user_id = $post_object->post_author;
-					$this->context->getLoader( 'user' )->buffer( [ $user_id ] );
+					$this->context->get_loader( 'user' )->buffer( [ $user_id ] );
 				}
 			}
 
 			if ( 'revision' === $post_object->post_type && ! empty( $post_object->post_parent ) && absint( $post_object->post_parent ) ) {
 				$post_parent = $post_object->post_parent;
-				$this->context->getLoader( 'post_object' )->buffer( [ $post_parent ] );
+				$this->context->get_loader( 'post_object' )->buffer( [ $post_parent ] );
 			}
 
 			/**
@@ -129,10 +129,10 @@ class PostObjectLoader extends AbstractDataLoader {
 				function() use ( $post_object, $user_id, $post_parent, $context ) {
 
 					if ( ! empty( $user_id ) ) {
-						$context->getLoader( 'user' )->load( $user_id );
+						$context->get_loader( 'user' )->load( $user_id );
 					}
 					if ( ! empty( $post_parent ) ) {
-						$context->getLoader( 'post_object' )->load( $post_parent );
+						$context->get_loader( 'post_object' )->load( $post_parent );
 					}
 
 					/**
