@@ -117,6 +117,7 @@ use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
 
 /**
@@ -403,6 +404,19 @@ class TypeRegistry {
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 
+	}
+
+	/**
+	 * Given a config for a custom Scalar, this adds the Scalar for use in the Schema.
+	 *
+	 * @param $config
+	 *
+	 * @return WPScalar
+	 */
+	public function register_scalar( $config ) {
+		$type = new WPScalar( $config, $this );
+		$this->types[ $this->format_key( $type->name ) ] = $type;
+		return $type;
 	}
 
 	/**
