@@ -103,7 +103,7 @@ class Comment {
 						'type'        => 'Comment',
 						'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
 						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_parent_id ) ? DataSource::resolve_comment( $comment->comment_parent_id, $context ) : null;
+							return ! empty( $comment->comment_parent_id ) ? $context->get_loader( 'comment' )->load_deferred( $comment->comment_parent_id ) : null;
 						},
 					],
 					'isRestricted' => [

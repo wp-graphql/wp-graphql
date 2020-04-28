@@ -60,22 +60,11 @@ class DataSource {
 	 *
 	 * @throws UserError Throws UserError.
 	 * @throws \Exception Throws UserError.
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_comment( $id, $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$comment_id = absint( $id );
-		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
-
-		return new Deferred(
-			function() use ( $comment_id, $context ) {
-				return $context->getLoader( 'comment' )->load( $comment_id );
-			}
-		);
-
+		return $context->get_loader( 'comment' )->load_deferred( $id );
 	}
 
 	/**
@@ -193,21 +182,11 @@ class DataSource {
 	 * @return Deferred
 	 *
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$post_id = absint( $id );
-		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
-
-		return new Deferred(
-			function() use ( $post_id, $context ) {
-				return $context->getLoader( 'post_object' )->load( $post_id );
-			}
-		);
-
+		return $context->get_loader( 'post_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -216,19 +195,11 @@ class DataSource {
 	 *
 	 * @return Deferred|null
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( $id, AppContext $context ) {
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$menu_item_id = absint( $id );
-		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
-
-		return new Deferred(
-			function() use ( $menu_item_id, $context ) {
-				return $context->getLoader( 'menu_item' )->load( $menu_item_id );
-			}
-		);
+		return $context->get_loader( 'menu_item' )->load_deferred( $id );
 	}
 
 	/**
@@ -314,22 +285,11 @@ class DataSource {
 	 * @return mixed
 	 * @throws \Exception
 	 * @since  0.0.5
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$term_id = absint( $id );
-		$context->getLoader( 'term_object' )->buffer( [ $id ] );
-
-		return new Deferred(
-			function() use ( $term_id, $context ) {
-				return $context->getLoader( 'term_object' )->load( $term_id );
-			}
-		);
-
+		return $context->get_loader( 'term_object' )->load_deferred( $id );
 	}
 
 	/**
@@ -397,20 +357,11 @@ class DataSource {
 	 * @return Deferred
 	 * @since  0.0.5
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
-
-		if ( empty( $id ) ) {
-			return null;
-		}
-		$user_id = absint( $id );
-		$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-		return new Deferred(
-			function() use ( $user_id, $context ) {
-				return $context->getLoader( 'user' )->load( $user_id );
-			}
-		);
+		return $context->get_loader( 'user' )->load_deferred( $id );
 	}
 
 	/**
@@ -769,17 +720,7 @@ class DataSource {
 					break;
 				case 'user':
 					$user_id = absint( $id_components['id'] );
-
-					if ( empty( $user_id ) || ! absint( $user_id ) ) {
-						return null;
-					}
-					$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-					return new Deferred(
-						function() use ( $user_id, $context ) {
-							return $context->getLoader( 'user' )->load( $user_id );
-						}
-					);
+					return $context->get_loader( 'user' )->load_deferred( $user_id );
 					break;
 				default:
 					/**
