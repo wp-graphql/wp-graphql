@@ -8,8 +8,10 @@ GraphQL API for WordPress. This plugin brings the power of GraphQL to WordPress.
 - <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Join Slack</a>
 
 -----
-[![Latest Stable Version](https://poser.pugx.org/wp-graphql/wp-graphql/v/stable)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Total Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/downloads)](https://packagist.org/packages/wp-graphql/wp-graphql)
+[![Monthly Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/monthly)](https://packagist.org/packages/wp-graphql/wp-graphql)
+[![Daily Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/daily)](https://packagist.org/packages/wp-graphql/wp-graphql)
+[![Latest Stable Version](https://poser.pugx.org/wp-graphql/wp-graphql/v/stable)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![License](https://poser.pugx.org/wp-graphql/wp-graphql/license)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22) [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
 [![codecov](https://codecov.io/gh/wp-graphql/wp-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/wp-graphql/wp-graphql)
