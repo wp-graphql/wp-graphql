@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use GraphQL\Deferred;
 use GraphQL\Utils\Utils;
 use WPGraphQL\AppContext;
 
@@ -50,6 +51,30 @@ abstract class AbstractDataLoader {
 	 */
 	public function __construct( AppContext $context ) {
 		$this->context = $context;
+	}
+
+	/**
+	 * Given a Database ID, the particular loader will buffer it and resolve it deferred.
+	 *
+	 * @param Int $database_id The database ID for a particular loader to load an object
+	 *
+	 * @return Deferred|null
+	 * @throws \Exception
+	 */
+	public function loadDeferred( $database_id ) {
+
+		if ( empty( $database_id ) || ! absint( $database_id ) ) {
+			return null;
+		}
+
+		$this->buffer( [ absint( $database_id ) ] );
+
+		return new Deferred(
+			function() use ( $database_id ) {
+				return $this->load( $database_id );
+			}
+		);
+
 	}
 
 	/**
