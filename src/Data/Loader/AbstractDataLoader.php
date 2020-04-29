@@ -288,7 +288,7 @@ abstract class AbstractDataLoader {
 			}
 		}
 		// Re-include previously-cached entries to result:
-		$result       += array_intersect_key( $this->cached, $this->buffer );
+		$result      += array_intersect_key( $this->cached, $this->buffer );
 		$this->buffer = [];
 
 		return $result;
