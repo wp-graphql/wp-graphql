@@ -23,6 +23,10 @@ use GraphQLRelay\Relay;
  * @property string $url
  * @property string $slug
  * @property string $nicename
+ * @property string status
+ * @property string activation_key
+ * @property string login
+ * @property string pass
  * @property string $locale
  * @property int    $userId
  * @property string $uri
@@ -167,6 +171,18 @@ class User extends Model {
 				},
 				'nicename'          => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
+				},
+				'status'          => function() {
+					return ! empty( $this->data->user_status ) ? $this->data->user_status : null;
+				},
+				'activation_key'          => function() {
+					return ! empty( $this->data->user_activation_key ) ? $this->data->user_activation_key : null;
+				},
+				'pass'          => function() {
+					return ! empty( $this->data->user_pass ) ? $this->data->user_pass : null;
+				},
+				'login'          => function() {
+					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
 				'locale'            => function() {
 					$user_locale = get_user_locale( $this->data );

@@ -147,6 +147,10 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				url
 				userId
 				username
+				status
+				activation_key
+				login
+				pass
 			}
 		}";
 
@@ -202,6 +206,10 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'url'               => null,
 					'userId'            => $user_id,
 					'username'          => $user->data->user_login,
+					'status'            => $user->data->user_status,
+					'activation_key'    => $user->data->user_activation_key,
+					'login'             => $user->data->user_login,
+					'pass'              => $user->data->user_pass,
 				],
 			],
 		];
