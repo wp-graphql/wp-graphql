@@ -171,13 +171,13 @@ class User extends Model {
 				'nicename'          => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'status'          => function() {
+				'status'            => function() {
 					return ! empty( $this->data->user_status ) ? $this->data->user_status : null;
 				},
-				'activationKey'          => function() {
+				'activationKey'     => function() {
 					return ! empty( $this->data->user_activation_key ) ? $this->data->user_activation_key : null;
 				},
-				'login'          => function() {
+				'login'             => function() {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
 				'locale'            => function() {

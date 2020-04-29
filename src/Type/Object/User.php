@@ -91,15 +91,15 @@ class User {
 						'type'        => 'String',
 						'description' => __( 'The nicename for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
 					],
-					'status'          => [
+					'status'            => [
 						'type'        => 'String',
 						'description' => __( 'The status for the user. This field is equivalent to WP_User->user_status', 'wp-graphql' ),
 					],
-					'activationKey'          => [
+					'activationKey'     => [
 						'type'        => 'String',
 						'description' => __( 'The activation_key for the user. This field is equivalent to WP_User->user_activation_key', 'wp-graphql' ),
 					],
-					'login'          => [
+					'login'             => [
 						'type'        => 'String',
 						'description' => __( 'The login for the user. This field is equivalent to WP_User->user_login', 'wp-graphql' ),
 					],
