@@ -4,7 +4,15 @@ namespace WPGraphQL\Type\Object;
 
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class User
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class User {
+	/**
+	 * Registers the User type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'User',
@@ -86,7 +94,7 @@ class User {
 						'type'        => 'String',
 						'description' => __( 'The status for the user. This field is equivalent to WP_User->user_status', 'wp-graphql' ),
 					],
-					'activation_key'          => [
+					'activationKey'          => [
 						'type'        => 'String',
 						'description' => __( 'The activation_key for the user. This field is equivalent to WP_User->user_activation_key', 'wp-graphql' ),
 					],

@@ -24,7 +24,7 @@ use GraphQLRelay\Relay;
  * @property string $slug
  * @property string $nicename
  * @property string $status
- * @property string $activation_key
+ * @property string $activationKey
  * @property string $login
  * @property string $pass
  * @property string $locale
@@ -175,7 +175,7 @@ class User extends Model {
 				'status'          => function() {
 					return ! empty( $this->data->user_status ) ? $this->data->user_status : null;
 				},
-				'activation_key'          => function() {
+				'activationKey'          => function() {
 					return ! empty( $this->data->user_activation_key ) ? $this->data->user_activation_key : null;
 				},
 				'pass'          => function() {
