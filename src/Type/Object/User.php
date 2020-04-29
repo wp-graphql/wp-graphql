@@ -10,6 +10,7 @@ use WPGraphQL\Data\DataSource;
  * @package WPGraphQL\Type\Object
  */
 class User {
+	
 	/**
 	 * Registers the User type
 	 */
