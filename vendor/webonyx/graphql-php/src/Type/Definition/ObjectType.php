@@ -62,7 +62,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var ObjectTypeExtensionNode[] */
     public $extensionASTNodes;
 
-    /** @var callable */
+    /** @var ?callable */
     public $resolveFieldFn;
 
     /** @var FieldDefinition[] */
@@ -168,7 +168,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     private function getInterfaceMap()
     {
-        if (! $this->interfaceMap) {
+        if ($this->interfaceMap === null) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
                 $this->interfaceMap[$interface->name] = $interface;
@@ -185,7 +185,9 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         if ($this->interfaces === null) {
             $interfaces = $this->config['interfaces'] ?? [];
-            $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
+            $interfaces = is_callable($interfaces)
+                ? call_user_func($interfaces)
+                : $interfaces;
 
             if ($interfaces !== null && ! is_array($interfaces)) {
                 throw new InvariantViolation(
@@ -200,19 +202,21 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * @param mixed[]      $value
+     * @param mixed        $value
      * @param mixed[]|null $context
      *
      * @return bool|null
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
-        return isset($this->config['isTypeOf']) ? call_user_func(
-            $this->config['isTypeOf'],
-            $value,
-            $context,
-            $info
-        ) : null;
+        return isset($this->config['isTypeOf'])
+            ? call_user_func(
+                $this->config['isTypeOf'],
+                $value,
+                $context,
+                $info
+            )
+            : null;
     }
 
     /**

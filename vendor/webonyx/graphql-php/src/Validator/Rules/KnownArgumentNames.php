@@ -6,9 +6,11 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
@@ -27,17 +29,17 @@ class KnownArgumentNames extends ValidationRule
     {
         return [
             NodeKind::ARGUMENT => static function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
-                /** @var NodeList|Node[] $ancestors */
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
-                    return;
+                    return null;
                 }
 
+                /** @var Node|mixed $argumentOf */
                 $argumentOf = $ancestors[count($ancestors) - 1];
-                if ($argumentOf->kind === NodeKind::FIELD) {
+                if ($argumentOf instanceof FieldNode) {
                     $fieldDef   = $context->getFieldDef();
                     $parentType = $context->getParentType();
-                    if ($fieldDef && $parentType) {
+                    if ($fieldDef !== null && $parentType instanceof Type) {
                         $context->reportError(new Error(
                             self::unknownArgMessage(
                                 $node->name->value,
@@ -46,7 +48,7 @@ class KnownArgumentNames extends ValidationRule
                                 Utils::suggestionList(
                                     $node->name->value,
                                     array_map(
-                                        static function ($arg) {
+                                        static function ($arg) : string {
                                             return $arg->name;
                                         },
                                         $fieldDef->args
@@ -56,7 +58,7 @@ class KnownArgumentNames extends ValidationRule
                             [$node]
                         ));
                     }
-                } elseif ($argumentOf->kind === NodeKind::DIRECTIVE) {
+                } elseif ($argumentOf instanceof DirectiveNode) {
                     $directive = $context->getDirective();
                     if ($directive) {
                         $context->reportError(new Error(

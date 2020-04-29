@@ -6,7 +6,6 @@ namespace GraphQL\Error;
 
 use Countable;
 use ErrorException;
-use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -177,7 +176,7 @@ class FormattedError
     public static function createFromException($e, $debug = false, $internalErrorMessage = null)
     {
         Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
+            $e instanceof Throwable,
             'Expected exception, got %s',
             Utils::getVariableType($e)
         );
@@ -203,7 +202,7 @@ class FormattedError
         if ($e instanceof Error) {
             $locations = Utils::map(
                 $e->getLocations(),
-                static function (SourceLocation $loc) {
+                static function (SourceLocation $loc) : array {
                     return $loc->toSerializableArray();
                 }
             );
@@ -244,7 +243,7 @@ class FormattedError
         }
 
         Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
+            $e instanceof Throwable,
             'Expected exception, got %s',
             Utils::getVariableType($e)
         );
@@ -303,11 +302,11 @@ class FormattedError
      */
     public static function prepareFormatter(?callable $formatter = null, $debug)
     {
-        $formatter = $formatter ?: static function ($e) {
+        $formatter = $formatter ?: static function ($e) : array {
             return FormattedError::createFromException($e);
         };
         if ($debug) {
-            $formatter = static function ($e) use ($formatter, $debug) {
+            $formatter = static function ($e) use ($formatter, $debug) : array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
         }
@@ -338,7 +337,7 @@ class FormattedError
         }
 
         return array_map(
-            static function ($err) {
+            static function ($err) : array {
                 $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
@@ -414,7 +413,7 @@ class FormattedError
 
         if (! empty($locations)) {
             $formatted['locations'] = array_map(
-                static function ($loc) {
+                static function ($loc) : array {
                     return $loc->toArray();
                 },
                 $locations
@@ -428,6 +427,8 @@ class FormattedError
      * @deprecated as of v0.10.0, use general purpose method createFromException() instead
      *
      * @return mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public static function createFromPHPError(ErrorException $e)
     {

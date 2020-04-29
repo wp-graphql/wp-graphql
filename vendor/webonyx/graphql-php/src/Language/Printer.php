@@ -28,6 +28,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
@@ -47,6 +48,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Utils\Utils;
 use function count;
 use function implode;
@@ -97,15 +99,15 @@ class Printer
             $ast,
             [
                 'leave' => [
-                    NodeKind::NAME => static function (Node $node) {
+                    NodeKind::NAME => static function (NameNode $node) : string {
                         return '' . $node->value;
                     },
 
-                    NodeKind::VARIABLE => static function ($node) {
+                    NodeKind::VARIABLE => static function (VariableNode $node) : string {
                         return '$' . $node->name;
                     },
 
-                    NodeKind::DOCUMENT => function (DocumentNode $node) {
+                    NodeKind::DOCUMENT => function (DocumentNode $node) : string {
                         return $this->join($node->definitions, "\n\n") . "\n";
                     },
 
@@ -118,13 +120,17 @@ class Printer
 
                         // Anonymous queries with no directives or variable definitions can use
                         // the query short form.
-                        return ! $name && ! $directives && ! $varDefs && $op === 'query'
+                        return $name === null && ! $directives && ! $varDefs && $op === 'query'
                             ? $selectionSet
                             : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
                     },
 
-                    NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) {
-                        return $node->variable . ': ' . $node->type . $this->wrap(' = ', $node->defaultValue);
+                    NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) : string {
+                        return $node->variable
+                            . ': '
+                            . $node->type
+                            . $this->wrap(' = ', $node->defaultValue)
+                            . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
                     NodeKind::SELECTION_SET => function (SelectionSetNode $node) {
@@ -146,11 +152,11 @@ class Printer
                         );
                     },
 
-                    NodeKind::ARGUMENT => static function (ArgumentNode $node) {
+                    NodeKind::ARGUMENT => static function (ArgumentNode $node) : string {
                         return $node->name . ': ' . $node->value;
                     },
 
-                    NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) {
+                    NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
                         return '...' . $node->name . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
@@ -166,7 +172,7 @@ class Printer
                         );
                     },
 
-                    NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) {
+                    NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) : string {
                         // Note: fragment variable definitions are experimental and may be changed or removed in the future.
                         return sprintf('fragment %s', $node->name)
                             . $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')')
@@ -179,7 +185,7 @@ class Printer
                         return $node->value;
                     },
 
-                    NodeKind::FLOAT => static function (FloatValueNode $node) {
+                    NodeKind::FLOAT => static function (FloatValueNode $node) : string {
                         return $node->value;
                     },
 
@@ -195,39 +201,39 @@ class Printer
                         return $node->value ? 'true' : 'false';
                     },
 
-                    NodeKind::NULL => static function (NullValueNode $node) {
+                    NodeKind::NULL => static function (NullValueNode $node) : string {
                         return 'null';
                     },
 
-                    NodeKind::ENUM => static function (EnumValueNode $node) {
+                    NodeKind::ENUM => static function (EnumValueNode $node) : string {
                         return $node->value;
                     },
 
-                    NodeKind::LST => function (ListValueNode $node) {
+                    NodeKind::LST => function (ListValueNode $node) : string {
                         return '[' . $this->join($node->values, ', ') . ']';
                     },
 
-                    NodeKind::OBJECT => function (ObjectValueNode $node) {
+                    NodeKind::OBJECT => function (ObjectValueNode $node) : string {
                         return '{' . $this->join($node->fields, ', ') . '}';
                     },
 
-                    NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) {
+                    NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) : string {
                         return $node->name . ': ' . $node->value;
                     },
 
-                    NodeKind::DIRECTIVE => function (DirectiveNode $node) {
+                    NodeKind::DIRECTIVE => function (DirectiveNode $node) : string {
                         return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                     },
 
-                    NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) {
+                    NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
                         return $node->name;
                     },
 
-                    NodeKind::LIST_TYPE => static function (ListTypeNode $node) {
+                    NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
                         return '[' . $node->type . ']';
                     },
 
-                    NodeKind::NON_NULL_TYPE => static function (NonNullTypeNode $node) {
+                    NodeKind::NON_NULL_TYPE => static function (NonNullTypeNode $node) : string {
                         return $node->type . '!';
                     },
 
@@ -242,7 +248,7 @@ class Printer
                         );
                     },
 
-                    NodeKind::OPERATION_TYPE_DEFINITION => static function (OperationTypeDefinitionNode $def) {
+                    NodeKind::OPERATION_TYPE_DEFINITION => static function (OperationTypeDefinitionNode $def) : string {
                         return $def->operation . ': ' . $def->type;
                     },
 
@@ -264,7 +270,7 @@ class Printer
                     }),
 
                     NodeKind::FIELD_DEFINITION => $this->addDescription(function (FieldDefinitionNode $def) {
-                        $noIndent = Utils::every($def->arguments, static function (string $arg) {
+                        $noIndent = Utils::every($def->arguments, static function (string $arg) : bool {
                             return strpos($arg, "\n") === false;
                         });
 
@@ -431,7 +437,7 @@ class Printer
                     },
 
                     NodeKind::DIRECTIVE_DEFINITION => $this->addDescription(function (DirectiveDefinitionNode $def) {
-                        $noIndent = Utils::every($def->arguments, static function (string $arg) {
+                        $noIndent = Utils::every($def->arguments, static function (string $arg) : bool {
                             return strpos($arg, "\n") === false;
                         });
 
@@ -496,7 +502,7 @@ class Printer
                 $separator,
                 Utils::filter(
                     $maybeArray,
-                    static function ($x) {
+                    static function ($x) : bool {
                         return (bool) $x;
                     }
                 )

@@ -116,7 +116,7 @@ class Visitor
         NodeKind::NAME                 => [],
         NodeKind::DOCUMENT             => ['definitions'],
         NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
-        NodeKind::VARIABLE_DEFINITION  => ['variable', 'type', 'defaultValue'],
+        NodeKind::VARIABLE_DEFINITION  => ['variable', 'type', 'defaultValue', 'directives'],
         NodeKind::VARIABLE             => ['name'],
         NodeKind::SELECTION_SET        => ['selections'],
         NodeKind::FIELD                => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
@@ -251,8 +251,18 @@ class Visitor
                 $inArray = $stack['inArray'];
                 $stack   = $stack['prev'];
             } else {
-                $key  = $parent !== null ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent !== null ? ($parent instanceof NodeList || is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $key  = $parent !== null
+                    ? ($inArray
+                        ? $index
+                        : $keys[$index]
+                    )
+                    : $UNDEFINED;
+                $node = $parent !== null
+                    ? ($parent instanceof NodeList || is_array($parent)
+                        ? $parent[$key]
+                        : $parent->{$key}
+                    )
+                    : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
@@ -383,7 +393,7 @@ class Visitor
     /**
      * @param callable[][] $visitors
      *
-     * @return callable[][]
+     * @return array<string, callable>
      */
     public static function visitInParallel($visitors)
     {

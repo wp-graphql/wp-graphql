@@ -149,7 +149,7 @@ class AST
      *
      * @param Type|mixed|null $value
      *
-     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
      *
      * @api
      */
@@ -183,7 +183,7 @@ class AST
                     $valuesNodes[] = $itemNode;
                 }
 
-                return new ListValueNode(['values' => $valuesNodes]);
+                return new ListValueNode(['values' => new NodeList($valuesNodes)]);
             }
 
             return self::astFromValue($value, $itemType);
@@ -213,7 +213,6 @@ class AST
                 } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
-                    /** @var ArrayAccess $value */
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
                     $fieldExists = property_exists($value, $fieldName);
@@ -235,7 +234,7 @@ class AST
                 ]);
             }
 
-            return new ObjectValueNode(['fields' => $fieldNodes]);
+            return new ObjectValueNode(['fields' => new NodeList($fieldNodes)]);
         }
 
         if ($type instanceof ScalarType || $type instanceof EnumType) {
@@ -243,11 +242,6 @@ class AST
             // to an externally represented value before converting into an AST.
             try {
                 $serialized = $type->serialize($value);
-            } catch (Exception $error) {
-                if ($error instanceof Error && $type instanceof EnumType) {
-                    return null;
-                }
-                throw $error;
             } catch (Throwable $error) {
                 if ($error instanceof Error && $type instanceof EnumType) {
                     return null;
@@ -313,8 +307,8 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param ValueNode|null $valueNode
-     * @param mixed[]|null   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
+     * @param mixed[]|null                                                                                                                             $variables
      *
      * @return mixed[]|stdClass|null
      *
@@ -322,7 +316,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST($valueNode, InputType $type, ?array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 
@@ -354,9 +348,14 @@ class AST
                 return $undefined;
             }
 
-            // Note: we're not doing any checking that this variable is correct. We're
-            // assuming that this query has been validated and the variable usage here
-            // is of the correct type.
+            $variableValue = $variables[$variableName] ?? null;
+            if ($variableValue === null && $type instanceof NonNull) {
+                return $undefined; // Invalid: intentionally return no value.
+            }
+
+            // Note: This does no further checking that this variable is correct.
+            // This assumes that this query has been validated and the variable
+            // usage here is of the correct type.
             return $variables[$variableName];
         }
 
@@ -411,8 +410,8 @@ class AST
                 }
             );
             foreach ($fields as $field) {
-                /** @var ValueNode $fieldNode */
                 $fieldName = $field->name;
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
                 if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
@@ -459,8 +458,6 @@ class AST
             // no value is returned.
             try {
                 return $type->parseLiteral($valueNode, $variables);
-            } catch (Exception $error) {
-                return $undefined;
             } catch (Throwable $error) {
                 return $undefined;
             }
@@ -473,12 +470,12 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode $valueNode
-     * @param mixed[]   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
+     * @param mixed[]                                                                                                                             $variables
      *
      * @return bool
      */
-    private static function isMissingVariable($valueNode, $variables)
+    private static function isMissingVariable(ValueNode $valueNode, $variables)
     {
         return $valueNode instanceof VariableNode &&
             (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
@@ -532,7 +529,7 @@ class AST
             case $valueNode instanceof ObjectValueNode:
                 return array_combine(
                     array_map(
-                        static function ($field) {
+                        static function ($field) : string {
                             return $field->name->value;
                         },
                         iterator_to_array($valueNode->fields)
@@ -590,7 +587,7 @@ class AST
      *
      * @param string $operationName
      *
-     * @return bool
+     * @return bool|string
      *
      * @api
      */

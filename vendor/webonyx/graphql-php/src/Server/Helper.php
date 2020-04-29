@@ -73,10 +73,14 @@ class Helper
             }
 
             if (stripos($contentType, 'application/graphql') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $rawBody    = $readRawBodyFn
+                    ? $readRawBodyFn()
+                    : $this->readRawBody();
                 $bodyParams = ['query' => $rawBody ?: ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $rawBody    = $readRawBodyFn ?
+                    $readRawBodyFn()
+                    : $this->readRawBody();
                 $bodyParams = json_decode($rawBody ?: '', true);
 
                 if (json_last_error()) {
@@ -142,7 +146,7 @@ class Helper
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid)
      *
-     * @return Error[]
+     * @return array<int, RequestError>
      *
      * @api
      */
@@ -249,7 +253,7 @@ class Helper
         $isBatch = false
     ) {
         try {
-            if (! $config->getSchema()) {
+            if ($config->getSchema() === null) {
                 throw new InvariantViolation('Schema is required for the server');
             }
 
@@ -262,7 +266,7 @@ class Helper
             if (! empty($errors)) {
                 $errors = Utils::map(
                     $errors,
-                    static function (RequestError $err) {
+                    static function (RequestError $err) : Error {
                         return Error::createLocatedError($err, null, null);
                     }
                 );
@@ -272,13 +276,20 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId ? $this->loadPersistedQuery($config, $op) : $op->query;
+            $doc = $op->queryId
+                ? $this->loadPersistedQuery($config, $op)
+                : $op->query;
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
             }
 
             $operationType = AST::getOperation($doc, $op->operation);
+
+            if ($operationType === false) {
+                throw new RequestError('Failed to determine operation type');
+            }
+
             if ($operationType !== 'query' && $op->isReadOnly()) {
                 throw new RequestError('GET supports only query operation');
             }
@@ -304,7 +315,7 @@ class Helper
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config) {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config) : ExecutionResult {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
@@ -333,7 +344,7 @@ class Helper
         // Load query if we got persisted query id:
         $loader = $config->getPersistentQueryLoader();
 
-        if (! $loader) {
+        if ($loader === null) {
             throw new RequestError('Persisted queries are not supported by this server');
         }
 
@@ -379,19 +390,17 @@ class Helper
     }
 
     /**
-     * @param string $operationType
-     *
      * @return mixed
      */
-    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
+    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, string $operationType)
     {
-        $root = $config->getRootValue();
+        $rootValue = $config->getRootValue();
 
-        if (is_callable($root)) {
-            $root = $root($params, $doc, $operationType);
+        if (is_callable($rootValue)) {
+            $rootValue = $rootValue($params, $doc, $operationType);
         }
 
-        return $root;
+        return $rootValue;
     }
 
     /**
@@ -425,7 +434,7 @@ class Helper
     public function sendResponse($result, $exitWhenDone = false)
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone) {
+            $result->then(function ($actualResult) use ($exitWhenDone) : void {
                 $this->doSendResponse($actualResult, $exitWhenDone);
             });
         } else {
@@ -473,7 +482,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                static function ($executionResult, $index) {
+                static function ($executionResult, $index) : void {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',

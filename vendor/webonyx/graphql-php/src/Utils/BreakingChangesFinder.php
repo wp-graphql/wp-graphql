@@ -214,10 +214,10 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType && $oldFieldType instanceof Type
                             ? $oldFieldType->name
                             : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType
+                        $newFieldTypeString = $newFieldType instanceof NamedType && $newFieldType instanceof Type
                             ? $newFieldType->name
                             : $newFieldType;
                         $breakingChanges[]  = [
@@ -270,7 +270,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return string[][]
+     * @return array<string, array<int, array<string, string>>>
      */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema,
@@ -304,13 +304,17 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType
-                            ? $oldFieldType->name
-                            : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType
-                            ? $newFieldType->name
-                            : $newFieldType;
-                        $breakingChanges[]  = [
+                        if ($oldFieldType instanceof NamedType) {
+                            $oldFieldTypeString = $oldFieldType->name;
+                        } else {
+                            $oldFieldTypeString = $oldFieldType;
+                        }
+                        if ($newFieldType instanceof NamedType) {
+                            $newFieldTypeString = $newFieldType->name;
+                        } else {
+                            $newFieldTypeString = $newFieldType;
+                        }
+                        $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                             'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
                         ];
@@ -352,8 +356,12 @@ class BreakingChangesFinder
         Type $newType
     ) {
         if ($oldType instanceof NamedType) {
+            if (! $newType instanceof NamedType) {
+                return false;
+            }
+
             // if they're both named types, see if their names are equivalent
-            return $newType instanceof NamedType && $oldType->name === $newType->name;
+            return $oldType->name === $newType->name;
         }
 
         if ($oldType instanceof ListOfType) {
@@ -463,7 +471,7 @@ class BreakingChangesFinder
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
      *
-     * @return string[][]
+     * @return array<string, array<int,array<string, string>>>
      */
     public static function findArgChanges(
         Schema $oldSchema,
@@ -496,15 +504,16 @@ class BreakingChangesFinder
                     $newArgs   = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs,
-                        static function ($arg) use ($oldArgDef) {
+                        static function ($arg) use ($oldArgDef) : bool {
                             return $arg->name === $oldArgDef->name;
                         }
                     );
                     if ($newArgDef !== null) {
-                        $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
+                        $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
                         );
+                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $oldArgType */
                         $oldArgType = $oldArgDef->getType();
                         $oldArgName = $oldArgDef->name;
                         if (! $isSafe) {
@@ -535,7 +544,7 @@ class BreakingChangesFinder
                         $oldArgs   = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
-                            static function ($arg) use ($newTypeFieldArgDef) {
+                            static function ($arg) use ($newTypeFieldArgDef) : bool {
                                 return $arg->name === $newTypeFieldArgDef->name;
                             }
                         );

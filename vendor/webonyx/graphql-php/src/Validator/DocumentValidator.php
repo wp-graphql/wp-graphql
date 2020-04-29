@@ -28,7 +28,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
-use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
@@ -43,14 +43,11 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
-use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
 use function array_filter;
-use function array_map;
 use function array_merge;
 use function count;
-use function implode;
 use function is_array;
 use function sprintf;
 
@@ -160,8 +157,7 @@ class DocumentValidator
                 KnownArgumentNames::class           => new KnownArgumentNames(),
                 UniqueArgumentNames::class          => new UniqueArgumentNames(),
                 ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
-                ProvidedNonNullArguments::class     => new ProvidedNonNullArguments(),
-                VariablesDefaultValueAllowed::class => new VariablesDefaultValueAllowed(),
+                ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
                 VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
                 OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
                 UniqueInputFieldNames::class        => new UniqueInputFieldNames(),
@@ -268,11 +264,11 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) {
-                    return $item instanceof Exception || $item instanceof Throwable;
+                static function ($item) : bool {
+                    return $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof Exception || $value instanceof Throwable);
+            : $value instanceof Throwable;
     }
 
     public static function append(&$arr, $items)
@@ -309,18 +305,55 @@ class DocumentValidator
         return $context->getErrors();
     }
 
+    /**
+     * @param ValidationRule[]|null $rules
+     *
+     * @return Error[]
+     *
+     * @throws Exception
+     */
+    public static function validateSDL(
+        DocumentNode $documentAST,
+        ?Schema $schemaToExtend = null,
+        ?array $rules = null
+    ) {
+        $usedRules = $rules ?? self::sdlRules();
+        $context   = new SDLValidationContext($documentAST, $schemaToExtend);
+        $visitors  = [];
+        foreach ($usedRules as $rule) {
+            $visitors[] = $rule->getSDLVisitor($context);
+        }
+        Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
+
+        return $context->getErrors();
+    }
+
+    public static function assertValidSDL(DocumentNode $documentAST)
+    {
+        $errors = self::validateSDL($documentAST);
+        if (count($errors) !== 0) {
+            throw new Error(self::combineErrorMessages($errors));
+        }
+    }
+
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
-        $errors = self::visitUsingRules($schema, new TypeInfo($schema), $documentAST, self::sdlRules());
+        $errors = self::validateSDL($documentAST, $schema);
         if (count($errors) !== 0) {
-            throw new Error(
-                implode(
-                    "\n\n",
-                    array_map(static function (Error $error) : string {
-                        return $error->message;
-                    }, $errors)
-                )
-            );
+            throw new Error(self::combineErrorMessages($errors));
         }
+    }
+
+    /**
+     * @param Error[] $errors
+     */
+    private static function combineErrorMessages(array $errors) : string
+    {
+        $str = '';
+        foreach ($errors as $error) {
+            $str .= ($error->getMessage() . "\n\n");
+        }
+
+        return $str;
     }
 }

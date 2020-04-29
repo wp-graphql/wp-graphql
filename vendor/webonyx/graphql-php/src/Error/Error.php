@@ -164,7 +164,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
-        } elseif ($error instanceof Exception || $error instanceof Throwable) {
+        } elseif ($error instanceof Throwable) {
             $message       = $error->getMessage();
             $originalError = $error;
         } else {
@@ -227,7 +227,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     {
         if ($this->positions === null && ! empty($this->nodes)) {
             $positions = array_map(
-                static function ($node) {
+                static function ($node) : ?int {
                     return isset($node->loc) ? $node->loc->start : null;
                 },
                 $this->nodes
@@ -235,7 +235,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
             $positions = array_filter(
                 $positions,
-                static function ($p) {
+                static function ($p) : bool {
                     return $p !== null;
                 }
             );
@@ -270,7 +270,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
             if ($positions && $source) {
                 $this->locations = array_map(
-                    static function ($pos) use ($source) {
+                    static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
                     },
                     $positions
@@ -278,10 +278,12 @@ class Error extends Exception implements JsonSerializable, ClientAware
             } elseif ($nodes) {
                 $locations       = array_filter(
                     array_map(
-                        static function ($node) {
+                        static function ($node) : ?SourceLocation {
                             if ($node->loc && $node->loc->source) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }
+
+                            return null;
                         },
                         $nodes
                     )
@@ -330,6 +332,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @deprecated Use FormattedError::createFromException() instead
      *
      * @return mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public function toSerializableArray()
     {
@@ -339,7 +343,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         $locations = Utils::map(
             $this->getLocations(),
-            static function (SourceLocation $loc) {
+            static function (SourceLocation $loc) : array {
                 return $loc->toSerializableArray();
             }
         );

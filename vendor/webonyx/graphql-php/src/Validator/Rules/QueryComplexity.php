@@ -15,6 +15,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
@@ -60,7 +61,7 @@ class QueryComplexity extends QuerySecurityRule
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) {
+                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) : void {
                     $this->fieldNodeAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -69,13 +70,13 @@ class QueryComplexity extends QuerySecurityRule
                         $this->fieldNodeAndDefs
                     );
                 },
-                NodeKind::VARIABLE_DEFINITION  => function ($def) {
+                NodeKind::VARIABLE_DEFINITION  => function ($def) : VisitorOperation {
                     $this->variableDefs[] = $def;
 
                     return Visitor::skipNode();
                 },
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) : void {
                         $errors = $context->getErrors();
 
                         if (! empty($errors)) {
@@ -113,9 +114,8 @@ class QueryComplexity extends QuerySecurityRule
 
     private function nodeComplexity(Node $node, $complexity = 0)
     {
-        switch ($node->kind) {
-            case NodeKind::FIELD:
-                /** @var FieldNode $node */
+        switch (true) {
+            case $node instanceof FieldNode:
                 // default values
                 $args         = [];
                 $complexityFn = FieldDefinition::DEFAULT_COMPLEXITY_FN;
@@ -146,16 +146,14 @@ class QueryComplexity extends QuerySecurityRule
                 $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
                 break;
 
-            case NodeKind::INLINE_FRAGMENT:
-                /** @var InlineFragmentNode $node */
+            case $node instanceof InlineFragmentNode:
                 // node has children?
                 if (isset($node->selectionSet)) {
                     $complexity = $this->fieldComplexity($node, $complexity);
                 }
                 break;
 
-            case NodeKind::FRAGMENT_SPREAD:
-                /** @var FragmentSpreadNode $node */
+            case $node instanceof FragmentSpreadNode:
                 $fragment = $this->getFragment($node);
 
                 if ($fragment !== null) {
@@ -212,11 +210,16 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
-            $directive       = Directive::skipDirective();
-            $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+            if ($directiveNode->name->value === Directive::SKIP_NAME) {
+                $directive = Directive::skipDirective();
+                /** @var bool $directiveArgsIf */
+                $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
 
-            return $directiveArgsIf['if'];
+                return $directiveArgsIf;
+            }
         }
+
+        return false;
     }
 
     public function getRawVariableValues()

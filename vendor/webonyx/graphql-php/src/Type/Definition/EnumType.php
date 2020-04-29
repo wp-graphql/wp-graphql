@@ -27,7 +27,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var EnumValueDefinition[] */
     private $values;
 
-    /** @var MixedStore<mixed, EnumValueDefinition> */
+    /**
+     * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
+     *
+     * @var MixedStore
+     */
     private $valueLookup;
 
     /** @var ArrayObject<string, EnumValueDefinition> */
@@ -67,12 +71,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $lookup[$name] ?? null;
     }
 
-    /**
-     * @return ArrayObject<string, EnumValueDefinition>
-     */
-    private function getNameLookup()
+    private function getNameLookup() : ArrayObject
     {
         if (! $this->nameLookup) {
+            /** @var ArrayObject<string, EnumValueDefinition> $lookup */
             $lookup = new ArrayObject();
             foreach ($this->getValues() as $value) {
                 $lookup[$value->name] = $value;
@@ -139,9 +141,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @return MixedStore<mixed, EnumValueDefinition>
+     * Actually returns a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
      */
-    private function getValueLookup()
+    private function getValueLookup() : MixedStore
     {
         if ($this->valueLookup === null) {
             $this->valueLookup = new MixedStore();
@@ -172,14 +174,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
      * @return null
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();

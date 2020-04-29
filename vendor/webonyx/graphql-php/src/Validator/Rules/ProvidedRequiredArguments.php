@@ -9,17 +9,18 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
-class ProvidedNonNullArguments extends ValidationRule
+class ProvidedRequiredArguments extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::FIELD     => [
-                'leave' => static function (FieldNode $fieldNode) use ($context) {
+                'leave' => static function (FieldNode $fieldNode) use ($context) : ?VisitorOperation {
                     $fieldDef = $context->getFieldDef();
 
                     if (! $fieldDef) {
@@ -29,11 +30,11 @@ class ProvidedNonNullArguments extends ValidationRule
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
-                        $argNodeMap[$argNode->name->value] = $argNodes;
+                        $argNodeMap[$argNode->name->value] = $argNode;
                     }
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode || ! ($argDef->getType() instanceof NonNull)) {
+                        if ($argNode || (! ($argDef->getType() instanceof NonNull)) || $argDef->defaultValueExists()) {
                             continue;
                         }
 
@@ -42,10 +43,12 @@ class ProvidedNonNullArguments extends ValidationRule
                             [$fieldNode]
                         ));
                     }
+
+                    return null;
                 },
             ],
             NodeKind::DIRECTIVE => [
-                'leave' => static function (DirectiveNode $directiveNode) use ($context) {
+                'leave' => static function (DirectiveNode $directiveNode) use ($context) : ?VisitorOperation {
                     $directiveDef = $context->getDirective();
                     if (! $directiveDef) {
                         return Visitor::skipNode();
@@ -58,7 +61,7 @@ class ProvidedNonNullArguments extends ValidationRule
 
                     foreach ($directiveDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode || ! ($argDef->getType() instanceof NonNull)) {
+                        if ($argNode || (! ($argDef->getType() instanceof NonNull)) || $argDef->defaultValueExists()) {
                             continue;
                         }
 
@@ -71,6 +74,8 @@ class ProvidedNonNullArguments extends ValidationRule
                             [$directiveNode]
                         ));
                     }
+
+                    return null;
                 },
             ],
         ];

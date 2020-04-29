@@ -51,10 +51,10 @@ class SchemaPrinter
     {
         return self::printFilteredSchema(
             $schema,
-            static function ($type) {
+            static function ($type) : bool {
                 return ! Directive::isSpecifiedDirective($type);
             },
-            static function ($type) {
+            static function ($type) : bool {
                 return ! Type::isBuiltInType($type);
             },
             $options
@@ -85,13 +85,13 @@ class SchemaPrinter
                     array_merge(
                         [self::printSchemaDefinition($schema)],
                         array_map(
-                            static function ($directive) use ($options) {
+                            static function ($directive) use ($options) : string {
                                 return self::printDirective($directive, $options);
                             },
                             $directives
                         ),
                         array_map(
-                            static function ($type) use ($options) {
+                            static function ($type) use ($options) : string {
                                 return self::printType($type, $options);
                             },
                             $types
@@ -102,26 +102,26 @@ class SchemaPrinter
         );
     }
 
-    private static function printSchemaDefinition(Schema $schema)
+    private static function printSchemaDefinition(Schema $schema) : string
     {
         if (self::isSchemaOfCommonNames($schema)) {
-            return;
+            return '';
         }
 
         $operationTypes = [];
 
         $queryType = $schema->getQueryType();
-        if ($queryType) {
+        if ($queryType !== null) {
             $operationTypes[] = sprintf('  query: %s', $queryType->name);
         }
 
         $mutationType = $schema->getMutationType();
-        if ($mutationType) {
+        if ($mutationType !== null) {
             $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
         }
 
         $subscriptionType = $schema->getSubscriptionType();
-        if ($subscriptionType) {
+        if ($subscriptionType !== null) {
             $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
         }
 
@@ -140,21 +140,21 @@ class SchemaPrinter
      *
      * When using this naming convention, the schema description can be omitted.
      */
-    private static function isSchemaOfCommonNames(Schema $schema)
+    private static function isSchemaOfCommonNames(Schema $schema) : bool
     {
         $queryType = $schema->getQueryType();
-        if ($queryType && $queryType->name !== 'Query') {
+        if ($queryType !== null && $queryType->name !== 'Query') {
             return false;
         }
 
         $mutationType = $schema->getMutationType();
-        if ($mutationType && $mutationType->name !== 'Mutation') {
+        if ($mutationType !== null && $mutationType->name !== 'Mutation') {
             return false;
         }
 
         $subscriptionType = $schema->getSubscriptionType();
 
-        return ! $subscriptionType || $subscriptionType->name === 'Subscription';
+        return $subscriptionType === null || $subscriptionType->name === 'Subscription';
     }
 
     private static function printDirective($directive, $options) : string
@@ -273,7 +273,7 @@ class SchemaPrinter
         // If every arg does not have a description, print them on one line.
         if (Utils::every(
             $args,
-            static function ($arg) {
+            static function ($arg) : bool {
                 return empty($arg->description);
             }
         )) {
@@ -285,7 +285,7 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    static function ($arg, $i) use ($indentation, $options) {
+                    static function ($arg, $i) use ($indentation, $options) : string {
                         return self::printDescription($options, $arg, '  ' . $indentation, ! $i) . '  ' . $indentation .
                             self::printInputValue($arg);
                     },
@@ -353,16 +353,17 @@ class SchemaPrinter
     private static function printObject(ObjectType $type, array $options) : string
     {
         $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = ! empty($interfaces) ?
-            ' implements ' . implode(
+        $implementedInterfaces = ! empty($interfaces)
+            ? ' implements ' . implode(
                 ' & ',
                 array_map(
-                    static function ($i) {
+                    static function ($i) : string {
                         return $i->name;
                     },
                     $interfaces
                 )
-            ) : '';
+            )
+            : '';
 
         return self::printDescription($options, $type) .
             sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, self::printFields($options, $type));
@@ -378,7 +379,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                static function ($f, $i) use ($options) {
+                static function ($f, $i) use ($options) : string {
                     return self::printDescription($options, $f, '  ', ! $i) . '  ' .
                         $f->name . self::printArgs($options, $f->args, '  ') . ': ' .
                         (string) $f->getType() . self::printDeprecated($f);
@@ -392,7 +393,7 @@ class SchemaPrinter
     private static function printDeprecated($fieldOrEnumVal) : string
     {
         $reason = $fieldOrEnumVal->deprecationReason;
-        if (empty($reason)) {
+        if ($reason === null) {
             return '';
         }
         if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {
@@ -438,7 +439,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                static function ($value, $i) use ($options) {
+                static function ($value, $i) use ($options) : string {
                     return self::printDescription($options, $value, '  ', ! $i) . '  ' .
                         $value->name . self::printDeprecated($value);
                 },
@@ -462,7 +463,7 @@ class SchemaPrinter
                 implode(
                     "\n",
                     array_map(
-                        static function ($f, $i) use ($options) {
+                        static function ($f, $i) use ($options) : string {
                             return self::printDescription($options, $f, '  ', ! $i) . '  ' . self::printInputValue($f);
                         },
                         $fields,

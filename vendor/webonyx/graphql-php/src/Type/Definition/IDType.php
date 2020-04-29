@@ -12,7 +12,6 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 use function is_int;
 use function is_object;
-use function is_scalar;
 use function is_string;
 use function method_exists;
 
@@ -38,17 +37,12 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function serialize($value)
     {
-        if ($value === true) {
-            return 'true';
-        }
-        if ($value === false) {
-            return 'false';
-        }
-        if ($value === null) {
-            return 'null';
-        }
-        if (! is_scalar($value) && (! is_object($value) || ! method_exists($value, '__toString'))) {
-            throw new Error('ID type cannot represent non scalar value: ' . Utils::printSafe($value));
+        $canCast = is_string($value)
+            || is_int($value)
+            || (is_object($value) && method_exists($value, '__toString'));
+
+        if (! $canCast) {
+            throw new Error('ID cannot represent value: ' . Utils::printSafe($value));
         }
 
         return (string) $value;
@@ -57,28 +51,24 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      *
-     * @return string
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : string
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
         }
-
-        throw new Error('Cannot represent value as ID: ' . Utils::printSafe($value));
+        throw new Error('ID cannot represent value: ' . Utils::printSafe($value));
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return string|null
+     * @return string
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;

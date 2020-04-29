@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
+use function array_key_exists;
 use function sprintf;
 
 class InputObjectField
@@ -21,7 +22,7 @@ class InputObjectField
     /** @var string|null */
     public $description;
 
-    /** @var mixed */
+    /** @var Type&InputType */
     public $type;
 
     /** @var InputValueDefinitionNode|null */
@@ -31,13 +32,6 @@ class InputObjectField
     public $config;
 
     /**
-     * Helps to differentiate when `defaultValue` is `null` and when it was not even set initially
-     *
-     * @var bool
-     */
-    private $defaultValueExists = false;
-
-    /**
      * @param mixed[] $opts
      */
     public function __construct(array $opts)
@@ -45,8 +39,7 @@ class InputObjectField
         foreach ($opts as $k => $v) {
             switch ($k) {
                 case 'defaultValue':
-                    $this->defaultValue       = $v;
-                    $this->defaultValueExists = true;
+                    $this->defaultValue = $v;
                     break;
                 case 'defaultValueExists':
                     break;
@@ -58,19 +51,16 @@ class InputObjectField
     }
 
     /**
-     * @return mixed
+     * @return Type&InputType
      */
-    public function getType()
+    public function getType() : Type
     {
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function defaultValueExists()
+    public function defaultValueExists() : bool
     {
-        return $this->defaultValueExists;
+        return array_key_exists('defaultValue', $this->config);
     }
 
     /**

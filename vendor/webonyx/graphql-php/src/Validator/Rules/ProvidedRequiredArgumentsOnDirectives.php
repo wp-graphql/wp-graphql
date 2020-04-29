@@ -13,10 +13,11 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use function array_filter;
 use function is_array;
 use function iterator_to_array;
@@ -34,11 +35,13 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return 'Directive "' . $directiveName . '" argument "' . $argName . '" is required but ont provided.';
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context)
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema->getDirectives();
+        $definedDirectives = $schema
+            ? $schema->getDirectives()
+            : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
@@ -66,13 +69,15 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             }
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                $arguments ? array_filter($arguments, static function (Node $argument) : bool {
-                    return $argument instanceof NonNullTypeNode &&
-                        (
-                            ! isset($argument->defaultValue) ||
-                            $argument->defaultValue === null
-                        );
-                }) : [],
+                $arguments
+                    ? array_filter($arguments, static function (Node $argument) : bool {
+                        return $argument instanceof NonNullTypeNode &&
+                            (
+                                ! isset($argument->defaultValue) ||
+                                $argument->defaultValue === null
+                            );
+                    })
+                    : [],
                 static function (NamedTypeNode $argument) : string {
                     return $argument->name->value;
                 }
@@ -80,11 +85,11 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) : ?string {
                 $directiveName = $directiveNode->name->value;
                 $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
                 if (! $requiredArgs) {
-                    return;
+                    return null;
                 }
 
                 $argNodes   = $directiveNode->arguments ?: [];
@@ -104,6 +109,8 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                         new Error(static::missingDirectiveArgMessage($directiveName, $argName), [$directiveNode])
                     );
                 }
+
+                return null;
             },
         ];
     }

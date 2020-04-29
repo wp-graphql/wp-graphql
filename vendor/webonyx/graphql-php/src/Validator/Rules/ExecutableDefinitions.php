@@ -7,10 +7,11 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
@@ -25,8 +26,8 @@ class ExecutableDefinitions extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context) {
-                /** @var Node $definition */
+            NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context) : VisitorOperation {
+                /** @var FragmentDefinitionNode|OperationDefinitionNode|TypeSystemDefinitionNode $definition */
                 foreach ($node->definitions as $definition) {
                     if ($definition instanceof OperationDefinitionNode ||
                         $definition instanceof FragmentDefinitionNode
