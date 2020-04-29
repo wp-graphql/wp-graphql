@@ -23,10 +23,10 @@ use GraphQLRelay\Relay;
  * @property string $url
  * @property string $slug
  * @property string $nicename
- * @property string status
- * @property string activation_key
- * @property string login
- * @property string pass
+ * @property string $status
+ * @property string $activation_key
+ * @property string $login
+ * @property string $pass
  * @property string $locale
  * @property int    $userId
  * @property string $uri
