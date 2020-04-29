@@ -10,7 +10,7 @@ use WPGraphQL\Data\DataSource;
  * @package WPGraphQL\Type\Object
  */
 class User {
-	
+
 	/**
 	 * Registers the User type
 	 */
@@ -98,10 +98,6 @@ class User {
 					'activationKey'          => [
 						'type'        => 'String',
 						'description' => __( 'The activation_key for the user. This field is equivalent to WP_User->user_activation_key', 'wp-graphql' ),
-					],
-					'pass'          => [
-						'type'        => 'String',
-						'description' => __( 'The pass for the user. This field is equivalent to WP_User->user_pass', 'wp-graphql' ),
 					],
 					'login'          => [
 						'type'        => 'String',

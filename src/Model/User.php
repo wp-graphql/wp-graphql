@@ -26,7 +26,6 @@ use GraphQLRelay\Relay;
  * @property string $status
  * @property string $activationKey
  * @property string $login
- * @property string $pass
  * @property string $locale
  * @property int    $userId
  * @property string $uri
@@ -177,9 +176,6 @@ class User extends Model {
 				},
 				'activationKey'          => function() {
 					return ! empty( $this->data->user_activation_key ) ? $this->data->user_activation_key : null;
-				},
-				'pass'          => function() {
-					return ! empty( $this->data->user_pass ) ? $this->data->user_pass : null;
 				},
 				'login'          => function() {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
