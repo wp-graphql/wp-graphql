@@ -527,9 +527,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			page(id: \"{$global_id}\") {
 				id
+				parentId
+				parentDatabaseId
 				parent {
 					... on Page {
-						pageId
+						databaseId
 					}
 				}
 			}
@@ -543,14 +545,21 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		/**
+		 * Create the global ID of the parent too for asserting
+		 */
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
+
+		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data' => [
 				'page' => [
 					'id'        => $global_id,
+					'parentId'  => $global_parent_id,
+					'parentDatabaseId'  => $parent_id,
 					'parent'    => [
-						'pageId' => $parent_id,
+						'databaseId' => $parent_id,
 					],
 				],
 			],
