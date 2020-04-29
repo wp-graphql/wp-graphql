@@ -25,19 +25,19 @@ class Theme extends Model {
 	/**
 	 * Stores the incoming WP_Theme to be modeled
 	 *
-	 * @var \WP_Theme $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * Theme constructor.
 	 *
-	 * @param \WP_Theme $theme The incoming WP_Theme to be modeled
+	 * @param object $theme The incoming WP_Theme to be modeled
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Theme $theme ) {
+	public function __construct( $theme ) {
 		$this->data = $theme;
 		parent::__construct();
 	}

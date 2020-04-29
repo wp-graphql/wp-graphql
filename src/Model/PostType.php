@@ -40,18 +40,18 @@ class PostType extends Model {
 	/**
 	 * Stores the incoming WP_Post_Type to be modeled
 	 *
-	 * @var \WP_Post_Type $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * PostType constructor.
 	 *
-	 * @param \WP_Post_Type $post_type The incoming post type to model
+	 * @param object $post_type The incoming post type to model
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Post_Type $post_type ) {
+	public function __construct( $post_type ) {
 
 		$this->data = $post_type;
 

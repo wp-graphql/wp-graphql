@@ -25,19 +25,19 @@ class MenuItem extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var \WP_Post $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * MenuItem constructor.
 	 *
-	 * @param \WP_Post $post The incoming WP_Post object that needs modeling
+	 * @param object $post The incoming WP_Post object that needs modeling
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Post $post ) {
+	public function __construct( $post ) {
 		$this->data = wp_setup_nav_menu_item( $post );
 		parent::__construct();
 	}

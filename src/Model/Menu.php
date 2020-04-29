@@ -20,19 +20,19 @@ class Menu extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var \WP_Term $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * Menu constructor.
 	 *
-	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
+	 * @param object $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Term $term ) {
+	public function __construct( $term ) {
 		$this->data = $term;
 		parent::__construct();
 	}

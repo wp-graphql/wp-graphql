@@ -436,10 +436,11 @@ abstract class Model {
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param null|int $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
+		 * @param object   $data         The raw data passed into the model
 		 *
 		 * @return array
 		 */
-		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user );
+		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user, $this->data );
 		$this->wrap_fields();
 		$this->add_model_visibility();
 
