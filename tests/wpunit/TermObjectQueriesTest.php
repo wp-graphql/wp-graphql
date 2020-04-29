@@ -474,7 +474,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'path'      => [
 						'category',
 					],
-					'category'  => 'user',
+					'extensions' => [
+						'category' => 'user'
+					],
 				],
 			],
 		];

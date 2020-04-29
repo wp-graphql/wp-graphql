@@ -11,7 +11,7 @@
  * Domain Path: /languages/
  * Requires at least: 4.7.0
  * Tested up to: 5.4
- * Requires PHP: 7.0
+ * Requires PHP: 7.3
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -196,7 +196,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// The minimum version of PHP this plugin requires to work properly
 			if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
-				define( 'GRAPHQL_MIN_PHP_VERSION', '7.0' );
+				define( 'GRAPHQL_MIN_PHP_VERSION', '7.3' );
 			}
 
 		}

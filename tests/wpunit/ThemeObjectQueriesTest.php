@@ -133,7 +133,9 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'path'      => [
 						'theme',
 					],
-					'category'  => 'user',
+					'extensions' => [
+						'category'  => 'user',
+					]
 				],
 			],
 		];

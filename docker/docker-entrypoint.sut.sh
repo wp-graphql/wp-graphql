@@ -24,6 +24,9 @@ configure_wordpress_and_plugin() {
   # Export sql data for Codeception's use
   wp --allow-root db export /usr/src/wordpress/wp-content/plugins/wp-graphql/tests/_data/dump.sql
 
+  # Export the Static Schema
+  wp --allow-root graphql generate-static-schema
+
   chown 'www-data:www-data' wp-config.php .htaccess
 }
 
