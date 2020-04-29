@@ -150,7 +150,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				status
 				activation_key
 				login
-				pass
 			}
 		}";
 
