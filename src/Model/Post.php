@@ -36,7 +36,8 @@ use WPGraphQL\Types;
  * @property string  $pinged
  * @property string  $modified
  * @property string  $modifiedGmt
- * @property int     $parentId
+ * @property string  $parentId
+ * @property int     $parentDatabaseId
  * @property int     $editLastId
  * @property array   $editLock
  * @property string  $enclosure
@@ -304,86 +305,86 @@ class Post extends Model {
 			};
 
 			$this->fields = [
-				'ID'              => function() {
+				'ID'               => function() {
 					return $this->data->ID;
 				},
-				'post_author'     => function() {
+				'post_author'      => function() {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'id'              => function() {
+				'id'               => function() {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->ID ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->ID ) : null;
 				},
-				'post_type'       => function() {
+				'post_type'        => function() {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
 				},
-				'authorId'        => function() {
+				'authorId'         => function() {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'date'            => function() {
+				'date'             => function() {
 					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Types::prepare_date_response( null, $this->data->post_date ) : null;
 				},
-				'dateGmt'         => function() {
+				'dateGmt'          => function() {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
 				},
-				'contentRendered' => function() {
+				'contentRendered'  => function() {
 					setup_postdata( $this->data );
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
 				},
-				'pageTemplate'    => function() {
+				'pageTemplate'     => function() {
 					$slug = get_page_template_slug( $this->data->ID );
 
 					return ! empty( $slug ) ? $slug : null;
 				},
-				'contentRaw'      => [
+				'contentRaw'       => [
 					'callback'   => function() {
 						return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
-				'titleRendered'   => function() {
+				'titleRendered'    => function() {
 					setup_postdata( $this->data );
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
 					return apply_filters( 'the_title', $title, $id );
 				},
-				'titleRaw'        => [
+				'titleRaw'         => [
 					'callback'   => function() {
 						return ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
-				'excerptRendered' => function() {
+				'excerptRendered'  => function() {
 					setup_postdata( $this->data );
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
 					return apply_filters( 'the_excerpt', $excerpt );
 				},
-				'excerptRaw'      => [
+				'excerptRaw'       => [
 					'callback'   => function() {
 						return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
-				'post_status'     => function() {
+				'post_status'      => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'status'          => function() {
+				'status'           => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'commentStatus'   => function() {
+				'commentStatus'    => function() {
 					return ! empty( $this->data->comment_status ) ? $this->data->comment_status : null;
 				},
-				'pingStatus'      => function() {
+				'pingStatus'       => function() {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
 				},
-				'slug'            => function() {
+				'slug'             => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
-				'isFrontPage'     => function() {
+				'isFrontPage'      => function() {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {
 						return false;
 					}
@@ -393,49 +394,52 @@ class Post extends Model {
 
 					return false;
 				},
-				'toPing'          => function() {
+				'toPing'           => function() {
 					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
 				},
-				'pinged'          => function() {
+				'pinged'           => function() {
 					return ! empty( $this->data->pinged ) && is_array( $this->data->pinged ) ? implode( ',', (array) $this->data->pinged ) : null;
 				},
-				'modified'        => function() {
+				'modified'         => function() {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;
 				},
-				'modifiedGmt'     => function() {
+				'modifiedGmt'      => function() {
 					return ! empty( $this->data->post_modified_gmt ) ? Types::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
-				'parentId'        => function() {
+				'parentId'         => function() {
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->post_parent ) : null;
+				},
+				'parentDatabaseId' => function() {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
 				},
-				'editLastId'      => function() {
+				'editLastId'       => function() {
 					$edit_last = get_post_meta( $this->data->ID, '_edit_last', true );
 
 					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
-				'editLock'        => function() {
+				'editLock'         => function() {
 					$edit_lock       = get_post_meta( $this->data->ID, '_edit_lock', true );
 					$edit_lock_parts = explode( ':', $edit_lock );
 
 					return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 				},
-				'enclosure'       => function() {
+				'enclosure'        => function() {
 					$enclosure = get_post_meta( $this->data->ID, 'enclosure', true );
 
 					return ! empty( $enclosure ) ? $enclosure : null;
 				},
-				'guid'            => function() {
+				'guid'             => function() {
 					return ! empty( $this->data->guid ) ? $this->data->guid : null;
 				},
-				'menuOrder'       => function() {
+				'menuOrder'        => function() {
 					return ! empty( $this->data->menu_order ) ? absint( $this->data->menu_order ) : null;
 				},
-				'link'            => function() {
+				'link'             => function() {
 					$link = get_permalink( $this->data->ID );
 
 					return ! empty( $link ) ? $link : null;
 				},
-				'uri'             => function() {
+				'uri'              => function() {
 					$uri = get_permalink( $this->data->ID );
 
 					if ( true === $this->isFrontPage ) {
@@ -444,15 +448,15 @@ class Post extends Model {
 
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
-				'commentCount'    => function() {
+				'commentCount'     => function() {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
 				},
-				'featuredImageId' => function() {
+				'featuredImageId'  => function() {
 					$thumbnail_id = get_post_thumbnail_id( $this->data->ID );
 
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
-				'password'        => [
+				'password'         => [
 					'callback'   => function() {
 						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 					},
