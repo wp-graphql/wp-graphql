@@ -45,6 +45,13 @@ abstract class Model {
 	protected $owner;
 
 	/**
+	 * Stores the result of whether the owner of this object is the current user.
+	 *
+	 * @var bool $owner_matches_current_user
+	 */
+	protected $owner_matches_current_user;
+
+	/**
 	 * Stores the WP_User object for the current user in the session
 	 *
 	 * @var \WP_User $current_user
@@ -257,10 +264,16 @@ abstract class Model {
 	 * @return bool
 	 */
 	protected function owner_matches_current_user() {
-		if ( empty( $this->current_user->ID ) || empty( $this->owner ) ) {
-			return false;
+		if ( is_null( $this->owner_matches_current_user ) ) {
+			if ( empty( $this->current_user->ID ) || empty( $this->owner ) ) {
+				$owned_by_current_user = false;
+			} else {
+				$owned_by_current_user = ( absint( $this->owner ) === absint( $this->current_user->ID ) );
+			}
+			$this->owner_matches_current_user = apply_filters( 'graphql_model_owned_by_current_user', $owned_by_current_user, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 		}
-		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
+
+		return $this->owner_matches_current_user;
 	}
 
 	/**
@@ -436,10 +449,11 @@ abstract class Model {
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param null|int $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
+		 * @param object   $data         The raw data passed into the model
 		 *
 		 * @return array
 		 */
-		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user );
+		$this->fields = apply_filters( 'graphql_return_modeled_data', $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user, $this->data );
 		$this->wrap_fields();
 		$this->add_model_visibility();
 

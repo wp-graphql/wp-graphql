@@ -36,18 +36,18 @@ class Taxonomy extends Model {
 	/**
 	 * Stores the incoming WP_Taxonomy object to be modeled
 	 *
-	 * @var \WP_Taxonomy $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * Taxonomy constructor.
 	 *
-	 * @param \WP_Taxonomy $taxonomy The incoming Taxonomy to model
+	 * @param object $taxonomy The incoming Taxonomy to model
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_Taxonomy $taxonomy ) {
+	public function __construct( $taxonomy ) {
 
 		$this->data = $taxonomy;
 

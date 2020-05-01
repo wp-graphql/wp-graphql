@@ -34,19 +34,19 @@ class User extends Model {
 	/**
 	 * Stores the WP_User object for the incoming data
 	 *
-	 * @var \WP_User $data
+	 * @var object $data
 	 */
 	protected $data;
 
 	/**
 	 * User constructor.
 	 *
-	 * @param \WP_User $user The incoming WP_User object that needs modeling
+	 * @param object $user The incoming WP_User object that needs modeling
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user ) {
+	public function __construct( $user ) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
