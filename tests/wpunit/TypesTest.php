@@ -7,6 +7,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
     {
         // before
         parent::setUp();
+
         WPGraphQL::clear_schema();
 
         // your set up methods here
@@ -182,8 +183,6 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 	 * @throws Exception
 	 */
 	public function testListOf() {
-
-		WPGraphQL::clear_schema();
 
 		/**
 		 * Filter fields onto the User object
