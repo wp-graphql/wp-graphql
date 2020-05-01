@@ -85,11 +85,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query() {
 
-		if ( isset( $this->query_args['suppress_filters'] ) && true == $this->query_args['suppress_filters'] ) {
+		$query = new \WP_Query( $this->query_args );
+
+		if ( isset( $query->query_vars['suppress_filters'] ) && true == $query->query_vars['suppress_filters'] ) {
 			throw new InvariantViolation( __( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
 		}
 
-		$query = new \WP_Query( $this->query_args );
 		return $query;
 	}
 
