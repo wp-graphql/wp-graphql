@@ -342,6 +342,7 @@ return array(
     'WPGraphQL\\Type\\WPInputObjectType' => $baseDir . '/src/Type/WPInputObjectType.php',
     'WPGraphQL\\Type\\WPInterfaceType' => $baseDir . '/src/Type/WPInterfaceType.php',
     'WPGraphQL\\Type\\WPObjectType' => $baseDir . '/src/Type/WPObjectType.php',
+    'WPGraphQL\\Type\\WPScalar' => $baseDir . '/src/Type/WPScalar.php',
     'WPGraphQL\\Type\\WPUnionType' => $baseDir . '/src/Type/WPUnionType.php',
     'WPGraphQL\\Types' => $baseDir . '/src/Types.php',
     'WPGraphQL\\Utils\\InstrumentSchema' => $baseDir . '/src/Utils/InstrumentSchema.php',
