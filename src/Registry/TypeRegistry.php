@@ -151,7 +151,7 @@ class TypeRegistry {
 	 * @return string
 	 */
 	protected function format_key( $key ) {
-		return strtolower( $key );
+		return strtolower( graphql_format_field_name( $key ) );
 	}
 
 	/**
@@ -511,8 +511,9 @@ class TypeRegistry {
 
 		if ( is_array( $config ) ) {
 
-			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
-			$config['name'] = ucfirst( $type_name );
+			$kind = isset( $config['kind'] ) ? $config['kind'] : null;
+
+			$config['name'] = graphql_format_type_name( $type_name );
 
 			switch ( $kind ) {
 				case 'enum':
@@ -605,6 +606,8 @@ class TypeRegistry {
 			$field_config['name'] = lcfirst( $field_name );
 		}
 
+		$field_config['name'] = graphql_format_field_name( $field_config['name'] );
+
 		if ( ! isset( $field_config['type'] ) ) {
 			throw new InvariantViolation( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ) );
 		}
@@ -672,6 +675,7 @@ class TypeRegistry {
 	 * @param array  $fields    Fields to register
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function register_fields( $type_name, $fields ) {
 		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
@@ -689,6 +693,8 @@ class TypeRegistry {
 	 * @param string $type_name  Name of the type in the Type Registry to add the fields to
 	 * @param string $field_name Name of the field to add to the type
 	 * @param array  $config     Info about the field to register to the type
+	 *
+	 * @throws \Exception
 	 *
 	 * @return void
 	 */
@@ -1092,13 +1098,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return NonNull
 	 */
 	public function non_null( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::nonNull( $type_def );
 		}
+
 		return Type::nonNull( $type );
 	}
 
@@ -1106,13 +1115,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return ListOfType
 	 */
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::listOf( $type_def );
 		}
+
 		return Type::listOf( $type );
 	}
 
