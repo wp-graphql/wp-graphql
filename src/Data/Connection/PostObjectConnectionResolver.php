@@ -357,8 +357,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['fields'] = 'ids';
 
-
-
 		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
