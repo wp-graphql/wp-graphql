@@ -18,7 +18,7 @@ GraphQL API for WordPress. This plugin brings the power of GraphQL to WordPress.
 -----
 
 ## Install
-- Requires PHP 7.0+
+- Requires PHP 7.1+
 - Requires WordPress 5.0+
 
 ### Quick Install

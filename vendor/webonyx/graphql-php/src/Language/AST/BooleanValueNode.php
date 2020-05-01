@@ -1,13 +1,14 @@
 <?php
-namespace GraphQL\Language\AST;
 
+declare(strict_types=1);
+
+namespace GraphQL\Language\AST;
 
 class BooleanValueNode extends Node implements ValueNode
 {
+    /** @var string */
     public $kind = NodeKind::BOOLEAN;
 
-    /**
-     * @var string
-     */
+    /** @var bool */
     public $value;
 }

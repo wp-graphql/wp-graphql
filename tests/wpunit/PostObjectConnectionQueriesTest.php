@@ -29,7 +29,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->app_context = new \WPGraphQL\AppContext();
 
-		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
 	}
 
 	public function tearDown() {
