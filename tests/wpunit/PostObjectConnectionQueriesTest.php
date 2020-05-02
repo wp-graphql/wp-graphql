@@ -10,6 +10,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -808,6 +809,34 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( $private_post_id, $ids );
 
+
+	}
+
+	public function testSuppressFiltersThrowsException() {
+
+		WPGraphQL::clear_schema();
+
+		add_filter( 'graphql_post_object_connection_query_args', function( $args ) {
+			$args['suppress_filters'] = true;
+			return $args;
+		} );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts {
+			    nodes {
+			      id
+			      title
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
 
