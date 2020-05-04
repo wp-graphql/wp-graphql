@@ -121,8 +121,8 @@ class Router {
 		}
 
 		// If before 'init' check $_SERVER.
-		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
+		if ( isset( $_SERVER['SERVER_NAME'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
+			$haystack = wp_unslash( $_SERVER['SERVER_NAME'] )
 				. wp_unslash( $_SERVER['REQUEST_URI'] );
 			$needle   = site_url( self::$route );
 
