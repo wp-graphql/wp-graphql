@@ -95,9 +95,29 @@ class User {
 						'type'        => 'String',
 						'description' => __( 'The status for the user. This field is equivalent to WP_User->user_status', 'wp-graphql' ),
 					],
+					'pluginsPerPage'     => [
+						'type'        => 'String',
+						'description' => __( 'The plugins per page for the user. This field is equivalent to get_user_meta( WP_User->id, \'plugins_per_page\', true )', 'wp-graphql' ),
+					],
 					'activationKey'     => [
 						'type'        => 'String',
 						'description' => __( 'The activation_key for the user. This field is equivalent to WP_User->user_activation_key', 'wp-graphql' ),
+					],
+					'level'     => [
+						'type'        => 'String',
+						'description' => __( 'The level of the user. This field is equivalent to WP_User->user_level', 'wp-graphql' ),
+					],
+					'commentKeyboardShortcuts'     => [
+						'type'        => 'String',
+						'description' => __( 'Enable keyboard shortcuts for comment moderation. This field is equivalent to WP_User->comment_shortcuts', 'wp-graphql' ),
+					],
+					'enableRichEditing'     => [
+						'type'        => 'String',
+						'description' => __( 'The rich editing for the user is enabled. This field is equivalent to WP_User->rich_editing', 'wp-graphql' ),
+					],
+					'enableSyntaxHighlighting'     => [
+						'type'        => 'String',
+						'description' => __( 'The syntaxHighlighting for the user is enabled. This field is equivalent to WP_User->syntax_highlighting', 'wp-graphql' ),
 					],
 					'login'             => [
 						'type'        => 'String',

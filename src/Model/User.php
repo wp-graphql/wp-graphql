@@ -174,8 +174,24 @@ class User extends Model {
 				'status'            => function() {
 					return ! empty( $this->data->user_status ) ? $this->data->user_status : null;
 				},
+				'pluginsPerPage'     => function() {
+					$plugins_per_page = get_user_meta( $this->data->id, 'plugins_per_page', true );
+					return ! empty( $plugins_per_page ) ? $plugins_per_page : null;
+				},
 				'activationKey'     => function() {
 					return ! empty( $this->data->user_activation_key ) ? $this->data->user_activation_key : null;
+				},
+				'level'     => function() {
+					return ! empty( $this->data->user_level ) ? $this->data->user_level : null;
+				},
+				'commentKeyboardShortcuts'     => function() {
+					return ! empty( $this->data->comment_shortcuts ) ? $this->data->comment_shortcuts : null;
+				},
+				'enableRichEditing'     => function() {
+					return ! empty( $this->data->rich_editing ) ? $this->data->rich_editing : null;
+				},
+				'enableSyntaxHighlighting'     => function() {
+					return ! empty( $this->data->syntax_highlighting ) ? $this->data->syntax_highlighting : null;
 				},
 				'login'             => function() {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
