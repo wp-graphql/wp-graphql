@@ -365,6 +365,7 @@ class ComposerStaticInitb5d297f2045c131f44c3ae5d053159fa
         'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php',
         'WPGraphQL\\Type\\WPInterfaceType' => __DIR__ . '/../..' . '/src/Type/WPInterfaceType.php',
         'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php',
+        'WPGraphQL\\Type\\WPScalar' => __DIR__ . '/../..' . '/src/Type/WPScalar.php',
         'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php',
         'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php',
         'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php',
