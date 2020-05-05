@@ -1,5 +1,4 @@
 <?php
-
 namespace WPGraphQL\Utils;
 
 use GraphQL\Error\UserError;
@@ -50,7 +49,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config['types'] = $new_types;
+				$schema->config['types'] = $new_types;
 		}
 
 		return $schema;
@@ -60,8 +59,8 @@ class InstrumentSchema {
 	/**
 	 * Wrap Fields
 	 *
-	 * This wraps fields to provide sanitization on fields output by introspection queries
-	 * (description/deprecation reason) and provides hooks to resolvers.
+	 * This wraps fields to provide sanitization on fields output by introspection queries (description/deprecation
+	 * reason) and provides hooks to resolvers.
 	 *
 	 * @param array  $fields    The fields configured for a Type
 	 * @param string $type_name The Type name
@@ -79,8 +78,8 @@ class InstrumentSchema {
 					/**
 					 * Filter the field definition
 					 *
-					 * @param \GraphQL\Type\Definition\FieldDefinition $field     The field definition
-					 * @param string                                   $type_name The name of the Type the field belongs to
+					 * @param \GraphQL\Type\Definition\FieldDefinition $field The field definition
+					 * @param string $type_name The name of the Type the field belongs to
 					 */
 					$field = apply_filters( 'graphql_field_definition', $field, $type_name );
 
@@ -141,6 +140,7 @@ class InstrumentSchema {
 						 * @param FieldDefinition $field     The Field Definition for the resolving field
 						 */
 						do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
+
 
 						/**
 						 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
