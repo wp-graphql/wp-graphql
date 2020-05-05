@@ -86,8 +86,6 @@ class Post extends Model {
 	 */
 	public function __construct( \WP_Post $post ) {
 
-		global $wp_query;
-
 		/**
 		 * Set the data as the Post object
 		 */
@@ -134,18 +132,15 @@ class Post extends Model {
 	 * Setup the global data for the model to have proper context when resolving
 	 */
 	public function setup() {
+
+		global $wp_query;
+
 		/**
 		 * Set the resolving post to the global $post. That way any filters that
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
 		 */
 		if ( $this->data ) {
-			global $wp_query;
-
-
-			if ( isset( $this->data->post_type ) ) {
-				$wp_query->parse_query(['p' => $this->data->ID ]);
-			}
 
 			$GLOBALS['post'] = $this->data;
 			setup_postdata( $this->data );
@@ -468,13 +463,6 @@ class Post extends Model {
 					},
 					'capability' => $this->post_type_object->cap->edit_others_posts,
 				],
-				'isSingular' => function() {
-					return is_singular();
-				},
-				'wpQuery' => function() {
-					global $wp_query;
-					return wp_json_encode( $wp_query );
-				}
 			];
 
 			if ( 'attachment' === $this->data->post_type ) {
