@@ -242,7 +242,6 @@ class PostObject {
 				'type'              => [
 					'non_null' => 'Int',
 				],
-				'isDeprecated'      => true,
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 				'resolve'           => function( Post $post, $args, $context, $info ) {
@@ -419,10 +418,7 @@ class PostObject {
 				'revision',
 			]
 		) ) {
-			$fields['ancestors']['isDeprecated']      = true;
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
-
-			$fields['parent']['isDeprecated']      = true;
 			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
 
