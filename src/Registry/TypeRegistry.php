@@ -89,6 +89,7 @@ use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
+use WPGraphQL\Type\Object\AdminColorSchemePalette;
 use WPGraphQL\Type\Object\Avatar;
 use WPGraphQL\Type\Object\Comment;
 use WPGraphQL\Type\Object\CommentAuthor;
@@ -217,6 +218,7 @@ class TypeRegistry {
 		RootQuery::register_post_object_fields();
 		RootQuery::register_term_object_fields();
 		RootMutation::register_type();
+		AdminColorSchemePalette::register_type();
 		Avatar::register_type();
 		Comment::register_type();
 		CommentAuthor::register_type();
