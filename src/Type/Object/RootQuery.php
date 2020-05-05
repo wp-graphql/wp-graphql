@@ -539,8 +539,13 @@ class RootQuery {
 					]
 				);
 
-
-	$mock_colors = '
+				// NEED TO FIGURE OUT HOW TO GET THESE VALUES WHEN WE'RE NOT IN THE ADMIN
+				//			require_once( ABSPATH . 'wp-admin/includes/misc.php' );
+				//			require_once( ABSPATH . 'wp-includes/general-template.php' );
+				//			global $_wp_admin_css_colors;
+				//
+				//			wp_send_json( $_wp_admin_css_colors );
+				$mock_colors = '
 	{
 	   "fresh":{
 		  "name":"Default",
@@ -664,12 +669,6 @@ class RootQuery {
 	   }
 	}
 ';
-				// NEED TO FIGURE OUT HOW TO GET THESE VALUES WHEN WE'RE NOT IN THE ADMIN
-				//			require_once( ABSPATH . 'wp-admin/includes/misc.php' );
-				//			require_once( ABSPATH . 'wp-includes/general-template.php' );
-				//			global $_wp_admin_css_colors;
-				//
-				//			wp_send_json( $_wp_admin_css_colors );
 
 				register_graphql_field( 
 					'RootQuery',
