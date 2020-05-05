@@ -504,7 +504,6 @@ class RootQuery {
 					$post_type_object->graphql_single_name . 'By',
 					[
 						'type'              => $post_type_object->graphql_single_name,
-						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
 						'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 						'args'              => $post_by_args,
