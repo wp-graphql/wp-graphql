@@ -24,7 +24,12 @@ use GraphQLRelay\Relay;
  * @property string $slug
  * @property string $nicename
  * @property string $status
- * @property string $activationKey
+ * @property string $pluginsPerPage
+ * @property string $activationKey'
+ * @property string $level
+ * @property string $commentKeyboardShortcuts
+ * @property string $enableRichEditing
+ * @property string $enableSyntaxHighlighting
  * @property string $login
  * @property string $locale
  * @property int    $userId
