@@ -127,13 +127,13 @@ abstract class Model {
 	 * Magic method to re-map setting new properties to the class inside of the $fields prop rather
 	 * than on the class in unique properties
 	 *
-	 * @param string                    $key   Name of the key to set the data to
-	 * @param callable|int|string|mixed $value The value to set to the key
+	 * @param string $key Name of the key to set the data to
+	 * @param mixed $value The value to set to the key
 	 *
 	 * @return void
 	 */
 	public function __set( $key, $value ) {
-		$this->fields[ $key ] = $value;
+		$this->cached_values[ $key ] = $value;
 	}
 
 	/**
@@ -146,12 +146,12 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
-		if ( ! empty( $this->cached_values[ $key ] ) ) {
+		if ( isset( $this->cached_values[ $key ] ) ) {
 			return $this->cached_values[ $key ];
 		}
 
 		if ( ! empty( $this->fields[ $key ] ) ) {
-			$data                        = call_user_func( $this->fields[ $key ] );
+			$data                        = is_callable( $this->fields[ $key ] ) ? call_user_func( $this->fields[ $key ] ) : null;
 			$this->cached_values[ $key ] = $data;
 			return $data;
 		} else {
