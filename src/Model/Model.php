@@ -61,9 +61,16 @@ abstract class Model {
 	/**
 	 * Stores the visibility value for the current piece of data
 	 *
-	 * @var string
+	 * @var string $visibility
 	 */
 	protected $visibility;
+
+	/**
+	 * Stores the cached values after the callbacks have been called for the fields.
+	 *
+	 * @var array $cached_values
+	 */
+	protected $cached_values;
 
 	/**
 	 * The fields for the modeled object. This will be populated in the child class
@@ -139,22 +146,14 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
+		if ( ! empty( $this->cached_values[ $key ] ) ) {
+			return $this->cached_values[ $key ];
+		}
+
 		if ( ! empty( $this->fields[ $key ] ) ) {
-			/**
-			 * If the property has already been processed and cached to the model
-			 * return the processed value.
-			 *
-			 * Otherwise, if it's a callable, process it and cache the value.
-			 */
-			if ( is_scalar( $this->fields[ $key ] ) || ( is_object( $this->fields[ $key ] ) && ! is_callable( $this->fields[ $key ] ) ) || is_array( $this->fields[ $key ] ) ) {
-				return $this->fields[ $key ];
-			} elseif ( is_callable( $this->fields[ $key ] ) ) {
-				$data       = call_user_func( $this->fields[ $key ] );
-				$this->$key = $data;
-				return $data;
-			} else {
-				return $this->fields[ $key ];
-			}
+			$data                        = call_user_func( $this->fields[ $key ] );
+			$this->cached_values[ $key ] = $data;
+			return $data;
 		} else {
 			return null;
 		}
@@ -163,8 +162,7 @@ abstract class Model {
 	/**
 	 * Generic model setup before the resolver function executes
 	 */
-	public function setup() {
-	}
+	public function setup() {}
 
 	/**
 	 * Returns the name of the model, built from the child className
@@ -419,13 +417,13 @@ abstract class Model {
 		 * @TODO: potentially abstract this out into a more central spot
 		 */
 		$this->fields['isPublic']     = function() {
-			return ( 'public' === $this->get_visibility() ) ? true : false;
+			return 'public' === $this->get_visibility();
 		};
 		$this->fields['isRestricted'] = function() {
-			return ( 'restricted' === $this->get_visibility() ) ? true : false;
+			return 'restricted' === $this->get_visibility();
 		};
 		$this->fields['isPrivate']    = function() {
-			return ( 'private' === $this->get_visibility() ) ? true : false;
+			return 'private' === $this->get_visibility();
 		};
 
 	}
