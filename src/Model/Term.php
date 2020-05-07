@@ -27,7 +27,7 @@ class Term extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var object $data
+	 * @var \WP_Term $data
 	 */
 	protected $data;
 
@@ -41,12 +41,12 @@ class Term extends Model {
 	/**
 	 * Term constructor.
 	 *
-	 * @param object $term The incoming object object that needs modeling
+	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( $term ) {
+	public function __construct( \WP_Term $term ) {
 		$this->data            = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
 		parent::__construct();
