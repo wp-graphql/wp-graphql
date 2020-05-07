@@ -37,11 +37,11 @@ class Comment extends Model {
 	/**
 	 * Comment constructor.
 	 *
-	 * @param object $comment The incoming WP_Comment to be modeled
+	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $comment ) {
+	public function __construct( \WP_Comment $comment ) {
 
 		$allowed_restricted_fields = [
 			'id',

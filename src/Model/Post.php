@@ -66,7 +66,7 @@ class Post extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var object $data
+	 * @var \WP_Post $data
 	 */
 	protected $data;
 
@@ -80,12 +80,12 @@ class Post extends Model {
 	/**
 	 * Post constructor.
 	 *
-	 * @param object $post The incoming object that needs modeling.
+	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function __construct( $post ) {
+	public function __construct( \WP_Post $post ) {
 
 		/**
 		 * Set the data as the Post object
