@@ -1,6 +1,8 @@
 <?php
 
 use WPGraphQL\Request;
+use GraphQL\Language\Parser;
+use GraphQL\Language\AST\DocumentNode;
 
 class RequestTest extends \Codeception\TestCase\WPTestCase {
 
@@ -116,6 +118,68 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 
 		$operation_params = $request->get_params();
 		$this->assertEquals( 'GraphQL\Server\OperationParams', get_class( $operation_params ) );
+	}
+
+	public function testAstFilter() {
+		$query = '
+		query getPosts {
+		  posts {
+            nodes {
+			  title
+			}
+		  }
+ 		}
+		';
+
+		add_filter( 'graphql_ast', function( DocumentNode $doc, string $filtered_query ) use ($query) {
+			$this->assertEquals( $query, $filtered_query );
+			$this->assertEquals( 'getPosts', $doc->definitions[0]->name->value );
+
+
+			return Parser::parse('
+				query getPosts {
+					filtered: posts {
+						nodes {
+							title
+						}
+					}
+				}
+			');
+		}, 10, 2 );
+
+
+		$actual = graphql([ 'query' => $query ]);
+
+		// Used the filtered version of the AST
+		$this->assertArrayHasKey( 'filtered', $actual['data'] );
+	}
+
+	public function testPreAstFilter() {
+
+		add_filter( 'graphql_pre_ast', function( $doc, $filtered_query ) {
+			$this->assertEquals( 'broken query', $filtered_query );
+			$this->assertEquals( false, $doc );
+
+			return Parser::parse('
+				query getPosts {
+					filtered: posts {
+						nodes {
+							title
+						}
+					}
+				}
+			');
+		}, 10, 2 );
+
+		$query = 'broken query'; // is ok because the pre filter skips it's parsing
+
+		$actual = graphql([ 'query' => $query ]);
+
+		// No parsing errors
+		$this->assertArrayNotHasKey( 'errors', $actual, print_r( $actual, true ) );
+
+		// Used the filtered version of the AST
+		$this->assertArrayHasKey( 'filtered', $actual['data'] );
 	}
 
 }
