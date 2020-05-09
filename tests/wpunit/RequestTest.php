@@ -86,6 +86,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'errors', $results );
 		$this->assertArrayNotHasKey( 'data', $results );
 		$this->assertEquals( 1, count( $results['errors'] ) );
+		$this->assertArrayHasKey( 'message',  $results['errors'][0] );
 	}
 
 	/**
