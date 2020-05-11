@@ -24,8 +24,8 @@ add_action( 'init', function() {
       ],
       'show_in_graphql' => true,
       'hierarchical' => true,
-      'graphql_single_name' => 'Document',
-      'graphql_plural_name' => 'Documents',
+      'graphql_single_name' => 'document',
+      'graphql_plural_name' => 'documents',
    ] );
 } );
 ```
@@ -40,8 +40,8 @@ add_filter( 'register_post_type_args', function( $args, $post_type ) {
 
 	if ( 'docs' === $post_type ) {
 		$args['show_in_graphql'] = true;
-		$args['graphql_single_name'] = 'Document';
-		$args['graphql_plural_name'] = 'Documents';
+		$args['graphql_single_name'] = 'document';
+		$args['graphql_plural_name'] = 'documents';
 	}
 
 	return $args;
