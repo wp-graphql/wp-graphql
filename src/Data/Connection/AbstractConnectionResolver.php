@@ -537,7 +537,7 @@ abstract class AbstractConnectionResolver {
 		$nodes = [];
 		foreach ( $this->ids as $id ) {
 			$model = $this->get_node_by_id( $id );
-			if ( $this->is_valid_model( $model ) ) {
+			if ( true === $this->is_valid_model( $model ) ) {
 				$nodes[ $id ] = $model;
 			}
 		}

@@ -70,11 +70,25 @@ class Post extends Model {
 	protected $data;
 
 	/**
+	 * Store the global post to reset during model tear down
+	 *
+	 * @var \WP_Post
+	 */
+	protected $global_post;
+
+	/**
 	 * Stores the incoming post type object for the post being modeled
 	 *
 	 * @var null|\WP_Post_Type $post_type_object
 	 */
 	protected $post_type_object;
+
+	/**
+	 * Store the instance of the WP_Query
+	 *
+	 * @var \WP_Query
+	 */
+	protected $wp_query;
 
 	/**
 	 * Post constructor.
@@ -91,7 +105,6 @@ class Post extends Model {
 		 */
 		$this->data             = $post;
 		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
-
 
 		/**
 		 * If the post type is 'revision', we need to get the post_type_object
@@ -118,6 +131,7 @@ class Post extends Model {
 			'status',
 			'post_status',
 			'isRestricted',
+			'enqueuedScriptsQueue'
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
@@ -133,7 +147,12 @@ class Post extends Model {
 	 */
 	public function setup() {
 
-		global $wp_query;
+		global $wp_query, $post;
+
+		/**
+		 * Store the global post before overriding
+		 */
+		$this->global_post = $post;
 
 		/**
 		 * Set the resolving post to the global $post. That way any filters that
@@ -142,9 +161,47 @@ class Post extends Model {
 		 */
 		if ( $this->data ) {
 
+			/**
+			 * Clear out existing postdata
+			 */
+			$wp_query->reset_postdata();
+
+			/**
+			 * Parse the query to tell WordPress how to
+			 * setup global state
+			 */
+			if ( 'post' === $this->data->post_type ) {
+				$wp_query->parse_query([
+					'page' => '',
+					'p' => $this->data->ID,
+				]);
+			} elseif ( 'page' === $this->data->post_type ) {
+				$wp_query->parse_query([
+					'page' => '',
+					'pagename' => $this->data->post_name,
+				]);
+			} elseif ( 'attachment' === $this->data->post_type ) {
+				$wp_query->parse_query([
+					'attachment' => $this->data->post_name,
+				]);
+			}
+
+			$wp_query->setup_postdata( $this->data );
 			$GLOBALS['post'] = $this->data;
-			setup_postdata( $this->data );
+			$wp_query->queried_object = get_post( $this->data->ID );
+			$wp_query->queried_object_id = $this->data->ID;
+
 		}
+	}
+
+	/**
+	 * Reset global state after the model fields
+	 * have been generated
+	 */
+	public function tearDown() {
+		$GLOBALS['post'] = $this->global_post;
+		wp_reset_postdata();
+
 	}
 
 	/**
@@ -187,7 +244,7 @@ class Post extends Model {
 		 * so that we can check access rights of the parent post. Revision access is inherit
 		 * to the Parent it is a revision of.
 		 */
-		if ( 'revision' === $this->data->post_type ) {
+		if ( isset( $this->data->post_type ) && 'revision' === $this->data->post_type ) {
 
 			// Get the post
 			$parent_post = get_post( $this->data->post_parent );
@@ -331,7 +388,6 @@ class Post extends Model {
 					return ! empty( $this->data->post_date_gmt ) ? Types::prepare_date_response( $this->data->post_date_gmt ) : null;
 				},
 				'contentRendered' => function() {
-					setup_postdata( $this->data );
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
 					return ! empty( $content ) ? apply_filters( 'the_content', $content ) : null;
@@ -348,7 +404,6 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'titleRendered'   => function() {
-					setup_postdata( $this->data );
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
@@ -361,7 +416,6 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'excerptRendered' => function() {
-					setup_postdata( $this->data );
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
@@ -463,12 +517,19 @@ class Post extends Model {
 					},
 					'capability' => $this->post_type_object->cap->edit_others_posts,
 				],
+				'enqueuedScriptsQueue' => function() {
+					global $wp_scripts;
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_scripts->queue;
+					$wp_scripts->reset();
+					$wp_scripts->queue = [];
+					return $queue;
+				},
 			];
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [
 					'captionRendered'     => function() {
-						setup_postdata( $this->data );
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 
 						return ! empty( $caption ) ? $caption : null;
@@ -483,8 +544,6 @@ class Post extends Model {
 						return get_post_meta( $this->data->ID, '_wp_attachment_image_alt', true );
 					},
 					'descriptionRendered' => function() {
-						setup_postdata( $this->data );
-
 						return ! empty( $this->data->post_content ) ? apply_filters( 'the_content', $this->data->post_content ) : null;
 					},
 					'descriptionRaw'      => [

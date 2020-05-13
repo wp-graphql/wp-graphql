@@ -4,6 +4,7 @@ namespace WPGraphQL;
 
 use GraphQL\Error\UserError;
 use WPGraphQL\Data\Loader\CommentLoader;
+use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\TermObjectLoader;
@@ -72,31 +73,6 @@ class AppContext {
 	public $loaders = [];
 
 	/**
-	 * @var CommentLoader
-	 */
-	public $CommentLoader;
-
-	/**
-	 * @var MenuItemLoader
-	 */
-	public $MenuItemLoader;
-
-	/**
-	 * @var PostObjectLoader
-	 */
-	public $PostObjectLoader;
-
-	/**
-	 * @var TermObjectLoader
-	 */
-	public $TermObjectLoader;
-
-	/**
-	 * @var UserLoader
-	 */
-	public $UserLoader;
-
-	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
@@ -105,11 +81,12 @@ class AppContext {
 		 * Create a list of loaders to be available in AppContext
 		 */
 		$loaders = [
-			'comment'     => new CommentLoader( $this ),
-			'menu_item'   => new MenuItemLoader( $this ),
-			'post_object' => new PostObjectLoader( $this ),
-			'term_object' => new TermObjectLoader( $this ),
-			'user'        => new UserLoader( $this ),
+			'comment'         => new CommentLoader( $this ),
+			'menu_item'       => new MenuItemLoader( $this ),
+			'post_object'     => new PostObjectLoader( $this ),
+			'term_object'     => new TermObjectLoader( $this ),
+			'user'            => new UserLoader( $this ),
+			'enqueued_script' => new EnqueuedScriptLoader( $this ),
 		];
 
 		/**

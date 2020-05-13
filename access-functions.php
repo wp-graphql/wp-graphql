@@ -22,6 +22,23 @@ function graphql_format_field_name( $field_name ) {
 }
 
 /**
+ * Formats the name of a Type so that it plays nice with GraphiQL
+ *
+ * @param string $type_name Name of the field
+ *
+ * @return string Name of the field
+ * @since  0.0.2
+ */
+function graphql_format_type_name( $type_name ) {
+	$type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $type_name );
+	$type_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $type_name ) );
+	$type_name = ucfirst( $type_name );
+
+	return $type_name;
+}
+
+
+/**
  * Provides a simple way to run a GraphQL query with out posting a request to the endpoint.
  *
  * @param array $request_data The GraphQL request data (query, variables, operation_name).
@@ -97,8 +114,6 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 	if ( is_string( $interface_names ) ) {
 		$interface_names[] = $interface_names;
 	}
-
-
 
 	if ( ! empty( $type_names ) && is_array( $type_names ) && ! empty( $interface_names ) && is_array( $interface_names ) ) {
 		foreach ( $type_names as $type_name ) {

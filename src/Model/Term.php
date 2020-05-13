@@ -38,6 +38,8 @@ class Term extends Model {
 	 */
 	protected $taxonomy_object;
 
+	protected $global_post;
+
 	/**
 	 * Term constructor.
 	 *
@@ -50,6 +52,55 @@ class Term extends Model {
 		$this->data            = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
 		parent::__construct();
+	}
+
+	/**
+	 * Setup the global state for the model to have proper context when resolving
+	 */
+	public function setup() {
+
+		global $wp_query, $post;
+
+		/**
+		 * Store the global post before overriding
+		 */
+		$this->global_post = $post;
+
+		if ( $this->data ) {
+
+			/**
+			 * Reset global post
+			 */
+			$GLOBALS['post'] = get_post( 0 );
+
+			/**
+			 * Parse the query to tell WordPress
+			 * how to setup global state
+			 */
+			if ( 'category' === $this->data->taxonomy ) {
+				$wp_query->parse_query([
+					'category_name' => $this->data->slug,
+				]);
+			} elseif ( 'post_tag' === $this->data->taxonomy ) {
+				$wp_query->parse_query([
+					'tag' => $this->data->slug
+				]);
+			}
+
+			$wp_query->queried_object = get_term( $this->data->term_id, $this->data->taxonomy );
+			$wp_query->queried_object_id = $this->data->term_id;
+
+		}
+
+	}
+
+	/**
+	 * Reset global state after the model fields
+	 * have been generated
+	 */
+	public function tearDown() {
+		$GLOBALS['post'] = $this->global_post;
+		wp_reset_postdata();
 	}
 
 	/**
@@ -95,6 +146,18 @@ class Term extends Model {
 				},
 				'parentId'       => function() {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
+				},
+				'isTag' => function() {
+					return is_tag();
+				},
+				'enqueuedScriptsQueue' => function() {
+					global $wp_scripts;
+					$wp_scripts->reset();
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_scripts->queue;
+					$wp_scripts->reset();
+					$wp_scripts->queue = [];
+					return $queue;
 				},
 			];
 

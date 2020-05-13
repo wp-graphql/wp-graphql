@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\ContentTypes;
+use WPGraphQL\Connection\EnqueuedScripts;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
@@ -49,6 +50,7 @@ use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
@@ -62,6 +64,7 @@ use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
+use WPGraphQL\Type\Object\EnqueuedScript;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -210,6 +213,7 @@ class TypeRegistry {
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
+		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -232,6 +236,7 @@ class TypeRegistry {
 		Comment::register_type();
 		CommentAuthor::register_type();
 		EditLock::register_type();
+		EnqueuedScript::register_type();
 		MediaDetails::register_type();
 		MediaItemMeta::register_type();
 		MediaSize::register_type();
@@ -289,6 +294,7 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
+		EnqueuedScripts::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
 		Plugins::register_connections();

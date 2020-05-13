@@ -39,6 +39,20 @@ class User extends Model {
 	protected $data;
 
 	/**
+	 * The Global Post at time of Model generation
+	 *
+	 * @var \WP_Post
+	 */
+	protected $global_post;
+
+	/**
+	 * The global authordata at time of Model generation
+	 *
+	 * @var \WP_User
+	 */
+	protected $global_authordata;
+
+	/**
 	 * User constructor.
 	 *
 	 * @param \WP_User $user The incoming WP_User object that needs modeling
@@ -62,10 +76,51 @@ class User extends Model {
 			'description',
 			'slug',
 			'uri',
+			'enqueuedScriptsQueue',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
 
+	}
+
+	/**
+	 * Setup the global data for the model to have proper context when resolving
+	 */
+	public function setup() {
+
+		global $wp_query, $post, $authordata;
+
+		// Store variables for resetting at tear down
+		$this->global_post = $post;
+		$this->global_authordata = $authordata;
+
+		if ( $this->data ) {
+
+			// Reset postdata
+			$wp_query->reset_postdata();
+
+			// Parse the query to setup global state
+			$wp_query->parse_query([
+				'author_name' => $this->data->user_nicename
+			]);
+
+			// Setup globals
+			$wp_query->is_author = true;
+			$GLOBALS['authordata'] = $this->data;
+			$wp_query->queried_object = get_user_by( 'id', $this->data->ID );
+			$wp_query->queried_object_id = $this->data->ID;
+		}
+
+	}
+
+	/**
+	 * Reset global state after the model fields
+	 * have been generated
+	 */
+	public function tearDown() {
+		$GLOBALS['authordata'] = $this->global_authordata;
+		$GLOBALS['post'] = $this->global_post;
+		wp_reset_postdata();
 	}
 
 	/**
@@ -179,6 +234,22 @@ class User extends Model {
 
 					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
 				},
+				'queriedObject' => function() {
+					global $wp_query;
+					return wp_json_encode( [ $this->data, $wp_query->queried_object, $wp_query->get_queried_object() ] );
+				},
+				'enqueuedScriptsQueue' => function() {
+					global $wp_scripts;
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_scripts->queue;
+					$wp_scripts->reset();
+					$wp_scripts->queue = [];
+					return $queue;
+				},
+				'wpQuery' => function() {
+					global $wp_query;
+					return wp_json_encode( $wp_query, 2 );
+				}
 			];
 
 		}

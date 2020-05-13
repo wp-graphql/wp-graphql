@@ -150,7 +150,6 @@ class WPObjectType extends ObjectType {
 			return $fields;
 		};
 
-
 		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
