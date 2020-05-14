@@ -541,6 +541,7 @@ abstract class AbstractConnectionResolver {
 				$nodes[ $id ] = $model;
 			}
 		}
+
 		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
 
 		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;

@@ -671,6 +671,9 @@ class DataSource {
 				case $node instanceof CommentAuthor:
 					$type = 'CommentAuthor';
 					break;
+				case $node instanceof \_WP_Dependency;
+					$type = 'EnqueuedAsset';
+					break;
 				default:
 					$type = null;
 			}
@@ -742,6 +745,14 @@ class DataSource {
 			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 			$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
+
+
+			$loader = $context->getLoader( $id_components['type'] );
+			if ( $loader ) {
+				return $loader->load_deferred( $id_components['id'] );
+			}
+			return null;
+
 			switch ( $id_components['type'] ) {
 				case in_array( $id_components['type'], $allowed_post_types, true ):
 					$node = self::resolve_post_object( $id_components['id'], $context );
@@ -781,6 +792,8 @@ class DataSource {
 						}
 					);
 					break;
+				case 'enqueued-script':
+					$context->getLoader( 'enqueued-script' )->loadDeferred( $id );
 				default:
 					/**
 					 * Add a filter to allow externally registered node types to resolve based on

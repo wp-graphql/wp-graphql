@@ -100,7 +100,7 @@ class PostType extends Model {
 
 			$this->fields = [
 				'id'                  => function() {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'contentType', $this->data->name ) : null;
+					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
 				},
 				'name'                => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;

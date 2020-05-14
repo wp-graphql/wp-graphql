@@ -82,9 +82,9 @@ class AppContext {
 		 */
 		$loaders = [
 			'comment'         => new CommentLoader( $this ),
-			'menu_item'       => new MenuItemLoader( $this ),
-			'post_object'     => new PostObjectLoader( $this ),
-			'term_object'     => new TermObjectLoader( $this ),
+			'nav_menu_item'   => new MenuItemLoader( $this ),
+			'post'            => new PostObjectLoader( $this ),
+			'term'            => new TermObjectLoader( $this ),
 			'user'            => new UserLoader( $this ),
 			'enqueued_script' => new EnqueuedScriptLoader( $this ),
 		];

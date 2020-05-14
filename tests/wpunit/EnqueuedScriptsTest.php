@@ -32,7 +32,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'user_role'  => 'author',
 		] );
 
-		codecept_debug( $this->user_id );
+		// codecept_debug( $this->user_id );
 
 		register_post_type( 'test_enqueue_cpt', [
 			'public'              => true,
@@ -53,7 +53,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'name'     => uniqid(),
 		] );
 
-		codecept_debug( $this->category_id );
+		// codecept_debug( $this->category_id );
 
 		$this->tag_id = $this->factory()->term->create( [
 			'taxonomy' => 'post_tag',
@@ -65,7 +65,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'name'     => uniqid(),
 		] );
 
-		codecept_debug( $this->tag_id );
+		// codecept_debug( $this->tag_id );
 
 		$this->page_id = $this->factory()->post->create( [
 			'post_type'    => 'page',
@@ -75,7 +75,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_excerpt' => '',
 		] );
 
-		codecept_debug( $this->page_id );
+		// codecept_debug( $this->page_id );
 
 		$this->post_id = $this->factory()->post->create( [
 			'post_type'     => 'post',
@@ -87,12 +87,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_excerpt'  => 'Test excerpt'
 		] );
 
-		codecept_debug( $this->post_id );
+		// codecept_debug( $this->post_id );
 
 		$filename       = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
 
-		codecept_debug( get_post( $this->media_id ) );
+		// codecept_debug( get_post( $this->media_id ) );
 
 		$this->custom_post_id = $this->factory()->post->create( [
 			'post_type'    => 'test_enqueue_cpt',
@@ -108,11 +108,14 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown() {
-
+		WPGraphQL::clear_schema();
 		wp_delete_term( $this->tag_id, 'post_tag' );
 		wp_delete_term( $this->category_id, 'post_tag' );
 		wp_delete_post( $this->post_id, true );
 		wp_delete_post( $this->page_id, true );
+		unregister_post_type( 'test_enqueue_cpt' );
+		unregister_taxonomy( 'test_enqueue_tax' );
+		parent::tearDown();
 
 	}
 
@@ -141,7 +144,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query PageById( $id: ID! ) {
 		  page( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -178,7 +180,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query postById( $id: ID! ) {
 		  post( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -215,7 +216,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query testEnqueueCpt( $id: ID! ) {
 		  testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -252,8 +252,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query tagById( $id: ID! ) {
 		  tag( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
-		    queriedObject
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -290,7 +288,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query catById( $id: ID! ) {
 		  category( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    queriedObject
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -327,7 +324,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query catById( $id: ID! ) {
 		  category( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    queriedObject
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -364,8 +360,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query userById( $id: ID! ) {
 		  user( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
-		    queriedObject
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -402,8 +396,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query mediaItem( $id: ID!  ) {
 		  mediaItem( id: $id idType: DATABASE_ID ) {
 		    databaseId
-		    wpQuery
-		    queriedObject
 		    enqueuedScripts {
 		      nodes {
 		        ...EnqueuedScriptFragment
@@ -450,12 +442,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT connected to another page
@@ -468,24 +460,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $another_page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on POSTS
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -496,7 +488,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -530,24 +522,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on POSTS
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -558,7 +550,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -592,24 +584,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -620,7 +612,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -653,24 +645,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -680,13 +672,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_custom_post_query( $this->custom_post_id );
 
-		codecept_debug( $actual );
+		 codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['testEnqueueCpt']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -697,7 +689,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -731,12 +723,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// SET THE POST AS STICKY
@@ -745,13 +737,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -762,7 +754,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -785,8 +777,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 			global $post;
-			codecept_debug( 'GLOBALPOST....' );
-			codecept_debug( $post );
+			// codecept_debug( 'GLOBALPOST....' );
+			// codecept_debug( $post );
 			wp_register_script( $handle, $src );
 			if ( isset( $post->post_type ) && is_post_type_hierarchical( $post->post_type ) ) {
 				wp_enqueue_script( $handle );
@@ -796,14 +788,14 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 
-		codecept_debug( $handles );
+		// codecept_debug( $handles );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -812,24 +804,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -853,7 +845,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 
 			wp_register_script( $handle, $src );
-			codecept_debug( comments_open() );
+			// codecept_debug( comments_open() );
 			if ( comments_open() ) {
 				wp_enqueue_script( $handle );
 			}
@@ -866,25 +858,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( comments_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( comments_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -894,7 +886,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
@@ -920,8 +912,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			global $post;
-			codecept_debug( 'PING_STATUS' );
-			codecept_debug( $post );
+			// codecept_debug( 'PING_STATUS' );
+			// codecept_debug( $post );
 			if ( is_a( $post, 'WP_Post' ) && pings_open() ) {
 				wp_enqueue_script( $handle );
 			}
@@ -934,25 +926,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( pings_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( pings_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -963,7 +955,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -993,8 +985,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $this->post_id, '_wp_page_template', $post_template );
 		update_post_meta( $this->page_id, '_wp_page_template', $page_template );
 
-		codecept_debug( get_page_template_slug( $this->post_id ) );
-		codecept_debug( get_page_template_slug( $this->page_id ) );
+		// codecept_debug( get_page_template_slug( $this->post_id ) );
+		// codecept_debug( get_page_template_slug( $this->page_id ) );
 
 		add_action( 'wp_enqueue_scripts', function() use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
 			wp_register_script( $page_handle, $page_src );
@@ -1013,7 +1005,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1026,13 +1018,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_post_query( $this->post_id );
 
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1045,7 +1037,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1081,25 +1073,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( pings_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( pings_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1110,7 +1102,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1121,7 +1113,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1155,25 +1147,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( pings_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( pings_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1184,7 +1176,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1195,7 +1187,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1229,25 +1221,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( pings_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( pings_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1258,7 +1250,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1269,7 +1261,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1303,25 +1295,25 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( pings_open( $this->page_id ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 		$this->assertTrue( pings_open( $this->post_id ) );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1332,7 +1324,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1343,7 +1335,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1367,7 +1359,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_author() ) {
-				codecept_debug( 'AUTHOR, YO!!' );
+				// codecept_debug( 'AUTHOR, YO!!' );
 				wp_enqueue_script( $handle );
 			}
 		} );
@@ -1377,24 +1369,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1405,7 +1397,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1416,7 +1408,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1426,7 +1418,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script IS enqueued on Tags
 		$actual = $this->get_user_query( $this->author_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
@@ -1460,24 +1452,24 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
-		codecept_debug( $sources );
+		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1488,7 +1480,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1499,7 +1491,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1509,7 +1501,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script IS enqueued on Tags
 		$actual = $this->get_user_query( $this->author_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
@@ -1521,7 +1513,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script IS enqueued on Tags
 		$actual = $this->get_media_query( $this->media_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['mediaItem']['enqueuedScripts']['nodes'];
@@ -1555,13 +1547,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1572,7 +1564,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1583,7 +1575,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1593,7 +1585,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script IS enqueued on Tags
 		$actual = $this->get_user_query( $this->author_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
@@ -1605,7 +1597,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script IS enqueued on Tags
 		$actual = $this->get_media_query( $this->media_id );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$scripts = $actual['data']['mediaItem']['enqueuedScripts']['nodes'];
@@ -1642,8 +1634,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			wp_register_script( $handle, $src );
 			if ( has_excerpt() ) {
 				global $post;
-				codecept_debug( 'HAS_EXCERPT, YO' );
-				codecept_debug( $post );
+				// codecept_debug( 'HAS_EXCERPT, YO' );
+				// codecept_debug( $post );
 				wp_enqueue_script( $handle );
 			}
 		} );
@@ -1652,13 +1644,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
 
-		codecept_debug( $scripts );
+		// codecept_debug( $scripts );
 
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1669,7 +1661,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_page_query( $this->page_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );
@@ -1681,7 +1673,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_custom_post_query( $this->custom_post_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		// codecept_debug( $actual );
 		$scripts = $actual['data']['testEnqueueCpt']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );

@@ -114,7 +114,7 @@ class Term extends Model {
 
 			$this->fields = [
 				'id'             => function() {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( $this->data->taxonomy, $this->data->term_id ) : null;
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
 				},
 				'term_id'        => function() {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;

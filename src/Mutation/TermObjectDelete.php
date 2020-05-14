@@ -63,7 +63,7 @@ class TermObjectDelete {
 				'resolve'     => function( $payload ) use ( $taxonomy ) {
 					$deleted = (object) $payload['termObject'];
 
-					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( $taxonomy->name, $deleted->term_id ) : null;
+					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( 'term', $deleted->term_id ) : null;
 				},
 			],
 			$taxonomy->graphql_single_name => [

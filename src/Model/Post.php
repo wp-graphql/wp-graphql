@@ -373,7 +373,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'id'              => function() {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->ID ) ) ? Relay::toGlobalId( $this->data->post_type, $this->data->ID ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
 				},
 				'post_type'       => function() {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
