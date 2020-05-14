@@ -156,7 +156,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_query
+	 * Get_query
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *

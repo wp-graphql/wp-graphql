@@ -103,7 +103,7 @@ class CommentDelete {
 				$current_user_id = absint( get_current_user_id() );
 				// If the current user ID is the same as the comment author's ID, then the
 				// current user is the comment author and can delete the comment
-				if ( 0 !== $current_user_id && $current_user_id === absint( $user_id ) ) {
+				if ( 0 !== $current_user_id && absint( $user_id ) === $current_user_id ) {
 					$not_allowed = false;
 				}
 			}
@@ -111,7 +111,7 @@ class CommentDelete {
 			/**
 			 * If the mutation has been prevented
 			 */
-			if ( $not_allowed === true ) {
+			if ( true === $not_allowed ) {
 				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
 			}
 

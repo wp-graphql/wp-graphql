@@ -116,8 +116,21 @@ class AppContext {
 	 * @param string $key The name of the loader to get
 	 *
 	 * @return mixed
+	 *
+	 * @deprecated Use get_loader instead.
 	 */
 	public function getLoader( $key ) {
+		return $this->get_loader( $key );
+	}
+
+	/**
+	 * Retrieves loader assigned to $key
+	 *
+	 * @param string $key The name of the loader to get
+	 *
+	 * @return mixed
+	 */
+	public function get_loader( $key ) {
 		if ( ! array_key_exists( $key, $this->loaders ) ) {
 			throw new UserError( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) );
 		}
@@ -129,8 +142,19 @@ class AppContext {
 	 * Returns the $args for the connection the field is a part of
 	 *
 	 * @return array|mixed
+	 *
+	 * @deprecated use get_connection_args() instead
 	 */
 	public function getConnectionArgs() {
+		return $this->get_connection_args();
+	}
+
+	/**
+	 * Returns the $args for the connection the field is a part of
+	 *
+	 * @return array|mixed
+	 */
+	public function get_connection_args() {
 		return isset( $this->currentConnection ) && isset( $this->connectionArgs[ $this->currentConnection ] ) ? $this->connectionArgs[ $this->currentConnection ] : [];
 	}
 
@@ -139,8 +163,17 @@ class AppContext {
 	 *
 	 * @return mixed|null|String
 	 */
-	public function getCurrentConnection() {
+	public function get_current_connection() {
 		return isset( $this->currentConnection ) ? $this->currentConnection : null;
+
+	}
+
+	/**
+	 * @return mixed|null|String
+	 * @deprecated use get_current_connection instead.
+	 */
+	public function getCurrentConnection() {
+		return $this->get_current_connection();
 	}
 
 }

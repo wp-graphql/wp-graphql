@@ -1,25 +1,112 @@
 <?php
 
-class TypesTest extends \Codeception\TestCase\WPTestCase
-{
+class TypesTest extends \Codeception\TestCase\WPTestCase {
 
-    public function setUp()
-    {
-        // before
-        parent::setUp();
+	public function setUp() {
+		// before
 
-        WPGraphQL::clear_schema();
+		parent::setUp();
+		WPGraphQL::clear_schema();
 
-        // your set up methods here
-    }
 
-    public function tearDown()
-    {
-        // your tear down methods here
 
-        // then
-        parent::tearDown();
-    }
+		// your set up methods here
+	}
+
+	public function tearDown() {
+		// your tear down methods here
+
+		// then
+		parent::tearDown();
+	}
+
+	/**
+	 * Tests whether custom scalars can be registered and used in the Schema
+	 *
+	 * @throws Exception
+	 */
+	public function testCustomScalarCanBeUsedInSchema() {
+
+		$test_value = 'test';
+		$field_name = 'test';
+
+		register_graphql_scalar( [
+			'name'         => 'TestScalar',
+			'description'  => __( 'Test Scalar', 'wp-graphql' ),
+			'serialize'    => function( $value ) {
+				return $value;
+			},
+			'parseValue'   => function( $value ) {
+				return $value;
+			},
+			'parseLiteral' => function( $valueNode, array $variables = null ) {
+				return $valueNode->value;
+			}
+		] );
+
+		register_graphql_field( 'RootQuery', 'test', [
+			'type'    => 'TestScalar',
+			'resolve' => function() use ( $test_value ) {
+				return $test_value;
+			}
+		] );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  __type(name: "TestScalar") {
+			    kind
+			  }
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'SCALAR', $actual['data']['__type']['kind'] );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  __schema {
+			    queryType {
+			      fields {
+			        name
+			        type {
+			          name
+			          kind
+			        }
+			      }
+			    }
+			  }
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$fields = $actual['data']['__schema']['queryType']['fields'];
+
+		$email = array_filter( $fields, function( $field ) {
+			return $field['type']['name'] === 'TestScalar' && $field['type']['kind'] === 'SCALAR' ? $field : null;
+		} );
+
+		$this->assertNotEmpty( $email );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  test
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertEquals( $test_value, $actual['data']['test'] );
+
+	}
 
 	/**
 	 * This registers a field that's already been registered, and asserts that
@@ -35,7 +122,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 					'type' => 'String'
 				]
 			]
-		]);
+		] );
 
 		register_graphql_field( 'RootQuery', 'example', [
 			'type' => 'ExampleType'
@@ -47,7 +134,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 		$this->expectException( \GraphQL\Error\InvariantViolation::class );
 
-		$actual = graphql([
+		$actual = graphql( [
 			'query' => '
 			{
 			 example {
@@ -55,9 +142,9 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 			 }
 			}
 			'
-		]);
+		] );
 
-    }
+	}
 
 	/**
 	 * This registers a field without a type defined, and asserts that
@@ -73,9 +160,9 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 		$this->expectException( \GraphQL\Error\InvariantViolation::class );
 
-		graphql([
+		graphql( [
 			'query' => '{posts { nodes { id } } }'
-		]);
+		] );
 
 	}
 
@@ -91,9 +178,9 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 		$this->expectException( \GraphQL\Error\InvariantViolation::class );
 
-		graphql([
+		graphql( [
 			'query' => '{posts { nodes { id } } }'
-		]);
+		] );
 
 	}
 
@@ -110,32 +197,32 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$map = [
 			'stringInput' => 'string_input',
-			'intInput' => 'int_input',
-			'boolInput' => 'bool_input',
+			'intInput'    => 'int_input',
+			'boolInput'   => 'bool_input',
 			'inputObject' => 'input_object',
 		];
 
 		$input_args = [
 			'stringInput' => 'value 2',
-			'intInput' => 2,
-			'boolInput' => false,
+			'intInput'    => 2,
+			'boolInput'   => false,
 		];
 
 		$args = [
 			'stringInput' => 'value',
-			'intInput' => 1,
-			'boolInput' => true,
+			'intInput'    => 1,
+			'boolInput'   => true,
 			'inputObject' => \WPGraphQL\Types::map_input( $input_args, $map ),
 		];
 
 		$expected = [
 			'string_input' => 'value',
-			'int_input' => 1,
-			'bool_input' => true,
+			'int_input'    => 1,
+			'bool_input'   => true,
 			'input_object' => [
 				'string_input' => 'value 2',
-				'int_input' => 2,
-				'bool_input' => false,
+				'int_input'    => 2,
+				'bool_input'   => false,
 			],
 		];
 
@@ -147,6 +234,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 	/**
 	 * Ensure get_types returns types expected to be in the Schema
+	 *
 	 * @throws Exception
 	 */
 	public function testTypeRegistryGetTypes() {
@@ -174,6 +262,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 	/**
 	 * Test filtering listOf and nonNull fields onto a Type
+	 *
 	 * @throws Exception
 	 */
 	public function testListOf() {
@@ -184,42 +273,42 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 		add_filter( 'graphql_user_fields', function( $fields, $object, \WPGraphQL\Registry\TypeRegistry $type_registry ) {
 
 			$fields['testNonNullString'] = [
-				'type' => $type_registry->non_null( $type_registry->get_type( 'String' ) ),
+				'type'    => $type_registry->non_null( $type_registry->get_type( 'String' ) ),
 				'resolve' => function() {
 					return 'string';
 				}
 			];
 
 			$fields['testNonNullStringTwo'] = [
-				'type' => $type_registry->non_null( 'String' ),
+				'type'    => $type_registry->non_null( 'String' ),
 				'resolve' => function() {
 					return 'string';
 				}
 			];
 
 			$fields['testListOfString'] = [
-				'type' => $type_registry->list_of( $type_registry->get_type( 'String' ) ),
+				'type'    => $type_registry->list_of( $type_registry->get_type( 'String' ) ),
 				'resolve' => function() {
 					return [ 'string' ];
 				}
 			];
 
 			$fields['testListOfStringTwo'] = [
-				'type' => $type_registry->list_of( 'String' ),
+				'type'    => $type_registry->list_of( 'String' ),
 				'resolve' => function() {
 					return [ 'string' ];
 				}
 			];
 
 			$fields['testListOfNonNullString'] = [
-				'type' => $type_registry->list_of( $type_registry->non_null( 'String' ) ),
+				'type'    => $type_registry->list_of( $type_registry->non_null( 'String' ) ),
 				'resolve' => function() {
 					return [ 'string' ];
 				}
 			];
 
 			$fields['testNonNullListOfString'] = [
-				'type' => $type_registry->non_null( $type_registry->list_of( 'String' ) ),
+				'type'    => $type_registry->non_null( $type_registry->list_of( 'String' ) ),
 				'resolve' => function() {
 					return [ 'string' ];
 				}
@@ -229,11 +318,11 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 
 		}, 10, 3 );
 
-		$user_id = $this->factory()->user->create([
+		$user_id = $this->factory()->user->create( [
 			'user_login' => 'test' . uniqid(),
 			'user_email' => 'test' . uniqid() . '@example.com',
-			'role' => 'administrator',
-		]);
+			'role'       => 'administrator',
+		] );
 
 		/**
 		 * Allow for the user to be queried
@@ -255,12 +344,12 @@ class TypesTest extends \Codeception\TestCase\WPTestCase
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = graphql( [
+			'query'     => $query,
 			'variables' => [
 				'id' => $user_id
 			]
-		]);
+		] );
 
 		codecept_debug( $actual );
 

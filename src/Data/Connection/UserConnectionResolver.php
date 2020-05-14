@@ -183,12 +183,13 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Only users with the "list_users" capability can filter users by roles
 		 */
-		if ( (
-				 ! empty( $args['roleIn'] ) ||
-				 ! empty( $args['roleNotIn'] ) ||
-				 ! empty( $args['role'] )
-			 ) &&
-			 ! current_user_can( 'list_users' )
+		if (
+			(
+				! empty( $args['roleIn'] ) ||
+				! empty( $args['roleNotIn'] ) ||
+				! empty( $args['role'] )
+			) &&
+			! current_user_can( 'list_users' )
 		) {
 			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}

@@ -405,7 +405,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Now try and delete it.
 		 */
-		$id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $term );
+		$id = \GraphQLRelay\Relay::toGlobalId( 'term', $term );
 		$actual = $this->deleteTagMutation( $id );
 
 		/**
@@ -603,7 +603,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		}
 		';
 
-		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_term_id );
+		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_term_id );
 
 		$variables = [
 			'input' => [

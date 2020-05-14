@@ -20,14 +20,6 @@ jobs:
           - php: '7.4'
             wordpress: '5.3.2'
             coverage: true
-
-        exclude:
-          - php: '7.3'
-            wordpress: '4.9'
-          - php: '7.2'
-            wordpress: '4.9'
-          - php: '7.0'
-            wordpress: '5.3'
       fail-fast: false
     name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
@@ -39,15 +31,14 @@ jobs:
           WP_VERSION: ${{ matrix.wordpress }}
           COVERAGE: ${{ matrix.coverage }}
         run: |
-          ./run-docker-tests.sh 'wpunit'
-          ./run-docker-tests.sh 'functional'
-          ./run-docker-tests.sh 'acceptance'
-
+          ./bin/run-docker-tests.sh 'wpunit'
+          ./bin/run-docker-tests.sh 'functional'
+          ./bin/run-docker-tests.sh 'acceptance'
       - name: Setup PHP
         if: matrix.coverage == true
         uses: shivammathur/setup-php@v1
         with:
-          php-version: 7.3
+          php-version: 7.4.5
           extensions: mbstring, intl
           tools: composer
       - name: Upload coverage to codecov

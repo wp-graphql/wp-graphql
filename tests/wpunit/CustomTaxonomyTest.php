@@ -4,12 +4,12 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown() {
 		parent::tearDown();
-
+		WPGraphQL::clear_schema();
 	}
 
 	/**

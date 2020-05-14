@@ -109,7 +109,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -129,7 +129,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			]
 		]);
 
@@ -147,7 +147,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -187,7 +187,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -227,7 +227,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -267,7 +267,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -307,7 +307,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -327,7 +327,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			]
 		]);
 
@@ -345,7 +345,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -385,7 +385,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -425,7 +425,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -465,7 +465,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -506,7 +506,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -529,7 +529,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			]
 		]);
 
@@ -548,7 +548,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Tag',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post_tag', $tag->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
 			'name' => $tag->name,
 			'slug' => $tag->slug,
 			'tagId' => $tag->term_id,
@@ -592,7 +592,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -636,7 +636,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
@@ -680,7 +680,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'category', $cat->term_id ),
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,

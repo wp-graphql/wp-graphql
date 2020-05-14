@@ -44,7 +44,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'contentType', 'post' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'post' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -230,7 +230,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'contentType', 'page' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'page' );
 
 		$post_type_object = get_post_type_object( 'page' );
 
@@ -353,7 +353,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'contentType', 'attachment' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'attachment' );
 
 		$post_type_object = get_post_type_object( 'attachment' );
 

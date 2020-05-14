@@ -93,11 +93,11 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$tag_slug = uniqid();
 		$tag = wp_insert_term( $tag_slug, 'post_tag' );
-		$expected_tag_id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', absint( $tag['term_id'] ) );
+		$expected_tag_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $tag['term_id'] ) );
 
 		$category_slug = uniqid();
 		$category = wp_insert_term( $category_slug, 'category' );
-		$expected_category_id = \GraphQLRelay\Relay::toGlobalId( 'category', absint( $category['term_id']  ) );
+		$expected_category_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $category['term_id']  ) );
 
 		wp_set_current_user( $this->admin );
 		$results = $this->createPostMutation([
@@ -140,7 +140,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'taxonomy' => 'post_tag'
 		]);
 
-		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $new_term );
+		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
 		$results = $this->createPostMutation([
 			'tags' => [
@@ -174,7 +174,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'taxonomy' => 'post_tag'
 		]);
 
-		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $new_term );
+		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
 		$results = $this->createPostMutation([
 			'tags' => [
@@ -208,7 +208,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'taxonomy' => 'category'
 		]);
 
-		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'category', $new_term );
+		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
 		$results = $this->createPostMutation([
 			'tags' => [

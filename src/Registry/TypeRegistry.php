@@ -120,6 +120,7 @@ use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
 
 /**
@@ -408,6 +409,19 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Given a config for a custom Scalar, this adds the Scalar for use in the Schema.
+	 *
+	 * @param $config
+	 *
+	 * @return WPScalar
+	 */
+	public function register_scalar( $config ) {
+		$type = new WPScalar( $config, $this );
+		$this->types[ $this->format_key( $type->name ) ] = $type;
+		return $type;
+	}
+
+	/**
 	 * @param $type_name
 	 * @param $config
 	 *
@@ -688,7 +702,7 @@ class TypeRegistry {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					if ( true === GRAPHQL_DEBUG ) {
-						 throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
+						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
 					}
 
 					return $fields;
@@ -851,7 +865,7 @@ class TypeRegistry {
 			$this->register_object_type(
 				$connection_name,
 				[
-					'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 					'fields'      => array_merge(
 						[
 							'node' => [
@@ -885,7 +899,7 @@ class TypeRegistry {
 				$connection_name,
 				[
 					// Translators: the placeholders are the name of the Types the connection is between.
-					'description' => __( sprintf( 'Connection between the %1$s type and the %2s type', $from_type, $to_type ), 'wp-graphql' ),
+					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 					'fields'      => array_merge(
 						[
 							'pageInfo' => [
@@ -897,7 +911,7 @@ class TypeRegistry {
 								'type'        => [
 									'list_of' => $connection_name . 'Edge',
 								],
-								'description' => __( sprintf( 'Edges for the %1$s connection', $connection_name ), 'wp-graphql' ),
+								'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $connection_name ),
 							],
 							'nodes'    => [
 								'type'        => [
@@ -956,7 +970,7 @@ class TypeRegistry {
 			[
 				'type'        => $connection_name,
 				'args'        => array_merge( $pagination_args, $where_args ),
-				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2s type', 'wp-graphql' ), $from_type, $to_type ),
+				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
 
 					/**
@@ -1020,7 +1034,7 @@ class TypeRegistry {
 		$this->register_object_type(
 			$mutation_name . 'Payload',
 			[
-				'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
 				'fields'      => $output_fields,
 			]
 		);
@@ -1040,7 +1054,7 @@ class TypeRegistry {
 		$this->register_input_type(
 			$mutation_name . 'Input',
 			[
-				'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ) ),
+				'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
 				'fields'      => $input_fields,
 			]
 		);
@@ -1051,13 +1065,13 @@ class TypeRegistry {
 			'rootMutation',
 			$mutation_name,
 			[
-				'description' => __( sprintf( 'The payload for the %s mutation', $mutation_name ) ),
+				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
 				'args'        => [
 					'input' => [
 						'type'        => [
 							'non_null' => $mutation_name . 'Input',
 						],
-						'description' => __( sprintf( 'Input for the %s mutation', $mutation_name ), 'wp-graphql' ),
+						'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
 					],
 				],
 				'type'        => $mutation_name . 'Payload',

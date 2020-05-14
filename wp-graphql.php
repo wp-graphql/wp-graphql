@@ -6,19 +6,19 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.8.3
+ * Version: 0.8.4
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
  * Tested up to: 5.4
- * Requires PHP: 7.0
+ * Requires PHP: 7.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.8.3
+ * @version  0.8.4
  */
 
 // Exit if accessed directly.
@@ -166,7 +166,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.8.3' );
+				define( 'WPGRAPHQL_VERSION', '0.8.4' );
 			}
 
 			// Plugin Folder Path.
@@ -196,7 +196,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// The minimum version of PHP this plugin requires to work properly
 			if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
-				define( 'GRAPHQL_MIN_PHP_VERSION', '7.0' );
+				define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
 			}
 
 		}
@@ -281,7 +281,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_action( 'graphql_before_resolve_field', [
 				'\WPGraphQL\Utils\InstrumentSchema',
-				'check_field_permissions'
+				'check_field_permissions',
 			], 10, 8 );
 
 			/**
@@ -352,7 +352,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			add_filter( 'graphql_schema', [
 				'\WPGraphQL\Utils\InstrumentSchema',
-				'instrument_schema'
+				'instrument_schema',
 			], 10, 1 );
 		}
 

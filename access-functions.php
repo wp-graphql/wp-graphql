@@ -246,6 +246,17 @@ function register_graphql_connection( array $config ) {
 }
 
 /**
+ * Given a config array for a custom Scalar, this registers a Scalar for use in the Schema
+ *
+ * @param array $config
+ */
+function register_graphql_scalar( array $config ) {
+	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $config ) {
+		$type_registry->register_scalar( $config );
+	}, 10 );
+}
+
+/**
  * Given a Type Name and Field Name, this removes the field from the TypeRegistry
  *
  * @param string $type_name  The name of the Type to remove the field from

@@ -1,84 +1,135 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
+use JsonSerializable;
+use ReflectionClass;
+use Throwable;
+use function array_keys;
+use function array_merge;
+use function implode;
+use function in_array;
+use function preg_replace;
+use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * Registry of standard GraphQL types
  * and a base class for all other types.
- *
- * @package GraphQL\Type\Definition
  */
-abstract class Type implements \JsonSerializable
+abstract class Type implements JsonSerializable
 {
-    const STRING = 'String';
-    const INT = 'Int';
-    const BOOLEAN = 'Boolean';
-    const FLOAT = 'Float';
-    const ID = 'ID';
+    public const STRING  = 'String';
+    public const INT     = 'Int';
+    public const BOOLEAN = 'Boolean';
+    public const FLOAT   = 'Float';
+    public const ID      = 'ID';
 
-    /**
-     * @var array
-     */
-    private static $internalTypes;
+    /** @var Type[] */
+    private static $standardTypes;
 
-    /**
-     * @var array
-     */
+    /** @var Type[] */
     private static $builtInTypes;
 
+    /** @var string */
+    public $name;
+
+    /** @var string|null */
+    public $description;
+
+    /** @var TypeDefinitionNode|null */
+    public $astNode;
+
+    /** @var mixed[] */
+    public $config;
+
+    /** @var TypeExtensionNode[] */
+    public $extensionASTNodes;
+
     /**
-     * @api
      * @return IDType
+     *
+     * @api
      */
     public static function id()
     {
-        return self::getInternalType(self::ID);
+        return self::getStandardType(self::ID);
     }
 
     /**
-     * @api
+     * @param string $name
+     *
+     * @return (IDType|StringType|FloatType|IntType|BooleanType)[]|IDType|StringType|FloatType|IntType|BooleanType
+     */
+    private static function getStandardType($name = null)
+    {
+        if (self::$standardTypes === null) {
+            self::$standardTypes = [
+                self::ID      => new IDType(),
+                self::STRING  => new StringType(),
+                self::FLOAT   => new FloatType(),
+                self::INT     => new IntType(),
+                self::BOOLEAN => new BooleanType(),
+            ];
+        }
+
+        return $name ? self::$standardTypes[$name] : self::$standardTypes;
+    }
+
+    /**
      * @return StringType
+     *
+     * @api
      */
     public static function string()
     {
-        return self::getInternalType(self::STRING);
+        return self::getStandardType(self::STRING);
     }
 
     /**
-     * @api
      * @return BooleanType
+     *
+     * @api
      */
     public static function boolean()
     {
-        return self::getInternalType(self::BOOLEAN);
+        return self::getStandardType(self::BOOLEAN);
     }
 
     /**
-     * @api
      * @return IntType
+     *
+     * @api
      */
     public static function int()
     {
-        return self::getInternalType(self::INT);
+        return self::getStandardType(self::INT);
     }
 
     /**
-     * @api
      * @return FloatType
+     *
+     * @api
      */
     public static function float()
     {
-        return self::getInternalType(self::FLOAT);
+        return self::getStandardType(self::FLOAT);
     }
 
     /**
-     * @api
      * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+     *
      * @return ListOfType
+     *
+     * @api
      */
     public static function listOf($wrappedType)
     {
@@ -86,9 +137,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
+     * @param NullableType $wrappedType
+     *
      * @return NonNull
+     *
+     * @api
      */
     public static function nonNull($wrappedType)
     {
@@ -96,31 +149,13 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @param $name
-     * @return array|IDType|StringType|FloatType|IntType|BooleanType
-     */
-    private static function getInternalType($name = null)
-    {
-        if (null === self::$internalTypes) {
-            self::$internalTypes = [
-                self::ID => new IDType(),
-                self::STRING => new StringType(),
-                self::FLOAT => new FloatType(),
-                self::INT => new IntType(),
-                self::BOOLEAN => new BooleanType()
-            ];
-        }
-        return $name ? self::$internalTypes[$name] : self::$internalTypes;
-    }
-
-    /**
-     * Returns all builtin scalar types
+     * Checks if the type is a builtin type
      *
-     * @return Type[]
+     * @return bool
      */
-    public static function getInternalTypes()
+    public static function isBuiltInType(Type $type)
     {
-        return self::getInternalType();
+        return in_array($type->name, array_keys(self::getAllBuiltInTypes()), true);
     }
 
     /**
@@ -131,58 +166,119 @@ abstract class Type implements \JsonSerializable
      */
     public static function getAllBuiltInTypes()
     {
-        if (null === self::$builtInTypes) {
+        if (self::$builtInTypes === null) {
             self::$builtInTypes = array_merge(
                 Introspection::getTypes(),
-                self::getInternalTypes()
+                self::getStandardTypes()
             );
         }
+
         return self::$builtInTypes;
     }
 
     /**
-     * Checks if the type is a builtin type
+     * Returns all builtin scalar types
      *
-     * @param Type $type
-     * @return bool
+     * @return Type[]
      */
-    public static function isBuiltInType(Type $type)
+    public static function getStandardTypes()
     {
-        return in_array($type->name, array_keys(self::getAllBuiltInTypes()));
+        return self::getStandardType();
     }
 
     /**
-     * @api
+     * @deprecated Use method getStandardTypes() instead
+     *
+     * @return Type[]
+     */
+    public static function getInternalTypes()
+    {
+        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
+
+        return self::getStandardTypes();
+    }
+
+    /**
+     * @param Type[] $types
+     */
+    public static function overrideStandardTypes(array $types)
+    {
+        $standardTypes = self::getStandardTypes();
+        foreach ($types as $type) {
+            Utils::invariant(
+                $type instanceof Type,
+                'Expecting instance of %s, got %s',
+                self::class,
+                Utils::printSafe($type)
+            );
+            Utils::invariant(
+                isset($type->name, $standardTypes[$type->name]),
+                'Expecting one of the following names for a standard type: %s, got %s',
+                implode(', ', array_keys($standardTypes)),
+                Utils::printSafe($type->name ?? null)
+            );
+            $standardTypes[$type->name] = $type;
+        }
+        self::$standardTypes = $standardTypes;
+    }
+
+    /**
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isInputType($type)
     {
         return $type instanceof InputType &&
             (
-                !$type instanceof WrappingType ||
+                ! $type instanceof WrappingType ||
                 self::getNamedType($type) instanceof InputType
             );
     }
 
     /**
-     * @api
      * @param Type $type
+     *
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     *
+     * @api
+     */
+    public static function getNamedType($type)
+    {
+        if ($type === null) {
+            return null;
+        }
+        while ($type instanceof WrappingType) {
+            $type = $type->getWrappedType();
+        }
+
+        return $type;
+    }
+
+    /**
+     * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isOutputType($type)
     {
         return $type instanceof OutputType &&
             (
-                !$type instanceof WrappingType ||
+                ! $type instanceof WrappingType ||
                 self::getNamedType($type) instanceof OutputType
             );
     }
 
     /**
-     * @api
-     * @param $type
+     * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isLeafType($type)
     {
@@ -190,9 +286,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isCompositeType($type)
     {
@@ -200,9 +298,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isAbstractType($type)
     {
@@ -210,26 +310,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
-     * @param Type $type
-     * @return bool
-     */
-    public static function isType($type)
-    {
-        return (
-            $type instanceof ScalarType ||
-            $type instanceof ObjectType ||
-            $type instanceof InterfaceType ||
-            $type instanceof UnionType ||
-            $type instanceof EnumType ||
-            $type instanceof InputObjectType ||
-            $type instanceof ListOfType ||
-            $type instanceof NonNull
-        );
-    }
-
-    /**
      * @param mixed $type
+     *
      * @return mixed
      */
     public static function assertType($type)
@@ -243,70 +325,27 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     *
+     * @return bool
+     *
+     * @api
+     */
+    public static function isType($type)
+    {
+        return $type instanceof Type;
+    }
+
+    /**
+     * @param Type $type
+     *
+     * @return NullableType
+     *
+     * @api
      */
     public static function getNullableType($type)
     {
         return $type instanceof NonNull ? $type->getWrappedType() : $type;
-    }
-
-    /**
-     * @api
-     * @param Type $type
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
-     */
-    public static function getNamedType($type)
-    {
-        if (null === $type) {
-            return null;
-        }
-        while ($type instanceof WrappingType) {
-            $type = $type->getWrappedType();
-        }
-        return $type;
-    }
-
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var string|null
-     */
-    public $description;
-
-    /**
-     * @var TypeDefinitionNode|null
-     */
-    public $astNode;
-
-    /**
-     * @var array
-     */
-    public $config;
-
-    /**
-     * @return null|string
-     */
-    protected function tryInferName()
-    {
-        if ($this->name) {
-            return $this->name;
-        }
-
-        // If class is extended - infer name from className
-        // QueryType -> Type
-        // SomeOtherType -> SomeOther
-        $tmp = new \ReflectionClass($this);
-        $name = $tmp->getShortName();
-
-        if ($tmp->getNamespaceName() !== __NAMESPACE__) {
-            return preg_replace('~Type$~', '', $name);
-        }
-        return null;
     }
 
     /**
@@ -320,17 +359,17 @@ abstract class Type implements \JsonSerializable
     /**
      * @return string
      */
-    public function toString()
+    public function jsonSerialize()
     {
-        return $this->name;
+        return $this->toString();
     }
 
     /**
      * @return string
      */
-    public function jsonSerialize()
+    public function toString()
     {
-        return $this->toString();
+        return $this->name;
     }
 
     /**
@@ -340,10 +379,32 @@ abstract class Type implements \JsonSerializable
     {
         try {
             return $this->toString();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo $e;
         }
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function tryInferName()
+    {
+        if ($this->name) {
+            return $this->name;
+        }
+
+        // If class is extended - infer name from className
+        // QueryType -> Type
+        // SomeOtherType -> SomeOther
+        $tmp  = new ReflectionClass($this);
+        $name = $tmp->getShortName();
+
+        if ($tmp->getNamespaceName() !== __NAMESPACE__) {
+            return preg_replace('~Type$~', '', $name);
+        }
+
+        return null;
     }
 }

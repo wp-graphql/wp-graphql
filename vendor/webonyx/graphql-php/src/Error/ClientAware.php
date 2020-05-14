@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Error;
 
 /**
@@ -14,8 +17,9 @@ interface ClientAware
     /**
      * Returns true when exception message is safe to be displayed to a client.
      *
-     * @api
      * @return bool
+     *
+     * @api
      */
     public function isClientSafe();
 
@@ -24,8 +28,9 @@ interface ClientAware
      *
      * Value "graphql" is reserved for errors produced by query parsing or validation, do not use it.
      *
-     * @api
      * @return string
+     *
+     * @api
      */
     public function getCategory();
 }

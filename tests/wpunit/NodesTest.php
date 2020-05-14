@@ -40,7 +40,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		wp_set_current_user( $this->admin );
 
@@ -110,7 +110,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -203,7 +203,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$attachment_id = $this->factory->post->create( $args );
-		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'attachment', $attachment_id );
+		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$query         = "
 		query { 
 			node(id: \"{$global_id}\") { 
@@ -451,7 +451,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$comment_id = $this->factory->comment->create( $comment_args );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id );
 
 		$query = "
 		query {

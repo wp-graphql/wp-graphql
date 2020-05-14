@@ -145,6 +145,8 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -164,7 +166,9 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'path' => [
 						'plugin',
 					],
-					'category' => 'user',
+					'extensions' => [
+						'category' => 'user',
+					],
 				],
 			],
 		];

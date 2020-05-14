@@ -7,7 +7,7 @@ class MenuQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testMenuQuery() {
 		$menu_slug = 'my-test-menu';
 		$menu_id = wp_create_nav_menu( $menu_slug );
-		$menu_relay_id = Relay::toGlobalId( 'Menu', $menu_id );
+		$menu_relay_id = Relay::toGlobalId( 'nav_menu', $menu_id );
 
 		$query = '
 		{

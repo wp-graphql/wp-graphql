@@ -1,22 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
+use ArrayAccess;
+use Countable;
+use Generator;
 use GraphQL\Utils\AST;
+use IteratorAggregate;
+use function array_merge;
+use function array_splice;
+use function count;
+use function is_array;
 
-/**
- * Class NodeList
- *
- * @package GraphQL\Utils
- */
-class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
+class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
-    /**
-     * @var array
-     */
+    /** @var Node[]|mixed[] */
     private $nodes;
 
     /**
-     * @param array $nodes
+     * @param Node[]|mixed[] $nodes
+     *
      * @return static
      */
     public static function create(array $nodes)
@@ -25,8 +30,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * NodeList constructor.
-     * @param array $nodes
+     * @param Node[]|mixed[] $nodes
      */
     public function __construct(array $nodes)
     {
@@ -35,6 +39,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param mixed $offset
+     *
      * @return bool
      */
     public function offsetExists($offset)
@@ -44,6 +49,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param mixed $offset
+     *
      * @return mixed
      */
     public function offsetGet($offset)
@@ -78,9 +84,10 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int $offset
-     * @param int $length
+     * @param int   $offset
+     * @param int   $length
      * @param mixed $replacement
+     *
      * @return NodeList
      */
     public function splice($offset, $length, $replacement = null)
@@ -89,25 +96,26 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param $list
+     * @param NodeList|Node[] $list
+     *
      * @return NodeList
      */
     public function merge($list)
     {
-        if ($list instanceof NodeList) {
+        if ($list instanceof self) {
             $list = $list->nodes;
         }
+
         return new NodeList(array_merge($this->nodes, $list));
     }
 
     /**
-     * @return \Generator
+     * @return Generator
      */
     public function getIterator()
     {
-        $count = count($this->nodes);
-        for ($i = 0; $i < $count; $i++) {
-            yield $this->offsetGet($i);
+        foreach ($this->nodes as $key => $_) {
+            yield $this->offsetGet($key);
         }
     }
 

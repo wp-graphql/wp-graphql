@@ -65,7 +65,7 @@ class UserRole extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'           => function() {
-					$id = Relay::toGlobalId( 'role', $this->data['id'] );
+					$id = Relay::toGlobalId( 'user_role', $this->data['id'] );
 					return $id;
 				},
 				'name'         => function() {

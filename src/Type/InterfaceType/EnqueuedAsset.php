@@ -43,7 +43,7 @@ class EnqueuedAsset {
 					'type' => 'ID',
 					'description' => __( 'The ID of the enqueued asset', 'wp-graphql' ),
 					'resolve' => function( $asset ) {
-						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued-script', $asset->handle ) : null;
+						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 					}
 				],
 				'handle' => [

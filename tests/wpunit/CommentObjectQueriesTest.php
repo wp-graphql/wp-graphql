@@ -230,7 +230,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'agent'    => null,
 					'approved' => true,
 					'author'   => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id ),
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'name'  => get_comment_author( $comment_id ),
 						'email' => get_comment_author_email( $comment_id ),
 						'url'   => get_comment_author_url( $comment_id ),
