@@ -369,9 +369,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Assert that fields containing sensitive data are not exposed to users without proper caps
+	 *
 	 * @dataProvider dataProviderSwitchUser
+	 *
 	 * @param $user
 	 * @param $should_display
+	 *
+	 * @throws Exception
 	 */
 	public function testCommentQueryHiddenFields( $user, $should_display ) {
 

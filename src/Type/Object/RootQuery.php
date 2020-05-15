@@ -229,10 +229,9 @@ class RootQuery {
 								],
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
-
-							return DataSource::resolve_plugin( $id_components['id'] );
+							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
 					'termNode'    => [

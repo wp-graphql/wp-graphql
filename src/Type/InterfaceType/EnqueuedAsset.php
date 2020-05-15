@@ -38,42 +38,44 @@ class EnqueuedAsset {
 				return ! empty( $type ) ? $type : null;
 
 			},
-			'fields' => [
-				'id' => [
-					'type' => 'ID',
+			'fields'      => [
+				'id'           => [
+					'type'        => [
+						'non_null' => 'ID',
+					],
 					'description' => __( 'The ID of the enqueued asset', 'wp-graphql' ),
-					'resolve' => function( $asset ) {
+					'resolve'     => function( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
-					}
+					},
 				],
-				'handle' => [
-					'type' => 'String',
+				'handle'       => [
+					'type'        => 'String',
 					'description' => __( 'The handle of the enqueued asset', 'wp-graphql' ),
 				],
-				'version' => [
-					'type' => 'String',
+				'version'      => [
+					'type'        => 'String',
 					'description' => __( 'The version of the enqueued asset', 'wp-graphql' ),
 				],
-				'src' => [
-					'type' => 'String',
+				'src'          => [
+					'type'        => 'String',
 					'description' => __( 'The source of the asset', 'wp-graphql' ),
 				],
 				'dependencies' => [
-					'type' => [
+					'type'        => [
 						'list_of' => 'EnqueuedScript',
 					],
 					'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 				],
-				'args' => [
-					'type' => 'Boolean',
+				'args'         => [
+					'type'        => 'Boolean',
 					'description' => __( '@todo', 'wp-graphql' ),
 				],
-				'extra' => [
-					'type' => 'String',
+				'extra'        => [
+					'type'        => 'String',
 					'description' => __( 'Extra information needed for the script', 'wp-graphql' ),
-					'resolve' => function( $asset ) {
+					'resolve'     => function( $asset ) {
 						return isset( $asset->extra['data'] ) ? $asset->extra['data'] : null;
-					}
+					},
 				],
 			],
 		]);

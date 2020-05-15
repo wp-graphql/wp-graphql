@@ -419,7 +419,7 @@ class PostObject {
 			]
 		) ) {
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
+			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
 
 		$fields['template'] = [

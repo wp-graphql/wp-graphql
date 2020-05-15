@@ -37,9 +37,9 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	public function get_offset() {
 		$offset = null;
 		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr(base64_decode( $this->args['after'] ), strlen('arrayconnection:' ));
+			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
 		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr(base64_decode( $this->args['before'] ), strlen('arrayconnection:' ));
+			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
 		}
 		return $offset;
 	}
@@ -50,7 +50,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_ids() {
-		$ids = [];
+		$ids     = [];
 		$queried = $this->get_query();
 
 		if ( empty( $queried ) ) {
@@ -112,13 +112,13 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		$nodes = parent::get_nodes();
 
 		if ( isset( $this->args['after'] ) ) {
-			$key = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
 			$nodes = array_slice( $nodes, $key + 1, null, true );
 		}
 
 		if ( isset( $this->args['before'] ) ) {
 			$nodes = array_reverse( $nodes );
-			$key = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
 			$nodes = array_slice( $nodes, $key + 1, null, true );
 			$nodes = array_reverse( $nodes );
 		}

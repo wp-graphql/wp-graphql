@@ -32,6 +32,7 @@ use GraphQLRelay\Relay;
  * @property string $graphql_single_name
  * @property string $graphqlPluralName
  * @property string $graphql_plural_name
+ * @property string $taxonomies
  *
  * @package WPGraphQL\Model
  */

@@ -193,7 +193,7 @@ abstract class AbstractConnectionResolver {
 			throw new \Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
-		return $this->context->getLoader( $name );
+		return $this->context->get_loader( $name );
 	}
 
 	/**

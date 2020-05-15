@@ -11,7 +11,7 @@ class PostObjectDelete {
 	/**
 	 * Registers the PostObjectDelete mutation.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 */
 	public static function register_mutation( \WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -29,7 +29,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -52,7 +52,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -61,16 +61,16 @@ class PostObjectDelete {
 			'deletedId'                            => [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) use ( $post_type_object ) {
+				'resolve'     => function( $payload ) use ( $post_type_object ) {
 					$deleted = (object) $payload['postObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( $post_type_object->name, absint( $deleted->ID ) ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', absint( $deleted->ID ) ) : null;
 				},
 			],
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) use ( $post_type_object ) {
+				'resolve'     => function( $payload ) use ( $post_type_object ) {
 					$deleted = (object) $payload['postObject'];
 
 					return ! empty( $deleted ) ? $deleted : null;
@@ -82,13 +82,13 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
-	 * @param string        $mutation_name      The mutation name.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param string        $mutation_name    The mutation name.
 	 *
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
-		return function ( $input ) use ( $post_type_object, $mutation_name ) {
+		return function( $input ) use ( $post_type_object, $mutation_name ) {
 
 			/**
 			 * Get the ID from the global ID

@@ -94,7 +94,11 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
-		$this->assertNull( $actual['data']['plugins'] );
+
+		codecept_debug( $actual );
+
+		$this->assertEmpty( $actual['data']['plugins']['edges'] );
+		$this->assertEmpty( $actual['data']['plugins']['nodes'] );
 
 	}
 
@@ -104,9 +108,14 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPluginQuery() {
 
+		$path = 'wp-graphql/wp-graphql.php';
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', $path );
+
+		codecept_debug( $global_id );
+
 		$query = '
 		{
-		  plugin(id: "cGx1Z2luOkhlbGxvIERvbGx5"){
+		  plugin(id: "' . $global_id . '"){
 		    id
 		    name
 		    author
@@ -115,12 +124,15 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    name
 		    pluginUri
 		    version
+		    path
 		  }
 		}
 		';
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * We don't really care what the specifics are because the default plugins could change at any time
@@ -150,6 +162,8 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
+
+		$this->assertSame( $path, $actual['data']['plugin']['path'] );
 
 	}
 }

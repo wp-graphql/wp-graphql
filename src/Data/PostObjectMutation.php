@@ -304,10 +304,6 @@ class PostObjectMutation {
 
 										$id_parts = Relay::fromGlobalId( $node['id'] );
 
-										if ( $id_parts['type'] !== $tax_object->name ) {
-											return;
-										}
-
 										if ( ! empty( $id_parts['id'] ) ) {
 											$term_exists = get_term_by( 'id', absint( $id_parts['id'] ), $tax_object->name );
 											if ( $term_exists ) {

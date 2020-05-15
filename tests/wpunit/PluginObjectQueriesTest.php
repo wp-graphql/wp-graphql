@@ -60,7 +60,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the plugin_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', 'Hello Dolly' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', 'wp-graphql/wp-graphql.php' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -84,12 +84,14 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * We don't really care what the specifics are because the values could change at any time
 		 * and we don't care to maintain the exact match, we just want to make sure we are
 		 * properly getting a plugin back in the query
 		 */
-		$this->assertNotEmpty( $actual['data']['plugin']['id'], "Verify you have the plugin Hello Dolly in your WordPress." );
+		$this->assertNotEmpty( $actual['data']['plugin']['id'] );
 		$this->assertNotEmpty( $actual['data']['plugin']['name'] );
 
 		$plugin_id = $actual['data']['plugin']['id'];
@@ -112,7 +114,6 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
-		$this->assertTrue( $this->compareSemantics( $actual['data']['plugin']['version'], '1.6' ) !== false );
 
 	}
 
@@ -153,23 +154,6 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'data' => [
 				'plugin' => null,
-			],
-			'errors' => [
-				[
-					'message' => 'No plugin was found with the name doesNotExist',
-					'locations' => [
-						[
-							'line' => 3,
-							'column' => 4,
-						],
-					],
-					'path' => [
-						'plugin',
-					],
-					'extensions' => [
-						'category' => 'user',
-					],
-				],
 			],
 		];
 

@@ -18,9 +18,11 @@ class EnqueuedScript {
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
 				'id' => [
-					'type' => 'ID',
-				]
-			]
+					'type' => [
+						'non_null' => 'ID',
+					],
+				],
+			],
 		] );
 	}
 }

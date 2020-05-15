@@ -880,7 +880,8 @@ class TypeRegistry {
 												$nodes[] = $resolve_node( $node, $args, $context, $info );
 											}
 										} else {
-											return $source['nodes'][0];
+											// Return the first item from the nodes array
+											return $source['nodes'][ array_key_first( $source['nodes'] ) ];
 										}
 									}
 

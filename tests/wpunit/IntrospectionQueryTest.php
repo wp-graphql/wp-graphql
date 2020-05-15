@@ -7,10 +7,12 @@ class IntrospectionQueryTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 
 		// your set up methods here
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown() {
 		// your tear down methods here
+		WPGraphQL::clear_schema();
 
 		// then
 		parent::tearDown();

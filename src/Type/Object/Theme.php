@@ -57,7 +57,7 @@ class Theme {
 						'description' => __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "Tags" ).', 'wp-graphql' ),
 					],
 					'version'      => [
-						'type'        => 'Float',
+						'type'        => 'String',
 						'description' => __( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' ),
 					],
 					'isRestricted' => [

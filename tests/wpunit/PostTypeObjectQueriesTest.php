@@ -36,15 +36,15 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPosts() {
 
-		$this->factory()->post->create([
-			'post_type' => 'Post',
+		$this->factory()->post->create( [
+			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-		]);
+			'post_title'  => 'Test',
+		] );
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'post' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'post' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -57,9 +57,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					  node {
 						canExport
 						connectedTaxonomies {
-							name
+							nodes {
+								name
+							}
 						}
-						connectedTaxonomyNames
 						deleteWithUser
 						description
 						excludeFromSearch
@@ -135,20 +136,18 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'node' => [
 									'canExport'              => true,
 									'connectedTaxonomies'    => [
-										[
-											'name' => 'category'
-										],
-										[
-											'name' => 'post_tag'
-										],
-										[
-											'name' => 'post_format'
-										],
-									],
-									'connectedTaxonomyNames' => [
-										'category',
-										'post_tag',
-										'post_format'
+										'nodes' => [
+											[
+												'name' => 'category'
+											],
+											[
+												'name' => 'post_tag'
+											],
+											[
+												'name' => 'post_format'
+											],
+										]
+
 									],
 									'deleteWithUser'         => true,
 									'description'            => '',
@@ -177,7 +176,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 										'attributes'          => 'Post Attributes',
 										'insertIntoItem'      => 'Insert into post',
 										'uploadedToThisItem'  => 'Uploaded to this post',
-										'featuredImage'       =>  $post_type_object->labels->featured_image,
+										'featuredImage'       => $post_type_object->labels->featured_image,
 										'setFeaturedImage'    => 'Set featured image',
 										'removeFeaturedImage' => 'Remove featured image',
 										'useFeaturedImage'    => null,
@@ -221,16 +220,16 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPages() {
 
-		$this->factory()->post->create([
-			'post_type' => 'Page',
+		$this->factory()->post->create( [
+			'post_type'   => 'Page',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-		]);
+			'post_title'  => 'Test',
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'page' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'page' );
 
 		$post_type_object = get_post_type_object( 'page' );
 
@@ -245,9 +244,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    node {
 						canExport
 						connectedTaxonomies {
-							name
+							nodes {
+							  name
+							}
 						}
-						connectedTaxonomyNames
 						deleteWithUser
 						description
 						excludeFromSearch
@@ -292,31 +292,30 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'contentType' => [
 								'node' => [
-									'canExport'              => true,
-									'connectedTaxonomies'    => null,
-									'connectedTaxonomyNames' => null,
-									'deleteWithUser'         => true,
-									'description'            => '',
-									'excludeFromSearch'      => false,
-									'graphqlPluralName'      => 'pages',
-									'graphqlSingleName'      => 'page',
-									'hasArchive'             => false,
-									'hierarchical'           => true,
-									'id'                     => $global_id,
-									'label'                  => 'Pages',
-									'menuIcon'               => $post_type_object->menu_icon,
-									'menuPosition'           => 20,
-									'name'                   => 'page',
-									'public'                 => true,
-									'publiclyQueryable'      => false,
-									'restBase'               => 'pages',
-									'restControllerClass'    => 'WP_REST_Posts_Controller',
-									'showInAdminBar'         => true,
-									'showInGraphql'          => true,
-									'showInMenu'             => true,
-									'showInNavMenus'         => true,
-									'showInRest'             => true,
-									'showUi'                 => true,
+									'canExport'           => true,
+									'connectedTaxonomies' => null,
+									'deleteWithUser'      => true,
+									'description'         => '',
+									'excludeFromSearch'   => false,
+									'graphqlPluralName'   => 'pages',
+									'graphqlSingleName'   => 'page',
+									'hasArchive'          => false,
+									'hierarchical'        => true,
+									'id'                  => $global_id,
+									'label'               => 'Pages',
+									'menuIcon'            => $post_type_object->menu_icon,
+									'menuPosition'        => 20,
+									'name'                => 'page',
+									'public'              => true,
+									'publiclyQueryable'   => false,
+									'restBase'            => 'pages',
+									'restControllerClass' => 'WP_REST_Posts_Controller',
+									'showInAdminBar'      => true,
+									'showInGraphql'       => true,
+									'showInMenu'          => true,
+									'showInNavMenus'      => true,
+									'showInRest'          => true,
+									'showUi'              => true,
 								],
 							],
 						],
@@ -337,23 +336,23 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForMedia() {
 
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-		]);
+			'post_title'  => 'Test',
+		] );
 
-		$this->factory()->post->create([
-			'post_type' => 'attachment',
+		$this->factory()->post->create( [
+			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
-			'post_title' => 'Test',
+			'post_title'  => 'Test',
 			'post_parent' => $post_id,
-		]);
+		] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'content_type', 'attachment' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'attachment' );
 
 		$post_type_object = get_post_type_object( 'attachment' );
 
@@ -368,9 +367,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			          node {
 						canExport
 						connectedTaxonomies {
-							name
+							nodes {
+							  name
+							}
 						}
-						connectedTaxonomyNames
 						deleteWithUser
 						description
 						excludeFromSearch
@@ -405,6 +405,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -415,31 +417,30 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'contentType' => [
 								'node' => [
-									'canExport'              => true,
-									'connectedTaxonomies'    => null,
-									'connectedTaxonomyNames' => null,
-									'deleteWithUser'         => true,
-									'description'            => '',
-									'excludeFromSearch'      => false,
-									'graphqlPluralName'      => 'mediaItems',
-									'graphqlSingleName'      => 'mediaItem',
-									'hasArchive'             => false,
-									'hierarchical'           => false,
-									'id'                     => $global_id,
-									'label'                  => 'Media',
-									'menuIcon'               => $post_type_object->menu_icon,
-									'menuPosition'           => null,
-									'name'                   => 'attachment',
-									'public'                 => true,
-									'publiclyQueryable'      => true,
-									'restBase'               => 'media',
-									'restControllerClass'    => 'WP_REST_Attachments_Controller',
-									'showInAdminBar'         => true,
-									'showInGraphql'          => true,
-									'showInMenu'             => true,
-									'showInNavMenus'         => false,
-									'showInRest'             => true,
-									'showUi'                 => true,
+									'canExport'           => true,
+									'connectedTaxonomies' => null,
+									'deleteWithUser'      => true,
+									'description'         => '',
+									'excludeFromSearch'   => false,
+									'graphqlPluralName'   => 'mediaItems',
+									'graphqlSingleName'   => 'mediaItem',
+									'hasArchive'          => false,
+									'hierarchical'        => false,
+									'id'                  => $global_id,
+									'label'               => 'Media',
+									'menuIcon'            => $post_type_object->menu_icon,
+									'menuPosition'        => null,
+									'name'                => 'attachment',
+									'public'              => true,
+									'publiclyQueryable'   => true,
+									'restBase'            => 'media',
+									'restControllerClass' => 'WP_REST_Attachments_Controller',
+									'showInAdminBar'      => true,
+									'showInGraphql'       => true,
+									'showInMenu'          => true,
+									'showInNavMenus'      => false,
+									'showInRest'          => true,
+									'showUi'              => true,
 								],
 							],
 						],

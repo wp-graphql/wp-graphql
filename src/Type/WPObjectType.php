@@ -73,7 +73,7 @@ class WPObjectType extends ObjectType {
 		 * @param array        $config     The config for the Object Type
 		 * @param WPObjectType $this       The WPObjectType instance
 		 */
-		$interfaces = apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $this );
+		$interfaces               = apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $this );
 		$config['interfaceNames'] = $interfaces;
 
 		/**

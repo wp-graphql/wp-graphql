@@ -234,14 +234,14 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPluginNodeQuery() {
 
-		$plugin_name = 'Hello Dolly';
-		$global_id   = \GraphQLRelay\Relay::toGlobalId( 'plugin', $plugin_name );
+		$plugin_path = 'wp-graphql/wp-graphql.php';
+		$global_id   = \GraphQLRelay\Relay::toGlobalId( 'plugin', $plugin_path );
 		$query       = "
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename
 				... on Plugin {
-					name
+					path
 				}
 			} 
 		}";
@@ -253,12 +253,12 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'data' => [
 				'node' => [
 					'__typename' => 'Plugin',
-					'name'       => $plugin_name,
+					'path'       => $plugin_path,
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual, "Verify you have the plugin Hello Dolly in your WordPress." );
+		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
@@ -486,7 +486,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"Y29udGVudFR5cGU6cG9zdA==\"){
+		  node(id:\"cG9zdF90eXBlOnBvc3Q=\"){
 			...on ContentType {
 			  name
 			}
@@ -513,9 +513,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUnsuccessfulPostTypeResolver() {
 
+		$id = \GraphQLRelay\Relay::toGlobalId( 'post_type', 'non-existent-type' );
+
 		$query = "
 		{
-		  node(id:\"Y29udGVudFR5cGU6dGVzdA==\"){
+		  node(id:\"$id\"){
 			...on ContentType {
 			  name
 			}
@@ -525,7 +527,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['node'] );
 
 	}
 
@@ -575,7 +578,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['node'] );
 
 	}
 

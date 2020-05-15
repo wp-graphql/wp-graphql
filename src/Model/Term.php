@@ -83,11 +83,11 @@ class Term extends Model {
 				]);
 			} elseif ( 'post_tag' === $this->data->taxonomy ) {
 				$wp_query->parse_query([
-					'tag' => $this->data->slug
+					'tag' => $this->data->slug,
 				]);
 			}
 
-			$wp_query->queried_object = get_term( $this->data->term_id, $this->data->taxonomy );
+			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
 			$wp_query->queried_object_id = $this->data->term_id;
 
 		}
@@ -113,41 +113,41 @@ class Term extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id'             => function() {
+				'id'                   => function() {
 					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
 				},
-				'term_id'        => function() {
+				'term_id'              => function() {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
-				'count'          => function() {
+				'count'                => function() {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
-				'description'    => function() {
+				'description'          => function() {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'name'           => function() {
+				'name'                 => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'slug'           => function() {
+				'slug'                 => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				},
-				'termGroupId'    => function() {
+				'termGroupId'          => function() {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
 				},
-				'termTaxonomyId' => function() {
+				'termTaxonomyId'       => function() {
 					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
 				},
-				'taxonomyName'   => function() {
+				'taxonomyName'         => function() {
 					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
 				},
-				'link'           => function() {
+				'link'                 => function() {
 					$link = get_term_link( $this->data->term_id );
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
-				'parentId'       => function() {
+				'parentId'             => function() {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
-				'isTag' => function() {
+				'isTag'                => function() {
 					return is_tag();
 				},
 				'enqueuedScriptsQueue' => function() {
