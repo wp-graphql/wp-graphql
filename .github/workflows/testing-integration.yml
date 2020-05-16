@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '7.3', '7.2']
+        php: ['7.4.5', '7.3', '7.2']
         wordpress: ['5.3.2', '5.4']
         include:
-          - php: '7.4'
-            wordpress: '5.3.2'
+          - php: '7.4.5'
+            wordpress: '5.4'
             coverage: true
       fail-fast: false
     name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}

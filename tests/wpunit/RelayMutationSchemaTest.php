@@ -5,13 +5,13 @@ class RelayMutationSchemaTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp() {
 		// before
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 		// your set up methods here
 	}
 
 	public function tearDown() {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}

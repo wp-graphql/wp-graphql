@@ -79,7 +79,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_query() {
-		return $this->source->enqueuedScriptsQueue ?? [];
+		return $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
 	}
 
 	/**
