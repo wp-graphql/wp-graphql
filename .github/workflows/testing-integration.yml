@@ -31,12 +31,12 @@ jobs:
           WP_VERSION: ${{ matrix.wordpress }}
           COVERAGE: ${{ matrix.coverage }}
         run: |
-          ./bin/run-docker-tests.sh 'wpunit'
-          ./bin/run-docker-tests.sh 'functional'
-          ./bin/run-docker-tests.sh 'acceptance'
           ./bin/run-docker-tests.sh 'tests/wpunit/TermNodeTest.php:testTermTypesImplementTermNode --debug'
           ./bin/run-docker-tests.sh 'tests/wpunit/RelayMutationSchemaTest.php:testRelayMutationSchema --debug'
           ./bin/run-docker-tests.sh 'tests/wpunit/TypesTest.php:testCustomScalarCanBeUsedInSchema --debug'
+          ./bin/run-docker-tests.sh 'wpunit'
+          ./bin/run-docker-tests.sh 'functional'
+          ./bin/run-docker-tests.sh 'acceptance' 
       - name: Setup PHP
         if: matrix.coverage == true
         uses: shivammathur/setup-php@v1
