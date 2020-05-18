@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\Object;
 
+use GraphQLRelay\Relay;
+
 /**
  * Class EnqueuedStylesheet
  *
@@ -21,6 +23,9 @@ class EnqueuedStylesheet {
 					'type' => [
 						'non_null' => 'ID',
 					],
+					'resolve'     => function( $asset ) {
+						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
+					},
 				],
 				'src' => [
 					'resolve' => function( \_WP_Dependency $stylesheet ) {

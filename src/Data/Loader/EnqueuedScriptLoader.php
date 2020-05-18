@@ -17,11 +17,15 @@ class EnqueuedScriptLoader extends AbstractDataLoader {
 	 * @return array
 	 */
 	public function loadKeys( array $keys ) {
+
 		global $wp_scripts;
+
 		$loaded = [];
 		foreach ( $keys as $key ) {
 			if ( isset( $wp_scripts->registered[ $key ] ) ) {
-				$loaded[ $key ] = $wp_scripts->registered[ $key ];
+				$script = $wp_scripts->registered[ $key ];
+				$script->type = 'EnqueuedScript';
+				$loaded[ $key ] = $script;
 			} else {
 				$loaded[ $key ] = null;
 			}

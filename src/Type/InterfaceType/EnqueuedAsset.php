@@ -1,6 +1,5 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
-use GraphQLRelay\Relay;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -44,9 +43,6 @@ class EnqueuedAsset {
 						'non_null' => 'ID',
 					],
 					'description' => __( 'The ID of the enqueued asset', 'wp-graphql' ),
-					'resolve'     => function( $asset ) {
-						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
-					},
 				],
 				'handle'       => [
 					'type'        => 'String',

@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\Object;
 
+use GraphQLRelay\Relay;
+
 /**
  * Class EnqueuedScript
  *
@@ -21,6 +23,9 @@ class EnqueuedScript {
 					'type' => [
 						'non_null' => 'ID',
 					],
+					'resolve'     => function( $asset ) {
+						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
+					},
 				],
 				'src' => [
 					'resolve' => function( \_WP_Dependency $script ) {

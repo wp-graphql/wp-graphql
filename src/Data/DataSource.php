@@ -628,7 +628,7 @@ class DataSource {
 					$type = 'CommentAuthor';
 					break;
 				case $node instanceof \_WP_Dependency;
-					$type = 'EnqueuedAsset';
+					$type = $node->type;
 					break;
 				default:
 					$type = null;

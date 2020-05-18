@@ -21,7 +21,9 @@ class EnqueuedStylesheetLoader extends AbstractDataLoader {
 		$loaded = [];
 		foreach ( $keys as $key ) {
 			if ( isset( $wp_styles->registered[ $key ] ) ) {
-				$loaded[ $key ] = $wp_styles->registered[ $key ];
+				$stylesheet = $wp_styles->registered[ $key ];
+				$stylesheet->type = 'EnqueuedStylesheet';
+				$loaded[ $key ] = $stylesheet;
 			} else {
 				$loaded[ $key ] = null;
 			}
