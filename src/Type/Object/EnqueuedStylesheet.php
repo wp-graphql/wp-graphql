@@ -17,10 +17,15 @@ class EnqueuedStylesheet {
 			'description' => __( 'Stylesheet enqueued by the CMS', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
-				'id' => [
+				'id'  => [
 					'type' => [
 						'non_null' => 'ID',
 					],
+				],
+				'src' => [
+					'resolve' => function( \_WP_Dependency $stylesheet ) {
+						return isset( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
+					},
 				],
 			],
 		] );

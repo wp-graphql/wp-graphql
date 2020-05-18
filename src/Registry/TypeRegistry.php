@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\ContentTypes;
 use WPGraphQL\Connection\EnqueuedScripts;
+use WPGraphQL\Connection\EnqueuedStylesheets;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
@@ -65,6 +66,7 @@ use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\Object\EnqueuedScript;
+use WPGraphQL\Type\Object\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -237,6 +239,7 @@ class TypeRegistry {
 		Comment::register_type();
 		CommentAuthor::register_type();
 		EditLock::register_type();
+		EnqueuedStylesheet::register_type();
 		EnqueuedScript::register_type();
 		MediaDetails::register_type();
 		MediaItemMeta::register_type();
@@ -296,6 +299,7 @@ class TypeRegistry {
 		 */
 		Comments::register_connections();
 		EnqueuedScripts::register_connections();
+		EnqueuedStylesheets::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
 		Plugins::register_connections();

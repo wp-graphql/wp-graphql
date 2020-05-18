@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
+use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
 use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
@@ -87,18 +88,19 @@ class AppContext {
 		 * Create a list of loaders to be available in AppContext
 		 */
 		$loaders = [
-			'comment_author'  => new CommentAuthorLoader( $this ),
-			'comment'         => new CommentLoader( $this ),
-			'enqueued_script' => new EnqueuedScriptLoader( $this ),
-			'nav_menu_item'   => new MenuItemLoader( $this ),
-			'plugin'          => new PluginLoader( $this ),
-			'post'            => new PostObjectLoader( $this ),
-			'post_type'       => new PostTypeLoader( $this ),
-			'taxonomy'        => new TaxonomyLoader( $this ),
-			'term'            => new TermObjectLoader( $this ),
-			'theme'           => new ThemeLoader( $this ),
-			'user'            => new UserLoader( $this ),
-			'user_role'       => new UserRoleLoader( $this ),
+			'comment_author'      => new CommentAuthorLoader( $this ),
+			'comment'             => new CommentLoader( $this ),
+			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
+			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
+			'nav_menu_item'       => new MenuItemLoader( $this ),
+			'plugin'              => new PluginLoader( $this ),
+			'post'                => new PostObjectLoader( $this ),
+			'post_type'           => new PostTypeLoader( $this ),
+			'taxonomy'            => new TaxonomyLoader( $this ),
+			'term'                => new TermObjectLoader( $this ),
+			'theme'               => new ThemeLoader( $this ),
+			'user'                => new UserLoader( $this ),
+			'user_role'           => new UserRoleLoader( $this ),
 		];
 
 		/**

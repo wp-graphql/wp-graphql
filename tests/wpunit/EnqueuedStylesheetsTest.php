@@ -1,6 +1,6 @@
 <?php
 
-class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
+class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 	public $tag_id;
 	public $post_id;
@@ -116,7 +116,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function get_enqueued_assets_fragment() {
 		return '
-		fragment EnqueuedScriptFragment on EnqueuedScript {
+		fragment EnqueuedStyleFragment on EnqueuedStylesheet {
 	      handle
 	      src
 		}
@@ -139,9 +139,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query PageById( $id: ID! ) {
 		  page( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -175,9 +175,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query postById( $id: ID! ) {
 		  post( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -211,9 +211,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query testEnqueueCpt( $id: ID! ) {
 		  testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -247,9 +247,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query tagById( $id: ID! ) {
 		  tag( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -283,9 +283,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query catById( $id: ID! ) {
 		  category( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -319,9 +319,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query catById( $id: ID! ) {
 		  category( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -355,9 +355,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query userById( $id: ID! ) {
 		  user( id: $id, idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -391,9 +391,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		query mediaItem( $id: ID!  ) {
 		  mediaItem( id: $id idType: DATABASE_ID ) {
 		    databaseId
-		    enqueuedScripts {
+		    enqueuedStylesheets {
 		      nodes {
-		        ...EnqueuedScriptFragment
+		        ...EnqueuedStyleFragment
 		      }
 		    }
 		  }
@@ -417,30 +417,33 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Front_Page() {
+	public function testEnqueuedStylesheetIs_Front_Page() {
 
 		$handle = 'test-front-page';
-		$src    = 'test-front-page.js';
+		$src    = 'test-front-page.css';
 
 		// Set the page to be the home page
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $this->page_id );
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_front_page() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
 
 		$actual = $this->get_page_query( $this->page_id );
 
+		codecept_debug( $actual );
+
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -456,9 +459,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -466,16 +469,16 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on POSTS
 		$actual = $this->get_post_query( $this->post_id );
 
-		// codecept_debug( $actual );
+		 codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -484,9 +487,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -501,15 +504,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Page() {
+	public function testEnqueuedStylesheetIs_Page() {
 
 		$handle = 'test-is-page';
-		$src    = 'test-is-page.js';
+		$src    = 'test-is-page.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_page() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -518,9 +521,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -532,12 +535,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -546,9 +549,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -562,15 +565,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Single() {
+	public function testEnqueuedStylesheetIs_Single() {
 
 		$handle = 'test-is-single';
-		$src    = 'test-is-single.js';
+		$src    = 'test-is-single.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_single() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -580,9 +583,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -594,12 +597,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -608,9 +611,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -623,15 +626,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Singular() {
+	public function testEnqueuedStylesheetIs_Singular() {
 
 		$handle = 'test-is-singular';
-		$src    = 'test-is-singular.js';
+		$src    = 'test-is-singular.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_singular( [ 'post', 'test_enqueue_cpt' ] ) ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -641,9 +644,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -655,28 +658,28 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_custom_post_query( $this->custom_post_id );
 
-		 codecept_debug( $actual );
+		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['testEnqueueCpt']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['testEnqueueCpt']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -685,9 +688,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -700,15 +703,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Sticky() {
+	public function testEnqueuedStylesheetIs_Sticky() {
 
 		$handle = 'test-is-sticky';
-		$src    = 'test-is-sticky.js';
+		$src    = 'test-is-sticky.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_sticky() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -719,9 +722,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -736,12 +739,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -750,9 +753,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -765,18 +768,18 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Post_Type_Hierarchical() {
+	public function testEnqueuedStylesheetIs_Post_Type_Hierarchical() {
 
 		$handle = 'test-is-post-type-hierarchical';
-		$src    = 'test-is-post-type-hierarchical.js';
+		$src    = 'test-is-post-type-hierarchical.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 			global $post;
 			// codecept_debug( 'GLOBALPOST....' );
 			// codecept_debug( $post );
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( isset( $post->post_type ) && is_post_type_hierarchical( $post->post_type ) ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -786,9 +789,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		// codecept_debug( $handles );
 
@@ -800,9 +803,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -814,12 +817,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -832,17 +835,17 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptComments_Open() {
+	public function testEnqueuedStylesheetComments_Open() {
 
 		$handle = 'test-comments-open';
-		$src    = 'test-comments-open.js';
+		$src    = 'test-comments-open.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
 
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			// codecept_debug( comments_open() );
 			if ( comments_open() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -854,9 +857,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -869,12 +872,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -884,9 +887,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -899,18 +902,18 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptPings_Open() {
+	public function testEnqueuedStylesheetPings_Open() {
 
 		$handle = 'test-pings-open';
-		$src    = 'test-pings-open.js';
+		$src    = 'test-pings-open.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			global $post;
 			// codecept_debug( 'PING_STATUS' );
 			// codecept_debug( $post );
 			if ( is_a( $post, 'WP_Post' ) && pings_open() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 
 		} );
@@ -922,9 +925,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -937,12 +940,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -951,9 +954,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -966,15 +969,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Page_Template() {
+	public function testEnqueuedStylesheetIs_Page_Template() {
 
 		$page_template = 'test-page-template';
 		$page_handle   = 'test-is-page-template';
-		$page_src      = 'test-is-page-template.js';
+		$page_src      = 'test-is-page-template.css';
 
 		$post_template = 'test-post-template';
 		$post_handle   = 'test-is-post-template';
-		$post_src      = 'test-is-post-template.js';
+		$post_src      = 'test-is-post-template.css';
 
 
 		update_post_meta( $this->post_id, '_wp_page_template', $post_template );
@@ -984,13 +987,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( get_page_template_slug( $this->page_id ) );
 
 		add_action( 'wp_enqueue_scripts', function() use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
-			wp_register_script( $page_handle, $page_src );
-			wp_register_script( $post_handle, $post_src );
+			wp_register_style( $page_handle, $page_src );
+			wp_register_style( $post_handle, $post_src );
 			if ( is_page_template( $page_template ) ) {
-				wp_enqueue_script( $page_handle );
+				wp_enqueue_style( $page_handle );
 			}
 			if ( is_page_template( $post_template ) ) {
-				wp_enqueue_script( $post_handle );
+				wp_enqueue_style( $post_handle );
 			}
 
 		} );
@@ -1001,9 +1004,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $page_handle, $handles, true ) );
 		$this->assertTrue( in_array( $page_src, $sources, true ) );
 
@@ -1017,12 +1020,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $post_handle, $handles, true ) );
 		$this->assertTrue( in_array( $post_src, $sources, true ) );
 		$this->assertFalse( in_array( $page_handle, $handles, true ) );
@@ -1033,9 +1036,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $page_handle, $handles, true ) );
 		$this->assertFalse( in_array( $page_src, $sources, true ) );
@@ -1050,15 +1053,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Category() {
+	public function testEnqueuedStylesheetIs_Category() {
 
 		$handle = 'test-is-category';
-		$src    = 'test-is-category.js';
+		$src    = 'test-is-category.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_category() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1069,9 +1072,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1084,12 +1087,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1098,9 +1101,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1109,9 +1112,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -1124,15 +1127,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Tag() {
+	public function testEnqueuedStylesheetIs_Tag() {
 
 		$handle = 'test-is-tag';
-		$src    = 'test-is-tag.js';
+		$src    = 'test-is-tag.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_tag() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1143,9 +1146,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1158,12 +1161,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1172,9 +1175,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -1183,9 +1186,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1198,15 +1201,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Tax() {
+	public function testEnqueuedStylesheetIs_Tax() {
 
 		$handle = 'test-is-tax';
-		$src    = 'test-is-tax.js';
+		$src    = 'test-is-tax.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_tax( 'post_tag' ) || is_tax( 'category' ) ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1217,9 +1220,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1232,12 +1235,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1246,9 +1249,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1257,9 +1260,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1272,15 +1275,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptHas_Term() {
+	public function testEnqueuedStylesheetHas_Term() {
 
 		$handle = 'test-has-term';
-		$src    = 'test-has-term.js';
+		$src    = 'test-has-term.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( has_term( $this->tag_id, 'post_tag' ) ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1291,9 +1294,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1306,12 +1309,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -1320,9 +1323,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1331,9 +1334,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1346,16 +1349,16 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Author() {
+	public function testEnqueuedStylesheetIs_Author() {
 
 		$handle = 'test-is-author';
-		$src    = 'test-is-author.js';
+		$src    = 'test-is-author.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_author() ) {
 				// codecept_debug( 'AUTHOR, YO!!' );
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1365,9 +1368,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1379,12 +1382,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1393,9 +1396,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1404,9 +1407,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1416,9 +1419,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['user']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -1431,15 +1434,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Attachment() {
+	public function testEnqueuedStylesheetIs_Attachment() {
 
 		$handle = 'test-is-attachment';
-		$src    = 'test-is-attachment.js';
+		$src    = 'test-is-attachment.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( is_attachment() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1448,9 +1451,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		// codecept_debug( $sources );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1462,12 +1465,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1476,9 +1479,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1487,9 +1490,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1499,9 +1502,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['user']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1511,9 +1514,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['mediaItem']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['mediaItem']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -1526,15 +1529,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptWP_Attachment_Is_Image() {
+	public function testEnqueuedStylesheetWP_Attachment_Is_Image() {
 
 		$handle = 'test-is-wp-attachment-is-image';
-		$src    = 'test-is-wp-attachment-is-image.js';
+		$src    = 'test-is-wp-attachment-is-image.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( wp_attachment_is_image() ) {
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1546,12 +1549,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
@@ -1560,9 +1563,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['tag']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1571,9 +1574,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_category_query( $this->category_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['category']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['category']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1583,9 +1586,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['user']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['user']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1595,9 +1598,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$scripts = $actual['data']['mediaItem']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['mediaItem']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
@@ -1610,7 +1613,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptIs_Preview() {
+	public function testEnqueuedStylesheetIs_Preview() {
 		// @todo
 	}
 
@@ -1620,18 +1623,18 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testEnqueuedScriptsHas_Excerpt() {
+	public function testEnqueuedStylesheetsHas_Excerpt() {
 
 		$handle = 'test-has-excerpt';
-		$src    = 'test-has-excerpt.js';
+		$src    = 'test-has-excerpt.css';
 
 		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
-			wp_register_script( $handle, $src );
+			wp_register_style( $handle, $src );
 			if ( has_excerpt() ) {
 				global $post;
 				// codecept_debug( 'HAS_EXCERPT, YO' );
 				// codecept_debug( $post );
-				wp_enqueue_script( $handle );
+				wp_enqueue_style( $handle );
 			}
 		} );
 
@@ -1643,12 +1646,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];
 
-		// codecept_debug( $scripts );
+		// codecept_debug( $styles );
 
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
@@ -1657,9 +1660,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_page_query( $this->page_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['page']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
@@ -1669,9 +1672,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = $this->get_custom_post_query( $this->custom_post_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
-		$scripts = $actual['data']['testEnqueueCpt']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
+		$styles = $actual['data']['testEnqueueCpt']['enqueuedStylesheets']['nodes'];
+		$handles = wp_list_pluck( $styles, 'handle' );
+		$sources = wp_list_pluck( $styles, 'src' );
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );

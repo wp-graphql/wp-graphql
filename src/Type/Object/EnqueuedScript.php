@@ -17,10 +17,15 @@ class EnqueuedScript {
 			'description' => __( 'Script enqueued by the CMS', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
-				'id' => [
+				'id'  => [
 					'type' => [
 						'non_null' => 'ID',
 					],
+				],
+				'src' => [
+					'resolve' => function( \_WP_Dependency $script ) {
+						return isset( $script->src ) && is_string( $script->src ) ? $script->src : null;
+					},
 				],
 			],
 		] );
