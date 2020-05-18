@@ -65,7 +65,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed
 	 */
 	public function get_query() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		// This is missing "must use" and "drop-in" plugins.
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 		return array_keys( $plugins );

@@ -248,11 +248,12 @@ function register_graphql_connection( array $config ) {
 /**
  * Given a config array for a custom Scalar, this registers a Scalar for use in the Schema
  *
- * @param array $config
+ * @param string $type_name The name of the Type to register
+ * @param array  $config    The config for the scalar type to register
  */
-function register_graphql_scalar( array $config ) {
-	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $config ) {
-		$type_registry->register_scalar( $config );
+function register_graphql_scalar( $type_name, array $config ) {
+	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		$type_registry->register_scalar( $type_name, $config );
 	}, 10 );
 }
 

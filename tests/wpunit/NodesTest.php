@@ -584,6 +584,50 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test to make sure all Taxonomies that show in GraphQL
+	 * are possibleTypes of the TermNode interface
+	 *
+	 * @throws Exception
+	 */
+	public function testTermTypesImplementTermNode() {
+
+		$query = '
+		{
+		  __type(name: "TermNode") {
+		    name
+		    kind
+		    possibleTypes {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'Errors', $actual );
+
+		$possible_type_names = [];
+		foreach ( $actual['data']['__type']['possibleTypes'] as $possible_type ) {
+			$possible_type_names[] = $possible_type['name'];
+		}
+
+		$taxonomies = get_taxonomies([ 'show_in_graphql' => true ], 'objects' );
+		$expected_type_names = [];
+		foreach( $taxonomies as $taxonomy ) {
+			$expected_type_names[] = ucfirst( $taxonomy->graphql_single_name );
+		}
+
+		sort($possible_type_names);
+		sort($expected_type_names);
+
+		$this->assertSame( $expected_type_names, $possible_type_names );
+
+	}
+
+	/**
 	 * Tests querying for a single comment node where the comment ID doesn't exist
 	 */
 	public function testUnsuccessfulCommentResolver() {

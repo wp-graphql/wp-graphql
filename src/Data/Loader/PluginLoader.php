@@ -20,7 +20,7 @@ class PluginLoader extends AbstractDataLoader {
 	 */
 	public function loadKeys( array $keys ) {
 
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 
 		$loaded = [];

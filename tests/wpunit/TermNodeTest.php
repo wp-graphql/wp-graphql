@@ -4,51 +4,11 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 	}
 	public function tearDown() {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
-	}
-
-	/**
-	 * Test to make sure all Taxonomies that show in GraphQL
-	 * are possibleTypes of the TermNode interface
-	 *
-	 * @throws Exception
-	 */
-	public function testTermTypesImplementTermNode() {
-
-		$query = '
-		{
-		  __type(name: "TermNode") {
-		    name
-		    kind
-		    possibleTypes {
-		      name
-		    }
-		  }
-		}
-		';
-
-		$actual = graphql([ 'query' => $query ]);
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
-
-		$possible_type_names = [];
-		foreach ( $actual['data']['__type']['possibleTypes'] as $possible_type ) {
-			$possible_type_names[] = $possible_type['name'];
-		}
-
-		$taxonomies = get_taxonomies([ 'show_in_graphql' => true ], 'objects' );
-		$expected_type_names = [];
-		foreach( $taxonomies as $taxonomy ) {
-			$expected_type_names[] = ucfirst( $taxonomy->graphql_single_name );
-		}
-
-		sort($possible_type_names);
-		sort($expected_type_names);
-
-		$this->assertSame( $expected_type_names, $possible_type_names );
-
 	}
 
 	/**

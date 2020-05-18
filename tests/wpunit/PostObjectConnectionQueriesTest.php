@@ -33,6 +33,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown() {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 

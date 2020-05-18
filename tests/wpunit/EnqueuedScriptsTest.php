@@ -20,6 +20,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		parent::setUp();
 
+		WPGraphQL::clear_schema();
+
 		$this->admin_id = $this->factory()->user->create( [
 			'user_login' => uniqid(),
 			'user_email' => uniqid() . '@test.com',
@@ -31,8 +33,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'user_email' => uniqid() . '@test.com',
 			'user_role'  => 'author',
 		] );
-
-		// codecept_debug( $this->user_id );
 
 		register_post_type( 'test_enqueue_cpt', [
 			'public'              => true,
@@ -53,8 +53,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'name'     => uniqid(),
 		] );
 
-		// codecept_debug( $this->category_id );
-
 		$this->tag_id = $this->factory()->term->create( [
 			'taxonomy' => 'post_tag',
 			'name'     => uniqid(),
@@ -65,8 +63,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'name'     => uniqid(),
 		] );
 
-		// codecept_debug( $this->tag_id );
-
 		$this->page_id = $this->factory()->post->create( [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
@@ -74,8 +70,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $this->author_id,
 			'post_excerpt' => '',
 		] );
-
-		// codecept_debug( $this->page_id );
 
 		$this->post_id = $this->factory()->post->create( [
 			'post_type'     => 'post',
@@ -87,12 +81,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_excerpt'  => 'Test excerpt'
 		] );
 
-		// codecept_debug( $this->post_id );
-
 		$filename       = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
-
-		// codecept_debug( get_post( $this->media_id ) );
 
 		$this->custom_post_id = $this->factory()->post->create( [
 			'post_type'    => 'test_enqueue_cpt',
@@ -111,10 +101,15 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 		wp_delete_term( $this->tag_id, 'post_tag' );
 		wp_delete_term( $this->category_id, 'post_tag' );
+		wp_delete_term( $this->custom_tax_id, 'post_tag' );
 		wp_delete_post( $this->post_id, true );
 		wp_delete_post( $this->page_id, true );
+		wp_delete_post( $this->custom_post_id, true );
+		wp_delete_attachment( $this->media_id, true );
 		unregister_post_type( 'test_enqueue_cpt' );
 		unregister_taxonomy( 'test_enqueue_tax' );
+		$GLOBALS['post']       = null;
+		$GLOBALS['authordata'] = null;
 		parent::tearDown();
 
 	}

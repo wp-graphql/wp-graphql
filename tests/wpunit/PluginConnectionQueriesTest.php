@@ -9,19 +9,21 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+
 	}
 
 	public function tearDown() {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
+		wp_logout();
 		parent::tearDown();
 	}
 
@@ -75,7 +77,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPluginsQueryWithoutAuth() {
 
-		wp_set_current_user( 0 );
+		wp_logout();
 
 		$query = '
 		{
@@ -93,7 +95,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
+		$actual = graphql([ 'query' => $query ]);
 
 		codecept_debug( $actual );
 

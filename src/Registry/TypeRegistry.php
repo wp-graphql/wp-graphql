@@ -411,14 +411,14 @@ class TypeRegistry {
 	/**
 	 * Given a config for a custom Scalar, this adds the Scalar for use in the Schema.
 	 *
-	 * @param $config
+	 * @param string $type_name The name of the Type to register
+	 * @param array  $config    The config for the scalar type to register
 	 *
-	 * @return WPScalar
+	 * @throws \Exception
 	 */
-	public function register_scalar( $config ) {
-		$type = new WPScalar( $config, $this );
-		$this->types[ $this->format_key( $type->name ) ] = $type;
-		return $type;
+	public function register_scalar( $type_name, $config ) {
+		$config['kind'] = 'scalar';
+		$this->register_type( $type_name, $config );
 	}
 
 	/**
@@ -531,6 +531,9 @@ class TypeRegistry {
 					}
 
 					$prepared_type = new WPInputObjectType( $config );
+					break;
+				case 'scalar':
+					$prepared_type = new WPScalar( $config, $this );
 					break;
 				case 'union':
 					$prepared_type = new WPUnionType( $config, $this );
@@ -1095,13 +1098,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return NonNull
 	 */
 	public function non_null( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::nonNull( $type_def );
 		}
+
 		return Type::nonNull( $type );
 	}
 
@@ -1109,13 +1115,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return ListOfType
 	 */
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::listOf( $type_def );
 		}
+
 		return Type::listOf( $type );
 	}
 

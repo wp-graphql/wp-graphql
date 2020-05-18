@@ -4,12 +4,8 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		// before
-
 		parent::setUp();
 		WPGraphQL::clear_schema();
-
-
-
 		// your set up methods here
 	}
 
@@ -18,94 +14,6 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
-	}
-
-	/**
-	 * Tests whether custom scalars can be registered and used in the Schema
-	 *
-	 * @throws Exception
-	 */
-	public function testCustomScalarCanBeUsedInSchema() {
-
-		$test_value = 'test';
-		$field_name = 'test';
-
-		register_graphql_scalar( [
-			'name'         => 'TestScalar',
-			'description'  => __( 'Test Scalar', 'wp-graphql' ),
-			'serialize'    => function( $value ) {
-				return $value;
-			},
-			'parseValue'   => function( $value ) {
-				return $value;
-			},
-			'parseLiteral' => function( $valueNode, array $variables = null ) {
-				return $valueNode->value;
-			}
-		] );
-
-		register_graphql_field( 'RootQuery', 'test', [
-			'type'    => 'TestScalar',
-			'resolve' => function() use ( $test_value ) {
-				return $test_value;
-			}
-		] );
-
-		$actual = graphql( [
-			'query' => '
-    		{
-			  __type(name: "TestScalar") {
-			    kind
-			  }
-			}
-    		'
-		] );
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'SCALAR', $actual['data']['__type']['kind'] );
-
-		$actual = graphql( [
-			'query' => '
-    		{
-			  __schema {
-			    queryType {
-			      fields {
-			        name
-			        type {
-			          name
-			          kind
-			        }
-			      }
-			    }
-			  }
-			}
-    		'
-		] );
-
-		codecept_debug( $actual );
-
-		$fields = $actual['data']['__schema']['queryType']['fields'];
-
-		$email = array_filter( $fields, function( $field ) {
-			return $field['type']['name'] === 'TestScalar' && $field['type']['kind'] === 'SCALAR' ? $field : null;
-		} );
-
-		$this->assertNotEmpty( $email );
-
-		$actual = graphql( [
-			'query' => '
-    		{
-			  test
-			}
-    		'
-		] );
-
-		codecept_debug( $actual );
-
-		$this->assertEquals( $test_value, $actual['data']['test'] );
-
 	}
 
 	/**

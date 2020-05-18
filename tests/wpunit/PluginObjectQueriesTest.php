@@ -6,12 +6,15 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->admin = $this->factory->user->create( [
+		WPGraphQL::clear_schema();
+		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
 	}
 
 	public function tearDown() {
+		wp_logout();
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 

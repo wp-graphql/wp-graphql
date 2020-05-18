@@ -1,11 +1,12 @@
 <?php
 
-class RelayMutationSchemaTest extends \Codeception\TestCase\WPTestCase {
+class MutationSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		// before
 		parent::setUp();
 		WPGraphQL::clear_schema();
+		wp_set_current_user( 0 );
 		// your set up methods here
 	}
 
@@ -13,6 +14,7 @@ class RelayMutationSchemaTest extends \Codeception\TestCase\WPTestCase {
 		// your tear down methods here
 		WPGraphQL::clear_schema();
 		// then
+		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
 
@@ -70,6 +72,8 @@ class RelayMutationSchemaTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the introspection query
 		 */
 		$actual = do_graphql_request( $introspection_query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Get the mutationType fields out of the response tree
