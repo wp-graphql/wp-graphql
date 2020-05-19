@@ -20,10 +20,10 @@ class EnqueuedStylesheet {
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
 				'id'  => [
-					'type' => [
+					'type'    => [
 						'non_null' => 'ID',
 					],
-					'resolve'     => function( $asset ) {
+					'resolve' => function( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
 					},
 				],

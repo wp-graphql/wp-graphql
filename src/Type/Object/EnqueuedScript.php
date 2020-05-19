@@ -20,10 +20,10 @@ class EnqueuedScript {
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
 				'id'  => [
-					'type' => [
+					'type'    => [
 						'non_null' => 'ID',
 					],
-					'resolve'     => function( $asset ) {
+					'resolve' => function( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 					},
 				],

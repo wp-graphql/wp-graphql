@@ -23,8 +23,8 @@ class EnqueuedScriptLoader extends AbstractDataLoader {
 		$loaded = [];
 		foreach ( $keys as $key ) {
 			if ( isset( $wp_scripts->registered[ $key ] ) ) {
-				$script = $wp_scripts->registered[ $key ];
-				$script->type = 'EnqueuedScript';
+				$script         = $wp_scripts->registered[ $key ];
+				$script->type   = 'EnqueuedScript';
 				$loaded[ $key ] = $script;
 			} else {
 				$loaded[ $key ] = null;
