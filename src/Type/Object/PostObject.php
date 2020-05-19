@@ -416,7 +416,7 @@ class PostObject {
 			! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true )
 		) {
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
+			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
 		}
 
 		$fields['template'] = [
