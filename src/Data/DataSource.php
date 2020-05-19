@@ -627,8 +627,8 @@ class DataSource {
 				case $node instanceof CommentAuthor:
 					$type = 'CommentAuthor';
 					break;
-				case $node instanceof \_WP_Dependency;
-					$type = $node->type;
+				case $node instanceof \_WP_Dependency:
+					$type = isset( $node->type ) ? $node->type : null;
 					break;
 				default:
 					$type = null;

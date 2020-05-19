@@ -8,7 +8,7 @@ use WPGraphQL\Model\User;
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
  * @package WPGraphQL\Data\Resolvers
- * @since 0.0.5
+ * @since   0.0.5
  */
 class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
@@ -36,6 +36,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 		} elseif ( ! empty( $this->args['before'] ) ) {
 			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
 		}
+
 		return $offset;
 	}
 
@@ -76,6 +77,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	public function get_query() {
 		$wp_roles = wp_roles();
 		$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
+
 		return $roles;
 	}
 
@@ -134,11 +136,13 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function should_execute() {
 
-		if ( current_user_can( 'list_users' ) ||
-			 (
+		if (
+			current_user_can( 'list_users' ) ||
+			(
 				$this->source instanceof User &&
-				$this->source->userId === get_current_user_id()
-		 ) ) {
+				get_current_user_id() === $this->source->userId
+			)
+		) {
 			return true;
 		}
 

@@ -80,8 +80,6 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_nodes
-	 *
 	 * Get the nodes from the query.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched

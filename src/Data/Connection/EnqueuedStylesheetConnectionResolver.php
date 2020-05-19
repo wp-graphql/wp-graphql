@@ -25,7 +25,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		 * Filter the query amount to be 1000 for
 		 */
 		add_filter( 'graphql_connection_max_query_amount', function( $max, $source, $args, $context, ResolveInfo $info ) {
-			if ( $info->fieldName === 'enqueuedStylesheets' || $info->fieldName === 'registeredStylesheets' ) {
+			if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
 				return 1000;
 			}
 			return $max;
@@ -95,8 +95,6 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_nodes
-	 *
 	 * Get the nodes from the query.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched
