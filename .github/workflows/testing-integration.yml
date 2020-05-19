@@ -17,9 +17,6 @@ jobs:
         php: ['7.4', '7.3', '7.2' ]
         wordpress: ['5.3.2', '5.4.1']
         include:
-          - php: '7.1'
-            wordpress: '5.3.0'
-            coverage: false
           - php: '7.4'
             wordpress: '5.4.1'
             coverage: true
