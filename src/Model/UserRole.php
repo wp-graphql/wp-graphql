@@ -48,7 +48,8 @@ class UserRole extends Model {
 		}
 
 		$current_user_roles = wp_get_current_user()->roles;
-		if ( in_array( $this->data['name'], $current_user_roles, true ) ) {
+
+		if ( in_array( $this->data['slug'], $current_user_roles, true ) ) {
 			return false;
 		}
 
@@ -65,7 +66,7 @@ class UserRole extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'           => function() {
-					$id = Relay::toGlobalId( 'role', $this->data['id'] );
+					$id = Relay::toGlobalId( 'user_role', $this->data['id'] );
 					return $id;
 				},
 				'name'         => function() {

@@ -34,7 +34,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 		$role_to_test = 'norole';
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'role', $role_to_test );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user_role', $role_to_test );
 
 		$query = "
 		query {
@@ -66,7 +66,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$role_to_test = 'administrator';
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'role', $role_to_test );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user_role', $role_to_test );
 		$role_obj = get_role( $role_to_test );
 
 		$query = "

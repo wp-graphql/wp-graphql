@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
+class ComposerStaticInit6a60c514af8340de6d9c420b08b70c28
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -222,6 +222,8 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
         'WPGraphQL\\AppContext' => __DIR__ . '/../..' . '/src/AppContext.php',
         'WPGraphQL\\Connection\\Comments' => __DIR__ . '/../..' . '/src/Connection/Comments.php',
         'WPGraphQL\\Connection\\ContentTypes' => __DIR__ . '/../..' . '/src/Connection/ContentTypes.php',
+        'WPGraphQL\\Connection\\EnqueuedScripts' => __DIR__ . '/../..' . '/src/Connection/EnqueuedScripts.php',
+        'WPGraphQL\\Connection\\EnqueuedStylesheets' => __DIR__ . '/../..' . '/src/Connection/EnqueuedStylesheets.php',
         'WPGraphQL\\Connection\\MenuItems' => __DIR__ . '/../..' . '/src/Connection/MenuItems.php',
         'WPGraphQL\\Connection\\Menus' => __DIR__ . '/../..' . '/src/Connection/Menus.php',
         'WPGraphQL\\Connection\\Plugins' => __DIR__ . '/../..' . '/src/Connection/Plugins.php',
@@ -237,6 +239,8 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
         'WPGraphQL\\Data\\Connection\\AbstractConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/AbstractConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/CommentConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\ContentTypeConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/ContentTypeConnectionResolver.php',
+        'WPGraphQL\\Data\\Connection\\EnqueuedScriptsConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedScriptsConnectionResolver.php',
+        'WPGraphQL\\Data\\Connection\\EnqueuedStylesheetConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedStylesheetConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\MenuConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\MenuItemConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuItemConnectionResolver.php',
         'WPGraphQL\\Data\\Connection\\PluginConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/PluginConnectionResolver.php',
@@ -251,11 +255,19 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
         'WPGraphQL\\Data\\Cursor\\UserCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/UserCursor.php',
         'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php',
         'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => __DIR__ . '/../..' . '/src/Data/Loader/AbstractDataLoader.php',
+        'WPGraphQL\\Data\\Loader\\CommentAuthorLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentAuthorLoader.php',
         'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
+        'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedScriptLoader.php',
+        'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedStylesheetLoader.php',
         'WPGraphQL\\Data\\Loader\\MenuItemLoader' => __DIR__ . '/../..' . '/src/Data/Loader/MenuItemLoader.php',
+        'WPGraphQL\\Data\\Loader\\PluginLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PluginLoader.php',
         'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php',
+        'WPGraphQL\\Data\\Loader\\PostTypeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostTypeLoader.php',
+        'WPGraphQL\\Data\\Loader\\TaxonomyLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TaxonomyLoader.php',
         'WPGraphQL\\Data\\Loader\\TermObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TermObjectLoader.php',
+        'WPGraphQL\\Data\\Loader\\ThemeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/ThemeLoader.php',
         'WPGraphQL\\Data\\Loader\\UserLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserLoader.php',
+        'WPGraphQL\\Data\\Loader\\UserRoleLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserRoleLoader.php',
         'WPGraphQL\\Data\\MediaItemMutation' => __DIR__ . '/../..' . '/src/Data/MediaItemMutation.php',
         'WPGraphQL\\Data\\NodeResolver' => __DIR__ . '/../..' . '/src/Data/NodeResolver.php',
         'WPGraphQL\\Data\\PostObjectMutation' => __DIR__ . '/../..' . '/src/Data/PostObjectMutation.php',
@@ -331,6 +343,7 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
         'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php',
         'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php',
         'WPGraphQL\\Type\\InterfaceType\\ContentTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentTemplate.php',
+        'WPGraphQL\\Type\\InterfaceType\\EnqueuedAsset' => __DIR__ . '/../..' . '/src/Type/InterfaceType/EnqueuedAsset.php',
         'WPGraphQL\\Type\\InterfaceType\\HierarchicalContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/HierarchicalContentNode.php',
         'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php',
         'WPGraphQL\\Type\\InterfaceType\\NodeWithAuthor' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithAuthor.php',
@@ -349,6 +362,8 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
         'WPGraphQL\\Type\\Object\\CommentAuthor' => __DIR__ . '/../..' . '/src/Type/Object/CommentAuthor.php',
         'WPGraphQL\\Type\\Object\\ContentType' => __DIR__ . '/../..' . '/src/Type/Object/ContentType.php',
         'WPGraphQL\\Type\\Object\\EditLock' => __DIR__ . '/../..' . '/src/Type/Object/EditLock.php',
+        'WPGraphQL\\Type\\Object\\EnqueuedScript' => __DIR__ . '/../..' . '/src/Type/Object/EnqueuedScript.php',
+        'WPGraphQL\\Type\\Object\\EnqueuedStylesheet' => __DIR__ . '/../..' . '/src/Type/Object/EnqueuedStylesheet.php',
         'WPGraphQL\\Type\\Object\\MediaDetails' => __DIR__ . '/../..' . '/src/Type/Object/MediaDetails.php',
         'WPGraphQL\\Type\\Object\\MediaItemMeta' => __DIR__ . '/../..' . '/src/Type/Object/MediaItemMeta.php',
         'WPGraphQL\\Type\\Object\\MediaSize' => __DIR__ . '/../..' . '/src/Type/Object/MediaSize.php',
@@ -388,9 +403,9 @@ class ComposerStaticInit1da2aa38720c4affc340ae52063736bb
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit1da2aa38720c4affc340ae52063736bb::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit1da2aa38720c4affc340ae52063736bb::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit1da2aa38720c4affc340ae52063736bb::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6a60c514af8340de6d9c420b08b70c28::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6a60c514af8340de6d9c420b08b70c28::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6a60c514af8340de6d9c420b08b70c28::$classMap;
 
         }, null, ClassLoader::class);
     }

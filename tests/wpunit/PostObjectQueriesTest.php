@@ -518,7 +518,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -547,7 +547,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID of the parent too for asserting
 		 */
-		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_id );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -972,7 +972,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'post', $child_id );
 
 		/**
 		 * Get the uri to the Child Page
@@ -1034,7 +1034,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$path      = get_page_uri( $post_id );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Let's query the same node 3 different ways, then assert it's the same node
@@ -1173,7 +1173,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get the ID
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		/**
 		 * Query for the post, using a global ID for a page
@@ -1460,7 +1460,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_page_id );
 
 		/**
 		 * Create the GraphQL query.
@@ -1522,7 +1522,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_page_id );
 
 		/**
 		 * Create the GraphQL query.
@@ -1971,7 +1971,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title' => 'Test Node',
 		]);
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', absint( $page_id ) );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $page_id ) );
 		$slug = get_post( $page_id )->post_name;
 		$uri = get_page_uri( $page_id );
 		$title = get_post( $page_id )->post_title;

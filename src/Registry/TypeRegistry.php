@@ -9,6 +9,8 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\ContentTypes;
+use WPGraphQL\Connection\EnqueuedScripts;
+use WPGraphQL\Connection\EnqueuedStylesheets;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
@@ -49,6 +51,7 @@ use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
@@ -62,6 +65,8 @@ use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
+use WPGraphQL\Type\Object\EnqueuedScript;
+use WPGraphQL\Type\Object\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -173,7 +178,7 @@ class TypeRegistry {
 		/**
 		 * When the Type Registry is initialized execute these files
 		 */
-		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 1, 1 );
+		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
 
 		/**
 		 * Fire an action as the Type registry is being initiated
@@ -192,11 +197,26 @@ class TypeRegistry {
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
 		/**
-		 * Register Interfaces
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
 		 */
+		do_action( 'graphql_register_initial_types', $type_registry );
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $type_registry );
+
+		// Register Interfaces.
 		Node::register_type();
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
+		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -210,9 +230,7 @@ class TypeRegistry {
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
-		/**
-		 * Register Types
-		 */
+		// register types
 		RootQuery::register_type();
 		RootQuery::register_post_object_fields();
 		RootQuery::register_term_object_fields();
@@ -221,6 +239,8 @@ class TypeRegistry {
 		Comment::register_type();
 		CommentAuthor::register_type();
 		EditLock::register_type();
+		EnqueuedStylesheet::register_type();
+		EnqueuedScript::register_type();
 		MediaDetails::register_type();
 		MediaItemMeta::register_type();
 		MediaSize::register_type();
@@ -278,6 +298,8 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
+		EnqueuedScripts::register_connections();
+		EnqueuedStylesheets::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
 		Plugins::register_connections();
@@ -382,22 +404,6 @@ class TypeRegistry {
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_initial_types', $type_registry );
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_types', $this );
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
 		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
@@ -409,14 +415,14 @@ class TypeRegistry {
 	/**
 	 * Given a config for a custom Scalar, this adds the Scalar for use in the Schema.
 	 *
-	 * @param $config
+	 * @param string $type_name The name of the Type to register
+	 * @param array  $config    The config for the scalar type to register
 	 *
-	 * @return WPScalar
+	 * @throws \Exception
 	 */
-	public function register_scalar( $config ) {
-		$type = new WPScalar( $config, $this );
-		$this->types[ $this->format_key( $type->name ) ] = $type;
-		return $type;
+	public function register_scalar( $type_name, $config ) {
+		$config['kind'] = 'scalar';
+		$this->register_type( $type_name, $config );
 	}
 
 	/**
@@ -529,6 +535,9 @@ class TypeRegistry {
 					}
 
 					$prepared_type = new WPInputObjectType( $config );
+					break;
+				case 'scalar':
+					$prepared_type = new WPScalar( $config, $this );
 					break;
 				case 'union':
 					$prepared_type = new WPUnionType( $config, $this );
@@ -878,7 +887,8 @@ class TypeRegistry {
 												$nodes[] = $resolve_node( $node, $args, $context, $info );
 											}
 										} else {
-											return $source['nodes'][0];
+											// Return the first item from the nodes array
+											return $source['nodes'][ array_key_first( $source['nodes'] ) ];
 										}
 									}
 
@@ -1092,13 +1102,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return NonNull
 	 */
 	public function non_null( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::nonNull( $type_def );
 		}
+
 		return Type::nonNull( $type );
 	}
 
@@ -1106,13 +1119,16 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
 	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 *
 	 * @return ListOfType
 	 */
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
 			return Type::listOf( $type_def );
 		}
+
 		return Type::listOf( $type );
 	}
 

@@ -233,7 +233,7 @@ class PostObject {
 		$fields      = [
 			'id'                => [
 				'description' => sprintf(
-					/* translators: %s: custom post-type name */
+				/* translators: %s: custom post-type name */
 					__( 'The globally unique identifier of the %s object.', 'wp-graphql' ),
 					$post_type_object->name
 				),
@@ -411,12 +411,17 @@ class PostObject {
 			];
 		}
 
-		if (
-			! $post_type_object->hierarchical &&
-			! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true )
-		) {
-			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
+		if ( ! $post_type_object->hierarchical &&
+			! in_array(
+				$post_type_object->name,
+				[
+					'attachment',
+					'revision',
+				],
+				true
+			) ) {
+			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
+			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
 
 		$fields['template'] = [

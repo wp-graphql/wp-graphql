@@ -17,6 +17,92 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 	}
 
+	/**
+	 * Tests whether custom scalars can be registered and used in the Schema
+	 *
+	 * @throws Exception
+	 */
+	public function testCustomScalarCanBeUsedInSchema() {
+
+		$test_value = 'test';
+
+		register_graphql_scalar( 'TestScalar', [
+			'description'  => __( 'Test Scalar', 'wp-graphql' ),
+			'serialize' => function( $value ) {
+				return $value;
+			},
+			'parseValue' => function( $value ) {
+				return $value;
+			},
+			'parseLiteral' => function( $valueNode, array $variables = null ) {
+				return isset( $valueNode->value ) ? $valueNode->value : null;
+			}
+		] );
+
+		register_graphql_field( 'RootQuery', 'testScalar', [
+			'type'    => 'TestScalar',
+			'resolve' => function() use ( $test_value ) {
+				return $test_value;
+			}
+		] );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  __type(name: "TestScalar") {
+			    kind
+			  }
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'SCALAR', $actual['data']['__type']['kind'] );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  __schema {
+			    queryType {
+			      fields {
+			        name
+			        type {
+			          name
+			          kind
+			        }
+			      }
+			    }
+			  }
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$fields = $actual['data']['__schema']['queryType']['fields'];
+
+		$test_scalar = array_filter( $fields, function( $field ) {
+			return $field['type']['name'] === 'TestScalar' && $field['type']['kind'] === 'SCALAR' ? $field : null;
+		} );
+
+		$this->assertNotEmpty( $test_scalar );
+
+		$actual = graphql( [
+			'query' => '
+    		{
+			  testScalar
+			}
+    		'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertEquals( $test_value, $actual['data']['testScalar'] );
+
+	}
+
 	// tests
 	public function testMe() {
 		$actual   = graphql_format_field_name( 'This is some field name' );

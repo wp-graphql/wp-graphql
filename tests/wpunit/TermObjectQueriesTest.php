@@ -16,7 +16,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the term
 		 */
-		$term_id = $this->factory->term->create( $args );
+		$term_id = $this->factory()->term->create( $args );
 
 		/**
 		 * Return the $id of the term_object that was created
@@ -163,7 +163,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, $term_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $term_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -262,7 +262,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, $term_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $term_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -327,8 +327,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'parent'   => $parent_id,
 		] );
 
-		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
-		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
 
 		$query = "
 		query {
@@ -387,8 +387,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'parent'   => $parent_id,
 		] );
 
-		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
-		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
 
 		$query = "
 		query {
@@ -433,12 +433,11 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @since 0.0.5
 	 */
 	public function testTermQueryWhereTermDoesNotExist() {
-		$taxonomy = 'category';
 
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, 'doesNotExist' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', 'doesNotExist' );
 
 		/**
 		 * Create the query string to pass to the $query

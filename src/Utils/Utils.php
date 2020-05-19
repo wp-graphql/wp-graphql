@@ -71,4 +71,30 @@ class Utils {
 		return mysql_to_rfc3339( $date_gmt );
 	}
 
+	/**
+	 * Given a field name, formats it for GraphQL
+	 *
+	 * @param string $field_name The field name to format
+	 *
+	 * @return string
+	 */
+	public static function format_field_name( $field_name ) {
+		$field_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name ) );
+		$field_name = lcfirst( str_replace( '_', ' ', ucwords( $field_name, '_' ) ) );
+		$field_name = lcfirst( str_replace( '-', ' ', ucwords( $field_name, '_' ) ) );
+		$field_name = lcfirst( str_replace( ' ', '', ucwords( $field_name, ' ' ) ) );
+		return $field_name;
+	}
+
+	/**
+	 * Given a type name, formats it for GraphQL
+	 *
+	 * @param string $type_name The type name to format
+	 *
+	 * @return string
+	 */
+	public static function format_type_name( $type_name ) {
+		return ucfirst( self::format_field_name( $type_name ) );
+	}
+
 }

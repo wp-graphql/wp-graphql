@@ -33,6 +33,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown() {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 
@@ -393,8 +394,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
-		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'post', $child_id );
 
 		$query = '
 		{

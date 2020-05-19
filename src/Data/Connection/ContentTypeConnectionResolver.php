@@ -1,59 +1,161 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\PostType;
-
-class ContentTypeConnectionResolver {
+/**
+ * Class ContentTypeConnectionResolver
+ *
+ * @package WPGraphQL\Data\Connection
+ */
+class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * Creates the connection for post types (content types)
+	 * ContentTypeConnectionResolver constructor.
 	 *
-	 * @param mixed       $source  The query results
-	 * @param array       $args    The query arguments
-	 * @param AppContext  $context The AppContext object
-	 * @param ResolveInfo $info    The ResolveInfo object
+	 * @param $source
+	 * @param $args
+	 * @param $context
+	 * @param $info
 	 *
-	 * @since  0.8.0
+	 * @throws \Exception
+	 */
+	public function __construct( $source, $args, $context, $info ) {
+		parent::__construct( $source, $args, $context, $info );
+	}
+
+	/**
+	 * @return bool|int|mixed|null|string
+	 */
+	public function get_offset() {
+		$offset = null;
+		if ( ! empty( $this->args['after'] ) ) {
+			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
+		} elseif ( ! empty( $this->args['before'] ) ) {
+			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
+		}
+		return $offset;
+	}
+
+	/**
+	 * Get the IDs from the source
+	 *
+	 * @return array|mixed|null
+	 */
+	public function get_ids() {
+
+		if ( isset( $this->query_args['name'] ) ) {
+			return [ $this->query_args['name'] ];
+		}
+
+		$ids     = [];
+		$queried = $this->get_query();
+
+		if ( empty( $queried ) ) {
+			return $ids;
+		}
+
+		foreach ( $queried as $key => $item ) {
+			$ids[ $key ] = $item;
+		}
+
+		return $ids;
+
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_query_args() {
+
+		$query_args = [
+			'show_in_graphql' => true,
+		];
+
+		return $query_args;
+
+	}
+
+
+	/**
+	 * Get the items from the source
+	 *
+	 * @return array|mixed|null
+	 */
+	public function get_query() {
+		$query_args = $this->get_query_args();
+		return get_post_types( $query_args );
+	}
+
+	/**
+	 * Load an individual node by ID
+	 *
+	 * @param $id
+	 *
+	 * @return mixed|null|\WPGraphQL\Model\Model
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		return $this->loader->load( $id );
+	}
+
+	/**
+	 * Get the nodes from the query.
+	 *
+	 * We slice the array to match the amount of items that was asked for, as we over-fetched
+	 * by 1 item to calculate pageInfo.
+	 *
+	 * For backward pagination, we reverse the order of nodes.
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public function get_nodes() {
 
-		$query_args = [];
+		$nodes = parent::get_nodes();
 
-		if ( $source instanceof Post ) {
-			$query_args['name'] = $source->post_type;
+		if ( isset( $this->args['after'] ) ) {
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
 		}
-		$query_args['show_in_graphql'] = true;
 
-		$post_types = get_post_types( $query_args );
-
-		$post_types_array = [];
-		foreach ( $post_types as $post_type ) {
-
-			$post_type_object = get_post_type_object( $post_type );
-			$model            = ! empty( $post_type_object ) ? new PostType( $post_type_object ) : null;
-
-			if ( 'private' !== $model->get_visibility() ) {
-				$post_types_array[] = $model;
-			}
+		if ( isset( $this->args['before'] ) ) {
+			$nodes = array_reverse( $nodes );
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
+			$nodes = array_reverse( $nodes );
 		}
-		$connection = Relay::connectionFromArray( $post_types_array, $args );
 
-		$nodes = [];
-		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
-			foreach ( $connection['edges'] as $edge ) {
-				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
-			}
-		}
-		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
+		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
 
-		return ! empty( $post_types_array ) ? $connection : null;
+		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
+	}
 
+	/**
+	 * The name of the loader to load the data
+	 *
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'post_type';
+	}
+
+	/**
+	 * Determine if the offset used for pagination is valid
+	 *
+	 * @param $offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return true;
+	}
+
+	/**
+	 * Determine if the query should execute
+	 *
+	 * @return bool
+	 */
+	public function should_execute() {
+		return true;
 	}
 
 }

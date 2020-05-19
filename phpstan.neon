@@ -1,0 +1,8 @@
+parameters:
+    level: max
+    paths:
+        - wp-graphql.php
+        - access-functions.php
+        - src
+    autoload_files:
+        - vendor/autoload.php

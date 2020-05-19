@@ -30,7 +30,7 @@ class Comment {
 							}
 							$id = absint( $comment->comment_post_ID );
 
-							return DataSource::resolve_post_object( $id, $context );
+							return $context->get_loader( 'post' )->load_deferred( $id );
 						},
 					],
 					'author'       => [
@@ -47,10 +47,10 @@ class Comment {
 									return null;
 								}
 
-								return DataSource::resolve_user( $comment->userId, $context );
+								return $context->get_loader( 'user' )->load( $comment->userId );
 
 							} else {
-								return ! empty( $comment->commentId ) ? DataSource::resolve_comment_author( $comment->commentId ) : null;
+								return ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
 							}
 						},
 					],

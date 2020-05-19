@@ -160,7 +160,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the variables to use with the mutation
 		 */
 		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 			'title'            => 'Some updated title',
 			'content'          => 'Some updated content',
 			'clientMutationId' => 'someId',
@@ -217,7 +217,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'updatePage' => [
 					'clientMutationId' => 'someId',
 					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 						'title'   => apply_filters( 'the_title', 'Some updated title' ),
 						'content' => apply_filters( 'the_content', 'Some updated content' ),
 						'pageId'  => $page_id,
@@ -292,7 +292,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 				'clientMutationId' => 'someId',
 			],
 		];
@@ -327,9 +327,9 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'data' => [
 				'deletePage' => [
 					'clientMutationId' => 'someId',
-					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 						'title'   => apply_filters( 'the_title', 'Original Title' ),
 						'content' => apply_filters( 'the_content', 'Original Content' ),
 						'pageId'  => $page_id,
@@ -358,7 +358,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 				'clientMutationId' => 'someId',
 				'forceDelete'      => true,
 			],
@@ -371,7 +371,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( 'someId', $actual['data']['deletePage']['clientMutationId'] );
-		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ), $actual['data']['deletePage']['deletedId'] );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ), $actual['data']['deletePage']['deletedId'] );
 
 		/**
 		 * Try to delete the page one more time, and now there's nothing to delete, not even from the trash
@@ -415,7 +415,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$page_id   = $this->factory()->post->create( [
 			'post_type' => 'page',
 		] );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		$variables = [
 			'input' => [
@@ -461,7 +461,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$variables = wp_json_encode( [
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 			'clientMutationId' => 'someId',
 		] );
 
