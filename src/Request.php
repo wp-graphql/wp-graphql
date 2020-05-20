@@ -5,8 +5,6 @@ namespace WPGraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
-use GraphQL\Error\FormattedError;
-use GraphQL\Language\Parser;
 use WPGraphQL\Server\WPHelper;
 
 /**
@@ -47,14 +45,6 @@ class Request {
 	 * @var OperationParams|OperationParams[]
 	 */
 	private $params;
-
-
-	/**
-	 * Parsed Abstract Syntax Tree of the GraphQL Query
-	 *
-	 * @var GraphQL\Language\AST\DocumentNode
-	 */
-	private $doc;
 
 	/**
 	 * Schema for this request.
@@ -110,77 +100,6 @@ class Request {
 		$app_context->root_url = get_bloginfo( 'url' );
 		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
 		$this->app_context     = $app_context;
-	}
-
-	/**
-	 * Parse the graphql query to GraphQL\Language\AST\DocumentNode object
-	 *
-	 * Possibly returns GraphQL\Error\SyntaxError wrapped in a response array
-	 * if malformed graphql query was passed
-	 *
-	 * @return null|array
-	 */
-	private function parse_query() {
-
-		/**
-		 * Sort circuit GraphQL query parsing by returning a DocumentNode instance.
-		 * Can be used for AST caching for example.
-		 *
-		 * @param GraphQL\Language\AST\DocumentNode|false $query_ast Just a null value since the query is not parsed yet
-		 * @param string                                  $query     The GraphQL query as string
-		 * @param array                                   $variables GraphQL query variables
-		 * @param string                                  $operation The graphql operation name
-		 * @param \WPGraphQL\AppContex                    $context   The app context
-		 */
-		$this->doc = apply_filters(
-			'graphql_pre_ast',
-			false,
-			$this->params->query,
-			$this->params->variables,
-			$this->params->operation,
-			$this->app_context
-		);
-
-		/**
-		 * Parse the GraphQL query if we did not get preparsed query
-		 */
-		if ( false === $this->doc ) {
-			try {
-					$this->doc = Parser::parse( $this->params->query );
-			} catch ( \GraphQL\Error\SyntaxError $syntax_error ) {
-				/**
-				 * Wrap the error to GraphQL response
-				 */
-				return [
-					'errors' => [ FormattedError::createFromException( $syntax_error, GRAPHQL_DEBUG ) ],
-				];
-			}
-		}
-
-		/**
-		 * Filter the GraphQL query Abstract Syntax Tree before it is passed to
-		 * graphl-php for execution
-		 *
-		 * @param GraphQL\Language\AST\DocumentNode $query_ast The parsed GraphQL Query AST
-		 * @param string                            $query     The GraphQL query as string
-		 * @param array                             $variables GraphQL query variables
-		 * @param string                            $operation The graphql operation name
-		 * @param \WPGraphQL\AppContex              $context   The app context
-		 */
-		$this->doc = apply_filters(
-			'graphql_ast',
-			$this->doc,
-			$this->params->query,
-			$this->params->variables,
-			$this->params->operation,
-			$this->app_context
-		);
-
-		if ( ! $this->doc instanceof \GraphQL\Language\AST\DocumentNode ) {
-			return [
-				'errors' => [ 'Failed to get valid GraphQL\Language\AST\DocumentNode' ],
-			];
-		}
 	}
 
 	/**
@@ -488,18 +407,9 @@ class Request {
 		 */
 		$this->before_execute();
 
-		$syntax_error_response = $this->parse_query();
-
-		/**
-		 * Return early with the syntax error response if bad query was passed
-		 */
-		if ( $syntax_error_response ) {
-			return $this->after_execute( $syntax_error_response );
-		}
-
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
-			$this->doc,
+			$this->params->query,
 			null,
 			$this->app_context,
 			$this->params->variables,
@@ -545,27 +455,11 @@ class Request {
 		 */
 		$this->before_execute();
 
-		$syntax_error_response = $this->parse_query();
-
-		/**
-		 * Return early with the syntax error response if bad query was passed
-		 */
-		if ( $syntax_error_response ) {
-			return $this->after_execute( $syntax_error_response, $this->params );
-		}
-
 		/**
 		 * Get the response.
 		 */
-		$server = $this->get_server();
-
-		/**
-		 * Pass in the preparsed query instead of the the string to avoid
-		 * duplicate query parsing
-		 */
-		$this->params->query = $this->doc;
-
-		$response = $server->executeRequest( $params );
+		$server   = $this->get_server();
+		$response = $server->executeRequest( $this->params );
 
 		return $this->after_execute( $response, $this->params );
 	}
