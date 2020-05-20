@@ -7,18 +7,19 @@ use GraphQLRelay\Relay;
 /**
  * Class Term - Models data for Terms
  *
- * @property string       $id
- * @property int          $term_id
- * @property int          $count
- * @property string       $description
- * @property string       $name
- * @property string       $slug
- * @property int          $termGroupId
- * @property int          $termTaxonomyId
- * @property string       $taxonomyName
- * @property string       $link
- * @property int          $parentId
- * @property array        $ancestors
+ * @property string $id
+ * @property int    $term_id
+ * @property int    $count
+ * @property string $description
+ * @property string $name
+ * @property string $slug
+ * @property int    $termGroupId
+ * @property int    $termTaxonomyId
+ * @property string $taxonomyName
+ * @property string $link
+ * @property string $parentId
+ * @property int    $parentDatabaseId
+ * @property array  $ancestors
  *
  * @package WPGraphQL\Model
  */
@@ -78,13 +79,13 @@ class Term extends Model {
 			 * how to setup global state
 			 */
 			if ( 'category' === $this->data->taxonomy ) {
-				$wp_query->parse_query([
+				$wp_query->parse_query( [
 					'category_name' => $this->data->slug,
-				]);
+				] );
 			} elseif ( 'post_tag' === $this->data->taxonomy ) {
-				$wp_query->parse_query([
+				$wp_query->parse_query( [
 					'tag' => $this->data->slug,
-				]);
+				] );
 			}
 
 			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
@@ -142,13 +143,14 @@ class Term extends Model {
 				},
 				'link'                     => function() {
 					$link = get_term_link( $this->data->term_id );
+
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
 				'parentId'                 => function() {
-					return ! empty( $this->data->parent ) ? $this->data->parent : null;
+					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', $this->data->parent ) : null;
 				},
-				'isTag'                    => function() {
-					return is_tag();
+				'parentDatabaseId'         => function() {
+					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
 				'enqueuedScriptsQueue'     => function() {
 					global $wp_scripts;
@@ -157,6 +159,7 @@ class Term extends Model {
 					$queue = $wp_scripts->queue;
 					$wp_scripts->reset();
 					$wp_scripts->queue = [];
+
 					return $queue;
 				},
 				'enqueuedStylesheetsQueue' => function() {
@@ -165,6 +168,7 @@ class Term extends Model {
 					$queue = $wp_styles->queue;
 					$wp_styles->reset();
 					$wp_styles->queue = [];
+
 					return $queue;
 				},
 			];
