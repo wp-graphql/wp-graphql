@@ -90,7 +90,9 @@ class TermObjectCreate {
 				// translators: Placeholder is the name of the taxonomy
 				'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
 				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy ) {
-					return DataSource::resolve_term_object( absint( $payload['termId'] ), $context );
+					$id = isset( $payload['termId'] ) ? absint( $payload['termId'] ) : null;
+					return $context->get_loader( 'term' )->load_deferred( $id );
+
 				},
 			],
 		];

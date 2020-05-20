@@ -73,28 +73,31 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * them from the cache to pass through the model layer, or return null if the
 			 * object isn't in the cache, meaning it didn't come back when queried.
 			 */
-			$term_object = $terms_by_id[ $key ];
+			$term_object = get_term( (int) $key );
 
-			if ( empty( $term_object ) || ! is_a( $term_object, 'WP_Term' ) ) {
-				$loaded_terms[ $key ] = null;
-			}
+			$loaded_terms[ $key ] = null;
 
-			/**
-			 * For nav_menu_item terms, we want to pass through a different model
-			 */
-			if ( 'nav_menu' === $term_object->taxonomy ) {
-				$menu = new Menu( $term_object );
-				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
-					$loaded_terms[ $key ] = null;
+			if ( is_a( $term_object, 'WP_Term' ) ) {
+
+				/**
+				 * For nav_menu_item terms, we want to pass through a different model
+				 */
+				if ( 'nav_menu' === $term_object->taxonomy ) {
+
+					$menu = new Menu( $term_object );
+					if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+						$loaded_terms[ $key ] = null;
+					} else {
+						$loaded_terms[ $key ] = $menu;
+					}
 				} else {
-					$loaded_terms[ $key ] = $menu;
-				}
-			} else {
-				$term = new Term( $term_object );
-				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
-					$loaded_terms[ $key ] = null;
-				} else {
-					$loaded_terms[ $key ] = $term;
+
+					$term = new Term( $term_object );
+					if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+						$loaded_terms[ $key ] = null;
+					} else {
+						$loaded_terms[ $key ] = $term;
+					}
 				}
 			}
 		}
