@@ -617,6 +617,8 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$actual = do_graphql_request( $query, 'createChildCategory', $variables );
 
+		codecept_debug( $actual );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['id'] );
 

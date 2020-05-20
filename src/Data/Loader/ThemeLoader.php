@@ -30,6 +30,8 @@ class ThemeLoader extends AbstractDataLoader {
 					$theme      = wp_get_theme( $stylesheet );
 					if ( $theme->exists() ) {
 						$loaded[ $key ] = new Theme( $theme );
+					} else {
+						$loaded[ $key ] = null;
 					}
 				}
 			}

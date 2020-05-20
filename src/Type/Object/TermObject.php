@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\Object;
 
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
@@ -50,8 +51,8 @@ class TermObject {
 				[
 					'type'        => $taxonomy_object->graphql_single_name,
 					'description' => __( 'The parent object', 'wp-graphql' ),
-					'resolve'     => function( Term $term, $args, $context, $info ) {
-						return isset( $term->parentId ) ? DataSource::resolve_term_object( $term->parentId, $context ) : null;
+					'resolve'     => function( Term $term, $args, AppContext $context, $info ) {
+						return isset( $term->parentDatabaseId ) ? $context->get_loader( 'term' )->load_deferred( $term->parentDatabaseId ) : null;
 					},
 				]
 			);
