@@ -91,9 +91,7 @@ class PostObjectLoader extends AbstractDataLoader {
 
 			if ( ! $post_object instanceof \WP_Post ) {
 				$loaded_posts[ $key ] = null;
-			}
-
-            if (!empty($post_object)) {
+			} else {
                 /**
                  * If there's a Post Author connected to the post, we need to resolve the
                  * user as it gets set in the globals via `setup_post_data()` and doing it this way
