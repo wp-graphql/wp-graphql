@@ -1,9 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language;
 
 use GraphQL\Error\SyntaxError;
-use GraphQL\Utils\Utils;
 use GraphQL\Utils\BlockString;
+use GraphQL\Utils\Utils;
+use function chr;
+use function hexdec;
+use function ord;
+use function preg_match;
 
 /**
  * A Lexer is a stateful stream generator in that every time
@@ -16,14 +23,26 @@ use GraphQL\Utils\BlockString;
  */
 class Lexer
 {
-    /**
-     * @var Source
-     */
+    private const TOKEN_BANG      = 33;
+    private const TOKEN_HASH      = 35;
+    private const TOKEN_DOLLAR    = 36;
+    private const TOKEN_AMP       = 38;
+    private const TOKEN_PAREN_L   = 40;
+    private const TOKEN_PAREN_R   = 41;
+    private const TOKEN_DOT       = 46;
+    private const TOKEN_COLON     = 58;
+    private const TOKEN_EQUALS    = 61;
+    private const TOKEN_AT        = 64;
+    private const TOKEN_BRACKET_L = 91;
+    private const TOKEN_BRACKET_R = 93;
+    private const TOKEN_BRACE_L   = 123;
+    private const TOKEN_PIPE      = 124;
+    private const TOKEN_BRACE_R   = 125;
+
+    /** @var Source */
     public $source;
 
-    /**
-     * @var array
-     */
+    /** @var bool[] */
     public $options;
 
     /**
@@ -69,22 +88,19 @@ class Lexer
     private $byteStreamPosition;
 
     /**
-     * Lexer constructor.
-     *
-     * @param Source $source
-     * @param array $options
+     * @param bool[] $options
      */
     public function __construct(Source $source, array $options = [])
     {
         $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
 
-        $this->source = $source;
-        $this->options = $options;
+        $this->source    = $source;
+        $this->options   = $options;
         $this->lastToken = $startOfFileToken;
-        $this->token = $startOfFileToken;
-        $this->line = 1;
+        $this->token     = $startOfFileToken;
+        $this->line      = 1;
         $this->lineStart = 0;
-        $this->position = $this->byteStreamPosition = 0;
+        $this->position  = $this->byteStreamPosition = 0;
     }
 
     /**
@@ -93,8 +109,8 @@ class Lexer
     public function advance()
     {
         $this->lastToken = $this->token;
-        $token = $this->token = $this->lookahead();
-        return $token;
+
+        return $this->token = $this->lookahead();
     }
 
     public function lookahead()
@@ -105,12 +121,13 @@ class Lexer
                 $token = $token->next ?: ($token->next = $this->readToken($token));
             } while ($token->kind === Token::COMMENT);
         }
+
         return $token;
     }
 
     /**
-     * @param Token $prev
      * @return Token
+     *
      * @throws SyntaxError
      */
     private function readToken(Token $prev)
@@ -121,85 +138,134 @@ class Lexer
         $position = $this->position;
 
         $line = $this->line;
-        $col = 1 + $position - $this->lineStart;
+        $col  = 1 + $position - $this->lineStart;
 
         if ($position >= $bodyLength) {
             return new Token(Token::EOF, $bodyLength, $bodyLength, $line, $col, $prev);
         }
 
         // Read next char and advance string cursor:
-        list (, $code, $bytes) = $this->readChar(true);
-
-        // SourceCharacter
-        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
-            throw new SyntaxError(
-                $this->source,
-                $position,
-                'Cannot contain the invalid character ' . Utils::printCharCode($code)
-            );
-        }
+        [, $code, $bytes] = $this->readChar(true);
 
         switch ($code) {
-            case 33: // !
+            case self::TOKEN_BANG:
                 return new Token(Token::BANG, $position, $position + 1, $line, $col, $prev);
-            case 35: // #
+            case self::TOKEN_HASH: // #
                 $this->moveStringCursor(-1, -1 * $bytes);
-                return $this->readComment($line, $col, $prev);
-            case 36: // $
-                return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
-            case 40: // (
-                return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
-            case 41: // )
-                return new Token(Token::PAREN_R, $position, $position + 1, $line, $col, $prev);
-            case 46: // .
-                list (, $charCode1) = $this->readChar(true);
-                list (, $charCode2) = $this->readChar(true);
 
-                if ($charCode1 === 46 && $charCode2 === 46) {
+                return $this->readComment($line, $col, $prev);
+            case self::TOKEN_DOLLAR:
+                return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
+            case self::TOKEN_AMP:
+                return new Token(Token::AMP, $position, $position + 1, $line, $col, $prev);
+            case self::TOKEN_PAREN_L:
+                return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
+            case self::TOKEN_PAREN_R:
+                return new Token(Token::PAREN_R, $position, $position + 1, $line, $col, $prev);
+            case self::TOKEN_DOT: // .
+                [, $charCode1] = $this->readChar(true);
+                [, $charCode2] = $this->readChar(true);
+
+                if ($charCode1 === self::TOKEN_DOT && $charCode2 === self::TOKEN_DOT) {
                     return new Token(Token::SPREAD, $position, $position + 3, $line, $col, $prev);
                 }
                 break;
-            case 58: // :
+            case self::TOKEN_COLON:
                 return new Token(Token::COLON, $position, $position + 1, $line, $col, $prev);
-            case 61: // =
+            case self::TOKEN_EQUALS:
                 return new Token(Token::EQUALS, $position, $position + 1, $line, $col, $prev);
-            case 64: // @
+            case self::TOKEN_AT:
                 return new Token(Token::AT, $position, $position + 1, $line, $col, $prev);
-            case 91: // [
+            case self::TOKEN_BRACKET_L:
                 return new Token(Token::BRACKET_L, $position, $position + 1, $line, $col, $prev);
-            case 93: // ]
+            case self::TOKEN_BRACKET_R:
                 return new Token(Token::BRACKET_R, $position, $position + 1, $line, $col, $prev);
-            case 123: // {
+            case self::TOKEN_BRACE_L:
                 return new Token(Token::BRACE_L, $position, $position + 1, $line, $col, $prev);
-            case 124: // |
+            case self::TOKEN_PIPE:
                 return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
-            case 125: // }
+            case self::TOKEN_BRACE_R:
                 return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
+
             // A-Z
-            case 65: case 66: case 67: case 68: case 69: case 70: case 71: case 72:
-            case 73: case 74: case 75: case 76: case 77: case 78: case 79: case 80:
-            case 81: case 82: case 83: case 84: case 85: case 86: case 87: case 88:
-            case 89: case 90:
-            // _
+            case 65:
+            case 66:
+            case 67:
+            case 68:
+            case 69:
+            case 70:
+            case 71:
+            case 72:
+            case 73:
+            case 74:
+            case 75:
+            case 76:
+            case 77:
+            case 78:
+            case 79:
+            case 80:
+            case 81:
+            case 82:
+            case 83:
+            case 84:
+            case 85:
+            case 86:
+            case 87:
+            case 88:
+            case 89:
+            case 90:
+                // _
             case 95:
-            // a-z
-            case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104:
-            case 105: case 106: case 107: case 108: case 109: case 110: case 111:
-            case 112: case 113: case 114: case 115: case 116: case 117: case 118:
-            case 119: case 120: case 121: case 122:
+                // a-z
+            case 97:
+            case 98:
+            case 99:
+            case 100:
+            case 101:
+            case 102:
+            case 103:
+            case 104:
+            case 105:
+            case 106:
+            case 107:
+            case 108:
+            case 109:
+            case 110:
+            case 111:
+            case 112:
+            case 113:
+            case 114:
+            case 115:
+            case 116:
+            case 117:
+            case 118:
+            case 119:
+            case 120:
+            case 121:
+            case 122:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readName($line, $col, $prev);
+
             // -
             case 45:
-            // 0-9
-            case 48: case 49: case 50: case 51: case 52:
-            case 53: case 54: case 55: case 56: case 57:
+                // 0-9
+            case 48:
+            case 49:
+            case 50:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
                 return $this->moveStringCursor(-1, -1 * $bytes)
                     ->readNumber($line, $col, $prev);
+
             // "
             case 34:
-                list(,$nextCode) = $this->readChar();
-                list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+                [, $nextCode]     = $this->readChar();
+                [, $nextNextCode] = $this->moveStringCursor(1, 1)->readChar();
 
                 if ($nextCode === 34 && $nextNextCode === 34) {
                     return $this->moveStringCursor(-2, (-1 * $bytes) - 1)
@@ -210,15 +276,26 @@ class Lexer
                     ->readString($line, $col, $prev);
         }
 
-        $errMessage = $code === 39
-            ? "Unexpected single quote character ('), did you mean to use ". 'a double quote (")?'
-            : 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
-
         throw new SyntaxError(
             $this->source,
             $position,
-            $errMessage
+            $this->unexpectedCharacterMessage($code)
         );
+    }
+
+    private function unexpectedCharacterMessage($code)
+    {
+        // SourceCharacter
+        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
+            return 'Cannot contain the invalid character ' . Utils::printCharCode($code);
+        }
+
+        if ($code === 39) {
+            return "Unexpected single quote character ('), did you mean to use " .
+                'a double quote (")?';
+        }
+
+        return 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
     }
 
     /**
@@ -228,24 +305,25 @@ class Lexer
      *
      * @param int $line
      * @param int $col
-     * @param Token $prev
+     *
      * @return Token
      */
     private function readName($line, $col, Token $prev)
     {
-        $value = '';
-        $start = $this->position;
-        list ($char, $code) = $this->readChar();
+        $value         = '';
+        $start         = $this->position;
+        [$char, $code] = $this->readChar();
 
         while ($code && (
-            $code === 95 || // _
-            $code >= 48 && $code <= 57 || // 0-9
-            $code >= 65 && $code <= 90 || // A-Z
-            $code >= 97 && $code <= 122 // a-z
-        )) {
-            $value .= $char;
-            list ($char, $code) = $this->moveStringCursor(1, 1)->readChar();
+                $code === 95 || // _
+                $code >= 48 && $code <= 57 || // 0-9
+                $code >= 65 && $code <= 90 || // A-Z
+                $code >= 97 && $code <= 122 // a-z
+            )) {
+            $value        .= $char;
+            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
         }
+
         return new Token(
             Token::NAME,
             $start,
@@ -266,49 +344,54 @@ class Lexer
      *
      * @param int $line
      * @param int $col
-     * @param Token $prev
+     *
      * @return Token
+     *
      * @throws SyntaxError
      */
     private function readNumber($line, $col, Token $prev)
     {
-        $value = '';
-        $start = $this->position;
-        list ($char, $code) = $this->readChar();
+        $value         = '';
+        $start         = $this->position;
+        [$char, $code] = $this->readChar();
 
         $isFloat = false;
 
         if ($code === 45) { // -
-            $value .= $char;
-            list ($char, $code) = $this->moveStringCursor(1, 1)->readChar();
+            $value        .= $char;
+            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
         }
 
         // guard against leading zero's
         if ($code === 48) { // 0
-            $value .= $char;
-            list ($char, $code) = $this->moveStringCursor(1, 1)->readChar();
+            $value        .= $char;
+            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
 
             if ($code >= 48 && $code <= 57) {
-                throw new SyntaxError($this->source, $this->position, "Invalid number, unexpected digit after 0: " . Utils::printCharCode($code));
+                throw new SyntaxError(
+                    $this->source,
+                    $this->position,
+                    'Invalid number, unexpected digit after 0: ' . Utils::printCharCode($code)
+                );
             }
         } else {
-            $value .= $this->readDigits();
-            list ($char, $code) = $this->readChar();
+            $value        .= $this->readDigits();
+            [$char, $code] = $this->readChar();
         }
 
         if ($code === 46) { // .
             $isFloat = true;
             $this->moveStringCursor(1, 1);
 
-            $value .= $char;
-            $value .= $this->readDigits();
-            list ($char, $code) = $this->readChar();
+            $value        .= $char;
+            $value        .= $this->readDigits();
+            [$char, $code] = $this->readChar();
         }
 
         if ($code === 69 || $code === 101) { // E e
-            $isFloat = true;
-            $value .= $char;
-            list ($char, $code) = $this->moveStringCursor(1, 1)->readChar();
+            $isFloat       = true;
+            $value        .= $char;
+            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
 
             if ($code === 43 || $code === 45) { // + -
                 $value .= $char;
@@ -333,14 +416,14 @@ class Lexer
      */
     private function readDigits()
     {
-        list ($char, $code) = $this->readChar();
+        [$char, $code] = $this->readChar();
 
         if ($code >= 48 && $code <= 57) { // 0 - 9
             $value = '';
 
             do {
-                $value .= $char;
-                list ($char, $code) = $this->moveStringCursor(1, 1)->readChar();
+                $value        .= $char;
+                [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
             } while ($code >= 48 && $code <= 57); // 0 - 9
 
             return $value;
@@ -360,8 +443,9 @@ class Lexer
     /**
      * @param int $line
      * @param int $col
-     * @param Token $prev
+     *
      * @return Token
+     *
      * @throws SyntaxError
      */
     private function readString($line, $col, Token $prev)
@@ -369,13 +453,12 @@ class Lexer
         $start = $this->position;
 
         // Skip leading quote and read first string char:
-        list ($char, $code, $bytes) = $this->moveStringCursor(1, 1)->readChar();
+        [$char, $code, $bytes] = $this->moveStringCursor(1, 1)->readChar();
 
         $chunk = '';
         $value = '';
 
-        while (
-            $code !== null &&
+        while ($code !== null &&
             // not LineTerminator
             $code !== 10 && $code !== 13
         ) {
@@ -401,22 +484,38 @@ class Lexer
             $this->moveStringCursor(1, $bytes);
 
             if ($code === 92) { // \
-                $value .= $chunk;
-                list (, $code) = $this->readChar(true);
+                $value   .= $chunk;
+                [, $code] = $this->readChar(true);
 
                 switch ($code) {
-                    case 34: $value .= '"'; break;
-                    case 47: $value .= '/'; break;
-                    case 92: $value .= '\\'; break;
-                    case 98: $value .= chr(8); break; // \b (backspace)
-                    case 102: $value .= "\f"; break;
-                    case 110: $value .= "\n"; break;
-                    case 114: $value .= "\r"; break;
-                    case 116: $value .= "\t"; break;
+                    case 34:
+                        $value .= '"';
+                        break;
+                    case 47:
+                        $value .= '/';
+                        break;
+                    case 92:
+                        $value .= '\\';
+                        break;
+                    case 98:
+                        $value .= chr(8);
+                        break; // \b (backspace)
+                    case 102:
+                        $value .= "\f";
+                        break;
+                    case 110:
+                        $value .= "\n";
+                        break;
+                    case 114:
+                        $value .= "\r";
+                        break;
+                    case 116:
+                        $value .= "\t";
+                        break;
                     case 117:
                         $position = $this->position;
-                        list ($hex) = $this->readChars(4, true);
-                        if (!preg_match('/[0-9a-fA-F]{4}/', $hex)) {
+                        [$hex]    = $this->readChars(4, true);
+                        if (! preg_match('/[0-9a-fA-F]{4}/', $hex)) {
                             throw new SyntaxError(
                                 $this->source,
                                 $position - 1,
@@ -439,7 +538,7 @@ class Lexer
                 $chunk .= $char;
             }
 
-            list ($char, $code, $bytes) = $this->readChar();
+            [$char, $code, $bytes] = $this->readChar();
         }
 
         throw new SyntaxError(
@@ -459,7 +558,7 @@ class Lexer
         $start = $this->position;
 
         // Skip leading quotes and read first string char:
-        list ($char, $code, $bytes) = $this->moveStringCursor(3, 3)->readChar();
+        [$char, $code, $bytes] = $this->moveStringCursor(3, 3)->readChar();
 
         $chunk = '';
         $value = '';
@@ -468,8 +567,8 @@ class Lexer
             // Closing Triple-Quote (""")
             if ($code === 34) {
                 // Move 2 quotes
-                list(,$nextCode) = $this->moveStringCursor(1, 1)->readChar();
-                list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+                [, $nextCode]     = $this->moveStringCursor(1, 1)->readChar();
+                [, $nextNextCode] = $this->moveStringCursor(1, 1)->readChar();
 
                 if ($nextCode === 34 && $nextNextCode === 34) {
                     $value .= $chunk;
@@ -485,18 +584,18 @@ class Lexer
                         $prev,
                         BlockString::value($value)
                     );
-                } else {
-                    // move cursor back to before the first quote
-                    $this->moveStringCursor(-2, -2);
                 }
+
+                // move cursor back to before the first quote
+                $this->moveStringCursor(-2, -2);
             }
 
             $this->assertValidBlockStringCharacterCode($code, $this->position);
             $this->moveStringCursor(1, $bytes);
 
-            list(,$nextCode) = $this->readChar();
-            list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
-            list(,$nextNextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+            [, $nextCode]         = $this->readChar();
+            [, $nextNextCode]     = $this->moveStringCursor(1, 1)->readChar();
+            [, $nextNextNextCode] = $this->moveStringCursor(1, 1)->readChar();
 
             // Escape Triple-Quote (\""")
             if ($code === 92 &&
@@ -506,13 +605,13 @@ class Lexer
             ) {
                 $this->moveStringCursor(1, 1);
                 $value .= $chunk . '"""';
-                $chunk = '';
+                $chunk  = '';
             } else {
                 $this->moveStringCursor(-2, -2);
                 $chunk .= $char;
             }
 
-            list ($char, $code, $bytes) = $this->readChar();
+            [$char, $code, $bytes] = $this->readChar();
         }
 
         throw new SyntaxError(
@@ -553,18 +652,18 @@ class Lexer
     private function positionAfterWhitespace()
     {
         while ($this->position < $this->source->length) {
-            list(, $code, $bytes) = $this->readChar();
+            [, $code, $bytes] = $this->readChar();
 
             // Skip whitespace
             // tab | space | comma | BOM
             if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
                 $this->moveStringCursor(1, $bytes);
-            } else if ($code === 10) { // new line
+            } elseif ($code === 10) { // new line
                 $this->moveStringCursor(1, $bytes);
                 $this->line++;
                 $this->lineStart = $this->position;
-            } else if ($code === 13) { // carriage return
-                list(, $nextCode, $nextBytes) = $this->moveStringCursor(1, $bytes)->readChar();
+            } elseif ($code === 13) { // carriage return
+                [, $nextCode, $nextBytes] = $this->moveStringCursor(1, $bytes)->readChar();
 
                 if ($nextCode === 10) { // lf after cr
                     $this->moveStringCursor(1, $nextBytes);
@@ -582,9 +681,9 @@ class Lexer
      *
      * #[\u0009\u0020-\uFFFF]*
      *
-     * @param $line
-     * @param $col
-     * @param Token $prev
+     * @param int $line
+     * @param int $col
+     *
      * @return Token
      */
     private function readComment($line, $col, Token $prev)
@@ -594,12 +693,11 @@ class Lexer
         $bytes = 1;
 
         do {
-            list ($char, $code, $bytes) = $this->moveStringCursor(1, $bytes)->readChar();
-            $value .= $char;
-        } while (
-            $code &&
-            // SourceCharacter but not LineTerminator
-            ($code > 0x001F || $code === 0x0009)
+            [$char, $code, $bytes] = $this->moveStringCursor(1, $bytes)->readChar();
+            $value                .= $char;
+        } while ($code &&
+        // SourceCharacter but not LineTerminator
+        ($code > 0x001F || $code === 0x0009)
         );
 
         return new Token(
@@ -617,8 +715,9 @@ class Lexer
      * Reads next UTF8Character from the byte stream, starting from $byteStreamPosition.
      *
      * @param bool $advance
-     * @param int $byteStreamPosition
-     * @return array
+     * @param int  $byteStreamPosition
+     *
+     * @return (string|int)[]
      */
     private function readChar($advance = false, $byteStreamPosition = null)
     {
@@ -626,9 +725,9 @@ class Lexer
             $byteStreamPosition = $this->byteStreamPosition;
         }
 
-        $code = null;
-        $utf8char = '';
-        $bytes = 0;
+        $code           = null;
+        $utf8char       = '';
+        $bytes          = 0;
         $positionOffset = 0;
 
         if (isset($this->source->body[$byteStreamPosition])) {
@@ -636,7 +735,7 @@ class Lexer
 
             if ($ord < 128) {
                 $bytes = 1;
-            } else if ($ord < 224) {
+            } elseif ($ord < 224) {
                 $bytes = 2;
             } elseif ($ord < 240) {
                 $bytes = 3;
@@ -649,7 +748,7 @@ class Lexer
                 $utf8char .= $this->source->body[$pos];
             }
             $positionOffset = 1;
-            $code = $bytes === 1 ? $ord : Utils::ord($utf8char);
+            $code           = $bytes === 1 ? $ord : Utils::ord($utf8char);
         }
 
         if ($advance) {
@@ -662,40 +761,44 @@ class Lexer
     /**
      * Reads next $numberOfChars UTF8 characters from the byte stream, starting from $byteStreamPosition.
      *
-     * @param $numberOfChars
+     * @param int  $charCount
      * @param bool $advance
      * @param null $byteStreamPosition
-     * @return array
+     *
+     * @return (string|int)[]
      */
-    private function readChars($numberOfChars, $advance = false, $byteStreamPosition = null)
+    private function readChars($charCount, $advance = false, $byteStreamPosition = null)
     {
-        $result = '';
+        $result     = '';
         $totalBytes = 0;
         $byteOffset = $byteStreamPosition ?: $this->byteStreamPosition;
 
-        for ($i = 0; $i < $numberOfChars; $i++) {
-            list ($char, $code, $bytes) = $this->readChar(false, $byteOffset);
-            $totalBytes += $bytes;
-            $byteOffset += $bytes;
-            $result .= $char;
+        for ($i = 0; $i < $charCount; $i++) {
+            [$char, $code, $bytes] = $this->readChar(false, $byteOffset);
+            $totalBytes           += $bytes;
+            $byteOffset           += $bytes;
+            $result               .= $char;
         }
         if ($advance) {
-            $this->moveStringCursor($numberOfChars, $totalBytes);
+            $this->moveStringCursor($charCount, $totalBytes);
         }
+
         return [$result, $totalBytes];
     }
 
     /**
      * Moves internal string cursor position
      *
-     * @param $positionOffset
-     * @param $byteStreamOffset
-     * @return $this
+     * @param int $positionOffset
+     * @param int $byteStreamOffset
+     *
+     * @return self
      */
     private function moveStringCursor($positionOffset, $byteStreamOffset)
     {
-        $this->position += $positionOffset;
+        $this->position           += $positionOffset;
         $this->byteStreamPosition += $byteStreamOffset;
+
         return $this;
     }
 }

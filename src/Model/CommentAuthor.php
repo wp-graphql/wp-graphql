@@ -26,7 +26,7 @@ class CommentAuthor extends Model {
 	/**
 	 * CommentAuthor constructor.
 	 *
-	 * @param array $comment_author The incoming comment author array to be modeled
+	 * @param \WP_Comment $comment_author The incoming comment author array to be modeled
 	 *
 	 * @throws \Exception
 	 */
@@ -46,16 +46,16 @@ class CommentAuthor extends Model {
 
 			$this->fields = [
 				'id'    => function() {
-					return ! empty( $this->data['comment_id'] ) ? Relay::toGlobalId( 'commentAuthor', $this->data['comment_id'] ) : null;
+					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment_author', $this->data->comment_ID ) : null;
 				},
 				'name'  => function() {
-					return ! empty( $this->data['comment_author'] ) ? $this->data['comment_author'] : null;
+					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
 				},
 				'email' => function() {
-					return ! empty( $this->data['comment_author_email'] ) ? $this->data['comment_author_email'] : null;
+					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'url'   => function() {
-					return ! empty( $this->data['comment_author_url'] ) ? $this->data['comment_author_url'] : '';
+					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : '';
 				},
 			];
 

@@ -6,7 +6,7 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->admin = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown() {
@@ -15,6 +15,8 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test that the user role query works as expected
+	 *
+	 * @throws Exception
 	 */
 	public function testUserRoleConnectionQuery() {
 
@@ -40,10 +42,16 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		foreach ( $roles->roles as $role_name => $data ) {
 
 			$clean_node = [];
-			$node = \WPGraphQL\Data\DataSource::resolve_user_role( $role_name );
-			$clean_node['id'] = $node->id;
-			$clean_node['name'] = $node->name;
-			$clean_node['displayName'] = $node->displayName;
+
+
+			$data['slug']               = $role_name;
+			$data['id']                 = $role_name;
+			$data['displayName']        = $data['name'];
+			$data['name']               = $role_name;
+			$node                       = new \WPGraphQL\Model\UserRole( $data );
+			$clean_node['id']           = $node->id;
+			$clean_node['name']         = $node->name;
+			$clean_node['displayName']  = $node->displayName;
 			$clean_node['capabilities'] = $node->capabilities;
 
 			$nodes[]['node'] = $clean_node;

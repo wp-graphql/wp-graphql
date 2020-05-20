@@ -193,7 +193,7 @@ abstract class AbstractConnectionResolver {
 			throw new \Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
-		return $this->context->getLoader( $name );
+		return $this->context->get_loader( $name );
 	}
 
 	/**
@@ -543,10 +543,11 @@ abstract class AbstractConnectionResolver {
 		$nodes = [];
 		foreach ( $this->ids as $id ) {
 			$model = $this->get_node_by_id( $id );
-			if ( $this->is_valid_model( $model ) ) {
+			if ( true === $this->is_valid_model( $model ) ) {
 				$nodes[ $id ] = $model;
 			}
 		}
+
 		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
 
 		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;

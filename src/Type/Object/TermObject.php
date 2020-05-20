@@ -28,7 +28,6 @@ class TermObject {
 				'fields'      => [
 					$single_name . 'Id' => [
 						'type'              => 'Int',
-						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 						'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 						'resolve'           => function( Term $term, $args, $context, $info ) {

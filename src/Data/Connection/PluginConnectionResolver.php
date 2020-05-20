@@ -1,59 +1,130 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
  * @package WPGraphQL\Data\Resolvers
  * @since 0.0.5
  */
-class PluginConnectionResolver {
+class PluginConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * Creates the connection for plugins
+	 * PluginConnectionResolver constructor.
 	 *
-	 * @param mixed       $source  The query results
-	 * @param array       $args    The query arguments
-	 * @param AppContext  $context The AppContext object
-	 * @param ResolveInfo $info    The ResolveInfo object
+	 * @param $source
+	 * @param $args
+	 * @param $context
+	 * @param $info
 	 *
-	 * @since  0.5.0
-	 * @return array
-	 * @throws \Exception Throws Exception.
+	 * @throws \Exception
 	 */
-	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public function __construct( $source, $args, $context, $info ) {
+		parent::__construct( $source, $args, $context, $info );
+	}
 
-		// File has not loaded.
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		// This is missing must use and drop in plugins.
-		$plugins       = apply_filters( 'all_plugins', get_plugins() );
-		$plugins_array = [];
-		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
-			foreach ( $plugins as $plugin ) {
-				$plugin_object = DataSource::resolve_plugin( $plugin );
-				if ( 'private' !== $plugin_object->get_visibility() ) {
-					$plugins_array[] = $plugin_object;
-				}
-			}
+	/**
+	 * @return bool|int|mixed|null|string
+	 */
+	public function get_offset() {
+		$offset = null;
+		if ( ! empty( $this->args['after'] ) ) {
+			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
+		} elseif ( ! empty( $this->args['before'] ) ) {
+			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
+		}
+		return $offset;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_ids() {
+		$ids     = [];
+		$queried = $this->get_query();
+
+		if ( empty( $queried ) ) {
+			return $ids;
 		}
 
-		$connection = Relay::connectionFromArray( $plugins_array, $args );
-
-		$nodes = [];
-		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
-			foreach ( $connection['edges'] as $edge ) {
-				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
-			}
+		foreach ( $queried as $key => $item ) {
+			$ids[ $key ] = $item;
 		}
-		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
-		return ! empty( $plugins_array ) ? $connection : null;
+		return $ids;
+	}
 
+	/**
+	 * @return array|void
+	 */
+	public function get_query_args() {
+
+	}
+
+	/**
+	 * @return array|mixed
+	 */
+	public function get_query() {
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		// This is missing "must use" and "drop-in" plugins.
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+		return array_keys( $plugins );
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed|null|\WPGraphQL\Model\Model
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		return parent::get_node_by_id( $id );
+	}
+
+	/**
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function get_nodes() {
+		$nodes = parent::get_nodes();
+		if ( isset( $this->args['after'] ) ) {
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
+		}
+
+		if ( isset( $this->args['before'] ) ) {
+			$nodes = array_reverse( $nodes );
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
+			$nodes = array_reverse( $nodes );
+		}
+
+		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
+
+		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'plugin';
+	}
+
+	/**
+	 * @param $offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function should_execute() {
+		return current_user_can( 'update_plugins' );
 	}
 
 }

@@ -157,7 +157,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $attachment_id );
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$post_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**

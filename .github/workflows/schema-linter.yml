@@ -27,7 +27,7 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
-      
+
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
 

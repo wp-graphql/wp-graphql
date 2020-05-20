@@ -56,7 +56,7 @@ class DataSource {
 	 * @param AppContext $context The context of the request.
 	 *
 	 * @return Deferred object
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 *
 	 * @throws UserError Throws UserError.
 	 * @throws \Exception Throws UserError.
@@ -168,7 +168,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new PluginConnectionResolver( $source, $args, $context, $info );
+
+		return $resolver->get_connection();
 	}
 
 	/**
@@ -178,7 +180,7 @@ class DataSource {
 	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @throws UserError
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 * @return Deferred
 	 *
 	 * @throws \Exception
@@ -186,7 +188,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( $id, AppContext $context ) {
-		return $context->get_loader( 'post_object' )->load_deferred( $id );
+		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
 	/**
@@ -199,7 +201,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( $id, AppContext $context ) {
-		return $context->get_loader( 'menu_item' )->load_deferred( $id );
+		return $context->get_loader( 'nav_menu_item' )->load_deferred( $id );
 	}
 
 	/**
@@ -284,12 +286,12 @@ class DataSource {
 	 *
 	 * @return mixed
 	 * @throws \Exception
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 *
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
-		return $context->get_loader( 'term_object' )->load_deferred( $id );
+		return $context->get_loader( 'term' )->load_deferred( $id );
 	}
 
 	/**
@@ -355,7 +357,7 @@ class DataSource {
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 * @throws \Exception
 	 *
 	 * @deprecated Use the Loader passed in $context instead
@@ -444,7 +446,10 @@ class DataSource {
 	 * @return array
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+
+		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
+
+		return $resolver->get_connection();
 	}
 
 	/**
@@ -572,7 +577,7 @@ class DataSource {
 		if ( null === self::$node_definition ) {
 
 			$node_definition = Relay::nodeDefinitions(
-				// The ID fetcher definition
+			// The ID fetcher definition
 				function( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},
@@ -622,6 +627,9 @@ class DataSource {
 				case $node instanceof CommentAuthor:
 					$type = 'CommentAuthor';
 					break;
+				case $node instanceof \_WP_Dependency:
+					$type = isset( $node->type ) ? $node->type : null;
+					break;
 				default:
 					$type = null;
 			}
@@ -667,6 +675,7 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
+
 		if ( empty( $global_id ) ) {
 			throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 		}
@@ -690,68 +699,14 @@ class DataSource {
 			 *
 			 * @since 0.0.5
 			 */
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-			$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
-			switch ( $id_components['type'] ) {
-				case in_array( $id_components['type'], $allowed_post_types, true ):
-					$node = self::resolve_post_object( $id_components['id'], $context );
-					break;
-				case in_array( $id_components['type'], $allowed_taxonomies, true ):
-					$node = self::resolve_term_object( $id_components['id'], $context );
-					break;
-				case 'comment':
-					$node = self::resolve_comment( $id_components['id'], $context );
-					break;
-				case 'commentAuthor':
-					$node = self::resolve_comment_author( $id_components['id'] );
-					break;
-				case 'plugin':
-					$node = self::resolve_plugin( $id_components['id'] );
-					break;
-				case 'contentType':
-					$node = self::resolve_post_type( $id_components['id'] );
-					break;
-				case 'taxonomy':
-					$node = self::resolve_taxonomy( $id_components['id'] );
-					break;
-				case 'theme':
-					$node = self::resolve_theme( $id_components['id'] );
-					break;
-				case 'user':
-					$user_id = absint( $id_components['id'] );
-					return $context->get_loader( 'user' )->load_deferred( $user_id );
-					break;
-				default:
-					/**
-					 * Add a filter to allow externally registered node types to resolve based on
-					 * the id_components
-					 *
-					 * @param int    $id   The id of the node, from the global ID
-					 * @param string $type The type of node to resolve, from the global ID
-					 *
-					 * @since 0.0.6
-					 */
-					$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'], $context );
-					break;
+			$loader = $context->get_loader( $id_components['type'] );
 
+			if ( $loader ) {
+				return $loader->load_deferred( $id_components['id'] );
 			}
 
-			/**
-			 * If the $node is not properly resolved, throw an exception
-			 *
-			 * @since 0.0.6
-			 */
-			if ( ! $node ) {
-				throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
-			}
-
-			/**
-			 * Return the resolved $node
-			 *
-			 * @since 0.0.5
-			 */
-			return $node;
+			return null;
 
 		} else {
 			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
@@ -797,7 +752,6 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
-
 		$node_resolver = new NodeResolver();
 
 		return $node_resolver->resolve_uri( $uri );

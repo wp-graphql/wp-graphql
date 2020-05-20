@@ -52,9 +52,52 @@ class WPObjectType extends ObjectType {
 		$this->type_registry = $type_registry;
 
 		/**
+		 * Filter the config of WPObjectType
+		 *
+		 * @param array        $config Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPObjectType $this   The instance of the WPObjectType class
+		 */
+		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
+
+		/**
 		 * Set the Types to start with capitals
 		 */
 		$config['name'] = ucfirst( $config['name'] );
+
+		$interfaces = isset( $config['interfaces'] ) ? $config['interfaces'] : [];
+
+		/**
+		 * Filters the interfaces applied to an object type
+		 *
+		 * @param array        $interfaces List of interfaces applied to the Object Type
+		 * @param array        $config     The config for the Object Type
+		 * @param WPObjectType $this       The WPObjectType instance
+		 */
+		$interfaces               = apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $this );
+		$config['interfaceNames'] = $interfaces;
+
+		/**
+		 * Convert Interfaces from Strings to Types
+		 */
+		$config['interfaces'] = function() use ( $config, $interfaces ) {
+			$new_interfaces = [];
+			if ( ! empty( $interfaces ) && is_array( $interfaces ) ) {
+				foreach ( $interfaces as $interface_name ) {
+					$interface_type = null;
+					if ( is_string( $interface_name ) ) {
+						$interface_type = $this->type_registry->get_type( $interface_name );
+					} elseif ( $interface_name instanceof WPInterfaceType ) {
+						$interface_type = $interface_name;
+					}
+
+					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
+						$new_interfaces[ $interface_name ] = $interface_type;
+					}
+				}
+			}
+
+			return $new_interfaces;
+		};
 
 		/**
 		 * Setup the fields
@@ -70,19 +113,19 @@ class WPObjectType extends ObjectType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $config['interfaces'] ) ) {
-				// Throw if "interfaces" invalid.
-				if ( ! is_array( $config['interfaces'] ) ) {
+			if ( ! empty( $config['interfaceNames'] ) ) {
+				// Throw if "interfaceNames" invalid.
+				if ( ! is_array( $config['interfaceNames'] ) ) {
 					throw new UserError(
 						sprintf(
-							/* translators: %s: type name */
-							__( 'Invalid value provided as "interfaces" on %s.', 'wp-graphql' ),
+						/* translators: %s: type name */
+							__( 'Invalid value provided as "interfaceNames" on %s.', 'wp-graphql' ),
 							$config['name']
 						)
 					);
 				}
 
-				foreach ( $config['interfaces'] as $interface_name ) {
+				foreach ( $config['interfaceNames'] as $interface_name ) {
 					$interface_type = null;
 					if ( is_string( $interface_name ) ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
@@ -96,6 +139,7 @@ class WPObjectType extends ObjectType {
 							$interface_fields[ $interface_field->name ] = $interface_field->config;
 						}
 					}
+
 					$fields = array_replace_recursive( $interface_fields, $fields );
 				}
 			}
@@ -107,40 +151,9 @@ class WPObjectType extends ObjectType {
 		};
 
 		/**
-		 * Convert Interfaces from Strings to Types
-		 */
-		$config['interfaces'] = function() use ( $config ) {
-			$interfaces = [];
-			if ( ! empty( $config['interfaces'] ) && is_array( $config['interfaces'] ) ) {
-				foreach ( $config['interfaces'] as $interface_name ) {
-					$interface_type = null;
-					if ( is_string( $interface_name ) ) {
-						$interface_type = $this->type_registry->get_type( $interface_name );
-					} elseif ( $interface_name instanceof WPInterfaceType ) {
-						$interface_type = $interface_name;
-					}
-
-					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
-						$interfaces[ $interface_name ] = $interface_type;
-					}
-				}
-			}
-
-			return $interfaces;
-		};
-
-		/**
-		 * Filter the config of WPObjectType
-		 *
-		 * @param array  $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPObjectType $this   The instance of the WPObjectType class
-		 */
-		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
-
-		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
-		 * @param array  $config Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param array        $config Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param WPObjectType $this   The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
@@ -187,9 +200,9 @@ class WPObjectType extends ObjectType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array  $fields    The array of fields for the object config
-		 * @param string $type_name The name of the object type
-		 * @param WPObjectType $this The WPObjectType Class
+		 * @param array        $fields        The array of fields for the object config
+		 * @param string       $type_name     The name of the object type
+		 * @param WPObjectType $this          The WPObjectType Class
 		 * @param TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
@@ -206,8 +219,8 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
-		 * @param WPObjectType $this The WPObjectType Class
+		 * @param array        $fields        The array of fields for the object config
+		 * @param WPObjectType $this          The WPObjectType Class
 		 * @param TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
@@ -218,8 +231,8 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
-		 * @param WPObjectType $this The WPObjectType Class
+		 * @param array        $fields        The array of fields for the object config
+		 * @param WPObjectType $this          The WPObjectType Class
 		 * @param TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );

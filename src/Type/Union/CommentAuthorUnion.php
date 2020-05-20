@@ -24,10 +24,8 @@ class CommentAuthorUnion {
 
 					if ( $source instanceof User ) {
 						$type = $type_registry->get_type( 'User' );
-
 					} else {
 						$type = $type_registry->get_type( 'CommentAuthor' );
-
 					}
 
 					return $type;

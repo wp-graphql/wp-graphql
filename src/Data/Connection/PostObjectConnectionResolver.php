@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
@@ -72,14 +73,25 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return string
 	 */
 	public function get_loader_name() {
-		return 'post_object';
+		return 'post';
 	}
 
 	/**
+	 * Returns the query being executed
+	 *
 	 * @return \WP_Query
+	 *
+	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_Query( $this->query_args );
+
+		$query = new \WP_Query( $this->query_args );
+
+		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
+			throw new InvariantViolation( __( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
+		}
+
+		return $query;
 	}
 
 	/**

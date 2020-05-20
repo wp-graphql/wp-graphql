@@ -63,11 +63,13 @@ abstract class AbstractDataLoader {
 	 */
 	public function load_deferred( $database_id ) {
 
-		if ( empty( $database_id ) || ! absint( $database_id ) ) {
+		if ( empty( $database_id ) ) {
 			return null;
 		}
 
-		$this->buffer( [ absint( $database_id ) ] );
+		$database_id = absint( $database_id ) ? absint( $database_id ) : sanitize_text_field( $database_id );
+
+		$this->buffer( [ $database_id ] );
 
 		return new Deferred(
 			function() use ( $database_id ) {
@@ -288,7 +290,7 @@ abstract class AbstractDataLoader {
 			}
 		}
 		// Re-include previously-cached entries to result:
-		$result       += array_intersect_key( $this->cached, $this->buffer );
+		$result      += array_intersect_key( $this->cached, $this->buffer );
 		$this->buffer = [];
 
 		return $result;

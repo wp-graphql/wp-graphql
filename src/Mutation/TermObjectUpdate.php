@@ -86,7 +86,7 @@ class TermObjectUpdate {
 			/**
 			 * Ensure the type for the Global ID matches the type being mutated
 			 */
-			if ( empty( $id_parts['type'] ) || $taxonomy->name !== $id_parts['type'] ) {
+			if ( empty( $id_parts['type'] ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being edited
 				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
 			}
@@ -107,6 +107,11 @@ class TermObjectUpdate {
 					// Translators: The placeholder is the name of the taxonomy for the term being deleted
 					throw new UserError( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
 				}
+			}
+
+			if ( $taxonomy->name !== $existing_term->taxonomy ) {
+				// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
+				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $post_type_object->name ) );
 			}
 
 			/**

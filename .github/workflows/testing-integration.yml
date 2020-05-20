@@ -14,20 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '7.3', '7.2']
-        wordpress: ['5.3.2', '5.4']
+        php: ['7.4', '7.3', '7.2' ]
+        wordpress: ['5.3.2', '5.4.1']
         include:
           - php: '7.4'
-            wordpress: '5.3.2'
+            wordpress: '5.4.1'
             coverage: true
-
-        exclude:
-          - php: '7.3'
-            wordpress: '4.9'
-          - php: '7.2'
-            wordpress: '4.9'
-          - php: '7.0'
-            wordpress: '5.3'
       fail-fast: false
     name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
@@ -42,12 +34,11 @@ jobs:
           ./bin/run-docker-tests.sh 'wpunit'
           ./bin/run-docker-tests.sh 'functional'
           ./bin/run-docker-tests.sh 'acceptance'
-
       - name: Setup PHP
         if: matrix.coverage == true
         uses: shivammathur/setup-php@v1
         with:
-          php-version: 7.3
+          php-version: 7.4.5
           extensions: mbstring, intl
           tools: composer
       - name: Upload coverage to codecov

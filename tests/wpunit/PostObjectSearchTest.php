@@ -8,7 +8,6 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $query;
 	public $app_context;
-	public $app_info;
 	public $subscriber;
 
 	public function setUp() {
@@ -36,7 +35,6 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->app_context = new \WPGraphQL\AppContext();
 
-		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
 
 		$this->query = '
 		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String $where:RootQueryToPostConnectionWhereArgs) {

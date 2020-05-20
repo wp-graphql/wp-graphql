@@ -229,10 +229,9 @@ class RootQuery {
 								],
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
-
-							return DataSource::resolve_plugin( $id_components['id'] );
+							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
 					'termNode'    => [
@@ -504,7 +503,6 @@ class RootQuery {
 					$post_type_object->graphql_single_name . 'By',
 					[
 						'type'              => $post_type_object->graphql_single_name,
-						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
 						'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 						'args'              => $post_by_args,

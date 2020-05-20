@@ -18,7 +18,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @var
+	 * @var string
 	 */
 	protected $taxonomy;
 
@@ -216,7 +216,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return string
 	 */
 	public function get_loader_name() {
-		return 'term_object';
+		return 'term';
 	}
 
 	/**
