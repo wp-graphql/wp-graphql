@@ -35,7 +35,7 @@ class PostObjectMutation {
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_post/
 		 */
 		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
+		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && absint( $author_id_parts['id'] ) ) {
 			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
 		}
 
