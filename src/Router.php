@@ -136,7 +136,7 @@ class Router {
 		 *
 		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
-		$is_graphql_http_request = apply_filters( 'is_graphql_http_request', $is_graphql_http_request );
+		$is_graphql_http_request = apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 
 		/**
 		 * If true, return right away. This allows custom code to
@@ -150,13 +150,13 @@ class Router {
 		// Check the server to determine if the GraphQL endpoint is being requested
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
-			            . wp_unslash( $_SERVER['REQUEST_URI'] );
+						. wp_unslash( $_SERVER['REQUEST_URI'] );
 			$needle   = site_url( self::$route );
 
 			// Strip protocol.
-			$haystack = preg_replace( '#^(http(s)?://)#', '', $haystack );
-			$needle   = preg_replace( '#^(http(s)?://)#', '', $needle );
-			$len      = strlen( $needle );
+			$haystack                = preg_replace( '#^(http(s)?://)#', '', $haystack );
+			$needle                  = preg_replace( '#^(http(s)?://)#', '', $needle );
+			$len                     = strlen( $needle );
 			$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
 		}
 
