@@ -16,6 +16,7 @@ use WPGraphQL\Data\Loader\TermObjectLoader;
 use WPGraphQL\Data\Loader\ThemeLoader;
 use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
+use WPGraphQL\Model\Term;
 
 /**
  * Class AppContext
@@ -93,6 +94,7 @@ class AppContext {
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
 			'nav_menu_item'       => new MenuItemLoader( $this ),
+			'nav_menu'            => new TermObjectLoader( $this ),
 			'plugin'              => new PluginLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
