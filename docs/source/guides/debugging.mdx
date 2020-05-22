@@ -82,7 +82,7 @@ resolvers are the slowest, which enables you to pinpoint bottlenecks.
 ## Resolver not executing properly
 
 If you’re experiencing a field resolving differently then expected, one way to debug would be to
-`var_dump()` within the resolver, and inspect with WPGraphiQL and your network tab.
+`wp_send_json()` within the resolver, and use GraphiQL to inspect the response.
 
 For example:
 
@@ -92,18 +92,9 @@ add_action( 'graphql_register_types', function() {
     'type' => 'String',
     'description' => __( 'Field registered to demonstrate debugging', 'wp-graphql' ),
     'resolve' => function( $root, $args, $context, $info ) {
-      var_dump( $root );
-      var_dump( $args );
-      var_dump( $context );
-      var_dump( $info );
-      die();
+      // This will send a JSON payload back to GraphiQL
+      wp_send_json( [ $root, $args ]);
     }
   ] );
 } );
 ```
-
-**Here's a GIF showing how to use the Network tab to inspect the `var_dump()` output:**
-
-![Screenshot showing debugging with the Chrome network tab](https://github.com/wp-graphql/wp-graphql/blob/master/docs/source/images/wpgraphql-debug-with-network-tab.gif)
-
-_Screenshot showing debugging with the Chrome network tab_
