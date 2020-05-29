@@ -8,7 +8,12 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:docs": "rm -rf hookdocs/ && jsdoc -c hookdoc-conf.json"
+  },
+  "devDependencies": {
+    "jsdoc": "~3.6.3",
+    "wp-hookdoc": "^0.2.0"
   },
   "repository": {
     "type": "git",
