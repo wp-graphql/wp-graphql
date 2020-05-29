@@ -3,7 +3,7 @@ name: Build Hook Docs
 on:
  push:
    branches:
-    - master
+    - docs-actions
 
 jobs:
   hookdocs:
