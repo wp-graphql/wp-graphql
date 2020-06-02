@@ -120,6 +120,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			]
 		]);
 
+		codecept_debug( $results );
+
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 

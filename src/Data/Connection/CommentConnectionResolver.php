@@ -40,11 +40,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['status'] = 'approve';
 
 		/**
-		 * Set the default comment_parent for Comment Queries to be "0" to only get top level comments
-		 */
-		$query_args['parent'] = 0;
-
-		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
 		 * @since 0.0.6
@@ -112,25 +107,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Pass the graphql $this->args to the WP_Query
 		 */
 		$query_args['graphql_args'] = $this->args;
-
-		/**
-		 * Handle setting dynamic $query_args based on the source (higher level query)
-		 */
-		if ( true === is_object( $this->source ) ) {
-			switch ( true ) {
-				case $this->source instanceof Post:
-					$query_args['post_id'] = absint( $this->source->ID );
-					break;
-				case $this->source instanceof User:
-					$query_args['user_id'] = absint( $this->source->userId );
-					break;
-				case $this->source instanceof Comment:
-					$query_args['parent'] = absint( $this->source->commentId );
-					break;
-				default:
-					break;
-			}
-		}
 
 		/**
 		 * We only want to query IDs because deferred resolution will resolve the full

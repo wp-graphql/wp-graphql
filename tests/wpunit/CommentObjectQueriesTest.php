@@ -96,27 +96,33 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				agent
 				approved
 				author{
-				    __typename
-					...on User {
-					  userId
+				   node {
+					    __typename
+						...on User {
+						  userId
+						}
 					}
 				}
 				authorIp
 				commentId
-				children {
+				replies {
 					edges {
 						node {
 							id
 							commentId
 							parent {
-								commentId
+							    node {
+									commentId
+								}
 							}
 						}
 					}
 				}
 				commentedOn {
-					... on Post {
-						id
+					node {
+						... on Post {
+							id
+						}
 					}
 				}
 				content
@@ -125,7 +131,9 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				id
 				karma
 				parent {
-					id
+				   node {
+					  id
+					}
 				}
 				type
 			}
@@ -147,11 +155,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'agent'       => null,
 					'approved'    => true,
 					'author'      => [
-						'__typename' => 'User',
-						'userId' => $this->admin,
+						'node' => [
+							'__typename' => 'User',
+							'userId' => $this->admin,
+						]
 					],
 					'authorIp'    => null,
-					'children'    => [
+					'replies'    => [
 						'edges' => [],
 					],
 					'commentId'   => $comment_id,
@@ -204,11 +214,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				agent
 				approved
 				author{
-					...on CommentAuthor {
-					  id
-					  name
-					  email
-					  url
+				    node {
+						...on CommentAuthor {
+						  id
+						  name
+						  email
+						  url
+						}
 					}
 				}
 			}
@@ -230,10 +242,12 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'agent'    => null,
 					'approved' => true,
 					'author'   => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
-						'name'  => get_comment_author( $comment_id ),
-						'email' => get_comment_author_email( $comment_id ),
-						'url'   => get_comment_author_url( $comment_id ),
+						'node' => [
+							'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+							'name'  => get_comment_author( $comment_id ),
+							'email' => get_comment_author_email( $comment_id ),
+							'url'   => get_comment_author_url( $comment_id ),
+						],
 					],
 				],
 			],
@@ -300,7 +314,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			comment(id: \"{$global_id}\") {
-				children {
+				replies {
 					edges {
 						node {
 							commentId
@@ -310,14 +324,18 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				commentId
 				commentedOn {
-					... on Post {
-						content
+				    node {
+						... on Post {
+							content
+						}
 					}
 				}
 				content
 				parent {
-					commentId
-					content
+				    node {
+						commentId
+						content
+					}
 				}
 			}
 		}";
@@ -335,7 +353,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'data' => [
 				'comment' => [
-					'children'    => [
+					'replies'    => [
 						'edges' => [
 							[
 								'node' => [
@@ -353,12 +371,16 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'commentId'   => $comment_id,
 					'commentedOn' => [
-						'content' => apply_filters( 'the_content', 'Post object' ),
+						'node' => [
+							'content' => apply_filters( 'the_content', 'Post object' ),
+						]
 					],
 					'content'     => apply_filters( 'comment_text', 'Test comment' ),
 					'parent'      => [
-						'commentId' => $parent_comment,
-						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
+						'node' => [
+							'commentId' => $parent_comment,
+							'content'   => apply_filters( 'comment_text', 'Parent comment' ),
+						],
 					],
 				],
 			],
@@ -409,8 +431,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    karma
 		    content
 		    commentedOn{
-		      ... on Post{
-		        postId
+		      node {
+			      ... on Post{
+			        postId
+			      }
 		      }
 		    }
 		  }
@@ -445,6 +469,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @dataProvider dataProviderSwitchUser
 	 * @param $user
 	 * @param $should_display
+	 * @throws Exception
 	 */
 	public function testUnapprovedCommentsNotQueryableWithoutAuth( $user, $should_display ) {
 
@@ -480,8 +505,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    karma
 		    content
 		    commentedOn{
-		      ... on Post{
-		        postId
+		      node {
+			    ... on Post{
+			      postId
+			    }
 		      }
 		    }
 		  }
@@ -490,7 +517,12 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$user} );
 		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
+
+		codecept_debug( $admin_actual );
+
 		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
+
+		codecept_debug( $subscriber_actual );
 
 		if ( true === $should_display ) {
 			$this->assertArrayNotHasKey( 'errors', $admin_actual );

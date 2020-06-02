@@ -36,8 +36,8 @@ class Taxonomies {
 								return null;
 							}
 							$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-							$resolver->setQueryArg( 'name', $source->taxonomyName );
-							return $resolver->get_connection();
+							$resolver->set_query_arg( 'name', $source->taxonomyName );
+							return $resolver->one_to_one()->get_connection();
 						},
 					]
 				);

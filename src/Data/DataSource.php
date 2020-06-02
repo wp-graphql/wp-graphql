@@ -18,6 +18,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\CommentAuthor;
+use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -601,7 +602,12 @@ class DataSource {
 
 			switch ( true ) {
 				case $node instanceof Post:
-					$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					if ( $node->isRevision ) {
+						$parent_post_type = get_post( $node->parentDatabaseId )->post_type;
+						$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+					} else {
+						$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					}
 					break;
 				case $node instanceof Term:
 					$type = get_taxonomy( $node->taxonomyName )->graphql_single_name;

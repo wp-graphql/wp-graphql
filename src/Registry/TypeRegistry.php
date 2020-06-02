@@ -7,10 +7,12 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use WPGraphQL\Connection\Commenter;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\ContentTypes;
 use WPGraphQL\Connection\EnqueuedScripts;
 use WPGraphQL\Connection\EnqueuedStylesheets;
+use WPGraphQL\Connection\MediaItems;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\Menus;
 use WPGraphQL\Connection\Plugins;
@@ -49,10 +51,12 @@ use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\CommenterInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
+use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
 use WPGraphQL\Type\InterfaceType\NodeWithContentEditor;
@@ -71,7 +75,6 @@ use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
-use WPGraphQL\Type\Union\CommentAuthorUnion;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
 use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\MediaItemSizeEnum;
@@ -97,7 +100,6 @@ use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Object\Avatar;
 use WPGraphQL\Type\Object\Comment;
 use WPGraphQL\Type\Object\CommentAuthor;
-use WPGraphQL\Type\Object\EditLock;
 use WPGraphQL\Type\Object\MediaDetails;
 use WPGraphQL\Type\Object\MediaItemMeta;
 use WPGraphQL\Type\Object\MediaSize;
@@ -214,9 +216,11 @@ class TypeRegistry {
 
 		// Register Interfaces.
 		Node::register_type();
+		CommenterInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
 		EnqueuedAsset::register_type( $type_registry );
+		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -238,7 +242,6 @@ class TypeRegistry {
 		Avatar::register_type();
 		Comment::register_type();
 		CommentAuthor::register_type();
-		EditLock::register_type();
 		EnqueuedStylesheet::register_type();
 		EnqueuedScript::register_type();
 		MediaDetails::register_type();
@@ -287,7 +290,6 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		CommentAuthorUnion::register_type( $this );
 		ContentRevisionUnion::register_type( $this );
 		ContentTemplateUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
@@ -298,8 +300,10 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
+		Commenter::register_connections();
 		EnqueuedScripts::register_connections();
 		EnqueuedStylesheets::register_connections();
+		MediaItems::register_connections();
 		Menus::register_connections();
 		MenuItems::register_connections();
 		Plugins::register_connections();
@@ -839,38 +843,10 @@ class TypeRegistry {
 
 		}
 
-		$this->register_object_type(
-			$connection_name . 'Edge',
-			[
-				'description' => __( 'An edge in a connection', 'wp-graphql' ),
-				'fields'      => array_merge(
-					[
-						'cursor' => [
-							'type'        => 'String',
-							'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-							'resolve'     => $resolve_cursor,
-						],
-						'node'   => [
-							'type'        => $to_type,
-							'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-							'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
-								if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
-									return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
-								} else {
-									return $source['node'];
-								}
-							},
-						],
-					],
-					$edge_fields
-				),
-			]
-		);
-
 		if ( true === $one_to_one ) {
 
 			$this->register_object_type(
-				$connection_name,
+				$connection_name . 'Edge',
 				[
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 					'fields'      => array_merge(
@@ -878,22 +854,6 @@ class TypeRegistry {
 							'node' => [
 								'type'        => $to_type,
 								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
-									$nodes = [];
-
-									if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-										if ( is_callable( $resolve_node ) ) {
-											foreach ( $source['nodes'] as $node ) {
-												$nodes[] = $resolve_node( $node, $args, $context, $info );
-											}
-										} else {
-											// Return the first item from the nodes array
-											return $source['nodes'][ array_key_first( $source['nodes'] ) ];
-										}
-									}
-
-									return null;
-								},
 							],
 						],
 						$edge_fields
@@ -902,6 +862,34 @@ class TypeRegistry {
 			);
 
 		} else {
+
+			$this->register_object_type(
+				$connection_name . 'Edge',
+				[
+					'description' => __( 'An edge in a connection', 'wp-graphql' ),
+					'fields'      => array_merge(
+						[
+							'cursor' => [
+								'type'        => 'String',
+								'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
+								'resolve'     => $resolve_cursor,
+							],
+							'node'   => [
+								'type'        => $to_type,
+								'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
+								'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
+									if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
+										return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
+									} else {
+										return $source['node'];
+									}
+								},
+							],
+						],
+						$edge_fields
+					),
+				]
+			);
 
 			$this->register_object_type(
 				$connection_name,
@@ -976,36 +964,10 @@ class TypeRegistry {
 			$from_type,
 			$from_field_name,
 			[
-				'type'        => $connection_name,
+				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
 				'args'        => array_merge( $pagination_args, $where_args ),
 				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name ) {
-
-					/**
-					 * Set the connection args context. Use base64_encode( wp_json_encode( $args ) ) to prevent conflicts as there can be
-					 * numerous instances of the same connection within any given query. If the connection
-					 * has the same args, we can use the existing cached args instead of storing new context
-					 */
-					$connection_id = $connection_name . ':' . base64_encode( wp_json_encode( $args ) );
-
-					/**
-					 * Set the previous connection by getting the currentConnection
-					 */
-					$context->prevConnection = isset( $context->currentConnection ) ? $context->currentConnection : null;
-
-					/**
-					 * Set the currentConnection using the $connectionId
-					 */
-					$context->currentConnection = $connection_id;
-
-					/**
-					 * Set the connectionArgs if they haven't already been set
-					 * (it's possible, although rare, to have multiple connections in a single query with the same args)
-					 */
-					if ( ! isset( $context->connectionArgs[ $connection_id ] ) ) {
-						$context->connectionArgs[ $connection_id ] = $args;
-					}
-
+				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name, $one_to_one ) {
 					/**
 					 * Return the results
 					 */

@@ -71,7 +71,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TaxonomyChildren {
-		  bootstrapTerms {
+		  bootstrapTerms(where:{parent:0}) {
 		    nodes {
 			  name
 			  children {
@@ -92,6 +92,8 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query'     => $query,
 		] );
+
+		codecept_debug( $actual );
 
 		$this->assertEquals( 'child', $actual['data']['bootstrapTerms']['nodes'][0]['children']['nodes'][0]['name'] );
 
