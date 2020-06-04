@@ -98,6 +98,7 @@ class Post extends Model {
 
 	/**
 	 * Whether to filter revision meta
+	 *
 	 * @var bool
 	 */
 	protected $filter_revision_meta;
@@ -124,8 +125,8 @@ class Post extends Model {
 		 */
 		if ( 'revision' === $post->post_type && ! empty( $post->post_parent ) ) {
 			$this->filter_revision_meta = true;
-			$parent                 = get_post( absint( $post->post_parent ) );
-			$this->post_type_object = get_post_type_object( $parent->post_type );
+			$parent                     = get_post( absint( $post->post_parent ) );
+			$this->post_type_object     = get_post_type_object( $parent->post_type );
 		}
 
 		/**
@@ -151,7 +152,6 @@ class Post extends Model {
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
 
 		$restricted_cap = $this->get_restricted_cap();
-
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, $post->post_author );
 
@@ -252,7 +252,7 @@ class Post extends Model {
 		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
 
 		if ( true === $resolve_revision_meta_from_parent && 'revision' === get_post( $object_id )->post_type ) {
-			$meta = get_post_meta( get_post( $object_id )->post_parent, $meta_key, $single );
+			$meta                       = get_post_meta( get_post( $object_id )->post_parent, $meta_key, $single );
 			$this->filter_revision_meta = false;
 			return $meta;
 		}
@@ -640,14 +640,7 @@ class Post extends Model {
 				'isRevision'                => function() {
 					return 'revision' === $this->data->post_type ? true : false;
 				},
-				'previewRevisionDatabaseId' => function() {
-					if ( $this->isPreview ) {
-						return $this->data->ID;
-					}
-
-					return null;
-				},
-				'previewRevisionId'         => [
+				'previewRevisionDatabaseId' => [
 					'callback'   => function() {
 						$revisions = wp_get_post_revisions( $this->data->ID, [
 							'posts_per_page' => 1,
@@ -658,6 +651,9 @@ class Post extends Model {
 					},
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
+				'previewRevisionId'         => function() {
+					return ! empty( $this->previewRevisionDatabaseId ) ? Relay::toGlobalId( 'post', $this->previewRevisionDatabaseId ) : null;
+				},
 				'isPreview'                 => function() {
 					if ( $this->isRevision ) {
 						$revisions = wp_get_post_revisions( $this->parentDatabaseId, [

@@ -99,7 +99,7 @@ class Comment extends Model {
 				'commentId'          => function() {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
-				'databaseId'          => function() {
+				'databaseId'         => function() {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function() {

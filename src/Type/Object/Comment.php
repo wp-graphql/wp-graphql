@@ -23,11 +23,11 @@ class Comment {
 						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
 					],
 					'commentId'    => [
-						'type'        => 'Int',
-						'description' => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
+						'type'              => 'Int',
+						'description'       => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
 						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 					],
-					'databaseId'    => [
+					'databaseId'   => [
 						'type'        => 'Int',
 						'description' => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
 					],
