@@ -122,6 +122,43 @@ class PostObjects {
 			},
 		] );
 
+		register_graphql_connection( [
+			'fromType'      => 'HierarchicalContentNode',
+			'fromFieldName' => 'children',
+			'toType'        => 'ContentNode',
+			'resolve'       => function( Post $post, $args, $context, $info ) {
+
+				if ( $post->isRevision ) {
+					$id = $post->parentDatabaseId;
+				} else {
+					$id = $post->ID;
+				}
+
+				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
+				$resolver->set_query_arg( 'post_parent', $id );
+
+				return $resolver->get_connection();
+
+			},
+		] );
+
+		register_graphql_connection( [
+			'fromType'      => 'HierarchicalContentNode',
+			'toType'        => 'ContentNode',
+			'fromFieldName' => 'ancestors',
+			'description'   => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+			'resolve'       => function( Post $post, $args, $context, $info ) {
+				$ancestors = get_ancestors( $post->ID, null, 'post_type' );
+				if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
+					return null;
+				}
+				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
+				$resolver->set_query_arg( 'post__in', $ancestors );
+
+				return $resolver->get_connection();
+			},
+		] );
+
 		/**
 		 * Register Connections to PostObjects
 		 */
@@ -219,36 +256,6 @@ class PostObjects {
 							);
 						}
 					}
-				}
-
-				/**
-				 * Registers the connection to child items if the post_type is hierarchical
-				 */
-				if ( true === $post_type_object->hierarchical ) {
-					register_graphql_connection(
-						self::get_connection_config(
-							$post_type_object,
-							[
-								'fromType'      => $post_type_object->graphql_single_name,
-								'fromFieldName' => 'children',
-								'toType'        => 'ContentNode',
-								'resolve'       => function( Post $post, $args, $context, $info ) {
-
-									if ( $post->isRevision ) {
-										$id = $post->parentDatabaseId;
-									} else {
-										$id = $post->ID;
-									}
-
-									$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
-									$resolver->set_query_arg( 'post_parent', $id );
-
-									return $resolver->get_connection();
-
-								},
-							]
-						)
-					);
 				}
 
 				/**
