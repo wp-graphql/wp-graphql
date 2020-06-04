@@ -30,9 +30,6 @@ class Commenter {
 				 * the $comment and the Union will use that to hydrate the CommentAuthor Type
 				 */
 				if ( ! empty( $comment->userId ) ) {
-					if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
-						return null;
-					}
 					$node = $context->get_loader( 'user' )->load( absint( $comment->userId ) );
 				} else {
 					$node = ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;

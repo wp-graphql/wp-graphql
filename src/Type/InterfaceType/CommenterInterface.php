@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use WPGraphQL\Model\User;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\Object\User;
 
 /**
  * Class CommenterInterface
@@ -22,8 +22,7 @@ class CommenterInterface {
 		register_graphql_interface_type( 'Commenter', [
 			'description' => __( 'The author of a comment', 'wp-graphql' ),
 			'resolveType' => function( $comment_author ) use ( $type_registry ) {
-
-				if ( isset( $comment_author->username ) ) {
+				if ( $comment_author instanceof User ) {
 					$type = $type_registry->get_type( 'User' );
 				} else {
 					$type = $type_registry->get_type( 'CommentAuthor' );
