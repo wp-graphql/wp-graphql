@@ -1,7 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Executor;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use JsonSerializable;
+use function array_map;
 
 /**
  * Returned after [query execution](executing-queries.md).
@@ -11,13 +17,13 @@ use GraphQL\Error\FormattedError;
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`
  */
-class ExecutionResult implements \JsonSerializable
+class ExecutionResult implements JsonSerializable
 {
     /**
      * Data collected from resolvers during query execution
      *
      * @api
-     * @var array
+     * @var mixed[]
      */
     public $data;
 
@@ -28,7 +34,7 @@ class ExecutionResult implements \JsonSerializable
      * contain original exception.
      *
      * @api
-     * @var \GraphQL\Error\Error[]
+     * @var Error[]
      */
     public $errors;
 
@@ -37,29 +43,25 @@ class ExecutionResult implements \JsonSerializable
      * Conforms to
      *
      * @api
-     * @var array
+     * @var mixed[]
      */
     public $extensions;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $errorFormatter;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $errorsHandler;
 
     /**
-     * @param array $data
-     * @param array $errors
-     * @param array $extensions
+     * @param mixed[] $data
+     * @param Error[] $errors
+     * @param mixed[] $extensions
      */
-    public function __construct(array $data = null, array $errors = [], array $extensions = [])
+    public function __construct($data = null, array $errors = [], array $extensions = [])
     {
-        $this->data = $data;
-        $this->errors = $errors;
+        $this->data       = $data;
+        $this->errors     = $errors;
         $this->extensions = $extensions;
     }
 
@@ -76,13 +78,14 @@ class ExecutionResult implements \JsonSerializable
      *    // ... other keys
      * );
      *
+     * @return self
+     *
      * @api
-     * @param callable $errorFormatter
-     * @return $this
      */
     public function setErrorFormatter(callable $errorFormatter)
     {
         $this->errorFormatter = $errorFormatter;
+
         return $this;
     }
 
@@ -96,14 +99,23 @@ class ExecutionResult implements \JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
+     * @return self
+     *
      * @api
-     * @param callable $handler
-     * @return $this
      */
     public function setErrorsHandler(callable $handler)
     {
         $this->errorsHandler = $handler;
+
         return $this;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     /**
@@ -116,42 +128,35 @@ class ExecutionResult implements \JsonSerializable
      * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
      * GraphQL\Error\Debug
      *
-     * @api
      * @param bool|int $debug
-     * @return array
+     *
+     * @return mixed[]
+     *
+     * @api
      */
     public function toArray($debug = false)
     {
         $result = [];
 
-        if (!empty($this->errors)) {
-            $errorsHandler = $this->errorsHandler ?: function(array $errors, callable $formatter) {
+        if (! empty($this->errors)) {
+            $errorsHandler = $this->errorsHandler ?: static function (array $errors, callable $formatter) {
                 return array_map($formatter, $errors);
             };
+
             $result['errors'] = $errorsHandler(
                 $this->errors,
                 FormattedError::prepareFormatter($this->errorFormatter, $debug)
             );
         }
 
-        if (null !== $this->data) {
+        if ($this->data !== null) {
             $result['data'] = $this->data;
         }
 
-        if (!empty($this->extensions)) {
-            $result['extensions'] = (array) $this->extensions;
+        if (! empty($this->extensions)) {
+            $result['extensions'] = $this->extensions;
         }
 
         return $result;
-    }
-
-    /**
-     * Part of \JsonSerializable interface
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
     }
 }

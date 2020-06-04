@@ -88,13 +88,15 @@ class MediaItemMutation {
 		}
 
 		if ( ! empty( $input['parentId'] ) ) {
-
-			$parent_id_parts = ( ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null );
-
-			if ( is_array( $parent_id_parts ) && absint( $parent_id_parts['id'] ) ) {
-				$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
-			} else {
+			if ( absint( $input['parentId'] ) ) {
 				$insert_post_args['post_parent'] = absint( $input['parentId'] );
+			} else {
+
+				$parent_id_parts = ( ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null );
+
+				if ( is_array( $parent_id_parts ) && absint( $parent_id_parts['id'] ) ) {
+					$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
+				}
 			}
 		}
 

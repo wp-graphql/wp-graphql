@@ -290,7 +290,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'postIdType' => 'ID',
 			'postId'     => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
 			'pageIdType' => 'ID',
-			'pageId'     => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'pageId'     => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 		];
 
 		codecept_debug( $variables );
@@ -332,7 +332,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'postIdType' => 'ID',
 			'postId'     => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
 			'pageIdType' => 'ID',
-			'pageId'     => \GraphQLRelay\Relay::toGlobalId( 'page', $page_id ),
+			'pageId'     => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 		];
 
 		codecept_debug( $variables );

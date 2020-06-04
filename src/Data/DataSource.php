@@ -18,6 +18,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\CommentAuthor;
+use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
@@ -56,26 +57,15 @@ class DataSource {
 	 * @param AppContext $context The context of the request.
 	 *
 	 * @return Deferred object
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 *
 	 * @throws UserError Throws UserError.
 	 * @throws \Exception Throws UserError.
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_comment( $id, $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$comment_id = absint( $id );
-		$context->getLoader( 'comment' )->buffer( [ $comment_id ] );
-
-		return new Deferred(
-			function() use ( $comment_id, $context ) {
-				return $context->getLoader( 'comment' )->load( $comment_id );
-			}
-		);
-
+		return $context->get_loader( 'comment' )->load_deferred( $id );
 	}
 
 	/**
@@ -179,7 +169,9 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return PluginConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new PluginConnectionResolver( $source, $args, $context, $info );
+
+		return $resolver->get_connection();
 	}
 
 	/**
@@ -189,25 +181,15 @@ class DataSource {
 	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @throws UserError
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 * @return Deferred
 	 *
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$post_id = absint( $id );
-		$context->getLoader( 'post_object' )->buffer( [ $post_id ] );
-
-		return new Deferred(
-			function() use ( $post_id, $context ) {
-				return $context->getLoader( 'post_object' )->load( $post_id );
-			}
-		);
-
+		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
 	/**
@@ -216,19 +198,11 @@ class DataSource {
 	 *
 	 * @return Deferred|null
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( $id, AppContext $context ) {
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-		$menu_item_id = absint( $id );
-		$context->getLoader( 'menu_item' )->buffer( [ $menu_item_id ] );
-
-		return new Deferred(
-			function() use ( $menu_item_id, $context ) {
-				return $context->getLoader( 'menu_item' )->load( $menu_item_id );
-			}
-		);
+		return $context->get_loader( 'nav_menu_item' )->load_deferred( $id );
 	}
 
 	/**
@@ -313,23 +287,12 @@ class DataSource {
 	 *
 	 * @return mixed
 	 * @throws \Exception
-	 * @since  0.0.5
+	 * @since      0.0.5
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
-
-		if ( empty( $id ) || ! absint( $id ) ) {
-			return null;
-		}
-
-		$term_id = absint( $id );
-		$context->getLoader( 'term_object' )->buffer( [ $id ] );
-
-		return new Deferred(
-			function() use ( $term_id, $context ) {
-				return $context->getLoader( 'term_object' )->load( $term_id );
-			}
-		);
-
+		return $context->get_loader( 'term' )->load_deferred( $id );
 	}
 
 	/**
@@ -395,22 +358,13 @@ class DataSource {
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
-	 * @since  0.0.5
+	 * @since      0.0.5
 	 * @throws \Exception
+	 *
+	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
-
-		if ( empty( $id ) ) {
-			return null;
-		}
-		$user_id = absint( $id );
-		$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-		return new Deferred(
-			function() use ( $user_id, $context ) {
-				return $context->getLoader( 'user' )->load( $user_id );
-			}
-		);
+		return $context->get_loader( 'user' )->load_deferred( $id );
 	}
 
 	/**
@@ -493,7 +447,10 @@ class DataSource {
 	 * @return array
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return UserRoleConnectionResolver::resolve( $source, $args, $context, $info );
+
+		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
+
+		return $resolver->get_connection();
 	}
 
 	/**
@@ -621,7 +578,7 @@ class DataSource {
 		if ( null === self::$node_definition ) {
 
 			$node_definition = Relay::nodeDefinitions(
-				// The ID fetcher definition
+			// The ID fetcher definition
 				function( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},
@@ -645,7 +602,12 @@ class DataSource {
 
 			switch ( true ) {
 				case $node instanceof Post:
-					$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					if ( $node->isRevision ) {
+						$parent_post_type = get_post( $node->parentDatabaseId )->post_type;
+						$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+					} else {
+						$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					}
 					break;
 				case $node instanceof Term:
 					$type = get_taxonomy( $node->taxonomyName )->graphql_single_name;
@@ -670,6 +632,12 @@ class DataSource {
 					break;
 				case $node instanceof CommentAuthor:
 					$type = 'CommentAuthor';
+					break;
+				case $node instanceof Menu:
+					$type = 'Menu';
+					break;
+				case $node instanceof \_WP_Dependency:
+					$type = isset( $node->type ) ? $node->type : null;
 					break;
 				default:
 					$type = null;
@@ -716,6 +684,7 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
+
 		if ( empty( $global_id ) ) {
 			throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 		}
@@ -739,78 +708,14 @@ class DataSource {
 			 *
 			 * @since 0.0.5
 			 */
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-			$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
-			switch ( $id_components['type'] ) {
-				case in_array( $id_components['type'], $allowed_post_types, true ):
-					$node = self::resolve_post_object( $id_components['id'], $context );
-					break;
-				case in_array( $id_components['type'], $allowed_taxonomies, true ):
-					$node = self::resolve_term_object( $id_components['id'], $context );
-					break;
-				case 'comment':
-					$node = self::resolve_comment( $id_components['id'], $context );
-					break;
-				case 'commentAuthor':
-					$node = self::resolve_comment_author( $id_components['id'] );
-					break;
-				case 'plugin':
-					$node = self::resolve_plugin( $id_components['id'] );
-					break;
-				case 'contentType':
-					$node = self::resolve_post_type( $id_components['id'] );
-					break;
-				case 'taxonomy':
-					$node = self::resolve_taxonomy( $id_components['id'] );
-					break;
-				case 'theme':
-					$node = self::resolve_theme( $id_components['id'] );
-					break;
-				case 'user':
-					$user_id = absint( $id_components['id'] );
+			$loader = $context->get_loader( $id_components['type'] );
 
-					if ( empty( $user_id ) || ! absint( $user_id ) ) {
-						return null;
-					}
-					$context->getLoader( 'user' )->buffer( [ $user_id ] );
-
-					return new Deferred(
-						function() use ( $user_id, $context ) {
-							return $context->getLoader( 'user' )->load( $user_id );
-						}
-					);
-					break;
-				default:
-					/**
-					 * Add a filter to allow externally registered node types to resolve based on
-					 * the id_components
-					 *
-					 * @param int    $id   The id of the node, from the global ID
-					 * @param string $type The type of node to resolve, from the global ID
-					 *
-					 * @since 0.0.6
-					 */
-					$node = apply_filters( 'graphql_resolve_node', null, $id_components['id'], $id_components['type'], $context );
-					break;
-
+			if ( $loader ) {
+				return $loader->load_deferred( $id_components['id'] );
 			}
 
-			/**
-			 * If the $node is not properly resolved, throw an exception
-			 *
-			 * @since 0.0.6
-			 */
-			if ( ! $node ) {
-				throw new UserError( sprintf( __( 'No node could be found with global ID: %s', 'wp-graphql' ), $global_id ) );
-			}
-
-			/**
-			 * Return the resolved $node
-			 *
-			 * @since 0.0.5
-			 */
-			return $node;
+			return null;
 
 		} else {
 			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
@@ -856,7 +761,6 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
-
 		$node_resolver = new NodeResolver();
 
 		return $node_resolver->resolve_uri( $uri );

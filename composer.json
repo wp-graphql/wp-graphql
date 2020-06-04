@@ -22,7 +22,8 @@
     }
   ],
   "require": {
-    "webonyx/graphql-php": "0.12.6",
+    "php": "^7.1||^8.0",
+    "webonyx/graphql-php": "0.13.8",
     "ivome/graphql-relay-php": "0.3.1"
   },
   "require-dev": {
@@ -30,7 +31,9 @@
     "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
     "wp-coding-standards/wpcs": "2.1.1",
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
-    "squizlabs/php_codesniffer": "3.5.4"
+    "squizlabs/php_codesniffer": "3.5.4",
+    "phpstan/phpstan": "^0.12.25",
+    "szepeviktor/phpstan-wordpress": "^0.5.0"
   },
   "config": {
     "optimize-autoloader": true
@@ -39,19 +42,11 @@
     "psr-4": {
       "WPGraphQL\\": "src/"
     },
-    "classmap": [
-      "src/"
-    ]
+    "classmap": ["src/"]
   },
   "scripts": {
-    "phpcs-i": [
-      "@php ./vendor/bin/phpcs -i"
-    ],
-    "check-cs": [
-      "@php ./vendor/bin/phpcs"
-    ],
-    "fix-cs": [
-      "@php ./vendor/bin/phpcbf"
-    ]
+    "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
+    "check-cs": ["@php ./vendor/bin/phpcs"],
+    "fix-cs": ["@php ./vendor/bin/phpcbf"]
   }
 }

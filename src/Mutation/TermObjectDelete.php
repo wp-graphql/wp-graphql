@@ -63,7 +63,7 @@ class TermObjectDelete {
 				'resolve'     => function( $payload ) use ( $taxonomy ) {
 					$deleted = (object) $payload['termObject'];
 
-					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( $taxonomy->name, $deleted->term_id ) : null;
+					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( 'term', $deleted->term_id ) : null;
 				},
 			],
 			$taxonomy->graphql_single_name => [
@@ -97,17 +97,17 @@ class TermObjectDelete {
 			}
 
 			/**
-			 * Ensure the type for the Global ID matches the type being mutated
-			 */
-			if ( empty( $id_parts['type'] ) || $taxonomy->name !== $id_parts['type'] ) {
-				// Translators: The placeholder is the name of the taxonomy for the term being edited
-				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
-			}
-
-			/**
 			 * Get the term before deleting it
 			 */
 			$term_object = get_term( $term_id, $taxonomy->name );
+
+			/**
+			 * Ensure the type for the Global ID matches the type being mutated
+			 */
+			if ( $taxonomy->name !== $term_object->taxonomy ) {
+				// Translators: The placeholder is the name of the taxonomy for the term being edited
+				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+			}
 
 			/**
 			 * Ensure the user can delete terms of this taxonomy

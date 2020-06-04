@@ -66,6 +66,10 @@ class RootQuery {
 								'type'        => 'ContentTypeEnum',
 								'description' => __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
 							],
+							'asPreview'   => [
+								'type'        => 'Boolean',
+								'description' => __( 'Whether to return the node as a preview instance', 'wp-graphql' ),
+							],
 						],
 						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
 
@@ -89,7 +93,15 @@ class RootQuery {
 									break;
 							}
 
-							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
+							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
+								$revisions = wp_get_post_revisions( $post_id, [
+									'posts_per_page' => 1,
+									'fields'         => 'ids',
+								] );
+								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
+							}
+
+							return ! empty( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id ) : null;
 
 						},
 					],
@@ -229,10 +241,9 @@ class RootQuery {
 								],
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
-
-							return DataSource::resolve_plugin( $id_components['id'] );
+							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
 					'termNode'    => [
@@ -434,13 +445,17 @@ class RootQuery {
 						'type'        => $post_type_object->graphql_single_name,
 						'description' => sprintf( __( 'An object of the %1$s Type. %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_type_object->description ),
 						'args'        => [
-							'id'     => [
+							'id'        => [
 								'type' => [
 									'non_null' => 'ID',
 								],
 							],
-							'idType' => [
+							'idType'    => [
 								'type' => $post_type_object->graphql_single_name . 'IdType',
+							],
+							'asPreview' => [
+								'type'        => 'Boolean',
+								'description' => __( 'Whether to return the node as a preview instance', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
@@ -469,6 +484,14 @@ class RootQuery {
 									}
 									$post_id = absint( $id_components['id'] );
 									break;
+							}
+
+							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
+								$revisions = wp_get_post_revisions( $post_id, [
+									'posts_per_page' => 1,
+									'fields'         => 'ids',
+								] );
+								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
 							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
@@ -504,7 +527,6 @@ class RootQuery {
 					$post_type_object->graphql_single_name . 'By',
 					[
 						'type'              => $post_type_object->graphql_single_name,
-						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
 						'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 						'args'              => $post_by_args,

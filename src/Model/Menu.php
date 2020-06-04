@@ -48,7 +48,7 @@ class Menu extends Model {
 
 			$this->fields = [
 				'id'     => function() {
-					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'Menu', $this->data->term_id ) : null;
+					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'nav_menu', $this->data->term_id ) : null;
 				},
 				'count'  => function() {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;

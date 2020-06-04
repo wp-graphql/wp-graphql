@@ -10,6 +10,8 @@ use GraphQLRelay\Relay;
  * @property string     $id
  * @property int        $commentId
  * @property string     $commentAuthorEmail
+ * @property string     $comment_author
+ * @property string     $comment_author_url
  * @property int        $comment_ID
  * @property int        $comment_parent_id
  * @property string     $authorIp
@@ -57,6 +59,7 @@ class Comment extends Model {
 			'approved',
 			'comment_parent_id',
 			'isRestricted',
+			'userId',
 		];
 
 		$this->data = $comment;
@@ -95,19 +98,28 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
 				},
 				'commentId'          => function() {
+					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
+				},
+				'databaseId'         => function() {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function() {
 					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : 0;
 				},
 				'comment_ID'         => function() {
-					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
+					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
 				},
 				'comment_post_ID'    => function() {
 					return ! empty( $this->data->comment_post_ID ) ? absint( $this->data->comment_post_ID ) : null;
 				},
 				'comment_parent_id'  => function() {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
+				},
+				'comment_author'     => function() {
+					return ! empty( $this->data->comment_author ) ? absint( $this->data->comment_author ) : null;
+				},
+				'comment_author_url' => function() {
+					return ! empty( $this->data->comment_author_url ) ? absint( $this->data->comment_author_url ) : null;
 				},
 				'authorIp'           => function() {
 					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
@@ -123,7 +135,7 @@ class Comment extends Model {
 				},
 				'contentRendered'    => function() {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
-					return apply_filters( 'comment_text', $content );
+					return html_entity_decode( apply_filters( 'comment_text', $content ) );
 				},
 				'karma'              => function() {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
@@ -138,7 +150,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;
 				},
 				'userId'             => function() {
-					return ! empty( $this->data->user_id ) ? $this->data->user_id : null;
+					return isset( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
 				},
 			];
 

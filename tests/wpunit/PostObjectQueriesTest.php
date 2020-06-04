@@ -171,7 +171,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				author{
+				  node {
 					userId
+				  }
 				}
 				commentCount
 				commentStatus
@@ -179,12 +181,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				date
 				dateGmt
 				desiredSlug
-				editLast{
+				lastEditedBy{
+				  node {
 					userId
+				  }
 				}
-				editLock{
-					editTime
-					user{
+				editingLockedBy{
+					lockTimestamp
+					node{
 						userId
 					}
 				}
@@ -201,11 +205,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				guid
 				featuredImage{
+				  node {
 					mediaItemId
 					thumbnail: sourceUrl(size: THUMBNAIL)
 					medium: sourceUrl(size: MEDIUM)
 					full: sourceUrl(size: LARGE)
 					sourceUrl
+				  }
 				}
 			}
 		}";
@@ -226,23 +232,22 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'post' => [
 					'id'            => $global_id,
 					'author'        => [
-						'userId' => $this->admin,
+						'node' => [
+							'userId' => $this->admin,
+						]
 					],
 					'commentCount'  => null,
 					'commentStatus' => 'open',
 					'content'       => apply_filters( 'the_content', 'Test page content' ),
-					'date'          => \WPGraphQL\Types::prepare_date_response( null, $this->current_date ),
-					'dateGmt'       => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+					'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( null, $this->current_date ),
+					'dateGmt'       => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 					'desiredSlug'   => null,
-					'editLast'      => [
-						'userId' => $this->admin,
-					],
-					'editLock'      => [
-						'editTime' => \WPGraphQL\Types::prepare_date_response( null, $this->current_date ),
-						'user'     => [
+					'lastEditedBy'      => [
+						'node' => [
 							'userId' => $this->admin,
-						],
+						]
 					],
+					'editingLockedBy'      => null,
 					'enclosure'     => null,
 					'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
 					'status'        => 'publish',
@@ -256,17 +261,21 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'title'         => apply_filters( 'the_title', 'Test Title' ),
 					'guid'          => get_post( $post_id )->guid,
 					'featuredImage' => [
-						'mediaItemId' => $featured_image_id,
-						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
-						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
-						'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
-						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
+						'node' => [
+							'mediaItemId' => $featured_image_id,
+							'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
+							'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
+							'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
+							'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
+						],
 					],
 				],
 			],
 		];
 
 		wp_delete_attachment( $featured_image_id, true );
+
+		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual );
 
@@ -329,9 +338,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				featuredImage {
+				  node {
 					altText
 					author {
+					  node {
 						id
+					  }
 					}
 					caption
 					commentCount
@@ -347,11 +359,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					dateGmt
 					description
 					desiredSlug
-					editLast {
+					lastEditedBy {
+					  node {
 						userId
+				      }
 					}
-					editLock {
-						editTime
+					editingLockedBy {
+					  lockTimestamp
 					}
 					enclosure
 					guid
@@ -390,14 +404,17 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					modified
 					modifiedGmt
 					parent {
+					  node {
 						...on Post {
 							id
 						}
+				      }
 					}
 					slug
 					sourceUrl
 					status
 					title
+				  }
 				}
 			}
 		}
@@ -414,6 +431,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				]
 			]
 		];
+
+
+
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -518,7 +538,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -527,10 +547,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			page(id: \"{$global_id}\") {
 				id
+				parentId
+				parentDatabaseId
 				parent {
+				  node {
 					... on Page {
-						pageId
+						databaseId
 					}
+			      }
 				}
 			}
 		}";
@@ -543,14 +567,23 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		/**
+		 * Create the global ID of the parent too for asserting
+		 */
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_id );
+
+		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
 			'data' => [
 				'page' => [
 					'id'        => $global_id,
+					'parentId'  => $global_parent_id,
+					'parentDatabaseId'  => $parent_id,
 					'parent'    => [
-						'pageId' => $parent_id,
+						'node' => [
+							'databaseId' => $parent_id,
+						],
 					],
 				],
 			],
@@ -603,13 +636,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 				}
-				tagNames:termNames(taxonomies:[TAG])
-				terms{
-				  ...on Tag{
-				    name
-				  }
-				}
-				termNames
 			}
 		}";
 
@@ -635,120 +661,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							],
 						],
 					],
-					'tagNames'  => [ 'Test Tag' ],
-					'terms'     => [
-						[
-							'name' => 'Test Tag',
-						],
-					],
-					'termNames' => [ 'Test Tag' ],
+
 				],
 			],
 		];
 
 		$this->assertEquals( $expected, $actual );
-	}
-
-	public function testPostQueryWithTermFields() {
-
-		$post_title = uniqid();
-		$cat_name   = uniqid();
-		$tag_name   = uniqid();
-
-		/**
-		 * Create a post
-		 */
-		$post_id = $this->createPostObject( [
-			'post_type'  => 'post',
-			'post_title' => $post_title
-		] );
-
-		// Create a comment and assign it to post.
-		$category_id = $this->factory()->category->create( [
-			'name' => $cat_name,
-			'slug' => $cat_name,
-		] );
-
-		$tag_id = $this->factory()->tag->create( [
-			'name' => $tag_name,
-			'slug' => $tag_name,
-		] );
-
-		wp_set_object_terms( $post_id, $category_id, 'category' );
-		wp_set_object_terms( $post_id, $tag_id, 'post_tag' );
-
-		$query = '
-		query getPostWithTermFields( $id:ID! ){
-			post( id:$id ) {
-			  postId
-			  title
-			  tagSlugs:termSlugs(taxonomies:[TAG])
-			  catSlugs:termSlugs(taxonomies:[CATEGORY])
-			  termSlugs
-			  catNames:termNames(taxonomies:[CATEGORY])
-			  tagNames:termNames(taxonomies:[TAG])
-			  termNames
-			  tags:terms(taxonomies:[TAG]) {
-			     ... on Tag {
-			       slug
-			       name
-			     }
-			  }
-			  cats:terms(taxonomies:[CATEGORY]) {
-			    ... on Category {
-			       slug
-			       name
-			     }
-			  }
-			  allTerms:terms(taxonomies:[TAG,CATEGORY]) {
-			     ... on Tag {
-			       slug
-			       name
-			     }
-			     ... on Category {
-			       slug
-			       name
-			     }
-			  }
-			}
-		}
-		';
-
-		$variables = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
-		];
-
-		$actual = do_graphql_request( $query, 'getPostWithTermFields', $variables );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$post = $actual['data']['post'];
-
-		$this->assertEquals( $post_id, $post['postId'] );
-		$this->assertEquals( $post_title, $post['title'] );
-
-		// Slug fields
-		$this->assertTrue( in_array( $tag_name, $post['tagSlugs'], true ) );
-		$this->assertTrue( in_array( $cat_name, $post['catSlugs'], true ) );
-		$this->assertTrue( in_array( $tag_name, $post['termSlugs'], true ) );
-		$this->assertTrue( in_array( $cat_name, $post['termSlugs'], true ) );
-
-		// Name fields
-		$this->assertTrue( in_array( $tag_name, $post['tagNames'], true ) );
-		$this->assertTrue( in_array( $cat_name, $post['catNames'], true ) );
-		$this->assertTrue( in_array( $tag_name, $post['termNames'], true ) );
-		$this->assertTrue( in_array( $cat_name, $post['termNames'], true ) );
-
-		// tag and cat fields
-		$tag_names      = wp_list_pluck( $post['tags'], 'name' );
-		$cat_names      = wp_list_pluck( $post['cats'], 'name' );
-		$all_term_names = wp_list_pluck( $post['allTerms'], 'name' );
-
-		$this->assertTrue( in_array( $tag_name, $tag_names, true ) );
-		$this->assertTrue( in_array( $cat_name, $cat_names, true ) );
-		$this->assertTrue( in_array( $tag_name, $all_term_names, true ) );
-		$this->assertTrue( in_array( $cat_name, $all_term_names, true ) );
-
 	}
 
 	/**
@@ -963,7 +881,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'post', $child_id );
 
 		/**
 		 * Get the uri to the Child Page
@@ -1025,7 +943,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$path      = get_page_uri( $post_id );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $post_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Let's query the same node 3 different ways, then assert it's the same node
@@ -1164,7 +1082,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get the ID
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		/**
 		 * Query for the post, using a global ID for a page
@@ -1451,7 +1369,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_page_id );
 
 		/**
 		 * Create the GraphQL query.
@@ -1513,7 +1431,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', $graphql_query_page_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_page_id );
 
 		/**
 		 * Create the GraphQL query.
@@ -1635,7 +1553,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				status
 				author{
+				  node {
 					userId
+				  }
 				}
 				content
 			}
@@ -1652,7 +1572,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'title' => $title,
 					'status' => $status,
 					'author' => [
-						'userId' => $author
+						'node' => [
+							'userId' => $author
+						],
 					],
 					'content' => apply_filters( 'the_content', $content ),
 				]
@@ -1748,8 +1670,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					postId
 					author {
+					  node {
 						userId
 						name
+					  }
 					}
 				}
 			}
@@ -1962,7 +1886,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_title' => 'Test Node',
 		]);
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'page', absint( $page_id ) );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $page_id ) );
 		$slug = get_post( $page_id )->post_name;
 		$uri = get_page_uri( $page_id );
 		$title = get_post( $page_id )->post_title;

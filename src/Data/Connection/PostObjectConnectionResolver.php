@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
@@ -36,7 +37,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $source, $args, $context, $info, $post_type ) {
+	public function __construct( $source, $args, $context, $info, $post_type = 'any' ) {
 
 		/**
 		 * The $post_type can either be a single value or an array of post_types to
@@ -52,6 +53,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( 'revision' === $post_type || 'attachment' === $post_type ) {
 			$this->post_type = $post_type;
+		} elseif ( 'any' === $post_type ) {
+			$post_types      = get_post_types( [ 'show_in_graphql' => true ] );
+			$this->post_type = ! empty( $post_types ) ? array_values( $post_types ) : [];
 		} else {
 			$post_type = is_array( $post_type ) ? $post_type : [ $post_type ];
 			unset( $post_type['attachment'] );
@@ -72,14 +76,25 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return string
 	 */
 	public function get_loader_name() {
-		return 'post_object';
+		return 'post';
 	}
 
 	/**
+	 * Returns the query being executed
+	 *
 	 * @return \WP_Query
+	 *
+	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_Query( $this->query_args );
+
+		$query = new \WP_Query( $this->query_args );
+
+		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
+			throw new InvariantViolation( __( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
+		}
+
+		return $query;
 	}
 
 	/**
@@ -188,11 +203,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['posts_per_page'] = min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
 
 		/**
-		 * Set the default to only query posts with no post_parent set
-		 */
-		$query_args['post_parent'] = 0;
-
-		/**
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
@@ -233,36 +243,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			 */
 			unset( $query_args['post_parent'] );
 
-		}
-
-		/**
-		 * Determine where we're at in the Graph and adjust the query context appropriately.
-		 *
-		 * For example, if we're querying for posts as a field of termObject query, this will automatically
-		 * set the query to pull posts that belong to that term.
-		 */
-		if ( true === is_object( $this->source ) ) {
-			switch ( true ) {
-				case $this->source instanceof Post:
-					$query_args['post_parent'] = $this->source->ID;
-					break;
-				case $this->source instanceof PostType:
-					$query_args['post_type'] = $this->source->name;
-					break;
-				case $this->source instanceof Term:
-					$query_args['tax_query'] = [
-						[
-							'taxonomy'         => $this->source->taxonomyName,
-							'terms'            => [ $this->source->term_id ],
-							'field'            => 'term_id',
-							'include_children' => false,
-						],
-					];
-					break;
-				case $this->source instanceof User:
-					$query_args['author'] = $this->source->userId;
-					break;
-			}
 		}
 
 		/**

@@ -157,7 +157,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $attachment_id );
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$post_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
@@ -168,7 +168,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			mediaItem(id: \"{$attachment_global_id}\") {
 				altText
 				author{
-				  id
+				  node {
+				    id
+				  }
 				}
 				caption
 				commentCount
@@ -184,11 +186,13 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				dateGmt
 				description
 				desiredSlug
-				editLast{
-				  userId
+				lastEditedBy{
+				  node {
+				    databaseId
+				  }
 				}
-				editLock{
-				  editTime
+				editingLockedBy{
+				  lockTimestamp
 				}
 				enclosure
 				guid
@@ -227,8 +231,10 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				modified
 				modifiedGmt
 				parent{
-				  ...on Post{
-				    id
+				  node {
+				    ...on Post{
+					  id
+					}
 				  }
 				}
 				slug
@@ -251,7 +257,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $mediaItem );
 
 		$this->assertTrue( ( null === $mediaItem['altText'] || is_string( $mediaItem['altText'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['id'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['node']['id'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['caption'] || is_string( $mediaItem['caption'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentCount'] || is_int( $mediaItem['commentCount'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentStatus'] || is_string( $mediaItem['commentStatus'] ) ) );
@@ -282,7 +288,8 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'id' => $post_global_id,
 			],
-			$mediaItem['parent']
+			$mediaItem['parent']['node']
+
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );

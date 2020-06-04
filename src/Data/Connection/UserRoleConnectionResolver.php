@@ -2,71 +2,151 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
 use WPGraphQL\Model\User;
 
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
  * @package WPGraphQL\Data\Resolvers
- * @since 0.0.5
+ * @since   0.0.5
  */
-class UserRoleConnectionResolver {
+class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * Creates the connection for plugins
+	 * UserRoleConnectionResolver constructor.
 	 *
-	 * @param mixed       $source  The query results
-	 * @param array       $args    The query arguments
-	 * @param AppContext  $context The AppContext object
-	 * @param ResolveInfo $info    The ResolveInfo object
+	 * @param $source
+	 * @param $args
+	 * @param $context
+	 * @param $info
 	 *
-	 * @since  0.5.0
-	 * @return array
-	 * @throws \Exception Throws Exception.
+	 * @throws \Exception
 	 */
-	public static function resolve( $source, array $args, AppContext $context, ResolveInfo $info ) {
+	public function __construct( $source, $args, $context, $info ) {
+		parent::__construct( $source, $args, $context, $info );
+	}
 
-		$current_user_roles = wp_get_current_user()->roles;
-
-		if ( $source instanceof User ) {
-			$roles = ! empty( $source->roles ) ? $source->roles : [];
-		} else {
-			$wp_roles = wp_roles();
-			$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
+	/**
+	 * @return bool|int|mixed|null|string
+	 */
+	public function get_offset() {
+		$offset = null;
+		if ( ! empty( $this->args['after'] ) ) {
+			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
+		} elseif ( ! empty( $this->args['before'] ) ) {
+			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
 		}
 
-		$roles = ! empty( $roles ) ? array_filter(
-			array_map(
-				function( $role ) use ( $current_user_roles ) {
-					if ( current_user_can( 'list_users' ) ) {
-						return $role;
-					}
+		return $offset;
+	}
 
-					if ( in_array( $role, $current_user_roles, true ) ) {
-						return $role;
-					}
+	/**
+	 * @return array
+	 */
+	public function get_ids() {
 
-					return null;
-				},
-				$roles
+		// Given a list of role slugs
+		if ( isset( $this->query_args['slugIn'] ) ) {
+			return $this->query_args['slugIn'];
+		}
+
+		$ids     = [];
+		$queried = $this->get_query();
+
+		if ( empty( $queried ) ) {
+			return $ids;
+		}
+
+		foreach ( $queried as $key => $item ) {
+			$ids[ $key ] = $item;
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_query_args() {
+		return $this->query_args;
+	}
+
+	/**
+	 * @return array|mixed
+	 */
+	public function get_query() {
+		$wp_roles = wp_roles();
+		$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
+
+		return $roles;
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed|null|\WPGraphQL\Model\Model
+	 * @throws \Exception
+	 */
+	public function get_node_by_id( $id ) {
+		return parent::get_node_by_id( $id );
+	}
+
+	/**
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function get_nodes() {
+		$nodes = parent::get_nodes();
+
+		if ( isset( $this->args['after'] ) ) {
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
+		}
+
+		if ( isset( $this->args['before'] ) ) {
+			$nodes = array_reverse( $nodes );
+			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
+			$nodes = array_slice( $nodes, $key + 1, null, true );
+			$nodes = array_reverse( $nodes );
+		}
+
+		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
+
+		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'user_role';
+	}
+
+	/**
+	 * @param $offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function should_execute() {
+
+		if (
+			current_user_can( 'list_users' ) ||
+			(
+				$this->source instanceof User &&
+				get_current_user_id() === $this->source->userId
 			)
-		) : [];
-
-		$connection = Relay::connectionFromArray( $roles, $args );
-
-		$nodes = [];
-		if ( ! empty( $connection['edges'] ) && is_array( $connection['edges'] ) ) {
-			foreach ( $connection['edges'] as $edge ) {
-				$nodes[] = ! empty( $edge['node'] ) ? $edge['node'] : null;
-			}
+		) {
+			return true;
 		}
-		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
-		return ! empty( $roles ) ? $connection : null;
-
+		return false;
 	}
 
 }

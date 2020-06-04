@@ -156,8 +156,13 @@ abstract class Model {
 	/**
 	 * Generic model setup before the resolver function executes
 	 */
-	public function setup() {
-	}
+	public function setup() {}
+
+	/**
+	 * Generic model tear down after the fields are setup. This can be used
+	 * to reset state to where it was before the model was setup.
+	 */
+	public function tear_down() { }
 
 	/**
 	 * Returns the name of the model, built from the child className
@@ -305,8 +310,6 @@ abstract class Model {
 		foreach ( $this->fields as $key => $data ) {
 
 			$clean_array[ $key ] = function() use ( $key, $data, $self ) {
-				$self->setup();
-
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
 
@@ -353,7 +356,9 @@ abstract class Model {
 					$result = $pre;
 				} else {
 					if ( is_callable( $callback ) ) {
+						$self->setup();
 						$field = call_user_func( $callback );
+						$self->tear_down();
 					} else {
 						$field = $callback;
 					}
@@ -386,7 +391,6 @@ abstract class Model {
 				 * @param \WP_User $current_user The current user for the session
 				 */
 				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
-
 				return $result;
 			};
 		}
