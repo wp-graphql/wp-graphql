@@ -26,7 +26,7 @@ class PostObjects {
 	 */
 	public static function register_connections() {
 
-		register_graphql_connection([
+		register_graphql_connection( [
 			'fromType'       => 'ContentType',
 			'toType'         => 'ContentNode',
 			'fromFieldName'  => 'contentNodes',
@@ -36,12 +36,13 @@ class PostObjects {
 
 				$resolver = new PostObjectConnectionResolver( $post_type, $args, $context, $info );
 				$resolver->set_query_arg( 'post_type', $post_type->name );
+
 				return $resolver->get_connection();
 
 			},
-		]);
+		] );
 
-		register_graphql_connection([
+		register_graphql_connection( [
 			'fromType'      => 'Comment',
 			'toType'        => 'ContentNode',
 			'queryClass'    => 'WP_Query',
@@ -53,11 +54,12 @@ class PostObjects {
 				}
 				$id       = absint( $comment->comment_post_ID );
 				$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, 'any' );
+
 				return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
 			},
-		]);
+		] );
 
-		register_graphql_connection([
+		register_graphql_connection( [
 			'fromType'      => 'NodeWithRevisions',
 			'toType'        => 'ContentNode',
 			'fromFieldName' => 'revisionOf',
@@ -71,10 +73,11 @@ class PostObjects {
 
 				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
 				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
+
 				return $resolver->one_to_one()->get_connection();
 
 			},
-		]);
+		] );
 
 		register_graphql_connection(
 			[
@@ -93,6 +96,7 @@ class PostObjects {
 				),
 				'resolve'        => function( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
+
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
 				},
 			]
@@ -112,6 +116,7 @@ class PostObjects {
 
 				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
 				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
+
 				return $resolver->one_to_one()->get_connection();
 
 			},
@@ -134,7 +139,7 @@ class PostObjects {
 				}
 
 				if ( ! in_array( $post_type, [ 'attachment', 'revision' ], true ) ) {
-					register_graphql_connection([
+					register_graphql_connection( [
 						'fromType'           => $post_type_object->graphql_single_name,
 						'toType'             => $post_type_object->graphql_single_name,
 						'fromFieldName'      => 'preview',
@@ -152,27 +157,36 @@ class PostObjects {
 
 							$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
 							$resolver->set_query_arg( 'p', $post->previewRevisionDatabaseId );
+
 							return $resolver->one_to_one()->get_connection();
 						},
-					]);
+					] );
 				}
 
 				/**
-				 * Registers the User connection for each post_type
+				 * Any post type that supports author should have a connection from User->Author
 				 */
-				register_graphql_connection(
-					self::get_connection_config(
-						$post_type_object,
-						[
-							'fromType' => 'User',
-							'resolve'  => function( User $user, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
-								$resolver = new PostObjectConnectionResolver( $user, $args, $context, $info, $post_type_object->name );
-								$resolver->set_query_arg( 'author', $user->userId );
-								return $resolver->get_connection();
-							},
-						]
-					)
-				);
+				if ( true === post_type_supports( $post_type_object->name, 'author' ) ) {
+
+					/**
+					 * Registers the User connection for each post_type
+					 */
+					register_graphql_connection(
+						self::get_connection_config(
+							$post_type_object,
+							[
+								'fromType' => 'User',
+								'resolve'  => function( User $user, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+									$resolver = new PostObjectConnectionResolver( $user, $args, $context, $info, $post_type_object->name );
+									$resolver->set_query_arg( 'author', $user->userId );
+
+									return $resolver->get_connection();
+								},
+							]
+						)
+					);
+
+				}
 
 				/**
 				 * Registers connections for each post_type that has a connection
@@ -197,6 +211,7 @@ class PostObjects {
 												'field'    => 'term_id',
 												'include_children' => false,
 											] );
+
 											return $resolver->get_connection();
 										},
 									]
@@ -215,7 +230,8 @@ class PostObjects {
 							$post_type_object,
 							[
 								'fromType'      => $post_type_object->graphql_single_name,
-								'fromFieldName' => 'child' . ucfirst( $post_type_object->graphql_plural_name ),
+								'fromFieldName' => 'children',
+								'toType'        => 'ContentNode',
 								'resolve'       => function( Post $post, $args, $context, $info ) {
 
 									if ( $post->isRevision ) {
@@ -224,8 +240,9 @@ class PostObjects {
 										$id = $post->ID;
 									}
 
-									$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, $post->post_type );
+									$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
 									$resolver->set_query_arg( 'post_parent', $id );
+
 									return $resolver->get_connection();
 
 								},
@@ -249,6 +266,7 @@ class PostObjects {
 								'resolve'            => function( Post $post, $args, $context, $info ) {
 									$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
 									$resolver->set_query_arg( 'post_parent', $post->ID );
+
 									return $resolver->get_connection();
 								},
 							]

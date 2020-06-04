@@ -245,6 +245,38 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						'node' => [
 							'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 							'name'  => get_comment_author( $comment_id ),
+							'email' => null, // Email is restricted to users with moderate_comments capability
+							'url'   => get_comment_author_url( $comment_id ),
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEqualSets( $expected, $actual );
+
+		wp_set_current_user( $this->admin );
+
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'comment' => [
+					'agent'    => null,
+					'approved' => true,
+					'author'   => [
+						'node' => [
+							'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+							'name'  => get_comment_author( $comment_id ),
 							'email' => get_comment_author_email( $comment_id ),
 							'url'   => get_comment_author_url( $comment_id ),
 						],
@@ -254,6 +286,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEqualSets( $expected, $actual );
+
 	}
 
 	/**
