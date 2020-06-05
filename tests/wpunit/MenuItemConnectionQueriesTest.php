@@ -4,7 +4,7 @@ use GraphQLRelay\Relay;
 
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public static function setUpBeforeClass():void {
+	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
 		add_theme_support( 'nav_menu_locations' );
@@ -12,7 +12,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
 	}
 
-	public function setUp():void {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
@@ -27,15 +27,15 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	private function createMenuItems( $slug, $count ) {
-		$menu_id = wp_create_nav_menu( $slug );
+		$menu_id       = wp_create_nav_menu( $slug );
 		$menu_item_ids = [];
-		$post_ids = [];
+		$post_ids      = [];
 
 		// Create some Post menu items.
-		for ( $x = 1; $x <= $count; $x++ ) {
-			$post_id = $this->factory()->post->create([
+		for ( $x = 1; $x <= $count; $x ++ ) {
+			$post_id    = $this->factory()->post->create( [
 				'post_status' => 'publish'
-			]);
+			] );
 			$post_ids[] = $post_id;
 
 			$menu_item_ids[] = $this->createMenuItem(
@@ -70,6 +70,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param  array $created_menu_ids Created menu items.
 	 * @param  array $created_post_ids Created connected posts.
 	 * @param  array $query_results    Query results.
+	 *
 	 * @return void
 	 */
 	private function compareResults( $created_menu_ids, $created_post_ids, $query_result ) {
@@ -93,7 +94,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithNoArgs() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$query = '
@@ -126,11 +127,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testMenuItemsQueryNodes() {
 
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id = intval( $created['post_ids'][2] );
+		$post_id      = intval( $created['post_ids'][2] );
 
 		$query = '
 		{
@@ -153,11 +154,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryById() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id = intval( $created['post_ids'][2] );
+		$post_id      = intval( $created['post_ids'][2] );
 
 		$query = '
 		{
@@ -183,7 +184,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryByLocation() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		$query = '
@@ -213,11 +214,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function createNestedMenu( $child_count ) {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-with-child-items', $count );
 
 		// Add some child items to the fourth menu item.
-		for ( $x = 1; $x <= $child_count; $x++ ) {
+		for ( $x = 1; $x <= $child_count; $x ++ ) {
 			$options = [
 				'menu-item-title'     => "Child menu item {$x}",
 				'menu-item-object'    => 'post',
@@ -266,7 +267,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 
 		$child_items_via_database_id = [];
-		$parent_id = null;
+		$parent_id                   = null;
 
 		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
 			if ( $edge['node']['databaseId'] === $parent_database_id ) {
@@ -442,9 +443,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithLimit() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-		$limit = 5;
+		$limit   = 5;
 
 		$query = '
 		{
@@ -471,81 +472,17 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// Perform some common assertions. Slice the created IDs to the limit.
 		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
-		$post_ids = array_slice( $created['post_ids'], 0, $limit );
+		$post_ids      = array_slice( $created['post_ids'], 0, $limit );
 		$this->compareResults( $menu_item_ids, $post_ids, $actual );
 	}
-  
-  public function testDraftPostsAreNotVisibleForAnonymous() {
-		$count = 2;
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-
-		wp_update_post(
-			[
-				'ID' => $created['post_ids'][0],
-				'post_status' => 'draft'
-			]
-		);
-
-
-		$query = '
-		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
-				nodes {
-					connectedObject {
-						... on Post {
-							status
-						}
-					}
-				}
-			}
-		}
-		';
-
-		// Ensure unauthenticated request
-		wp_set_current_user( 0 );
-
-		$actual = do_graphql_request( $query );
-
-		$this->assertArrayNotHasKey( 'errors', $actual, print_r( $actual, true ) );
-
-		// Unauthenticated request still returns two _menu_ items
-		$this->assertEquals( $count, count( $actual['data']['menuItems']['nodes'] ) );
-
-		$expected = [
-			0 => [
-				// But actual connected data is not available because there's no permission to do so
-				'connectedObject' => null,
-			],
-			1 => [
-				'connectedObject' => [
-					'status' => 'publish',
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual['data']['menuItems']['nodes'] );
-
-	}
-
-	public function testDraftPostsAreVisibleForAdmin() {
-		$count = 2;
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-
-		wp_update_post(
-			[
-				'ID' => $created['post_ids'][0],
-				'post_status' => 'draft'
-			]
-		);
-
 
 	public function testDraftPostsAreNotVisibleForAnonymous() {
-		$count = 2;
+		$count   = 2;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		wp_update_post(
 			[
-				'ID' => $created['post_ids'][0],
+				'ID'          => $created['post_ids'][0],
 				'post_status' => 'draft'
 			]
 		);
@@ -592,12 +529,12 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testDraftPostsAreVisibleForAdmin() {
-		$count = 2;
+		$count   = 2;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		wp_update_post(
 			[
-				'ID' => $created['post_ids'][0],
+				'ID'          => $created['post_ids'][0],
 				'post_status' => 'draft'
 			]
 		);
@@ -664,11 +601,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 
 		// Assert that the `order` field actually exists and is an int
-		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order']  );
+		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order'] );
 
 		$orders = array_map( function( $node ) {
 			return $node['order'];
-		}, 	$actual['data']['menuItems']['nodes'] );
+		}, $actual['data']['menuItems']['nodes'] );
 
 		// Make copy of the results that are sorted by the order
 		$sorted_orders = $orders;
