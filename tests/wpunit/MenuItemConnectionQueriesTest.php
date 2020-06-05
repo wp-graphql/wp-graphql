@@ -12,7 +12,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
 	}
 
-	public function setUp() {
+	public function setUp():void {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
