@@ -12,7 +12,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
 	}
 
-	public function setUp(): void {
+	public function setUp():void {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
@@ -474,6 +474,70 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_ids = array_slice( $created['post_ids'], 0, $limit );
 		$this->compareResults( $menu_item_ids, $post_ids, $actual );
 	}
+  
+  public function testDraftPostsAreNotVisibleForAnonymous() {
+		$count = 2;
+		$created = $this->createMenuItems( 'my-test-menu-location', $count );
+
+		wp_update_post(
+			[
+				'ID' => $created['post_ids'][0],
+				'post_status' => 'draft'
+			]
+		);
+
+
+		$query = '
+		{
+			menuItems( where: { location: MY_MENU_LOCATION } ) {
+				nodes {
+					connectedObject {
+						... on Post {
+							status
+						}
+					}
+				}
+			}
+		}
+		';
+
+		// Ensure unauthenticated request
+		wp_set_current_user( 0 );
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertArrayNotHasKey( 'errors', $actual, print_r( $actual, true ) );
+
+		// Unauthenticated request still returns two _menu_ items
+		$this->assertEquals( $count, count( $actual['data']['menuItems']['nodes'] ) );
+
+		$expected = [
+			0 => [
+				// But actual connected data is not available because there's no permission to do so
+				'connectedObject' => null,
+			],
+			1 => [
+				'connectedObject' => [
+					'status' => 'publish',
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data']['menuItems']['nodes'] );
+
+	}
+
+	public function testDraftPostsAreVisibleForAdmin() {
+		$count = 2;
+		$created = $this->createMenuItems( 'my-test-menu-location', $count );
+
+		wp_update_post(
+			[
+				'ID' => $created['post_ids'][0],
+				'post_status' => 'draft'
+			]
+		);
+
 
 	public function testDraftPostsAreNotVisibleForAnonymous() {
 		$count = 2;
