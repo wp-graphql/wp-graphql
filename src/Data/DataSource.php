@@ -601,7 +601,12 @@ class DataSource {
 
 			switch ( true ) {
 				case $node instanceof Post:
-					$type = get_post_type_object( $node->post_type )->graphql_single_name;
+					$post_type = $node->post_type;
+					if ('revision' === $post_type) {
+						$post_type = get_post_type( get_post($node->ID)->post_parent );
+					}
+
+					$type = get_post_type_object( $post_type )->graphql_single_name;
 					break;
 				case $node instanceof Term:
 					$type = get_taxonomy( $node->taxonomyName )->graphql_single_name;
