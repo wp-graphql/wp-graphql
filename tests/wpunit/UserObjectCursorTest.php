@@ -10,7 +10,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public $db;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		parent::setUp();
 
@@ -47,7 +47,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		$this->delete_users();
 		parent::tearDown();
 	}

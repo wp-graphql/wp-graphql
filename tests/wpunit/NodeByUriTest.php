@@ -10,7 +10,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_type;
 	public $custom_taxonomy;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		WPGraphQL::clear_schema();
 
@@ -70,7 +70,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 
 		unregister_post_type( 'custom_type' );
 		WPGraphQL::clear_schema();

@@ -5,7 +5,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
 			'role' => 'administrator'
@@ -18,7 +18,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

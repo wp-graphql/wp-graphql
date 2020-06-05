@@ -8,7 +8,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
 
@@ -32,7 +32,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}

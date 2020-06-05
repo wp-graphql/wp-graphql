@@ -4,7 +4,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -13,7 +13,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 
 		// then
 		parent::tearDown();

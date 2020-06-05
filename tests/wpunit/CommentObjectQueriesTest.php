@@ -8,7 +8,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->current_time     = strtotime( '- 1 day' );
@@ -22,7 +22,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		]);
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

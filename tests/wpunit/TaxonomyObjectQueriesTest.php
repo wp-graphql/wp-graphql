@@ -4,7 +4,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->admin = $this->factory->user->create( [
@@ -12,7 +12,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

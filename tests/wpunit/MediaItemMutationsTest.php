@@ -43,7 +43,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $attachment_id;
 	public $media_item_id;
 
-    public function setUp()
+    public function setUp(): void
     {
         // before
         parent::setUp();
@@ -162,7 +162,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    ];
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // your tear down methods here
 

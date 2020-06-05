@@ -1,7 +1,7 @@
 <?php
 
 class DataConfigTest extends \Codeception\TestCase\WPTestCase {
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass():void {
 		parent::setUpBeforeClass();
 
 		if ( ! defined( 'GRAPHQL_REQUEST' ) ) {

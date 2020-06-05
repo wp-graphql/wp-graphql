@@ -7,7 +7,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public $created_post_ids;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->current_time     = strtotime( '- 1 day' );
@@ -19,7 +19,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->created_post_ids = $this->create_posts();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

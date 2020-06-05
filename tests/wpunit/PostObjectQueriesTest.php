@@ -8,7 +8,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $contributor;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
@@ -69,7 +69,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

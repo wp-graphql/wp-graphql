@@ -9,7 +9,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 	public $featured_image;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
 			'role' => 'administrator'
@@ -53,7 +53,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		wp_delete_post( $this->post, true );
 		wp_delete_post( $this->preview, true );

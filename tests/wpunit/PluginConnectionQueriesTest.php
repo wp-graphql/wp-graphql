@@ -7,7 +7,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
 		$this->current_time     = strtotime( 'now' );
@@ -19,7 +19,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 		WPGraphQL::clear_schema();
 		// then
