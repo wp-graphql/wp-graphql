@@ -149,7 +149,6 @@ wait_for_database_connection() {
 configure_wordpress() {
 
     cd $WP_CORE_DIR
-    composer install --working-dir=wp-content/plugins/wp-graphql/ --prefer-source --no-interaction
     wp $WP_CLI_ARGS config create --dbname="$DB_NAME" --dbuser=$DB_USER --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
     wp $WP_CLI_ARGS core install --url=wpgraphql.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
     wp $WP_CLI_ARGS rewrite structure '/%year%/%monthnum%/%postname%/'
@@ -163,6 +162,9 @@ activate_plugin() {
     fi
 
     cd $WP_CORE_DIR
+
+    # Install plugin dependencies
+    composer install --working-dir="$WP_CORE_DIR/wp-content/plugins/wp-graphql" --prefer-source --no-interaction
 
     # activate the plugin
     wp $WP_CLI_ARGS plugin activate wp-graphql
