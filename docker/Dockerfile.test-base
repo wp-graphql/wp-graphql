@@ -54,9 +54,8 @@ COPY --chown='www-data:www-data' docker/wp-cli.yml /var/www/html/
 
 # First copy the files needed for PHP composer install so that the Docker build only re-executes the install when those
 # files change.
-COPY --chown='www-data:www-data' composer.json composer.lock "${SUT_PLUGIN_DIR}"/
+COPY --chown='www-data:www-data' composer.json "${SUT_PLUGIN_DIR}/"
 COPY --chown='www-data:www-data' src/ "${SUT_PLUGIN_DIR}/src/"
-COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
 
 # Run PHP Composer install so that Codeception dependencies are available
 USER www-data
