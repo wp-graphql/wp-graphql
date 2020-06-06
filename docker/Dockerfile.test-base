@@ -19,7 +19,7 @@ FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 # Set timezone, install XDebug, PHP Composer, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
-  && apt-get install --no-install-recommends -y mariadb-client subversion \
+  && apt-get install --no-install-recommends -y git unzip mariadb-client subversion \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7'; then \
         pecl install xdebug; \
@@ -60,7 +60,7 @@ COPY --chown='www-data:www-data' src/ "${SUT_PLUGIN_DIR}/src/"
 # Run PHP Composer install so that Codeception dependencies are available
 USER www-data
 RUN cd "${SUT_PLUGIN_DIR}" \
-  && composer install --prefer-source --no-interaction --dev
+  && composer install --prefer-source --no-interaction
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root
