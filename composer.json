@@ -41,8 +41,7 @@
   "autoload": {
     "psr-4": {
       "WPGraphQL\\": "src/"
-    },
-    "classmap": ["src/"]
+    }
   },
   "scripts": {
     "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
