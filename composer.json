@@ -40,7 +40,8 @@
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
     "squizlabs/php_codesniffer": "3.5.4",
     "phpstan/phpstan": "^0.12.25",
-    "szepeviktor/phpstan-wordpress": "^0.5.0"
+    "szepeviktor/phpstan-wordpress": "^0.5.0",
+    "codeception/module-rest": "^1.2"
   },
   "config": {
     "optimize-autoloader": true
