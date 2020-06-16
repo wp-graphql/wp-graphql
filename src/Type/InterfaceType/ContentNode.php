@@ -68,9 +68,6 @@ class ContentNode {
 							'non_null' => 'Int',
 						],
 						'description' => __( 'The ID of the object in the database.', 'wp-graphql' ),
-						'resolve'     => function( Post $post, $args, $context, $info ) {
-							return absint( $post->ID );
-						},
 					],
 					'date'                      => [
 						'type'        => 'String',
