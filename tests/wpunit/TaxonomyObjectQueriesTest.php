@@ -4,7 +4,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->admin = $this->factory->user->create( [
@@ -12,7 +12,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -47,9 +47,10 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 				  taxonomy {
 				    node {
-						connectedPostTypeNames
-						connectedPostTypes {
-							name
+						connectedContentTypes {
+							nodes {
+								name
+							}
 						}
 						description
 						graphqlPluralName
@@ -102,8 +103,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'taxonomy' => [
 								'node' => [
-									'connectedPostTypeNames' => [ 'post' ],
-									'connectedPostTypes'     => [ [ 'name' => 'post' ] ],
+									'connectedContentTypes'     => [
+										'nodes' => [
+											[
+												'name' => 'post'
+											]
+										]
+									],
 									'description'            => '',
 									'graphqlPluralName'      => 'categories',
 									'graphqlSingleName'      => 'category',
@@ -179,9 +185,10 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 				 taxonomy {
 				   node {
-					connectedPostTypeNames
-					connectedPostTypes {
-						name
+					connectedContentTypes {
+						nodes {
+							name
+						}
 					}
 					description
 					graphqlPluralName
@@ -235,8 +242,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'taxonomy' => [
 								'node' => [
-									'connectedPostTypeNames' => [ 'post' ],
-									'connectedPostTypes'     => [ [ 'name' => 'post' ] ],
+									'connectedContentTypes' => [
+										'nodes' => [
+											[
+												'name' => 'post'
+											]
+										]
+									],
 									'description'            => '',
 									'graphqlPluralName'      => 'tags',
 									'graphqlSingleName'      => 'tag',

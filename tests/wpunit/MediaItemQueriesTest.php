@@ -7,7 +7,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -21,7 +21,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -168,7 +168,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			mediaItem(id: \"{$attachment_global_id}\") {
 				altText
 				author{
-				  id
+				  node {
+				    id
+				  }
 				}
 				caption
 				commentCount
@@ -184,11 +186,13 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				dateGmt
 				description
 				desiredSlug
-				editLast{
-				  userId
+				lastEditedBy{
+				  node {
+				    databaseId
+				  }
 				}
-				editLock{
-				  editTime
+				editingLockedBy{
+				  lockTimestamp
 				}
 				enclosure
 				guid
@@ -227,8 +231,10 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				modified
 				modifiedGmt
 				parent{
-				  ...on Post{
-				    id
+				  node {
+				    ...on Post{
+					  id
+					}
 				  }
 				}
 				slug
@@ -251,7 +257,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $mediaItem );
 
 		$this->assertTrue( ( null === $mediaItem['altText'] || is_string( $mediaItem['altText'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['id'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['node']['id'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['caption'] || is_string( $mediaItem['caption'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentCount'] || is_int( $mediaItem['commentCount'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentStatus'] || is_string( $mediaItem['commentStatus'] ) ) );
@@ -274,15 +280,17 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( null === $mediaItem['sourceUrl'] || is_string( $mediaItem['sourceUrl'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
+
+		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
 
 		$this->assertEquals(
 			[
 				'id' => $post_global_id,
 			],
-			$mediaItem['parent']
+			$mediaItem['parent']['node']
+
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );

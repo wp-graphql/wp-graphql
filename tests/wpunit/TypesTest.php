@@ -2,14 +2,14 @@
 
 class TypesTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 		WPGraphQL::clear_schema();
 		// your set up methods here
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 		WPGraphQL::clear_schema();
 		// then

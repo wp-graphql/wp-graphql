@@ -3,8 +3,9 @@
 class RevisionTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
+	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
 			'role' => 'administrator'
@@ -17,7 +18,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -113,10 +114,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 						title
 						content
 						revisionOf {
+						  node {
 							__typename
 							...on Post {
 							  postId
 							}
+						  }
 						}
 					}
 				}
@@ -138,10 +141,10 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['__typename'] );
 
 		// Type of Parent should be Post
-		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['revisionOf']['__typename'] );
+		$this->assertEquals( 'Post', $actual['data']['revisions']['nodes'][0]['revisionOf']['node']['__typename'] );
 
 		// postId of parent should be ID of post we revised
-		$this->assertEquals( $post_id, $actual['data']['revisions']['nodes'][0]['revisionOf']['postId'] );
+		$this->assertEquals( $post_id, $actual['data']['revisions']['nodes'][0]['revisionOf']['node']['postId'] );
 	}
 
 	/**
@@ -183,10 +186,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 					nodes {
 						__typename
 						revisionOf {
+						  node {
 							__typename
 							...on Post {
 							  postId
 							}
+						  }
 						}
 					}
 				}
@@ -216,7 +221,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Post', $actual['data']['postBy']['revisions']['nodes'][0]['__typename'] );
 
 		// postId of parent of the revision should be ID of post we revised
-		$this->assertEquals( $post_id, $actual['data']['postBy']['revisions']['nodes'][0]['revisionOf']['postId'] );
+		$this->assertEquals( $post_id, $actual['data']['postBy']['revisions']['nodes'][0]['revisionOf']['node']['postId'] );
 
 	}
 

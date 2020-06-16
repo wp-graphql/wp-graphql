@@ -10,7 +10,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -42,7 +42,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

@@ -1,8 +1,10 @@
 <?php
 
+use GraphQLRelay\Relay;
+
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public static function setUpBeforeClass():void {
+	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
 		add_theme_support( 'nav_menu_locations' );
@@ -10,7 +12,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
 	}
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
@@ -25,15 +27,15 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	private function createMenuItems( $slug, $count ) {
-		$menu_id = wp_create_nav_menu( $slug );
+		$menu_id       = wp_create_nav_menu( $slug );
 		$menu_item_ids = [];
-		$post_ids = [];
+		$post_ids      = [];
 
 		// Create some Post menu items.
-		for ( $x = 1; $x <= $count; $x++ ) {
-			$post_id = $this->factory()->post->create([
+		for ( $x = 1; $x <= $count; $x ++ ) {
+			$post_id    = $this->factory()->post->create( [
 				'post_status' => 'publish'
-			]);
+			] );
 			$post_ids[] = $post_id;
 
 			$menu_item_ids[] = $this->createMenuItem(
@@ -68,6 +70,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param  array $created_menu_ids Created menu items.
 	 * @param  array $created_post_ids Created connected posts.
 	 * @param  array $query_results    Query results.
+	 *
 	 * @return void
 	 */
 	private function compareResults( $created_menu_ids, $created_post_ids, $query_result ) {
@@ -77,7 +80,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals(
 			$created_menu_ids,
 			array_map( function( $menu_item ) {
-				return $menu_item['node']['menuItemId'];
+				return $menu_item['node']['databaseId'];
 			}, $edges )
 		);
 
@@ -91,7 +94,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithNoArgs() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$query = '
@@ -99,7 +102,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -108,7 +111,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				nodes {
-				  menuItemId
+					databaseId
 				}
 			}
 		}
@@ -124,17 +127,17 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testMenuItemsQueryNodes() {
 
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id = intval( $created['post_ids'][2] );
+		$post_id      = intval( $created['post_ids'][2] );
 
 		$query = '
 		{
 			menuItems( where: { id: ' . $menu_item_id . ' } ) {
 				nodes {
-				   menuItemId
+					databaseId
 				}
 			}
 		}
@@ -143,7 +146,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		foreach ( $actual['data']['menuItems']['nodes'] as $node ) {
-			$this->assertTrue( in_array( $node['menuItemId'], [ $menu_item_id ], true ) );
+			$this->assertTrue( in_array( $node['databaseId'], [ $menu_item_id ], true ) );
 		}
 
 		$this->assertEquals( 1, count( $actual['data']['menuItems']['nodes'] ) );
@@ -151,18 +154,18 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryById() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
 		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id = intval( $created['post_ids'][2] );
+		$post_id      = intval( $created['post_ids'][2] );
 
 		$query = '
 		{
 			menuItems( where: { id: ' . $menu_item_id . ' } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -181,7 +184,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryByLocation() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		$query = '
@@ -189,7 +192,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			menuItems( where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -210,13 +213,12 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 	}
 
-	public function testMenuItemsQueryWithChildItems() {
-		$count = 10;
+	public function createNestedMenu( $child_count ) {
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-with-child-items', $count );
 
 		// Add some child items to the fourth menu item.
-		$child_count = 3;
-		for ( $x = 1; $x <= $child_count; $x++ ) {
+		for ( $x = 1; $x <= $child_count; $x ++ ) {
 			$options = [
 				'menu-item-title'     => "Child menu item {$x}",
 				'menu-item-object'    => 'post',
@@ -229,12 +231,80 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$this->createMenuItem( $created['menu_id'], $options );
 		}
 
+		return $created;
+
+	}
+
+	public function testMenuItemsQueryWithChildItemsAsFlat() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
 		$query = '
 		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
+			menuItems(first: 99, where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
-						menuItemId
+						id
+						databaseId
+						parentId
+						parentDatabaseId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		$this->assertEquals( 13, count( $actual['data']['menuItems']['edges'] ) );
+
+
+		$child_items_via_database_id = [];
+		$parent_id                   = null;
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			if ( $edge['node']['databaseId'] === $parent_database_id ) {
+				$parent_id = $edge['node']['id'];
+			}
+
+			// Child items have the correct parenDatabaseId
+			if ( $edge['node']['parentDatabaseId'] === $parent_database_id ) {
+				$child_items_via_database_id[] = $edge['node'];
+			}
+		}
+
+		$this->assertNotNull( $parent_id );
+		$this->assertEquals( 3, count( $child_items_via_database_id ) );
+
+		$child_items_via_relay_id = [];
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			// Child items have the correct relay parentId
+			if ( $edge['node']['parentId'] === $parent_id ) {
+				$child_items_via_relay_id[] = $edge['node'];
+			}
+		}
+
+		$this->assertEquals( 3, count( $child_items_via_relay_id ) );
+
+	}
+
+	public function testMenuItemsQueryWithChildItemsUsingRelayParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		$query = '
+		{
+			menuItems( where: { parentId: "0", location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -243,7 +313,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						childItems {
 							edges {
 								node {
-									menuItemId
+									databaseId
 									connectedObject {
 										... on Post {
 											postId
@@ -264,13 +334,118 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 
 		// The fourth menu item has the expected number of child items.
-		$this->assertEquals( $child_count, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
+	}
+
+	public function testMenuItemsQueryWithChildItemsUsingDatabaseParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		$query = '
+		{
+			menuItems( where: { parentDatabaseId: 0, location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						databaseId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+						childItems {
+							edges {
+								node {
+									databaseId
+									connectedObject {
+										... on Post {
+											postId
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
+
+		// The fourth menu item has the expected number of child items.
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
+	}
+
+	public function testMenuItemsQueryWithExplicitParentDatabseId() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
+		$query = "
+		{
+			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						databaseId
+						parentDatabaseId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
+
+		// The parentDatabaseId matches with the requested parent database id
+		$this->assertEquals( $parent_database_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
+
+	}
+
+	public function testMenuItemsQueryWithExplicitParentId() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item.
+		// Convernt it to the global relay id from the database id.
+		$parent_id = Relay::toGlobalId( 'nav_menu_item', $created['menu_item_ids'][3] );
+
+		$query = "
+		{
+			menuItems( where: { parentId: \"${parent_id}\", location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						databaseId
+						connectedObject {
+							... on Post {
+								postId
+							}
+						}
+					}
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+		// Perform some common assertions.
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
 	}
 
 	public function testMenuItemsQueryWithLimit() {
-		$count = 10;
+		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-		$limit = 5;
+		$limit   = 5;
 
 		$query = '
 		{
@@ -280,7 +455,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			) {
 				edges {
 					node {
-						menuItemId
+						databaseId
 						connectedObject {
 							... on Post {
 								postId
@@ -297,17 +472,17 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// Perform some common assertions. Slice the created IDs to the limit.
 		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
-		$post_ids = array_slice( $created['post_ids'], 0, $limit );
+		$post_ids      = array_slice( $created['post_ids'], 0, $limit );
 		$this->compareResults( $menu_item_ids, $post_ids, $actual );
 	}
 
 	public function testDraftPostsAreNotVisibleForAnonymous() {
-		$count = 2;
+		$count   = 2;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		wp_update_post(
 			[
-				'ID' => $created['post_ids'][0],
+				'ID'          => $created['post_ids'][0],
 				'post_status' => 'draft'
 			]
 		);
@@ -354,12 +529,12 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testDraftPostsAreVisibleForAdmin() {
-		$count = 2;
+		$count   = 2;
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
 
 		wp_update_post(
 			[
-				'ID' => $created['post_ids'][0],
+				'ID'          => $created['post_ids'][0],
 				'post_status' => 'draft'
 			]
 		);
@@ -402,6 +577,43 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual['data']['menuItems']['nodes'] );
+
+	}
+
+	public function testMenuItemsOrder() {
+		$created = $this->createNestedMenu( 3 );
+
+		// The nesting is added to the fourth item
+		$parent_database_id = $created['menu_item_ids'][3];
+
+		$query = "
+		{
+			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
+				nodes {
+					databaseId
+					order
+				}
+			}
+		}
+		";
+
+		$actual = do_graphql_request( $query );
+
+
+		// Assert that the `order` field actually exists and is an int
+		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order'] );
+
+		$orders = array_map( function( $node ) {
+			return $node['order'];
+		}, $actual['data']['menuItems']['nodes'] );
+
+		// Make copy of the results that are sorted by the order
+		$sorted_orders = $orders;
+		asort( $sorted_orders );
+
+		// Assert that the returned list was in the sorted order
+		$this->assertEquals( $orders, $sorted_orders );
+
 
 	}
 

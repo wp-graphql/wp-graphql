@@ -198,7 +198,7 @@ class MediaItemCreate {
 			/**
 			 * Get the post parent and if it's not set, set it to false
 			 */
-			$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? $media_item_args['post_parent'] : false );
+			$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? absint( $media_item_args['post_parent'] ) : false );
 
 			/**
 			 * Stop now if a user isn't allowed to edit the parent post
@@ -207,8 +207,8 @@ class MediaItemCreate {
 
 			if ( null !== get_post( $attachment_parent_id ) ) {
 				$post_parent_type = get_post_type_object( $parent->post_type );
-				if ( ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
-					throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems to this post', 'wp-graphql' ) );
+				if ( 'attachment' !== $post_parent_type && ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
+					throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems assigned to this parent node', 'wp-graphql' ) );
 				}
 			}
 

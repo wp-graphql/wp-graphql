@@ -64,6 +64,13 @@ abstract class AbstractConnectionResolver {
 	protected $should_execute = true;
 
 	/**
+	 * Whether the connection is a one to one connection. Default false.
+	 *
+	 * @var bool
+	 */
+	public $one_to_one = false;
+
+	/**
 	 * The Query class/array/object used to fetch the data.
 	 *
 	 * Examples:
@@ -233,14 +240,39 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * @param string $key   The key of the query arg to set
+	 * @param mixed  $value The value of the query arg to set
+	 *
+	 * @return AbstractConnectionResolver
+	 *
+	 * @deprecated in favor of set_query_arg
+	 */
+	public function setQueryArg( $key, $value ) {
+		return $this->set_query_arg( $key, $value );
+	}
+
+	/**
 	 * Given a key and value, this sets a query_arg which will modify the query_args used by
 	 * the connection resolvers get_query();
 	 *
 	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
+	 *
+	 * @return AbstractConnectionResolver
 	 */
-	public function setQueryArg( $key, $value ) {
+	public function set_query_arg( $key, $value ) {
 		$this->query_args[ $key ] = $value;
+		return $this;
+	}
+
+	/**
+	 * Whether the connection should resolve as a one-to-one connection.
+	 *
+	 * @return AbstractConnectionResolver
+	 */
+	public function one_to_one() {
+		$this->one_to_one = true;
+		return $this;
 	}
 
 	/**
@@ -763,7 +795,7 @@ abstract class AbstractConnectionResolver {
 			function() {
 
 				if ( ! empty( $this->ids ) ) {
-					$this->loader->loadMany( $this->ids );
+					$this->loader->load_many( $this->ids );
 				}
 
 				/**
@@ -784,6 +816,18 @@ abstract class AbstractConnectionResolver {
 				 */
 				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
+				if ( true === $this->one_to_one ) {
+					// For one to one connections, return the first edge.
+					$connection = ! empty( $this->edges[ array_key_first( $this->edges ) ] ) ? $this->edges[ array_key_first( $this->edges ) ] : null;
+				} else {
+					// For plural connections (default) return edges/nodes/pageInfo
+					$connection = [
+						'nodes'    => $this->nodes,
+						'edges'    => $this->edges,
+						'pageInfo' => $this->get_page_info(),
+					];
+				}
+
 				/**
 				 * Filter the connection. In some cases, connections will want to provide
 				 * additional information other than edges, nodes, and pageInfo
@@ -793,15 +837,7 @@ abstract class AbstractConnectionResolver {
 				 * @param array                      $connection The connection data being returned
 				 * @param AbstractConnectionResolver $this       The instance of the connection resolver
 				 */
-				return apply_filters(
-					'graphql_connection',
-					[
-						'nodes'    => $this->nodes,
-						'edges'    => $this->edges,
-						'pageInfo' => $this->get_page_info(),
-					],
-					$this
-				);
+				return apply_filters( 'graphql_connection', $connection, $this );
 
 			}
 		);

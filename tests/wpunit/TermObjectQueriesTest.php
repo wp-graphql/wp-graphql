@@ -2,12 +2,12 @@
 
 class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 	}
@@ -246,16 +246,30 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a term
 		 */
-		$term_id = $this->createTermObject( [ 'name' => 'A category', 'taxonomy' => 'category' ] );
+		$term_id = $this->createTermObject( [ 'name' => uniqid(), 'taxonomy' => 'category' ] );
 
 		// Create a comment and assign it to term.
-		$post_id  = $this->factory->post->create( [ 'post_type' => 'post' ] );
-		$page_id  = $this->factory->post->create( [ 'post_type' => 'page' ] );
-		$media_id = $this->factory->post->create( [ 'post_type' => 'attachment' ] );
+		$post_id  = $this->factory()->post->create( [
+			'post_type' => 'post' ,
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
 
-		wp_set_object_terms( $post_id, $term_id, 'category' );
-		wp_set_object_terms( $page_id, $term_id, 'category' );
-		wp_set_object_terms( $media_id, $term_id, 'category' );
+		codecept_debug( $post_id );
+		$page_id  = $this->factory()->post->create( [
+			'post_type' => 'page',
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
+		$media_id = $this->factory()->post->create( [
+			'post_type' => 'attachment',
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
+
+		wp_set_object_terms( $post_id, $term_id, 'category', false );
+		wp_set_object_terms( $page_id, $term_id, 'category', false );
+		wp_set_object_terms( $media_id, $term_id, 'category', false );
 
 		$taxonomy = 'category';
 
@@ -284,6 +298,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the GraphQL query
 		 */
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * Establish the expectation for the output of the query

@@ -2,7 +2,7 @@
 
 class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass():void {
 		parent::setUpBeforeClass();
 
 		add_theme_support( 'nav_menu_locations' );

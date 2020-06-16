@@ -55,6 +55,12 @@ class MenuItem extends Model {
 				'id'               => function() {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
 				},
+				'parentId'         => function() {
+					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->menu_item_parent ) : null;
+				},
+				'parentDatabaseId' => function() {
+					return $this->data->menu_item_parent;
+				},
 				'cssClasses'       => function() {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
@@ -76,6 +82,9 @@ class MenuItem extends Model {
 				'menuItemId'       => function() {
 					return absint( $this->data->ID );
 				},
+				'databaseId'       => function() {
+					return absint( $this->data->ID );
+				},
 				'objectId'         => function() {
 					return ( absint( $this->data->object_id ) );
 				},
@@ -87,6 +96,9 @@ class MenuItem extends Model {
 				},
 				'url'              => function() {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
+				},
+				'order'            => function() {
+					return $this->data->menu_order;
 				},
 			];
 

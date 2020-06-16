@@ -20,12 +20,18 @@ class TermObject {
 	 */
 	public static function register_taxonomy_object_type( $taxonomy_object ) {
 
+		$interfaces = [ 'Node', 'TermNode', 'UniformResourceIdentifiable' ];
+
+		if ( $taxonomy_object->hierarchical ) {
+			$interfaces[] = 'HierarchicalTermNode';
+		}
+
 		$single_name = $taxonomy_object->graphql_single_name;
 		register_graphql_object_type(
 			$single_name,
 			[
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => [ 'Node', 'TermNode', 'UniformResourceIdentifiable' ],
+				'interfaces'  => $interfaces,
 				'fields'      => [
 					$single_name . 'Id' => [
 						'type'              => 'Int',

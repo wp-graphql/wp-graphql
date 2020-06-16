@@ -81,8 +81,13 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_query() {
+
+		if ( isset( $this->query_args['contentTypeNames'] ) && is_array( $this->query_args['contentTypeNames'] ) ) {
+			return $this->query_args['contentTypeNames'];
+		}
+
 		$query_args = $this->get_query_args();
-		return get_post_types( $query_args );
+		return array_values( get_post_types( $query_args ) );
 	}
 
 	/**

@@ -11,7 +11,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $admin;
 	public $subscriber;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	    ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // your tear down methods here
 

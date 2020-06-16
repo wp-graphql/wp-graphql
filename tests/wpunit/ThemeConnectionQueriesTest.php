@@ -7,7 +7,7 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 		$this->current_time     = strtotime( 'now' );
@@ -18,7 +18,7 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

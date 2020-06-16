@@ -2,11 +2,16 @@
 
 namespace WPGraphQL\Type\Object;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-
+/**
+ * Class Comment
+ *
+ * @package WPGraphQL\Type\Object
+ */
 class Comment {
+
+	/**
+	 * Register Comment Type
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'Comment',
@@ -18,41 +23,13 @@ class Comment {
 						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
 					],
 					'commentId'    => [
+						'type'              => 'Int',
+						'description'       => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
+					],
+					'databaseId'   => [
 						'type'        => 'Int',
 						'description' => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
-					],
-					'commentedOn'  => [
-						'type'        => 'PostObjectUnion',
-						'description' => __( 'The object the comment was added to', 'wp-graphql' ),
-						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
-								return null;
-							}
-							$id = absint( $comment->comment_post_ID );
-
-							return $context->get_loader( 'post' )->load_deferred( $id );
-						},
-					],
-					'author'       => [
-						'type'        => 'CommentAuthorUnion',
-						'description' => __( 'The author of the comment', 'wp-graphql' ),
-						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-
-							/**
-							 * If the comment has a user associated, use it to populate the author, otherwise return
-							 * the $comment and the Union will use that to hydrate the CommentAuthor Type
-							 */
-							if ( ! empty( $comment->userId ) ) {
-								if ( empty( $comment->userId ) || ! absint( $comment->userId ) ) {
-									return null;
-								}
-
-								return $context->get_loader( 'user' )->load( $comment->userId );
-
-							} else {
-								return ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
-							}
-						},
 					],
 					'authorIp'     => [
 						'type'        => 'String',
@@ -98,13 +75,6 @@ class Comment {
 					'type'         => [
 						'type'        => 'String',
 						'description' => __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the "comment_type" column in SQL.', 'wp-graphql' ),
-					],
-					'parent'       => [
-						'type'        => 'Comment',
-						'description' => __( 'Parent comment of current comment. This field is equivalent to the WP_Comment instance matching the WP_Comment->comment_parent ID.', 'wp-graphql' ),
-						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $comment->comment_parent_id ) ? $context->get_loader( 'comment' )->load_deferred( $comment->comment_parent_id ) : null;
-						},
 					],
 					'isRestricted' => [
 						'type'        => 'Boolean',

@@ -9,7 +9,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $created_comment_ids;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -26,7 +26,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->created_comment_ids = $this->create_comments();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// then
 		parent::tearDown();
 	}

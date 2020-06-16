@@ -64,11 +64,19 @@ class MenuItems {
 				'fromFieldName'  => 'menuItems',
 				'toType'         => 'MenuItem',
 				'connectionArgs' => [
-					'id'       => [
+					'id'               => [
 						'type'        => 'Int',
 						'description' => __( 'The ID of the object', 'wp-graphql' ),
 					],
-					'location' => [
+					'parentId'         => [
+						'type'        => 'ID',
+						'description' => __( 'The ID of the parent menu object', 'wp-graphql' ),
+					],
+					'parentDatabaseId' => [
+						'type'        => 'Int',
+						'description' => __( 'The database ID of the parent menu object', 'wp-graphql' ),
+					],
+					'location'         => [
 						'type'        => 'MenuLocationEnum',
 						'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
 					],

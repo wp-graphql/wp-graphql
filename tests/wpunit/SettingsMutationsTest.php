@@ -28,7 +28,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	public $admin;
 	public $admin_name;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
@@ -130,7 +130,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

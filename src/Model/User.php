@@ -120,7 +120,7 @@ class User extends Model {
 	 * Reset global state after the model fields
 	 * have been generated
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$GLOBALS['authordata'] = $this->global_authordata;
 		$GLOBALS['post']       = $this->global_post;
 		wp_reset_postdata();

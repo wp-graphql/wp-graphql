@@ -20,7 +20,7 @@ class User {
 			'User',
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
+				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter' ],
 				'fields'      => [
 					'id'                => [
 						'description' => __( 'The globally unique identifier for the user object.', 'wp-graphql' ),
@@ -97,8 +97,9 @@ class User {
 						'description' => __( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
 					],
 					'userId'            => [
-						'type'        => 'Int',
-						'description' => __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' ),
+						'type'              => 'Int',
+						'description'       => __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 					],
 					'isRestricted'      => [
 						'type'        => 'Boolean',
