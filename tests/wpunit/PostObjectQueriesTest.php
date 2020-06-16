@@ -1952,4 +1952,50 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testUriFieldAvailableForPublicQueries() {
+
+		/**
+		 * Create a password protected post
+		 * so that we can query for it and make sure the link and uri fields are exposed
+		 * to public requests.
+		 *
+		 * @see: https://github.com/wp-graphql/wp-graphql/issues/1338
+		 */
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_password' => 'test',
+			'post_title' => 'Post with password',
+			'post_content' => 'Protected content',
+			'post_author' => $this->admin,
+		]);
+
+		$query = '
+		query {
+		  posts(first: 1, where: {status: PUBLISH}) {
+		    nodes {
+		      databaseId
+		      uri
+		      link
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['uri'], 'Ensure the uri is not empty for public requests' );
+		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['link'], 'Ensure the link field is not empty for public requests' );
+
+	}
+
 }

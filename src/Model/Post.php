@@ -138,15 +138,19 @@ class Post extends Model {
 		}
 
 		$allowed_restricted_fields = [
-			'id',
-			'titleRendered',
-			'slug',
-			'post_type',
-			'status',
-			'post_status',
-			'isRestricted',
+			'databaseId',
 			'enqueuedScriptsQueue',
 			'enqueuedStylesheetsQueue',
+			'id',
+			'isRestricted',
+			'link',
+			'post_status',
+			'post_type',
+			'slug',
+			'status',
+			'titleRendered',
+			'uri',
+
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
@@ -254,6 +258,7 @@ class Post extends Model {
 		if ( true === $resolve_revision_meta_from_parent && 'revision' === get_post( $object_id )->post_type ) {
 			$meta                       = get_post_meta( get_post( $object_id )->post_parent, $meta_key, $single );
 			$this->filter_revision_meta = false;
+
 			return $meta;
 		}
 
@@ -436,6 +441,9 @@ class Post extends Model {
 				'id'                        => function() {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->ID ) ) ? Relay::toGlobalId( 'post', $this->ID ) : null;
 				},
+				'databaseId'                => function() {
+					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
+				},
 				'post_type'                 => function() {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
 				},
@@ -576,11 +584,11 @@ class Post extends Model {
 					return ! empty( $this->data->menu_order ) ? absint( $this->data->menu_order ) : null;
 				},
 				'link'                      => function() {
+					$link = get_permalink( $this->data->ID );
+
 					if ( $this->isPreview ) {
 						$link = get_preview_post_link( $this->parentDatabaseId );
 					} elseif ( $this->isRevision ) {
-						$link = get_permalink( $this->data->ID );
-					} else {
 						$link = get_permalink( $this->data->ID );
 					}
 
