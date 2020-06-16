@@ -45,6 +45,10 @@ class PostObjectsConnectionOrderbyEnum {
 						'value'       => 'menu_order',
 						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
 					],
+					'COMMENT_COUNT' => [
+						'value'       => 'comment_count',
+						'description' => __( 'Order by the number of comments it has acquired', 'wp-graphql' ),
+					],
 				],
 			]
 		);
