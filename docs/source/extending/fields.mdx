@@ -35,7 +35,7 @@ Register field for user
 			'type'        => \WPGraphQL\Types::list_of( \WPGraphQL\Types::string() ),
 			'description' => __( 'Custom field for user mutations', 'your-textdomain' ),
 			'resolve'     => function( $user ) {
-				$hobbies = get_user_meta( $user->userId, 'hobbies', true );
+				$hobbies = get_user_meta( $user->ID, 'hobbies', true );
 				return ! empty( $hobbies ) ? $hobbies : [];
 			},
 		];
