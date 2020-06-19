@@ -50,44 +50,6 @@ class TermObject {
 			]
 		);
 
-		if ( true === $taxonomy_object->hierarchical ) {
-			register_graphql_field(
-				$taxonomy_object->graphql_single_name,
-				'parent',
-				[
-					'type'        => $taxonomy_object->graphql_single_name,
-					'description' => __( 'The parent object', 'wp-graphql' ),
-					'resolve'     => function( Term $term, $args, AppContext $context, $info ) {
-						return isset( $term->parentDatabaseId ) ? $context->get_loader( 'term' )->load_deferred( $term->parentDatabaseId ) : null;
-					},
-				]
-			);
-
-			register_graphql_field(
-				$taxonomy_object->graphql_single_name,
-				'ancestors',
-				[
-					'type'        => [
-						'list_of' => $taxonomy_object->graphql_single_name,
-					],
-					'description' => esc_html__( 'The ancestors of the object', 'wp-graphql' ),
-					'resolve'     => function( Term $term, $args, $context, $info ) {
-						$ancestors = [];
-
-						$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
-						if ( ! empty( $ancestor_ids ) ) {
-							foreach ( $ancestor_ids as $ancestor_id ) {
-								$ancestors[] = DataSource::resolve_term_object( $ancestor_id, $context );
-							}
-						}
-
-						return ! empty( $ancestors ) ? $ancestors : null;
-					},
-				]
-			);
-
-		}
-
 	}
 
 }
