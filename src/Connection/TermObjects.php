@@ -161,7 +161,7 @@ class TermObjects {
 						'fromType'           => $tax_object->graphql_single_name,
 						'toType'             => $tax_object->graphql_single_name,
 						'fromFieldName'      => 'ancestors',
-						'description' => esc_html__( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+						'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 						'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 						'resolve'            => function( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 

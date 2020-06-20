@@ -2,21 +2,25 @@
 
 namespace WPGraphQL\Model;
 
+use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 
 /**
  * Class MenuItem - Models the data for the MenuItem object type
  *
- * @property string   $id
- * @property array    $cssClasses
- * @property string   $description
- * @property string   $label
- * @property string   $linkRelationship
- * @property int      $menuItemId
- * @property int      $objectId
- * @property string   $target
- * @property string   $title
- * @property string   $url
+ * @property string $id
+ * @property array  $cssClasses
+ * @property string $description
+ * @property string $label
+ * @property string $linkRelationship
+ * @property int    $menuItemId
+ * @property int    $objectId
+ * @property string $target
+ * @property string $title
+ * @property string $url
+ * @property string $menuId
+ * @property int    $menuDatabaseId
+ * @property array  $locations
  *
  * @package WPGraphQL\Model
  */
@@ -99,6 +103,40 @@ class MenuItem extends Model {
 				},
 				'order'            => function() {
 					return $this->data->menu_order;
+				},
+				'menuId'           => function() {
+					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
+				},
+				'menuDatabaseId'   => function() {
+
+					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
+					if ( is_wp_error( $menus ) ) {
+						throw new UserError( $menus->get_error_message() );
+					}
+
+					return isset( $menus[0] ) && isset( $menus[0]->term_id ) ? $menus[0]->term_id : null;
+				},
+				'locations'        => function() {
+
+					if ( empty( $this->menuDatabaseId ) ) {
+						return null;
+					}
+
+					$menu_locations = get_theme_mod( 'nav_menu_locations' );
+
+					if ( empty( $menu_locations ) || ! is_array( $menu_locations ) ) {
+						return null;
+					}
+
+					$locations = null;
+					foreach ( $menu_locations as $location => $id ) {
+						if ( absint( $id ) === ( $this->menuDatabaseId ) ) {
+							$locations[] = $location;
+						}
+					}
+
+					return $locations;
+
 				},
 			];
 

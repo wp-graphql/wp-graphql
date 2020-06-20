@@ -3,6 +3,7 @@
 namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\WPEnumType;
 
 /**
  * Class Menu - Models data for Menus
@@ -47,20 +48,37 @@ class Menu extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id'     => function() {
-					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'nav_menu', $this->data->term_id ) : null;
+				'id'        => function() {
+					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
 				},
-				'count'  => function() {
+				'count'     => function() {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
-				'menuId' => function() {
+				'menuId'    => function() {
 					return ! empty( $this->data->term_id ) ? absint( $this->data->term_id ) : null;
 				},
-				'name'   => function() {
+				'name'      => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'slug'   => function() {
+				'slug'      => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
+				},
+				'locations' => function() {
+					$menu_locations = get_theme_mod( 'nav_menu_locations' );
+
+					if ( empty( $menu_locations ) || ! is_array( $menu_locations ) ) {
+						return null;
+					}
+
+					$locations = null;
+					foreach ( $menu_locations as $location => $id ) {
+						if ( absint( $id ) === ( $this->data->term_id ) ) {
+							$locations[] = $location;
+						}
+					}
+
+					return $locations;
+
 				},
 			];
 

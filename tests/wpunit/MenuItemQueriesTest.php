@@ -4,8 +4,24 @@ use GraphQLRelay\Relay;
 
 class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public function setUp() {
+		parent::setUp();
+		WPGraphQL::clear_schema();
+	}
+
+	public function tearDown() {
+		WPGraphQL::clear_schema();
+		parent::tearDown();
+	}
+
 	public function testMenuItemQuery() {
-		$menu_id = wp_create_nav_menu( 'my-test-menu' );
+
+		add_theme_support( 'nav_menus' );
+		$location_name = 'test-location';
+		register_nav_menu( $location_name, 'test menu...' );
+
+		$menu_slug = 'my-test-menu';
+		$menu_id = wp_create_nav_menu( $menu_slug );
 		$post_id = $this->factory()->post->create();
 
 		$menu_item_id = wp_update_nav_menu_item(
@@ -20,6 +36,10 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
+		set_theme_mod( 'nav_menu_locations', [ $location_name => $menu_id ] );
+
+		codecept_debug( get_theme_mod( 'nav_menu_locations' ) );
+
 		$menu_item_relay_id = Relay::toGlobalId( 'nav_menu_item', $menu_item_id );
 
 		$query = '
@@ -33,6 +53,13 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 						postId
 					}
 				}
+				locations
+				menu {
+				  node {
+				    slug
+				    locations
+				  }
+				}
 			}
 		}
 		';
@@ -44,6 +71,9 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['databaseId'] );
 		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
 		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedObject']['postId'] );
+		$this->assertEquals( $menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['locations'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
 	}
 
 }

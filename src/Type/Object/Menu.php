@@ -33,6 +33,12 @@ class Menu {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
+					'locations'    => [
+						'type' => [
+							'list_of'     => 'MenuLocationEnum',
+							'description' => __( 'The locations a menu is assigned to', 'wp-graphql' ),
+						],
+					],
 				],
 			]
 		);

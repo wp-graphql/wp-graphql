@@ -46,7 +46,6 @@ class MenuItem {
 					'menuItemId'       => [
 						'type'              => 'Int',
 						'description'       => __( 'WP ID of the menu item.', 'wp-graphql' ),
-						'isDeprecated'      => true,
 						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 					],
 					'databaseId'       => [
@@ -72,6 +71,12 @@ class MenuItem {
 					'order'            => [
 						'type'        => 'Int',
 						'description' => __( 'Menu item order', 'wp-graphql' ),
+					],
+					'locations'        => [
+						'type' => [
+							'list_of'     => 'MenuLocationEnum',
+							'description' => __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' ),
+						],
 					],
 					'connectedObject'  => [
 						'type'        => 'MenuItemObjectUnion',
