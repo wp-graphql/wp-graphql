@@ -4,12 +4,11 @@ use GraphQLRelay\Relay;
 
 class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
-	}
+		WPGraphQL::clear_schema();}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
