@@ -151,7 +151,7 @@ class PostObjectLoader extends AbstractDataLoader {
 				$loaded_posts[ $key ] = $load_dependencies->then(
 					function() use ( $post_object ) {
 
-						if ( $post_object->post_type === 'nav_menu_item' ) {
+						if ( 'nav_menu_item' === $post_object->post_type ) {
 							return new MenuItem( $post_object );
 						}
 
