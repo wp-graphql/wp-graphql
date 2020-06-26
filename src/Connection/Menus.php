@@ -46,7 +46,6 @@ class Menus {
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					$resolver   = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
 					$connection = $resolver->get_connection();
-
 					return $connection;
 				},
 			]
@@ -60,7 +59,7 @@ class Menus {
 			'oneToOne'      => true,
 			'resolve'       => function( MenuItem $menu_item, $args, $context, $info ) {
 				$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
-				$resolver->set_query_arg( 'p', $menu_item->menuDatabaseId );
+				$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
 				return $resolver->one_to_one()->get_connection();
 			},
 		]);

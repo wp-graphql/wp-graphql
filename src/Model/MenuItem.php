@@ -14,6 +14,7 @@ use GraphQLRelay\Relay;
  * @property string $label
  * @property string $linkRelationship
  * @property int    $menuItemId
+ * @property int    $databaseId
  * @property int    $objectId
  * @property string $target
  * @property string $title
@@ -44,6 +45,50 @@ class MenuItem extends Model {
 	public function __construct( \WP_Post $post ) {
 		$this->data = wp_setup_nav_menu_item( $post );
 		parent::__construct();
+	}
+
+	/**
+	 * Determines whether a MenuItem should be considered private.
+	 *
+	 * If a MenuItem is not connected to a menu that's assigned to a location
+	 * it's not considered a public node
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function is_private() {
+
+		// If the current user can edit theme options, consider the menu item public
+		if ( current_user_can( 'edit_theme_options' ) ) {
+			return false;
+		}
+
+		// Get menu locations for the active theme
+		$locations = get_theme_mod( 'nav_menu_locations' );
+
+		// If there are no menu locations, consider the MenuItem private
+		if ( empty( $locations ) ) {
+			return true;
+		}
+
+		// Get the values of the locations
+		$location_ids = array_values( $locations );
+		$menus        = wp_get_object_terms( $this->data->ID, 'nav_menu', [ 'fields' => 'ids' ] );
+
+		// If there are no menus
+		if ( empty( $menus ) ) {
+			return true;
+		}
+
+		if ( is_wp_error( $menus ) ) {
+			throw new \Exception( sprintf( __( 'No menus could be found for menu item %s', 'wp-graphql' ), $this->data->ID ) );
+		}
+		$menu_id = $menus[0];
+		if ( empty( $location_ids ) || ! in_array( $menu_id, $location_ids, true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -100,6 +145,19 @@ class MenuItem extends Model {
 				},
 				'url'              => function() {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
+				},
+				'path'             => function() {
+
+					$url = $this->url;
+
+					if ( ! empty( $url ) ) {
+						$parsed = wp_parse_url( $url );
+						if ( isset( $parsed['host'] ) && strpos( site_url(), $parsed['host'] ) ) {
+							return $parsed['path'];
+						}
+					}
+					return $url;
+
 				},
 				'order'            => function() {
 					return $this->data->menu_order;

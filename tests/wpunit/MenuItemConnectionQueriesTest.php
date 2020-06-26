@@ -97,6 +97,8 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$count   = 10;
 		$created = $this->createMenuItems( 'my-test-menu-id', $count );
 
+		codecept_debug( $created );
+
 		$query = '
 		{
 			menuItems {
@@ -121,8 +123,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		// The query should return no menu items since no where args were specified.
-		$this->assertEquals( [], $actual['data']['menuItems']['edges'] );
+		// The query should return the 10 menu items
+		$this->assertEquals( 10, count( $actual['data']['menuItems']['edges'] ) );
+		$this->assertEquals( 10, count( $actual['data']['menuItems']['nodes'] ) );
+
+		$node_ids = wp_list_pluck( $actual['data']['menuItems']['nodes'], 'databaseId' );
+		$this->assertSame( $created['menu_item_ids'], $node_ids );
+
 	}
 
 	public function testMenuItemsQueryNodes() {
@@ -378,7 +385,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 
-	public function testMenuItemsQueryWithExplicitParentDatabseId() {
+	public function testMenuItemsQueryWithExplicitParentDatabaseId() {
 		$created = $this->createNestedMenu( 3 );
 
 		// The nesting is added to the fourth item

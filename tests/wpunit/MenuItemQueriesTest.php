@@ -4,8 +4,13 @@ use GraphQLRelay\Relay;
 
 class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public $admin;
+
 	public function setUp(): void {
 		parent::setUp();
+		$this->admin = $this->factory()->user->create([
+			'role' => 'administrator'
+		]);
 		WPGraphQL::clear_schema();}
 
 	public function tearDown(): void {
@@ -64,6 +69,7 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
 
 		codecept_debug( $actual );
 

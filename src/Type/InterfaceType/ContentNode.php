@@ -67,7 +67,7 @@ class ContentNode {
 						'type'        => [
 							'non_null' => 'Int',
 						],
-						'description' => __( 'The ID of the object in the database.', 'wp-graphql' ),
+						'description' => __( 'The ID of the node in the database.', 'wp-graphql' ),
 					],
 					'date'                      => [
 						'type'        => 'String',

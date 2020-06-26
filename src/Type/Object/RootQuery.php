@@ -202,33 +202,78 @@ class RootQuery {
 						'type'        => 'Menu',
 						'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type' => [
 									'non_null' => 'ID',
 								],
 							],
+							'idType' => [
+								'type' => 'MenuNodeIdTypeEnum',
+							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
+						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 
-							return DataSource::resolve_term_object( $id_components['id'], $context );
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							switch ( $id_type ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								case 'name':
+									$menu = new \WP_Term_Query([
+										'taxonomy'         => 'nav_menu',
+										'fields'           => 'ids',
+										'name'             => $args['id'],
+										'include_children' => false,
+										'count'            => false,
+									]);
+									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
+									break;
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$id = absint( $id_components['id'] );
+
+									break;
+							}
+
+							return ! empty( $id ) ? $context->get_loader( 'term' )->load_deferred( absint( $id ) ) : null;
 						},
 					],
 					'menuItem'    => [
 						'type'        => 'MenuItem',
 						'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type' => [
 									'non_null' => 'ID',
 								],
 							],
+							'idType' => [
+								'type' => 'MenuItemNodeIdTypeEnum',
+							],
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
-							$id            = absint( $id_components['id'] );
 
-							return DataSource::resolve_menu_item( $id, $context );
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							switch ( $id_type ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$id = absint( $id_components['id'] );
+
+									break;
+							}
+
+							return $context->get_loader( 'post' )->load_deferred( absint( $id ) );
 						},
 					],
 					'plugin'      => [
