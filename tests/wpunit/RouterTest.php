@@ -2,14 +2,14 @@
 
 class RouterTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
 		// your set up methods here
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then
@@ -55,7 +55,7 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test to make sure the router is setting the request variable
-	 * 
+	 *
 	 * @see: https://github.com/wp-graphql/wp-graphql/pull/452
 	 */
 	public function testRequestVariableIsSet() {
@@ -86,7 +86,7 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 
 			return true;
 		} );
-	}	
+	}
 
 	/**
 	 * Test the "send_header" method in the Router class

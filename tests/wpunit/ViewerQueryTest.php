@@ -2,11 +2,11 @@
 
 class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -47,7 +47,7 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-		$this->assertContains( 'administrator', $actual['data']['viewer']['roles']['nodes'][0]['name'] );
+		$this->assertSame( 'administrator', $actual['data']['viewer']['roles']['nodes'][0]['name'] );
 
 	}
 

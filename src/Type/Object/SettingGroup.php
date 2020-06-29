@@ -18,6 +18,20 @@ class SettingGroup {
 				'fields'      => self::get_settings_group_fields( $group_name, $group ),
 			]
 		);
+
+		/**
+		 * The url is not a registered setting for multisite, so this is a polyfill
+		 * to expose the URL to the Schema for multisite sites
+		 */
+		if ( is_multisite() ) {
+			register_graphql_field( 'GeneralSettings', 'url', [
+				'type'        => 'String',
+				'description' => __( 'Site URL.', 'wp-graphql' ),
+				'resolve'     => function() {
+					return get_site_url();
+				},
+			] );
+		}
 	}
 
 	/**

@@ -8,7 +8,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $created_post_ids;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -23,7 +23,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->created_term_ids = $this->create_terms();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

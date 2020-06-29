@@ -5,7 +5,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	private $admin;
 	public $request;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->admin = $this->factory->user->create( [ 'role' => 'administrator' ] );
 	}
@@ -21,7 +21,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		return $request->execute();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

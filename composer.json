@@ -27,13 +27,21 @@
     "ivome/graphql-relay-php": "0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "2.2.0",
+    "lucatume/wp-browser": "^2.4",
+    "codeception/module-asserts": "^1.0",
+    "codeception/module-phpbrowser": "^1.0",
+    "codeception/module-webdriver": "^1.0",
+    "codeception/module-db": "^1.0",
+    "codeception/module-filesystem": "^1.0",
+    "codeception/module-cli": "^1.0",
+    "codeception/util-universalframework": "^1.0",
     "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
     "wp-coding-standards/wpcs": "2.1.1",
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
     "squizlabs/php_codesniffer": "3.5.4",
     "phpstan/phpstan": "^0.12.25",
-    "szepeviktor/phpstan-wordpress": "^0.5.0"
+    "szepeviktor/phpstan-wordpress": "^0.5.0",
+    "codeception/module-rest": "^1.2"
   },
   "config": {
     "optimize-autoloader": true

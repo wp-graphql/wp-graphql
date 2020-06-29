@@ -4,10 +4,19 @@ use GraphQLRelay\Relay;
 
 class MenuQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public $admin;
+
+	public function setUp(): void {
+		parent::setUp();
+		$this->admin = $this->factory()->user->create([
+			'role' => 'administrator'
+		]);
+	}
+
 	public function testMenuQuery() {
 		$menu_slug = 'my-test-menu';
 		$menu_id = wp_create_nav_menu( $menu_slug );
-		$menu_relay_id = Relay::toGlobalId( 'nav_menu', $menu_id );
+		$menu_relay_id = Relay::toGlobalId( 'term', $menu_id );
 
 		$query = '
 		{
@@ -18,6 +27,13 @@ class MenuQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 		';
+
+		$actual = do_graphql_request( $query );
+
+		// A menu not associated with a location is private for a public request
+		$this->assertNull( $actual['data']['menu'] );
+
+		wp_set_current_user( $this->admin );
 
 		$actual = do_graphql_request( $query );
 

@@ -43,7 +43,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $attachment_id;
 	public $media_item_id;
 
-    public function setUp()
+    public function setUp(): void
     {
         // before
         parent::setUp();
@@ -162,7 +162,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    ];
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // your tear down methods here
 
@@ -201,8 +201,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			      description
 			      mimeType
 			      parent {
-			        ... on Post {
-			          id
+			        node {
+				      ... on Post {
+				        id
+				      }
 			        }
 			      }
 			      sourceUrl
@@ -443,7 +445,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'status'           => strtolower( $this->status ),
 						'mimeType'         => 'image/gif',
 						'parent'           => [
-							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
+							'node' => [
+								'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
+							],
 						],
 						'mediaType'        => 'image',
 						'sourceUrl'        => $attachment_url,
@@ -544,13 +548,17 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      status
 		      title
 		      author {
-		        id
+		        node {
+		          id
+		        }
 		      }
 		      description
 		      mimeType
 		      parent {
-		        ... on Post {
-		          id
+		        node {
+  		          ... on Post {
+  		            id
+		          }
 		        }
 		      }
 		      sourceUrl
@@ -619,7 +627,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'description'      => '',
 						'mimeType'         => 'image/gif',
 						'author'           => [
-							'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							'node' => [
+								'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							],
 						],
 						'parent'           => null,
 						'sourceUrl'        => $attachment_url,
@@ -770,7 +780,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      description
 		      mimeType
 		      author {
-		        id
+		        node {
+		          id
+		        }
 		      }
 		    }
 		  }
@@ -914,7 +926,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 						'status'           => strtolower( $this->updated_status ),
 						'mimeType'         => 'image/gif',
 						'author'           => [
-							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							'node' => [
+								'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							],
 						],
 					],
 				],

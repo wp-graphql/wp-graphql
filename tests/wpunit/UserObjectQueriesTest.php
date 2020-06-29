@@ -5,7 +5,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_time;
 	public $current_date;
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::setUp();
 
@@ -13,7 +13,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		$this->delete_users();
 		parent::tearDown();
 	}

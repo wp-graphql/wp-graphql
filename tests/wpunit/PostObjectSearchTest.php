@@ -10,7 +10,7 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 	public $app_context;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		parent::setUp();
 
@@ -60,7 +60,7 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		global $wpdb;
 		$wpdb->delete( $wpdb->prefix . 'posts', array( 'post_type' => 'post' ) );
 		parent::tearDown();

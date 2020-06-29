@@ -2,7 +2,7 @@
 
 class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 
 		/**
 		 * Manually Register a setting for testing
@@ -29,7 +29,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

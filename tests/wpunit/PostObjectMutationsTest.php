@@ -9,7 +9,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $subscriber;
 	public $author;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -31,7 +31,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

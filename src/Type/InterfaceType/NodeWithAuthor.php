@@ -17,18 +17,13 @@ class NodeWithAuthor {
 			[
 				'description' => __( 'A node that can have an author assigned to it', 'wp-graphql' ),
 				'fields'      => [
-					'author' => [
-						'type'        => 'User',
-						'description' => __( "The author field will return a queryable User type matching the post's author.", 'wp-graphql' ),
-						'resolve'     => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-							// @codingStandardsIgnoreLine.
-							if ( ! isset( $post->authorId ) || ! absint( $post->authorId ) ) {
-								return null;
-							};
-
-							// @codingStandardsIgnoreLine.
-							return DataSource::resolve_user( $post->authorId, $context );
-						},
+					'authorId'         => [
+						'type'        => 'ID',
+						'description' => __( 'The globally unique identifier of the author of the node', 'wp-graphql' ),
+					],
+					'authorDatabaseId' => [
+						'type'        => 'Int',
+						'description' => __( 'The database identifier of the author of the node', 'wp-graphql' ),
 					],
 				],
 			]

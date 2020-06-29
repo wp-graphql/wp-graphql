@@ -16,7 +16,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public $author_id;
 	public $media_id;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		parent::setUp();
 
@@ -97,7 +97,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		WPGraphQL::clear_schema();
 		wp_delete_term( $this->tag_id, 'post_tag' );
 		wp_delete_term( $this->category_id, 'post_tag' );

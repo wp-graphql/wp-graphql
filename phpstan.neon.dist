@@ -1,0 +1,14 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+    level: max
+    autoload_files:
+        - wp-graphql.php
+        - access-functions.php
+    paths:
+        - wp-graphql.php
+        - access-functions.php
+        - src/
+    ignoreErrors:
+        # Uses func_get_args()
+        - '#^Function apply_filters(_ref_array)? invoked with ([3456789]|10) parameters, 2 required\.$#'

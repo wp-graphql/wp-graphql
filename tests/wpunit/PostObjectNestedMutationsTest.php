@@ -9,7 +9,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $subscriber;
 	public $author;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -32,7 +32,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -119,6 +119,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 				]
 			]
 		]);
+
+		codecept_debug( $results );
 
 
 		$this->assertArrayNotHasKey( 'errors', $results );

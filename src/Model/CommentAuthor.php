@@ -52,7 +52,7 @@ class CommentAuthor extends Model {
 					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
 				},
 				'email' => function() {
-					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
+					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'url'   => function() {
 					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : '';

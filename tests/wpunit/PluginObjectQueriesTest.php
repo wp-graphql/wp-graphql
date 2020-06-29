@@ -4,7 +4,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
 		$this->admin = $this->factory()->user->create( [
@@ -12,7 +12,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		wp_logout();
 		WPGraphQL::clear_schema();
 		parent::tearDown();

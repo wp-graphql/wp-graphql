@@ -99,7 +99,7 @@ class Term extends Model {
 	 * Reset global state after the model fields
 	 * have been generated
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$GLOBALS['post'] = $this->global_post;
 		wp_reset_postdata();
 	}
@@ -124,10 +124,10 @@ class Term extends Model {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'description'              => function() {
-					return ! empty( $this->data->description ) ? $this->data->description : null;
+					return ! empty( $this->data->description ) ? html_entity_decode( $this->data->description ) : null;
 				},
 				'name'                     => function() {
-					return ! empty( $this->data->name ) ? $this->data->name : null;
+					return ! empty( $this->data->name ) ? html_entity_decode( $this->data->name ) : null;
 				},
 				'slug'                     => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;

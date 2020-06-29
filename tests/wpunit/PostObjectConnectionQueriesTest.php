@@ -8,7 +8,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
 
@@ -32,7 +32,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
@@ -402,11 +402,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			page( id: "' . $global_id . '" ) {
 				id
 				pageId
-				childPages {
+				children {
 					edges {
 						node {
-							id
-							pageId
+						    ...on Page {
+							  id
+							  pageId
+							}
 						}
 					}
 				}
@@ -422,7 +424,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$parent = $actual['data']['page'];
-		$child  = $parent['childPages']['edges'][0]['node'];
+		$child  = $parent['children']['edges'][0]['node'];
 
 		/**
 		 * Make sure the child and parent data matches what we expect

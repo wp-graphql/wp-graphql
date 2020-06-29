@@ -5,7 +5,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $editor;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -18,7 +18,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 

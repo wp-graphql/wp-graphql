@@ -13,13 +13,18 @@ class Menu {
 					'id'           => [
 						'description' => __( 'The globally unique identifier of the nav menu object.', 'wp-graphql' ),
 					],
+					'databaseId'   => [
+						'type'        => 'Int',
+						'description' => __( 'The ID of the node in the database.', 'wp-graphql' ),
+					],
 					'count'        => [
 						'type'        => 'Int',
 						'description' => __( 'The number of items in the menu', 'wp-graphql' ),
 					],
 					'menuId'       => [
-						'type'        => 'Int',
-						'description' => __( 'WP ID of the nav menu.', 'wp-graphql' ),
+						'type'              => 'Int',
+						'description'       => __( 'WP ID of the nav menu.', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'ID' ),
 					],
 					'name'         => [
 						'type'        => 'String',
@@ -32,6 +37,12 @@ class Menu {
 					'isRestricted' => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+					],
+					'locations'    => [
+						'type' => [
+							'list_of'     => 'MenuLocationEnum',
+							'description' => __( 'The locations a menu is assigned to', 'wp-graphql' ),
+						],
 					],
 				],
 			]
