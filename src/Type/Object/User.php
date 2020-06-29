@@ -99,7 +99,7 @@ class User {
 					'userId'            => [
 						'type'              => 'Int',
 						'description'       => __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' ),
-						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 					],
 					'isRestricted'      => [
 						'type'        => 'Boolean',

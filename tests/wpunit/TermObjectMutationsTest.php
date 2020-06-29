@@ -598,7 +598,9 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		  createCategory(input: $input) {
 		    category {
 		      parent{
-		        id
+		        node {
+		          id
+		        }
 		      }
 		    }
 		  }
@@ -620,7 +622,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['id'] );
+		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['node']['id'] );
 
 	}
 

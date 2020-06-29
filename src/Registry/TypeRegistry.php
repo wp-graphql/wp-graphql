@@ -46,6 +46,8 @@ use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
+use WPGraphQL\Type\Enum\MenuItemNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\MenuNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
@@ -267,6 +269,8 @@ class TypeRegistry {
 		MediaItemSizeEnum::register_type();
 		MediaItemStatusEnum::register_type();
 		MenuLocationEnum::register_type();
+		MenuItemNodeIdTypeEnum::register_type();
+		MenuNodeIdTypeEnum::register_type();
 		MimeTypeEnum::register_type();
 		OrderEnum::register_type();
 		PostObjectFieldFormatEnum::register_type();

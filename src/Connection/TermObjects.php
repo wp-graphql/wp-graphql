@@ -140,7 +140,7 @@ class TermObjects {
 					register_graphql_connection([
 						'fromType'           => $tax_object->graphql_single_name,
 						'toType'             => $tax_object->graphql_single_name,
-						'fromFieldName'      => 'parentNode',
+						'fromFieldName'      => 'parent',
 						'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 						'oneToOne'           => true,
 						'resolve'            => function( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
@@ -153,6 +153,28 @@ class TermObjects {
 							$resolver->set_query_arg( 'include', $term->parentDatabaseId );
 
 							return $resolver->one_to_one()->get_connection();
+
+						},
+					]);
+
+					register_graphql_connection([
+						'fromType'           => $tax_object->graphql_single_name,
+						'toType'             => $tax_object->graphql_single_name,
+						'fromFieldName'      => 'ancestors',
+						'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+						'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
+						'resolve'            => function( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+
+							$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
+
+							if ( empty( $ancestor_ids ) ) {
+								return null;
+							}
+
+							$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
+							$resolver->set_query_arg( 'include', $ancestor_ids );
+
+							return $resolver->get_connection();
 
 						},
 					]);

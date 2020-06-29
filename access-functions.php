@@ -314,3 +314,29 @@ function is_graphql_request() {
 function is_graphql_http_request() {
 	return \WPGraphQL\Router::is_graphql_http_request();
 }
+
+/**
+ * Polyfill for PHP versions below 7.3
+ *
+ * @return mixed|string|int
+ */
+if ( ! function_exists( 'array_key_first' ) ) {
+	function array_key_first( array $array ) {
+		foreach ( $array as $key => $value ) {
+			return $key;
+		}
+	}
+}
+
+/**
+ * Polyfill for PHP versions below 7.3
+ *
+ * @return mixed|string|int
+ */
+if ( ! function_exists( 'array_key_last' ) ) {
+	function array_key_last( array $array ) {
+		end( $array );
+
+		return key( $array );
+	}
+}
