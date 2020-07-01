@@ -13,10 +13,11 @@ In WordPress, Navigation Menus consist of 2 types of entities: Menus and MenuIte
 to a connected object such as a Post, Page, Category, Tag, or other entity. MenuItems can have hierarchical
 relationships with other MenuItems, meaning MenuItems can be nested with parent/child relationships.
 
+## Queries
 
 Below are some examples of querying Menus and Menu Items.
 
-## Menu by ID
+### Menu by ID
 If you know the ID of a Menu, you can query like so:
 
 <GraphiQL
@@ -50,7 +51,7 @@ If you know the ID of a Menu, you can query like so:
 	}}
 />
 
-## Menu by Name
+### Menu by Name
 
 Often, it can be inconvenient to query Menus by ID. Since Menu names in WordPress are unique the name
 can be used as a unique identifier and we can query for Menus by name using the `idType` argument like so:
@@ -87,7 +88,7 @@ can be used as a unique identifier and we can query for Menus by name using the 
 />
 
 
-## Menus
+### Menus
 
 If you are looking for a list of all menus that exist, you can query a list of menus like so:
 
@@ -123,7 +124,7 @@ capabilities to see the Menus.
 </Note>
 
 
-## Menu Item
+### Menu Item
 
 If you have the ID of a MenuItem, you can query it directly like so:
 
@@ -150,7 +151,7 @@ If you have the ID of a MenuItem, you can query it directly like so:
 	}}
 />
 
-## Menu Item by Database ID
+### Menu Item by Database ID
 
 If you have the Database ID of a MenuItem, you can query it directly like so:
 
@@ -177,7 +178,7 @@ If you have the Database ID of a MenuItem, you can query it directly like so:
 	}}
 />
 
-## Menu Items
+### Menu Items
 
 Querying a list of Menu Items with no arguments will return Menu Items associated with _any_ Menus.
 
@@ -205,7 +206,7 @@ Location, like so:
 	}
 />
 
-### Converting a Flat List to Hierarchical List
+#### Converting a Flat List to Hierarchical List
 
 One thing you may have noticed is that Menu Items will be returned in a flat-list by default,
 meaning that hierarchical relationships such as parent, children, grand-child Menu Items, will all be
