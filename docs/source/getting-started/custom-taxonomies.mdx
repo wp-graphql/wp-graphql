@@ -3,6 +3,8 @@ title: Custom Taxonomies
 description: Learn about how to register and interact with Custom Taxonomies using WPGraphQL
 ---
 
+import Note from '../../src/components/Note'
+
 Exposing Custom Taxonomies to GraphQL requires just 3 fields to be added to the Taxonomy registration.
 
 -   **show_in_graphql**: true or false
@@ -27,6 +29,11 @@ add_action('init', function() {
 });
 ```
 
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
+
 ## Filtering existing Taxonomies
 
 If you want to expose a Taxonomy that you don’t control the registration for, such as a taxonomy
@@ -46,6 +53,11 @@ add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {
 }, 10, 2 );
 
 ```
+
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
 
 ## Querying Custom Taxonomies
 

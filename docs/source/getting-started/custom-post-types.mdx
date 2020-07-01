@@ -8,12 +8,13 @@ import Note from '../../src/components/Note'
 Exposing Custom Post Types to GraphQL requires just 3 fields to be added to the Post Type registration.
 
 - **show_in_graphql**: true or false
-- **graphql_single_name**: camel case string with no punctuation or spaces
-- **graphql_plural_name**: camel case string with no punctuation or spaces
+- **graphql_single_name**: camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the plural name.
+- **graphql_plural_name**: camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the single name.
 
 ## Register a new Post Type
 
 This is an example of registering a new “docs” post_type and enabling GraphQL support.
+
 
 ```php
 add_action( 'init', function() {
@@ -29,6 +30,11 @@ add_action( 'init', function() {
    ] );
 } );
 ```
+
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
 
 ## Filter Existing Post Types
 
@@ -93,7 +99,7 @@ query GetDocuments {
     edges {
       node {
         ...DocumentFields
-        childDocuments {
+        children {
           edges {
             node {
               ...DocumentFields

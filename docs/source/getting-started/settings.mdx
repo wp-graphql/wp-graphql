@@ -18,14 +18,15 @@ WordPress has a `register_settings()` API that allows developers to register set
  * Registers a text field setting for Wordpress 4.7 and higher.
  **/
 function register_my_setting() {
-    $args = array(
-            'type' => 'string',
-            'sanitize_callback' => 'sanitize_text_field',
-            'default' => NULL,
-            'show_in_graphql' => true,
-            );
+    $args = [
+      'type' => 'string',
+      'sanitize_callback' => 'sanitize_text_field',
+      'default' => NULL,
+      'show_in_graphql' => true,
+    ];
     register_setting( 'my_options_group', 'my_option_name', $args );
 }
+
 add_action( 'admin_init', 'register_my_setting' );
 ```
 
@@ -42,7 +43,6 @@ Site settings can be queried in two different ways. As mentioned before, you reg
   allSettings {
     generalSettingsDateFormat
     generalSettingsDescription
-    generalSettingsEmail
     generalSettingsLanguage
     generalSettingsStartOfWeek
     generalSettingsTimeFormat
@@ -69,7 +69,6 @@ Site settings can also be queried by setting group name. Field names will be the
   query="query{generalSettings {
   dateFormat
   description
-  email
   language
   startOfWeek
   timeFormat

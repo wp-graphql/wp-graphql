@@ -4,9 +4,18 @@ description: Learn about how to interact with Themes using WPGraphQL
 ---
 
 import GraphiQL from '../../src/components/GraphiQL'
+import Note from '../../src/components/Note'
 
 Themes are a core tenant in every WordPress site. WPGraphQL exposes native ways to interact with
 Themes via GraphQL.
+
+<Note title="Privacy and Access">
+The currently active theme is considered public as it'e exposed via the public style.css file, but
+additional installed themes that are not active are considered private and require WPGraphQL requests
+to be authenticated and for the requestor to have proper capabilities to see them. The examples
+below are public requests and will return the currently active theme but will not return additional
+installed themes.
+</Note>
 
 ## Queries
 
