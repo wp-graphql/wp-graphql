@@ -243,10 +243,12 @@ class PostObjects {
 										'resolve'  => function( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 											$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
 											$resolver->set_query_arg( 'tax_query', [
-												'taxonomy' => $term->taxonomyName,
-												'terms'    => [ $term->term_id ],
-												'field'    => 'term_id',
-												'include_children' => false,
+												[
+													'taxonomy' => $term->taxonomyName,
+													'terms'    => [ $term->term_id ],
+													'field'    => 'term_id',
+													'include_children' => false,
+												]
 											] );
 
 											return $resolver->get_connection();
