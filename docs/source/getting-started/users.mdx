@@ -251,23 +251,26 @@ If that key is entered along with the matching username and a new password, the 
 
 ## Sensitive Data
 
-<Note title="Model Layer Coming Soon">
-There is an official "Model Layer" in the works that centralizes access to objects and provides smart
-defualts for what data should be returned to the user making the request.
+WordPress considers users with published content of a public post type public entities. Users that
+do not have published content in a public post type are considered private.
 
-Keep an eye out for more news on this front, but it will restrict sensitive data by default, while
-still enabling fine-grain control for site owners.
+This means that a public GraphQL request can query for users and get a list of users in response. Much
+like a user could visit a published author's archive page or see the Username in the byline of
+a Blog Post. User that do not have any published content will not be returned in the results of a
+non-authenticated GraphQL query for users.
 
-</Note>
+Some fields, such as the `User.email` are restricted and will return `null` if the request is a
+non-authenticated request.
 
-Until the official Model Layer is released, some user data that is currently exposed out of the box
-probably should _not_ be exposed to the general public. At the time of writing this, WPGraphQL
-allows you (the site owner/admin) the ability to restrict data down to the field level. (The
-fine-grain restrictions will only be enhanced by the "Model Layer" when released.)
+### Restricting fields
 
-If you don't want certain fields exposed, such as the `email` field on the `User` Type or
-the `authorIp` field on the `Comment` type, you can filter the resolvers to require authentication
-so only authenticated users (like admins, etc) can see the values:
+In certain cases, you may want to restrict specific fields to authenticated requests or other criteria.
+
+The below snippet shows one way (of many possible ways) to filter WPGraphQL field resolvers to restrict
+the values of specific fields from resolving if the user is not logged in. You can use this snippet
+as inspiration to filter specific fields of specific Types that you would like to restrict based
+on whatever custom criteria your application has.
+
 
 ```php
 add_action( 'graphql_register_types', function() {

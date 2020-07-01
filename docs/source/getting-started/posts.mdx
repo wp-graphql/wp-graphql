@@ -387,19 +387,20 @@ If we know the ID of a Post, we can query for the post individually like so:
   }}
 />
 
-### PostBy
+### idType argument
 
-Sometimes you need to query an individual Post, but you don't have the ID. There are a few other
-ways to get an individual Post, but using the `postBy` query.
+Sometimes you need to query an individual Post, but you don't have the ID.
+
+Using the `idType` argument, we can get individual nodes with alternative unique identifiers.
 
 **Here's an example of getting a post by it's URI.**
 
 <GraphiQL
   query="
-  query GET_POST( $uri: String ) {
-    postBy( uri: $uri ) {
+  query GET_POST( $uri: ID! ) {
+    post( id: $uri, idType: URI ) {
       id
-      postId
+      databaseId
       title
       date
       uri
@@ -415,10 +416,10 @@ ways to get an individual Post, but using the `postBy` query.
 
 <GraphiQL
   query="
-  query GET_POST( $postId: Int ) {
-    postBy( postId: $postId ) {
+  query GET_POST( $databaseId: ID! ) {
+    post( id: $databaseId idType: DATABASE_ID ) {
       id
-      postId
+      databaseId
       title
       date
       uri
@@ -426,7 +427,7 @@ ways to get an individual Post, but using the `postBy` query.
   }
   "
   variables={{
-    postId: 51,
+    databaseId: 51,
   }}
 />
 

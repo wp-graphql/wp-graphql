@@ -69,7 +69,7 @@ the `childPages` field, like so:
             id
             title
             date
-            childPages {
+            children {
               nodes {
                 id
               }
@@ -171,7 +171,7 @@ Schema and provide custom arguments for your applications needs.
   variables={{
     first: 1,
     where: {
-      title: 'Community',
+      title: 'WPGraphQL for Advanced Custom Fields',
     },
   }}
 />
@@ -378,7 +378,7 @@ If we know the ID of a Page, we can query for the page individually like so:
   query GET_PAGE( $id: ID! ) {
     page( id: $id ) {
       id
-      pageId
+      databaseId
       title
       date
       uri
@@ -390,19 +390,20 @@ If we know the ID of a Page, we can query for the page individually like so:
   }}
 />
 
-### PageBy
+### idType argument
 
-Sometimes you need to query an individual Page, but you don't have the ID. There are a few other
-ways to get an individual Page, but using the `pageBy` query.
+Sometimes you need to query an individual Page, but you don't have the ID.
+
+Using the `idType` argument, we can get individual nodes with alternative unique identifiers.
 
 **Here's an example of getting a page by it's URI.**
 
 <GraphiQL
   query="
-  query GET_PAGE_BY_URI( $uri: String ) {
-    pageBy( uri: $uri ) {
+  query GET_PAGE_BY_URI( $uri: ID! ) {
+    page( id: $uri idType:URI ) {
       id
-      pageId
+      databaseId
       title
       date
       uri
@@ -410,7 +411,7 @@ ways to get an individual Page, but using the `pageBy` query.
   }
   "
   variables={{
-    uri: 'community',
+    uri: '/community-and-support/',
   }}
 />
 
@@ -418,10 +419,10 @@ ways to get an individual Page, but using the `pageBy` query.
 
 <GraphiQL
   query="
-  query GET_PAGE( $pageId: Int ) {
-    pageBy( pageId: $pageId ) {
+  query GET_PAGE( $databaseId: ID! ) {
+    page( id: $databaseId idType: DATABASE_ID ) {
       id
-      pageId
+      databaseId
       title
       date
       uri
@@ -429,7 +430,7 @@ ways to get an individual Page, but using the `pageBy` query.
   }
   "
   variables={{
-    pageId: 52,
+    databaseId: 52,
   }}
 />
 

@@ -24,6 +24,12 @@ add_action( 'graphql_register_types', function() {
 } );
 ```
 
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
+
+
 Here, we hook into `graphql_register_types` as that’s when the GraphQL Type registry is being built
 and our registration methods are ready for use.
 
@@ -79,6 +85,11 @@ add_action( 'graphql_register_types', function() {
   }
 });
 ```
+
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
 
 Here, we hook once again into `graphql_register_types`.
 
@@ -139,6 +150,11 @@ add_action( 'graphql_register_types', function() {
   }
 });
 ```
+
+<Note title="PHP Code Snippets">
+The above PHP code snippet can be added to your WordPress Child Theme's functions.php file or other
+appropriate file such as a custom plugin that is active on your site.
+</Note>
 
 This is very similar to the example above, but we only add a given field if the proper Post Type is currently being looped over.
 
