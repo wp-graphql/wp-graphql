@@ -31,16 +31,16 @@ comment children (replies).
       comments {
         nodes {
           ...CommentFields
-          replies: children {
+          replies {
             nodes {
               ...CommentFields
-              replies: children {
+              replies {
                 nodes {
                   ...CommentFields
-                  replies: children {
+                  replies {
                     nodes {
                       ...CommentFields
-                      replies: children {
+                      replies {
                         nodes {
                           ...CommentFields
                         }
@@ -91,14 +91,14 @@ query GET_COMMENTS_FOR_POST {
   comments(where: { contentId: 1 }) {
     nodes {
       ...CommentFields
-      replies: children {
+      replies {
         nodes {
           ...CommentFields
-          replies: children {
+          replies {
             ...CommentFields
-            replies: children {
+            replies {
               ...CommentFields
-              replies: children {
+              replies {
                 ...CommentFields
               }
             }
@@ -132,7 +132,7 @@ This is an example of a mutation to create a Comment.
         id
         content
         author {
-          ... on CommentAuthor {
+          node {
             name
           }
         }

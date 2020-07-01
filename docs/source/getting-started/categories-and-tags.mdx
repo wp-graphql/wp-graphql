@@ -35,7 +35,7 @@ In this example, we query a list of Tag nodes. By default, WPGraphQL will return
         edges {
           node {
             id
-            tagId
+            databaseId
             name
           }
         }
@@ -53,7 +53,7 @@ In this example, we query a list of Category nodes. By default, WPGraphQL will r
         edges {
           node {
             id
-            categoryId
+            databaseId
             name
           }
         }
@@ -76,7 +76,7 @@ Below is an example of asking for a list of Tags, and on each Tag, a list of pos
         edges {
           node {
             id
-            tagId
+            databaseId
             name
             posts {
               nodes {
@@ -101,7 +101,7 @@ The same can be done with categories:
         edges {
           node {
             id
-            categoryId
+            databaseId
             name
             posts {
               nodes {
@@ -120,12 +120,14 @@ The same can be done with categories:
 ### Hierarchical Taxonomies
 
 One key difference between Tags and Categories is that Categories are hierarchical, meaning they can
-have parents and children.
+have parent and child relationships.
 
-When querying Categories, by default only the top level categories that are _not_ children of another
-term are returned.
+When querying Categories, by default all terms will be returned regardless of their hierarchy.
+Both parent and child terms will be returned.
 
-The children of those categories can be queried like so:
+Executing the query below will show terms with no parent and terms with a parent. It is then the
+client's responsibility to convert the flat list back into hierarchy if necessary for the consuming
+application.
 
 <GraphiQL
   query="
@@ -134,20 +136,9 @@ The children of those categories can be queried like so:
         edges {
           node {
             id
-            categoryId
+            databaseId
             name
-            children {
-              nodes {
-                id
-                name
-                children {
-                  nodes {
-                    id
-                    name
-                  }
-                }
-              }
-            }
+            parentId
           }
         }
       }
@@ -155,19 +146,28 @@ The children of those categories can be queried like so:
     "
 />
 
-Sometimes, it makes sense to query for all categories regardless of their parent.
-
-This can be done like so:
+Sometimes, it makes sense to query for terms in a hierarchical manner, accessing just the top level
+nodes first, then the children and so on. That can be done by asking for just the top level terms
+using the parent, like so:
 
 <GraphiQL
   query="
     query GET_CATEGORIES {
-      categories (where: { shouldOutputInFlatList: true }) {
+      categories (where: { parent: 0 }) {
         edges {
           node {
             id
-            categoryId
+            databaseId
             name
+            parentDatabaseId
+            children {
+                nodes {
+                    id
+                    databaseId
+                    name
+                    parentDatabaseId
+                }
+            }
           }
         }
       }
