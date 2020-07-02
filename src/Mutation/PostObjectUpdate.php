@@ -35,17 +35,21 @@ class PostObjectUpdate {
 	 * @return array
 	 */
 	public static function get_input_fields( $post_type_object ) {
-		return array_merge(
-			PostObjectCreate::get_input_fields( $post_type_object ),
-			[
-				'id' => [
-					'type'        => [
-						'non_null' => 'ID',
+		return apply_filters(
+			'graphql_post_object_mutation_input_fields_update',
+			array_merge(
+				PostObjectCreate::get_input_fields( $post_type_object ),
+				[
+					'id' => [
+						'type'        => [
+							'non_null' => 'ID',
+						],
+						// translators: the placeholder is the name of the type of post object being updated
+						'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					// translators: the placeholder is the name of the type of post object being updated
-					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
-				],
-			]
+				]
+			),
+			$post_type_object
 		);
 	}
 

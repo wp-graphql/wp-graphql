@@ -192,7 +192,7 @@ class PostObjectCreate {
 			}
 		}
 
-		return $fields;
+		return apply_filters( 'graphql_post_object_mutation_input_fields', $fields, $post_type_object );
 	}
 
 	/**
