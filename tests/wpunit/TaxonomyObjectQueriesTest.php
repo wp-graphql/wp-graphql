@@ -412,6 +412,87 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	/**
+	 * testTaxonomyQueryPostConnections.
+	 *
+	 * This tests whether the taxonomy to post object connections only returns
+	 *  posts registered with the taxonomy.
+	 *
+	 * @since 0.0.10
+	 * @throws Exception
+	 */
+	public function testTaxonomyQueryPostConnections() {
+		$post_id           = $this->factory()->post->create();
+		$unrelated_post_id = $this->factory()->post->create();
+		$term_id = $this->factory()->term->create( [ 'name' => 'Test' ] );
+
+		wp_set_object_terms( $post_id, $term_id, 'post_tag' );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			tags(first:2) {
+				nodes {
+					posts {
+						nodes {
+							databaseId
+						}
+					}
+			  }
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'data' => [
+				'tags' => [
+					'nodes' => [
+						[
+							'posts' => [
+								'nodes' => [
+									[
+										'databaseId' => $post_id,
+									]
+								],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual );
+
+		$unexpected = [
+			'data' => [
+				'tags' => [
+					'nodes' => [
+						[
+							'posts' => [
+								'nodes' => [
+									[
+										'databaseId' => $unrelated_post_id,
+									]
+								],
+							],
+						],
+					],
+				],
+			],
+		];
+		$this->assertNotEquals( $unexpected, $actual );
+		
+	}
+
 	public function dataProviderUserState() {
 		return [
 			[
