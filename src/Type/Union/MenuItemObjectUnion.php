@@ -2,11 +2,16 @@
 
 namespace WPGraphQL\Type\Union;
 
-use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class MenuItemObjectUnion
+ *
+ * @package WPGraphQL\Type\Union
+ * @deprecated
+ */
 class MenuItemObjectUnion {
 
 	/**
@@ -22,13 +27,8 @@ class MenuItemObjectUnion {
 			'MenuItemObjectUnion',
 			[
 				'typeNames'   => self::get_possible_types(),
+				'description' => __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ),
 				'resolveType' => function( $object ) use ( $type_registry ) {
-
-					// Custom link / menu item
-					if ( $object instanceof MenuItem ) {
-						return $type_registry->get_type( 'MenuItem' );
-					}
-
 					// Post object
 					if ( $object instanceof Post && ! empty( $object->post_type ) ) {
 						$post_type_object = get_post_type_object( $object->post_type );
@@ -81,9 +81,6 @@ class MenuItemObjectUnion {
 				$possible_types[] = $tax_object->graphql_single_name;
 			}
 		}
-
-		// Add the custom link type (which is just a menu item).
-		$possible_types[] = 'MenuItem';
 
 		return $possible_types;
 	}

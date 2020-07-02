@@ -84,8 +84,9 @@ class MenuItem {
 					],
 					'connectedObject'  => [
 						'type'        => 'MenuItemObjectUnion',
+						'deprecationReason' => __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' ),
 						'description' => __( 'The object connected to this menu item.', 'wp-graphql' ),
-						'resolve'     => function( $menu_item, array $args, $context, $info ) {
+						'resolve'     => function( $menu_item, array $args, AppContext $context, $info ) {
 
 							$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
@@ -93,15 +94,15 @@ class MenuItem {
 							switch ( $object_type ) {
 								// Post object
 								case 'post_type':
-									$resolved_object = DataSource::resolve_post_object( $object_id, $context );
+									$resolved_object = $context->get_loader( 'post' )->load_deferred( $object_id );
 									break;
 
 								// Taxonomy term
 								case 'taxonomy':
-									$resolved_object = DataSource::resolve_term_object( $object_id, $context );
+									$resolved_object = $context->get_loader( 'term' )->load_deferred( $object_id );
 									break;
 								default:
-									$resolved_object = $menu_item;
+									$resolved_object = null;
 									break;
 							}
 
