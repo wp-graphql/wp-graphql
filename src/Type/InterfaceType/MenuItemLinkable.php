@@ -20,7 +20,7 @@ class MenuItemLinkable {
 
 		register_graphql_interface_type( 'MenuItemLinkable', [
 			'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
-			'fields' => [
+			'fields'      => [
 				'uri'        => [
 					'type'        => [ 'non_null' => 'String' ],
 					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
