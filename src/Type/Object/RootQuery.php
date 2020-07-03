@@ -510,8 +510,7 @@ class RootQuery {
 							switch ( $idType ) {
 								case 'uri':
 								case 'slug':
-									$slug        = esc_html( $args['id'] );
-									$post_object = get_page_by_path( $slug, 'OBJECT', $post_type_object->name );
+									$post_object = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
 									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 									break;
 								case 'database_id':
@@ -589,11 +588,11 @@ class RootQuery {
 								$post_id = absint( $id );
 							} elseif ( ! empty( $args['uri'] ) ) {
 								$uri         = esc_html( $args['uri'] );
-								$post_object = get_page_by_path( $uri, 'OBJECT', $post_type_object->name );
+								$post_object = DataSource::resolve_resource_by_uri( $uri, $context, $info );
 								$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 							} elseif ( ! empty( $args['slug'] ) ) {
 								$slug        = esc_html( $args['slug'] );
-								$post_object = get_page_by_path( $slug, 'OBJECT', $post_type_object->name );
+								$post_object = DataSource::resolve_resource_by_uri( $slug, $context, $info );
 								$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
 							}
 							$post = DataSource::resolve_post_object( $post_id, $context );
