@@ -71,6 +71,10 @@ class PostObject {
 			$interfaces[] = 'HierarchicalContentNode';
 		}
 
+		if ( true === $post_type_object->show_in_nav_menus ) {
+			$interfaces[] = 'MenuItemLinkable';
+		}
+
 		register_graphql_object_type(
 			$single_name,
 			[

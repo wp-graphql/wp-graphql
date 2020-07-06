@@ -110,6 +110,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						   node {
+						      ...on Post {
+						         databaseId
+						      }
+						   }
+						}
 					}
 				}
 				nodes {
@@ -178,6 +185,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 					}
 				}
 			}
@@ -204,6 +218,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							... on Post {
 								postId
 							}
+						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
 						}
 					}
 				}
@@ -262,6 +283,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 					}
 				}
 			}
@@ -317,6 +345,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 						childItems {
 							edges {
 								node {
@@ -358,6 +393,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 						childItems {
 							edges {
 								node {
@@ -366,6 +408,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 										... on Post {
 											postId
 										}
+									}
+									connectedNode {
+									  node {
+									     ...on Post {
+									        databaseId
+									     }
+									  }
 									}
 								}
 							}
@@ -403,6 +452,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 					}
 				}
 			}
@@ -437,6 +493,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 								postId
 							}
 						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
+						}
 					}
 				}
 			}
@@ -467,6 +530,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							... on Post {
 								postId
 							}
+						}
+						connectedNode {
+						  node {
+						     ...on Post {
+						        databaseId
+						     }
+						  }
 						}
 					}
 				}
@@ -504,6 +574,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							status
 						}
 					}
+					connectedNode {
+					  node {
+					     ...on Post {
+					        status
+					     }
+					  }
+					}
 				}
 			}
 		}
@@ -523,10 +600,16 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			0 => [
 				// But actual connected data is not available because there's no permission to do so
 				'connectedObject' => null,
+				'connectedNode' => null,
 			],
 			1 => [
 				'connectedObject' => [
 					'status' => 'publish',
+				],
+				'connectedNode' => [
+					'node' => [
+						'status' => 'publish',
+					],
 				],
 			],
 		];
@@ -556,6 +639,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							status
 						}
 					}
+					connectedNode {
+					  node {
+					     ...on Post {
+					        status
+					     }
+					  }
+					}
 				}
 			}
 		}
@@ -575,10 +665,16 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'connectedObject' => [
 					'status' => 'draft',
 				],
+				'connectedNode' => null,
 			],
 			1 => [
 				'connectedObject' => [
 					'status' => 'publish',
+				],
+				'connectedNode' => [
+					'node' => [
+						'status' => 'publish',
+					],
 				],
 			],
 		];
