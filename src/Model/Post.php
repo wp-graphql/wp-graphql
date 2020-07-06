@@ -33,6 +33,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $pingStatus
  * @property string  $slug
  * @property boolean $isFrontPage
+ * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
  * @property string  $toPing
@@ -532,6 +533,19 @@ class Post extends Model {
 						return false;
 					}
 					if ( absint( get_option( 'page_on_front', 0 ) ) === $this->data->ID ) {
+						return true;
+					}
+
+					return false;
+				},
+				'isPostsPage'              => function ()
+				{
+					if ('page' !== $this->data->post_type)
+					{
+						return false;
+					}
+					if (absint(get_option('page_for_posts', 0)) === $this->data->ID)
+					{
 						return true;
 					}
 
