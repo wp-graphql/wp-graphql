@@ -263,6 +263,18 @@ class PostObject {
 			];
 		}
 
+		if ('page' === $post_type_object->name)
+		{
+			$fields['isPostsPage'] = [
+				'type'        => ['non_null' => 'Bool'],
+				'description' => __('Whether this page is set to the blog posts page.', 'wp-graphql'),
+				'resolve'     => function (Post $page)
+				{
+					return isset($page->isPostsPage) ? (bool) $page->isPostsPage : false;
+				},
+			];
+		}
+
 		if ( ! $post_type_object->hierarchical &&
 			! in_array(
 				$post_type_object->name,
