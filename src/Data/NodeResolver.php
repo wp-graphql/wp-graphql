@@ -283,6 +283,14 @@ class NodeResolver {
 
 		$node = null;
 
+		// If the request is for the homepage, determine
+		if ( '/' === $uri ) {
+			$page_id = get_option( 'page_on_front' );
+			if ( ! empty( $page_id ) ) {
+				$this->wp->query_vars['page_id'] = absint( $page_id );
+			}
+		}
+
 		if ( isset( $this->wp->query_vars['page_id'] ) ) {
 
 			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
