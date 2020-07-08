@@ -538,14 +538,11 @@ class Post extends Model {
 
 					return false;
 				},
-				'isPostsPage'              => function ()
-				{
-					if ('page' !== $this->data->post_type)
-					{
+				'isPostsPage'               => function () {
+					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}
-					if (absint(get_option('page_for_posts', 0)) === $this->data->ID)
-					{
+					if ( absint( get_option( 'page_for_posts', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
 
