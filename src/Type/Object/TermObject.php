@@ -26,6 +26,10 @@ class TermObject {
 			$interfaces[] = 'HierarchicalTermNode';
 		}
 
+		if ( true === $taxonomy_object->show_in_nav_menus ) {
+			$interfaces[] = 'MenuItemLinkable';
+		}
+
 		$single_name = $taxonomy_object->graphql_single_name;
 		register_graphql_object_type(
 			$single_name,

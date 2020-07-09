@@ -5,7 +5,7 @@ GraphQL API for WordPress. This plugin brings the power of GraphQL to WordPress.
 
 - <a href="https://www.wpgraphql.com" target="_blank">Website</a>
 - <a href="https://docs.wpgraphql.com/" target="_blank">Usage Docs</a>
-- <a href="https://wpgql-slack.herokuapp.com/" target="_blank">Join Slack</a>
+- <a href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA" target="_blank">Join Slack</a>
 
 -----
 [![Total Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/downloads)](https://packagist.org/packages/wp-graphql/wp-graphql)

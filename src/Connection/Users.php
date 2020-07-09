@@ -176,11 +176,15 @@ class Users {
 				'description' => __( 'The user login.', 'wp-graphql' ),
 			],
 			'loginIn'           => [
-				'type'        => 'Int',
+				'type'        => [
+					'list_of' => 'String',
+				],
 				'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
 			],
 			'loginNotIn'        => [
-				'type'        => 'Int',
+				'type'        => [
+					'list_of' => 'String',
+				],
 				'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 			],
 			'orderby'           => [

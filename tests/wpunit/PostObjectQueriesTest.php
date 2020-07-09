@@ -1998,4 +1998,52 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testQueryPasswordProtectedPost() {
+
+		$title = 'Test Title ' . uniqid();
+		$content = 'Test Content ' . uniqid();
+
+		$this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_password' => 'publish',
+			'post_content' => $content,
+			'post_title' => $title
+		]);
+
+		$query = '
+		{
+		  posts {
+		    nodes {
+		      id
+		      title
+		      content
+		    }
+		  }
+		}
+		';
+
+		wp_set_current_user( 0 );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['posts']['nodes'][0]['content'] );
+		// The content should be null for public users because no password was entered
+		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// The content should be public for an admin
+		$this->assertSame( apply_filters( 'the_content', $content ), $actual['data']['posts']['nodes'][0]['content'] );
+		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+	}
+
 }

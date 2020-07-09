@@ -337,4 +337,48 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
 
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testHomePageByUri() {
+
+		$title = 'Home Test' . uniqid();
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => $title
+		]);
+
+		update_option( 'page_on_front', null );
+
+		$query = '
+		{
+		  nodeByUri(uri:"/") {
+		    __typename
+		    uri
+		    ...on NodeWithTitle {
+		      title
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		update_option( 'page_on_front', absint( $post_id ) );
+		$actual = graphql([ 'query' => $query ]);
+		codecept_debug( $actual );
+
+		$this->assertSame( $title, $actual['data']['nodeByUri']['title'] );
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
+
+
+
+	}
 }

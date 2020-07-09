@@ -248,7 +248,7 @@ class PostObjects {
 													'terms'    => [ $term->term_id ],
 													'field'    => 'term_id',
 													'include_children' => false,
-												]
+												],
 											] );
 
 											return $resolver->get_connection();

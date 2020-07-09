@@ -33,6 +33,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $pingStatus
  * @property string  $slug
  * @property boolean $isFrontPage
+ * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
  * @property string  $toPing
@@ -150,7 +151,6 @@ class Post extends Model {
 			'status',
 			'titleRendered',
 			'uri',
-
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
@@ -439,7 +439,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'id'                        => function() {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->ID ) ) ? Relay::toGlobalId( 'post', $this->ID ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', $this->databaseId ) : null;
 				},
 				'databaseId'                => function() {
 					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
@@ -532,6 +532,16 @@ class Post extends Model {
 						return false;
 					}
 					if ( absint( get_option( 'page_on_front', 0 ) ) === $this->data->ID ) {
+						return true;
+					}
+
+					return false;
+				},
+				'isPostsPage'               => function () {
+					if ( 'page' !== $this->data->post_type ) {
+						return false;
+					}
+					if ( absint( get_option( 'page_for_posts', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
 
