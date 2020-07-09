@@ -151,7 +151,6 @@ class Post extends Model {
 			'status',
 			'titleRendered',
 			'uri',
-
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
@@ -440,7 +439,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'id'                        => function() {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->ID ) ) ? Relay::toGlobalId( 'post', $this->ID ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', $this->databaseId ) : null;
 				},
 				'databaseId'                => function() {
 					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
