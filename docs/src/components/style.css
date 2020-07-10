@@ -57,3 +57,8 @@ p {
 img {
     max-width: 100%;
 }
+
+/* Prevent double background colors */
+pre > code {
+    background-color: transparent;
+}
