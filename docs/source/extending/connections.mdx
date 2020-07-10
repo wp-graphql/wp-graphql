@@ -178,9 +178,9 @@ our `resolve` field to look like the following:
 ```php
 'resolve' => function( $id, $args, $context, $info ) {
     $resolver   = new \\WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
-    $resolver->setQueryArg('date_query', [
+    $resolver->set_query_arg( 'date_query', [
         'after' => '1 week ago',
-    ]);
+    ] );
     $connection = $resolver->get_connection();
     return $connection;
 }
