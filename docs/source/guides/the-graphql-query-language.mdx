@@ -148,14 +148,14 @@ If we know the Global ID of a page, we can query for it like so:
 ### PageBy
 
 Since pages are hierarchical, many pages can have the same slug, so we can't reliably use a slug as
-an identifier and thus there's no option to query a `pageBy` using the slug field in the same way
+an identifier and thus there's no option to query a page using the slug field in the same way
 non-hierarchical Post Types can be queried. However, if we know the URI, we can that as a unique
-identifier to fetch an individual Page.
+identifier to fetch an individual Page, together with the `idType` parameter.
 
 <GraphiQL
 	query='
     {
-      pageBy( uri: "home-2" ) {
+      page( id: "/blog/", idType: URI ) {
         id
         title
         slug
