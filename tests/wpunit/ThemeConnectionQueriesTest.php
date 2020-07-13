@@ -7,7 +7,7 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 		$this->current_time     = strtotime( 'now' );
@@ -18,7 +18,7 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then
@@ -48,9 +48,11 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		$themes       = wp_get_themes();
+
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
-			$return_count = 3;
+			$return_count = count( $themes );
 		} else {
 			$current_user = 0;
 			$return_count = 1;

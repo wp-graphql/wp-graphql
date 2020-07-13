@@ -11,7 +11,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $admin;
 	public $subscriber;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	    ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // your tear down methods here
 
@@ -260,7 +260,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $actual['data']['createCategory']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $actual['data']['createCategory']['category']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createCategory']['category']['id'] );
-		$this->assertEquals( $id_parts['type'], 'category' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $actual['data']['createCategory']['category']['name'], $this->category_name );
 		$this->assertEquals( $actual['data']['createCategory']['category']['description'], $this->description );
@@ -288,7 +288,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $updated_category['data']['updateCategory']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $updated_category['data']['updateCategory']['category']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_category['data']['updateCategory']['category']['id'] );
-		$this->assertEquals( $id_parts['type'], 'category' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $updated_category['data']['updateCategory']['category']['name'], $this->category_name );
 		$this->assertEquals( $updated_category['data']['updateCategory']['category']['description'], $this->description_update );
@@ -310,13 +310,15 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->admin );
 		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
 
+		codecept_debug( $deleted_category );
+
 		/**
 		 * Make some assertions on the response
 		 */
 		$this->assertNotEmpty( $deleted_category );
 		$this->assertEquals( $deleted_category['data']['deleteCategory']['clientMutationId'], $this->client_mutation_id );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_category['data']['deleteCategory']['category']['id'] );
-		$this->assertEquals( $id_parts['type'], 'category' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $deleted_category['data']['deleteCategory']['category']['name'], $this->category_name );
 	}
@@ -405,7 +407,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Now try and delete it.
 		 */
-		$id = \GraphQLRelay\Relay::toGlobalId( 'post_tag', $term );
+		$id = \GraphQLRelay\Relay::toGlobalId( 'term', $term );
 		$actual = $this->deleteTagMutation( $id );
 
 		/**
@@ -471,7 +473,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $actual['data']['createTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $actual['data']['createTag']['tag']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createTag']['tag']['id'] );
-		$this->assertEquals( $id_parts['type'], 'post_tag' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $actual['data']['createTag']['tag']['name'], $this->tag_name );
 		$this->assertEquals( $actual['data']['createTag']['tag']['description'], $this->description );
@@ -509,7 +511,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $updated_tag['data']['updateTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $updated_tag['data']['updateTag']['tag']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_tag['data']['updateTag']['tag']['id'] );
-		$this->assertEquals( $id_parts['type'], 'post_tag' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $updated_tag['data']['updateTag']['tag']['name'], $this->tag_name );
 		$this->assertEquals( $updated_tag['data']['updateTag']['tag']['description'], $this->description_update );
@@ -526,7 +528,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $deleted_tag['data']['deleteTag']['deletedId'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deleteTag']['tag']['id'] );
-		$this->assertEquals( $id_parts['type'], 'post_tag' );
+		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['tag']['name'], $this->tag_name );
 
@@ -596,14 +598,16 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		  createCategory(input: $input) {
 		    category {
 		      parent{
-		        id
+		        node {
+		          id
+		        }
 		      }
 		    }
 		  }
 		}
 		';
 
-		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_term_id );
+		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_term_id );
 
 		$variables = [
 			'input' => [
@@ -615,8 +619,10 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$actual = do_graphql_request( $query, 'createChildCategory', $variables );
 
+		codecept_debug( $actual );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['id'] );
+		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['node']['id'] );
 
 	}
 

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -15,22 +16,23 @@ class Themes {
 
 	/**
 	 * Register the connections
-	 *
-	 * @access public
 	 */
 	public static function register_connections() {
 
 		/**
 		 * Registers the RootQuery connection
 		 */
-		register_graphql_connection( [
-			'fromType'      => 'RootQuery',
-			'toType'        => 'Theme',
-			'fromFieldName' => 'themes',
-			'resolve'       => function ( $root, $args, $context, $info ) {
-				return DataSource::resolve_themes_connection( $root, $args, $context, $info );
-			},
-		] );
+		register_graphql_connection(
+			[
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Theme',
+				'fromFieldName' => 'themes',
+				'resolve'       => function ( $root, $args, $context, $info ) {
+					$resolver = new ThemeConnectionResolver( $root, $args, $context, $info );
+					return $resolver->get_connection();
+				},
+			]
+		);
 
 	}
 

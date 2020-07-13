@@ -1,4 +1,5 @@
 .DS_Store
+.github_changelog_generator
 .idea
 .vscode
 !vendor/
@@ -24,3 +25,4 @@ coverage/*
 schema.graphql
 phpunit.xml
 docker-output
+node_modules

@@ -28,7 +28,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	public $admin;
 	public $admin_name;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
@@ -130,7 +130,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -138,7 +138,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * This function tests the updateSettings mutation
 	 * and is reused throughout the updateSettings tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function updateSettingsMutation() {
@@ -244,6 +243,9 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		$actual = do_graphql_request( $mutation, 'updateSettings', $this->update_variables );
 
+		codecept_debug( $actual );
+
+
 		return $actual;
 	}
 
@@ -251,7 +253,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * This function tests whether a user can update settings if they don't have the right credentials
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:51
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsAsAuthor() {
@@ -274,7 +275,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * They should not be able to query for the admin email
 	 * so we should receive an error back
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testSettingsQueryAsEditor() {
@@ -303,7 +303,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * when trying to update the site's URL
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:63
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsSiteURLMutation() {
@@ -325,7 +324,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * This function tests the updateSettings mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsMutation() {
@@ -448,7 +446,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	 * StartOfWeek = 0 (Sunday)
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/Settings/Mutation/SettingsUpdate.php:63
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateSettingsStartOfWeekMutation() {
@@ -466,6 +463,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		$this->update_variables['input']['generalSettingsStartOfWeek'] = 0;
 
 		$actual = $this->updateSettingsMutation();
+
+		codecept_debug( $actual );
 
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 

@@ -27,11 +27,7 @@ class CommentLoader extends AbstractDataLoader {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadKeys( array $keys ) {
-
-		if ( empty( $keys ) ) {
-			return $keys;
-		}
+	public function loadKeys( array $keys = [] ) {
 
 		$loaded = [];
 
@@ -41,11 +37,11 @@ class CommentLoader extends AbstractDataLoader {
 		 * objects. No need to count the rows, etc.
 		 */
 		$args = [
-			'comment__in' => $keys,
-			'orderby' => 'comment__in',
-			'number' => count( $keys ),
+			'comment__in'   => $keys,
+			'orderby'       => 'comment__in',
+			'number'        => count( $keys ),
 			'no_found_rows' => true,
-			'count' => false,
+			'count'         => false,
 		];
 
 		/**
@@ -54,6 +50,9 @@ class CommentLoader extends AbstractDataLoader {
 		$query = new \WP_Comment_Query( $args );
 		$query->get_comments();
 
+		if ( empty( $keys ) ) {
+			return $keys;
+		}
 
 		/**
 		 * Loop pver the keys and return an array of loaded_terms, where the key is the IDand the value
@@ -70,14 +69,12 @@ class CommentLoader extends AbstractDataLoader {
 			 * Return the instance through the Model Layer to ensure we only return
 			 * values the consumer has access to.
 			 */
-			$loaded[ $key ] = new Deferred( function() use ( $comment_object ) {
-
-				if ( ! $comment_object instanceof \WP_Comment ) {
-					return null;
-				}
-
-				return new Comment( $comment_object );
-			});
+			$comment = new Comment( $comment_object );
+			if ( ! isset( $comment->fields ) || empty( $comment->fields ) ) {
+				$loaded[ $key ] = null;
+			} else {
+				$loaded[ $key ] = $comment;
+			}
 		}
 
 		return ! empty( $loaded ) ? $loaded : [];

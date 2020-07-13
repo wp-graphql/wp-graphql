@@ -7,7 +7,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public $created_post_ids;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->current_time     = strtotime( '- 1 day' );
@@ -19,7 +19,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->created_post_ids = $this->create_posts();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -74,6 +74,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
+		// Ensure that ordering by titles is different from ordering by ids
+		$titles = "qwertyuiopasdfghjklzxcvbnm";
 
 		// Create posts
 		$created_posts = [];
@@ -84,7 +86,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				'post_type'   => 'post',
 				'post_date'   => $date,
 				'post_status' => 'publish',
-				'post_title'  => $i,
+				'post_title'  => $titles[ $i % strlen( $titles ) ],
 			] );
 		}
 
@@ -138,6 +140,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			  edges {
 				node {
 				  title
+				  postId
 				}
 			  }
 			}
@@ -148,7 +151,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $first['data']['posts']['edges']);
 
 
@@ -158,10 +161,11 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map( function( $edge ) {
-			return $edge['node']['title'];
+			return $edge['node']['postId'];
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
+		WPGraphQL::set_is_graphql_request( true );
 		$first_page = new WP_Query( array_merge( $meta_fields, [
 			'post_status' => 'publish',
 			'post_type' => 'post',
@@ -170,6 +174,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'paged' => 1,
 		] ) );
 
+
 		$second_page = new WP_Query( array_merge( $meta_fields, [
 			'post_status' => 'publish',
 			'post_type' => 'post',
@@ -177,10 +182,11 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'posts_per_page' => $posts_per_page,
 			'paged' => 2,
 		] ) );
+		WPGraphQL::set_is_graphql_request( true );
 
 
-		$first_page_expected = wp_list_pluck($first_page->posts, 'post_title');
-		$second_page_expected = wp_list_pluck($second_page->posts, 'post_title');
+		$first_page_expected = wp_list_pluck($first_page->posts, 'ID');
+		$second_page_expected = wp_list_pluck($second_page->posts, 'ID');
 
 		// Aserting like this we get more readable assertion fail message
 		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
@@ -197,9 +203,9 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Simple title ordering test
 	 */
-	public function testPostOrderingByPostTitle() {
+	public function testPostOrderingByPostTitleDefault() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 		] );
 	}
 
@@ -208,7 +214,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleASC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
 			'order' => 'ASC',
 		] );
 	}
@@ -218,7 +224,22 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostOrderingByPostTitleDESC() {
 		$this->assertQueryInCursor( [
-			'orderby' => 'title',
+			'orderby' => 'post_title',
+			'order' => 'DESC',
+		] );
+	}
+
+	public function testPostOrderingByDuplicatePostTitles() {
+		foreach ($this->created_post_ids as $index => $post_id) {
+			wp_update_post( [
+				'ID' => $post_id,
+				'post_title' => 'duptitle',
+
+			] );
+		}
+
+		$this->assertQueryInCursor( [
+			'orderby' => 'post_title',
 			'order' => 'DESC',
 		] );
 	}
@@ -388,6 +409,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	* so it tries to execute the assertion multiple times to make happen more often
 	*/
 	public function testPostOrderingStability() {
+
+		add_filter( 'is_graphql_request', '__return_true' );
 
 		foreach ($this->created_post_ids as $index => $post_id) {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );

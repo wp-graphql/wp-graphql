@@ -5,7 +5,6 @@ namespace WPGraphQL\Data;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 
 /**
  * Class CommentMutation
@@ -111,13 +110,13 @@ class CommentMutation {
 		 */
 		$output_args = apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
 
-		return;
+		return $output_args;
 	}
 
 	/**
-	 * This updates commentmeta.
+	 * This updates comment meta.
 	 *
-	 * @param int         $post_id       The ID of the postObject the comment is connected to
+	 * @param int         $comment_id    The ID of the Comment the comment is connected to
 	 * @param array       $input         The input for the mutation
 	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
 	 * @param AppContext  $context       The AppContext passed down to all resolvers

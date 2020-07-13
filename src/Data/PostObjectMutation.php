@@ -35,7 +35,7 @@ class PostObjectMutation {
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_post/
 		 */
 		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && is_int( $author_id_parts['id'] ) ) {
+		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && absint( $author_id_parts['id'] ) ) {
 			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
 		}
 
@@ -240,7 +240,7 @@ class PostObjectMutation {
 		/**
 		 * Get the allowed taxonomies and iterate through them to find the term inputs to use for setting relationships
 		 */
-		$allowed_taxonomies = \WPGraphQL::$allowed_taxonomies;
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 
@@ -259,9 +259,9 @@ class PostObjectMutation {
 					/**
 					 * If there is input for the taxonomy, process it
 					 */
-					if ( ! empty( $tax_object->graphql_plural_name ) && ! empty( $input[ $tax_object->graphql_plural_name ] ) ) {
+					if ( isset( $input[ lcfirst( $tax_object->graphql_plural_name ) ] ) ) {
 
-						$term_input = $input[ $tax_object->graphql_plural_name ];
+						$term_input = $input[ lcfirst( $tax_object->graphql_plural_name ) ];
 
 						/**
 						 * Default append to true, but allow input to set it to false.
@@ -303,10 +303,6 @@ class PostObjectMutation {
 									if ( ! absint( $node['id'] ) ) {
 
 										$id_parts = Relay::fromGlobalId( $node['id'] );
-
-										if ( $id_parts['type'] !== $tax_object->name ) {
-											return;
-										}
 
 										if ( ! empty( $id_parts['id'] ) ) {
 											$term_exists = get_term_by( 'id', absint( $id_parts['id'] ), $tax_object->name );
@@ -355,12 +351,9 @@ class PostObjectMutation {
 									if ( ! empty( $created_term ) ) {
 										$terms_to_connect[] = $created_term;
 									}
-
 								}
-
 							}
 						}
-
 
 						/**
 						 * If there are terms to connect, set the connection
@@ -377,9 +370,7 @@ class PostObjectMutation {
 							wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
 						}
 					}
-
 				}
-
 			}
 		}
 

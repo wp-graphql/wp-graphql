@@ -4,9 +4,7 @@ namespace WPGraphQL\Utils;
 
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\Language\AST\NonNullType;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -20,13 +18,15 @@ use WPGraphQL\Type\WPObjectType;
 class InstrumentSchema {
 
 	/**
-	* Cache post for the resolvers so we can call the setup_postdata only when the actual
-	* source post changes
-	*/
+	 * Cache post for the resolvers so we can call the setup_postdata only when the actual
+	 * source post changes
+	 *
+	 * @var mixed The WP_Post object, or null
+	 */
 	private static $cached_post = null;
 
 	/**
-	 * @param \WPGraphQL\WPSchema $schema
+	 * @param \WPGraphQL\WPSchema $schema Instance of the Schema.
 	 *
 	 * @return \WPGraphQL\WPSchema
 	 */
@@ -50,7 +50,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-				$schema->config['types'] = $new_types;
+			$schema->config['types'] = $new_types;
 		}
 
 		return $schema;
@@ -60,8 +60,8 @@ class InstrumentSchema {
 	/**
 	 * Wrap Fields
 	 *
-	 * This wraps fields to provide sanitization on fields output by introspection queries (description/deprecation
-	 * reason) and provides hooks to resolvers.
+	 * This wraps fields to provide sanitization on fields output by introspection queries
+	 * (description/deprecation reason) and provides hooks to resolvers.
 	 *
 	 * @param array  $fields    The fields configured for a Type
 	 * @param string $type_name The Type name
@@ -79,8 +79,8 @@ class InstrumentSchema {
 					/**
 					 * Filter the field definition
 					 *
-					 * @param \GraphQL\Type\Definition\FieldDefinition $field The field definition
-					 * @param string $type_name The name of the Type the field belongs to
+					 * @param \GraphQL\Type\Definition\FieldDefinition $field     The field definition
+					 * @param string                                   $type_name The name of the Type the field belongs to
 					 */
 					$field = apply_filters( 'graphql_field_definition', $field, $type_name );
 
@@ -94,8 +94,8 @@ class InstrumentSchema {
 					/**
 					 * Sanitize the description and deprecation reason
 					 */
-					$field->description       = ! empty( $field->description ) ? esc_html( $field->description ) : '';
-					$field->deprecationReason = ! empty( $field->deprecationReason ) ? esc_html( $field->deprecationReason ) : '';
+					$field->description       = ! empty( $field->description ) && is_string( $field->description ) ? esc_html( $field->description ) : '';
+					$field->deprecationReason = ! empty( $field->deprecationReason ) && is_string( $field->description ) ? esc_html( $field->deprecationReason ) : '';
 
 					/**
 					 * Replace the existing field resolve method with a new function that captures data about
@@ -125,7 +125,7 @@ class InstrumentSchema {
 						 */
 						if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
 							self::$cached_post = $source;
-							$GLOBALS['post'] = $source;
+							$GLOBALS['post']   = $source;
 							setup_postdata( $source );
 						}
 
@@ -143,14 +143,45 @@ class InstrumentSchema {
 						do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
 						/**
-						 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
-						 * otherwise use the $field_resolver
+						 * Create unique custom "nil" value which is different from the build-in PHP null, false etc.
+						 * When this custom "nil" is returned we can know that the filter did not try to preresolve
+						 * the field because it does not equal with anything but itself.
 						 */
-						if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
-							$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
-						} else {
-							$result = call_user_func( $field_resolver, $source, $args, $context, $info );
+						$nil = new \stdClass();
+
+						/**
+						 * When this filter return anything other than the $nil it will be used as the resolved value
+						 * and the execution of the actual resolved is skipped. This filter can be used to implement
+						 * field level caches or for efficiently hiding data by returning null.
+						 *
+						 * @param mixed           $nil            Unique nil value
+						 * @param mixed           $source         The source passed down the Resolve Tree
+						 * @param array           $args           The args for the field
+						 * @param AppContext      $context        The AppContext passed down the ResolveTree
+						 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+						 * @param string          $type_name      The name of the type the fields belong to
+						 * @param string          $field_key      The name of the field
+						 * @param FieldDefinition $field          The Field Definition for the resolving field
+						 * @param mixed           $field_resolver The default field resolver
+						 */
+						$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
+
+						/**
+						* Check if the field preresolved
+						*/
+						if ( $nil === $result ) {
+							/**
+							 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
+							 * otherwise use the $field_resolver
+							 */
+							if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
+								$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
+							} else {
+								$result = call_user_func( $field_resolver, $source, $args, $context, $info );
+							}
 						}
+
+						/**
 
 						/**
 						 * Fire an action before the field resolves
@@ -177,8 +208,9 @@ class InstrumentSchema {
 						 * @param string          $type_name The name of the type the fields belong to
 						 * @param string          $field_key The name of the field
 						 * @param FieldDefinition $field     The Field Definition for the resolving field
+						 * @param mixed           $result    The result of the field resolver
 						 */
-						do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
+						do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
 
 						return $result;
 
@@ -226,7 +258,7 @@ class InstrumentSchema {
 		 * Check to see if
 		 */
 		if ( $field instanceof FieldDefinition && (
-				isset ( $field->config['isPrivate'] ) ||
+				isset( $field->config['isPrivate'] ) ||
 				( ! empty( $field->config['auth'] ) && is_array( $field->config['auth'] ) ) )
 		) {
 
@@ -269,7 +301,6 @@ class InstrumentSchema {
 					throw new UserError( $auth_error );
 				}
 			}
-
 		}
 
 	}

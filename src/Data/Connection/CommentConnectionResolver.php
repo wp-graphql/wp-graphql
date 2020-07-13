@@ -1,4 +1,5 @@
 <?php
+
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
@@ -39,11 +40,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['status'] = 'approve';
 
 		/**
-		 * Set the default comment_parent for Comment Queries to be "0" to only get top level comments
-		 */
-		$query_args['parent'] = 0;
-
-		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
 		 * @since 0.0.6
@@ -79,8 +75,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If the current user cannot moderate comments, do not include unapproved comments
 		 */
-		if ( ! current_user_can('moderate_comments' ) ) {
-			$query_args['status'] = ['approve'];
+		if ( ! current_user_can( 'moderate_comments' ) ) {
+			$query_args['status']             = [ 'approve' ];
 			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
 			if ( empty( $query_args['include_unapproved'] ) ) {
 				unset( $query_args['include_unapproved'] );
@@ -113,25 +109,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_args'] = $this->args;
 
 		/**
-		 * Handle setting dynamic $query_args based on the source (higher level query)
-		 */
-		if ( true === is_object( $this->source ) ) {
-			switch ( true ) {
-				case $this->source instanceof Post:
-					$query_args['post_id'] = absint( $this->source->ID );
-					break;
-				case $this->source instanceof User:
-					$query_args['user_id'] = absint( $this->source->userId );
-					break;
-				case $this->source instanceof Comment:
-					$query_args['parent'] = absint( $this->source->commentId );
-					break;
-				default:
-					break;
-			}
-		}
-
-		/**
 		 * We only want to query IDs because deferred resolution will resolve the full
 		 * objects.
 		 */
@@ -155,7 +132,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * get_query
+	 * Get_query
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
@@ -167,10 +144,19 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return the name of the loader
+	 *
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'comment';
+	}
+
+	/**
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
 	}
 
@@ -195,10 +181,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * @param array       $args     The array of query arguments
+	 * @param array $args The array of query arguments
 	 *
 	 * @since  0.0.5
-	 * @access private
 	 * @return array
 	 */
 	public function sanitize_input_fields( array $args ) {
@@ -243,6 +228,19 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the
+	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
+	 * checking if the comment with the given ID exists.
+	 *
+	 * @param int $offset The ID of the node used for the cursor offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_comment( $offset ) );
 	}
 
 }

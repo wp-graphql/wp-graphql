@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   wpgraphql.test:
-    image: "wordpress:${WP_VERSION:-5.1.1}-php${PHP_VERSION:-7.3}-apache"
+    image: "wordpress:${WP_VERSION:-5.3.2}-php${PHP_VERSION:-7.4}-apache"
     ports:
       - '8000:80'
     environment:
@@ -19,7 +19,10 @@ services:
       - './uploads.txt:/usr/local/etc/php/conf.d/uploads.ini:ro'
 
   mysql_test:
-    image: 'mariadb:10.2.23-bionic'
+    image: 'mariadb:10.2.27-bionic'
+    ports:
+      # Have Docker forward a randomly assigned host port to this site's MySQL container port
+      - '3306'
     environment:
       MYSQL_DATABASE: 'wpgraphql_test'
       MYSQL_ROOT_PASSWORD: 'testing'

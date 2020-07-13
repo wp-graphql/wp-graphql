@@ -122,17 +122,20 @@ class PostObjectCursor {
 		$order   = $this->get_query_var( 'order' );
 
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
+
 			/**
 			 * Loop through all order keys if it is an array
 			 */
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
-		} else if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} elseif ( ! empty( $orderby ) && is_string( $orderby ) ) {
+
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
+
 		}
 
 		/**
@@ -142,6 +145,8 @@ class PostObjectCursor {
 			$this->compare_with_date();
 		}
 
+		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
+
 		return $this->to_sql();
 	}
 
@@ -150,7 +155,6 @@ class PostObjectCursor {
 	 */
 	private function compare_with_date() {
 		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->get_cursor_post()->post_date, 'DATETIME' );
-		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
 	}
 
 	/**
@@ -163,14 +167,25 @@ class PostObjectCursor {
 	 */
 	private function compare_with( $by, $order ) {
 
-		$post_field = 'post_' . $by;
-		$value      = $this->get_cursor_post()->{$post_field};
+		switch ( $by ) {
+			case 'author':
+			case 'title':
+			case 'type':
+			case 'name':
+			case 'modified':
+			case 'date':
+			case 'parent':
+				$by = 'post_' . $by;
+				break;
+		}
+
+		$value = $this->get_cursor_post()->{$by};
 
 		/**
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
-			$this->builder->add_field( "{$this->wpdb->posts}.post_{$by}", $value, null, $order );
+			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 
 			return;
 		}
@@ -202,9 +217,9 @@ class PostObjectCursor {
 		$key = "{$this->wpdb->postmeta}.meta_value";
 
 		/**
-		 * wp uses mt1, mt2 etc. style aliases for additional meta value joins.
+		 * WP uses mt1, mt2 etc. style aliases for additional meta value joins.
 		 */
-		if ( $this->meta_join_alias !== 0 ) {
+		if ( 0 !== $this->meta_join_alias ) {
 			$key = "mt{$this->meta_join_alias}.meta_value";
 
 		}
@@ -223,7 +238,7 @@ class PostObjectCursor {
 	 */
 	private function get_meta_key( $by ) {
 
-		if ( 'meta_value' === $by ) {
+		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
 			return $this->get_query_var( 'meta_key' );
 		}
 

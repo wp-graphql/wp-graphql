@@ -1,5 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Server;
+
+use function array_change_key_case;
+use function is_string;
+use function json_decode;
+use function json_last_error;
+use const CASE_LOWER;
 
 /**
  * Structure representing parsed HTTP parameters for GraphQL operation
@@ -33,33 +42,34 @@ class OperationParams
 
     /**
      * @api
-     * @var array
+     * @var mixed[]|null
      */
     public $variables;
 
     /**
-     * @var array
+     * @api
+     * @var mixed[]|null
      */
+    public $extensions;
+
+    /** @var mixed[] */
     private $originalInput;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $readOnly;
 
     /**
      * Creates an instance from given array
      *
+     * @param mixed[] $params
+     *
      * @api
-     * @param array $params
-     * @param bool $readonly
-     * @return OperationParams
      */
-    public static function create(array $params, $readonly = false)
+    public static function create(array $params, bool $readonly = false) : OperationParams
     {
         $instance = new static();
 
-        $params = array_change_key_case($params, CASE_LOWER);
+        $params                  = array_change_key_case($params, CASE_LOWER);
         $instance->originalInput = $params;
 
         $params += [
@@ -68,45 +78,62 @@ class OperationParams
             'documentid' => null, // alias to queryid
             'id' => null, // alias to queryid
             'operationname' => null,
-            'variables' => null
+            'variables' => null,
+            'extensions' => null,
         ];
 
-        if ($params['variables'] === "") {
+        if ($params['variables'] === '') {
             $params['variables'] = null;
         }
 
-        if (is_string($params['variables'])) {
-            $tmp = json_decode($params['variables'], true);
-            if (!json_last_error()) {
-                $params['variables'] = $tmp;
+        // Some parameters could be provided as serialized JSON.
+        foreach (['extensions', 'variables'] as $param) {
+            if (! is_string($params[$param])) {
+                continue;
             }
+
+            $tmp = json_decode($params[$param], true);
+            if (json_last_error()) {
+                continue;
+            }
+
+            $params[$param] = $tmp;
         }
 
-        $instance->query = $params['query'];
-        $instance->queryId = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
-        $instance->operation = $params['operationname'];
-        $instance->variables = $params['variables'];
-        $instance->readOnly = (bool) $readonly;
+        $instance->query      = $params['query'];
+        $instance->queryId    = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
+        $instance->operation  = $params['operationname'];
+        $instance->variables  = $params['variables'];
+        $instance->extensions = $params['extensions'];
+        $instance->readOnly   = $readonly;
+
+        // Apollo server/client compatibility: look for the queryid in extensions
+        if (isset($instance->extensions['persistedQuery']['sha256Hash']) && empty($instance->query) && empty($instance->queryId)) {
+            $instance->queryId = $instance->extensions['persistedQuery']['sha256Hash'];
+        }
 
         return $instance;
     }
 
     /**
-     * @api
      * @param string $key
+     *
      * @return mixed
+     *
+     * @api
      */
     public function getOriginalInput($key)
     {
-        return isset($this->originalInput[$key]) ? $this->originalInput[$key] : null;
+        return $this->originalInput[$key] ?? null;
     }
 
     /**
      * Indicates that operation is executed in read-only context
      * (e.g. via HTTP GET request)
      *
-     * @api
      * @return bool
+     *
+     * @api
      */
     public function isReadOnly()
     {

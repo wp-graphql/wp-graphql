@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -11,6 +10,7 @@ use GraphQLRelay\Relay;
  * @property string $id
  * @property string name
  * @property array  $capabilities
+ * @property string displayName
  *
  * @package WPGraphQL\Model
  */
@@ -20,7 +20,6 @@ class UserRole extends Model {
 	 * Stores the incoming user role to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -29,7 +28,6 @@ class UserRole extends Model {
 	 *
 	 * @param array $user_role The incoming user role to be modeled
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -41,7 +39,6 @@ class UserRole extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -51,7 +48,8 @@ class UserRole extends Model {
 		}
 
 		$current_user_roles = wp_get_current_user()->roles;
-		if ( in_array( $this->data['name'], $current_user_roles, true ) ) {
+
+		if ( in_array( $this->data['slug'], $current_user_roles, true ) ) {
 			return false;
 		}
 
@@ -61,19 +59,21 @@ class UserRole extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id' => function() {
-					$id = Relay::toGlobalId( 'role', $this->data['id'] );
+				'id'           => function() {
+					$id = Relay::toGlobalId( 'user_role', $this->data['id'] );
 					return $id;
 				},
-				'name' => function() {
+				'name'         => function() {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
+				},
+				'displayName'  => function() {
+					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
 				},
 				'capabilities' => function() {
 					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
@@ -81,7 +81,7 @@ class UserRole extends Model {
 					} else {
 						return array_keys( $this->data['capabilities'] );
 					}
-				}
+				},
 			];
 
 		}

@@ -81,12 +81,11 @@ class CursorBuilder {
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
 
-
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
 				$value = "'$value'";
-			} else if ( $cast ) {
+			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
 			}
@@ -122,7 +121,7 @@ class CursorBuilder {
 		if ( ! preg_match( '/^(?:BINARY|CHAR|DATE|DATETIME|SIGNED|UNSIGNED|TIME|NUMERIC(?:\(\d+(?:,\s?\d+)?\))?|DECIMAL(?:\(\d+(?:,\s?\d+)?\))?)$/', $meta_type ) ) {
 			return 'CHAR';
 		}
-		if ( 'NUMERIC' == $meta_type ) {
+		if ( 'NUMERIC' === $meta_type ) {
 			$meta_type = 'SIGNED';
 		}
 

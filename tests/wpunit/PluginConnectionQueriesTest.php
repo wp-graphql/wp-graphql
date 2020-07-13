@@ -7,21 +7,23 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
+		wp_logout();
 		parent::tearDown();
 	}
 
@@ -75,7 +77,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPluginsQueryWithoutAuth() {
 
-		wp_set_current_user( 0 );
+		wp_logout();
 
 		$query = '
 		{
@@ -93,8 +95,12 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
-		$this->assertNull( $actual['data']['plugins'] );
+		$actual = graphql([ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertEmpty( $actual['data']['plugins']['edges'] );
+		$this->assertEmpty( $actual['data']['plugins']['nodes'] );
 
 	}
 
@@ -104,9 +110,14 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPluginQuery() {
 
+		$path = 'wp-graphql/wp-graphql.php';
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', $path );
+
+		codecept_debug( $global_id );
+
 		$query = '
 		{
-		  plugin(id: "cGx1Z2luOkhlbGxvIERvbGx5"){
+		  plugin(id: "' . $global_id . '"){
 		    id
 		    name
 		    author
@@ -115,12 +126,15 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    name
 		    pluginUri
 		    version
+		    path
 		  }
 		}
 		';
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		/**
 		 * We don't really care what the specifics are because the default plugins could change at any time
@@ -150,6 +164,8 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
+
+		$this->assertSame( $path, $actual['data']['plugin']['path'] );
 
 	}
 }

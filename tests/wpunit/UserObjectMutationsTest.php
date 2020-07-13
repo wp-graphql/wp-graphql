@@ -10,7 +10,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -42,7 +42,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then
@@ -616,6 +616,10 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			]
 		];
 
+		if ( ! empty( $args['password'] ) ) {
+			$variables['input']['password'] = $args['password'];
+		}
+
 		$actual = do_graphql_request( $mutation, 'registerUser', $variables );
 
 		return $actual;
@@ -969,4 +973,24 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		return $email_sent;
 	}
 
+	public function testDisablePasswordChangedEmailsOnRegistration() {
+		$was_password_change_email_sent = false;
+
+		// If this filter is run, we know the "Password Changed" email is being sent.
+		add_filter( 'password_change_email', function( $pass_change_email ) use ( &$was_password_change_email_sent ) {
+			$was_password_change_email_sent = true;
+			return $pass_change_email;
+		} );
+
+		$this->registerUserMutation( [
+			'username' => 'password-changed-email-test-user',
+			'email'    => 'password-changed-email-test-user@example.com',
+			'password' => 'password-changed-email-test-user-password'
+		] );
+
+		/**
+		 * Assert that the "Password Changed" email was not sent when the user was registered.
+		 */
+		$this->assertFalse( $was_password_change_email_sent );
+	}
 }

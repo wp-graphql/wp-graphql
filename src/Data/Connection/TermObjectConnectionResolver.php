@@ -18,7 +18,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @var
+	 * @var string
 	 */
 	protected $taxonomy;
 
@@ -33,7 +33,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $source, $args, $context, $info, $taxonomy ) {
+	public function __construct( $source, $args, $context, $info, $taxonomy = null ) {
 		$this->taxonomy = $taxonomy;
 		parent::__construct( $source, $args, $context, $info );
 	}
@@ -47,19 +47,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the taxonomy for the $args
 		 */
-		$query_args['taxonomy'] = ! empty( $this->taxonomy ) ? $this->taxonomy : 'category';
+		$all_taxonomies         = get_taxonomies( [ 'show_in_graphql' => true ] );
+		$query_args['taxonomy'] = ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies;
 
 		/**
 		 * Prepare for later use
 		 */
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
-
-		/**
-		 * Set the default parent for TermObject Queries to be "0" to only get top level terms, unless
-		 * includeChildren is set
-		 */
-		$query_args['parent'] = 0;
 
 		/**
 		 * Set hide_empty as false by default
@@ -116,59 +111,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_args'] = $this->args;
 
 		/**
-		 * If the source of the Query is a Post object, adjust the query args to only query terms
-		 * connected to the post object
-		 *
-		 * @since 0.0.5
-		 */
-		global $post;
-		if ( true === is_object( $this->source ) ) {
-			switch ( true ) {
-				case $this->source instanceof Post:
-					$post                                  = $this->source;
-					$post->shouldOnlyIncludeConnectedItems = isset( $input_fields['shouldOnlyIncludeConnectedItems'] ) ? $input_fields['shouldOnlyIncludeConnectedItems'] : true;
-					$query_args['object_ids']              = $this->source->ID;
-					break;
-				case $this->source instanceof Term:
-
-					if ( is_a( $GLOBALS['post'], 'WP_Post' ) && isset( $GLOBALS['post']->ID ) ) {
-						$query_args['object_ids'] = $GLOBALS['post']->ID;
-					}
-
-					$query_args['parent'] = ! empty( $this->source->term_id ) ? $this->source->term_id : 0;
-					break;
-				default:
-					break;
-			}
-		}
-
-		/**
-		 * IF the connection is set to NOT ONLY include connected items (default behavior), unset the $object_ids arg
-		 */
-		if ( isset( $post->shouldOnlyIncludeConnectedItems ) && false === $post->shouldOnlyIncludeConnectedItems ) {
-			unset( $query_args['object_ids'] );
-		}
-
-		/**
-		 * If the connection is set to output in a flat list, unset the parent
-		 */
-		if ( isset( $input_fields['shouldOutputInFlatList'] ) && true === $input_fields['shouldOutputInFlatList'] ) {
-			unset( $query_args['parent'] );
-			if ( $this->source instanceof Post ) {
-				$connected             = wp_get_object_terms( $this->source->ID, $this->taxonomy, [ 'fields' => 'ids' ] );
-				$query_args['include'] = ! empty( $connected ) ? $connected : [];
-			}
-		}
-
-		/**
-		 * If the query is a search, the source isn't another Term, and the parent $arg is not explicitly set in the query,
-		 * unset the $query_args['parent'] so the search can search all posts, not just top level posts.
-		 */
-		if ( ! $this->source instanceof Term && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
-			unset( $query_args['parent'] );
-		}
-
-		/**
 		 * NOTE: We query for JUST the IDs here as deferred resolution of the nodes gets the full
 		 * object from the cache or a follow-up request for the full object if it's not cached.
 		 */
@@ -209,8 +151,15 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_items() {
+	public function get_ids() {
 		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_loader_name() {
+		return 'term';
 	}
 
 	/**
@@ -231,7 +180,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @since  0.0.5
 	 * @return array
-	 * @access public
 	 */
 	public function sanitize_input_fields() {
 
@@ -246,6 +194,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			'childOf'             => 'child_of',
 			'cacheDomain'         => 'cache_domain',
 			'updateTermMetaCache' => 'update_term_meta_cache',
+			'taxonomies'          => 'taxonomy',
 		];
 
 		$where_args = ! empty( $this->args['where'] ) ? $this->args['where'] : null;
@@ -275,6 +224,19 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the term corresponding to the offset
+	 * exists. Offset is equivalent to term_id. So this function is equivalent to checking if the
+	 * term with the given ID exists.
+	 *
+	 * @param int $offset The ID of the node used in the cursor for offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_term( absint( $offset ) ) );
 	}
 
 }

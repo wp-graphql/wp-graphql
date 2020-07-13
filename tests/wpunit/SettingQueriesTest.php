@@ -5,7 +5,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $editor;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
@@ -18,7 +18,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -26,7 +26,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * Method for testing whether a user can query settings
 	 * if they don't have the 'manage_options' capability
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testSettingQueryAsEditor() {
@@ -53,7 +52,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Method for testing the generalSettings
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testGeneralSettingQuery() {
@@ -140,7 +138,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Method for testing the writingSettings
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testWritingSettingQuery() {
@@ -162,6 +159,8 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		";
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$writingSettings = $actual['data']['writingSettings'];
 
 		$this->assertNotEmpty( $writingSettings );
@@ -174,7 +173,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Method for testing the readingSettings
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function testReadingSettingQuery() {
@@ -207,7 +205,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Method for testing the discussionSettings
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function testDiscussionSettingQuery() {
@@ -244,7 +241,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * Method for testing the testGetAllowedSettingsByGroup
 	 * and then checking that zoolSettings gets added and removed
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testGetAllowedSettingsByGroup() {
@@ -285,7 +281,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * Method for testing the testGetAllowedSettings
 	 * and then checking that zoolSettings gets added and removed
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testGetAllowedSettings() {

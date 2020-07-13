@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -27,7 +26,6 @@ class Theme extends Model {
 	 * Stores the incoming WP_Theme to be modeled
 	 *
 	 * @var \WP_Theme $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -37,7 +35,6 @@ class Theme extends Model {
 	 * @param \WP_Theme $theme The incoming WP_Theme to be modeled
 	 *
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Theme $theme ) {
@@ -48,7 +45,6 @@ class Theme extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -68,7 +64,6 @@ class Theme extends Model {
 	/**
 	 * Initialize the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
@@ -76,42 +71,42 @@ class Theme extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
+				'id'          => function() {
 					$stylesheet = $this->data->get_stylesheet();
 					return ( ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
 				},
-				'slug' => function() {
+				'slug'        => function() {
 					$stylesheet = $this->data->get_stylesheet();
 					return ! empty( $stylesheet ) ? $stylesheet : null;
 				},
-				'name' => function() {
+				'name'        => function() {
 					$name = $this->data->get( 'Name' );
 					return ! empty( $name ) ? $name : null;
 				},
-				'screenshot' => function() {
+				'screenshot'  => function() {
 					$screenshot = $this->data->get_screenshot();
 					return ! empty( $screenshot ) ? $screenshot : null;
 				},
-				'themeUri' => function() {
+				'themeUri'    => function() {
 					$theme_uri = $this->data->get( 'ThemeURI' );
 					return ! empty( $theme_uri ) ? $theme_uri : null;
 				},
 				'description' => function() {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'author' => function() {
+				'author'      => function() {
 					return ! empty( $this->data->author ) ? $this->data->author : null;
 				},
-				'authorUri' => function() {
+				'authorUri'   => function() {
 					$author_uri = $this->data->get( 'AuthorURI' );
 					return ! empty( $author_uri ) ? $author_uri : null;
 				},
-				'tags' => function() {
+				'tags'        => function() {
 					return ! empty( $this->data->tags ) ? $this->data->tags : null;
 				},
-				'version' => function() {
+				'version'     => function() {
 					return ! empty( $this->data->version ) ? $this->data->version : null;
-				}
+				},
 			];
 
 		}

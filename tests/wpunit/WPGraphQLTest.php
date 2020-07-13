@@ -4,13 +4,13 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 
 	public $instance;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->instance = graphql_init();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -15,6 +14,7 @@ use GraphQLRelay\Relay;
  * @property string $author
  * @property string $authorUri
  * @property string $version
+ * @property string $path
  *
  * @package WPGraphQL\Model
  */
@@ -24,7 +24,6 @@ class Plugin extends Model {
 	 * Stores the incoming plugin data to be modeled
 	 *
 	 * @var array $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -33,7 +32,6 @@ class Plugin extends Model {
 	 *
 	 * @param array $plugin The incoming Plugin data to be modeled
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( $plugin ) {
@@ -44,12 +42,11 @@ class Plugin extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
 
-		if ( ! current_user_can( 'update_plugins') ) {
+		if ( ! current_user_can( 'update_plugins' ) ) {
 			return true;
 		}
 
@@ -60,7 +57,6 @@ class Plugin extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
@@ -68,27 +64,30 @@ class Plugin extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
-					return ! empty( $this->data['Name'] ) ? Relay::toGlobalId( 'plugin', $this->data['Name'] ) : null;
+				'id'          => function() {
+					return ! empty( $this->data['Path'] ) ? Relay::toGlobalId( 'plugin', $this->data['Path'] ) : null;
 				},
-				'name' => function() {
+				'name'        => function() {
 					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
 				},
-				'pluginUri' => function() {
+				'pluginUri'   => function() {
 					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
 				},
 				'description' => function() {
 					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
-				'author' => function() {
+				'author'      => function() {
 					return ! empty( $this->data['Author'] ) ? $this->data['Author'] : null;
 				},
-				'authorUri' => function() {
+				'authorUri'   => function() {
 					return ! empty( $this->data['AuthorURI'] ) ? $this->data['AuthorURI'] : null;
 				},
-				'version' => function() {
+				'version'     => function() {
 					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
-				}
+				},
+				'path'        => function() {
+					return ! empty( $this->data['Path'] ) ? $this->data['Path'] : null;
+				},
 			];
 
 		}

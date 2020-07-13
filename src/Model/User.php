@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -26,6 +25,9 @@ use GraphQLRelay\Relay;
  * @property string $nicename
  * @property string $locale
  * @property int    $userId
+ * @property string $uri
+ * @property string $enqueuedScriptsQueue
+ * @property string $enqueuedStylesheetsQueue
  *
  * @package WPGraphQL\Model
  */
@@ -35,29 +37,39 @@ class User extends Model {
 	 * Stores the WP_User object for the incoming data
 	 *
 	 * @var \WP_User $data
-	 * @access protected
 	 */
 	protected $data;
+
+	/**
+	 * The Global Post at time of Model generation
+	 *
+	 * @var \WP_Post
+	 */
+	protected $global_post;
+
+	/**
+	 * The global authordata at time of Model generation
+	 *
+	 * @var \WP_User
+	 */
+	protected $global_authordata;
 
 	/**
 	 * User constructor.
 	 *
 	 * @param \WP_User $user The incoming WP_User object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user) {
+	public function __construct( \WP_User $user ) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
 		$user->user_pass = null;
-		$this->data = $user;
+		$this->data      = $user;
 
 		$allowed_restricted_fields = [
 			'isRestricted',
-			'isPrivate',
-			'isPublic',
 			'id',
 			'userId',
 			'name',
@@ -65,6 +77,9 @@ class User extends Model {
 			'lastName',
 			'description',
 			'slug',
+			'uri',
+			'enqueuedScriptsQueue',
+			'enqueuedStylesheetsQueue',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
@@ -72,9 +87,48 @@ class User extends Model {
 	}
 
 	/**
+	 * Setup the global data for the model to have proper context when resolving
+	 */
+	public function setup() {
+
+		global $wp_query, $post, $authordata;
+
+		// Store variables for resetting at tear down
+		$this->global_post       = $post;
+		$this->global_authordata = $authordata;
+
+		if ( $this->data ) {
+
+			// Reset postdata
+			$wp_query->reset_postdata();
+
+			// Parse the query to setup global state
+			$wp_query->parse_query([
+				'author_name' => $this->data->user_nicename,
+			]);
+
+			// Setup globals
+			$wp_query->is_author         = true;
+			$GLOBALS['authordata']       = $this->data;
+			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
+			$wp_query->queried_object_id = $this->data->ID;
+		}
+
+	}
+
+	/**
+	 * Reset global state after the model fields
+	 * have been generated
+	 */
+	public function tear_down() {
+		$GLOBALS['authordata'] = $this->global_authordata;
+		$GLOBALS['post']       = $this->global_post;
+		wp_reset_postdata();
+	}
+
+	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -88,7 +142,7 @@ class User extends Model {
 			 *      For now, we only query if the current user doesn't have list_users, instead of querying
 			 *      for ALL users. Slightly more efficient for authenticated users at least.
 			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::$allowed_post_types, true ) ) {
+			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::get_allowed_post_types(), true ) ) {
 				return true;
 			}
 		}
@@ -100,79 +154,105 @@ class User extends Model {
 	/**
 	 * Initialize the User object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id' => function() {
+				'id'                       => function() {
 					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
 				},
-				'capabilities' => function() {
+				'capabilities'             => function() {
 					if ( ! empty( $this->data->allcaps ) ) {
 
 						/**
 						 * Reformat the array of capabilities from the user object so that it is a true
 						 * ListOf type
 						 */
-						$capabilities = array_keys( array_filter( $this->data->allcaps, function( $cap ) {
-							return true === $cap;
-						} ) );
+						$capabilities = array_keys(
+							array_filter(
+								$this->data->allcaps,
+								function( $cap ) {
+									return true === $cap;
+								}
+							)
+						);
 
 					}
 
 					return ! empty( $capabilities ) ? $capabilities : null;
 
 				},
-				'capKey' => function() {
+				'capKey'                   => function() {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
-				'roles' => function() {
+				'roles'                    => function() {
 					return ! empty( $this->data->roles ) ? $this->data->roles : null;
 				},
-				'email' => function() {
+				'email'                    => function() {
 					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
-				'firstName' => function() {
+				'firstName'                => function() {
 					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
 				},
-				'lastName' => function() {
+				'lastName'                 => function() {
 					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
 				},
-				'extraCapabilities' => function() {
+				'extraCapabilities'        => function() {
 					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
 				},
-				'description' => function() {
+				'description'              => function() {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'username' => function() {
+				'username'                 => function() {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
-				'name' => function() {
+				'name'                     => function() {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
-				'registeredDate' => function() {
+				'registeredDate'           => function() {
 					return ! empty( $this->data->user_registered ) ? date( 'c', strtotime( $this->data->user_registered ) ) : null;
 				},
-				'nickname' => function() {
+				'nickname'                 => function() {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
 				},
-				'url' => function() {
+				'url'                      => function() {
 					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
 				},
-				'slug' => function() {
+				'slug'                     => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'nicename' => function() {
+				'nicename'                 => function() {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'locale' => function() {
+				'locale'                   => function() {
 					$user_locale = get_user_locale( $this->data );
+
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
-				'userId' => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
+				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
+				'uri'                      => function() {
+					$user_profile_url = get_author_posts_url( $this->data->ID );
+
+					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
+				},
+				'enqueuedScriptsQueue'     => function() {
+					global $wp_scripts;
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_scripts->queue;
+					$wp_scripts->reset();
+					$wp_scripts->queue = [];
+					return $queue;
+				},
+				'enqueuedStylesheetsQueue' => function() {
+					global $wp_styles;
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_styles->queue;
+					$wp_styles->reset();
+					$wp_styles->queue = [];
+					return $queue;
+				},
 			];
 
 		}

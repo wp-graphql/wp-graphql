@@ -1,0 +1,46 @@
+name: Testing Integration
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '7.3' ]
+        wordpress: ['5.3.2', '5.4.1']
+        include:
+          - php: '7.4'
+            wordpress: '5.4.1'
+            coverage: true
+      fail-fast: false
+    name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run tests w/ Docker.
+        env:
+          PHP_VERSION: ${{ matrix.php }}
+          WP_VERSION: ${{ matrix.wordpress }}
+          COVERAGE: ${{ matrix.coverage }}
+        run: |
+          ./bin/run-docker-tests.sh 'wpunit'
+          ./bin/run-docker-tests.sh 'functional'
+          ./bin/run-docker-tests.sh 'acceptance'
+      - name: Setup PHP
+        if: matrix.coverage == true
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: 7.4.5
+          extensions: mbstring, intl
+          tools: composer
+      - name: Upload coverage to codecov
+        if: matrix.coverage == true
+        run: bash <(curl -s https://codecov.io/bash)

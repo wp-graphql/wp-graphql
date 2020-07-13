@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
@@ -17,49 +20,31 @@ use GraphQL\Type\Schema;
  */
 class ExecutionContext
 {
-    /**
-     * @var Schema
-     */
+    /** @var Schema */
     public $schema;
 
-    /**
-     * @var FragmentDefinitionNode[]
-     */
+    /** @var FragmentDefinitionNode[] */
     public $fragments;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     public $rootValue;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     public $contextValue;
 
-    /**
-     * @var OperationDefinitionNode
-     */
+    /** @var OperationDefinitionNode */
     public $operation;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     public $variableValues;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     public $fieldResolver;
 
-    /**
-     * @var array
-     */
+    /** @var Error[] */
     public $errors;
 
-    /**
-     * @var PromiseAdapter
-     */
+    /** @var PromiseAdapter */
     public $promises;
 
     public function __construct(
@@ -72,22 +57,22 @@ class ExecutionContext
         $errors,
         $fieldResolver,
         $promiseAdapter
-    )
-    {
-        $this->schema = $schema;
-        $this->fragments = $fragments;
-        $this->rootValue = $root;
-        $this->contextValue = $contextValue;
-        $this->operation = $operation;
+    ) {
+        $this->schema         = $schema;
+        $this->fragments      = $fragments;
+        $this->rootValue      = $root;
+        $this->contextValue   = $contextValue;
+        $this->operation      = $operation;
         $this->variableValues = $variables;
-        $this->errors = $errors ?: [];
-        $this->fieldResolver = $fieldResolver;
-        $this->promises = $promiseAdapter;
+        $this->errors         = $errors ?: [];
+        $this->fieldResolver  = $fieldResolver;
+        $this->promises       = $promiseAdapter;
     }
 
     public function addError(Error $error)
     {
         $this->errors[] = $error;
+
         return $this;
     }
 }

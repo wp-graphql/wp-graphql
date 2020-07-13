@@ -2,24 +2,24 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
  * Class Term - Models data for Terms
  *
- * @property string       $id
- * @property int          $term_id
- * @property int          $count
- * @property string       $description
- * @property string       $name
- * @property string       $slug
- * @property int          $termGroupId
- * @property int          $termTaxonomyId
- * @property string       $taxonomyName
- * @property string       $link
- * @property int          $parentId
- * @property array        $ancestors
+ * @property string $id
+ * @property int    $term_id
+ * @property int    $count
+ * @property string $description
+ * @property string $name
+ * @property string $slug
+ * @property int    $termGroupId
+ * @property int    $termTaxonomyId
+ * @property string $taxonomyName
+ * @property string $link
+ * @property string $parentId
+ * @property int    $parentDatabaseId
+ * @property array  $ancestors
  *
  * @package WPGraphQL\Model
  */
@@ -29,7 +29,6 @@ class Term extends Model {
 	 * Stores the incoming WP_Term object
 	 *
 	 * @var \WP_Term $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -37,29 +36,77 @@ class Term extends Model {
 	 * Stores the taxonomy object for the term being modeled
 	 *
 	 * @var null|\WP_Taxonomy $taxonomy_object
-	 * @access protected
 	 */
 	protected $taxonomy_object;
+
+	protected $global_post;
 
 	/**
 	 * Term constructor.
 	 *
 	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
-	 * @access public
 	 * @return void
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Term $term ) {
-		$this->data = $term;
+		$this->data            = $term;
 		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
 		parent::__construct();
 	}
 
 	/**
+	 * Setup the global state for the model to have proper context when resolving
+	 */
+	public function setup() {
+
+		global $wp_query, $post;
+
+		/**
+		 * Store the global post before overriding
+		 */
+		$this->global_post = $post;
+
+		if ( $this->data ) {
+
+			/**
+			 * Reset global post
+			 */
+			$GLOBALS['post'] = get_post( 0 );
+
+			/**
+			 * Parse the query to tell WordPress
+			 * how to setup global state
+			 */
+			if ( 'category' === $this->data->taxonomy ) {
+				$wp_query->parse_query( [
+					'category_name' => $this->data->slug,
+				] );
+			} elseif ( 'post_tag' === $this->data->taxonomy ) {
+				$wp_query->parse_query( [
+					'tag' => $this->data->slug,
+				] );
+			}
+
+			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
+			$wp_query->queried_object_id = $this->data->term_id;
+
+		}
+
+	}
+
+	/**
+	 * Reset global state after the model fields
+	 * have been generated
+	 */
+	public function tear_down() {
+		$GLOBALS['post'] = $this->global_post;
+		wp_reset_postdata();
+	}
+
+	/**
 	 * Initializes the Term object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
@@ -67,44 +114,67 @@ class Term extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( $this->data->taxonomy, $this->data->term_id ) : null;
+				'id'                       => function() {
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
 				},
-				'term_id' => function() {
+				'term_id'                  => function() {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
-				'count' => function() {
+				'count'                    => function() {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
-				'description' => function() {
-					return ! empty( $this->data->description ) ? $this->data->description : null;
+				'description'              => function() {
+					return ! empty( $this->data->description ) ? html_entity_decode( $this->data->description ) : null;
 				},
-				'name' => function() {
-					return ! empty( $this->data->name ) ? $this->data->name : null;
+				'name'                     => function() {
+					return ! empty( $this->data->name ) ? html_entity_decode( $this->data->name ) : null;
 				},
-				'slug' => function() {
+				'slug'                     => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				},
-				'termGroupId' => function() {
+				'termGroupId'              => function() {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
 				},
-				'termTaxonomyId' => function() {
+				'termTaxonomyId'           => function() {
 					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
 				},
-				'taxonomyName' => function() {
+				'taxonomyName'             => function() {
 					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
 				},
-				'link' => function() {
+				'link'                     => function() {
 					$link = get_term_link( $this->data->term_id );
+
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
-				'parentId' => function() {
+				'parentId'                 => function() {
+					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', $this->data->parent ) : null;
+				},
+				'parentDatabaseId'         => function() {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
-				}
+				},
+				'enqueuedScriptsQueue'     => function() {
+					global $wp_scripts;
+					$wp_scripts->reset();
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_scripts->queue;
+					$wp_scripts->reset();
+					$wp_scripts->queue = [];
+
+					return $queue;
+				},
+				'enqueuedStylesheetsQueue' => function() {
+					global $wp_styles;
+					do_action( 'wp_enqueue_scripts' );
+					$queue = $wp_styles->queue;
+					$wp_styles->reset();
+					$wp_styles->queue = [];
+
+					return $queue;
+				},
 			];
 
 			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
-				$type_id                 = $this->taxonomy_object->graphql_single_name . 'Id';
+				$type_id                  = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->data->term_id );
 			};
 

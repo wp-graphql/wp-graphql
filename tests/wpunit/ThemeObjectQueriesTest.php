@@ -4,14 +4,14 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -133,7 +133,9 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'path'      => [
 						'theme',
 					],
-					'category'  => 'user',
+					'extensions' => [
+						'category'  => 'user',
+					]
 				],
 			],
 		];

@@ -18,7 +18,7 @@ class WPEnumType extends EnumType {
 	 * @param array $config
 	 */
 	public function __construct( $config ) {
-		$config['name'] = ucfirst( $config['name'] );
+		$config['name']   = ucfirst( $config['name'] );
 		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
 		parent::__construct( $config );
 	}
@@ -41,12 +41,10 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
-	 * prepare_values
-	 *
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
-	 * @param array $values
+	 * @param array  $values
 	 * @param string $type_name
 	 * @return mixed
 	 * @since 0.0.5
@@ -56,7 +54,7 @@ class WPEnumType extends EnumType {
 		/**
 		 * Pass the values through a filter
 		 *
-		 * lcfirst( $type_name ) filter was added for backward compatibility
+		 * Filter for lcfirst( $type_name ) was added for backward compatibility
 		 *
 		 * @param array $values
 		 *
@@ -67,12 +65,14 @@ class WPEnumType extends EnumType {
 
 		/**
 		 * Sort the values alphabetically by key. This makes reading through docs much easier
+		 *
 		 * @since 0.0.5
 		 */
 		ksort( $values );
 
 		/**
 		 * Return the filtered, sorted $fields
+		 *
 		 * @since 0.0.5
 		 */
 		return $values;

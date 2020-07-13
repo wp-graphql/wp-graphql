@@ -1,10 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language;
 
+use ArrayObject;
+use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+use SplFixedArray;
+use stdClass;
+use function array_pop;
+use function array_splice;
+use function call_user_func;
+use function call_user_func_array;
+use function count;
+use function func_get_args;
+use function is_array;
+use function is_callable;
+use function json_encode;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -95,99 +111,105 @@ use GraphQL\Utils\TypeInfo;
  */
 class Visitor
 {
+    /** @var string[][] */
     public static $visitorKeys = [
-        NodeKind::NAME => [],
-        NodeKind::DOCUMENT => ['definitions'],
+        NodeKind::NAME                 => [],
+        NodeKind::DOCUMENT             => ['definitions'],
         NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
-        NodeKind::VARIABLE_DEFINITION => ['variable', 'type', 'defaultValue'],
-        NodeKind::VARIABLE => ['name'],
-        NodeKind::SELECTION_SET => ['selections'],
-        NodeKind::FIELD => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
-        NodeKind::ARGUMENT => ['name', 'value'],
-        NodeKind::FRAGMENT_SPREAD => ['name', 'directives'],
-        NodeKind::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
-        NodeKind::FRAGMENT_DEFINITION => [
+        NodeKind::VARIABLE_DEFINITION  => ['variable', 'type', 'defaultValue'],
+        NodeKind::VARIABLE             => ['name'],
+        NodeKind::SELECTION_SET        => ['selections'],
+        NodeKind::FIELD                => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
+        NodeKind::ARGUMENT             => ['name', 'value'],
+        NodeKind::FRAGMENT_SPREAD      => ['name', 'directives'],
+        NodeKind::INLINE_FRAGMENT      => ['typeCondition', 'directives', 'selectionSet'],
+        NodeKind::FRAGMENT_DEFINITION  => [
             'name',
             // Note: fragment variable definitions are experimental and may be changed
             // or removed in the future.
             'variableDefinitions',
             'typeCondition',
             'directives',
-            'selectionSet'
+            'selectionSet',
         ],
 
-        NodeKind::INT => [],
-        NodeKind::FLOAT => [],
-        NodeKind::STRING => [],
-        NodeKind::BOOLEAN => [],
-        NodeKind::NULL => [],
-        NodeKind::ENUM => [],
-        NodeKind::LST => ['values'],
-        NodeKind::OBJECT => ['fields'],
-        NodeKind::OBJECT_FIELD => ['name', 'value'],
-        NodeKind::DIRECTIVE => ['name', 'arguments'],
-        NodeKind::NAMED_TYPE => ['name'],
-        NodeKind::LIST_TYPE => ['type'],
+        NodeKind::INT           => [],
+        NodeKind::FLOAT         => [],
+        NodeKind::STRING        => [],
+        NodeKind::BOOLEAN       => [],
+        NodeKind::NULL          => [],
+        NodeKind::ENUM          => [],
+        NodeKind::LST           => ['values'],
+        NodeKind::OBJECT        => ['fields'],
+        NodeKind::OBJECT_FIELD  => ['name', 'value'],
+        NodeKind::DIRECTIVE     => ['name', 'arguments'],
+        NodeKind::NAMED_TYPE    => ['name'],
+        NodeKind::LIST_TYPE     => ['type'],
         NodeKind::NON_NULL_TYPE => ['type'],
 
-        NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
-        NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
-        NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'],
-        NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'],
-        NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'],
-        NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'],
-        NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
-        NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'],
-        NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'],
-        NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'],
+        NodeKind::SCHEMA_DEFINITION            => ['directives', 'operationTypes'],
+        NodeKind::OPERATION_TYPE_DEFINITION    => ['type'],
+        NodeKind::SCALAR_TYPE_DEFINITION       => ['description', 'name', 'directives'],
+        NodeKind::OBJECT_TYPE_DEFINITION       => ['description', 'name', 'interfaces', 'directives', 'fields'],
+        NodeKind::FIELD_DEFINITION             => ['description', 'name', 'arguments', 'type', 'directives'],
+        NodeKind::INPUT_VALUE_DEFINITION       => ['description', 'name', 'type', 'defaultValue', 'directives'],
+        NodeKind::INTERFACE_TYPE_DEFINITION    => ['description', 'name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_DEFINITION        => ['description', 'name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_DEFINITION         => ['description', 'name', 'directives', 'values'],
+        NodeKind::ENUM_VALUE_DEFINITION        => ['description', 'name', 'directives'],
         NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
 
-        NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'],
-        NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'],
-        NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'directives', 'fields'],
-        NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'],
-        NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'],
+        NodeKind::SCALAR_TYPE_EXTENSION       => ['name', 'directives'],
+        NodeKind::OBJECT_TYPE_EXTENSION       => ['name', 'interfaces', 'directives', 'fields'],
+        NodeKind::INTERFACE_TYPE_EXTENSION    => ['name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_EXTENSION        => ['name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_EXTENSION         => ['name', 'directives', 'values'],
         NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'],
 
-        NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations']
+        NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'],
+
+        NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes'],
     ];
 
     /**
      * Visit the AST (see class description for details)
      *
-     * @api
-     * @param Node $root
-     * @param array $visitor
-     * @param array $keyMap
+     * @param Node|ArrayObject|stdClass $root
+     * @param callable[]                $visitor
+     * @param mixed[]|null              $keyMap
+     *
      * @return Node|mixed
-     * @throws \Exception
+     *
+     * @throws Exception
+     *
+     * @api
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
         $visitorKeys = $keyMap ?: self::$visitorKeys;
 
-        $stack = null;
-        $inArray = $root instanceof NodeList || is_array($root);
-        $keys = [$root];
-        $index = -1;
-        $edits = [];
-        $parent = null;
-        $path = [];
+        $stack     = null;
+        $inArray   = $root instanceof NodeList || is_array($root);
+        $keys      = [$root];
+        $index     = -1;
+        $edits     = [];
+        $parent    = null;
+        $path      = [];
         $ancestors = [];
-        $newRoot = $root;
+        $newRoot   = $root;
 
         $UNDEFINED = null;
 
         do {
             $index++;
             $isLeaving = $index === count($keys);
-            $key = null;
-            $node = null;
-            $isEdited = $isLeaving && count($edits) !== 0;
+            $key       = null;
+            $node      = null;
+            $isEdited  = $isLeaving && count($edits) !== 0;
 
             if ($isLeaving) {
-                $key = !$ancestors ? $UNDEFINED : $path[count($path) - 1];
-                $node = $parent;
+                $key    = ! $ancestors ? $UNDEFINED : $path[count($path) - 1];
+                $node   = $parent;
                 $parent = array_pop($ancestors);
 
                 if ($isEdited) {
@@ -201,7 +223,7 @@ class Visitor
                     }
                     $editOffset = 0;
                     for ($ii = 0; $ii < count($edits); $ii++) {
-                        $editKey = $edits[$ii][0];
+                        $editKey   = $edits[$ii][0];
                         $editValue = $edits[$ii][1];
 
                         if ($inArray) {
@@ -223,32 +245,32 @@ class Visitor
                         }
                     }
                 }
-                $index = $stack['index'];
-                $keys = $stack['keys'];
-                $edits = $stack['edits'];
+                $index   = $stack['index'];
+                $keys    = $stack['keys'];
+                $edits   = $stack['edits'];
                 $inArray = $stack['inArray'];
-                $stack = $stack['prev'];
+                $stack   = $stack['prev'];
             } else {
-                $key = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (($parent instanceof NodeList || is_array($parent)) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $key  = $parent !== null ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
+                $node = $parent !== null ? ($parent instanceof NodeList || is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
-                if ($parent) {
+                if ($parent !== null) {
                     $path[] = $key;
                 }
             }
 
             $result = null;
-            if (!$node instanceof NodeList && !is_array($node)) {
-                if (!($node instanceof Node)) {
-                    throw new \Exception('Invalid AST Node: ' . json_encode($node));
+            if (! $node instanceof NodeList && ! is_array($node)) {
+                if (! ($node instanceof Node)) {
+                    throw new Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn) {
-                    $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $result    = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
                     if ($result !== null) {
@@ -256,7 +278,7 @@ class Visitor
                             if ($result->doBreak) {
                                 break;
                             }
-                            if (!$isLeaving && $result->doContinue) {
+                            if (! $isLeaving && $result->doContinue) {
                                 array_pop($path);
                                 continue;
                             }
@@ -268,13 +290,13 @@ class Visitor
                         }
 
                         $edits[] = [$key, $editValue];
-                        if (!$isLeaving) {
-                            if ($editValue instanceof Node) {
-                                $node = $editValue;
-                            } else {
+                        if (! $isLeaving) {
+                            if (! ($editValue instanceof Node)) {
                                 array_pop($path);
                                 continue;
                             }
+
+                            $node = $editValue;
                         }
                     }
                 }
@@ -287,24 +309,23 @@ class Visitor
             if ($isLeaving) {
                 array_pop($path);
             } else {
-                $stack = [
+                $stack   = [
                     'inArray' => $inArray,
-                    'index' => $index,
-                    'keys' => $keys,
-                    'edits' => $edits,
-                    'prev' => $stack
+                    'index'   => $index,
+                    'keys'    => $keys,
+                    'edits'   => $edits,
+                    'prev'    => $stack,
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);
 
-                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
+                $keys  = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
                 $index = -1;
                 $edits = [];
-                if ($parent) {
+                if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
                 $parent = $node;
             }
-
         } while ($stack);
 
         if (count($edits) !== 0) {
@@ -317,97 +338,116 @@ class Visitor
     /**
      * Returns marker for visitor break
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function stop()
     {
-        $r = new VisitorOperation();
+        $r          = new VisitorOperation();
         $r->doBreak = true;
+
         return $r;
     }
 
     /**
      * Returns marker for skipping current node
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function skipNode()
     {
-        $r = new VisitorOperation();
+        $r             = new VisitorOperation();
         $r->doContinue = true;
+
         return $r;
     }
 
     /**
      * Returns marker for removing a node
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function removeNode()
     {
-        $r = new VisitorOperation();
+        $r             = new VisitorOperation();
         $r->removeNode = true;
+
         return $r;
     }
 
     /**
-     * @param $visitors
-     * @return array
+     * @param callable[][] $visitors
+     *
+     * @return callable[][]
      */
-    static function visitInParallel($visitors)
+    public static function visitInParallel($visitors)
     {
         $visitorsCount = count($visitors);
-        $skipping = new \SplFixedArray($visitorsCount);
+        $skipping      = new SplFixedArray($visitorsCount);
 
         return [
-            'enter' => function ($node) use ($visitors, $skipping, $visitorsCount) {
+            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
-                    if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ false);
+                    if (! empty($skipping[$i])) {
+                        continue;
+                    }
 
-                        if ($fn) {
-                            $result = call_user_func_array($fn, func_get_args());
+                    $fn = self::getVisitFn(
+                        $visitors[$i],
+                        $node->kind, /* isLeaving */
+                        false
+                    );
 
-                            if ($result instanceof VisitorOperation) {
-                                if ($result->doContinue) {
-                                    $skipping[$i] = $node;
-                                } else if ($result->doBreak) {
-                                    $skipping[$i] = $result;
-                                } else if ($result->removeNode) {
-                                    return $result;
-                                }
-                            } else if ($result !== null) {
-                                return $result;
-                            }
+                    if (! $fn) {
+                        continue;
+                    }
+
+                    $result = call_user_func_array($fn, func_get_args());
+
+                    if ($result instanceof VisitorOperation) {
+                        if ($result->doContinue) {
+                            $skipping[$i] = $node;
+                        } elseif ($result->doBreak) {
+                            $skipping[$i] = $result;
+                        } elseif ($result->removeNode) {
+                            return $result;
                         }
+                    } elseif ($result !== null) {
+                        return $result;
                     }
                 }
             },
-            'leave' => function ($node) use ($visitors, $skipping, $visitorsCount) {
+            'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ true);
+                        $fn = self::getVisitFn(
+                            $visitors[$i],
+                            $node->kind, /* isLeaving */
+                            true
+                        );
 
                         if ($fn) {
                             $result = call_user_func_array($fn, func_get_args());
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doBreak) {
                                     $skipping[$i] = $result;
-                                } else if ($result->removeNode) {
+                                } elseif ($result->removeNode) {
                                     return $result;
                                 }
-                            } else if ($result !== null) {
+                            } elseif ($result !== null) {
                                 return $result;
                             }
                         }
-                    } else if ($skipping[$i] === $node) {
+                    } elseif ($skipping[$i] === $node) {
                         $skipping[$i] = null;
                     }
                 }
-            }
+            },
         ];
     }
 
@@ -415,67 +455,74 @@ class Visitor
      * Creates a new visitor instance which maintains a provided TypeInfo instance
      * along with visiting visitor.
      */
-    static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
+    public static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
     {
         return [
-            'enter' => function ($node) use ($typeInfo, $visitor) {
+            'enter' => static function (Node $node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
                 if ($fn) {
                     $result = call_user_func_array($fn, func_get_args());
-                    if ($result) {
+                    if ($result !== null) {
                         $typeInfo->leave($node);
                         if ($result instanceof Node) {
                             $typeInfo->enter($result);
                         }
                     }
+
                     return $result;
                 }
+
                 return null;
             },
-            'leave' => function ($node) use ($typeInfo, $visitor) {
-                $fn = self::getVisitFn($visitor, $node->kind, true);
+            'leave' => static function (Node $node) use ($typeInfo, $visitor) {
+                $fn     = self::getVisitFn($visitor, $node->kind, true);
                 $result = $fn ? call_user_func_array($fn, func_get_args()) : null;
                 $typeInfo->leave($node);
+
                 return $result;
-            }
+            },
         ];
     }
 
     /**
-     * @param $visitor
-     * @param $kind
-     * @param $isLeaving
-     * @return null
+     * @param callable[]|null $visitor
+     * @param string          $kind
+     * @param bool            $isLeaving
+     *
+     * @return callable|null
      */
     public static function getVisitFn($visitor, $kind, $isLeaving)
     {
-        if (!$visitor) {
+        if ($visitor === null) {
             return null;
         }
-        $kindVisitor = isset($visitor[$kind]) ? $visitor[$kind] : null;
 
-        if (!$isLeaving && is_callable($kindVisitor)) {
+        $kindVisitor = $visitor[$kind] ?? null;
+
+        if (! $isLeaving && is_callable($kindVisitor)) {
             // { Kind() {} }
             return $kindVisitor;
         }
 
         if (is_array($kindVisitor)) {
             if ($isLeaving) {
-                $kindSpecificVisitor = isset($kindVisitor['leave']) ? $kindVisitor['leave'] : null;
+                $kindSpecificVisitor = $kindVisitor['leave'] ?? null;
             } else {
-                $kindSpecificVisitor = isset($kindVisitor['enter']) ? $kindVisitor['enter'] : null;
+                $kindSpecificVisitor = $kindVisitor['enter'] ?? null;
             }
 
             if ($kindSpecificVisitor && is_callable($kindSpecificVisitor)) {
                 // { Kind: { enter() {}, leave() {} } }
                 return $kindSpecificVisitor;
             }
+
             return null;
         }
 
         $visitor += ['leave' => null, 'enter' => null];
+
         $specificVisitor = $isLeaving ? $visitor['leave'] : $visitor['enter'];
 
         if ($specificVisitor) {
@@ -483,13 +530,14 @@ class Visitor
                 // { enter() {}, leave() {} }
                 return $specificVisitor;
             }
-            $specificKindVisitor = isset($specificVisitor[$kind]) ? $specificVisitor[$kind] : null;
+            $specificKindVisitor = $specificVisitor[$kind] ?? null;
 
             if (is_callable($specificKindVisitor)) {
                 // { enter: { Kind() {} }, leave: { Kind() {} } }
                 return $specificKindVisitor;
             }
         }
+
         return null;
     }
 }

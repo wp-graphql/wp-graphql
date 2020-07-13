@@ -2,7 +2,7 @@
 
 class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 
 		/**
 		 * Manually Register a setting for testing
@@ -29,7 +29,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -40,7 +40,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 	 * They should not be able to query for the admin email
 	 * so we should receive an error back
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testAllSettingsQueryAsEditor() {
@@ -67,7 +66,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 	/**
 	 * Method for testing the generalSettings
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function testAllSettingsQuery() {

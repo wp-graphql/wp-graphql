@@ -1,0 +1,84 @@
+# This Docker image is used to run both "tester" containers (containers that invoke the unit/integration tests) and
+# System-Under-Test (SUT) containers (WordPress+plugin containers that are accessed by the integration tests).
+# Both types of containers are run from the same Docker image because they have similar OS dependencies and
+# both need PHP Composer install to be run (i.e. so that the tester can run Codeception and for the SUT to provide
+# Code coverage data). The difference of behavior between the two types of containers is because their Docker
+# entrypoints are different.
+
+# Updating Software used in this Dockerfile:
+# PHP Composer: https://github.com/composer/getcomposer.org/commits/master
+# XDebug: https://pecl.php.net/package/xdebug
+
+# Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
+ARG DESIRED_WP_VERSION
+ARG DESIRED_PHP_VERSION
+ARG OFFICIAL_WORDPRESS_DOCKER_IMAGE="wordpress:${DESIRED_WP_VERSION}-php${DESIRED_PHP_VERSION}-apache"
+
+FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
+
+# Set timezone, install XDebug, PHP Composer, WP-CLI
+RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
+  && apt-get update -y \
+  && apt-get install --no-install-recommends -y mariadb-client subversion \
+  && rm -rf /var/lib/apt/lists/* \
+  && if echo "${PHP_VERSION}" | grep '^7'; then \
+        pecl install xdebug; \
+        docker-php-ext-enable xdebug; \
+     fi \
+  && docker-php-ext-install pdo_mysql \
+  && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/fc4099e0ac116a1c8f61fffaf6693594dda79d16/web/installer' | php -- --quiet \
+  && chmod +x composer.phar \
+  && mv composer.phar /usr/local/bin/composer \
+  && curl -O 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar' \
+  && chmod +x wp-cli.phar \
+  && mv wp-cli.phar /usr/local/bin/wp
+
+ENV PRISTINE_WP_DIR=/usr/src/wordpress/ \
+  SUT_PLUGIN_DIR=/usr/src/wordpress/wp-content/plugins/wp-graphql/ \
+  WP_TEST_CORE_DIR=/tmp/wordpress/ \
+  TESTER_PLUGIN_DIR=/tmp/wordpress/wp-content/plugins/wp-graphql/ \
+  WP_TESTS_DIR=/tmp/wordpress-tests-lib/ \
+  WP_TESTS_TAG=tags/$WORDPRESS_VERSION
+
+# Install WP_Unit test framework
+RUN mkdir -p "${WP_TESTS_DIR}" \
+  && svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/" "${WP_TESTS_DIR}/includes" \
+  && svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/" "${WP_TESTS_DIR}/data" \
+  && curl -Lsv "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php" > "${WP_TESTS_DIR}/wp-tests-config.php" \
+  && chown -R 'www-data:www-data' "${WP_TESTS_DIR}"
+
+
+# Add WP-CLI config for SUT to flush rewrite rules: https://developer.wordpress.org/cli/commands/rewrite/flush/
+COPY --chown='www-data:www-data' docker/wp-cli.yml /var/www/html/
+
+
+# First copy the files needed for PHP composer install so that the Docker build only re-executes the install when those
+# files change.
+COPY --chown='www-data:www-data' composer.json composer.lock "${SUT_PLUGIN_DIR}"/
+COPY --chown='www-data:www-data' src/ "${SUT_PLUGIN_DIR}/src/"
+COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
+
+# Run PHP Composer install so that Codeception dependencies are available
+USER www-data
+RUN cd "${SUT_PLUGIN_DIR}" \
+  && composer install --prefer-source --no-interaction --dev
+
+# Copy in all other files from repo, but preserve the files used by/modified by composer install.
+USER root
+COPY --chown='www-data:www-data' . /tmp/project/
+
+RUN rm -rf /tmp/project/composer.* /tmp/project/vendor \
+  && cp -a /tmp/project/* "${SUT_PLUGIN_DIR}" \
+  && rm -rf /tmp/project
+
+# Copy core WordPress files to core test directory
+RUN cp -a "${PRISTINE_WP_DIR}" "${WP_TEST_CORE_DIR}"
+
+# Add db configuration to core test directory
+RUN curl -Ls 'https://raw.github.com/markoheijnen/wp-mysqli/master/db.php' > "${WP_TEST_CORE_DIR}/wp-content/db.php"
+
+# Install code coverage support for SUT
+RUN curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > "${SUT_PLUGIN_DIR}/c3.php"
+
+# Add Docker entrypoint scripts
+COPY docker/edit-wp-test-suite-db-config.sh docker/docker-entrypoint*.sh docker/wait-for-service.sh /usr/local/bin/

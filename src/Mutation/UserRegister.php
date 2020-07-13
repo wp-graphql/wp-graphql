@@ -12,11 +12,14 @@ class UserRegister {
 	 * Registers the CommentCreate mutation.
 	 */
 	public static function register_mutation() {
-		register_graphql_mutation( 'registerUser', [
-			'inputFields'         => self::get_input_fields(),
-			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => self::mutate_and_get_payload(),
-		] );
+		register_graphql_mutation(
+			'registerUser',
+			[
+				'inputFields'         => self::get_input_fields(),
+				'outputFields'        => self::get_output_fields(),
+				'mutateAndGetPayload' => self::mutate_and_get_payload(),
+			]
+		);
 	}
 
 	/**
@@ -25,22 +28,25 @@ class UserRegister {
 	 * @return array
 	 */
 	public static function get_input_fields() {
-		$input_fields = array_merge( UserCreate::get_input_fields(), [
-			'username' => [
-				'type'        => [
-					'non_null' => 'String'
+		$input_fields = array_merge(
+			UserCreate::get_input_fields(),
+			[
+				'username' => [
+					'type'        => [
+						'non_null' => 'String',
+					],
+					// translators: the placeholder is the name of the type of object being updated
+					'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
 				],
-				// translators: the placeholder is the name of the type of object being updated
-				'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
-			],
-			'email'    => [
-				'type'        => 'String',
-				'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
-			],
-		] );
+				'email'    => [
+					'type'        => 'String',
+					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
+				],
+			]
+		);
 
 		/**
-		 * make sure we don't allow input for role or roles
+		 * Make sure we don't allow input for role or roles
 		 */
 		unset( $input_fields['role'] );
 		unset( $input_fields['roles'] );
@@ -128,9 +134,19 @@ class UserRegister {
 			unset( $user_args['role'] );
 
 			/**
+			 * Prevent "Password Changed" emails from being sent.
+			 */
+			add_filter( 'send_password_change_email', [ __CLASS__, 'return_false' ] );
+
+			/**
 			 * Update the registered user with the additional input (firstName, lastName, etc) from the mutation
 			 */
 			wp_update_user( $user_args );
+
+			/**
+			 * Remove filter preventing "Password Changed" emails.
+			 */
+			remove_filter( 'send_password_change_email', [ __CLASS__, 'return_false' ] );
 
 			/**
 			 * Update additional user data
@@ -145,5 +161,12 @@ class UserRegister {
 			];
 
 		};
+	}
+
+	/**
+	 * @return bool False.
+	 */
+	public static function return_false() : bool {
+		return false;
 	}
 }

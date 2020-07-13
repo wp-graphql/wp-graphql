@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-
 use GraphQLRelay\Relay;
 
 /**
@@ -33,6 +32,7 @@ use GraphQLRelay\Relay;
  * @property string $graphql_single_name
  * @property string $graphqlPluralName
  * @property string $graphql_plural_name
+ * @property string $taxonomies
  *
  * @package WPGraphQL\Model
  */
@@ -42,7 +42,6 @@ class PostType extends Model {
 	 * Stores the incoming WP_Post_Type to be modeled
 	 *
 	 * @var \WP_Post_Type $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -51,7 +50,6 @@ class PostType extends Model {
 	 *
 	 * @param \WP_Post_Type $post_type The incoming post type to model
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
@@ -70,6 +68,7 @@ class PostType extends Model {
 			'graphql_plural_name',
 			'graphqlPluralName',
 			'showInGraphql',
+			'isRestricted',
 		];
 
 		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
@@ -79,7 +78,6 @@ class PostType extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
@@ -95,7 +93,6 @@ class PostType extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
@@ -103,83 +100,83 @@ class PostType extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id' => function() {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'postType', $this->data->name ) : null;
+				'id'                  => function() {
+					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
 				},
-				'name' => function() {
+				'name'                => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'label' => function() {
+				'label'               => function() {
 					return ! empty( $this->data->label ) ? $this->data->label : null;
 				},
-				'labels' => function() {
+				'labels'              => function() {
 					return get_post_type_labels( $this->data );
 				},
-				'description' => function() {
+				'description'         => function() {
 					return ! empty( $this->data->description ) ? $this->data->description : '';
 				},
-				'public' => function() {
+				'public'              => function() {
 					return ! empty( $this->data->public ) ? (bool) $this->data->public : null;
 				},
-				'hierarchical' => function() {
+				'hierarchical'        => function() {
 					return ( true === $this->data->hierarchical || ! empty( $this->data->hierarchical ) ) ? true : false;
 				},
-				'excludeFromSearch' => function() {
+				'excludeFromSearch'   => function() {
 					return ( true === $this->data->exclude_from_search ) ? true : false;
 				},
-				'publiclyQueryable' => function() {
+				'publiclyQueryable'   => function() {
 					return ( true === $this->data->publicly_queryable ) ? true : false;
 				},
-				'showUi' => function() {
+				'showUi'              => function() {
 					return ( true === $this->data->show_ui ) ? true : false;
 				},
-				'showInMenu' => function() {
+				'showInMenu'          => function() {
 					return ( true === $this->data->show_in_menu ) ? true : false;
 				},
-				'showInNavMenus' => function() {
+				'showInNavMenus'      => function() {
 					return ( true === $this->data->show_in_nav_menus ) ? true : false;
 				},
-				'showInAdminBar' => function() {
+				'showInAdminBar'      => function() {
 					return ( true === $this->data->show_in_admin_bar ) ? true : false;
 				},
-				'menuPosition' => function() {
+				'menuPosition'        => function() {
 					return ! empty( $this->data->menu_position ) ? $this->data->menu_position : null;
 				},
-				'menuIcon' => function() {
+				'menuIcon'            => function() {
 					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
 				},
-				'hasArchive' => function() {
+				'hasArchive'          => function() {
 					return ( true === $this->data->has_archive ) ? true : false;
 				},
-				'canExport' => function() {
+				'canExport'           => function() {
 					return ( true === $this->data->can_export ) ? true : false;
 				},
-				'deleteWithUser' => function() {
+				'deleteWithUser'      => function() {
 					return ( true === $this->data->delete_with_user ) ? true : false;
 				},
-				'taxonomies' => function() {
+				'taxonomies'          => function() {
 					$object_taxonomies = get_object_taxonomies( $this->data->name );
 					return ( ! empty( $object_taxonomies ) ) ? $object_taxonomies : null;
 				},
-				'showInRest' => function() {
+				'showInRest'          => function() {
 					return ( true === $this->data->show_in_rest ) ? true : false;
 				},
-				'restBase' => function() {
+				'restBase'            => function() {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
 				},
 				'restControllerClass' => function() {
 					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
 				},
-				'showInGraphql' => function() {
+				'showInGraphql'       => function() {
 					return ( true === $this->data->show_in_graphql ) ? true : false;
 				},
-				'graphqlSingleName' => function() {
+				'graphqlSingleName'   => function() {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
 				'graphql_single_name' => function() {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
-				'graphqlPluralName' => function() {
+				'graphqlPluralName'   => function() {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 				'graphql_plural_name' => function() {

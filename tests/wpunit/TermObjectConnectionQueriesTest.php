@@ -8,20 +8,22 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $created_post_ids;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		// before
 		parent::setUp();
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->created_term_ids = $this->create_terms();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then
@@ -66,11 +68,13 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Create 20 posts
 		$created_terms = [];
 		for ( $i = 1; $i <= 20; $i ++ ) {
-			$term_id             = $this->createTermObject( [
-				'taxonomy'    => 'category',
-				'description' => $i,
-				'name'        => $i,
-			] );
+			$term_id             = $this->createTermObject(
+				[
+					'taxonomy'    => 'category',
+					'description' => $i,
+					'name'        => $i,
+				]
+			);
 			$created_terms[ $i ] = $term_id;
 		}
 
@@ -120,14 +124,16 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
-		$query = new WP_Term_Query( [
-			'taxonomy'   => 'category',
-			'number'     => 1,
-			'parent'     => 0,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-			'hide_empty' => false,
-		] );
+		$query = new WP_Term_Query(
+			[
+				'taxonomy'   => 'category',
+				'number'     => 1,
+				'parent'     => 0,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+				'hide_empty' => false,
+			]
+		);
 		$terms = $query->get_terms();
 
 		$first_term_id   = $terms[0]->term_id;
@@ -139,6 +145,8 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
 		$this->assertEquals( $first_term_id, $results['data']['categories']['nodes'][0]['categoryId'] );
+		$this->assertEquals( false, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasNextPage'] );
 		$this->forwardPagination( $expected_cursor );
 
 	}
@@ -153,15 +161,17 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$results = $this->categoriesQuery( $variables );
 
 		$offset = 1;
-		$query  = new WP_Term_Query( [
-			'taxonomy'   => 'category',
-			'number'     => 1,
-			'offset'     => $offset,
-			'parent'     => 0,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-			'hide_empty' => false,
-		] );
+		$query  = new WP_Term_Query(
+			[
+				'taxonomy'   => 'category',
+				'number'     => 1,
+				'offset'     => $offset,
+				'parent'     => 0,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+				'hide_empty' => false,
+			]
+		);
 		$terms  = $query->get_terms();
 
 		$second_term_id  = $terms[ $offset ]->term_id;
@@ -172,6 +182,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
 	}
 
 	public function testLastPost() {
@@ -186,14 +197,16 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Let's query the last post in our data set so we can test against it
 		 */
-		$query = new WP_Term_Query( [
-			'taxonomy'   => 'category',
-			'number'     => 1,
-			'parent'     => 0,
-			'orderby'    => 'name',
-			'order'      => 'DESC',
-			'hide_empty' => false,
-		] );
+		$query = new WP_Term_Query(
+			[
+				'taxonomy'   => 'category',
+				'number'     => 1,
+				'parent'     => 0,
+				'orderby'    => 'name',
+				'order'      => 'DESC',
+				'hide_empty' => false,
+			]
+		);
 		$terms = $query->get_terms();
 
 		$last_term_id    = $terms[0]->term_id;
@@ -204,6 +217,8 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $results['data']['categories']['pageInfo']['hasNextPage'] );
 
 		$this->backwardPagination( $expected_cursor );
 
@@ -219,15 +234,17 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$results = $this->categoriesQuery( $variables );
 
 		$offset = 1;
-		$query  = new WP_Term_Query( [
-			'taxonomy'   => 'category',
-			'number'     => 1,
-			'parent'     => 0,
-			'offset'     => $offset,
-			'orderby'    => 'name',
-			'order'      => 'DESC',
-			'hide_empty' => false,
-		] );
+		$query  = new WP_Term_Query(
+			[
+				'taxonomy'   => 'category',
+				'number'     => 1,
+				'parent'     => 0,
+				'offset'     => $offset,
+				'orderby'    => 'name',
+				'order'      => 'DESC',
+				'hide_empty' => false,
+			]
+		);
 		$terms  = $query->get_terms();
 
 		$second_last_term_id = $terms[ $offset ]->term_id;
@@ -238,6 +255,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasNextPage'] );
 
 	}
 

@@ -13,11 +13,14 @@ class CommentCreate {
 	 * Registers the CommentCreate mutation.
 	 */
 	public static function register_mutation() {
-		register_graphql_mutation( 'createComment', [
-			'inputFields'         => self::get_input_fields(),
-			'outputFields'        => self::get_output_fields(),
-			'mutateAndGetPayload' => self::mutate_and_get_payload(),
-		] );
+		register_graphql_mutation(
+			'createComment',
+			[
+				'inputFields'         => self::get_input_fields(),
+				'outputFields'        => self::get_output_fields(),
+				'mutateAndGetPayload' => self::mutate_and_get_payload(),
+			]
+		);
 	}
 
 	/**
@@ -95,7 +98,24 @@ class CommentCreate {
 
 					return DataSource::resolve_comment( absint( $payload['id'] ), $context );
 				},
-			]
+			],
+			/**
+			 * Comments can be created by non-authenticated users, but if the comment is not approved
+			 * the user will not have access to the comment in response to the mutation.
+			 *
+			 * This field allows for the mutation to respond with a success message that the
+			 * comment was indeed created, even if it cannot be returned in the response to respect
+			 * server privacy.
+			 *
+			 * If the success comes back as true, the client can then use that response to
+			 * dictate if they should use the input values as an optimistic response to the mutation
+			 * and store in the cache, localStorage, cookie or whatever else so that the
+			 * client can see their comment while it's still pending approval.
+			 */
+			'success' => [
+				'type'        => 'Boolean',
+				'description' => __( 'Whether the mutation succeeded. If the comment is not approved, the server will not return the comment to a non authenticated user, but a success message can be returned if the create succeeded, and the client can optimistically add the comment to the client cache', 'wp-graphql' ),
+			],
 		];
 	}
 
@@ -177,7 +197,8 @@ class CommentCreate {
 			 * Return the comment object
 			 */
 			return [
-				'id' => $comment_id,
+				'id'      => $comment_id,
+				'success' => true,
 			];
 		};
 	}
