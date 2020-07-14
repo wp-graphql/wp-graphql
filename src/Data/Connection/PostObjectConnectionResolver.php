@@ -380,6 +380,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			'status'        => 'post_status',
 			'stati'         => 'post_status',
 			'dateQuery'     => 'date_query',
+			'taxQuery'     => 'tax_query',
 		];
 
 		/**

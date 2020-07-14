@@ -456,6 +456,10 @@ class PostObjects {
 				'type'        => 'DateQueryInput',
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
+			'taxQuery'   => [
+				'type'        => 'TaxonomyQueryInput',
+				'description' => __( 'Filter the connection based on taxonomies', 'wp-graphql' ),
+			],
 			'mimeType'    => [
 				'type'        => 'MimeTypeEnum',
 				'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),

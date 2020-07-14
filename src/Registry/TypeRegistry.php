@@ -50,9 +50,12 @@ use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
 use WPGraphQL\Type\Enum\MenuItemNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\MenuNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
+use WPGraphQL\Type\Enum\TaxonomyQueryFieldEnum;
+use WPGraphQL\Type\Enum\TaxonomyQueryOperatorEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
+use WPGraphQL\Type\Input\TaxonomyQueryInput;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
@@ -99,6 +102,7 @@ use WPGraphQL\Type\Enum\UserRoleEnum;
 use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
 use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
+use WPGraphQL\Type\Input\TaxonomyArrayInput;
 use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Object\Avatar;
@@ -290,12 +294,16 @@ class TypeRegistry {
 		UserRoleEnum::register_type();
 		UsersConnectionOrderbyEnum::register_type();
 		UsersConnectionSearchColumnEnum::register_type();
+		TaxonomyQueryOperatorEnum::register_type();
+		TaxonomyQueryFieldEnum::register_type();
 
 		DateInput::register_type();
 		DateQueryInput::register_type();
 		MenuItemsConnectionWhereArgs::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
+		TaxonomyArrayInput::register_type();
+		TaxonomyQueryInput::register_type();
 
 		ContentRevisionUnion::register_type( $this );
 		ContentTemplateUnion::register_type( $this );
