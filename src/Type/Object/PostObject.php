@@ -210,16 +210,16 @@ class PostObject {
 							return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->sourceUrl;
 						},
 					],
-					'fileSize' => [
-						'type' => 'Int',
+					'fileSize'     => [
+						'type'        => 'Int',
 						'description' => __( 'The filesize in bytes of the resource', 'wp-graphql' ),
-						'args' => [
+						'args'        => [
 							'size' => [
 								'type'        => 'MediaItemSizeEnum',
 								'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( $image, $args, $context, $info ) {
+						'resolve'     => function( $image, $args, $context, $info ) {
 
 							// @codingStandardsIgnoreLine.
 							$size = null;
@@ -227,13 +227,13 @@ class PostObject {
 								$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
 							}
 
-							$sourceUrl = ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->mediaItemUrl;
-							$path_parts = pathinfo( $sourceUrl );
+							$sourceUrl     = ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->mediaItemUrl;
+							$path_parts    = pathinfo( $sourceUrl );
 							$original_file = get_attached_file( absint( $image->databaseId ) );
 							$filesize_path = path_join( dirname( $original_file ), $path_parts['basename'] );
 							return filesize( $filesize_path );
 
-						}
+						},
 					],
 					'mimeType'     => [
 						'type'        => 'String',

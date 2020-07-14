@@ -32,10 +32,10 @@ class MediaSize {
 							return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
 						},
 					],
-					'fileSize' => [
-						'type' => 'Int',
+					'fileSize'  => [
+						'type'        => 'Int',
 						'description' => __( 'The filesize of the resource', 'wp-graphql' ),
-						'resolve' => function( $image, $args, $context, $info ) {
+						'resolve'     => function( $image, $args, $context, $info ) {
 
 							$src_url = null;
 
@@ -47,7 +47,7 @@ class MediaSize {
 
 							return null;
 
-						}
+						},
 					],
 					'sourceUrl' => [
 						'type'        => 'String',
