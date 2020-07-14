@@ -345,10 +345,13 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
         $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
         $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
+	    $expected_filesize = filesize( $filename );
+
 	    $query = '
         query GET_MEDIA_ITEM( $id: Int! ) {
           mediaItemBy(mediaItemId: $id) {
             mediaItemUrl
+            fileSize
           }
         }
         ';
@@ -363,32 +366,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
         $expected = wp_get_attachment_url( $attachment_id );
 
         $this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
-
-    }
-
-    public function testMediaItemFileUrl() {
-
-        $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
-        $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
-
-        $query = '
-        query GET_MEDIA_ITEM( $id: Int! ) {
-          mediaItemBy(mediaItemId: $id) {
-            mediaItemUrl
-          }
-        }
-        ';
-
-        $result = graphql([
-            'query' => $query,
-            'variables' => [
-                'id' => $attachment_id,
-            ],
-        ]);
-
-        $expected = wp_get_attachment_url( $attachment_id );
-
-        $this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
+	    $this->assertEquals( $expected_filesize, $result['data']['mediaItemBy']['fileSize'] );
 
     }
 
@@ -399,6 +377,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	    $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
 	    $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+	    $expected_filesize = filesize( $filename );
 
 	    $default_image_meta = [
 		    'aperture' => 0,
@@ -448,6 +427,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
         query GET_MEDIA_ITEM( $id: ID! ) {
           mediaItem(id: $id, idType: DATABASE_ID) {
             sourceUrl
+            fileSize
           }
         }
         ';
@@ -457,6 +437,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	    codecept_debug( $media_item );
 
 	    $this->assertArrayNotHasKey( 'errors', $media_item );
+	    $this->assertEquals( $expected_filesize, $media_item['data']['mediaItem']['fileSize'] );
 
 	    $source_url = $media_item['data']['mediaItem']['sourceUrl'];
 
