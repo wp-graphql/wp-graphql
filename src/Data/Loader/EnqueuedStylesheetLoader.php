@@ -8,6 +8,12 @@ namespace WPGraphQL\Data\Loader;
  */
 class EnqueuedStylesheetLoader extends AbstractDataLoader {
 
+	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return \WPGraphQL\Model\Model
+	 */
 	public function get_model( $entry, $key ) {
 		return $entry;
 	}

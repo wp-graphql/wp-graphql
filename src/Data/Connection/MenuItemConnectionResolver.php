@@ -23,7 +23,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		parent::__construct( $source, $args, $context, $info,  'nav_menu_item' );
+		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
 	}
 
 	public function get_loader_name() {
