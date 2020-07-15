@@ -5,6 +5,7 @@ namespace WPGraphQL\Data\Loader;
 use GraphQL\Deferred;
 use GraphQL\Utils\Utils;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Model;
 
 /**
  * Class AbstractDataLoader
@@ -113,6 +114,7 @@ abstract class AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function load( $key ) {
+
 		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new \Exception(
@@ -126,8 +128,7 @@ abstract class AbstractDataLoader {
 		$keys = [ $key ];
 		$this->buffer( $keys );
 		$result = $this->load_buffered();
-
-		return isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
+		return isset( $result[ $key ] ) ? $this->get_normalized_entry( $result[ $key ], $key ) : null;
 	}
 
 	/**
@@ -252,7 +253,7 @@ abstract class AbstractDataLoader {
 	private function generate_many( $keys, $result ) {
 		foreach ( $keys as $key ) {
 			$key = $this->key_to_scalar( $key );
-			yield isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
+			yield isset( $result[ $key ] ) ? $this->get_model( $result[ $key ], $key ) : null;
 		}
 	}
 
@@ -271,6 +272,23 @@ abstract class AbstractDataLoader {
 		if ( ! empty( $keysToLoad ) ) {
 			try {
 				$loaded = $this->loadKeys( $keysToLoad );
+//				$loaded = [];
+//				foreach ( $keysToLoad as $key ) {
+//
+//					$object = get_post( (int) $key );
+//					$loaded[ $key ] = $object;
+//
+//					$this->buffer_dependencies( $object, $key );
+//					$load_dependencies = new Deferred(function() use ( $object, $key ) {
+//						$this->load_dependencies( $object, $key );
+//						return;
+//					});
+//					$loaded[ $key ] = $load_dependencies->then(function() use ( $object, $key ) {
+//						return $object;
+//					} );
+//				}
+//				wp_send_json( $loaded );
+//				return $loaded;
 			} catch ( \Exception $e ) {
 				throw new \Exception(
 					'Method ' . get_class( $this ) . '::loadKeys is expected to return array, but it threw: ' .
@@ -279,6 +297,7 @@ abstract class AbstractDataLoader {
 					$e
 				);
 			}
+
 			if ( ! is_array( $loaded ) ) {
 				throw new \Exception(
 					'Method ' . get_class( $this ) . '::loadKeys is expected to return an array with keys ' .
@@ -289,11 +308,25 @@ abstract class AbstractDataLoader {
 				$this->cached += $loaded;
 			}
 		}
+
 		// Re-include previously-cached entries to result:
 		$result      += array_intersect_key( $this->cached, $this->buffer );
+
 		$this->buffer = [];
 
 		return $result;
+	}
+
+	public function buffer_dependencies( $object, $key ) {
+		return;
+	}
+
+	public function load_dependencies( $object, $key ) {
+		return;
+	}
+
+	public function is_valid_object( $object ) {
+		return true;
 	}
 
 	/**
@@ -335,6 +368,15 @@ abstract class AbstractDataLoader {
 		return $this->key_to_scalar( $key );
 	}
 
+	public function get_normalized_entry( $entry, $key ) {
+
+		$model = $this->get_model( $entry, $key );
+		if ( $model instanceof Model && 'private' === $model->get_visibility() ) {
+			return null;
+		}
+
+		return $model;
+	}
 
 	/**
 	 * If the loader needs to do any tweaks between getting raw data from the DB and caching,
@@ -343,21 +385,19 @@ abstract class AbstractDataLoader {
 	 * @param $entry
 	 * @param $key
 	 *
-	 * @return mixed
+	 * @return Model
 	 */
-	protected function normalize_entry( $entry, $key ) {
-		return $entry;
-	}
+	abstract protected function get_model( $entry, $key );
 
 	/**
 	 * @param $entry
 	 * @param $key
 	 *
 	 * @return mixed
-	 * @deprecated Use normalize_entry instead
+	 * @deprecated Use get_model instead
 	 */
 	protected function normalizeEntry( $entry, $key ) {
-		return $this->normalize_entry( $entry, $key );
+		return $this->get_model( $entry, $key );
 	}
 
 	/**

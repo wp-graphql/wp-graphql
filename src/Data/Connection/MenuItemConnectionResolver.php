@@ -4,8 +4,6 @@ namespace WPGraphQL\Data\Connection;
 use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Menu;
-use WPGraphQL\Model\MenuItem;
 
 /**
  * Class MenuItemConnectionResolver
@@ -25,18 +23,11 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
+		parent::__construct( $source, $args, $context, $info,  'nav_menu_item' );
 	}
 
-	/**
-	 * @param $id
-	 *
-	 * @return mixed|null|MenuItem|\WPGraphQL\Model\Post
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$post = get_post( $id );
-		return ! empty( $post ) ? new MenuItem( $post ) : null;
+	public function get_loader_name() {
+		return 'post';
 	}
 
 	/**
