@@ -9,16 +9,6 @@ namespace WPGraphQL\Data\Loader;
 class EnqueuedStylesheetLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
-	 *
-	 * @return \WPGraphQL\Model\Model
-	 */
-	public function get_model( $entry, $key ) {
-		return $entry;
-	}
-
-	/**
 	 * Given an array of enqueued stylesheet handles ($keys) load the associated
 	 * enqueued stylesheets from the $wp_styles registry.
 	 *

@@ -9,16 +9,6 @@ namespace WPGraphQL\Data\Loader;
 class EnqueuedScriptLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
-	 *
-	 * @return \WPGraphQL\Model\Model
-	 */
-	public function get_model( $entry, $key ) {
-		return $entry;
-	}
-
-	/**
 	 * Given an array of enqueued script handles ($keys) load the associated
 	 * enqueued scripts from the $wp_scripts registry.
 	 *

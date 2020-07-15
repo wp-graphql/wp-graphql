@@ -21,7 +21,7 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @return mixed|Post
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 
 		if ( ! $entry instanceof \WP_Post ) {
 			return null;

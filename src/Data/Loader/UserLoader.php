@@ -17,7 +17,7 @@ class UserLoader extends AbstractDataLoader {
 	 * @return mixed|User
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 		if ( $entry instanceof \WP_User ) {
 			return new User( $entry );
 		} else {

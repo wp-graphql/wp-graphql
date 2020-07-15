@@ -18,7 +18,7 @@ class UserRoleLoader extends AbstractDataLoader {
 	 * @return mixed|UserRole
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 		return new UserRole( $entry );
 	}
 

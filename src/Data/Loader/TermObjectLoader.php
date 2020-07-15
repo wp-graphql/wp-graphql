@@ -20,7 +20,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @return mixed|Term
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 
 		if ( is_a( $entry, 'WP_Term' ) ) {
 

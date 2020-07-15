@@ -17,7 +17,7 @@ class TaxonomyLoader extends AbstractDataLoader {
 	 * @return mixed|Taxonomy
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 		return new Taxonomy( $entry );
 	}
 

@@ -19,7 +19,7 @@ class CommentLoader extends AbstractDataLoader {
 	 * @return Comment
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 
 		if ( ! $entry instanceof \WP_Comment ) {
 			return null;

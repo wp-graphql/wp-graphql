@@ -26,10 +26,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
 	}
 
-	public function get_loader_name() {
-		return 'post';
-	}
-
 	/**
 	 * Returns the query args for the connection to resolve with
 	 *

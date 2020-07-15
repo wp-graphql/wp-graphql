@@ -17,7 +17,7 @@ class PluginLoader extends AbstractDataLoader {
 	 * @return \WPGraphQL\Model\Model|Plugin
 	 * @throws \Exception
 	 */
-	public function get_model( $entry, $key ) {
+	protected function get_model( $entry, $key ) {
 		return new Plugin( $entry );
 	}
 
