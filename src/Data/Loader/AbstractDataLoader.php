@@ -356,12 +356,13 @@ abstract class AbstractDataLoader {
 		 *
 		 * One example would be WooCommerce Products returning a custom Model for posts of post_type "product".
 		 *
-		 * @param null               $null  The filtered model to return. Default null
+		 * @param null               $model  The filtered model to return. Default null
 		 * @param mixed              $entry The entry loaded from the dataloader to be used to generate a Model
 		 * @param mixed              $key   The Key used to identify the loaded entry
 		 * @param AbstractDataLoader $this  The AbstractDataLoader instance
 		 */
-		$pre_get_model = apply_filters( 'graphql_pre_get_model', null, $entry, $key, $this );
+		$model = null;
+		$pre_get_model = apply_filters( 'graphql_dataloader_pre_get_model', $model, $entry, $key, $this );
 
 		/**
 		 * If a Model has been pre-loaded via filter, return it and skip the
