@@ -361,7 +361,7 @@ abstract class AbstractDataLoader {
 		 * @param mixed              $key   The Key used to identify the loaded entry
 		 * @param AbstractDataLoader $this  The AbstractDataLoader instance
 		 */
-		$model = null;
+		$model         = null;
 		$pre_get_model = apply_filters( 'graphql_dataloader_pre_get_model', $model, $entry, $key, $this );
 
 		/**
