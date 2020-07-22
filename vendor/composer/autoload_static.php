@@ -262,7 +262,6 @@ class ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba
         'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
         'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedScriptLoader.php',
         'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedStylesheetLoader.php',
-        'WPGraphQL\\Data\\Loader\\MenuItemLoader' => __DIR__ . '/../..' . '/src/Data/Loader/MenuItemLoader.php',
         'WPGraphQL\\Data\\Loader\\PluginLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PluginLoader.php',
         'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php',
         'WPGraphQL\\Data\\Loader\\PostTypeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostTypeLoader.php',

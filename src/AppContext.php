@@ -93,7 +93,6 @@ class AppContext {
 			'comment'             => new CommentLoader( $this ),
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
-			'nav_menu_item'       => new MenuItemLoader( $this ),
 			'plugin'              => new PluginLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
