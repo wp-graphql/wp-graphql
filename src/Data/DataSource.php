@@ -746,7 +746,7 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
-		$node_resolver = new NodeResolver();
+		$node_resolver = new NodeResolver( $context );
 
 		return $node_resolver->resolve_uri( $uri );
 

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\InterfaceType;
 
 use WPGraphQL\Model\Post;
+use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 use WPGraphQL\Registry\TypeRegistry;
@@ -15,7 +16,7 @@ class UniformResourceIdentifiable {
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
 				'fields'      => [
 					'uri'        => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => 'String',
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 					'id'         => [
@@ -39,6 +40,9 @@ class UniformResourceIdentifiable {
 
 						case $node instanceof User:
 							$type = $type_registry->get_type( 'User' );
+							break;
+						case $node instanceof PostType:
+							$type = $type_registry->get_type( 'ContentType' );
 							break;
 						default:
 							$type = null;
