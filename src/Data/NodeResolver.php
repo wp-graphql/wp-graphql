@@ -31,7 +31,7 @@ class NodeResolver {
 	 *
 	 * @throws \Exception
 	 *
-	 * @return mixed|Term|Post|User|null
+	 * @return mixed
 	 */
 	public function resolve_uri( $uri, $extra_query_vars = '' ) {
 
@@ -305,18 +305,8 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-
-			$args  = [
-				'p'                   => absint( $this->wp->query_vars['page_id'] ),
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-				'fields' => 'ids'
-			];
-			$posts = new \WP_Query( $args );
-			return absint( $posts->posts[0] ) ? $this->context->get_loader( 'post' )->load_deferred( (int) $posts->posts[0] ) : null;
+			$post = get_post( absint( $this->wp->query_vars['page_id'] ) );
+			return absint( $this->wp->query_vars['page_id'] ) ? new Post( $post ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['p'] ) ) {
 
@@ -327,18 +317,10 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$args  = [
-				'p'                   => absint( $this->wp->query_vars['p'] ),
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-				'fields' => 'ids',
-			];
-			$posts = new \WP_Query( $args );
+			$post = get_post( absint( $this->wp->query_vars['p'] ) );
+//			return absint( $this->wp->query_vars['p'] ) ? new Post( $post ) : null;
 
-			return ! empty( $posts->posts[0] ) ? $this->context->get_loader( 'post' )->load_deferred( (int) $posts->posts[0] ) : null;
+			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 

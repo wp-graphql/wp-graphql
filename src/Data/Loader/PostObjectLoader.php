@@ -156,9 +156,11 @@ class PostObjectLoader extends AbstractDataLoader {
 						}
 
 						$post = new Post( $post_object );
+
 						if ( ! isset( $post->fields ) || empty( $post->fields ) ) {
 							return null;
 						}
+
 						return $post;
 					}
 				);

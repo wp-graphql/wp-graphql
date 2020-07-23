@@ -195,7 +195,7 @@ class RootQuery {
 							],
 						],
 						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $args['uri'] ) ? DataSource::resolve_resource_by_uri( $args['uri'], $context, $info ) : null;
+							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
 						},
 					],
 					'menu'        => [
