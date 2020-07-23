@@ -68,18 +68,6 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Load an individual node by ID
-	 *
-	 * @param $id
-	 *
-	 * @return mixed|null|\WPGraphQL\Model\Model
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		return $this->loader->load( $id );
-	}
-
-	/**
 	 * Get the nodes from the query.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched

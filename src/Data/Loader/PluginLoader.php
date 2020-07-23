@@ -11,6 +11,17 @@ use WPGraphQL\Model\Plugin;
 class PluginLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return \WPGraphQL\Model\Model|Plugin
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		return new Plugin( $entry );
+	}
+
+	/**
 	 * Given an array of plugin names, load the associated plugins from the plugin registry.
 	 *
 	 * @param array $keys
@@ -29,7 +40,7 @@ class PluginLoader extends AbstractDataLoader {
 				if ( isset( $plugins[ $key ] ) ) {
 					$plugin         = $plugins[ $key ];
 					$plugin['Path'] = $key;
-					$loaded[ $key ] = new Plugin( $plugin );
+					$loaded[ $key ] = $plugin;
 				} else {
 					$loaded[ $key ] = null;
 				}

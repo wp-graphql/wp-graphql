@@ -11,6 +11,17 @@ use WPGraphQL\Model\Theme;
 class ThemeLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return \WPGraphQL\Model\Model|Theme
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		return new Theme( $entry );
+	}
+
+	/**
 	 * @param array $keys
 	 *
 	 * @return array
@@ -29,7 +40,7 @@ class ThemeLoader extends AbstractDataLoader {
 					$stylesheet = $themes[ $key ]->get_stylesheet();
 					$theme      = wp_get_theme( $stylesheet );
 					if ( $theme->exists() ) {
-						$loaded[ $key ] = new Theme( $theme );
+						$loaded[ $key ] = $theme;
 					} else {
 						$loaded[ $key ] = null;
 					}

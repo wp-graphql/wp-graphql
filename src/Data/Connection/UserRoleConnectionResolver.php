@@ -82,16 +82,6 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @param $id
-	 *
-	 * @return mixed|null|\WPGraphQL\Model\Model
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		return parent::get_node_by_id( $id );
-	}
-
-	/**
 	 * @return array
 	 * @throws \Exception
 	 */
