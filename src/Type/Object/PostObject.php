@@ -257,9 +257,11 @@ class PostObject {
 			$fields['isFrontPage'] = [
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' ),
-				'resolve'     => function( Post $page ) {
-					return isset( $page->isFrontPage ) ? (bool) $page->isFrontPage : false;
-				},
+			];
+
+			$fields['isPostsPage'] = [
+				'type'        => [ 'non_null' => 'Bool' ],
+				'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
 			];
 		}
 

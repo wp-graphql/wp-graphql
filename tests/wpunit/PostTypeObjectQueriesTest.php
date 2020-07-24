@@ -122,6 +122,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$post_type_object = get_post_type_object( 'post' );
 
 		/**
@@ -154,7 +156,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'excludeFromSearch'      => false,
 									'graphqlPluralName'      => 'posts',
 									'graphqlSingleName'      => 'post',
-									'hasArchive'             => false,
+									'hasArchive'             => (boolean) get_post_type_archive_link( 'post' ),
 									'hierarchical'           => false,
 									'id'                     => $global_id,
 									'label'                  => 'Posts',

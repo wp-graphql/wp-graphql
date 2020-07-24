@@ -70,6 +70,8 @@ class PostType extends Model {
 			'showInGraphql',
 			'isRestricted',
 			'uri',
+			'isPostsPage',
+			'isFrontPage',
 		];
 
 		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
@@ -183,27 +185,36 @@ class PostType extends Model {
 				'graphql_plural_name' => function() {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
-				'uri' => function() {
+				'uri'                 => function() {
 					$link = get_post_type_archive_link( $this->name );
-					return ! empty( $link ) ? $link : null;
+					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
 				},
-				'isPostsPage'               => function () {
-					if ( 'post' !== $this->data->name ) {
-						return false;
-					}
-					if ( absint( get_option( 'page_for_posts', 0 ) ) === $this->data->ID ) {
+				// If the homepage settings are ot set to
+				'isPostsPage'         => function () {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_for_posts', 0 ) ) )
+					) {
 						return true;
 					}
 
 					return false;
 				},
-				'isFrontPage' => function() {
-					if ( 'post' !== $this->data->name )  {
-						return false;
-					}
-					if ( absint( get_option( 'page_on_front', 0 ) ) === 0 ) {
+				'isFrontPage'         => function() {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_on_front', 0 ) )
+						)
+					) {
 						return true;
 					}
+
 					return false;
 				},
 			];

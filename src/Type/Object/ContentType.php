@@ -112,9 +112,13 @@ class ContentType {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
-					'isFrontPage' => [
-						'type' => 'Boolean',
-						'description' => __( 'Whether the node is set to represent the front page', 'wp-graphql' ),
+					'isFrontPage'         => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' ),
+					],
+					'isPostsPage'         => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
 					],
 				],
 
