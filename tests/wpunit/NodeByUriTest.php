@@ -391,7 +391,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([ 'query' => $query ]);
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotNull( $actual['data']['nodeByUri'] );
-		$this->assertSame( get_post_type_archive_link( 'post' ), $actual['data']['nodeByUri']['uri'] );
+		$this->assertSame( '/', $actual['data']['nodeByUri']['uri'] );
 		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isPostsPage'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isFrontPage'] );
