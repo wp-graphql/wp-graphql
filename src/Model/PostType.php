@@ -69,6 +69,9 @@ class PostType extends Model {
 			'graphqlPluralName',
 			'showInGraphql',
 			'isRestricted',
+			'uri',
+			'isPostsPage',
+			'isFrontPage',
 		];
 
 		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
@@ -146,7 +149,7 @@ class PostType extends Model {
 					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
 				},
 				'hasArchive'          => function() {
-					return ( true === $this->data->has_archive ) ? true : false;
+					return ! empty( $this->uri ) ? true : false;
 				},
 				'canExport'           => function() {
 					return ( true === $this->data->can_export ) ? true : false;
@@ -181,6 +184,38 @@ class PostType extends Model {
 				},
 				'graphql_plural_name' => function() {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				},
+				'uri'                 => function() {
+					$link = get_post_type_archive_link( $this->name );
+					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
+				},
+				// If the homepage settings are ot set to
+				'isPostsPage'         => function () {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_for_posts', 0 ) ) )
+					) {
+						return true;
+					}
+
+					return false;
+				},
+				'isFrontPage'         => function() {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_on_front', 0 ) )
+						)
+					) {
+						return true;
+					}
+
+					return false;
 				},
 			];
 

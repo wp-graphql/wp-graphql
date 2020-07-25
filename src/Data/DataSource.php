@@ -104,58 +104,6 @@ class DataSource {
 	}
 
 	/**
-	 * Returns the Plugin model for the plugin you are requesting
-	 *
-	 * @param string|array $info Name of the plugin you want info for, or the array of data for the
-	 *                           plugin
-	 *
-	 * @return Plugin
-	 * @throws \Exception
-	 * @since  0.0.5
-	 */
-	public static function resolve_plugin( $info ) {
-
-		if ( ! is_array( $info ) ) {
-			// Puts input into a url friendly slug format.
-			$slug   = sanitize_title( $info );
-			$plugin = null;
-
-			// The file may have not been loaded yet.
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-			/**
-			 * NOTE: This is missing must use and drop in plugins.
-			 */
-			$plugins = apply_filters( 'all_plugins', get_plugins() );
-
-			/**
-			 * Loop through the plugins and find the matching one
-			 *
-			 * @since 0.0.5
-			 */
-			foreach ( $plugins as $path => $plugin_data ) {
-				if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
-					$plugin         = $plugin_data;
-					$plugin['path'] = $path;
-					// Exit early when plugin is found.
-					break;
-				}
-			}
-		} else {
-			$plugin = $info;
-		}
-
-		/**
-		 * Return the plugin, or throw an exception
-		 */
-		if ( ! empty( $plugin ) ) {
-			return new Plugin( $plugin );
-		} else {
-			throw new UserError( sprintf( __( 'No plugin was found with the name %s', 'wp-graphql' ), $info ) );
-		}
-	}
-
-	/**
 	 * Wrapper for PluginsConnectionResolver::resolve
 	 *
 	 * @param \WP_Post    $source  WP_Post object
@@ -222,34 +170,6 @@ class DataSource {
 		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
 
 		return $resolver->get_connection();
-	}
-
-	/**
-	 * Gets the post type object from the post type name
-	 *
-	 * @param string $post_type Name of the post type you want to retrieve the object for
-	 *
-	 * @return PostType object
-	 * @throws UserError
-	 * @since  0.0.5
-	 * @throws \Exception
-	 */
-	public static function resolve_post_type( $post_type ) {
-
-		/**
-		 * Get the allowed_post_types
-		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
-		/**
-		 * If the $post_type is one of the allowed_post_types
-		 */
-		if ( in_array( $post_type, $allowed_post_types, true ) ) {
-			return new PostType( get_post_type_object( $post_type ) );
-		} else {
-			throw new UserError( sprintf( __( 'No post_type was found with the name %s', 'wp-graphql' ), $post_type ) );
-		}
-
 	}
 
 	/**
@@ -746,7 +666,7 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
-		$node_resolver = new NodeResolver();
+		$node_resolver = new NodeResolver( $context );
 
 		return $node_resolver->resolve_uri( $uri );
 
