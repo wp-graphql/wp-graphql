@@ -305,19 +305,8 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
-
-			$args  = [
-				'name'                => $this->wp->query_vars['name'],
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-				'fields'              => 'ids',
-			];
-			$posts = new \WP_Query( $args );
-
-			return ! empty( $posts->posts[0] ) ? $this->context->get_loader( 'post' )->load_deferred( $posts->posts[0] ) : null;
+			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['cat'] ) ) {
 			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
@@ -329,9 +318,10 @@ class NodeResolver {
 
 			return ! empty( $node ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
+
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
 
-			if ( (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
+			if ( isset( $post->ID ) && (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
 				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 			}
 
