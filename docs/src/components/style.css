@@ -20,7 +20,9 @@ h6 {
     margin-top: 2rem;
 }
 
-#gatsby-focus-wrapper .content-wrapper h2[id]::before {
+#gatsby-focus-wrapper .content-wrapper h2[id]::before,
+#gatsby-focus-wrapper .content-wrapper h3[id]::before,
+#gatsby-focus-wrapper .content-wrapper h4[id]::before {
     display: inline;
 }
 
@@ -54,4 +56,24 @@ p {
 
 img {
     max-width: 100%;
+}
+
+/* Prevent double background colors */
+pre > code {
+    background-color: transparent;
+}
+
+.responsive-embed {
+    height: 0;
+    padding-bottom: 56.25%;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.responsive-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }

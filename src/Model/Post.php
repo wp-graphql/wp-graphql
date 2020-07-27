@@ -151,6 +151,8 @@ class Post extends Model {
 			'status',
 			'titleRendered',
 			'uri',
+			'isPostsPage',
+			'isFrontPage',
 		];
 
 		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';

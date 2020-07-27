@@ -16,6 +16,7 @@ use WPGraphQL\Data\Loader\TermObjectLoader;
 use WPGraphQL\Data\Loader\ThemeLoader;
 use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
+use WPGraphQL\Data\NodeResolver;
 use WPGraphQL\Model\Term;
 
 /**
@@ -81,6 +82,13 @@ class AppContext {
 	public $loaders = [];
 
 	/**
+	 * Instance of the NodeResolver class to resolve nodes by URI
+	 *
+	 * @var NodeResolver
+	 */
+	public $node_resolver;
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
@@ -93,7 +101,6 @@ class AppContext {
 			'comment'             => new CommentLoader( $this ),
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
-			'nav_menu_item'       => new MenuItemLoader( $this ),
 			'plugin'              => new PluginLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
@@ -113,6 +120,13 @@ class AppContext {
 		 * @params AppContext $this The AppContext
 		 */
 		$this->loaders = apply_filters( 'graphql_data_loaders', $loaders, $this );
+
+		/**
+		 * This sets up the NodeResolver to allow nodes to be resolved by URI
+		 *
+		 * @param AppContext $this The AppContext instance
+		 */
+		$this->node_resolver = new NodeResolver( $this );
 
 		/**
 		 * This filters the config for the AppContext.

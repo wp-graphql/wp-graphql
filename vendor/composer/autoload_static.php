@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba
+class ComposerStaticInita1662db24c3b5320fe0329ad15b114d0
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -262,7 +262,6 @@ class ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba
         'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php',
         'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedScriptLoader.php',
         'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedStylesheetLoader.php',
-        'WPGraphQL\\Data\\Loader\\MenuItemLoader' => __DIR__ . '/../..' . '/src/Data/Loader/MenuItemLoader.php',
         'WPGraphQL\\Data\\Loader\\PluginLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PluginLoader.php',
         'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php',
         'WPGraphQL\\Data\\Loader\\PostTypeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostTypeLoader.php',
@@ -409,9 +408,9 @@ class ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit9a2afca29243cfef7c90bb01824fd7ba::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita1662db24c3b5320fe0329ad15b114d0::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita1662db24c3b5320fe0329ad15b114d0::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInita1662db24c3b5320fe0329ad15b114d0::$classMap;
 
         }, null, ClassLoader::class);
     }

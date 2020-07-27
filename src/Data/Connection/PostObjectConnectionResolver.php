@@ -6,10 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
-use WPGraphQL\Model\PostType;
-use WPGraphQL\Model\Term;
-use WPGraphQL\Model\User;
-use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostObjectConnectionResolver
@@ -104,20 +101,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_ids() {
 		return ! empty( $this->query->posts ) ? $this->query->posts : [];
-	}
-
-	/**
-	 * Given an ID, return the model for the entity or null
-	 *
-	 * @param $id
-	 *
-	 * @return mixed|Post|null
-	 *
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$post = get_post( $id );
-		return ! empty( $post ) ? new Post( $post ) : null;
 	}
 
 	/**
@@ -385,7 +368,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_Query compatible args
 		 */
-		$query_args = Types::map_input( $where_args, $arg_mapping );
+		$query_args = Utils::map_input( $where_args, $arg_mapping );
 
 		if ( ! empty( $query_args['post_status'] ) ) {
 			$allowed_stati             = $this->sanitize_post_stati( $query_args['post_status'] );

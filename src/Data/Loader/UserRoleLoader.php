@@ -12,6 +12,17 @@ use WPGraphQL\Model\UserRole;
 class UserRoleLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return mixed|UserRole
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		return new UserRole( $entry );
+	}
+
+	/**
 	 * @param array $keys
 	 *
 	 * @return array
@@ -29,7 +40,7 @@ class UserRoleLoader extends AbstractDataLoader {
 					$role['id']          = $key;
 					$role['displayName'] = $role['name'];
 					$role['name']        = $key;
-					$loaded[ $key ]      = new UserRole( $role );
+					$loaded[ $key ]      = $role;
 				} else {
 					$loaded[ $key ] = null;
 				}
