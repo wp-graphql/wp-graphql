@@ -126,6 +126,8 @@ class PostObjects {
 			'fromType'      => 'HierarchicalContentNode',
 			'fromFieldName' => 'children',
 			'toType'        => 'ContentNode',
+			'connectionArgs' => self::get_connection_args(),
+			'queryClass'     => 'WP_Query',
 			'resolve'       => function( Post $post, $args, $context, $info ) {
 
 				if ( $post->isRevision ) {
@@ -146,6 +148,8 @@ class PostObjects {
 			'fromType'      => 'HierarchicalContentNode',
 			'toType'        => 'ContentNode',
 			'fromFieldName' => 'ancestors',
+			'connectionArgs' => self::get_connection_args(),
+			'queryClass'     => 'WP_Query',
 			'description'   => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 			'resolve'       => function( Post $post, $args, $context, $info ) {
 				$ancestors = get_ancestors( $post->ID, null, 'post_type' );
