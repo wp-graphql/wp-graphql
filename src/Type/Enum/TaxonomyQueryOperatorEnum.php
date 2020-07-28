@@ -33,7 +33,7 @@ class TaxonomyQueryOperatorEnum {
 					'NOT_EXISTS' => [
 						'name'  => 'NOT_EXISTS',
 						'value' => 'NOT EXISTS',
-					]
+					],
 				],
 			]
 		);

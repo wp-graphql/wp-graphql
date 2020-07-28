@@ -13,7 +13,7 @@ class TaxonomyQueryFieldEnum {
 			'TaxonomyQueryFieldEnum',
 			[
 				'description' => __( 'Which field to select taxonomy term by. Default value is "term_id"',
-					'wp-graphql' ),
+				'wp-graphql' ),
 				'values'      => [
 					'ID'          => [
 						'name'  => 'ID',

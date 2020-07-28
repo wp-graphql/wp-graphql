@@ -456,7 +456,7 @@ class PostObjects {
 				'type'        => 'DateQueryInput',
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
-			'taxQuery'   => [
+			'taxQuery'    => [
 				'type'        => 'TaxonomyQueryInput',
 				'description' => __( 'Filter the connection based on taxonomies', 'wp-graphql' ),
 			],
