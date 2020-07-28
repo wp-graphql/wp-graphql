@@ -4,8 +4,6 @@ namespace WPGraphQL\Data\Connection;
 use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Menu;
-use WPGraphQL\Model\MenuItem;
 
 /**
  * Class MenuItemConnectionResolver
@@ -29,23 +27,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	}
 
 	/**
-	 * @param $id
-	 *
-	 * @return mixed|null|MenuItem|\WPGraphQL\Model\Post
-	 * @throws \Exception
-	 */
-	public function get_node_by_id( $id ) {
-		$post = get_post( $id );
-		return ! empty( $post ) ? new MenuItem( $post ) : null;
-	}
-
-	/**
 	 * Returns the query args for the connection to resolve with
 	 *
 	 * @return array
 	 */
 	public function get_query_args() {
-		$menu_locations = get_theme_mod( 'nav_menu_locations' );
+		$menu_locations = get_theme_mod( 'nav_menu_locations', [] );
 
 		$query_args = [
 			'orderby' => 'menu_order',
@@ -65,19 +52,24 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			}
 		}
 
+		// Get unique list of locations as the default limitation of
+		// locations to allow public queries for.
+		// Public queries should only be allowed to query for
+		// Menu Items assigned to a Menu Location
 		$locations = array_unique( array_values( $menu_locations ) );
 
+		// If the location argument is set, set the argument to the input argument
 		if ( isset( $this->args['where']['location'] ) && isset( $menu_locations[ $this->args['where']['location'] ] ) ) {
-			$locations = [ $menu_locations[ $this->args['where']['location'] ] ];
-		}
 
-		if ( current_user_can( 'edit_theme_options' ) ) {
+			$locations = [ $menu_locations[ $this->args['where']['location'] ] ];
+
+			// if the $locations are NOT set and the user has proper capabilities, let the user query
+			// all menu items connected to any menu
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
 			$locations = null;
 		}
 
-		/**
-		 * Only query for menu items in assigned locations
-		 */
+		// Only query for menu items in assigned locations.
 		if ( ! empty( $locations ) && is_array( $locations ) ) {
 			$query_args['tax_query'] = [
 				[

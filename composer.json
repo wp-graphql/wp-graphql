@@ -27,7 +27,7 @@
     "ivome/graphql-relay-php": "0.3.1"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^2.6",
+    "lucatume/wp-browser": "^2.4",
     "codeception/module-asserts": "^1.0",
     "codeception/module-phpbrowser": "^1.0",
     "codeception/module-webdriver": "^1.0",

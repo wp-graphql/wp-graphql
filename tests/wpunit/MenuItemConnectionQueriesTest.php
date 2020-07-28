@@ -4,6 +4,8 @@ use GraphQLRelay\Relay;
 
 class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
+	public $admin;
+
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
@@ -206,14 +208,22 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testMenuItemsQueryByLocation() {
 		$count   = 10;
+
+		/**
+		 * Create menu items that should NOT be returned because they're not assigned this location
+		 */
+		$this->createMenuItems( 'excluded-items', 10 );
 		$created = $this->createMenuItems( 'my-test-menu-location', $count );
+
+		wp_set_current_user( $this->admin );
 
 		$query = '
 		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
+			menuItems( first: 100 where: { location: MY_MENU_LOCATION } ) {
 				edges {
 					node {
 						databaseId
+						locations
 						connectedObject {
 							... on Post {
 								postId
@@ -233,6 +243,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+		codecept_debug( $actual );
 
 		// The returned menu items have the expected number.
 		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );

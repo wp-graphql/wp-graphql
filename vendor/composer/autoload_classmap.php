@@ -239,7 +239,6 @@ return array(
     'WPGraphQL\\Data\\Loader\\CommentLoader' => $baseDir . '/src/Data/Loader/CommentLoader.php',
     'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => $baseDir . '/src/Data/Loader/EnqueuedScriptLoader.php',
     'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => $baseDir . '/src/Data/Loader/EnqueuedStylesheetLoader.php',
-    'WPGraphQL\\Data\\Loader\\MenuItemLoader' => $baseDir . '/src/Data/Loader/MenuItemLoader.php',
     'WPGraphQL\\Data\\Loader\\PluginLoader' => $baseDir . '/src/Data/Loader/PluginLoader.php',
     'WPGraphQL\\Data\\Loader\\PostObjectLoader' => $baseDir . '/src/Data/Loader/PostObjectLoader.php',
     'WPGraphQL\\Data\\Loader\\PostTypeLoader' => $baseDir . '/src/Data/Loader/PostTypeLoader.php',

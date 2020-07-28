@@ -182,8 +182,6 @@ class InstrumentSchema {
 						}
 
 						/**
-
-						/**
 						 * Fire an action before the field resolves
 						 *
 						 * @param mixed           $result         The result of the field resolution

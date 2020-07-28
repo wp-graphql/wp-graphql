@@ -4,6 +4,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 
 	}
 

@@ -11,6 +11,17 @@ use WPGraphQL\Model\Taxonomy;
 class TaxonomyLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return mixed|Taxonomy
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		return new Taxonomy( $entry );
+	}
+
+	/**
 	 * @param array $keys
 	 *
 	 * @return array
@@ -23,7 +34,7 @@ class TaxonomyLoader extends AbstractDataLoader {
 		if ( ! empty( $taxonomies ) && is_array( $taxonomies ) ) {
 			foreach ( $keys as $key ) {
 				if ( isset( $taxonomies[ $key ] ) ) {
-					$loaded[ $key ] = new Taxonomy( $taxonomies[ $key ] );
+					$loaded[ $key ] = $taxonomies[ $key ];
 				} else {
 					$loaded[ $key ] = null;
 				}

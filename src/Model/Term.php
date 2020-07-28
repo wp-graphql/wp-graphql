@@ -171,6 +171,10 @@ class Term extends Model {
 
 					return $queue;
 				},
+				'uri'                      => function() {
+					$link = get_term_link( $this->name );
+					return ! ( is_wp_error( $link ) ) ? trailingslashit( str_ireplace( home_url(), get_term_link( $this->name ) ) ) : null;
+				},
 			];
 
 			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
