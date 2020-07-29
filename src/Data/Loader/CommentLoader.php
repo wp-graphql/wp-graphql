@@ -13,6 +13,22 @@ use WPGraphQL\Model\Comment;
 class CommentLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return Comment
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+
+		if ( ! $entry instanceof \WP_Comment ) {
+			return null;
+		}
+
+		return new Comment( $entry );
+	}
+
+	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
 	 * comments as the values
 	 *
@@ -28,8 +44,6 @@ class CommentLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys = [] ) {
-
-		$loaded = [];
 
 		/**
 		 * Prepare the args for the query. We're provided a specific set of IDs of comments
@@ -49,36 +63,11 @@ class CommentLoader extends AbstractDataLoader {
 		 */
 		$query = new \WP_Comment_Query( $args );
 		$query->get_comments();
-
-		if ( empty( $keys ) ) {
-			return $keys;
-		}
-
-		/**
-		 * Loop pver the keys and return an array of loaded_terms, where the key is the IDand the value
-		 * is the comment object, passed through the Model layer
-		 */
+		$loaded = [];
 		foreach ( $keys as $key ) {
-
-			/**
-			 * Get the comment from the cache
-			 */
-			$comment_object = \WP_Comment::get_instance( $key );
-
-			/**
-			 * Return the instance through the Model Layer to ensure we only return
-			 * values the consumer has access to.
-			 */
-			$comment = new Comment( $comment_object );
-			if ( ! isset( $comment->fields ) || empty( $comment->fields ) ) {
-				$loaded[ $key ] = null;
-			} else {
-				$loaded[ $key ] = $comment;
-			}
+			$loaded[ $key ] = \WP_Comment::get_instance( $key );
 		}
-
-		return ! empty( $loaded ) ? $loaded : [];
-
+		return $loaded;
 	}
 
 }

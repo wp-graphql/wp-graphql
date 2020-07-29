@@ -210,6 +210,31 @@ class PostObject {
 							return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->sourceUrl;
 						},
 					],
+					'fileSize'     => [
+						'type'        => 'Int',
+						'description' => __( 'The filesize in bytes of the resource', 'wp-graphql' ),
+						'args'        => [
+							'size' => [
+								'type'        => 'MediaItemSizeEnum',
+								'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+							],
+						],
+						'resolve'     => function( $image, $args, $context, $info ) {
+
+							// @codingStandardsIgnoreLine.
+							$size = null;
+							if ( isset( $args['size'] ) ) {
+								$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
+							}
+
+							$sourceUrl     = ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->mediaItemUrl;
+							$path_parts    = pathinfo( $sourceUrl );
+							$original_file = get_attached_file( absint( $image->databaseId ) );
+							$filesize_path = path_join( dirname( $original_file ), $path_parts['basename'] );
+							return filesize( $filesize_path );
+
+						},
+					],
 					'mimeType'     => [
 						'type'        => 'String',
 						'description' => __( 'The mime type of the mediaItem', 'wp-graphql' ),
@@ -257,9 +282,11 @@ class PostObject {
 			$fields['isFrontPage'] = [
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' ),
-				'resolve'     => function( Post $page ) {
-					return isset( $page->isFrontPage ) ? (bool) $page->isFrontPage : false;
-				},
+			];
+
+			$fields['isPostsPage'] = [
+				'type'        => [ 'non_null' => 'Bool' ],
+				'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
 			];
 		}
 
@@ -312,3 +339,5 @@ class PostObject {
 
 	}
 }
+
+

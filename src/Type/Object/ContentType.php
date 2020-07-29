@@ -5,11 +5,13 @@ namespace WPGraphQL\Type\Object;
 class ContentType {
 	public static function register_type() {
 
+		$interfaces = [ 'Node', 'UniformResourceIdentifiable' ];
+
 		register_graphql_object_type(
 			'ContentType',
 			[
 				'description' => __( 'An Post Type object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => $interfaces,
 				'fields'      => [
 					'id'                  => [
 						'description' => __( 'The globally unique identifier of the post-type object.', 'wp-graphql' ),
@@ -109,6 +111,14 @@ class ContentType {
 					'isRestricted'        => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+					],
+					'isFrontPage'         => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether this page is set to the static front page.', 'wp-graphql' ),
+					],
+					'isPostsPage'         => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
 					],
 				],
 

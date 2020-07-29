@@ -11,6 +11,21 @@ use WPGraphQL\Model\User;
 class UserLoader extends AbstractDataLoader {
 
 	/**
+	 * @param $entry
+	 * @param $key
+	 *
+	 * @return mixed|User
+	 * @throws \Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		if ( $entry instanceof \WP_User ) {
+			return new User( $entry );
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
 	 * values
 	 *
@@ -61,13 +76,8 @@ class UserLoader extends AbstractDataLoader {
 		foreach ( $keys as $key ) {
 			$user = get_user_by( 'id', $key );
 			if ( $user instanceof \WP_User ) {
-				$user_model = new User( $user );
-				if ( ! isset( $user_model->fields ) || empty( $user_model->fields ) ) {
-					$loaded_users[ $user->ID ] = null;
-				} else {
-					$loaded_users[ $user->ID ] = $user_model;
-				}
-			} elseif ( ! isset( $all_users[0] ) ) {
+				$loaded_users[ $key ] = $user;
+			} elseif ( ! isset( $loaded_users[0] ) ) {
 				$loaded_users[0] = null;
 			}
 		}
