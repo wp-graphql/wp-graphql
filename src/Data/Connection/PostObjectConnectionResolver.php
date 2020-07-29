@@ -306,23 +306,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Map TaxQuery input to WPQuery tax_query format
 		 */
 		if ( ! empty( $query_args['tax_query'] ) ) {
-			// Get the taxQuery input
-			$tax_query = $query_args['tax_query'];
-
-			// If the taxArray was entered
-			if ( ! empty( $tax_query['taxArray'] ) && is_array( $tax_query['taxArray'] ) ) {
-
-				// If less than 2 taxArray objects were passed through, we don't need the "relation" field
-				// to be passed to WP_Query, so we'll unset it now
-				if ( 2 > count( $tax_query['taxArray'] ) ) {
-					unset( $tax_query['relation'] );
+			/**
+			 * Only process this if the taxArray was passed.
+			 */
+			if ( ! empty( $query_args['tax_query']['taxArray'] ) && is_array( $query_args['tax_query']['taxArray'] ) ) {
+				/**
+				 * We don't need a relation if we're not querying multiple taxonomies.
+				 */
+				if ( 2 > count( $query_args['tax_query']['taxArray'] ) ) {
+					unset( $query_args['tax_query']['relation'] );
 				}
 
-				// Loop through the taxArray
-				foreach ( $tax_query['taxArray'] as $tax_array_key => $value ) {
-
-					// If the "field" option was selected to be "term_id" or "term_taxonomy_id" we need to convert
-					// the values of the "terms" array from strings to integers.
+				foreach ( $query_args['tax_query']['taxArray'] as $tax_array_key => $value ) {
 					if ( ! empty( $value['terms'] ) ) {
 						if ( ! empty( $value['field'] ) && ( 'term_id' === $value['field'] || 'term_taxonomy_id' === $value['field'] ) ) {
 							$formatted_terms = [];
@@ -333,25 +328,25 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					// Make "include_children => false" for performance reasons unless
-					// it is specifically requested (but one really shouldn't). See
-					// https://vip.wordpress.com/documentation/term-queries-should-consider-include_children-false/
+
+					/**
+					 * Make "include_children => false" for performance reasons unless
+					 * it is specifically requested (but one really shouldn't).
+					 *
+					 * @see https://vip.wordpress.com/documentation/term-queries-should-consider-include_children-false/
+					 */
 					$value['include_children'] = false;
 					if ( isset( $value['includeChildren'] ) ) {
 						$value['include_children'] = $value['includeChildren'];
 						unset( $value['includeChildren'] );
 					}
 
-					$tax_query[] = [
+					$query_args['tax_query'][] = [
 						$tax_array_key => $value,
 					];
 				}
 			}
-			unset( $tax_query['taxArray'] );
-
-			if ( ! empty( $tax_query ) ) {
-				$query_args['tax_query'] = $tax_query;
-			}
+			unset( $query_args['tax_query']['taxArray'] );
 		}
 
 		/**
