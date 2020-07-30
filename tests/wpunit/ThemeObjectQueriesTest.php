@@ -67,23 +67,21 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'theme' => [
-					'author'      => $theme->author,
-					'authorUri'   => 'https://wordpress.org/',
-					'description' => $theme->description,
-					'id'          => $global_id,
-					'name'        => 'Twenty Seventeen',
-					'screenshot'  => $theme->get_screenshot(),
-					'slug'        => 'twentyseventeen',
-					'tags'        => $theme->tags,
-					'themeUri'    => 'https://wordpress.org/themes/twentyseventeen/',
-					'version'     => $theme->version,
-				],
+			'theme' => [
+				'author'      => $theme->author,
+				'authorUri'   => 'https://wordpress.org/',
+				'description' => $theme->description,
+				'id'          => $global_id,
+				'name'        => 'Twenty Seventeen',
+				'screenshot'  => $theme->get_screenshot(),
+				'slug'        => 'twentyseventeen',
+				'tags'        => $theme->tags,
+				'themeUri'    => 'https://wordpress.org/themes/twentyseventeen/',
+				'version'     => $theme->version,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -114,33 +112,30 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data'   => [
-				'theme' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'No theme was found with the stylesheet: doesNotExist',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
+		$expected_errors = [
+			[
+				'message'   => 'No theme was found with the stylesheet: doesNotExist',
+				'locations' => [
+					[
+						'line'   => 3,
+						'column' => 4,
 					],
-					'path'      => [
-						'theme',
-					],
-					'extensions' => [
-						'category'  => 'user',
-					]
 				],
+				'path'      => [
+					'theme',
+				],
+				'extensions' => [
+					'category'  => 'user',
+				]
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected_errors, $actual['errors'] );
 	}
 
 }

@@ -150,34 +150,32 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'agent'       => null,
-					'approved'    => true,
-					'author'      => [
-						'node' => [
-							'__typename' => 'User',
-							'userId' => $this->admin,
-						]
-					],
-					'authorIp'    => null,
-					'replies'    => [
-						'edges' => [],
-					],
-					'commentId'   => $comment_id,
-					'commentedOn' => null,
-					'content'     => apply_filters( 'comment_text', 'Test comment content' ),
-					'date'        => $this->current_date,
-					'dateGmt'     => $this->current_date_gmt,
-					'id'          => $global_id,
-					'karma'       => null,
-					'parent'      => null,
-					'type'        => null,
+			'comment' => [
+				'agent'       => null,
+				'approved'    => true,
+				'author'      => [
+					'node' => [
+						'__typename' => 'User',
+						'userId' => $this->admin,
+					]
 				],
+				'authorIp'    => null,
+				'replies'    => [
+					'edges' => [],
+				],
+				'commentId'   => $comment_id,
+				'commentedOn' => null,
+				'content'     => apply_filters( 'comment_text', 'Test comment content' ),
+				'date'        => $this->current_date,
+				'dateGmt'     => $this->current_date_gmt,
+				'id'          => $global_id,
+				'karma'       => null,
+				'parent'      => null,
+				'type'        => null,
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 	}
 
 	/**
@@ -237,23 +235,21 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'agent'    => null,
-					'approved' => true,
-					'author'   => [
-						'node' => [
-							'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
-							'name'  => get_comment_author( $comment_id ),
-							'email' => null, // Email is restricted to users with moderate_comments capability
-							'url'   => get_comment_author_url( $comment_id ),
-						],
+			'comment' => [
+				'agent'    => null,
+				'approved' => true,
+				'author'   => [
+					'node' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'name'  => get_comment_author( $comment_id ),
+						'email' => null, // Email is restricted to users with moderate_comments capability
+						'url'   => get_comment_author_url( $comment_id ),
 					],
 				],
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 
 		wp_set_current_user( $this->admin );
 
@@ -269,23 +265,21 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'agent'    => null,
-					'approved' => true,
-					'author'   => [
-						'node' => [
-							'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
-							'name'  => get_comment_author( $comment_id ),
-							'email' => get_comment_author_email( $comment_id ),
-							'url'   => get_comment_author_url( $comment_id ),
-						],
+			'comment' => [
+				'agent'    => null,
+				'approved' => true,
+				'author'   => [
+					'node' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'name'  => get_comment_author( $comment_id ),
+						'email' => get_comment_author_email( $comment_id ),
+						'url'   => get_comment_author_url( $comment_id ),
 					],
 				],
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 
 	}
 
@@ -384,42 +378,40 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'replies'    => [
-						'edges' => [
-							[
-								'node' => [
-									'commentId' => $child_2,
-									'content'   => apply_filters( 'comment_text', 'Child 2' ),
-								],
+			'comment' => [
+				'replies'    => [
+					'edges' => [
+						[
+							'node' => [
+								'commentId' => $child_2,
+								'content'   => apply_filters( 'comment_text', 'Child 2' ),
 							],
-							[
-								'node' => [
-									'commentId' => $child_1,
-									'content'   => apply_filters( 'comment_text', 'Child 1' ),
-								],
+						],
+						[
+							'node' => [
+								'commentId' => $child_1,
+								'content'   => apply_filters( 'comment_text', 'Child 1' ),
 							],
 						],
 					],
-					'commentId'   => $comment_id,
-					'commentedOn' => [
-						'node' => [
-							'content' => apply_filters( 'the_content', 'Post object' ),
-						]
-					],
-					'content'     => apply_filters( 'comment_text', 'Test comment' ),
-					'parent'      => [
-						'node' => [
-							'commentId' => $parent_comment,
-							'content'   => apply_filters( 'comment_text', 'Parent comment' ),
-						],
+				],
+				'commentId'   => $comment_id,
+				'commentedOn' => [
+					'node' => [
+						'content' => apply_filters( 'the_content', 'Post object' ),
+					]
+				],
+				'content'     => apply_filters( 'comment_text', 'Test comment' ),
+				'parent'      => [
+					'node' => [
+						'commentId' => $parent_comment,
+						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
 					],
 				],
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 	}
 
 	/**

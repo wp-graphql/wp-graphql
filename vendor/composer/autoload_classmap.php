@@ -378,6 +378,7 @@ return array(
     'WPGraphQL\\Type\\WPScalar' => $baseDir . '/src/Type/WPScalar.php',
     'WPGraphQL\\Type\\WPUnionType' => $baseDir . '/src/Type/WPUnionType.php',
     'WPGraphQL\\Types' => $baseDir . '/src/Types.php',
+    'WPGraphQL\\Utils\\DebugLog' => $baseDir . '/src/Utils/DebugLog.php',
     'WPGraphQL\\Utils\\InstrumentSchema' => $baseDir . '/src/Utils/InstrumentSchema.php',
     'WPGraphQL\\Utils\\Utils' => $baseDir . '/src/Utils/Utils.php',
     'WPGraphQL\\WPSchema' => $baseDir . '/src/WPSchema.php',

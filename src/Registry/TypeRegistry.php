@@ -369,6 +369,58 @@ class TypeRegistry {
 					PostObjectDelete::register_mutation( $post_type_object );
 
 				}
+
+				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+					foreach ( $allowed_taxonomies as $taxonomy ) {
+						$tax_object = get_taxonomy( $taxonomy );
+						// If the taxonomy is in the array of taxonomies registered to the post_type
+						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
+							register_graphql_input_type(
+								$post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
+								[
+									'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
+									'fields'      => [
+										'id'          => [
+											'type'        => 'Id',
+											'description' => sprintf( __( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ), $tax_object->graphql_single_name, $post_type_object->graphql_single_name ),
+										],
+										'slug'        => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+										'description' => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+										'name'        => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+									],
+								]
+							);
+
+							register_graphql_input_type(
+								ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
+								[
+									'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
+									'fields'      => [
+										'append' => [
+											'type'        => 'Boolean',
+											'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
+										],
+										'nodes'  => [
+											'type' => [
+												'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
+											],
+										],
+									],
+								]
+							);
+						}
+					}
+				}
 			}
 		}
 
@@ -461,10 +513,31 @@ class TypeRegistry {
 	 * @return mixed
 	 */
 	public function register_type( $type_name, $config ) {
+
+		if ( ! is_valid_graphql_name( $type_name ) ) {
+			graphql_debug(
+				sprintf( __( 'The Type name \'%1$s\' is invalid and has not been added to the GraphQL Schema.', 'wp-graphql' ), $type_name ),
+				[
+					'type'      => 'INVALID_TYPE_NAME',
+					'type_name' => $type_name,
+				]
+			);
+			return null;
+		};
+
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
+			graphql_debug(
+				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
+				[
+					'type'      => 'DUPLICATE_TYPE',
+					'type_name' => $type_name,
+				]
+			);
 			return $this->types[ $this->format_key( $type_name ) ];
 		}
+
 		$prepared_type = $this->prepare_type( $type_name, $config );
+
 		if ( ! empty( $prepared_type ) ) {
 			$this->types[ $this->format_key( $type_name ) ] = $prepared_type;
 		}
@@ -642,7 +715,12 @@ class TypeRegistry {
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
-			throw new InvariantViolation( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ) );
+			graphql_debug( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ), [
+				'type'       => 'INVALID_FIELD_TYPE',
+				'type_name'  => $type_name,
+				'field_name' => $field_name,
+			] );
+			return null;
 		}
 
 		if ( is_string( $field_config['type'] ) ) {
@@ -734,11 +812,27 @@ class TypeRegistry {
 			'graphql_' . $type_name . '_fields',
 			function( $fields ) use ( $type_name, $field_name, $config ) {
 
-				if ( isset( $fields[ $field_name ] ) ) {
-					if ( true === GRAPHQL_DEBUG ) {
-						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
-					}
+				if ( preg_match( '/^\d/', $field_name ) ) {
+					graphql_debug(
+						sprintf( __( 'The field \'%1$s\' on Type \'%2$s\' is invalid. Field names cannot start with a number.', 'wp-graphql' ), $field_name, $type_name ),
+						[
+							'type'       => 'INVALID_FIELD_NAME',
+							'field_name' => $field_name,
+							'type_name'  => $type_name,
+						]
+					);
+					return $fields;
+				};
 
+				if ( isset( $fields[ $field_name ] ) ) {
+					graphql_debug(
+						sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.', 'wp-graphql' ), $field_name, $type_name ),
+						[
+							'type'       => 'DUPLICATE_FIELD',
+							'field_name' => $field_name,
+							'type_name'  => $type_name,
+						]
+					);
 					return $fields;
 				}
 
@@ -776,10 +870,6 @@ class TypeRegistry {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					unset( $fields[ $field_name ] );
-				} else {
-					if ( true === GRAPHQL_DEBUG ) {
-						throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
-					}
 				}
 
 				return $fields;

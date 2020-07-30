@@ -213,15 +213,13 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * The mutation should've updated the article to contain the updated content
 		 */
 		$expected = [
-			'data' => [
-				'updatePage' => [
-					'clientMutationId' => 'someId',
-					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-						'title'   => apply_filters( 'the_title', 'Some updated title' ),
-						'content' => apply_filters( 'the_content', 'Some updated content' ),
-						'pageId'  => $page_id,
-					],
+			'updatePage' => [
+				'clientMutationId' => 'someId',
+				'page'             => [
+					'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+					'title'   => apply_filters( 'the_title', 'Some updated title' ),
+					'content' => apply_filters( 'the_content', 'Some updated content' ),
+					'pageId'  => $page_id,
 				],
 			],
 		];
@@ -229,7 +227,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		/**
 		 * Make sure the edit lock is removed after the mutation has finished
@@ -324,16 +322,14 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * The mutation should've updated the article to contain the updated content
 		 */
 		$expected = [
-			'data' => [
-				'deletePage' => [
-					'clientMutationId' => 'someId',
-					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-					'page'             => [
-						'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-						'title'   => apply_filters( 'the_title', 'Original Title' ),
-						'content' => apply_filters( 'the_content', 'Original Content' ),
-						'pageId'  => $page_id,
-					],
+			'deletePage' => [
+				'clientMutationId' => 'someId',
+				'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+				'page'             => [
+					'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+					'title'   => apply_filters( 'the_title', 'Original Title' ),
+					'content' => apply_filters( 'the_content', 'Original Content' ),
+					'pageId'  => $page_id,
 				],
 			],
 		];
@@ -341,7 +337,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		/**
 		 * Try to delete again
@@ -525,18 +521,16 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * clientMutationId we sent through, as well as the title and content we passed through in the mutation
 		 */
 		$expected = [
-			'data' => [
-				'createPage' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'page'             => [
-						'title'   => apply_filters( 'the_title', $this->title ),
-						'content' => apply_filters( 'the_content', $this->content ),
-					],
+			'createPage' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'page'             => [
+					'title'   => apply_filters( 'the_title', $this->title ),
+					'content' => apply_filters( 'the_content', $this->content ),
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

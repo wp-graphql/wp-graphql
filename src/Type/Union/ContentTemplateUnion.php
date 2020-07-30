@@ -5,10 +5,9 @@ class ContentTemplateUnion {
 	public static function register_type( $type_registry ) {
 
 		$registered_page_templates = wp_get_theme()->get_post_templates();
+		$page_templates['default'] = 'Default';
 
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
-
-			$page_templates['default'] = 'Default';
 			foreach ( $registered_page_templates as $post_type_templates ) {
 				foreach ( $post_type_templates as $file => $name ) {
 					$page_templates[ $file ] = $name;
@@ -20,15 +19,17 @@ class ContentTemplateUnion {
 			$type_names         = [];
 			$type_names_by_file = [];
 			foreach ( $page_templates as $file => $name ) {
-				$name               = ucwords( $name );
-				$name               = preg_replace( '/[^\w]/', '', $name );
-				$template_type_name = $name . 'Template';
+				$template_type_name = str_ireplace( '.php', '', $file );
+				$template_type_name = str_ireplace( 'templates/', '', $template_type_name );
+				$template_type_name = str_ireplace( '/', '_', $template_type_name );
+				$template_type_name               = graphql_format_type_name( $template_type_name );
+				$template_type_name = 'Template_' . $template_type_name;
 				register_graphql_object_type(
 					$template_type_name,
 					[
 						'interfaces'  => [ 'ContentTemplate' ],
 						// Translators: Placeholder is the name of the GraphQL Type in the Schema
-						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
+						'description' => sprintf( __( 'The template assigned to the node.', 'wp-graphql' ), $file ),
 						'fields'      => [
 							'templateName' => [
 								'resolve' => function( $template ) use ( $page_templates ) {
@@ -43,9 +44,13 @@ class ContentTemplateUnion {
 						],
 					]
 				);
-				$type_names[]                = $template_type_name;
-				$type_names_by_file[ $file ] = $template_type_name;
 
+				if ( is_valid_graphql_name( $template_type_name ) ) {
+
+					$type_names[]                = $template_type_name;
+					$type_names_by_file[ $file ] = $template_type_name;
+
+				}
 			}
 
 			if ( ! empty( $type_names ) ) {
