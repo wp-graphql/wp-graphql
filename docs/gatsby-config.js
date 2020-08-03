@@ -120,6 +120,7 @@ module.exports = {
             'guides/the-graphql-query-language',
             'guides/relay-spec',
             'guides/connections',
+            'guides/caching',
             'guides/anatomy-of-a-graphql-request',
             'guides/upgrading',
             'guides/authentication-and-authorization',

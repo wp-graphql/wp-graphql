@@ -1,0 +1,45 @@
+---
+title: Caching
+description: Learn about what kind of caching methods you can facilitate with WPGraphQL
+---
+
+Caching is a broad subject and there is many levels on which you can implement caching.
+
+*@todo This article is just a quick draft to hold on to 
+information shared on the Slackchat. More info is more than welcome.*
+
+
+## Server-Side Caching
+
+For server-side caching, there are many options.
+A lot of managed WP hosts (such as WP Engine) take care of at least persistent object caching for you without needing any extra plugins.
+Persistent Object caching means that objects such as Posts, Users, etc are placed in a cache that persists across sessions.
+Many requests from different users for Post A will get a cached copy of Post A instead of talking to the SQL database.
+If you're not on a managed host that provides object caching, there are many plugins that offer this. Checkout the WordPress references for it.
+Object cache invalidation is generally straightforward. Whenever an object (Post, User, etc) is created/updated/deleted, update the cache for said object.
+
+### WordPress Object Cache
+
+Reference: https://codex.wordpress.org/Class_Reference/WP_Object_Cache
+
+### WordPress Persistent Cache
+
+Reference: https://codex.wordpress.org/Class_Reference/WP_Object_Cache#Persistent_Cache_Plugins
+
+
+## Query Caching
+
+Query caching is another beast that's less straight-forward and can get more complicated more quickly, and there's currently no "one size fits all" plugin that solves this.
+Even if you have objects in a cache, you still have to run queries to determine what objects to return.
+You can store queries in WordPress transients, but you have to figure out how to properly invalidate the queries. This can get pretty complicated, because many variables can affect queries.
+A lot of times, I see queries being cached for a random amount of time. For example, 3 minutes. Meaning, anytime a user asks for said query for 3 minutes, they'll get the same results, then at 3 minutes and 1 second, the SQL will re-execute and get new results and cache them for the next 3 minutes.
+
+One option that works together with Apollos Client-Side caching:
+ 
+- [WPGraphQL Persisted Queries](https://github.com/Quartz/wp-graphql-persisted-queries)
+
+## Client-Side Caching
+
+For client side cache when using GraphQL there seem not too many options available.
+
+- [Apollo React Client Caching](https://www.apollographql.com/docs/react/caching/cache-configuration/) - Apollo Client stores the results of its GraphQL queries in a normalized, in-memory cache. This enables your client to respond to future queries for the same data without sending unnecessary network requests.
