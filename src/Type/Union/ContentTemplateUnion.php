@@ -22,7 +22,7 @@ class ContentTemplateUnion {
 				$template_type_name = str_ireplace( '.php', '', $file );
 				$template_type_name = str_ireplace( 'templates/', '', $template_type_name );
 				$template_type_name = str_ireplace( '/', '_', $template_type_name );
-				$template_type_name               = graphql_format_type_name( $template_type_name );
+				$template_type_name = graphql_format_type_name( $template_type_name );
 				$template_type_name = 'Template_' . $template_type_name;
 				register_graphql_object_type(
 					$template_type_name,

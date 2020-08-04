@@ -40,39 +40,15 @@ class TermObjects {
 						],
 					]
 				),
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'resolve'        => function( $source, $args, $context, $info ) {
 					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
 					$connection = $resolver->get_connection();
+
 					return $connection;
 				},
 			]
 		);
-
-		register_graphql_connection([
-			'fromType'       => 'ContentNode',
-			'toType'         => 'TermNode',
-			'fromFieldName'  => 'terms',
-			'connectionArgs' => self::get_connection_args(
-				[
-					'taxonomies' => [
-						'type'        => [ 'list_of' => 'TaxonomyEnum' ],
-						'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
-					],
-				]
-			),
-			'resolve'        => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-				$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
-				$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
-				if ( empty( $terms ) || is_wp_error( $terms ) ) {
-					return null;
-				}
-				$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-				$resolver->set_query_arg( 'include', $terms );
-				return $resolver->get_connection();
-
-			},
-		]);
 
 		/**
 		 * Loop through the allowed_taxonomies to register appropriate connections
@@ -110,12 +86,14 @@ class TermObjects {
 
 											$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
 											$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+
 											return $resolver->get_connection();
 
 										},
 									]
 								)
 							);
+
 						}
 					}
 				}
@@ -130,6 +108,7 @@ class TermObjects {
 								'resolve'       => function( Term $term, $args, AppContext $context, $info ) {
 									$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
 									$resolver->set_query_arg( 'parent', $term->term_id );
+
 									return $resolver->get_connection();
 
 								},
@@ -137,7 +116,7 @@ class TermObjects {
 						)
 					);
 
-					register_graphql_connection([
+					register_graphql_connection( [
 						'fromType'           => $tax_object->graphql_single_name,
 						'toType'             => $tax_object->graphql_single_name,
 						'fromFieldName'      => 'parent',
@@ -155,9 +134,9 @@ class TermObjects {
 							return $resolver->one_to_one()->get_connection();
 
 						},
-					]);
+					] );
 
-					register_graphql_connection([
+					register_graphql_connection( [
 						'fromType'           => $tax_object->graphql_single_name,
 						'toType'             => $tax_object->graphql_single_name,
 						'fromFieldName'      => 'ancestors',
@@ -177,8 +156,47 @@ class TermObjects {
 							return $resolver->get_connection();
 
 						},
-					]);
+					] );
 				}
+			}
+		}
+
+		// Register a connection from each post type that
+		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
+			foreach ( $allowed_post_types as $allowed_post_type ) {
+
+				$post_type_object = get_post_type_object( $allowed_post_type );
+
+				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
+					return;
+				}
+
+				register_graphql_connection( [
+					'fromType'       => $post_type_object->graphql_single_name,
+					'toType'         => 'TermNode',
+					'fromFieldName'  => 'terms',
+					'queryClass'     => 'WP_Term_Query',
+					'connectionArgs' => self::get_connection_args(
+						[
+							'taxonomies' => [
+								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+								'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+							],
+						]
+					),
+					'resolve'        => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+						if ( empty( $terms ) || is_wp_error( $terms ) ) {
+							return null;
+						}
+						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+						$resolver->set_query_arg( 'include', $terms );
+
+						return $resolver->get_connection();
+
+					},
+				]);
 			}
 		}
 
@@ -202,7 +220,7 @@ class TermObjects {
 			'toType'         => $tax_object->graphql_single_name,
 			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
+			'resolve'        => function( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
 			},
 		];
