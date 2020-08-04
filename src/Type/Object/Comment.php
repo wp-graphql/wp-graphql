@@ -17,7 +17,7 @@ class Comment {
 			'Comment',
 			[
 				'description' => __( 'A Comment object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
@@ -26,10 +26,6 @@ class Comment {
 						'type'              => 'Int',
 						'description'       => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
 						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
-					],
-					'databaseId'   => [
-						'type'        => 'Int',
-						'description' => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
 					],
 					'authorIp'     => [
 						'type'        => 'String',

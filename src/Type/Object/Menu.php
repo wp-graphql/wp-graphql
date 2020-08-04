@@ -8,14 +8,10 @@ class Menu {
 			'Menu',
 			[
 				'description' => __( 'Menus are the containers for navigation items. Menus can be assigned to menu locations, which are typically registered by the active theme.', 'wp-graphql' ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier of the nav menu object.', 'wp-graphql' ),
-					],
-					'databaseId'   => [
-						'type'        => 'Int',
-						'description' => __( 'The ID of the node in the database.', 'wp-graphql' ),
 					],
 					'count'        => [
 						'type'        => 'Int',

@@ -23,10 +23,6 @@ class UniformResourceIdentifiable {
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
-					'databaseId' => [
-						'type'        => [ 'non_null' => 'Int' ],
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-					],
 				],
 				'resolveType' => function( $node ) use ( $type_registry ) {
 
