@@ -48,10 +48,6 @@ class MenuItem {
 						'description'       => __( 'WP ID of the menu item.', 'wp-graphql' ),
 						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 					],
-					'databaseId'       => [
-						'type'        => 'Int',
-						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
-					],
 					'target'           => [
 						'type'        => 'String',
 						'description' => __( 'Target attribute for the menu item link.', 'wp-graphql' ),
