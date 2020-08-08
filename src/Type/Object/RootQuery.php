@@ -502,8 +502,7 @@ class RootQuery {
 							switch ( $idType ) {
 								case 'uri':
 								case 'slug':
-									return $context->node_resolver->resolve_uri( $args['id'] );
-									break;
+									return $context->node_resolver->resolve_uri( $args['id'], ['post_type' => $post_type_object->name] );
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
