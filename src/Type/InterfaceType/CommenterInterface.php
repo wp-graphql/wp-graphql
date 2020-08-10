@@ -38,7 +38,9 @@ class CommenterInterface {
 					'description' => __( 'The globally unique identifier for the comment author.', 'wp-graphql' ),
 				],
 				'databaseId'   => [
-					'type'        => 'Int',
+					'type'        => [
+						'non_null' => 'Int',
+					],
 					'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
 				],
 				'name'         => [
