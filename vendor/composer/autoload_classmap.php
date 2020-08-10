@@ -325,6 +325,7 @@ return array(
     'WPGraphQL\\Type\\InterfaceType\\CommenterInterface' => $baseDir . '/src/Type/InterfaceType/CommenterInterface.php',
     'WPGraphQL\\Type\\InterfaceType\\ContentNode' => $baseDir . '/src/Type/InterfaceType/ContentNode.php',
     'WPGraphQL\\Type\\InterfaceType\\ContentTemplate' => $baseDir . '/src/Type/InterfaceType/ContentTemplate.php',
+    'WPGraphQL\\Type\\InterfaceType\\DatabaseIdentifier' => $baseDir . '/src/Type/InterfaceType/DatabaseIdentifier.php',
     'WPGraphQL\\Type\\InterfaceType\\EnqueuedAsset' => $baseDir . '/src/Type/InterfaceType/EnqueuedAsset.php',
     'WPGraphQL\\Type\\InterfaceType\\HierarchicalContentNode' => $baseDir . '/src/Type/InterfaceType/HierarchicalContentNode.php',
     'WPGraphQL\\Type\\InterfaceType\\HierarchicalTermNode' => $baseDir . '/src/Type/InterfaceType/HierarchicalTermNode.php',
