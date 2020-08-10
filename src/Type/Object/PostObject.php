@@ -22,7 +22,7 @@ class PostObject {
 
 		$single_name = $post_type_object->graphql_single_name;
 
-		$interfaces = [ 'Node', 'ContentNode', 'UniformResourceIdentifiable' ];
+		$interfaces = [ 'Node', 'ContentNode', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ];
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
 			$interfaces[] = 'NodeWithTitle';

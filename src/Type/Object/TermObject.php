@@ -20,7 +20,7 @@ class TermObject {
 	 */
 	public static function register_taxonomy_object_type( $taxonomy_object ) {
 
-		$interfaces = [ 'Node', 'TermNode', 'UniformResourceIdentifiable' ];
+		$interfaces = [ 'Node', 'TermNode', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ];
 
 		if ( $taxonomy_object->hierarchical ) {
 			$interfaces[] = 'HierarchicalTermNode';

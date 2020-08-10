@@ -478,9 +478,11 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query NodeByUri( $uri: String! ) {
 		  nodeByUri( uri: $uri ) {
-		     databaseId
 		     uri
 		     __typename
+		     ...on DatabaseIdentifier {
+		       databaseId
+		     }
 		  }
 		}
 		';
@@ -494,6 +496,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 				'uri' => $child_uri,
 			],
 		]);
+
+		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $child_uri, $actual['data']['nodeByUri']['uri'], 'Makes sure the uri of the node matches the uri queried with' );
