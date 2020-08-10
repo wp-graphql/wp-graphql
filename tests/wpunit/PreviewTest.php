@@ -133,6 +133,23 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotNull( $actual['data']['post']['preview'] );
 
+		add_filter( 'wp_revisions_to_keep', function() {
+			return 0;
+		} );
+
+		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
+			'id' => $this->post,
+		] ]);
+
+		codecept_debug( $actual );
+
+		add_filter( 'wp_revisions_to_keep', function( $default ) {
+			return $default;
+		} );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
 	}
 
 	public function testPreviewAuthorMatchesPublishedAuthor() {
@@ -148,7 +165,8 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->admin, $actual['data']['post']['preview']['node']['author']['node']['databaseId'] );
 		$this->assertSame( $this->admin, $actual['data']['post']['author']['node']['databaseId'] );
-		$this->assertSame( $actual['data']['post']['preview']['node']['author']['node']['databaseId'], $actual['data']['post']['author']['node']['databaseId'] );
+		$this->assertSame( $this->admin, $actual['data']['post']['preview']['node']['author']['node']['databaseId'] );
+
 	}
 
 	public function testPreviewTermsMatchPublishedTerms() {
