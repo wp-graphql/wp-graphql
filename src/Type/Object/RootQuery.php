@@ -96,6 +96,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
@@ -453,11 +454,7 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function( $source, array $args, $context, $info ) {
-							if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
-								throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
-							}
-
-							return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 						},
 					],
 				],
@@ -525,6 +522,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}

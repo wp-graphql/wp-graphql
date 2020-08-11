@@ -34,7 +34,8 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * We should get an error because no user is logged in right now
 		 */
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['viewer'] );
 
 		/**
 		 * Set the current user so we can properly test the viewer query
