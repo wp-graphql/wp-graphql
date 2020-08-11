@@ -96,6 +96,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
@@ -525,6 +526,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}

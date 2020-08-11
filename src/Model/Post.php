@@ -665,6 +665,7 @@ class Post extends Model {
 						$revisions = wp_get_post_revisions( $this->data->ID, [
 							'posts_per_page' => 1,
 							'fields'         => 'ids',
+							'check_enabled'  => false,
 						] );
 
 						return is_array( $revisions ) && ! empty( $revisions ) ? array_values( $revisions )[0] : null;
@@ -679,6 +680,7 @@ class Post extends Model {
 						$revisions = wp_get_post_revisions( $this->parentDatabaseId, [
 							'posts_per_page' => 1,
 							'fields'         => 'ids',
+							'check_enabled'  => false,
 						] );
 
 						if ( in_array( $this->data->ID, array_values( $revisions ), true ) ) {
