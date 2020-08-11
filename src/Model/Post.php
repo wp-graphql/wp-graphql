@@ -155,7 +155,9 @@ class Post extends Model {
 			'isFrontPage',
 		];
 
-		$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
+		if ( isset( $this->post_type_object->graphql_single_name ) ) {
+			$allowed_restricted_fields[] = $this->post_type_object->graphql_single_name . 'Id';
+		}
 
 		$restricted_cap = $this->get_restricted_cap();
 
@@ -424,10 +426,6 @@ class Post extends Model {
 	protected function init() {
 
 		if ( empty( $this->fields ) ) {
-
-			$this->fields[ $this->post_type_object->graphql_single_name . 'Id' ] = function() {
-				return absint( $this->data->ID );
-			};
 
 			$this->fields = [
 				'ID'                        => function() {
