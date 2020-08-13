@@ -32,6 +32,23 @@ class MediaSize {
 							return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
 						},
 					],
+					'fileSize'  => [
+						'type'        => 'Int',
+						'description' => __( 'The filesize of the resource', 'wp-graphql' ),
+						'resolve'     => function( $image, $args, $context, $info ) {
+
+							$src_url = null;
+
+							if ( ! empty( $image['ID'] ) && ! empty( $image['file'] ) ) {
+								$original_file = get_attached_file( absint( $image['ID'] ) );
+								$filesize_path = path_join( dirname( $original_file ), $image['file'] );
+								return filesize( $filesize_path );
+							}
+
+							return null;
+
+						},
+					],
 					'sourceUrl' => [
 						'type'        => 'String',
 						'description' => __( 'The url of the for the referenced size', 'wp-graphql' ),

@@ -3,20 +3,20 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
-use WPGraphQL\Model\User;
+use WPGraphQL\AppContext;
 
 class NodeResolver {
 
 	protected $wp;
+	protected $context;
 
 	/**
 	 * NodeResolver constructor.
 	 */
-	public function __construct() {
+	public function __construct( AppContext $context ) {
 		global $wp;
-		$this->wp = $wp;
+		$this->wp      = $wp;
+		$this->context = $context;
 	}
 
 	/**
@@ -28,7 +28,7 @@ class NodeResolver {
 	 *
 	 * @throws \Exception
 	 *
-	 * @return mixed|Term|Post|User|null
+	 * @return mixed
 	 */
 	public function resolve_uri( $uri, $extra_query_vars = '' ) {
 
@@ -285,54 +285,18 @@ class NodeResolver {
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
-			$page_id = get_option( 'page_on_front' );
+			$page_id = get_option( 'page_on_front', 0 );
 			if ( ! empty( $page_id ) ) {
 				$this->wp->query_vars['page_id'] = absint( $page_id );
+			} else {
+				$this->wp->query_vars['post_type'] = 'post';
 			}
 		}
 
 		if ( isset( $this->wp->query_vars['page_id'] ) ) {
-
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
-			$post_type = 'page';
-			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
-				$post_type = $this->wp->query_vars['post_type'];
-			}
-
-			$args  = [
-				'page_id'             => absint( $this->wp->query_vars['page_id'] ),
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-			];
-			$posts = new \WP_Query( $args );
-
-			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
-
+			return absint( $this->wp->query_vars['page_id'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['page_id'] ) ) : null;
 		} elseif ( isset( $this->wp->query_vars['p'] ) ) {
-
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
-			$post_type = 'post';
-			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
-				$post_type = $this->wp->query_vars['post_type'];
-			}
-
-			$args  = [
-				'p'                   => absint( $this->wp->query_vars['p'] ),
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-			];
-			$posts = new \WP_Query( $args );
-
-			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
-
+			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['p'] ) ) : null;
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 
 			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
@@ -341,48 +305,44 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
-
-			$args  = [
-				'name'                => $this->wp->query_vars['name'],
-				'post_type'           => $post_type,
-				'post_status'         => 'publish',
-				'posts_per_page'      => 1,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-			];
-			$posts = new \WP_Query( $args );
-
-			return ! empty( $posts->posts[0] ) ? new Post( $posts->posts[0] ) : null;
+			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['cat'] ) ) {
 			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
 
-			return ! empty( $node ) ? new Term( $node ) : null;
+			return ! empty( $node ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['tag'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['tag'], 'post_tag' );
 
-			return ! empty( $node ) ? new Term( $node ) : null;
+			return ! empty( $node ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
+
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
 
-			return ! empty( $post ) ? new Post( $post ) : null;
+			if ( isset( $post->ID ) && (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
+				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
+			}
+
+			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 		} elseif ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
-
-			return new User( $user );
+			return $this->context->get_loader( 'user' )->load_deferred( $user->ID );
 		} elseif ( isset( $this->wp->query_vars['category_name'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
+			return $this->context->get_loader( 'term' )->load_deferred( $node->term_id );
 
-			return new Term( $node );
-
+		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
+				$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
+				return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
 		} else {
 			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
 			foreach ( $taxonomies as $taxonomy ) {
 				if ( isset( $this->wp->query_vars[ $taxonomy->query_var ] ) ) {
 					$node = get_term_by( 'slug', $this->wp->query_vars[ $taxonomy->query_var ], $taxonomy->name );
 
-					return new Term( $node );
+					return $this->context->get_loader( 'term' )->load_deferred( $node->term_id );
 				}
 			}
 		}

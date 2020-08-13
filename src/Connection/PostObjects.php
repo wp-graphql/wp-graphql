@@ -124,11 +124,12 @@ class PostObjects {
 		] );
 
 		register_graphql_connection( [
-			'fromType'           => 'HierarchicalContentNode',
-			'fromFieldName'      => 'children',
-			'connectionTypeName' => 'HierarchicalContentNodeToChildrenContentNodesConnection',
-			'toType'             => 'ContentNode',
-			'resolve'            => function( Post $post, $args, $context, $info ) {
+			'fromType'       => 'HierarchicalContentNode',
+			'fromFieldName'  => 'children',
+			'toType'         => 'ContentNode',
+			'connectionArgs' => self::get_connection_args(),
+			'queryClass'     => 'WP_Query',
+			'resolve'        => function( Post $post, $args, $context, $info ) {
 
 				if ( $post->isRevision ) {
 					$id = $post->parentDatabaseId;
@@ -145,12 +146,13 @@ class PostObjects {
 		] );
 
 		register_graphql_connection( [
-			'fromType'           => 'HierarchicalContentNode',
-			'toType'             => 'ContentNode',
-			'fromFieldName'      => 'ancestors',
-			'connectionTypeName' => 'HierarchicalContentNodeToAncestorContentNodeConnection',
-			'description'        => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
-			'resolve'            => function( Post $post, $args, $context, $info ) {
+			'fromType'       => 'HierarchicalContentNode',
+			'toType'         => 'ContentNode',
+			'fromFieldName'  => 'ancestors',
+			'connectionArgs' => self::get_connection_args(),
+			'queryClass'     => 'WP_Query',
+			'description'    => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+			'resolve'        => function( Post $post, $args, $context, $info ) {
 				$ancestors = get_ancestors( $post->ID, null, 'post_type' );
 				if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
 					return null;

@@ -77,8 +77,7 @@ class RootQuery {
 							$post_id = null;
 							switch ( $idType ) {
 								case 'uri':
-									$post_object = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
-									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+									return $context->node_resolver->resolve_uri( $args['id'] );
 									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
@@ -97,6 +96,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
@@ -135,7 +135,7 @@ class RootQuery {
 									}
 							}
 
-							return ! empty( $id ) ? DataSource::resolve_post_type( $id ) : null;
+							return ! empty( $id ) ? $context->get_loader( 'post_type' )->load_deferred( $id ) : null;
 
 						},
 					],
@@ -169,7 +169,7 @@ class RootQuery {
 									}
 							}
 
-							return ! empty( $id ) ? DataSource::resolve_taxonomy( $id ) : null;
+							return ! empty( $id ) ? $context->get_loader( 'taxonomy' )->load_deferred( $id ) : null;
 
 						},
 					],
@@ -195,7 +195,7 @@ class RootQuery {
 							],
 						],
 						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $args['uri'] ) ? DataSource::resolve_resource_by_uri( $args['uri'], $context, $info ) : null;
+							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
 						},
 					],
 					'menu'        => [
@@ -339,10 +339,7 @@ class RootQuery {
 
 									break;
 								case 'uri':
-									$term = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
-									if ( $term instanceof Term ) {
-										$term_id = $term->term_id;
-									}
+									return $context->node_resolver->resolve_uri( $args['id'] );
 									break;
 								case 'global_id':
 								default:
@@ -397,11 +394,7 @@ class RootQuery {
 									$id = absint( $args['id'] );
 									break;
 								case 'uri':
-									$user = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
-									$id   = null;
-									if ( $user instanceof \WPGraphQL\Model\User ) {
-										$id = $user->userId;
-									}
+									return $context->node_resolver->resolve_uri( $args['id'] );
 									break;
 								case 'login':
 									$current_user = wp_get_current_user();
@@ -461,11 +454,7 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function( $source, array $args, $context, $info ) {
-							if ( ! isset( $context->viewer->ID ) || empty( $context->viewer->ID ) ) {
-								throw new \Exception( __( 'You must be logged in to access viewer fields', 'wp-graphql' ) );
-							}
-
-							return ( false !== $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 						},
 					],
 				],
@@ -510,8 +499,7 @@ class RootQuery {
 							switch ( $idType ) {
 								case 'uri':
 								case 'slug':
-									$post_object = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
-									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+									return $context->node_resolver->resolve_uri( $args['id'] );
 									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
@@ -534,6 +522,7 @@ class RootQuery {
 								$revisions = wp_get_post_revisions( $post_id, [
 									'posts_per_page' => 1,
 									'fields'         => 'ids',
+									'check_enabled'  => false,
 								] );
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
@@ -587,13 +576,11 @@ class RootQuery {
 								$id      = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
 								$post_id = absint( $id );
 							} elseif ( ! empty( $args['uri'] ) ) {
-								$uri         = esc_html( $args['uri'] );
-								$post_object = DataSource::resolve_resource_by_uri( $uri, $context, $info );
-								$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+								$uri = esc_html( $args['uri'] );
+								return $context->node_resolver->resolve_uri( $uri );
 							} elseif ( ! empty( $args['slug'] ) ) {
-								$slug        = esc_html( $args['slug'] );
-								$post_object = DataSource::resolve_resource_by_uri( $slug, $context, $info );
-								$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+								$slug = esc_html( $args['slug'] );
+								return $context->node_resolver->resolve_uri( $slug );
 							}
 							$post = DataSource::resolve_post_object( $post_id, $context );
 							if ( ! get_post( $post_id ) || get_post( $post_id )->post_type !== $post_type_object->name ) {
@@ -650,10 +637,7 @@ class RootQuery {
 									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 									break;
 								case 'uri':
-									$term = DataSource::resolve_resource_by_uri( $args['id'], $context, $info );
-									if ( $term instanceof Term ) {
-										$term_id = $term->term_id;
-									}
+									return $context->node_resolver->resolve_uri( $args['id'] );
 									break;
 								case 'global_id':
 								default:
@@ -666,7 +650,7 @@ class RootQuery {
 
 							}
 
-							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
+							return ! empty( $term_id ) ? $context->get_loader( 'term' )->load_deferred( (int) $term_id ) : null;
 						},
 					]
 				);

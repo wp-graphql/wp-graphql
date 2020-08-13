@@ -30,7 +30,9 @@ class MenuItemLinkable {
 					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 				],
 				'databaseId' => [
-					'type'        => [ 'non_null' => 'Int' ],
+					'type'        => [
+						'non_null' => 'Int',
+					],
 					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 				],
 			],

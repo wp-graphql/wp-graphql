@@ -339,6 +339,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		";
 		$actual    = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$expected = [
 			'node' => [
 				'__typename' => 'User',

@@ -62,7 +62,6 @@ class ContentNode {
 						],
 						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
 					],
-
 					'databaseId'                => [
 						'type'        => [
 							'non_null' => 'Int',

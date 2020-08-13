@@ -12,7 +12,7 @@ class MenuItem {
 			'MenuItem',
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
-				'interfaces'  => [ 'Node' ],
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'id'               => [
 						'description' => __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' ),
@@ -47,10 +47,6 @@ class MenuItem {
 						'type'              => 'Int',
 						'description'       => __( 'WP ID of the menu item.', 'wp-graphql' ),
 						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
-					],
-					'databaseId'       => [
-						'type'        => 'Int',
-						'description' => __( 'WP ID of the menu item.', 'wp-graphql' ),
 					],
 					'target'           => [
 						'type'        => 'String',

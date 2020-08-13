@@ -10,14 +10,27 @@ use WPGraphQL\Model\CommentAuthor;
 class CommentAuthorLoader extends AbstractDataLoader {
 
 	/**
-	 * @param array $keys
+	 * @param $entry
+	 * @param $key
 	 *
-	 * @return array|CommentAuthor
+	 * @return mixed|CommentAuthor
 	 * @throws \Exception
 	 */
-	public function loadKeys( array $keys ) {
-		$loaded = [];
+	protected function get_model( $entry, $key ) {
 
+		if ( ! $entry instanceof \WP_Comment ) {
+			return null;
+		}
+
+		return new CommentAuthor( $entry );
+	}
+
+	/**
+	 * @param array $keys
+	 *
+	 * @return array
+	 */
+	public function loadKeys( array $keys ) {
 		/**
 		 * Prepare the args for the query. We're provided a specific set of IDs of comments
 		 * so we want to query as efficiently as possible with as little overhead to get the comment
@@ -36,39 +49,11 @@ class CommentAuthorLoader extends AbstractDataLoader {
 		 */
 		$query = new \WP_Comment_Query( $args );
 		$query->get_comments();
-
-		if ( empty( $keys ) ) {
-			return $keys;
-		}
-
-		/**
-		 * Loop over the keys and return an array of loaded_terms, where the key is the IDand the value
-		 * is the comment object, passed through the Model layer
-		 */
+		$loaded = [];
 		foreach ( $keys as $key ) {
-
-			/**
-			 * Get the comment from the cache
-			 */
-			$comment_object = \WP_Comment::get_instance( $key );
-
-			if ( ! isset( $comment_object->comment_author ) ) {
-				return null;
-			}
-
-			/**
-			 * Return the instance through the Model Layer to ensure we only return
-			 * values the consumer has access to.
-			 */
-			$comment = new CommentAuthor( $comment_object );
-			if ( ! isset( $comment->fields ) || empty( $comment->fields ) ) {
-				$loaded[ $key ] = null;
-			} else {
-				$loaded[ $key ] = $comment;
-			}
+			$loaded[ $key ] = \WP_Comment::get_instance( $key );
 		}
-
-		return ! empty( $loaded ) ? $loaded : [];
-
+		return $loaded;
 	}
+
 }
