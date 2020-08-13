@@ -171,7 +171,7 @@ class TimezoneEnum {
 			$offset_value = 'UTC' . $offset_value;
 
 			// Intentionally avoid WPEnumType::get_safe_name here for specific timezone formatting
-			$enum_values[ $offset_name ] = [
+			$enum_values[  WPEnumType::get_safe_name( $offset_name ) ] = [
 				'value'       => $offset_value,
 				'description' => sprintf( __( 'UTC offset: %s', 'wp-graphql' ), $offset_name ),
 			];

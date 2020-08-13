@@ -390,7 +390,6 @@ class ComposerStaticInita1662db24c3b5320fe0329ad15b114d0
         'WPGraphQL\\Type\\Object\\User' => __DIR__ . '/../..' . '/src/Type/Object/User.php',
         'WPGraphQL\\Type\\Object\\UserRole' => __DIR__ . '/../..' . '/src/Type/Object/UserRole.php',
         'WPGraphQL\\Type\\Union\\ContentRevisionUnion' => __DIR__ . '/../..' . '/src/Type/Union/ContentRevisionUnion.php',
-        'WPGraphQL\\Type\\Union\\ContentTemplateUnion' => __DIR__ . '/../..' . '/src/Type/Union/ContentTemplateUnion.php',
         'WPGraphQL\\Type\\Union\\MenuItemObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/MenuItemObjectUnion.php',
         'WPGraphQL\\Type\\Union\\PostObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnion.php',
         'WPGraphQL\\Type\\Union\\TermObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnion.php',
