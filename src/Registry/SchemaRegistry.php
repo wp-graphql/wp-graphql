@@ -44,8 +44,8 @@ class SchemaRegistry {
 				'mutation'   => $this->type_registry->get_type( 'RootMutation' ),
 				'typeLoader' => function( $type ) {
 					return $this->type_registry->get_type( $type );
-
 				},
+				'types' => $this->type_registry->get_types(),
 			]
 		);
 
