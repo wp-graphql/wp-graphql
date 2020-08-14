@@ -14,7 +14,7 @@ class ContentTemplate {
 						'description' => __( 'The name of the template', 'wp-graphql' ),
 					],
 					'templateFile' => [
-						'type' => 'String',
+						'type'        => 'String',
 						'description' => __( 'The file the template uses', 'wp-graphql' ),
 					],
 				],

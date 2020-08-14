@@ -210,14 +210,6 @@ class TypeRegistry {
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
 
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_types', $type_registry );
-
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
@@ -383,7 +375,6 @@ class TypeRegistry {
 				);
 
 			}
-
 		}
 
 		/**
@@ -524,6 +515,14 @@ class TypeRegistry {
 				);
 			}
 		}
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $type_registry );
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes

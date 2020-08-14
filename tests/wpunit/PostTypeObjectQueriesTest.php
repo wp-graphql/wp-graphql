@@ -14,7 +14,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory->user->create( [
+		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
 	}
@@ -130,76 +130,61 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'posts' => [
-					'nodes' => [
-						[
-							'contentType' => [
-								'node' => [
-									'canExport'              => true,
-									'connectedTaxonomies'    => [
-										'nodes' => [
-											[
-												'name' => 'category'
-											],
-											[
-												'name' => 'post_tag'
-											],
-											[
-												'name' => 'post_format'
-											],
-										]
+			'posts' => [
+				'nodes' => [
+					[
+						'contentType' => [
+							'node' => [
+								'canExport'              => true,
+								'connectedTaxonomies'    => [
+									'nodes' => [
+										[
+											'name' => 'category'
+										],
+										[
+											'name' => 'post_tag'
+										],
+										[
+											'name' => 'post_format'
+										],
+									]
 
-									],
-									'deleteWithUser'         => true,
-									'description'            => '',
-									'excludeFromSearch'      => false,
-									'graphqlPluralName'      => 'posts',
-									'graphqlSingleName'      => 'post',
-									'hasArchive'             => (boolean) get_post_type_archive_link( 'post' ),
-									'hierarchical'           => false,
-									'id'                     => $global_id,
-									'label'                  => 'Posts',
-									'labels'                 => [
-										'name'                => 'Posts',
-										'singularName'        => 'Post',
-										'addNew'              => 'Add New',
-										'addNewItem'          => 'Add New Post',
-										'editItem'            => 'Edit Post',
-										'newItem'             => 'New Post',
-										'viewItem'            => 'View Post',
-										'viewItems'           => 'View Posts',
-										'searchItems'         => 'Search Posts',
-										'notFound'            => 'No posts found.',
-										'notFoundInTrash'     => 'No posts found in Trash.',
-										'parentItemColon'     => null,
-										'allItems'            => 'All Posts',
-										'archives'            => 'Post Archives',
-										'attributes'          => 'Post Attributes',
-										'insertIntoItem'      => 'Insert into post',
-										'uploadedToThisItem'  => 'Uploaded to this post',
-										'featuredImage'       => $post_type_object->labels->featured_image,
-										'setFeaturedImage'    => 'Set featured image',
-										'removeFeaturedImage' => 'Remove featured image',
-										'useFeaturedImage'    => null,
-										'menuName'            => 'Posts',
-										'filterItemsList'     => 'Filter posts list',
-										'itemsListNavigation' => 'Posts list navigation',
-										'itemsList'           => 'Posts list',
-									],
-									'menuIcon'               => $post_type_object->menu_icon,
-									'menuPosition'           => 5,
-									'name'                   => 'post',
-									'public'                 => true,
-									'publiclyQueryable'      => true,
-									'restBase'               => 'posts',
-									'restControllerClass'    => 'WP_REST_Posts_Controller',
-									'showInAdminBar'         => true,
-									'showInGraphql'          => true,
-									'showInMenu'             => true,
-									'showInNavMenus'         => true,
-									'showInRest'             => true,
-									'showUi'                 => true,
+								],
+								'deleteWithUser'         => true,
+								'description'            => '',
+								'excludeFromSearch'      => false,
+								'graphqlPluralName'      => 'posts',
+								'graphqlSingleName'      => 'post',
+								'hasArchive'             => (boolean) get_post_type_archive_link( 'post' ),
+								'hierarchical'           => false,
+								'id'                     => $global_id,
+								'label'                  => 'Posts',
+								'labels'                 => [
+									'name'                => 'Posts',
+									'singularName'        => 'Post',
+									'addNew'              => 'Add New',
+									'addNewItem'          => 'Add New Post',
+									'editItem'            => 'Edit Post',
+									'newItem'             => 'New Post',
+									'viewItem'            => 'View Post',
+									'viewItems'           => 'View Posts',
+									'searchItems'         => 'Search Posts',
+									'notFound'            => 'No posts found.',
+									'notFoundInTrash'     => 'No posts found in Trash.',
+									'parentItemColon'     => null,
+									'allItems'            => 'All Posts',
+									'archives'            => 'Post Archives',
+									'attributes'          => 'Post Attributes',
+									'insertIntoItem'      => 'Insert into post',
+									'uploadedToThisItem'  => 'Uploaded to this post',
+									'featuredImage'       => $post_type_object->labels->featured_image,
+									'setFeaturedImage'    => 'Set featured image',
+									'removeFeaturedImage' => 'Remove featured image',
+									'useFeaturedImage'    => null,
+									'menuName'            => 'Posts',
+									'filterItemsList'     => 'Filter posts list',
+									'itemsListNavigation' => 'Posts list navigation',
+									'itemsList'           => 'Posts list',
 								],
 								'menuIcon'               => $post_type_object->menu_icon,
 								'menuPosition'           => 5,
@@ -215,10 +200,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'showInRest'             => true,
 								'showUi'                 => true,
 							],
-						]
+						],
 					]
 				]
-			],
+			]
 		];
 
 		codecept_debug( $actual );
