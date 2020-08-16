@@ -60,6 +60,7 @@ use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
@@ -79,7 +80,6 @@ use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\Object\EnqueuedScript;
 use WPGraphQL\Type\Object\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
-use WPGraphQL\Type\Union\ContentTemplateUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
@@ -227,6 +227,7 @@ class TypeRegistry {
 		CommenterInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
+		DatabaseIdentifier::register_type( $type_registry );
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
@@ -306,7 +307,6 @@ class TypeRegistry {
 		TaxonomyQueryInput::register_type();
 
 		ContentRevisionUnion::register_type( $this );
-		ContentTemplateUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
@@ -349,6 +349,50 @@ class TypeRegistry {
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
 		UpdateSettings::register_mutation();
+
+		$registered_page_templates = wp_get_theme()->get_post_templates();
+
+		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
+
+			$page_templates['default'] = 'Default';
+			foreach ( $registered_page_templates as $post_type_templates ) {
+				foreach ( $post_type_templates as $file => $name ) {
+					$page_templates[ $file ] = $name;
+				}
+			}
+		}
+
+		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
+			foreach ( $page_templates as $file => $name ) {
+				$name               = ucwords( $name );
+				$name               = preg_replace( '/[^\w]/', '', $name );
+				$template_type_name = $name . 'Template';
+				register_graphql_object_type(
+					$template_type_name,
+					[
+						'interfaces'  => [ 'ContentTemplate' ],
+						// Translators: Placeholder is the name of the GraphQL Type in the Schema
+						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
+						'fields'      => [
+							'templateName' => [
+								'resolve' => function( $template ) use ( $page_templates ) {
+									return isset( $template['templateName'] ) ? $template['templateName'] : null;
+								},
+							],
+							'templateFile' => [
+								'resolve' => function( $template ) use ( $file ) {
+									// The template file could expose implementation details. Default is reserved for non-http request queries
+									// or authenticated users. This way internal graphql queries can get it or authenticated users
+									return ( ! is_graphql_http_request() || is_user_logged_in() ) && isset( $file ) ? $file : null;
+								},
+							],
+						],
+					]
+				);
+
+			}
+
+		}
 
 		/**
 		 * Register PostObject types based on post_types configured to show_in_graphql
