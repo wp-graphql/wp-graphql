@@ -500,9 +500,10 @@ class RootQuery {
 							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$post_id = null;
 							switch ( $idType ) {
-								case 'uri':
-								case 'slug':
-									return $context->node_resolver->resolve_uri( $args['id'], ['post_type' => $post_type_object->name] );
+                                case 'slug':
+                                    return $context->node_resolver->resolve_uri( $args['id'], [ 'name' => $args['id'], 'post_type' => $post_type_object->name] );
+                                case 'uri':
+                                    return $context->node_resolver->resolve_uri( $args['id'], ['post_type' => $post_type_object->name] );
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
