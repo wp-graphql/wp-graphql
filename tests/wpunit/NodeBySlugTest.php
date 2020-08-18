@@ -21,28 +21,10 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			'public' => true,
 		]);
 
-		register_taxonomy( 'custom_tax', 'custom_type', [
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'CustomTax',
-			'graphql_plural_name' => 'CustomTaxes',
-		]);
-
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
-		]);
-
-		$this->tag = $this->factory()->term->create([
-			'taxonomy' => 'post_tag',
-		]);
-
-		$this->category = $this->factory()->term->create([
-			'taxonomy' => 'category',
-		]);
-
-		$this->custom_taxonomy = $this->factory()->term->create([
-			'taxonomy' => 'custom_tax',
 		]);
 
 		$this->post = $this->factory()->post->create( [
@@ -50,13 +32,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			'post_status' => 'publish',
 			'post_title' => 'Test',
 			'post_author' => $this->user,
-		] );
-
-		$this->page = $this->factory()->post->create( [
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_title' => 'Test Page',
-			'post_author' => $this->user
 		] );
 
 		$this->custom_type = $this->factory()->post->create( [
@@ -77,11 +52,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
 		wp_delete_post( $this->post );
-		wp_delete_post( $this->page );
 		wp_delete_post( $this->custom_post_type );
-		wp_delete_term( $this->tag, 'post_tag' );
-		wp_delete_term( $this->category, 'category' );
-		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
 		wp_delete_user( $this->user );
 
 	}
