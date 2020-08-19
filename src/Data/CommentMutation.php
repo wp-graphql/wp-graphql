@@ -123,6 +123,8 @@ class CommentMutation {
 	 * @param ResolveInfo $info          The ResolveInfo passed down to all resolvers
 	 */
 	public static function update_additional_comment_data( $comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
-
+		$intended_comment_status = 0; // Probably needs to account for authentication
+		$default_comment_status = 0;
+		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $output_args, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
 	}
 }
