@@ -114,7 +114,7 @@ class CommentMutation {
 	}
 
 	/**
-	 * This updates commentmeta.
+ 	 * This updates commentmeta.
 	 *
 	 * @param int         $comment_id              The ID of the postObject the comment is connected to
 	 * @param array       $input                   The input for the mutation
@@ -126,11 +126,11 @@ class CommentMutation {
 	 */
 	public static function update_additional_comment_data( $comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 		/**
-		 * @todo: should account for authentication
-		 */
+		* @todo: should account for authentication
+		*/
 		$intended_comment_status = 0;
-		$intended_comment_status = 0;
+		$default_comment_status = 0;
 
-		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $output_args, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
+		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
 	}
 }
