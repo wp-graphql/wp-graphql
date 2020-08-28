@@ -21,6 +21,9 @@
  * @version  0.12.0
  */
 
+
+
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -261,6 +264,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 					new \WPGraphQL\Data\Config();
 					new \WPGraphQL\Router();
+					new \WPGraphQL\Admin\Settings();
 
 					/**
 					 * Fire off init action
@@ -294,6 +298,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 
 		}
+
+
 
 		/**
 		 * Check if the minimum PHP version requirement is met before execution begins.

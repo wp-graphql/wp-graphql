@@ -281,6 +281,26 @@ function register_graphql_mutation( $mutation_name, $config ) {
 	}, 10 );
 }
 
+
+/**
+ * Given a page name, this adds a settings page to WPGraphQL's settings page.
+ *
+ * @param string $page_name The name of the settings page to register
+ */
+function register_graphql_settings_page( string $page_name ) {
+    add_action( 'wpgraphql_register_settings_page', 10 );
+}
+
+/**
+ * Given a field name and a config, this adds a settings field to WPGraphQL's settings page.
+ *
+ * @param string $field_name The name of the settings field to register
+ * @param array  $config     The config for the settings field
+ */
+function register_graphql_settings_field( string $field_name, array $config ) {
+    add_action( 'wpgraphql_register_settings_field', 10 );
+}
+
 /**
  * Whether a GraphQL request is in action or not. This is determined by the WPGraphQL Request
  * class being initiated. True while a request is in action, false after a request completes.
