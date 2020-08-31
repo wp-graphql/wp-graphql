@@ -21,6 +21,15 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			'public' => true,
 		]);
 
+		register_post_type('faq', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'faq',
+			'graphql_plural_name' => 'faqs',
+			'public' => true,
+		]);
+
+
+
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		$this->user = $this->factory()->user->create([
@@ -167,4 +176,80 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
         $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
     }
+
+    function testPageWithNameOfPostType () {
+
+        $this->custom_type = $this->factory()->post->create( [
+            'post_type' => 'faq',
+            'post_status' => 'publish',
+            'post_title' => 'Test FAQ',
+            'post_author' => $this->user
+        ] );
+
+        $this->page = $this->factory()->post->create( [
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'post_title' => 'FAQ',
+            'post_author' => $this->user
+        ] );
+
+
+        $query = '
+        query GET_POST_BY_SLUG( $slug: ID! ) {
+           faq(id: $slug, idType: SLUG) {
+                databaseId
+                title
+           }
+		}
+		';
+
+        codecept_debug( get_post( $this->custom_type ) );
+
+        $faqPost = get_post($this->custom_type);
+
+
+        $actual = graphql([
+            'query' => $query,
+            'variables' => [
+                'slug' => $faqPost->post_name,
+            ],
+        ]);
+
+        codecept_debug( $actual );
+
+
+        $this->assertArrayNotHasKey( 'errors', $actual );
+        $this->assertSame( $this->custom_type, $actual['data']['faq']['databaseId'] );
+        $this->assertSame( $faqPost->post_title, $actual['data']['faq']['title'] );
+
+
+        $query = '
+        query GET_PAGE_BY_URI( $slug: ID! ) {
+           page(id: $slug, idType: URI) {
+                databaseId
+                title
+           }
+		}
+		';
+
+        codecept_debug( get_post( $this->custom_type ) );
+
+        $faqPage = get_post($this->page);
+
+
+        $actual = graphql([
+            'query' => $query,
+            'variables' => [
+                'slug' => $faqPage->post_name,
+            ],
+        ]);
+
+        codecept_debug( $actual );
+
+        $this->assertArrayNotHasKey( 'errors', $actual );
+        $this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
+        $this->assertSame( $faqPage->post_title, $actual['data']['page']['title'] );
+
+    }
+
 }
