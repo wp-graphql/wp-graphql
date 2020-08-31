@@ -102,7 +102,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
 		$this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 
@@ -111,7 +111,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
         codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'Errors', $actual );
+        $this->assertArrayNotHasKey( 'errors', $actual );
         $this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 
@@ -120,7 +120,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'Errors', $actual );
+        $this->assertArrayNotHasKey( 'errors', $actual );
         $this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 	}
@@ -154,7 +154,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
         codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'Errors', $actual );
+        $this->assertArrayNotHasKey( 'errors', $actual );
         $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
 
@@ -163,7 +163,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
         codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'Errors', $actual );
+        $this->assertArrayNotHasKey( 'errors', $actual );
         $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
 
@@ -172,7 +172,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
         codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'Errors', $actual );
+        $this->assertArrayNotHasKey( 'errors', $actual );
         $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
         $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
     }
