@@ -101,6 +101,7 @@ use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
+use WPGraphQL\Type\Input\TermObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Object\Avatar;
 use WPGraphQL\Type\Object\Comment;
 use WPGraphQL\Type\Object\CommentAuthor;
@@ -296,6 +297,7 @@ class TypeRegistry {
 		DateQueryInput::register_type();
 		MenuItemsConnectionWhereArgs::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
+		TermObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
 		ContentRevisionUnion::register_type( $this );

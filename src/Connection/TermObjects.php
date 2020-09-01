@@ -226,9 +226,11 @@ class TermObjects {
 					],
 					'description' => __( 'Array of object IDs. Results will be limited to terms associated with these objects.', 'wp-graphql' ),
 				],
-				'orderby'             => [
-					'type'        => 'TermObjectsConnectionOrderbyEnum',
-					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
+				'orderby'     => [
+					'type'        => [
+						'list_of' => 'TermObjectsConnectionOrderbyInput',
+					],
+					'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 				],
 				'hideEmpty'           => [
 					'type'        => 'Boolean',
