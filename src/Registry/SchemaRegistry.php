@@ -19,10 +19,11 @@ class SchemaRegistry {
 	/**
 	 * SchemaRegistry constructor.
 	 *
-	 * @param TypeRegistry $type_registry The TypeRegistry instance
+	 * @throws \Exception
+	 *
 	 */
-	public function __construct( TypeRegistry $type_registry ) {
-		$this->type_registry = $type_registry;
+	public function __construct() {
+		$this->type_registry = \WPGraphQL::get_type_registry();
 	}
 
 	/**
