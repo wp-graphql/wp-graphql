@@ -383,7 +383,6 @@ class TypeRegistry {
 				);
 
 			}
-
 		}
 
 		/**

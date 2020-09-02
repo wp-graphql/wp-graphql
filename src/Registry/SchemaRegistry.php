@@ -45,7 +45,7 @@ class SchemaRegistry {
 				'typeLoader' => function( $type ) {
 					return $this->type_registry->get_type( $type );
 				},
-				'types' => $this->type_registry->get_types(),
+				'types'      => $this->type_registry->get_types(),
 			]
 		);
 
