@@ -367,7 +367,6 @@ return array(
     'WPGraphQL\\Type\\Object\\User' => $baseDir . '/src/Type/Object/User.php',
     'WPGraphQL\\Type\\Object\\UserRole' => $baseDir . '/src/Type/Object/UserRole.php',
     'WPGraphQL\\Type\\Union\\ContentRevisionUnion' => $baseDir . '/src/Type/Union/ContentRevisionUnion.php',
-    'WPGraphQL\\Type\\Union\\ContentTemplateUnion' => $baseDir . '/src/Type/Union/ContentTemplateUnion.php',
     'WPGraphQL\\Type\\Union\\MenuItemObjectUnion' => $baseDir . '/src/Type/Union/MenuItemObjectUnion.php',
     'WPGraphQL\\Type\\Union\\PostObjectUnion' => $baseDir . '/src/Type/Union/PostObjectUnion.php',
     'WPGraphQL\\Type\\Union\\TermObjectUnion' => $baseDir . '/src/Type/Union/TermObjectUnion.php',
