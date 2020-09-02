@@ -305,7 +305,7 @@ class PostObject {
 
 		$fields['template'] = [
 			'description' => __( 'The template assigned to the node', 'wp-graphql' ),
-			'type'        => 'ContentTemplateUnion',
+			'type'        => 'ContentTemplate',
 			'resolve'     => function( Post $post_object, $args, $context, $info ) use ( $post_type_object, $type_registry ) {
 
 				$registered_templates = wp_get_theme()->get_post_templates();
@@ -328,6 +328,7 @@ class PostObject {
 					$template = [
 						'__typename'   => $name . 'Template',
 						'templateName' => ucwords( $registered_templates[ $post_object->post_type ][ $set_template ] ),
+						'templateFile' => ! empty( $template_name ) ? $template_name : null,
 					];
 				}
 
