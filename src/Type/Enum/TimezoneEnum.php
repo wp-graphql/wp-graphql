@@ -13,9 +13,9 @@ class TimezoneEnum {
 
 		$enum_values = [];
 
-		$locale = get_locale();
+		$locale           = get_locale();
 		static $mo_loaded = false, $locale_loaded = null;
-		$continents = [
+		$continents       = [
 			'Africa',
 			'America',
 			'Antarctica',
@@ -80,7 +80,7 @@ class TimezoneEnum {
 				$display = $zone['t_city'];
 				if ( ! empty( $zone['subcity'] ) ) {
 					// Add the subcity to the value
-					$value[] = $zone['subcity'];
+					$value[]  = $zone['subcity'];
 					$display .= ' - ' . $zone['t_subcity'];
 				}
 			}
