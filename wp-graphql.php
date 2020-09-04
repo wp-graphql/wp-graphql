@@ -539,7 +539,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function clear_schema() {
 			self::$type_registry = null;
-			self::$schema = null;
+			self::$schema        = null;
 		}
 
 		/**
@@ -553,7 +553,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function get_schema() {
 
 			if ( null === self::$schema ) {
-
 
 				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry();
 				$schema          = $schema_registry->get_schema();
