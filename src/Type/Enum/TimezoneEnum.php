@@ -13,9 +13,9 @@ class TimezoneEnum {
 
 		$enum_values = [];
 
-		$locale           = get_locale();
+		$locale = get_locale();
 		static $mo_loaded = false, $locale_loaded = null;
-		$continents       = [
+		$continents = [
 			'Africa',
 			'America',
 			'Antarctica',
@@ -80,7 +80,7 @@ class TimezoneEnum {
 				$display = $zone['t_city'];
 				if ( ! empty( $zone['subcity'] ) ) {
 					// Add the subcity to the value
-					$value[]  = $zone['subcity'];
+					$value[] = $zone['subcity'];
 					$display .= ' - ' . $zone['t_subcity'];
 				}
 			}
@@ -171,7 +171,7 @@ class TimezoneEnum {
 			$offset_value = 'UTC' . $offset_value;
 
 			// Intentionally avoid WPEnumType::get_safe_name here for specific timezone formatting
-			$enum_values[  WPEnumType::get_safe_name( $offset_name ) ] = [
+			$enum_values[ WPEnumType::get_safe_name( $offset_name ) ] = [
 				'value'       => $offset_value,
 				'description' => sprintf( __( 'UTC offset: %s', 'wp-graphql' ), $offset_name ),
 			];
