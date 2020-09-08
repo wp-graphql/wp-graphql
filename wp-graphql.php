@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.12.2
+ * Version: 0.12.3
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.12.2
+ * @version  0.12.3
  */
 
 // Exit if accessed directly.
@@ -173,7 +173,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.12.2' );
+				define( 'WPGRAPHQL_VERSION', '0.12.3' );
 			}
 
 			// Plugin Folder Path.
@@ -539,7 +539,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function clear_schema() {
 			self::$type_registry = null;
-			self::$schema = null;
+			self::$schema        = null;
 		}
 
 		/**
@@ -553,7 +553,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		public static function get_schema() {
 
 			if ( null === self::$schema ) {
-
 
 				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry();
 				$schema          = $schema_registry->get_schema();

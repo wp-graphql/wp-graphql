@@ -20,7 +20,6 @@ class SchemaRegistry {
 	 * SchemaRegistry constructor.
 	 *
 	 * @throws \Exception
-	 *
 	 */
 	public function __construct() {
 		$this->type_registry = \WPGraphQL::get_type_registry();
