@@ -503,9 +503,7 @@ class RootQuery {
 										'post_type' => $post_type_object->name,
 									] );
 								case 'uri':
-									$slug        = esc_html( $args['id'] );
-									$post_object = get_page_by_path( $slug, 'OBJECT', $post_type_object->name );
-									$post_id     = isset( $post_object->ID ) ? absint( $post_object->ID ) : null;
+									return $context->node_resolver->resolve_uri( $args['id'], [ 'post_type' => $post_type_object->name ] );
 									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
