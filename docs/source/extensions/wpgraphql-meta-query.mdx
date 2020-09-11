@@ -1,0 +1,22 @@
+---
+title: WPGraphQL Meta Query
+description: Plugin that exposes the ability to query Post objects via Meta arguments
+---
+
+# About
+
+This extension exposes arguments to PostObject connections allowing for posts to be filtered
+by meta fields.
+
+## Examples
+
+@todo
+
+## Why isn't this in the core WPGraphQL plugin?
+
+Meta Queries can be expensive. They've even been known to take down production sites. Instead of
+enabling meta queries by default, they've been left out intentionally to allow site owners the
+chance to critically think about whether or not they would like to support the functionality.
+
+Many sites can support Meta Queries without issue, but many sites can have serious problems if
+Meta Queries are executed.
