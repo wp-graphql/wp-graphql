@@ -57,9 +57,6 @@ class Admin {
 		$this->settings = new Settings();
 		$this->settings->init();
 
-		$extensions = new Extensions();
-		$extensions->init();
-
 		if ( 'on' === $this->graphiql_enabled || true === $this->graphiql_enabled ) {
 			$graphiql = new GraphiQL();
 			$graphiql->init();
