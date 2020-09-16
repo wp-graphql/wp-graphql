@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.12.0
+ * Version: 0.12.3
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.12.0
+ * @version  0.12.3
  */
 
 // Exit if accessed directly.
@@ -84,6 +84,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * @var \WPGraphQL\WPSchema
 		 */
 		protected static $schema;
+
+		/**
+		 * Holds the TypeRegistry instance
+		 *
+		 * @var \WPGraphQL\Registry\TypeRegistry $type_registry
+		 */
+		protected static $type_registry;
 
 		/**
 		 * Stores an array of allowed post types
@@ -166,7 +173,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.12.0' );
+				define( 'WPGRAPHQL_VERSION', '0.12.3' );
 			}
 
 			// Plugin Folder Path.
@@ -531,7 +538,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Allow Schema to be cleared
 		 */
 		public static function clear_schema() {
-			self::$schema = null;
+			self::$type_registry = null;
+			self::$schema        = null;
 		}
 
 		/**
@@ -544,15 +552,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function get_schema() {
 
-			/**
-			 * Fire an action when the Schema is returned
-			 */
-			do_action( 'graphql_get_schema', self::$schema );
-
 			if ( null === self::$schema ) {
 
-				$type_registry   = new \WPGraphQL\Registry\TypeRegistry();
-				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry( $type_registry );
+				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry();
 				$schema          = $schema_registry->get_schema();
 
 				/**
@@ -568,9 +570,52 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			}
 
 			/**
+			 * Fire an action when the Schema is returned
+			 */
+			do_action( 'graphql_get_schema', self::$schema );
+
+			/**
 			 * Return the Schema after applying filters
 			 */
 			return ! empty( self::$schema ) ? self::$schema : null;
+		}
+
+		/**
+		 * Returns the Schema as defined by static registrations throughout
+		 * the WP Load.
+		 *
+		 * @return \WPGraphQL\Registry\TypeRegistry
+		 *
+		 * @throws Exception
+		 */
+		public static function get_type_registry() {
+
+			if ( null === self::$type_registry ) {
+
+				$type_registry = new \WPGraphQL\Registry\TypeRegistry();
+
+				/**
+				 * Generate & Filter the schema.
+				 *
+				 * @since 0.0.5
+				 *
+				 * @param array                 $type_registry      The TypeRegistry for the API
+				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+				 *                                           information about the context we know at this point
+				 */
+				self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
+			}
+
+			/**
+			 * Fire an action when the Type Registry is returned
+			 */
+			do_action( 'graphql_get_type_registry', self::$type_registry );
+
+			/**
+			 * Return the Schema after applying filters
+			 */
+			return ! empty( self::$type_registry ) ? self::$type_registry : null;
+
 		}
 
 		/**

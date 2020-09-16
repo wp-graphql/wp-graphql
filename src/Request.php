@@ -54,6 +54,13 @@ class Request {
 	public $schema;
 
 	/**
+	 * The Type Registry the Schema is built with
+	 *
+	 * @var Registry\TypeRegistry
+	 */
+	public $type_registry;
+
+	/**
 	 * Constructor
 	 *
 	 * @param  array|null $data The request data (for non-HTTP requests).
@@ -84,6 +91,9 @@ class Request {
 		// Set request data for passed-in (non-HTTP) requests.
 		$this->data = $data;
 
+		// Get the Type Registry
+		$this->type_registry = \WPGraphQL::get_type_registry();
+
 		// Get the Schema
 		$this->schema = \WPGraphQL::get_schema();
 
@@ -95,11 +105,12 @@ class Request {
 		 *
 		 * @since 0.0.4
 		 */
-		$app_context           = new AppContext();
-		$app_context->viewer   = wp_get_current_user();
-		$app_context->root_url = get_bloginfo( 'url' );
+		$app_context                = new AppContext();
+		$app_context->viewer        = wp_get_current_user();
+		$app_context->root_url      = get_bloginfo( 'url' );
 		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
-		$this->app_context     = $app_context;
+		$app_context->type_registry = $this->type_registry;
+		$this->app_context          = $app_context;
 	}
 
 	/**

@@ -328,7 +328,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-
 					/**
 					 * Make "include_children => false" for performance reasons unless
 					 * it is specifically requested (but one really shouldn't).
