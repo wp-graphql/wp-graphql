@@ -85,6 +85,7 @@ class NodesByTaxTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_term( $this->category, 'category' );
 		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
 		wp_delete_user( $this->user );
+		unregister_taxonomy( 'custom_tax' );
 
 	}
 

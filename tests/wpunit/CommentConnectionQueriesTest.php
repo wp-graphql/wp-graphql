@@ -28,6 +28,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		// then
+
 		parent::tearDown();
 	}
 
