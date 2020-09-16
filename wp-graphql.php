@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP GraphQL
+ * Plugin Name: WPGraphQL
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: GraphQL API for WordPress
@@ -34,6 +34,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( file_exists( __DIR__ . '/c3.php' ) ) {
 	require_once __DIR__ . '/c3.php';
 }
+
+/**
+ * Run this function when WPGraphQL is de-activated
+ */
+register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
 
 /**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
@@ -196,11 +201,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				define( 'WPGRAPHQL_AUTOLOAD', true );
 			}
 
-			// Whether to run the plugin in debug mode. Default is false.
-			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
-				define( 'GRAPHQL_DEBUG', false );
-			}
-
 			// The minimum version of PHP this plugin requires to work properly
 			if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
 				define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
@@ -233,6 +233,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
+			require_once WPGRAPHQL_PLUGIN_DIR . 'deactivation.php';
 
 		}
 
@@ -278,6 +279,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				}
 			);
 
+			// Prevent WPGraphQL Insights from running
+			remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
+
 			/**
 			 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
 			 */
@@ -291,14 +295,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'check_field_permissions',
 			], 10, 8 );
 
-			/**
-			 * Determine what to show in graphql
-			 */
+			// Determine what to show in graphql
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
 
 			// Throw an exception
 			add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+
+			// Initialize Admin functionality
+			add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+
+			$tracing = new \WPGraphQL\Utils\Tracing();
+			$tracing->init();
+
+			$query_log = new \WPGraphQL\Utils\QueryLog();
+			$query_log->init();
 
 		}
 
@@ -361,6 +372,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'\WPGraphQL\Utils\InstrumentSchema',
 				'instrument_schema',
 			], 10, 1 );
+		}
+
+		/**
+		 * Initialize admin functionality
+		 */
+		public function init_admin() {
+			$admin = new \WPGraphQL\Admin\Admin();
+			$admin->init();
 		}
 
 		/**
@@ -578,6 +597,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Return the Schema after applying filters
 			 */
 			return ! empty( self::$schema ) ? self::$schema : null;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public static function debug() {
+			if ( defined( 'GRAPHQL_DEBUG' ) ) {
+				$enabled = (bool) GRAPHQL_DEBUG;
+			} else {
+				$enabled = get_graphql_setting( 'debug_mode_enabled', 'off' );
+				$enabled = 'on' === $enabled ? true : false;
+			}
+
+			return (bool) $enabled;
 		}
 
 		/**

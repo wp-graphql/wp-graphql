@@ -6,6 +6,8 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use WPGraphQL\Server\WPHelper;
+use WPGraphQL\Utils\QueryLog;
+use WPGraphQL\Utils\Tracing;
 
 /**
  * Class Request
@@ -430,7 +432,7 @@ class Request {
 		/**
 		 * Return the result of the request
 		 */
-		$response = $result->toArray( GRAPHQL_DEBUG );
+		$response = $result->toArray( \WPGraphQL::debug() );
 
 		/**
 		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
@@ -493,7 +495,7 @@ class Request {
 
 		$config = new ServerConfig();
 		$config
-			->setDebug( GRAPHQL_DEBUG )
+			->setDebug( \WPGraphQL::debug() )
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
 			->setQueryBatching( true );
