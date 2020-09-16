@@ -208,7 +208,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		codecept_debug( $actual );
+		codecept_debug( $expected );
 
 		$this->assertEquals( $expected, $actual );
 	}
