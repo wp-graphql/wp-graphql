@@ -241,7 +241,7 @@ class Tracing {
 		$headers[] = 'X-Apollo-Tracing';
 		$headers[] = 'Credentials';
 
-		return $headers;
+		return (array) $headers;
 	}
 
 	/**
