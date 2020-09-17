@@ -706,17 +706,3 @@ graphql_init();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once 'cli/wp-cli.php';
 }
-
-
-add_filter( 'graphql_Post_fields', function( $fields ) {
-
-	$fields['title']['resolve'] = function( \WPGraphQL\Model\Post $post ) {
-
-		// Sleep for 1 second to simulate something taking a long time
-		sleep(1);
-		return $post->titleRendered;
-	};
-
-	return $fields;
-
-});
