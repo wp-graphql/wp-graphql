@@ -53,7 +53,7 @@ class Tracing {
 
 	/**
 	 * The trace for the current field being resolved
-	 * @var
+	 * @var array
 	 */
 	public $field_trace = [];
 
