@@ -602,7 +602,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * @return bool
 		 */
-		public static function debug() {
+		public static function debug(): bool {
 			if ( defined( 'GRAPHQL_DEBUG' ) ) {
 				$enabled = (bool) GRAPHQL_DEBUG;
 			} else {
