@@ -71,10 +71,10 @@ class SettingsRegistry {
 	}
 
 	/**
-	 * Set settings fields
+	 * Register fields to a section
 	 *
-	 * @param
-	 * @param array $fields settings fields array
+	 * @param string $section The slug of the section to register a field to
+	 * @param array  $fields  settings fields array
 	 *
 	 * @return SettingsRegistry
 	 */
@@ -86,6 +86,14 @@ class SettingsRegistry {
 		return $this;
 	}
 
+	/**
+	 * Register a field to a section
+	 *
+	 * @param string $section The slug of the section to register a field to
+	 * @param array  $field   The config for the field being registered
+	 *
+	 * @return SettingsRegistry
+	 */
 	function register_field( $section, $field ) {
 		$defaults = [
 			'name'  => '',
@@ -465,8 +473,8 @@ class SettingsRegistry {
 		$id   = $args['section'] . '[' . $args['id'] . ']';
 
 		echo '<select id="' . $id . '" name="' . $name . '">';
-			echo '<option value="any">Any</option>';
-			wp_dropdown_roles( $selected );
+		echo '<option value="any">Any</option>';
+		wp_dropdown_roles( $selected );
 		echo '</select>';
 		echo $this->get_field_description( $args );
 	}

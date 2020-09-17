@@ -31,28 +31,28 @@ class Tracing {
 	/**
 	 * The start microtime
 	 *
-	 * @var
+	 * @var float
 	 */
 	public $request_start_microtime;
 
 	/**
 	 * The start timestamp
 	 *
-	 * @var
+	 * @var float
 	 */
 	public $request_start_timestamp;
 
 	/**
 	 * The end microtime
 	 *
-	 * @var
+	 * @var float
 	 */
 	public $request_end_microtime;
 
 	/**
 	 * The end timestamp
 	 *
-	 * @var
+	 * @var float
 	 */
 	public $request_end_timestamp;
 
@@ -73,7 +73,7 @@ class Tracing {
 	/**
 	 * The user role tracing is limited to
 	 *
-	 * @var
+	 * @var string
 	 */
 	public $tracing_user_role;
 
