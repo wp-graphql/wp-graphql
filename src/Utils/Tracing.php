@@ -291,7 +291,7 @@ class Tracing {
 	 *
 	 * @return boolean
 	 */
-	public function user_can_see_trace_data() {
+	public function user_can_see_trace_data(): bool {
 
 		return true;
 		$can_see = false;
