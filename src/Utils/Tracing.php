@@ -23,48 +23,56 @@ class Tracing {
 
 	/**
 	 * Stores the logs for the trace
+	 *
 	 * @var array
 	 */
 	public $trace_logs = [];
 
 	/**
 	 * The start microtime
+	 *
 	 * @var
 	 */
 	public $request_start_microtime;
 
 	/**
 	 * The start timestamp
+	 *
 	 * @var
 	 */
 	public $request_start_timestamp;
 
 	/**
 	 * The end microtime
+	 *
 	 * @var
 	 */
 	public $request_end_microtime;
 
 	/**
 	 * The end timestamp
+	 *
 	 * @var
 	 */
 	public $request_end_timestamp;
 
 	/**
 	 * The trace for the current field being resolved
+	 *
 	 * @var array
 	 */
 	public $field_trace = [];
 
 	/**
 	 * The version of the Apollo Tracing Spec
+	 *
 	 * @var int
 	 */
 	public $trace_spec_version = 1;
 
 	/**
 	 * The user role tracing is limited to
+	 *
 	 * @var
 	 */
 	public $tracing_user_role;
@@ -89,7 +97,7 @@ class Tracing {
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter( 'graphql_request_results', [
 			$this,
-			'add_tracing_to_response_extensions'
+			'add_tracing_to_response_extensions',
 		], 10, 5 );
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 8 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10, 8 );
@@ -121,8 +129,6 @@ class Tracing {
 
 	/**
 	 * Initialize tracing for an individual field
-	 *
-	 * @return void
 	 */
 	public function init_field_resolver_trace( $source, $args, $context, ResolveInfo $info, $field_resolver, $type_name, $field_key, $field ) {
 
@@ -139,8 +145,6 @@ class Tracing {
 
 	/**
 	 * End the tracing for a resolver
-	 *
-	 * @return void
 	 */
 	public function end_field_resolver_trace() {
 
@@ -184,7 +188,7 @@ class Tracing {
 		$sanitized_trace                = [];
 		$sanitized_trace['path']        = ! empty( $trace['path'] ) && is_array( $trace['path'] ) ? array_map( [
 			$this,
-			'sanitize_trace_resolver_path'
+			'sanitize_trace_resolver_path',
 		], $trace['path'] ) : [];
 		$sanitized_trace['parentType']  = ! empty( $trace['parentType'] ) ? esc_html( $trace['parentType'] ) : '';
 		$sanitized_trace['fieldName']   = ! empty( $trace['fieldName'] ) ? esc_html( $trace['fieldName'] ) : '';
@@ -225,7 +229,7 @@ class Tracing {
 	public function format_timestamp( $time ) {
 		$timestamp = \DateTime::createFromFormat( 'U.u', $time );
 
-		return $timestamp->format( "Y-m-d\TH:i:s.uP" );
+		return $timestamp->format( 'Y-m-d\TH:i:s.uP' );
 	}
 
 	/**
@@ -269,7 +273,7 @@ class Tracing {
 		if ( ! empty( $response ) ) {
 			if ( is_array( $response ) ) {
 				$response['extensions']['tracing'] = $trace;
-			} else if ( is_object( $response ) ) {
+			} elseif ( is_object( $response ) ) {
 				$response->extensions['tracing'] = $trace;
 			}
 		}
@@ -293,11 +297,10 @@ class Tracing {
 	 */
 	public function user_can_see_trace_data(): bool {
 
-		return true;
 		$can_see = false;
 
 		// If logs are disabled, user cannot see logs
-		if ( 'off' === $this->tracing_enabled ) {
+		if ( ! $this->tracing_enabled ) {
 			$can_see = false;
 		} else {
 			// If "all" is the selected role, anyone can see the logs
@@ -305,18 +308,21 @@ class Tracing {
 				$can_see = true;
 			} else {
 				// Get the current users roles
-				$user_roles = wp_get_current_user();
+				$user = wp_get_current_user();
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( empty( $user_roles ) || ! in_array( $this->tracing_user_role, (array) $user_roles ) ) {
-					$can_see = false;
+				if ( isset( $user->roles ) && in_array( $this->tracing_user_role, (array) $user->roles ) ) {
+					$can_see = true;
 				}
 			}
 		}
 
-
-
+		/**
+		 * Filter whether the logs can be seen in the request results or not
+		 *
+		 * @param boolean $can_see Whether the requestor can see the logs or not
+		 */
 		return apply_filters( 'graphql_user_can_see_trace_data', $can_see );
 
 	}
@@ -336,7 +342,7 @@ class Tracing {
 			'duration'  => absint( $this->get_request_duration() ),
 			'execution' => [
 				'resolvers' => $this->trace_logs,
-			]
+			],
 		];
 
 		/**

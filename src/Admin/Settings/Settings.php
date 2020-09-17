@@ -48,7 +48,6 @@ class Settings {
 			[ $this, 'render_settings_page' ]
 		);
 
-
 	}
 
 	/**
@@ -77,7 +76,7 @@ class Settings {
 					}
 
 					return $value;
-				}
+				},
 			]
 		);
 
@@ -87,21 +86,21 @@ class Settings {
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
 				'type'    => 'checkbox',
-				'default' => "on",
+				'default' => 'on',
 			],
 			[
 				'name'    => 'delete_data_on_deactivate',
 				'label'   => __( 'Delete Data on Deactivation', 'wp-graphql' ),
 				'desc'    => __( 'Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated.', 'wp-graphql' ),
 				'type'    => 'checkbox',
-				'default' => "on",
+				'default' => 'on',
 			],
 			[
 				'name'     => 'debug_mode_enabled',
 				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
 				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? __( sprintf( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', GRAPHQL_DEBUG ? 'true' : 'false' ), 'wp-graphql' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 				'type'     => 'checkbox',
-				'value'    => defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? "on" : "off",
+				'value'    => defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? 'on' : 'off',
 				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
 			],
 			[
@@ -109,34 +108,33 @@ class Settings {
 				'label'   => __( 'Enable GraphQL Tracing', 'wp-graphql' ),
 				'desc'    => __( 'Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields.', 'wp-graphql' ),
 				'type'    => 'checkbox',
-				'default' => "off",
+				'default' => 'off',
 			],
 			[
 				'name'    => 'tracing_user_role',
 				'label'   => __( 'Tracing Role', 'wp-graphql' ),
 				'desc'    => __( 'If Tracing is enabled, this limits it to requests from users with the specified User Role.', 'wp-graphql' ),
 				'type'    => 'user_role_select',
-				'default' => "administrator",
+				'default' => 'administrator',
 			],
 			[
 				'name'    => 'query_logs_enabled',
 				'label'   => __( 'Enable GraphQL Query Logs', 'wp-graphql' ),
 				'desc'    => __( 'Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production.', 'wp-graphql' ),
 				'type'    => 'checkbox',
-				'default' => "off",
+				'default' => 'off',
 			],
 			[
 				'name'    => 'query_log_user_role',
 				'label'   => __( 'Query Log Role', 'wp-graphql' ),
 				'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
 				'type'    => 'user_role_select',
-				'default' => "administrator",
+				'default' => 'administrator',
 			],
 		] );
 
 		// Action to hook into to register settings
 		do_action( 'graphql_register_settings', $this );
-
 
 	}
 

@@ -26,7 +26,7 @@ class GraphiQL {
 
 		// Register the admin page
 		add_action( 'admin_menu', [ $this, 'register_admin_page' ], 11 );
-		add_action('admin_bar_menu', [ $this, 'register_admin_bar_menu' ], 100 );
+		add_action( 'admin_bar_menu', [ $this, 'register_admin_bar_menu' ], 100 );
 		// Enqueue GraphiQL React App
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_graphiql' ] );
 
@@ -47,9 +47,9 @@ class GraphiQL {
     "></span>', $icon_url );
 
 		$admin_bar->add_menu([
-			'id' => 'graphiql-ide',
+			'id'    => 'graphiql-ide',
 			'title' => $icon . __( 'GraphiQL IDE', 'wp-graphql' ),
-			'href' => trailingslashit( admin_url() ) . 'admin.php?page=graphiql-ide'
+			'href'  => trailingslashit( admin_url() ) . 'admin.php?page=graphiql-ide',
 		]);
 
 	}
@@ -135,9 +135,9 @@ class GraphiQL {
 		 */
 		if ( strpos( get_current_screen()->id, 'graphiql' ) ) {
 
-			wp_enqueue_style( 'graphiql', $this->get_app_stylesheet(), array(), false, false );
-			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), array( 'jquery' ), false, true );
-			wp_enqueue_script( 'graphiql', $this->get_app_script(), array(), false, true );
+			wp_enqueue_style( 'graphiql', $this->get_app_stylesheet(), [], false, false );
+			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
+			wp_enqueue_script( 'graphiql', $this->get_app_script(), [], false, true );
 
 			/**
 			 * Create a nonce
@@ -145,10 +145,10 @@ class GraphiQL {
 			wp_localize_script(
 				'graphiql',
 				'wpGraphiQLSettings',
-				array(
-					'nonce' => wp_create_nonce( 'wp_rest' ),
+				[
+					'nonce'           => wp_create_nonce( 'wp_rest' ),
 					'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
-				)
+				]
 			);
 
 		}

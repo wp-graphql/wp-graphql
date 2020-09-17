@@ -1,6 +1,7 @@
 <?php
 
 namespace WPGraphQL\Utils;
+
 use WPGraphQL\WPSchema;
 
 /**
@@ -30,7 +31,7 @@ class QueryLog {
 	public function init() {
 
 		// Check whether Query Logs have been enabled from the settings page
-		$enabled = get_graphql_setting( 'query_logs_enabled', 'off' );
+		$enabled                  = get_graphql_setting( 'query_logs_enabled', 'off' );
 		$this->query_logs_enabled = 'on' === $enabled ? true : false;
 
 		$this->query_log_user_role = get_graphql_setting( 'query_log_user_role', 'manage_options' );
@@ -64,7 +65,7 @@ class QueryLog {
 		$can_see = false;
 
 		// If logs are disabled, user cannot see logs
-		if ( 'off' === $this->query_logs_enabled ) {
+		if ( ! $this->query_logs_enabled ) {
 			$can_see = false;
 		} else {
 
@@ -73,17 +74,21 @@ class QueryLog {
 				$can_see = true;
 			} else {
 				// Get the current users roles
-				$user_roles = wp_get_current_user();
+				$user = wp_get_current_user();
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( empty( $user_roles ) || ! in_array( $this->query_log_user_role, (array) $user_roles ) ) {
-					$can_see = false;
+				if ( isset( $user->roles ) && in_array( $this->query_log_user_role, (array) $user->roles ) ) {
+					$can_see = true;
 				}
 			}
-
 		}
 
+		/**
+		 * Filter whether the logs can be seen in the request results or not
+		 *
+		 * @param boolean $can_see Whether the requestor can see the logs or not
+		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
 
 	}
@@ -91,11 +96,11 @@ class QueryLog {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed $response
-	 * @param WPSchema $schema The WPGraphQL Schema
-	 * @param string $operation_name The operation name being executed
-	 * @param string $request The GraphQL Request being made
-	 * @param array $variables The variables sent with the request
+	 * @param mixed    $response
+	 * @param WPSchema $schema         The WPGraphQL Schema
+	 * @param string   $operation_name The operation name being executed
+	 * @param string   $request        The GraphQL Request being made
+	 * @param array    $variables      The variables sent with the request
 	 *
 	 * @return array
 	 */
@@ -104,14 +109,14 @@ class QueryLog {
 		$query_log = $this->get_query_log();
 
 		// If the user cannot see the logs, return the response as-is without the logs
-//		if ( ! $this->user_can_see_logs() ) {
-//			return $response;
-//		}
+		if ( ! $this->user_can_see_logs() ) {
+			return $response;
+		}
 
 		if ( ! empty( $response ) ) {
-			if( is_array( $response ) ) {
+			if ( is_array( $response ) ) {
 				$response['extensions']['queryLog'] = $query_log;
-			} else if ( is_object( $response ) ) {
+			} elseif ( is_object( $response ) ) {
 				$response->extensions['queryLog'] = $query_log;
 			}
 		}
@@ -129,23 +134,23 @@ class QueryLog {
 		global $wpdb;
 
 		// Default message
-		$trace = [ __( sprintf(  'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', SAVEQUERIES ? "true" : "false" ), 'wp-graphql' ) ];
+		$trace = [ __( sprintf( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', SAVEQUERIES ? 'true' : 'false' ), 'wp-graphql' ) ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
 			$queries = array_map( function( $query ) {
 				return [
-					'sql' => $query[0],
-					'time' => $query[1],
+					'sql'   => $query[0],
+					'time'  => $query[1],
 					'stack' => $query[2],
 				];
-			}, $wpdb->queries);
+			}, $wpdb->queries );
 
-			$times = wp_list_pluck( $queries, 'time' );
+			$times      = wp_list_pluck( $queries, 'time' );
 			$total_time = array_sum( $times );
-			$trace = [
+			$trace      = [
 				'queryCount' => count( $queries ),
-				'totalTime' => $total_time,
-				'queries' => $queries,
+				'totalTime'  => $total_time,
+				'queries'    => $queries,
 			];
 		};
 

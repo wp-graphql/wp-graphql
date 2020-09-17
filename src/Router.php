@@ -48,8 +48,8 @@ class Router {
 		 * @return string
 		 */
 		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
-		$endpoint = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
-		self::$route = $endpoint;
+		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
+		self::$route       = $endpoint;
 
 		/**
 		 * Create the rewrite rule for the route

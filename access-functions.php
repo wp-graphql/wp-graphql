@@ -320,8 +320,6 @@ function is_graphql_http_request() {
  *
  * @param string $slug   The slug of the group being registered
  * @param array  $config Array configuring the section. Should include: title
- *
- * @return void
  */
 function register_graphql_settings_section( $slug, $config ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $slug, $config ) {
@@ -334,8 +332,6 @@ function register_graphql_settings_section( $slug, $config ) {
  *
  * @param string $group The name of the group to register a setting field to
  * @param array $config The config for the settings field being registered
- *
- * @return void
  */
 function register_graphql_settings_field( $group, $config ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
@@ -348,8 +344,6 @@ function register_graphql_settings_field( $group, $config ) {
  *
  * @param string $group The name of the settings group to register fields to
  * @param array $fields Array of field configs to register to the group
- *
- * @return void
  */
 function register_graphql_settings_fields( $group, $fields ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
