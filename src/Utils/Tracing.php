@@ -234,7 +234,7 @@ class Tracing {
 	 *
 	 * @param $headers
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function return_tracing_headers( $headers ): array {
 		$headers[] = 'X-Insights-Include-Tracing';
