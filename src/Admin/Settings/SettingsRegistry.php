@@ -181,7 +181,7 @@ class SettingsRegistry {
 	 *
 	 * @return string
 	 */
-	public function get_field_description( $args ) {
+	public function get_field_description( $args ): string {
 		if ( ! empty( $args['desc'] ) ) {
 			$desc = sprintf( '<p class="description">%s</p>', $args['desc'] );
 		} else {
