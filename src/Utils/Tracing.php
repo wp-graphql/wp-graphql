@@ -326,7 +326,7 @@ class Tracing {
 	 *
 	 * @return array
 	 */
-	public function get_trace() {
+	public function get_trace(): array {
 
 		// Compile the trace to return with the GraphQL Response
 		$trace = [
