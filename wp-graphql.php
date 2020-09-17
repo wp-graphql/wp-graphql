@@ -483,7 +483,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered type */
+							/* translators: %s will replaced with the registered type */
 								__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$post_type_object->name
 							)
@@ -536,7 +536,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered taxonomty */
+							/* translators: %s will replaced with the registered taxonomty */
 								__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$tax_object->name
 							)
@@ -632,9 +632,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 *
 				 * @since 0.0.5
 				 *
-				 * @param array                 $type_registry      The TypeRegistry for the API
-				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
-				 *                                           information about the context we know at this point
+				 * @param array                 $type_registry The TypeRegistry for the API
+				 * @param \WPGraphQL\AppContext $app_context   Object The AppContext object containing all of the
+				 *                                             information about the context we know at this point
 				 */
 				self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
 			}
@@ -706,3 +706,17 @@ graphql_init();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once 'cli/wp-cli.php';
 }
+
+
+add_filter( 'graphql_Post_fields', function( $fields ) {
+
+	$fields['title']['resolve'] = function( \WPGraphQL\Model\Post $post ) {
+
+		// Sleep for 1 second to simulate something taking a long time
+		sleep(1);
+		return $post->titleRendered;
+	};
+
+	return $fields;
+
+});

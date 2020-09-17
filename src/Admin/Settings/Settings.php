@@ -127,7 +127,7 @@ class Settings {
 			],
 			[
 				'name'    => 'query_log_user_role',
-				'label'   => __( 'Tracing Role', 'wp-graphql' ),
+				'label'   => __( 'Query Log Role', 'wp-graphql' ),
 				'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
 				'type'    => 'user_role_select',
 				'default' => "administrator",
