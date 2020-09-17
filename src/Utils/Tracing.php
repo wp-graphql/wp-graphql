@@ -53,7 +53,7 @@ class Tracing {
 
 	/**
 	 * The trace for the current field being resolved
-	 * @var
+	 * @var array
 	 */
 	public $field_trace = [];
 
@@ -234,14 +234,14 @@ class Tracing {
 	 *
 	 * @param $headers
 	 *
-	 * @return mixed
+	 * @return array
 	 */
-	public function return_tracing_headers( $headers ) {
+	public function return_tracing_headers( $headers ): array {
 		$headers[] = 'X-Insights-Include-Tracing';
 		$headers[] = 'X-Apollo-Tracing';
 		$headers[] = 'Credentials';
 
-		return $headers;
+		return (array) $headers;
 	}
 
 	/**
@@ -291,7 +291,7 @@ class Tracing {
 	 *
 	 * @return boolean
 	 */
-	public function user_can_see_trace_data() {
+	public function user_can_see_trace_data(): bool {
 
 		return true;
 		$can_see = false;
@@ -326,7 +326,7 @@ class Tracing {
 	 *
 	 * @return array
 	 */
-	public function get_trace() {
+	public function get_trace(): array {
 
 		// Compile the trace to return with the GraphQL Response
 		$trace = [
@@ -345,6 +345,6 @@ class Tracing {
 		 * @param array   $trace The trace to return
 		 * @param Tracing $this  The Tracing class instance
 		 */
-		return apply_filters( 'graphql_tracing_response', $trace, $this );
+		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
 	}
 }
