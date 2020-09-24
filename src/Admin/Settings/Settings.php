@@ -64,7 +64,7 @@ class Settings {
 			[
 				'name'              => 'graphql_endpoint',
 				'label'             => __( 'GraphQL Endpoint', 'wp-graphql' ),
-				'desc'              => __( sprintf( 'The endpoint (path) for the GraphQL API on the site. <a target="_blank" href="%1$s/%2$s">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than "graphql" <em>could</em> have an affect on tooling in the GraphQL ecosystem', site_url(), get_graphql_setting( 'graphql_endpoint', 'graphql' ) ), 'wp-graphql' ),
+				'desc'              => sprintf( __( 'The endpoint (path) for the GraphQL API on the site. <a target="_blank" href="%1$s/%2$s">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than "graphql" <em>could</em> have an affect on tooling in the GraphQL ecosystem', 'wp-graphql' ), site_url(), get_graphql_setting( 'graphql_endpoint', 'graphql' ) ),
 				'type'              => 'text',
 				'value'             => ! empty( $custom_endpoint ) ? $custom_endpoint : null,
 				'default'           => ! empty( $custom_endpoint ) ? $custom_endpoint : 'graphql',
@@ -98,7 +98,7 @@ class Settings {
 			[
 				'name'     => 'debug_mode_enabled',
 				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
-				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? __( sprintf( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', GRAPHQL_DEBUG ? 'true' : 'false' ), 'wp-graphql' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
+				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 				'type'     => 'checkbox',
 				'value'    => defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? 'on' : 'off',
 				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,

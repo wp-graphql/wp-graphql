@@ -78,7 +78,7 @@ class QueryLog {
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( isset( $user->roles ) && in_array( $this->query_log_user_role, (array) $user->roles ) ) {
+				if ( isset( $user->roles ) && in_array( $this->query_log_user_role, (array) $user->roles, true ) ) {
 					$can_see = true;
 				}
 			}
@@ -134,7 +134,7 @@ class QueryLog {
 		global $wpdb;
 
 		// Default message
-		$trace = [ __( sprintf( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', SAVEQUERIES ? 'true' : 'false' ), 'wp-graphql' ) ];
+		$trace = [ sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), SAVEQUERIES ? 'true' : 'false' ) ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
 			$queries = array_map( function( $query ) {

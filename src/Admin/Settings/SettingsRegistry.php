@@ -16,7 +16,7 @@ namespace WPGraphQL\Admin\Settings;
 class SettingsRegistry {
 
 	/**
-	 * settings sections array
+	 * Settings sections array
 	 *
 	 * @var array
 	 */
@@ -122,7 +122,7 @@ class SettingsRegistry {
 		do_action( 'graphql_init_settings', $this );
 
 		foreach ( $this->settings_sections as $id => $section ) {
-			if ( false == get_option( $id ) ) {
+			if ( false === get_option( $id ) ) {
 				add_option( $id );
 			}
 
@@ -235,9 +235,9 @@ class SettingsRegistry {
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$type        = isset( $args['type'] ) ? $args['type'] : 'number';
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
-		$min         = ( $args['min'] == '' ) ? '' : ' min="' . $args['min'] . '"';
-		$max         = ( $args['max'] == '' ) ? '' : ' max="' . $args['max'] . '"';
-		$step        = ( $args['step'] == '' ) ? '' : ' step="' . $args['step'] . '"';
+		$min         = ( '' === $args['min'] ) ? '' : ' min="' . $args['min'] . '"';
+		$max         = ( '' === $args['max'] ) ? '' : ' max="' . $args['max'] . '"';
+		$step        = ( '' === $args['step'] ) ? '' : ' step="' . $args['step'] . '"';
 
 		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
@@ -518,7 +518,7 @@ class SettingsRegistry {
 		// Iterate over registered fields and see if we can find proper callback
 		foreach ( $this->settings_fields as $section => $options ) {
 			foreach ( $options as $option ) {
-				if ( $option['name'] != $slug ) {
+				if ( $slug !== $option['name'] ) {
 					continue;
 				}
 
@@ -561,7 +561,7 @@ class SettingsRegistry {
 		$count = count( $this->settings_sections );
 
 		// don't show the navigation if only one section exists
-		if ( $count === 1 ) {
+		if ( 1 === $count ) {
 			return;
 		}
 
