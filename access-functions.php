@@ -316,6 +316,61 @@ function is_graphql_http_request() {
 }
 
 /**
+ * Registers a GraphQL Settings Section
+ *
+ * @param string $slug   The slug of the group being registered
+ * @param array  $config Array configuring the section. Should include: title
+ */
+function register_graphql_settings_section( $slug, $config ) {
+	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $slug, $config ) {
+		$registry->register_section( $slug, $config );
+	} );
+}
+
+/**
+ * Registers a GraphQL Settings Field
+ *
+ * @param string $group The name of the group to register a setting field to
+ * @param array $config The config for the settings field being registered
+ */
+function register_graphql_settings_field( $group, $config ) {
+	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
+		$registry->register_field( $group, $config );
+	} );
+}
+
+/**
+ * Registers a series of GraphQL Settings Fields
+ *
+ * @param string $group The name of the settings group to register fields to
+ * @param array $fields Array of field configs to register to the group
+ */
+function register_graphql_settings_fields( $group, $fields ) {
+	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
+		$registry->register_fields( $group, $fields );
+	} );
+}
+
+/**
+ * Get an option value from GraphQL settings
+ *
+ * @param string $option  The key of the option to return
+ * @param mixed  $default The default value the setting should return if no value is set
+ * @param string $section The settings group section that the option belongs to
+ *
+ * @return mixed|string|int|boolean
+ */
+function get_graphql_setting( $option, $default = '', $section = 'graphql_general_settings' ) {
+	$options = get_option( $section );
+
+	if ( isset( $options[ $option ] ) ) {
+		return $options[ $option ];
+	}
+
+	return $default;
+}
+
+/**
  * Polyfill for PHP versions below 7.3
  *
  * @return mixed|string|int
