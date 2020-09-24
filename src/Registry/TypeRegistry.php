@@ -647,7 +647,7 @@ class TypeRegistry {
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $field_config ) {
-				if ( isset( $field_config['type'] ) ) {
+				if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
 					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
 					if ( ! empty( $prepared_field ) ) {
 						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
@@ -778,7 +778,7 @@ class TypeRegistry {
 			function( $fields ) use ( $type_name, $field_name, $config ) {
 
 				if ( isset( $fields[ $field_name ] ) ) {
-					if ( true === GRAPHQL_DEBUG ) {
+					if ( true === \WPGraphQL::debug() ) {
 						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
 					}
 
@@ -820,7 +820,7 @@ class TypeRegistry {
 				if ( isset( $fields[ $field_name ] ) ) {
 					unset( $fields[ $field_name ] );
 				} else {
-					if ( true === GRAPHQL_DEBUG ) {
+					if ( true === \WPGraphQL::debug() ) {
 						throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
 					}
 				}
