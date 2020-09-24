@@ -1031,7 +1031,7 @@ class TypeRegistry {
 			$from_field_name,
 			[
 				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
-				'args'        => array_merge( $pagination_args, $where_args ),
+				'args'        => apply_filters( "GraphQL{$connection_name}Args", array_merge( $pagination_args, $where_args ), $config, $connection_name ),
 				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name, $one_to_one ) {
 					/**
