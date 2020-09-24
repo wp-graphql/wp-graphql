@@ -47,7 +47,9 @@ class Router {
 		 * @since 0.0.1
 		 * @return string
 		 */
-		self::$route = apply_filters( 'graphql_endpoint', 'graphql' );
+		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
+		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
+		self::$route       = $endpoint;
 
 		/**
 		 * Create the rewrite rule for the route
@@ -409,7 +411,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, GRAPHQL_DEBUG ) ];
+			$response['errors']     = [ FormattedError::createFromException( $error, \WPGraphQL::debug() ) ];
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but

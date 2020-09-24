@@ -36,6 +36,11 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 }
 
 /**
+ * Run this function when WPGraphQL is de-activated
+ */
+register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
+
+/**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
  *
  * This plugin is based on the hard work of Jason Bahl, Ryan Kanner, Hughie Devore and Peter Pak of
@@ -196,11 +201,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				define( 'WPGRAPHQL_AUTOLOAD', true );
 			}
 
-			// Whether to run the plugin in debug mode. Default is false.
-			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
-				define( 'GRAPHQL_DEBUG', false );
-			}
-
 			// The minimum version of PHP this plugin requires to work properly
 			if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
 				define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
@@ -233,6 +233,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
+			require_once WPGRAPHQL_PLUGIN_DIR . 'deactivation.php';
 
 		}
 
@@ -278,6 +279,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				}
 			);
 
+			// Prevent WPGraphQL Insights from running
+			remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
+
 			/**
 			 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
 			 */
@@ -291,14 +295,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'check_field_permissions',
 			], 10, 8 );
 
-			/**
-			 * Determine what to show in graphql
-			 */
+			// Determine what to show in graphql
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
 
 			// Throw an exception
 			add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+
+			// Initialize Admin functionality
+			add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+
+			$tracing = new \WPGraphQL\Utils\Tracing();
+			$tracing->init();
+
+			$query_log = new \WPGraphQL\Utils\QueryLog();
+			$query_log->init();
 
 		}
 
@@ -361,6 +372,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'\WPGraphQL\Utils\InstrumentSchema',
 				'instrument_schema',
 			], 10, 1 );
+		}
+
+		/**
+		 * Initialize admin functionality
+		 */
+		public function init_admin() {
+			$admin = new \WPGraphQL\Admin\Admin();
+			$admin->init();
 		}
 
 		/**
@@ -464,7 +483,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered type */
+							/* translators: %s will replaced with the registered type */
 								__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$post_type_object->name
 							)
@@ -517,7 +536,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 					if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
 						throw new \GraphQL\Error\UserError(
 							sprintf(
-								/* translators: %s will replaced with the registered taxonomty */
+							/* translators: %s will replaced with the registered taxonomty */
 								__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$tax_object->name
 							)
@@ -581,6 +600,20 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
+		 * @return bool
+		 */
+		public static function debug(): bool {
+			if ( defined( 'GRAPHQL_DEBUG' ) ) {
+				$enabled = (bool) GRAPHQL_DEBUG;
+			} else {
+				$enabled = get_graphql_setting( 'debug_mode_enabled', 'off' );
+				$enabled = 'on' === $enabled ? true : false;
+			}
+
+			return (bool) $enabled;
+		}
+
+		/**
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
@@ -599,9 +632,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 *
 				 * @since 0.0.5
 				 *
-				 * @param array                 $type_registry      The TypeRegistry for the API
-				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
-				 *                                           information about the context we know at this point
+				 * @param array                 $type_registry The TypeRegistry for the API
+				 * @param \WPGraphQL\AppContext $app_context   Object The AppContext object containing all of the
+				 *                                             information about the context we know at this point
 				 */
 				self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
 			}
