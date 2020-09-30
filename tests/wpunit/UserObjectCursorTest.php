@@ -185,7 +185,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$paged_count = ceil( $this->count / 2 );
 		$expected    = array_slice( $this->created_user_ids, $paged_count - 1, $paged_count );
-
+		$expected = array_reverse( $expected );
 		codecept_debug( $expected );
 
 		$actual = graphql(
@@ -232,12 +232,9 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( false, $actual['data']['users']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasNextPage'] );
 
-		for ( $i = 0; $i < $paged_count - 1; $i ++ ) {
-			$this->assertEquals( $expected[ $i ], $actual['data']['users']['nodes'][ $i ]['userId'] );
-		}
 	}
 
 	private function formatNumber( $num ) {

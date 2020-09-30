@@ -575,27 +575,35 @@ abstract class AbstractConnectionResolver {
 		$nodes = [];
 
 		$ids = $this->ids;
+		$ids = array_slice( $ids, 0, $this->query_amount, true );
+
 		if ( ! empty( $this->get_offset() ) ) {
 			if ( ! empty( $this->get_offset() ) ) {
+				// Determine if the offset is in the array
 				$key = array_search( $this->get_offset(), $ids, true );
+
+				// If the offset is in the array
 				if ( false !== $key ) {
-					$key = absint( $key ) + 1;
+					$key = absint( $key );
+					// Slice the array from the back
+					if ( ! empty( $this->args['before'] ) ) {
+						$ids = array_slice( $ids, 0, $key, true );
+						// Slice the array from the front
+					} else {
+						$key++;
+						$ids = array_slice( $ids, $key, null, true );
+					}
 				}
-				$ids = array_slice( $this->ids, $key, null, true );
 			}
 		}
 
 		foreach ( $ids as $id ) {
 			$model = $this->get_node_by_id( $id );
-
 			if ( true === $this->is_valid_model( $model ) ) {
 				$nodes[ $id ] = $model;
 			}
 		}
-
-		$nodes = array_slice( $nodes, 0, $this->query_amount, true );
-
-		return ! empty( $this->args['last'] ) ? array_filter( array_reverse( $nodes, true ) ) : $nodes;
+		return $nodes;
 	}
 
 	/**
@@ -820,7 +828,6 @@ abstract class AbstractConnectionResolver {
 				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
 				 */
 				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
-
 
 				/**
 				 * Filters the edges in the connection

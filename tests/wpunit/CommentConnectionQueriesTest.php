@@ -195,8 +195,6 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->commentsQuery( $variables );
 
-		codecept_debug( $results );
-
 		$comments_query = new WP_Comment_Query();
 		$comments       = $comments_query->query(
 			[

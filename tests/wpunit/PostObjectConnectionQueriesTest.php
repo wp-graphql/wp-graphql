@@ -875,8 +875,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
 		$query = '
-		query GetPostsByIds($post_ids: [ID] $after:String) {
-		  posts(where: {in: $post_ids} after:$after) {
+		query GetPostsByIds($post_ids: [ID] $after:String $before:String) {
+		  posts(where: {in: $post_ids} after:$after before:$before) {
 		    edges {
 		      cursor
 		      node {
@@ -895,10 +895,57 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		] );
 
+		$actual_ids = [];
+
+		codecept_debug( $post_ids );
 		codecept_debug( $actual );
 
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
 
+		$this->assertSame( $post_ids, $actual_ids );
 
+		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => $cursor
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_4, $post_1 ], $actual_ids );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'before' => $cursor
+			]
+		]);
+
+		codecept_debug( [ 'variables' => [
+			'post_ids' => $post_ids,
+			'before' => $cursor
+		] ]);
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_3 ], $actual_ids );
 
 	}
 

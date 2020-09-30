@@ -25,11 +25,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed              $source                  The object passed down from the previous level
-	 *                                                    in the Resolve tree
-	 * @param array              $args                    The input arguments for the query
-	 * @param AppContext         $context                 The context of the request
-	 * @param ResolveInfo        $info                    The resolve info passed down the Resolve tree
+	 * @param mixed       $source                         The object passed down from the previous
+	 *                                                    level in the Resolve tree
+	 * @param array       $args                           The input arguments for the query
+	 * @param AppContext  $context                        The context of the request
+	 * @param ResolveInfo $info                           The resolve info passed down the Resolve
+	 *                                                    tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
@@ -254,6 +255,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['search_orderby_title'] = false;
 			$query_args['orderby']              = 'date';
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
+		}
+
+		if ( empty( $this->args['where']['orderby'] ) ) {
+			if ( isset( $query_args['post__in'] ) ) {
+
+				if ( ! empty( $this->args['last'] ) ) {
+					$query_args['post__in'] = array_filter( array_reverse( $query_args['post__in'], true ) );
+				}
+
+				$query_args['orderby'] = 'post__in';
+				$query_args['order']   = isset( $last ) ? 'ASC' : 'DESC';
+			}
 		}
 
 		/**
