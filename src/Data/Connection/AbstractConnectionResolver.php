@@ -573,7 +573,19 @@ abstract class AbstractConnectionResolver {
 		}
 
 		$nodes = [];
-		foreach ( $this->ids as $id ) {
+
+		$ids = $this->ids;
+		if ( ! empty( $this->get_offset() ) ) {
+			if ( ! empty( $this->get_offset() ) ) {
+				$key = array_search( $this->get_offset(), $ids, true );
+				if ( false !== $key ) {
+					$key = absint( $key ) + 1;
+				}
+				$ids = array_slice( $this->ids, $key, null, true );
+			}
+		}
+
+		foreach ( $ids as $id ) {
 			$model = $this->get_node_by_id( $id );
 
 			if ( true === $this->is_valid_model( $model ) ) {
@@ -808,6 +820,7 @@ abstract class AbstractConnectionResolver {
 				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
 				 */
 				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+
 
 				/**
 				 * Filters the edges in the connection

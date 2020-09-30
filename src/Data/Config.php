@@ -153,6 +153,7 @@ class Config {
 	 */
 	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
 		if ( true === is_graphql_request() ) {
+
 			global $wpdb;
 
 			return "{$orderby}, {$wpdb->posts}.ID DESC ";

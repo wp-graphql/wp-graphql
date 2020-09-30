@@ -843,4 +843,63 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1477
+	 */
+	public function testPostInArgumentWorksWithCursors() {
+
+		$post_1 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_2 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_3 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_4 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
+
+		$query = '
+		query GetPostsByIds($post_ids: [ID] $after:String) {
+		  posts(where: {in: $post_ids} after:$after) {
+		    edges {
+		      cursor
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => null,
+			]
+		] );
+
+		codecept_debug( $actual );
+
+
+
+
+	}
+
 }
