@@ -260,10 +260,30 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( empty( $this->args['where']['orderby'] ) ) {
 			if ( isset( $query_args['post__in'] ) ) {
 
-				if ( ! empty( $this->args['last'] ) ) {
-					$query_args['post__in'] = array_filter( array_reverse( $query_args['post__in'], true ) );
+				$ids = $query_args['post__in'];
+				$ids = array_map( function($id) {
+					return absint( $id );
+				}, $ids );
+				if ( ! empty( $this->get_offset() ) ) {
+					if ( ! empty( $this->get_offset() ) ) {
+						// Determine if the offset is in the array
+						$key = array_search( $this->get_offset(), $ids, true );
+						// If the offset is in the array
+						if ( false !== $key ) {
+							$key = absint( $key );
+							// Slice the array from the back
+							if ( ! empty( $this->args['before'] ) ) {
+								$ids = array_slice( $ids, 0, $key, true );
+								// Slice the array from the front
+							} else {
+								$key++;
+								$ids = array_slice( $ids, $key, null, true );
+							}
+						}
+					}
 				}
 
+				$query_args['post__in'] = $ids;
 				$query_args['orderby'] = 'post__in';
 				$query_args['order']   = isset( $last ) ? 'ASC' : 'DESC';
 			}

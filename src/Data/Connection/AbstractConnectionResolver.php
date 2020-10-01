@@ -581,7 +581,6 @@ abstract class AbstractConnectionResolver {
 			if ( ! empty( $this->get_offset() ) ) {
 				// Determine if the offset is in the array
 				$key = array_search( $this->get_offset(), $ids, true );
-
 				// If the offset is in the array
 				if ( false !== $key ) {
 					$key = absint( $key );
