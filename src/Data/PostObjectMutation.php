@@ -355,8 +355,6 @@ class PostObjectMutation {
 							}
 						}
 
-					
-
 						/**
 						 * If the current user cannot edit terms, don't create terms to connect
 						 */
@@ -365,7 +363,7 @@ class PostObjectMutation {
 						}
 
 						wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
-						
+
 					}
 				}
 			}

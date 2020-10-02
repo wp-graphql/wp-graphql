@@ -92,7 +92,28 @@ class PostObjectCursor {
 	}
 
 	public function to_sql() {
-		return ' AND ' . $this->builder->to_sql();
+
+		$orderby = isset( $this->query_vars['orderby'] ) ? $this->query_vars['orderby'] : null;
+
+		$orderby_should_not_convert_to_sql = isset( $orderby ) && in_array(
+			$orderby,
+			[
+				'post__in',
+				'post_name__in',
+				'post_parent__in',
+			],
+			true
+		) ? true : false;
+
+		if ( true === $orderby_should_not_convert_to_sql ) {
+			return null;
+		}
+
+		$sql = $this->builder->to_sql();
+		if ( empty( $sql ) ) {
+			return null;
+		}
+		return ' AND ' . $sql;
 	}
 
 	public function get_query_var( $name ) {

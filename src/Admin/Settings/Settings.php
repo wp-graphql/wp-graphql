@@ -72,6 +72,7 @@ class Settings {
 				'sanitize_callback' => function( $value ) {
 					if ( empty( $value ) ) {
 						add_settings_error( 'graphql_endpoint', 'required', __( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ), 'error' );
+
 						return 'graphql';
 					}
 
@@ -85,6 +86,13 @@ class Settings {
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'on',
+			],
+			[
+				'name'    => 'show_graphiql_link_in_admin_bar',
+				'label'   => __( 'GraphiQL IDE Admin Bar Link', 'wp-graphql' ),
+				'desc'    => __( 'Show GraphiQL IDE Link in the WordPress Admin Bar', 'wp-graphql' ),
 				'type'    => 'checkbox',
 				'default' => 'on',
 			],

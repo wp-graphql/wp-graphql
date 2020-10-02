@@ -203,11 +203,12 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
+		codecept_debug( $this->created_post_ids );
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][1]['node']['postId'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
@@ -227,7 +228,7 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[4], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][0]['node']['postId'] );
 		$this->assertEquals( $this->created_post_ids[3], $actual['data']['posts']['edges'][1]['node']['postId'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
