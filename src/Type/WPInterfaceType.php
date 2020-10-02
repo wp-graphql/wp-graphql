@@ -31,6 +31,21 @@ class WPInterfaceType extends InterfaceType {
 			return $fields;
 		};
 
+		$config['resolveType'] = function( $object ) use ( $config ) {
+			$type = null;
+			if ( is_callable( $config['resolveType'] ) ) {
+				$type = call_user_func( $config['resolveType'], $object );
+			}
+			/**
+			 * Filter the resolve type method for all interfaces
+			 *
+			 * @param mixed       $type    The Type to resolve to, based on the object being resolved.
+			 * @param mixed       $object  The Object being resolved.
+			 * @param WPInterfaceType $this    The WPInterfaceType instance.
+			 */
+			return apply_filters( 'graphql_interface_resolve_type', $type, $object, $this );
+		};
+
 		/**
 		 * Filter the config of WPInterfaceType
 		 *
