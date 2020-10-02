@@ -261,7 +261,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			if ( isset( $query_args['post__in'] ) ) {
 
 				$ids = $query_args['post__in'];
-				$ids = array_map( function($id) {
+				$ids = array_map( function( $id ) {
 					return absint( $id );
 				}, $ids );
 				if ( ! empty( $this->get_offset() ) ) {
@@ -284,8 +284,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				}
 
 				$query_args['post__in'] = $ids;
-				$query_args['orderby'] = 'post__in';
-				$query_args['order']   = isset( $last ) ? 'ASC' : 'DESC';
+				$query_args['orderby']  = 'post__in';
+				$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
 			}
 		}
 
