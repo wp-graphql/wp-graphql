@@ -11,7 +11,7 @@ class ContentTypeEnum {
 		/**
 		 * Get the allowed taxonomies
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( [ 'connect_to_taxonomies' => true ] );
 
 		/**
 		 * Loop through the taxonomies and create an array

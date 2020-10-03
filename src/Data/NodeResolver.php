@@ -299,7 +299,7 @@ class NodeResolver {
 			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['p'] ) ) : null;
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types( [ 'resolve_from_uri' => true ] );
 
 			$post_type = 'post';
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {

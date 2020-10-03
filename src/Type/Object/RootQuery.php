@@ -467,7 +467,7 @@ class RootQuery {
 	 */
 	public static function register_post_object_fields() {
 
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( ['register_root_query' => true ] );
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );

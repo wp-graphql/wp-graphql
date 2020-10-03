@@ -305,6 +305,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Initialize Admin functionality
 			add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
+			// Add GraphQL default post-type settings.
+			add_filter( 'register_post_type_args', [ __CLASS__, 'add_post_type_settings'], 99, 2 );
+
 			$tracing = new \WPGraphQL\Utils\Tracing();
 			$tracing->init();
 
@@ -419,6 +422,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_post_types['attachment']->show_in_graphql     = true;
 				$wp_post_types['attachment']->graphql_single_name = 'mediaItem';
 				$wp_post_types['attachment']->graphql_plural_name = 'mediaItems';
+				self::add_post_type_settings( $wp_post_types['attachment'], 'attachment' );
 			}
 
 			// Adds GraphQL support for pages.
@@ -426,6 +430,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_post_types['page']->show_in_graphql     = true;
 				$wp_post_types['page']->graphql_single_name = 'page';
 				$wp_post_types['page']->graphql_plural_name = 'pages';
+				self::add_post_type_settings( $wp_post_types['page'], 'page' );
 			}
 
 			// Adds GraphQL support for posts.
@@ -433,6 +438,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$wp_post_types['post']->show_in_graphql     = true;
 				$wp_post_types['post']->graphql_single_name = 'post';
 				$wp_post_types['post']->graphql_plural_name = 'posts';
+				self::add_post_type_settings( $wp_post_types['post'], 'post' );
 			}
 
 			// Adds GraphQL support for categories.
@@ -683,6 +689,45 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
 
 			return $app_context;
+		}
+
+		/**
+		 * Adds default GraphQL post-types settings
+		 *
+		 * @param WP_Post_Type|array $args       Post type arguments.
+		 * @param string             $post_type  Post type
+		 * 
+		 * @return array
+		 */
+		public static function add_post_type_settings( $args, $post_type ) {
+			global $wp_post_types;
+
+			$post_type_settings = [
+				'show_in_graphql'                 => true,
+				'graphql_single_name'             => str_replace( '_', '', ucwords( strtolower( $post_type ), '_' ) ),
+				'graphql_plural_name'             => str_replace( '_', '', ucwords( strtolower( $post_type ), '_' ) ) . 's',
+				'register_schema_type'            => true,
+				'register_root_query'             => true,
+				'register_root_connection'        => true,
+				'connect_to_comments'             => true,
+				'connect_to_taxonomies'           => true,
+				'supports_content_node'           => true,
+				'supports_post_object_union'      => true,
+				'supports_menu_item_object_union' => true,
+				'resolve_from_uri'                => true,
+				'use_post_object_loader'          => true,
+			];
+
+			if ( is_a( $args, \WP_Post_Type::class ) && $args->show_in_graphql ) {
+				// Add settings to the global WP_Post_Type instance.
+				foreach( $post_type_settings as $setting => $default_value ) {
+					$wp_post_types[ $post_type ]->{$setting} = $args->{$setting} ?? $default_value;
+				}
+			} else if ( is_array( $args ) && ! empty( $args['show_in_graphql'] ) && $args['show_in_graphql'] ) {
+				$args = wp_parse_args( $args, $post_type_settings );
+			}
+
+			return $args;
 		}
 	}
 endif;

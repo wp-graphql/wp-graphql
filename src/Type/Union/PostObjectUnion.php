@@ -42,7 +42,7 @@ class PostObjectUnion {
 	 */
 	public static function get_possible_types() {
 		$possible_types     = [];
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( [ 'supports_post_object_union' => true ] );
 
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $allowed_post_type ) {

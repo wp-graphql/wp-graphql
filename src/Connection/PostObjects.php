@@ -95,7 +95,9 @@ class PostObjects {
 					null
 				),
 				'resolve'        => function( $source, $args, $context, $info ) {
-					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
+					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] )
+						? $args['where']['contentTypes']
+						: \WPGraphQL::get_allowed_post_types( [ 'supports_content_node' => true ] );
 
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
 				},
@@ -166,7 +168,7 @@ class PostObjects {
 		/**
 		 * Register Connections to PostObjects
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types(  [ 'register_root_connection' => true ] );
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 

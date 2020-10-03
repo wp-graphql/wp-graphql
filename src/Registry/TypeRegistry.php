@@ -388,7 +388,7 @@ class TypeRegistry {
 		/**
 		 * Register PostObject types based on post_types configured to show_in_graphql
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( [ 'register_schema_type' => true ] );
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );

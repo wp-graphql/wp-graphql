@@ -61,7 +61,8 @@ class MenuItemObjectUnion {
 		 * registered to "show_in_graphql" and "show_in_nav_menus"
 		 */
 		$args = [
-			'show_in_nav_menus' => true,
+			'show_in_nav_menus'               => true,
+			'supports_menu_item_object_union' => true,
 		];
 
 		$possible_types = [];
