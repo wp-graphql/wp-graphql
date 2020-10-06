@@ -306,7 +306,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
 			// Add GraphQL default post-type settings.
-			add_filter( 'register_post_type_args', [ __CLASS__, 'add_post_type_settings'], 99, 2 );
+			add_filter( 'register_post_type_args', [ __CLASS__, 'add_post_type_settings' ], 99, 2 );
 
 			$tracing = new \WPGraphQL\Utils\Tracing();
 			$tracing->init();
@@ -720,7 +720,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			if ( is_a( $args, \WP_Post_Type::class ) && $args->show_in_graphql ) {
 				// Add settings to the global WP_Post_Type instance.
-				foreach( $post_type_settings as $setting => $default_value ) {
+				foreach ( $post_type_settings as $setting => $default_value ) {
 					$wp_post_types[ $post_type ]->{$setting} = $args->{$setting} ?? $default_value;
 				}
 			} else if ( is_array( $args ) && ! empty( $args['show_in_graphql'] ) && $args['show_in_graphql'] ) {
