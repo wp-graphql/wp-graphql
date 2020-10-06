@@ -159,7 +159,7 @@ class Request {
 
 		// If there is no current user and public introspection is not enabled, add the disabled rule to the validation rules
 		if ( ! get_current_user_id() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
-			
+
 			$disable_introspection = new DisableIntrospection();
 			$validation_rules[] = $disable_introspection;
 

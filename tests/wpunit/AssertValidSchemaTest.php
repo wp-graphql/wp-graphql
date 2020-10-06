@@ -35,4 +35,92 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		}
 	}
 
+	public function testIntrospectionQueriesDisabledForPublicRequests() {
+
+		$settings = get_option( 'graphql_general_settings' );
+		$settings['public_introspection_enabled'] = 'off';
+		update_option( 'graphql_general_settings', $settings );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			  __schema {
+			    queryType {
+			      name
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertSame( 'GraphQL introspection is not allowed, but the query contained __schema or __type', $actual['errors'][0]['message'] );
+
+	}
+
+	public function testIntrospectionQueriesByAdminWhenPublicIntrospectionIsDisabled() {
+
+		$admin = $this->factory()->user->create( [
+			'role' => 'administrator'
+		] );
+
+		$settings = get_option( 'graphql_general_settings' );
+		$settings['public_introspection_enabled'] = 'off';
+		update_option( 'graphql_general_settings', $settings );
+
+		wp_set_current_user( $admin );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			  __schema {
+			    queryType {
+			      name
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	public function testIntrospectionQueriesEnabledForPublicUsers() {
+
+		$settings = get_option( 'graphql_general_settings' );
+		$settings['public_introspection_enabled'] = 'on';
+		update_option( 'graphql_general_settings', $settings );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			  __schema {
+			    queryType {
+			      name
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
 }
