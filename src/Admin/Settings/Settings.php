@@ -15,15 +15,35 @@ class Settings {
 	public $settings_api;
 
 	/**
+	 * WP_ENVIRONMENT_TYPE
+	 *
+	 * @var string The WordPress environment.
+	 */
+	protected $wp_environment;
+
+	/**
 	 * Initialize the WPGraphQL Settings Pages
 	 *
 	 * @return void
 	 */
 	public function init() {
+		$this->wp_environment = $this->get_wp_environment();
 		$this->settings_api = new SettingsRegistry();
 		add_action( 'admin_menu', [ $this, 'add_options_page' ] );
 		add_action( 'init', [ $this, 'register_settings' ] );
 		add_action( 'admin_init', [ $this, 'initialize_settings_page' ] );
+	}
+
+	/**
+	 * Return the environment. Default to production.
+	 *
+	 * @return string The environment set using WP_ENVIRONMENT_TYPE.
+	 */
+	protected function get_wp_environment() {
+		if ( function_exists( 'wp_get_environment_type' ) ) {
+			return wp_get_environment_type();
+		}
+		return 'production';
 	}
 
 	/**
@@ -138,6 +158,13 @@ class Settings {
 				'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
 				'type'    => 'user_role_select',
 				'default' => 'administrator',
+			],
+			[
+				'name'    => 'public_introspection_enabled',
+				'label'   => __( 'Public Introspection Enabled', 'wp-graphql' ),
+				'desc'    => __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
 			],
 		] );
 

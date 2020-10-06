@@ -5,6 +5,7 @@ namespace WPGraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Validator\Rules\DisableIntrospection;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\QueryLog;
 use WPGraphQL\Utils\Tracing;
@@ -63,6 +64,27 @@ class Request {
 	public $type_registry;
 
 	/**
+	 * Validation rules for execution.
+	 *
+	 * @var array
+	 */
+	protected $validation_rules;
+
+	/**
+	 * The default field resolver function. Default null
+	 *
+	 * @var mixed|callable|null
+	 */
+	protected $field_resolver;
+
+	/**
+	 * The root value of the request. Default null;
+	 *
+	 * @var mixed
+	 */
+	protected $root_value;
+
+	/**
 	 * Constructor
 	 *
 	 * @param  array|null $data The request data (for non-HTTP requests).
@@ -102,6 +124,10 @@ class Request {
 		// Get the App Context
 		$this->app_context = \WPGraphQL::get_app_context();
 
+		$this->root_value       = $this->get_root_value();
+		$this->validation_rules = $this->get_validation_rules();
+		$this->field_resolver   = $this->get_field_resolver();
+
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
 		 *
@@ -110,9 +136,61 @@ class Request {
 		$app_context                = new AppContext();
 		$app_context->viewer        = wp_get_current_user();
 		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function get_field_resolver() {
+		return null;
+	}
+
+	/**
+	 * Return the validation rules to use in the request
+	 *
+	 * @return array
+	 */
+	protected function get_validation_rules() {
+
+		$validation_rules = [];
+
+		// If there is no current user and public introspection is not enabled, add the disabled rule to the validation rules
+		if ( ! get_current_user_id() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
+
+			$disable_introspection = new DisableIntrospection();
+			$validation_rules[] = $disable_introspection;
+
+		}
+
+		/**
+		 * Return the validation rules to use in the request
+		 *
+		 * @param array   $validation_rules The validation rules to use in the request
+		 * @param Request $this             The Request instance
+		 */
+		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
+
+	}
+
+	/**
+	 * Returns the root value to use in the request.
+	 *
+	 * @return mixed|null
+	 */
+	protected function get_root_value() {
+
+		$root_value = null;
+
+		/**
+		 * Return the filtered root value
+		 *
+		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
+		 * @param Request $this       The Request instance
+		 */
+		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
 
 	/**
@@ -234,7 +312,8 @@ class Request {
 	 * Filter Authentication errors. Allows plugins that authenticate to hook in and prevent
 	 * execution if Authentication errors exist.
 	 *
-	 * @param boolean $authentication_errors Whether there are authentication errors with the request
+	 * @param boolean $authentication_errors Whether there are authentication errors with the
+	 *                                       request
 	 *
 	 * @return boolean
 	 */
@@ -245,7 +324,7 @@ class Request {
 		 * GraphQL request will be prevented and an error will be thrown.
 		 *
 		 * @param boolean $authentication_errors Whether there are authentication errors with the request
-		 * @param Request $this Instance of the Request
+		 * @param Request $this                  Instance of the Request
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
 	}
@@ -255,6 +334,7 @@ class Request {
 	 *
 	 * @param mixed|array|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
+	 *
 	 * @return array
 	 *
 	 * @throws \Exception
@@ -423,10 +503,12 @@ class Request {
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
 			$this->params->query,
-			null,
+			$this->root_value,
 			$this->app_context,
 			$this->params->variables,
-			$this->params->operation
+			$this->params->operation,
+			$this->field_resolver,
+			$this->validation_rules
 		);
 
 		/**
@@ -498,7 +580,16 @@ class Request {
 			->setDebug( \WPGraphQL::debug() )
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
+			->setValidationRules( $this->validation_rules )
 			->setQueryBatching( true );
+
+		if ( ! empty( $this->root_value) ) {
+			$config->setFieldResolver( $this->root_value );
+		}
+
+		if ( ! empty( $this->field_resolver) ) {
+			$config->setFieldResolver( $this->field_resolver );
+		}
 
 		/**
 		 * Run an action when the server config is created. The config can be acted
