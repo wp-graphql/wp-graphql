@@ -161,7 +161,7 @@ class Settings {
 			],
 			[
 				'name'    => 'public_introspection_enabled',
-				'label'   => __( 'Public Introspection Enabled', 'wp-graphql' ),
+				'label'   => __( 'Enable Public Introspection', 'wp-graphql' ),
 				'desc'    => __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment.', 'wp-graphql' ),
 				'type'    => 'checkbox',
 				'default' => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
