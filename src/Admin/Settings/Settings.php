@@ -28,7 +28,7 @@ class Settings {
 	 */
 	public function init() {
 		$this->wp_environment = $this->get_wp_environment();
-		$this->settings_api = new SettingsRegistry();
+		$this->settings_api   = new SettingsRegistry();
 		add_action( 'admin_menu', [ $this, 'add_options_page' ] );
 		add_action( 'init', [ $this, 'register_settings' ] );
 		add_action( 'admin_init', [ $this, 'initialize_settings_page' ] );
@@ -43,6 +43,7 @@ class Settings {
 		if ( function_exists( 'wp_get_environment_type' ) ) {
 			return wp_get_environment_type();
 		}
+
 		return 'production';
 	}
 
@@ -128,7 +129,7 @@ class Settings {
 				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
 				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 				'type'     => 'checkbox',
-				'value'    => defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? 'on' : 'off',
+				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
 				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
 			],
 			[
@@ -165,6 +166,7 @@ class Settings {
 				'desc'    => __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment.', 'wp-graphql' ),
 				'type'    => 'checkbox',
 				'default' => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
+				'value'   => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
 			],
 		] );
 

@@ -161,7 +161,7 @@ class Request {
 		if ( ! get_current_user_id() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
 
 			$disable_introspection = new DisableIntrospection();
-			$validation_rules[] = $disable_introspection;
+			$validation_rules[]    = $disable_introspection;
 
 		}
 
@@ -583,11 +583,11 @@ class Request {
 			->setValidationRules( $this->validation_rules )
 			->setQueryBatching( true );
 
-		if ( ! empty( $this->root_value) ) {
+		if ( ! empty( $this->root_value ) ) {
 			$config->setFieldResolver( $this->root_value );
 		}
 
-		if ( ! empty( $this->field_resolver) ) {
+		if ( ! empty( $this->field_resolver ) ) {
 			$config->setFieldResolver( $this->field_resolver );
 		}
 
