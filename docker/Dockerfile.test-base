@@ -19,12 +19,12 @@ FROM ${OFFICIAL_WORDPRESS_DOCKER_IMAGE}
 # Set timezone, install XDebug, PHP Composer, WP-CLI
 RUN echo 'date.timezone = "UTC"' > /usr/local/etc/php/conf.d/timezone.ini \
   && apt-get update -y \
-  && apt-get install --no-install-recommends -y mariadb-client subversion \
+  && apt-get install --no-install-recommends -y mariadb-client subversion unzip \
   && rm -rf /var/lib/apt/lists/* \
   && if echo "${PHP_VERSION}" | grep '^7'; then \
-        pecl install xdebug; \
-        docker-php-ext-enable xdebug; \
-     fi \
+  pecl install xdebug; \
+  docker-php-ext-enable xdebug; \
+  fi \
   && docker-php-ext-install pdo_mysql \
   && curl -Ls 'https://raw.githubusercontent.com/composer/getcomposer.org/fc4099e0ac116a1c8f61fffaf6693594dda79d16/web/installer' | php -- --quiet \
   && chmod +x composer.phar \
@@ -47,10 +47,8 @@ RUN mkdir -p "${WP_TESTS_DIR}" \
   && curl -Lsv "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php" > "${WP_TESTS_DIR}/wp-tests-config.php" \
   && chown -R 'www-data:www-data' "${WP_TESTS_DIR}"
 
-
 # Add WP-CLI config for SUT to flush rewrite rules: https://developer.wordpress.org/cli/commands/rewrite/flush/
 COPY --chown='www-data:www-data' docker/wp-cli.yml /var/www/html/
-
 
 # First copy the files needed for PHP composer install so that the Docker build only re-executes the install when those
 # files change.
@@ -59,9 +57,11 @@ COPY --chown='www-data:www-data' src/ "${SUT_PLUGIN_DIR}/src/"
 COPY --chown='www-data:www-data' vendor/ "${SUT_PLUGIN_DIR}/vendor/"
 
 # Run PHP Composer install so that Codeception dependencies are available
+RUN mkdir -p /var/www/.composer/cache \
+  && chown -R www-data:www-data /var/www/.composer/cache
 USER www-data
 RUN cd "${SUT_PLUGIN_DIR}" \
-  && composer install --prefer-source --no-interaction --dev
+  && composer install --prefer-dist --no-interaction
 
 # Copy in all other files from repo, but preserve the files used by/modified by composer install.
 USER root
