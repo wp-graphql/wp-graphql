@@ -24,7 +24,7 @@ class PostObject {
 
 		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier' ];
 
-		if ( true === $post_type_object->name ) {
+		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
 		}
 
