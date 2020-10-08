@@ -141,8 +141,6 @@ class CommentCreate {
 				'comment_type'       => '',
 				'comment_parent'     => 0,
 				'user_id'            => 0,
-				'comment_author_IP'  => ':1',
-				'comment_agent'      => '',
 				'comment_date'       => date( 'Y-m-d H:i:s' ),
 			];
 
