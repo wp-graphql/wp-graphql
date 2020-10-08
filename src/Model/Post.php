@@ -689,7 +689,7 @@ class Post extends Model {
 
 					return false;
 				},
-				'isSticky'                 => function() {
+				'isSticky'                  => function() {
 					return is_sticky( $this->parentDatabaseId );
 				},
 			];
