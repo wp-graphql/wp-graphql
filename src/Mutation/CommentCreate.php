@@ -34,10 +34,6 @@ class CommentCreate {
 				'type'        => 'Int',
 				'description' => __( 'The ID of the post object the comment belongs to.', 'wp-graphql' ),
 			],
-			'userId'      => [
-				'type'        => 'Int',
-				'description' => __( 'The userID of the comment\'s author.', 'wp-graphql' ),
-			],
 			'author'      => [
 				'type'        => 'String',
 				'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),

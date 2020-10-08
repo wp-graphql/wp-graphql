@@ -35,15 +35,14 @@ class CommentMutation {
 		 *    'comment_content' => 'content here',
 		 *    'comment_type' => '',
 		 *    'comment_parent' => 0,
-		 *    'user_id' => 1,
 		 *    'comment_author_IP' => '127.0.0.1',
 		 *    'comment_agent' => 'Mozilla/5.0 ( Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10 ) Gecko/2009042316 Firefox/3.0.10 ( .NET CLR 3.5.30729 )',
 		 *    'comment_date' => $time,
 		 *    'comment_approved' => 1,
 		 */
 
-		$user = ! empty( $input['userId'] ) ? get_user_by( 'ID', $input['userId'] ) : false;
-		if ( $user instanceof \WP_User ) {
+		$user = wp_get_current_user();
+		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
 			$output_args['user_id']              = $user->ID;
 			$output_args['comment_author']       = $user->display_name;
 			$output_args['comment_author_email'] = $user->user_email;
