@@ -258,7 +258,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		if ( empty( $this->args['where']['orderby'] ) ) {
-			if ( isset( $query_args['post__in'] ) ) {
+			if ( ! empty( $query_args['post__in'] ) ) {
 
 				$ids = $query_args['post__in'];
 				$ids = array_map( function( $id ) {
