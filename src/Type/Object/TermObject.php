@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\Object;
 
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 
 /**
@@ -16,11 +14,15 @@ class TermObject {
 	/**
 	 * Register the Type for each kind of Taxonomy
 	 *
-	 * @param $taxonomy_object
+	 * @param \WP_Taxonomy $taxonomy_object The taxonomy being registered
 	 */
 	public static function register_taxonomy_object_type( $taxonomy_object ) {
 
-		$interfaces = [ 'Node', 'TermNode', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ];
+		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
+
+		if ( true === $taxonomy_object->public ) {
+			$interfaces[] = 'UniformResourceIdentifiable';
+		}
 
 		if ( $taxonomy_object->hierarchical ) {
 			$interfaces[] = 'HierarchicalTermNode';
