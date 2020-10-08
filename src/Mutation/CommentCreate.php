@@ -46,10 +46,6 @@ class CommentCreate {
 				'type'        => 'String',
 				'description' => __( 'The url of the comment\'s author.', 'wp-graphql' ),
 			],
-			'authorIp'    => [
-				'type'        => 'String',
-				'description' => __( 'IP address for the comment\'s author.', 'wp-graphql' ),
-			],
 			'content'     => [
 				'type'        => 'String',
 				'description' => __( 'Content of the comment.', 'wp-graphql' ),
@@ -61,10 +57,6 @@ class CommentCreate {
 			'parent'      => [
 				'type'        => 'ID',
 				'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
-			],
-			'agent'       => [
-				'type'        => 'String',
-				'description' => __( 'User agent used to post the comment.', 'wp-graphql' ),
 			],
 			'date'        => [
 				'type'        => 'String',
