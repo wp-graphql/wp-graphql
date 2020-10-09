@@ -34,10 +34,6 @@ class CommentCreate {
 				'type'        => 'Int',
 				'description' => __( 'The ID of the post object the comment belongs to.', 'wp-graphql' ),
 			],
-			'userId'      => [
-				'type'        => 'Int',
-				'description' => __( 'The userID of the comment\'s author.', 'wp-graphql' ),
-			],
 			'author'      => [
 				'type'        => 'String',
 				'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),
@@ -50,10 +46,6 @@ class CommentCreate {
 				'type'        => 'String',
 				'description' => __( 'The url of the comment\'s author.', 'wp-graphql' ),
 			],
-			'authorIp'    => [
-				'type'        => 'String',
-				'description' => __( 'IP address for the comment\'s author.', 'wp-graphql' ),
-			],
 			'content'     => [
 				'type'        => 'String',
 				'description' => __( 'Content of the comment.', 'wp-graphql' ),
@@ -65,10 +57,6 @@ class CommentCreate {
 			'parent'      => [
 				'type'        => 'ID',
 				'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
-			],
-			'agent'       => [
-				'type'        => 'String',
-				'description' => __( 'User agent used to post the comment.', 'wp-graphql' ),
 			],
 			'date'        => [
 				'type'        => 'String',
@@ -153,8 +141,6 @@ class CommentCreate {
 				'comment_type'       => '',
 				'comment_parent'     => 0,
 				'user_id'            => 0,
-				'comment_author_IP'  => ':1',
-				'comment_agent'      => '',
 				'comment_date'       => date( 'Y-m-d H:i:s' ),
 			];
 

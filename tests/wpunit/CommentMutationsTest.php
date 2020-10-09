@@ -37,6 +37,80 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		parent::tearDown();
 	}
 
+	public function testCreateCommentByLoggedInUserShouldSetUserProperly() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test for comments...'
+		]);
+
+		$query = '
+		mutation createComment($input: CreateCommentInput!) {
+		  createComment(input: $input) {
+		    clientMutationId
+		    success
+		    comment {
+		      id
+		      content
+		      author {
+		        node {
+		          name
+		          ... on User {
+		            id
+		            databaseId
+		            username
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'Create...',
+				'content' => 'Test comment ' . uniqid(),
+				'commentOn' => $post_id
+			]
+		];
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+
+		add_filter( 'comment_flood_filter', '__return_false' );
+
+		wp_set_current_user( 0 );
+
+		$variables['input']['author'] = 'joe';
+		$variables['input']['authorEmail'] = 'joe@example.com';
+
+		sleep(1);
+		$actual = graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+
+	}
+
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
 		wp_set_current_user( $postCreator );
 		$post_args = [
@@ -95,7 +169,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
+		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
 		  createComment( 
 		    input: {
 		      clientMutationId: $clientMutationId
@@ -103,14 +177,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
               content: $content
               author: $author
               authorEmail: $email
-              authorIp: $ip
 		    }
           )
           {
 		    clientMutationId
 		    comment {
               content
-              authorIp
 		    }
           }
         }
@@ -121,7 +193,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'content'          => $this->content,
 			'author'           => 'Comment Author',
 			'email'            => 'subscriber@example.com',
-			'ip'               => ':1',
 		] );
 
 		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
@@ -132,7 +203,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'clientMutationId' => $this->client_mutation_id,
 					'comment'          => [
 						'content'  => apply_filters( 'comment_text', $this->content ),
-						'authorIp' => ':1',
 					],
 				],
 			],
@@ -169,13 +239,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$content   = 'Updated Content';
 		$mutation  = '
-		mutation updateCommentTest( $clientMutationId: String!, $id: ID!, $content: String!, $ip: String ) {
+		mutation updateCommentTest( $clientMutationId: String!, $id: ID!, $content: String! ) {
 		  updateComment( 
 		    input: {
 		      clientMutationId: $clientMutationId
               id: $id
               content: $content
-              authorIp: $ip
 		    }
           )
           {
@@ -184,7 +253,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
               id
               commentId
               content
-              authorIp
 		    }
           }
         }
@@ -193,7 +261,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'clientMutationId' => $this->client_mutation_id,
 			'id'               => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 			'content'          => $content,
-			'ip'               => ':2',
 		] );
 
 		$actual = do_graphql_request( $mutation, 'updateCommentTest', $variables );
@@ -206,8 +273,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 						'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 						'commentId' => $comment_id,
 						'content'   => apply_filters( 'comment_text', $content ),
-						'authorIp'  => ':2',
-					],
+					]
 				],
 			],
 		];
@@ -392,7 +458,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
+		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
 		  createComment(
 		    input: {
 		      clientMutationId: $clientMutationId
@@ -400,14 +466,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		      content: $content
 		      author: $author
 		      authorEmail: $email
-		      authorIp: $ip
 		    }
 		  )
 		  {
 		    clientMutationId
 		    comment {
 		      content
-		      authorIp
 		    }
 		  }
 		}
@@ -419,7 +483,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'content'          => $this->content,
 			'author'           => 'Comment Author',
 			'email'            => 'subscriber@example.com',
-			'ip'               => ':1',
 		] );
 
 		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
@@ -462,7 +525,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String!, $ip:String ){
+		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
 		  createComment(
 		    input: {
 		      clientMutationId: $clientMutationId
@@ -470,7 +533,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		      content: $content
 		      author: $author
 		      authorEmail: $email
-		      authorIp: $ip
 		    }
 		  )
 		  {
@@ -486,7 +548,6 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'content'          => $this->content,
 			'author'           => 'Comment Author',
 			'email'            => 'subscriber@example.com',
-			'ip'               => ':1',
 		] );
 
 		wp_set_current_user( 0 );
