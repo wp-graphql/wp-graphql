@@ -294,6 +294,13 @@ class PostObject {
 			];
 		}
 
+		if ( 'post' === $post_type_object->name ) {
+			$fields['isSticky'] = [
+				'type'        => [ 'non_null' => 'Bool' ],
+				'description' => __( 'Whether this page is sticky', 'wp-graphql' ),
+			];
+		}
+
 		if ( ! $post_type_object->hierarchical &&
 			! in_array(
 				$post_type_object->name,

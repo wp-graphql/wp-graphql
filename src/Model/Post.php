@@ -36,6 +36,7 @@ use WPGraphQL\Utils\Utils;
  * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
+ * @property boolean $isSticky
  * @property string  $toPing
  * @property string  $pinged
  * @property string  $modified
@@ -688,7 +689,12 @@ class Post extends Model {
 
 					return false;
 				},
+				'isSticky'                 => function() {
+					return is_sticky( $this->databaseId );
+				},
 			];
+
+
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [

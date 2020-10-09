@@ -1844,7 +1844,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    ...PostFields
 		  }
 		}
-		
+
 		fragment PostFields on Post {
 		  id
 		  postId
@@ -1926,7 +1926,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    ...pageFields
 		  }
 		}
-		
+
 		fragment pageFields on Page {
 		  id
 		  pageId
@@ -2044,6 +2044,56 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// The content should be public for an admin
 		$this->assertSame( apply_filters( 'the_content', $content ), $actual['data']['posts']['nodes'][0]['content'] );
 		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+	}
+
+	public function testIsStickyFieldOnPost() {
+
+		$sticky_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Sticky Post',
+			'post_content' => 'Sticky post content',
+			'post_author' => $this->admin,
+		]);
+
+		$nonsticky_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Non-sticky Post',
+			'post_content' => 'Non-sticky post content',
+			'post_author' => $this->admin,
+		]);
+
+		update_option('sticky_posts', [$sticky_post_id]);
+
+		$query = '
+		query testStickyPost($ids: [ID]) {
+			posts(first: 2, where: { in: $ids }) {
+				nodes {
+					databaseId
+					uri
+					link
+					isSticky
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'ids' => [
+					$sticky_post_id,
+					$nonsticky_post_id
+				],
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
+		$this->assertFalse($actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
 }
