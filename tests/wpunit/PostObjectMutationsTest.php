@@ -8,6 +8,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 	public $author;
+	public $contributor;
 
 	public function setUp(): void {
 		// before
@@ -23,6 +24,10 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
+		] );
+
+		$this->contributor = $this->factory()->user->create( [
+			'role' => 'contributor',
 		] );
 
 		$this->subscriber = $this->factory()->user->create( [
@@ -558,6 +563,90 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * Make sure we're throwing an error if there's no $input with the mutation
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	public function testCreatePostByAuthorCanHavePublishStatus() {
+
+		$mutation = '
+		mutation createPost($input:CreatePostInput!){
+		  createPost(input:$input){
+		    clientMutationId
+		    post{
+		      id
+		      title
+		      status
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'CreatePost',
+				'title' => 'Test Post as Contributor',
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->author );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Make sure we're throwing an error if there's no $input with the mutation
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'publish', $actual['data']['createPost']['post']['status'] );
+		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
+		$this->assertSame( $variables['input']['clientMutationId'], $actual['data']['createPost']['clientMutationId'] );
+
+	}
+
+	public function testCreatePostByContributorCannotHavePublishStatus() {
+
+		$mutation = '
+		mutation createPost($input:CreatePostInput!){
+		  createPost(input:$input){
+		    clientMutationId
+		    post{
+		      id
+		      title
+		      status
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'CreatePost',
+				'title' => 'Test Post as Contributor',
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Make sure we're throwing an error if there's no $input with the mutation
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'pending', $actual['data']['createPost']['post']['status'] );
+		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
+		$this->assertSame( $variables['input']['clientMutationId'], $actual['data']['createPost']['clientMutationId'] );
 
 	}
 
