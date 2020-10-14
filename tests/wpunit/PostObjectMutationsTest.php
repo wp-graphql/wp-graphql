@@ -7,6 +7,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $client_mutation_id;
 	public $admin;
 	public $subscriber;
+	public $contributor;
 	public $author;
 
 	public function setUp(): void {
@@ -23,6 +24,10 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
+		] );
+
+		$this->contributor = $this->factory()->user->create( [
+			'role' => 'contributor',
 		] );
 
 		$this->subscriber = $this->factory()->user->create( [
@@ -799,5 +804,99 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
          */
         $this->assertNotNull( $results['data']['post']['dateGmt'] );
     }
+
+	/**
+	 * @throws Exception
+	 */
+    public function testUserWithoutProperCapabilityCannotUpdateOthersPosts() {
+
+		$admin_created_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test Post from Admin, Edit by Contributor',
+			'post_author' => $this->admin
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_post_id );
+
+		$mutation = '
+		mutation UpdatePost($input: UpdatePostInput! ) {
+		  updatePost(input:$input) {
+		    post {
+		      id
+		      title
+		      content
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'UpdatePost',
+				'id' => $global_id,
+				'title' => 'New Title'
+			]
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables,
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+    }
+
+	/**
+	 * @throws Exception
+	 */
+	public function testUserWithoutProperCapabilityCannotUpdateOthersPages() {
+
+		$admin_created_page_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Page from Admin, Edit by Contributor',
+			'post_author' => $this->admin
+		] );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_page_id );
+
+		$mutation = '
+		mutation UpdatePage($input: UpdatePageInput! ) {
+		  updatePage(input:$input) {
+		    page {
+		      id
+		      title
+		      content
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'UpdatePage',
+				'id'               => $global_id,
+				'title'            => 'New Title'
+			]
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql( [
+			'query'     => $mutation,
+			'variables' => $variables,
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
 
 }
