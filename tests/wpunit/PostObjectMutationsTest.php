@@ -7,7 +7,6 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $client_mutation_id;
 	public $admin;
 	public $subscriber;
-	public $contributor;
 	public $author;
 
 	public function setUp(): void {
