@@ -83,6 +83,13 @@ class Settings {
 
 		$this->settings_api->register_fields( 'graphql_general_settings', [
 			[
+				'name'    => 'telemetry_enabled',
+				'label'   => __( 'Data Sharing Opt-In', 'wp-graphql' ),
+				'desc'    => __( 'Help us improve WPGraphQL by allowing tracking of usage. Tracking data allows us to better understand how WPGraphQL is used so we can better prioritize features & integrations with popular WordPress plugins, and can allow us to notify site owners if we detect a security issue. All data are treated in accordance with Gatsby\'s Privacy Policy. <a href="https://www.gatsbyjs.com/privacy-policy" target="_blank">Learn more</a>.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'off',
+			],
+			[
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
@@ -108,7 +115,7 @@ class Settings {
 				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
 				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 				'type'     => 'checkbox',
-				'value'    => defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? 'on' : 'off',
+				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
 				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
 			],
 			[
