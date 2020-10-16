@@ -689,12 +689,10 @@ class Post extends Model {
 
 					return false;
 				},
-				'isSticky'                 => function() {
+				'isSticky'                  => function() {
 					return is_sticky( $this->databaseId );
 				},
 			];
-
-
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [
