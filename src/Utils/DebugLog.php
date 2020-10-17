@@ -27,7 +27,7 @@ class DebugLog {
 
 		$this->logs = [];
 
-		$enabled            = defined( 'GRAPHQL_DEBUG' ) && true === GRAPHQL_DEBUG ? true : false;
+		$enabled            = \WPGraphQL::debug() ? true : false;
 		$this->logs_enabled = apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
 
 		return $this;
