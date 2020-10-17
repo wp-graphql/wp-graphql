@@ -8,6 +8,7 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 	public $author;
+	public $contributor;
 
 	public function setUp(): void {
 		// before
@@ -23,6 +24,10 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
+		] );
+
+		$this->contributor = $this->factory()->user->create( [
+			'role' => 'contributor',
 		] );
 
 		$this->subscriber = $this->factory()->user->create( [
@@ -555,6 +560,90 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testCreatePostByAuthorCanHavePublishStatus() {
+
+		$mutation = '
+		mutation createPost($input:CreatePostInput!){
+		  createPost(input:$input){
+		    clientMutationId
+		    post{
+		      id
+		      title
+		      status
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'CreatePost',
+				'title' => 'Test Post as Contributor',
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->author );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Make sure we're throwing an error if there's no $input with the mutation
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'publish', $actual['data']['createPost']['post']['status'] );
+		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
+		$this->assertSame( $variables['input']['clientMutationId'], $actual['data']['createPost']['clientMutationId'] );
+
+	}
+
+	public function testCreatePostByContributorCannotHavePublishStatus() {
+
+		$mutation = '
+		mutation createPost($input:CreatePostInput!){
+		  createPost(input:$input){
+		    clientMutationId
+		    post{
+		      id
+		      title
+		      status
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'CreatePost',
+				'title' => 'Test Post as Contributor',
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables
+		]);
+
+		codecept_debug( $actual );
+
+		/**
+		 * Make sure we're throwing an error if there's no $input with the mutation
+		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'pending', $actual['data']['createPost']['post']['status'] );
+		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
+		$this->assertSame( $variables['input']['clientMutationId'], $actual['data']['createPost']['clientMutationId'] );
+
+	}
+
 	public function createPostWithDatesMutation( $input ) {
 
         wp_set_current_user( $this->admin );
@@ -793,5 +882,99 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
          */
         $this->assertNotNull( $results['data']['post']['dateGmt'] );
     }
+
+	/**
+	 * @throws Exception
+	 */
+    public function testUserWithoutProperCapabilityCannotUpdateOthersPosts() {
+
+		$admin_created_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Test Post from Admin, Edit by Contributor',
+			'post_author' => $this->admin
+		]);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_post_id );
+
+		$mutation = '
+		mutation UpdatePost($input: UpdatePostInput! ) {
+		  updatePost(input:$input) {
+		    post {
+		      id
+		      title
+		      content
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'UpdatePost',
+				'id' => $global_id,
+				'title' => 'New Title'
+			]
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => $variables,
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+    }
+
+	/**
+	 * @throws Exception
+	 */
+	public function testUserWithoutProperCapabilityCannotUpdateOthersPages() {
+
+		$admin_created_page_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Page from Admin, Edit by Contributor',
+			'post_author' => $this->admin
+		] );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_page_id );
+
+		$mutation = '
+		mutation UpdatePage($input: UpdatePageInput! ) {
+		  updatePage(input:$input) {
+		    page {
+		      id
+		      title
+		      content
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'clientMutationId' => 'UpdatePage',
+				'id'               => $global_id,
+				'title'            => 'New Title'
+			]
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql( [
+			'query'     => $mutation,
+			'variables' => $variables,
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
 
 }

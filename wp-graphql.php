@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.12.0
+ * Version: 0.13.3
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 4.7.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.12.0
+ * @version  0.13.3
  */
 
 // Exit if accessed directly.
@@ -34,6 +34,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( file_exists( __DIR__ . '/c3.php' ) ) {
 	require_once __DIR__ . '/c3.php';
 }
+
+/**
+ * Run this function when WPGraphQL is de-activated
+ */
+register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
 
 /**
  * This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
@@ -84,6 +89,13 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * @var \WPGraphQL\WPSchema
 		 */
 		protected static $schema;
+
+		/**
+		 * Holds the TypeRegistry instance
+		 *
+		 * @var \WPGraphQL\Registry\TypeRegistry $type_registry
+		 */
+		protected static $type_registry;
 
 		/**
 		 * Stores an array of allowed post types
@@ -166,7 +178,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.12.0' );
+				define( 'WPGRAPHQL_VERSION', '0.13.3' );
 			}
 
 			// Plugin Folder Path.
@@ -187,11 +199,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			// Whether to autoload the files or not.
 			if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
 				define( 'WPGRAPHQL_AUTOLOAD', true );
-			}
-
-			// Whether to run the plugin in debug mode. Default is false.
-			if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
-				define( 'GRAPHQL_DEBUG', false );
 			}
 
 			// The minimum version of PHP this plugin requires to work properly
@@ -226,6 +233,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Required non-autoloaded classes.
 			require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
+			require_once WPGRAPHQL_PLUGIN_DIR . 'deactivation.php';
 
 		}
 
@@ -271,6 +279,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				}
 			);
 
+			// Prevent WPGraphQL Insights from running
+			remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
+
 			/**
 			 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
 			 */
@@ -284,14 +295,21 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'check_field_permissions',
 			], 10, 8 );
 
-			/**
-			 * Determine what to show in graphql
-			 */
+			// Determine what to show in graphql
 			add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 			add_action( 'init', [ $this, 'setup_types' ], 10 );
 
 			// Throw an exception
 			add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+
+			// Initialize Admin functionality
+			add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+
+			$tracing = new \WPGraphQL\Utils\Tracing();
+			$tracing->init();
+
+			$query_log = new \WPGraphQL\Utils\QueryLog();
+			$query_log->init();
 
 		}
 
@@ -354,6 +372,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'\WPGraphQL\Utils\InstrumentSchema',
 				'instrument_schema',
 			], 10, 1 );
+		}
+
+		/**
+		 * Initialize admin functionality
+		 */
+		public function init_admin() {
+			$admin = new \WPGraphQL\Admin\Admin();
+			$admin->init();
 		}
 
 		/**
@@ -531,7 +557,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Allow Schema to be cleared
 		 */
 		public static function clear_schema() {
-			self::$schema = null;
+			self::$type_registry = null;
+			self::$schema        = null;
 		}
 
 		/**
@@ -544,15 +571,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function get_schema() {
 
-			/**
-			 * Fire an action when the Schema is returned
-			 */
-			do_action( 'graphql_get_schema', self::$schema );
-
 			if ( null === self::$schema ) {
 
-				$type_registry   = new \WPGraphQL\Registry\TypeRegistry();
-				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry( $type_registry );
+				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry();
 				$schema          = $schema_registry->get_schema();
 
 				/**
@@ -568,9 +589,66 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			}
 
 			/**
+			 * Fire an action when the Schema is returned
+			 */
+			do_action( 'graphql_get_schema', self::$schema );
+
+			/**
 			 * Return the Schema after applying filters
 			 */
 			return ! empty( self::$schema ) ? self::$schema : null;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public static function debug(): bool {
+			if ( defined( 'GRAPHQL_DEBUG' ) ) {
+				$enabled = (bool) GRAPHQL_DEBUG;
+			} else {
+				$enabled = get_graphql_setting( 'debug_mode_enabled', 'off' );
+				$enabled = 'on' === $enabled ? true : false;
+			}
+
+			return (bool) $enabled;
+		}
+
+		/**
+		 * Returns the Schema as defined by static registrations throughout
+		 * the WP Load.
+		 *
+		 * @return \WPGraphQL\Registry\TypeRegistry
+		 *
+		 * @throws Exception
+		 */
+		public static function get_type_registry() {
+
+			if ( null === self::$type_registry ) {
+
+				$type_registry = new \WPGraphQL\Registry\TypeRegistry();
+
+				/**
+				 * Generate & Filter the schema.
+				 *
+				 * @since 0.0.5
+				 *
+				 * @param array                 $type_registry The TypeRegistry for the API
+				 * @param \WPGraphQL\AppContext $app_context   Object The AppContext object containing all of the
+				 *                                             information about the context we know at this point
+				 */
+				self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
+			}
+
+			/**
+			 * Fire an action when the Type Registry is returned
+			 */
+			do_action( 'graphql_get_type_registry', self::$type_registry );
+
+			/**
+			 * Return the Schema after applying filters
+			 */
+			return ! empty( self::$type_registry ) ? self::$type_registry : null;
+
 		}
 
 		/**

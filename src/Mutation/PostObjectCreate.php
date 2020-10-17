@@ -241,6 +241,14 @@ class PostObjectCreate {
 			$intended_post_status = ! empty( $post_args['post_status'] ) ? $post_args['post_status'] : $default_post_status;
 
 			/**
+			 * If the current user cannot publish posts but their intent was to publish,
+			 * default the status to pending.
+			 */
+			if ( ! current_user_can( $post_type_object->cap->publish_posts ) && ! in_array( $intended_post_status, [ 'draft', 'pending' ], true ) ) {
+				$intended_post_status = 'pending';
+			}
+
+			/**
 			 * Set the post_status as the default for the initial insert. The intended $post_status will be set after
 			 * side effects are complete.
 			 */

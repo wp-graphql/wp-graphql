@@ -843,4 +843,222 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1477
+	 */
+	public function testPostInArgumentWorksWithCursors() {
+
+		$post_1 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_2 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_3 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_4 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
+
+		$query = '
+		query GetPostsByIds($post_ids: [ID] $after:String $before:String) {
+		  posts(where: {in: $post_ids} after:$after before:$before) {
+		    edges {
+		      cursor
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => null,
+			]
+		] );
+
+		$actual_ids = [];
+
+		codecept_debug( $post_ids );
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( $post_ids, $actual_ids );
+
+		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => $cursor
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_4, $post_1 ], $actual_ids );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'before' => $cursor
+			]
+		]);
+
+		codecept_debug( [ 'variables' => [
+			'post_ids' => $post_ids,
+			'before' => $cursor
+		] ]);
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_3 ], $actual_ids );
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1477
+	 */
+	public function testCustomPostConnectionWithSetIdsWorksWithCursors() {
+
+		$post_1 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_2 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_3 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_4 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
+
+		register_graphql_connection([
+			'connectionTypeName' => 'OrderbyDebug',
+			'description' => __( 'debugging', 'wp-graphql' ),
+			'fromType' => 'RootQuery',
+			'toType' => 'MediaItem',
+			'fromFieldName' => 'postOrderbyDebug',
+			'resolve' => function( $root, $args, $context, $info ) use ( $post_ids ) {
+				$args['where']['in'] = $post_ids;
+				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
+				return $resolver->get_connection();
+			}
+		]);
+
+		$query = '
+		query GetPostsWithSpecificIdsInResolver($after:String $before:String) {
+		  posts: postOrderbyDebug(after:$after before:$before) {
+		    edges {
+		      cursor
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'after'    => null,
+				'before' => null,
+			]
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( $post_ids, $actual_ids );
+
+		$cursor_from_first_query = $actual['data']['posts']['edges'][1]['cursor'];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'after' => $cursor_from_first_query
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_ids[2], $post_ids[3] ], $actual_ids );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'before' => $cursor_from_first_query,
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_ids[0] ], $actual_ids );
+
+
+	}
+
+
+
 }

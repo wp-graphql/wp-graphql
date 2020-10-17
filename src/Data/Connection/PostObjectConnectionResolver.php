@@ -25,11 +25,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
-	 * @param mixed              $source                  The object passed down from the previous level
-	 *                                                    in the Resolve tree
-	 * @param array              $args                    The input arguments for the query
-	 * @param AppContext         $context                 The context of the request
-	 * @param ResolveInfo        $info                    The resolve info passed down the Resolve tree
+	 * @param mixed       $source                         The object passed down from the previous
+	 *                                                    level in the Resolve tree
+	 * @param array       $args                           The input arguments for the query
+	 * @param AppContext  $context                        The context of the request
+	 * @param ResolveInfo $info                           The resolve info passed down the Resolve
+	 *                                                    tree
 	 * @param mixed string|array $post_type The post type to resolve for
 	 *
 	 * @throws \Exception
@@ -254,6 +255,38 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['search_orderby_title'] = false;
 			$query_args['orderby']              = 'date';
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
+		}
+
+		if ( empty( $this->args['where']['orderby'] ) ) {
+			if ( ! empty( $query_args['post__in'] ) ) {
+
+				$ids = $query_args['post__in'];
+				$ids = array_map( function( $id ) {
+					return absint( $id );
+				}, $ids );
+				if ( ! empty( $this->get_offset() ) ) {
+					if ( ! empty( $this->get_offset() ) ) {
+						// Determine if the offset is in the array
+						$key = array_search( $this->get_offset(), $ids, true );
+						// If the offset is in the array
+						if ( false !== $key ) {
+							$key = absint( $key );
+							// Slice the array from the back
+							if ( ! empty( $this->args['before'] ) ) {
+								$ids = array_slice( $ids, 0, $key, true );
+								// Slice the array from the front
+							} else {
+								$key++;
+								$ids = array_slice( $ids, $key, null, true );
+							}
+						}
+					}
+				}
+
+				$query_args['post__in'] = $ids;
+				$query_args['orderby']  = 'post__in';
+				$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
+			}
 		}
 
 		/**

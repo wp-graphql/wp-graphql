@@ -35,15 +35,12 @@ class CommentMutation {
 		 *    'comment_content' => 'content here',
 		 *    'comment_type' => '',
 		 *    'comment_parent' => 0,
-		 *    'user_id' => 1,
-		 *    'comment_author_IP' => '127.0.0.1',
-		 *    'comment_agent' => 'Mozilla/5.0 ( Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10 ) Gecko/2009042316 Firefox/3.0.10 ( .NET CLR 3.5.30729 )',
 		 *    'comment_date' => $time,
 		 *    'comment_approved' => 1,
 		 */
 
-		$user = ! empty( $input['userId'] ) ? get_user_by( 'ID', $input['userId'] ) : false;
-		if ( $user instanceof \WP_User ) {
+		$user = wp_get_current_user();
+		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
 			$output_args['user_id']              = $user->ID;
 			$output_args['comment_author']       = $user->display_name;
 			$output_args['comment_author_email'] = $user->user_email;
@@ -53,14 +50,14 @@ class CommentMutation {
 		} else {
 			if ( empty( $input['author'] ) ) {
 				if ( ! $update ) {
-					throw new UserError( __( 'Must enter a valid user_id or author name', 'graphql' ) );
+					throw new UserError( __( 'Comment must include an authorName', 'wp-graphql' ) );
 				}
 			} else {
 				$output_args['comment_author'] = $input['author'];
 			}
 			if ( ! empty( $input['authorEmail'] ) ) {
 				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+					throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 				}
 				$output_args['comment_author_email'] = $input['authorEmail'];
 			}
@@ -89,14 +86,6 @@ class CommentMutation {
 			$output_args['comment_type'] = $input['type'];
 		}
 
-		if ( ! empty( $input['authorIp'] ) ) {
-			$output_args['comment_author_IP'] = $input['authorIp'];
-		}
-
-		if ( ! empty( $input['agent'] ) ) {
-			$output_args['comment_agent'] = $input['agent'];
-		}
-
 		if ( ! empty( $input['approved'] ) ) {
 			$output_args['comment_approved'] = $input['approved'];
 		}
@@ -114,15 +103,23 @@ class CommentMutation {
 	}
 
 	/**
-	 * This updates comment meta.
+	 * This updates commentmeta.
 	 *
-	 * @param int         $comment_id    The ID of the Comment the comment is connected to
-	 * @param array       $input         The input for the mutation
-	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
-	 * @param AppContext  $context       The AppContext passed down to all resolvers
-	 * @param ResolveInfo $info          The ResolveInfo passed down to all resolvers
+	 * @param int         $comment_id              The ID of the postObject the comment is connected to
+	 * @param array       $input                   The input for the mutation
+	 * @param string      $mutation_name           The name of the mutation ( ex: create, update, delete )
+	 * @param AppContext  $context                 The AppContext passed down to all resolvers
+	 * @param ResolveInfo $info                    The ResolveInfo passed down to all resolvers
+	 * @param string      $intended_comment_status The intended post_status the post should have according to the mutation input
+	 * @param string      $intended_comment_status The default status posts should use if an intended status wasn't set
 	 */
 	public static function update_additional_comment_data( $comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
+		/**
+		* @todo: should account for authentication
+		*/
+		$intended_comment_status = 0;
+		$default_comment_status  = 0;
 
+		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
 	}
 }

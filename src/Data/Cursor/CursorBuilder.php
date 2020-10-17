@@ -55,7 +55,7 @@ class CursorBuilder {
 	}
 
 	/**
-	 * Generate the final SQL string to be appended to WHERE claise
+	 * Generate the final SQL string to be appended to WHERE clause
 	 *
 	 * @return string
 	 */

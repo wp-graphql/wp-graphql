@@ -299,7 +299,11 @@ class NodeResolver {
 			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['p'] ) ) : null;
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
+			// Target post types with a public URI.
+			$allowed_post_types = get_post_types( [
+				'show_in_graphql' => true,
+				'public'          => true,
+			] );
 
 			$post_type = 'post';
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {

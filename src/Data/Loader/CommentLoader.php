@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use GraphQL\Deferred;
 use WPGraphQL\Model\Comment;
 
 /**
