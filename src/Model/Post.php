@@ -304,7 +304,7 @@ class Post extends Model {
 	 *
 	 * @return bool
 	 */
-	protected function is_private() {
+	public function is_private() {
 
 		/**
 		 * If the post is of post_type "revision", we need to access the parent of the Post
@@ -689,12 +689,10 @@ class Post extends Model {
 
 					return false;
 				},
-				'isSticky'                 => function() {
+				'isSticky'                  => function() {
 					return is_sticky( $this->databaseId );
 				},
 			];
-
-
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [
