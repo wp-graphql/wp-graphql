@@ -115,6 +115,43 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		self::assertEquals( $expected, $actual );
 	}
 
+	public function testRegisterFieldStartingWithNumberOutputsDebugMessage() {
+		register_graphql_field( 'RootQuery', '123TestField', [
+			'type' => 'String',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'debug', $actual['extensions'] );
+
+		$has_debug_message = null;
+
+		foreach ( $actual['extensions']['debug'] as $debug_message ) {
+			if (
+				'123TestField' === $debug_message['field_name'] &&
+				'RootQuery' === $debug_message['type_name'] &&
+				'INVALID_FIELD_NAME' === $debug_message['type']
+			) {
+				$has_debug_message = true;
+			}
+		}
+
+		$this->assertTrue( $has_debug_message );
+
+	}
+
 	public function testRegisterInputField() {
 
 		/**
