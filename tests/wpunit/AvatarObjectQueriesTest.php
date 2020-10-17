@@ -73,25 +73,23 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => [
-						'default'      => 'mm',
-						'extraAttr'    => null,
-						'forceDefault' => true,
-						'foundAvatar'  => true,
-						'height'       => 96,
-						'rating'       => 'g',
-						'scheme'       => null,
-						'size'         => 96,
-						'url'          => 'http://test-url.com',
-						'width'        => 96,
-					],
+			'user' => [
+				'avatar' => [
+					'default'      => 'mm',
+					'extraAttr'    => null,
+					'forceDefault' => true,
+					'foundAvatar'  => true,
+					'height'       => 96,
+					'rating'       => 'g',
+					'scheme'       => null,
+					'size'         => 96,
+					'url'          => 'http://test-url.com',
+					'width'        => 96,
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
@@ -146,25 +144,23 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => [
-						'default'      => 'mm',
-						'extraAttr'    => null,
-						'forceDefault' => false,
-						'foundAvatar'  => true,
-						'height'       => 48,
-						'rating'       => 'g',
-						'scheme'       => null,
-						'size'         => 48,
-						'url'          => 'http://test-url.com',
-						'width'        => 48,
-					],
+			'user' => [
+				'avatar' => [
+					'default'      => 'mm',
+					'extraAttr'    => null,
+					'forceDefault' => false,
+					'foundAvatar'  => true,
+					'height'       => 48,
+					'rating'       => 'g',
+					'scheme'       => null,
+					'size'         => 48,
+					'url'          => 'http://test-url.com',
+					'width'        => 48,
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
@@ -221,14 +217,12 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * The avatar should be empty.
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => null
-				],
+			'user' => [
+				'avatar' => null
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );

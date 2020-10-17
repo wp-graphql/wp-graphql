@@ -198,12 +198,10 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
 
 		$expected = [
-			'data' => [
-				'createComment' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'comment'          => [
-						'content'  => apply_filters( 'comment_text', $this->content ),
-					],
+			'createComment' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'comment'          => [
+					'content'  => apply_filters( 'comment_text', $this->content ),
 				],
 			],
 		];
@@ -211,12 +209,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * use --debug flag to view
 		 */
-		\Codeception\Util\Debug::debug( $actual );
+		codecept_debug( $actual );
 
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 		$count = wp_count_comments( $post_id );
 		$this->assertEquals( '1', $count->total_comments );
 	}
@@ -266,14 +264,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'updateCommentTest', $variables );
 
 		$expected = [
-			'data' => [
-				'updateComment' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'comment'          => [
-						'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-						'commentId' => $comment_id,
-						'content'   => apply_filters( 'comment_text', $content ),
-					]
+			'updateComment' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'comment'          => [
+					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'commentId' => $comment_id,
+					'content'   => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
@@ -281,12 +277,12 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * use --debug flag to view
 		 */
-		\Codeception\Util\Debug::debug( $actual );
+		codecept_debug( $actual );
 
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function testDeleteCommentWithPostConnection() {
@@ -332,15 +328,13 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'deleteCommentTest', $variables );
 
 		$expected = [
-			'data' => [
-				'deleteComment' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'comment'          => [
-						'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-						'commentId' => $comment_id,
-						'content'   => apply_filters( 'comment_text', $content ),
-					],
+			'deleteComment' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'          => [
+					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'commentId' => $comment_id,
+					'content'   => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
@@ -353,7 +347,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function testRestoreComment() {
@@ -403,15 +397,13 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'restoreCommentTest', $variables );
 
 		$expected = [
-			'data' => [
-				'restoreComment' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'restoredId'       => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'comment'          => [
-						'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-						'commentId' => $comment_id,
-						'content'   => apply_filters( 'comment_text', $content ),
-					],
+			'restoreComment' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'restoredId'       => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'          => [
+					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'commentId' => $comment_id,
+					'content'   => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
@@ -424,7 +416,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**

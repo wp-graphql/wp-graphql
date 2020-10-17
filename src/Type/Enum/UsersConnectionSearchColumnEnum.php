@@ -24,7 +24,7 @@ class UsersConnectionSearchColumnEnum {
 
 		if ( ! empty( $roles ) && is_array( $roles ) ) {
 			register_graphql_enum_type(
-				'UserRoleEnum',
+				'UsersConnectionSearchColumnEnum',
 				[
 					'description' => __( 'Names of available user roles', 'wp-graphql' ),
 					'values'      => $roles,

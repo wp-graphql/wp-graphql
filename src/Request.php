@@ -7,6 +7,7 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use GraphQL\Validator\Rules\DisableIntrospection;
 use WPGraphQL\Server\WPHelper;
+use WPGraphQL\Utils\DebugLog;
 use WPGraphQL\Utils\QueryLog;
 use WPGraphQL\Utils\Tracing;
 
@@ -25,21 +26,21 @@ class Request {
 	 *
 	 * @var \WPGraphQL\AppContext
 	 */
-	private $app_context;
+	public $app_context;
 
 	/**
 	 * Request data.
 	 *
 	 * @var array
 	 */
-	private $data;
+	public $data;
 
 	/**
 	 * Cached global post.
 	 *
 	 * @var \WP_Post
 	 */
-	private $global_post;
+	public $global_post;
 
 	/**
 	 * GraphQL operation parameters for this request. Can also be an array of
@@ -47,7 +48,7 @@ class Request {
 	 *
 	 * @var OperationParams|OperationParams[]
 	 */
-	private $params;
+	public $params;
 
 	/**
 	 * Schema for this request.
@@ -55,6 +56,13 @@ class Request {
 	 * @var \WPGraphQL\WPSchema
 	 */
 	public $schema;
+
+	/**
+	 * Debug log for WPGraphQL Requests
+	 *
+	 * @var DebugLog
+	 */
+	public $debug_log;
 
 	/**
 	 * The Type Registry the Schema is built with
@@ -111,6 +119,9 @@ class Request {
 		 * kick off the schema creation, so types are not set up until this action has run!
 		 */
 		do_action( 'init_graphql_request' );
+
+		// Start tracking debug log messages
+		$this->debug_log = new DebugLog();
 
 		// Set request data for passed-in (non-HTTP) requests.
 		$this->data = $data;
@@ -417,8 +428,20 @@ class Request {
 		 * @param string              $operation The name of the operation
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL query
+		 * @param Request             $this      Instance of the Request
 		 */
-		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables );
+		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
+
+		/**
+		 * Add the debug log to the request
+		 */
+		if ( ! empty( $response ) ) {
+			if ( is_array( $response ) ) {
+				$response['extensions']['debug'] = $this->debug_log->get_logs();
+			} elseif ( is_object( $response ) ) {
+				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
+			}
+		}
 
 		/**
 		 * Filter the $response of the GraphQL execution. This allows for the response to be filtered
@@ -441,8 +464,9 @@ class Request {
 		 * @param string              $operation The name of the operation
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL request
+		 * @param Request             $this      Instance of the Request
 		 */
-		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables );
+		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this );
 
 		/**
 		 * Run an action after the response has been filtered, as the response is being returned.
@@ -454,8 +478,9 @@ class Request {
 		 * @param string              $operation         The name of the operation
 		 * @param string              $query             The query that GraphQL executed
 		 * @param array|null          $variables         Variables to passed to your GraphQL query
+		 * @param Request             $this      Instance of the Request
 		 */
-		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables );
+		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this );
 
 		/**
 		 * Filter "is_graphql_request" back to false.

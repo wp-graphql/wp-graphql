@@ -207,30 +207,28 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'categoryId'     => $term_id,
-					'count'          => null,
-					'description'    => 'just a description',
-					'id'             => $global_id,
-					'link'           => get_term_link( $term_id ),
-					'name'           => 'A Category',
-					'posts'          => [
-						'edges' => [],
-					],
-					'slug'           => 'a-category',
-					'taxonomy'       => [
-						'node' => [
-							'name' => 'category',
-						],
-					],
-					'termGroupId'    => null,
-					'termTaxonomyId' => $term_id,
+			'category' => [
+				'categoryId'     => $term_id,
+				'count'          => null,
+				'description'    => 'just a description',
+				'id'             => $global_id,
+				'link'           => get_term_link( $term_id ),
+				'name'           => 'A Category',
+				'posts'          => [
+					'edges' => [],
 				],
+				'slug'           => 'a-category',
+				'taxonomy'       => [
+					'node' => [
+						'name' => 'category',
+					],
+				],
+				'termGroupId'    => null,
+				'termTaxonomyId' => $term_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -305,14 +303,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'posts' => [
-						'edges' => [
-							[
-								'node' => [
-									'postId' => $post_id,
-								],
+			'category' => [
+				'posts' => [
+					'edges' => [
+						[
+							'node' => [
+								'postId' => $post_id,
 							],
 						],
 					],
@@ -320,7 +316,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -364,23 +360,21 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_parent_id,
-					'categoryId' => $parent_id,
-					'children'   => [
-						'nodes' => [
-							[
-								'id'         => $global_child_id,
-								'categoryId' => $child_id,
-							],
+			'category' => [
+				'id'         => $global_parent_id,
+				'categoryId' => $parent_id,
+				'children'   => [
+					'nodes' => [
+						[
+							'id'         => $global_child_id,
+							'categoryId' => $child_id,
 						],
 					],
 				],
-			],
+			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -429,29 +423,27 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_child_id,
-					'categoryId' => $child_id,
-					'parent' => [
-						'node' => [
-							'id' => $global_parent_id,
-						]
-					],
-					'ancestors'  => [
-						'nodes' => [
-							[
-								'id'         => $global_parent_id,
-								'categoryId' => $parent_id,
-							],
-						]
-					],
+			'category' => [
+				'id'         => $global_child_id,
+				'categoryId' => $child_id,
+				'parent' => [
+					'node' => [
+						'id' => $global_parent_id,
+					]
+				],
+				'ancestors'  => [
+					'nodes' => [
+						[
+							'id'         => $global_parent_id,
+							'categoryId' => $parent_id,
+						],
+					]
 				],
 			],
 		];
 
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -487,30 +479,25 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data'   => [
-				'category' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'The ID input is invalid',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
+		$expected_errors = [
+			[
+				'message'   => 'The ID input is invalid',
+				'locations' => [
+					[
+						'line'   => 3,
+						'column' => 4,
 					],
-					'path'      => [
-						'category',
-					],
-					'extensions' => [
-						'category' => 'user'
-					],
+				],
+				'path'      => [
+					'category',
+				],
+				'extensions' => [
+					'category' => 'user'
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected_errors, $actual['errors'] );
 	}
 
 }

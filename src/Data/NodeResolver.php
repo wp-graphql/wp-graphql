@@ -302,7 +302,7 @@ class NodeResolver {
 			// Target post types with a public URI.
 			$allowed_post_types = get_post_types( [
 				'show_in_graphql' => true,
-				'public'          => true
+				'public'          => true,
 			] );
 
 			$post_type = 'post';

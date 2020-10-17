@@ -428,55 +428,53 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
-						'description'      => apply_filters( 'the_content', $this->description ),
-						'altText'          => $this->altText,
-						'caption'          => apply_filters( 'the_content', $this->caption ),
-						'commentStatus'    => $this->commentStatus,
-						'date'             => $this->date,
-						'dateGmt'          => $this->dateGmt,
-						'slug'             => $this->slug,
-						'status'           => strtolower( $this->status ),
-						'mimeType'         => 'image/gif',
-						'parent'           => [
-							'node' => [
-								'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
-							],
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'title'            => $this->title,
+					'description'      => apply_filters( 'the_content', $this->description ),
+					'altText'          => $this->altText,
+					'caption'          => apply_filters( 'the_content', $this->caption ),
+					'commentStatus'    => $this->commentStatus,
+					'date'             => $this->date,
+					'dateGmt'          => $this->dateGmt,
+					'slug'             => $this->slug,
+					'status'           => strtolower( $this->status ),
+					'mimeType'         => 'image/gif',
+					'parent'           => [
+						'node' => [
+							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
 						],
-						'mediaType'        => 'image',
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+					],
+					'mediaType'        => 'image',
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -484,7 +482,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 
 	}
@@ -616,49 +614,47 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'status'           => strtolower( $this->status ),
-						'title'            => $attachment_title,
-						'description'      => '',
-						'mimeType'         => 'image/gif',
-						'author'           => [
-							'node' => [
-								'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
-							],
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'status'           => strtolower( $this->status ),
+					'title'            => $attachment_title,
+					'description'      => '',
+					'mimeType'         => 'image/gif',
+					'author'           => [
+						'node' => [
+							'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 						],
-						'parent'           => null,
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+					],
+					'parent'           => null,
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -666,7 +662,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -695,51 +691,49 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
-						'description'      => apply_filters( 'the_content', $this->description ),
-						'altText'          => $this->altText,
-						'caption'          => apply_filters( 'the_content', $this->caption ),
-						'commentStatus'    => $this->commentStatus,
-						'date'             => $this->date,
-						'dateGmt'          => $this->dateGmt,
-						'slug'             => $this->slug,
-						'status'           => strtolower( $this->status ),
-						'mimeType'         => 'image/gif',
-						'parent'           => null,
-						'mediaType'        => 'image',
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'title'            => $this->title,
+					'description'      => apply_filters( 'the_content', $this->description ),
+					'altText'          => $this->altText,
+					'caption'          => apply_filters( 'the_content', $this->caption ),
+					'commentStatus'    => $this->commentStatus,
+					'date'             => $this->date,
+					'dateGmt'          => $this->dateGmt,
+					'slug'             => $this->slug,
+					'status'           => strtolower( $this->status ),
+					'mimeType'         => 'image/gif',
+					'parent'           => null,
+					'mediaType'        => 'image',
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -747,7 +741,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -909,38 +903,36 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Define the expected output.
 		 */
 		$expected = [
-			'data' => [
-				'updateMediaItem' => [
-					'clientMutationId' => $this->updated_clientMutationId,
-					'mediaItem'             => [
-						'id'               => $this->media_item_id,
-						'title'            => $this->updated_title,
-						'description'      => apply_filters( 'the_content', $this->updated_description ),
-						'mediaItemId'      => $this->attachment_id,
-						'altText'          => $this->updated_altText,
-						'caption'          => apply_filters( 'the_content', $this->updated_caption ),
-						'commentStatus'    => $this->updated_commentStatus,
-						'date'             => $this->updated_date,
-						'dateGmt'          => $this->updated_dateGmt,
-						'slug'             => $this->updated_slug,
-						'status'           => strtolower( $this->updated_status ),
-						'mimeType'         => 'image/gif',
-						'author'           => [
-							'node' => [
-								'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
-							],
+			'updateMediaItem' => [
+				'clientMutationId' => $this->updated_clientMutationId,
+				'mediaItem'             => [
+					'id'               => $this->media_item_id,
+					'title'            => $this->updated_title,
+					'description'      => apply_filters( 'the_content', $this->updated_description ),
+					'mediaItemId'      => $this->attachment_id,
+					'altText'          => $this->updated_altText,
+					'caption'          => apply_filters( 'the_content', $this->updated_caption ),
+					'commentStatus'    => $this->updated_commentStatus,
+					'date'             => $this->updated_date,
+					'dateGmt'          => $this->updated_dateGmt,
+					'slug'             => $this->updated_slug,
+					'status'           => strtolower( $this->updated_status ),
+					'mimeType'         => 'image/gif',
+					'author'           => [
+						'node' => [
+							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 						],
 					],
 				],
 			],
 		];
 
-		$attachment = get_post( $this->attachment_id );
+		get_post( $this->attachment_id );
 
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -1152,14 +1144,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Define the expected output.
 		 */
 		$expected = [
-			'data' => [
-				'deleteMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'deletedId' => $this->media_item_id,
-					'mediaItem' => [
-						'id'               => $this->media_item_id,
-						'mediaItemId'      => $this->attachment_id,
-					],
+			'deleteMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'deletedId' => $this->media_item_id,
+				'mediaItem' => [
+					'id'               => $this->media_item_id,
+					'mediaItemId'      => $this->attachment_id,
 				],
 			],
 		];
@@ -1167,7 +1157,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected,  $actual['data'] );
 
 		/**
 		 * Try to delete again but we should have errors, because there's nothing to be deleted
