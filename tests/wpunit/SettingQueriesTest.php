@@ -27,6 +27,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * if they don't have the 'manage_options' capability
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function testSettingQueryAsEditor() {
 		/**

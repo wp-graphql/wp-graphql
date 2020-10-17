@@ -22,7 +22,11 @@ class PostObject {
 
 		$single_name = $post_type_object->graphql_single_name;
 
-		$interfaces = [ 'Node', 'ContentNode', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ];
+		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier' ];
+
+		if ( true === $post_type_object->public ) {
+			$interfaces[] = 'UniformResourceIdentifiable';
+		}
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
 			$interfaces[] = 'NodeWithTitle';
@@ -287,6 +291,13 @@ class PostObject {
 			$fields['isPostsPage'] = [
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
+			];
+		}
+
+		if ( 'post' === $post_type_object->name ) {
+			$fields['isSticky'] = [
+				'type'        => [ 'non_null' => 'Bool' ],
+				'description' => __( 'Whether this page is sticky', 'wp-graphql' ),
 			];
 		}
 

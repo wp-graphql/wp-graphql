@@ -4,8 +4,8 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before
-		parent::setUp();
 		WPGraphQL::clear_schema();
+		parent::setUp();
 		// your set up methods here
 	}
 
@@ -22,7 +22,9 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testRegisterDuplicateFieldShouldThrowException() {
+	public function testRegisterDuplicateFieldShouldShowDebugMessage() {
+
+		WPGraphQL::clear_schema();
 
 		register_graphql_type( 'ExampleType', [
 			'fields' => [
@@ -40,8 +42,6 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			'description' => 'Duplicate field, should throw exception'
 		] );
 
-		$this->expectException( \GraphQL\Error\InvariantViolation::class );
-
 		$actual = graphql( [
 			'query' => '
 			{
@@ -52,6 +52,14 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			'
 		] );
 
+		WPGraphQL::clear_schema();
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( ! empty( $actual['extensions']['debug'] ) );
+
+
 	}
 
 	/**
@@ -60,35 +68,20 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testRegisterFieldWithoutTypeShouldThrowException() {
+	public function testRegisterFieldWithoutTypeShouldShowDebugMessage() {
 
 		register_graphql_field( 'RootQuery', 'newFieldWithoutTypeDefined', [
 			'description' => 'Field without type, should throw exception'
 		] );
 
-		$this->expectException( \GraphQL\Error\InvariantViolation::class );
-
-		graphql( [
+		$actual = graphql( [
 			'query' => '{posts { nodes { id } } }'
 		] );
 
-	}
+		$messages = wp_list_pluck( $actual['extensions']['debug'], 'message' );
 
-	/**
-	 * This tries to deregister a non-existend field, and asserts that
-	 * an exception is being thrown.
-	 *
-	 * @throws Exception
-	 */
-	public function testDeRegisterNonExistentFieldShouldThrowException() {
-
-		deregister_graphql_field( 'RootQuery', 'nonExistentFieldThatShouldCauseException' );
-
-		$this->expectException( \GraphQL\Error\InvariantViolation::class );
-
-		graphql( [
-			'query' => '{posts { nodes { id } } }'
-		] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( in_array( 'The registered field \'newFieldWithoutTypeDefined\' does not have a Type defined. Make sure to define a type for all fields.', $messages, true ) );
 
 	}
 
@@ -97,7 +90,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Testing with invalid input
 		 */
-		$actual = \WPGraphQL\Types::map_input( 'string', 'another string' );
+		$actual = \WPGraphQL\Utils\Utils::map_input( 'string', 'another string' );
 		$this->assertEquals( [], $actual );
 
 		/**
@@ -120,7 +113,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			'stringInput' => 'value',
 			'intInput'    => 1,
 			'boolInput'   => true,
-			'inputObject' => \WPGraphQL\Types::map_input( $input_args, $map ),
+			'inputObject' => \WPGraphQL\Utils\Utils::map_input( $input_args, $map ),
 		];
 
 		$expected = [
@@ -134,7 +127,7 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$actual = \WPGraphQL\Types::map_input( $args, $map );
+		$actual = \WPGraphQL\Utils\Utils::map_input( $args, $map );
 
 		$this->assertEquals( $expected, $actual );
 

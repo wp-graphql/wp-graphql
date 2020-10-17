@@ -342,93 +342,89 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		if ( is_multisite() ) {
 			$expected = [
-				'data' => [
-					'updateSettings' => [
-						'clientMutationId'   => $this->clientMutationId,
-						'allSettings'        => [
-							'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-							'discussionSettingsDefaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-							'generalSettingsDateFormat'              => $this->generalSettingsDateFormat,
-							'generalSettingsDescription'             => $this->generalSettingsDescription,
-							'generalSettingsLanguage'                => $this->generalSettingsLanguage,
-							'generalSettingsStartOfWeek'             => $this->generalSettingsStartOfWeek,
-							'generalSettingsTimeFormat'              => $this->generalSettingsTimeFormat,
-							'generalSettingsTimezone'                => $this->generalSettingsTimezone,
-							'generalSettingsTitle'                   => $this->generalSettingsTitle,
-							'readingSettingsPostsPerPage'            => $this->readingSettingsPostsPerPage,
-							'writingSettingsDefaultCategory'         => $this->writingSettingsDefaultCategory,
-							'writingSettingsDefaultPostFormat'       => $this->writingSettingsDefaultPostFormat,
-							'writingSettingsUseSmilies'              => $this->writingSettingsUseSmilies,
-						],
-						'discussionSettings' => [
-							'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-							'defaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-						],
-						'generalSettings'    => [
-							'dateFormat'  => $this->generalSettingsDateFormat,
-							'description' => $this->generalSettingsDescription,
-							'language'    => $this->generalSettingsLanguage,
-							'startOfWeek' => $this->generalSettingsStartOfWeek,
-							'timeFormat'  => $this->generalSettingsTimeFormat,
-							'timezone'    => $this->generalSettingsTimezone,
-							'title'       => $this->generalSettingsTitle,
-						],
-						'readingSettings'    => [
-							'postsPerPage' => $this->readingSettingsPostsPerPage,
-						],
-						'writingSettings'    => [
-							'defaultCategory'   => $this->writingSettingsDefaultCategory,
-							'defaultPostFormat' => $this->writingSettingsDefaultPostFormat,
-							'useSmilies'        => $this->writingSettingsUseSmilies,
-						],
+				'updateSettings' => [
+					'clientMutationId'   => $this->clientMutationId,
+					'allSettings'        => [
+						'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
+						'discussionSettingsDefaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
+						'generalSettingsDateFormat'              => $this->generalSettingsDateFormat,
+						'generalSettingsDescription'             => $this->generalSettingsDescription,
+						'generalSettingsLanguage'                => $this->generalSettingsLanguage,
+						'generalSettingsStartOfWeek'             => $this->generalSettingsStartOfWeek,
+						'generalSettingsTimeFormat'              => $this->generalSettingsTimeFormat,
+						'generalSettingsTimezone'                => $this->generalSettingsTimezone,
+						'generalSettingsTitle'                   => $this->generalSettingsTitle,
+						'readingSettingsPostsPerPage'            => $this->readingSettingsPostsPerPage,
+						'writingSettingsDefaultCategory'         => $this->writingSettingsDefaultCategory,
+						'writingSettingsDefaultPostFormat'       => $this->writingSettingsDefaultPostFormat,
+						'writingSettingsUseSmilies'              => $this->writingSettingsUseSmilies,
+					],
+					'discussionSettings' => [
+						'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
+						'defaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
+					],
+					'generalSettings'    => [
+						'dateFormat'  => $this->generalSettingsDateFormat,
+						'description' => $this->generalSettingsDescription,
+						'language'    => $this->generalSettingsLanguage,
+						'startOfWeek' => $this->generalSettingsStartOfWeek,
+						'timeFormat'  => $this->generalSettingsTimeFormat,
+						'timezone'    => $this->generalSettingsTimezone,
+						'title'       => $this->generalSettingsTitle,
+					],
+					'readingSettings'    => [
+						'postsPerPage' => $this->readingSettingsPostsPerPage,
+					],
+					'writingSettings'    => [
+						'defaultCategory'   => $this->writingSettingsDefaultCategory,
+						'defaultPostFormat' => $this->writingSettingsDefaultPostFormat,
+						'useSmilies'        => $this->writingSettingsUseSmilies,
 					],
 				],
 			];
 		} else {
 			$expected = [
-				'data' => [
-					'updateSettings' => [
-						'clientMutationId' => $this->clientMutationId,
-						'allSettings'             => [
-							'discussionSettingsDefaultCommentStatus'         => $this->discussionSettingsDefaultCommentStatus,
-							'discussionSettingsDefaultPingStatus'            => $this->discussionSettingsDefaultPingStatus,
-							'generalSettingsDateFormat'                      => $this->generalSettingsDateFormat,
-							'generalSettingsDescription'                     => $this->generalSettingsDescription,
-							'generalSettingsEmail'                           => $this->generalSettingsEmail,
-							'generalSettingsLanguage'                        => $this->generalSettingsLanguage,
-							'generalSettingsStartOfWeek'                     => $this->generalSettingsStartOfWeek,
-							'generalSettingsTimeFormat'                      => $this->generalSettingsTimeFormat,
-							'generalSettingsTimezone'                        => $this->generalSettingsTimezone,
-							'generalSettingsTitle'                           => $this->generalSettingsTitle,
-							'generalSettingsUrl'                             => 'http://wpgraphql.test',
-							'readingSettingsPostsPerPage'                    => $this->readingSettingsPostsPerPage,
-							'writingSettingsDefaultCategory'                 => $this->writingSettingsDefaultCategory,
-							'writingSettingsDefaultPostFormat'               => $this->writingSettingsDefaultPostFormat,
-							'writingSettingsUseSmilies'                      => $this->writingSettingsUseSmilies,
-						],
-						'discussionSettings'    => [
-							'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-							'defaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-						],
-						'generalSettings'       => [
-							'dateFormat'  => $this->generalSettingsDateFormat,
-							'description' => $this->generalSettingsDescription,
-							'email'       => $this->generalSettingsEmail,
-							'language'    => $this->generalSettingsLanguage,
-							'startOfWeek' => $this->generalSettingsStartOfWeek,
-							'timeFormat'  => $this->generalSettingsTimeFormat,
-							'timezone'    => $this->generalSettingsTimezone,
-							'title'       => $this->generalSettingsTitle,
-							'url'         => 'http://wpgraphql.test',
-						],
-						'readingSettings'       => [
-							'postsPerPage' => $this->readingSettingsPostsPerPage,
-						],
-						'writingSettings'       => [
-							'defaultCategory'   => $this->writingSettingsDefaultCategory,
-							'defaultPostFormat' => $this->writingSettingsDefaultPostFormat,
-							'useSmilies'        => $this->writingSettingsUseSmilies,
-						],
+				'updateSettings' => [
+					'clientMutationId' => $this->clientMutationId,
+					'allSettings'             => [
+						'discussionSettingsDefaultCommentStatus'         => $this->discussionSettingsDefaultCommentStatus,
+						'discussionSettingsDefaultPingStatus'            => $this->discussionSettingsDefaultPingStatus,
+						'generalSettingsDateFormat'                      => $this->generalSettingsDateFormat,
+						'generalSettingsDescription'                     => $this->generalSettingsDescription,
+						'generalSettingsEmail'                           => $this->generalSettingsEmail,
+						'generalSettingsLanguage'                        => $this->generalSettingsLanguage,
+						'generalSettingsStartOfWeek'                     => $this->generalSettingsStartOfWeek,
+						'generalSettingsTimeFormat'                      => $this->generalSettingsTimeFormat,
+						'generalSettingsTimezone'                        => $this->generalSettingsTimezone,
+						'generalSettingsTitle'                           => $this->generalSettingsTitle,
+						'generalSettingsUrl'                             => 'http://wpgraphql.test',
+						'readingSettingsPostsPerPage'                    => $this->readingSettingsPostsPerPage,
+						'writingSettingsDefaultCategory'                 => $this->writingSettingsDefaultCategory,
+						'writingSettingsDefaultPostFormat'               => $this->writingSettingsDefaultPostFormat,
+						'writingSettingsUseSmilies'                      => $this->writingSettingsUseSmilies,
+					],
+					'discussionSettings'    => [
+						'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
+						'defaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
+					],
+					'generalSettings'       => [
+						'dateFormat'  => $this->generalSettingsDateFormat,
+						'description' => $this->generalSettingsDescription,
+						'email'       => $this->generalSettingsEmail,
+						'language'    => $this->generalSettingsLanguage,
+						'startOfWeek' => $this->generalSettingsStartOfWeek,
+						'timeFormat'  => $this->generalSettingsTimeFormat,
+						'timezone'    => $this->generalSettingsTimezone,
+						'title'       => $this->generalSettingsTitle,
+						'url'         => 'http://wpgraphql.test',
+					],
+					'readingSettings'       => [
+						'postsPerPage' => $this->readingSettingsPostsPerPage,
+					],
+					'writingSettings'       => [
+						'defaultCategory'   => $this->writingSettingsDefaultCategory,
+						'defaultPostFormat' => $this->writingSettingsDefaultPostFormat,
+						'useSmilies'        => $this->writingSettingsUseSmilies,
 					],
 				],
 			];
@@ -437,7 +433,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

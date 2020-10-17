@@ -164,27 +164,25 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$expected = [
-			'data' => [
-				'createUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'firstName' => $this->first_name,
-						'lastName'  => $this->last_name,
-						'roles'     => [
-							'nodes' => [
-								[
-									'name' => 'administrator',
-								]
-							],
+			'createUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'firstName' => $this->first_name,
+					'lastName'  => $this->last_name,
+					'roles'     => [
+						'nodes' => [
+							[
+								'name' => 'administrator',
+							]
 						],
-						'email'     => $email,
-						'username'  => $username,
-					]
+					],
+					'email'     => $email,
+					'username'  => $username,
 				]
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -310,29 +308,27 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'updateUser', $variables );
 
 		$expected = [
-			'data' => [
-				'updateUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'firstName' => $updated_firstname,
-						'lastName'  => $updated_lastname,
-						'roles'     => [
-							'nodes' => [
-								[
-									'name' => 'administrator',
-								]
-							],
+			'updateUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'firstName' => $updated_firstname,
+					'lastName'  => $updated_lastname,
+					'roles'     => [
+						'nodes' => [
+							[
+								'name' => 'administrator',
+							]
 						],
-						'username'  => $user_login,
-						'email'     => $updated_email,
-						'userId'    => $user_id,
-						'id'        => $guid,
-					]
+					],
+					'username'  => $user_login,
+					'email'     => $updated_email,
+					'userId'    => $user_id,
+					'id'        => $guid,
 				]
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -372,19 +368,17 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'deleteUser', $variables );
 
 		$expected = [
-			'data' => [
-				'deleteUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'username' => $username,
-						'userId'   => $user_id,
-						'id'       => $guid,
-					]
+			'deleteUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'username' => $username,
+					'userId'   => $user_id,
+					'id'       => $guid,
 				]
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		$user_obj_after_delete = get_user_by( 'id', $user_id );
 
@@ -496,25 +490,23 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'createAndGetUser', $variables );
 
 		$expected = [
-			'data' => [
-				'createUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'firstName'   => $this->first_name,
-						'lastName'    => $this->last_name,
-						'email'       => $email,
-						'username'    => $username,
-						'nicename'    => strtolower( str_ireplace( ' ', '-', $nicename ) ),
-						'name'        => $displayName,
-						'nickname'    => $nickname,
-						'description' => $description,
-						'locale'      => $locale
-					]
+			'createUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'firstName'   => $this->first_name,
+					'lastName'    => $this->last_name,
+					'email'       => $email,
+					'username'    => $username,
+					'nicename'    => strtolower( str_ireplace( ' ', '-', $nicename ) ),
+					'name'        => $displayName,
+					'nickname'    => $nickname,
+					'description' => $description,
+					'locale'      => $locale
 				]
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -547,19 +539,19 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $mutation, 'createUserWithoutRoles', $variables );
 
 		$expected = [
-			'data' => [
-				'createUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'firstName' => $this->first_name,
-						'lastName'  => $this->last_name,
-						'username'  => 'createuserwithoutroles',
-					],
+			'createUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'firstName' => $this->first_name,
+					'lastName'  => $this->last_name,
+					'username'  => 'createuserwithoutroles',
 				],
 			],
 		];
 
-		$this->assertEquals( $actual, $expected );
+		codecept_debug( $actual );
+
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -669,18 +661,16 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$expected = [
-			'data' => [
-				'registerUser' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'name' => $username,
-						'slug' => strtolower( $username ),
-					]
+			'registerUser' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'name' => $username,
+					'slug' => strtolower( $username ),
 				]
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -781,21 +771,19 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$expected = [
-			'data' => [
-				'resetUserPassword' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'username' => $login,
-						'email'    => $email,
-						'roles'    => [
-							'nodes' => $role_nodes,
-						],
+			'resetUserPassword' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'username' => $login,
+					'email'    => $email,
+					'roles'    => [
+						'nodes' => $role_nodes,
 					],
 				],
 			],
 		];
 
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -872,7 +860,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Assert that the expected user data was returned.
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function testSendPasswordResetEmailResponseWithEmail() {
@@ -884,19 +872,17 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Assert that the expected user data was returned.
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function getSendPasswordResetEmailExpected() {
 		$user     = get_userdata( $this->author );
 
 		return [
-			'data' => [
-				'sendPasswordResetEmail' => [
-					'clientMutationId' => $this->client_mutation_id,
-					'user'             => [
-						'userId' => $user->ID,
-					]
+			'sendPasswordResetEmail' => [
+				'clientMutationId' => $this->client_mutation_id,
+				'user'             => [
+					'userId' => $user->ID,
 				]
 			]
 		];

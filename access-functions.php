@@ -144,7 +144,6 @@ function register_graphql_type( $type_name, $config ) {
 	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $config ) {
 		$type_registry->register_type( $type_name, $config );
 	}, 10 );
-
 }
 
 /**
@@ -337,6 +336,35 @@ function register_graphql_settings_field( $group, $config ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
 		$registry->register_field( $group, $config );
 	} );
+}
+
+/**
+ * Given a message and an optional config array
+ *
+ * @param mixed|string|array $message The debug message
+ * @param array $config The debug config. Should be an associative array of keys and values.
+ *                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG.
+ *                      Other fields added to $config will be merged into the debug entry.
+ */
+function graphql_debug( $message, $config = [] ) {
+	$config['backtrace'] = wp_list_pluck( debug_backtrace(), 'file' );
+	add_action( 'graphql_get_debug_log', function( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
+		return $debug_log->add_log_entry( $message, $config );
+	} );
+}
+
+/**
+ * Check if the name is valid for use in GraphQL
+ *
+ * @param $type_name
+ *
+ * @return bool
+ */
+function is_valid_graphql_name( $type_name ) {
+	if ( preg_match( '/^\d/', $type_name ) ) {
+		return false;
+	}
+	return true;
 }
 
 /**

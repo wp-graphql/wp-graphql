@@ -35,15 +35,12 @@ class CommentMutation {
 		 *    'comment_content' => 'content here',
 		 *    'comment_type' => '',
 		 *    'comment_parent' => 0,
-		 *    'user_id' => 1,
-		 *    'comment_author_IP' => '127.0.0.1',
-		 *    'comment_agent' => 'Mozilla/5.0 ( Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10 ) Gecko/2009042316 Firefox/3.0.10 ( .NET CLR 3.5.30729 )',
 		 *    'comment_date' => $time,
 		 *    'comment_approved' => 1,
 		 */
 
-		$user = ! empty( $input['userId'] ) ? get_user_by( 'ID', $input['userId'] ) : false;
-		if ( $user instanceof \WP_User ) {
+		$user = wp_get_current_user();
+		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
 			$output_args['user_id']              = $user->ID;
 			$output_args['comment_author']       = $user->display_name;
 			$output_args['comment_author_email'] = $user->user_email;
@@ -53,14 +50,14 @@ class CommentMutation {
 		} else {
 			if ( empty( $input['author'] ) ) {
 				if ( ! $update ) {
-					throw new UserError( __( 'Must enter a valid user_id or author name', 'graphql' ) );
+					throw new UserError( __( 'Comment must include an authorName', 'wp-graphql' ) );
 				}
 			} else {
 				$output_args['comment_author'] = $input['author'];
 			}
 			if ( ! empty( $input['authorEmail'] ) ) {
 				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+					throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 				}
 				$output_args['comment_author_email'] = $input['authorEmail'];
 			}
@@ -87,14 +84,6 @@ class CommentMutation {
 
 		if ( ! empty( $input['type'] ) ) {
 			$output_args['comment_type'] = $input['type'];
-		}
-
-		if ( ! empty( $input['authorIp'] ) ) {
-			$output_args['comment_author_IP'] = $input['authorIp'];
-		}
-
-		if ( ! empty( $input['agent'] ) ) {
-			$output_args['comment_agent'] = $input['agent'];
 		}
 
 		if ( ! empty( $input['approved'] ) ) {
