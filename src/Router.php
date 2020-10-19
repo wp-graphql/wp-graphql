@@ -144,15 +144,6 @@ class Router {
 			$is_graphql_http_request = true;
 		}
 
-		/**
-		 * If true, return right away. This allows custom code to
-		 * define graphql requests if their definition doesn't match the standard
-		 * definition.
-		 */
-		if ( true === $is_graphql_http_request ) {
-			return $is_graphql_http_request;
-		}
-
 		// Check the server to determine if the GraphQL endpoint is being requested
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
