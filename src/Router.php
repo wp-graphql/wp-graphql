@@ -118,6 +118,24 @@ class Router {
 	 */
 	public static function is_graphql_http_request() {
 
+		/**
+		 * Filter whether the request is a GraphQL HTTP Request. Default is null, as the majority
+		 * of WordPress requests are NOT GraphQL requests (at least today that's true 😆).
+		 *
+		 * If this filter returns anything other than null, the function will return now and skip the
+		 * default checks.
+		 *
+		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 */
+		$pre_is_graphql_http_request = apply_filters( 'graphql_pre_is_graphql_http_request', null );
+
+		/**
+		 * If the filter has been applied, return now before executing default checks
+		 */
+		if ( null !== $pre_is_graphql_http_request ) {
+			return (bool) $pre_is_graphql_http_request;
+		}
+
 		// Default is false
 		$is_graphql_http_request = false;
 
@@ -125,20 +143,6 @@ class Router {
 		if ( isset( $_GET[ self::$route ] ) ) {
 			$is_graphql_http_request = true;
 		}
-
-		/**
-		 * Filter whether the request is a GraphQL HTTP Request. Default is false, as the majority
-		 * of WordPress requests are NOT GraphQL requests (at least today that's true 😆).
-		 *
-		 * The request has to "prove" that it is indeed an HTTP request via HTTP for
-		 * this to be true.
-		 *
-		 * Different servers _might_ have different needs to determine whether a request
-		 * is a GraphQL request.
-		 *
-		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
-		 */
-		$is_graphql_http_request = apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 
 		/**
 		 * If true, return right away. This allows custom code to
@@ -162,7 +166,20 @@ class Router {
 			$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
 		}
 
-		return $is_graphql_http_request;
+		/**
+		 * Filter whether the request is a GraphQL HTTP Request. Default is false, as the majority
+		 * of WordPress requests are NOT GraphQL requests (at least today that's true 😆).
+		 *
+		 * The request has to "prove" that it is indeed an HTTP request via HTTP for
+		 * this to be true.
+		 *
+		 * Different servers _might_ have different needs to determine whether a request
+		 * is a GraphQL request.
+		 *
+		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 */
+		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
+
 	}
 
 	/**
