@@ -31,7 +31,7 @@ add_action( 'graphql_register_types', function() {
 	# The config array accepts 3 key/value pairs for: inputFields, outputFields and mutateAndGetPayload.
 	register_graphql_mutation( 'exampleMutation', [
 
-		# inputFields expects an array of Fields to be used for inputtting values to the mutation
+		# inputFields expects an array of Fields to be used for inputting values to the mutation
 		'inputFields'         => [
 			'exampleInput' => [
 				'type' => 'String',
