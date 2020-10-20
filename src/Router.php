@@ -141,20 +141,24 @@ class Router {
 
 		// Support wp-graphiql style request to /index.php?graphql.
 		if ( isset( $_GET[ self::$route ] ) ) {
+
 			$is_graphql_http_request = true;
-		}
 
-		// Check the server to determine if the GraphQL endpoint is being requested
-		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
-						. wp_unslash( $_SERVER['REQUEST_URI'] );
-			$needle   = site_url( self::$route );
+		} else {
 
-			// Strip protocol.
-			$haystack                = preg_replace( '#^(http(s)?://)#', '', $haystack );
-			$needle                  = preg_replace( '#^(http(s)?://)#', '', $needle );
-			$len                     = strlen( $needle );
-			$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
+			// Check the server to determine if the GraphQL endpoint is being requested
+			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
+				$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
+				            . wp_unslash( $_SERVER['REQUEST_URI'] );
+				$needle   = site_url( self::$route );
+
+				// Strip protocol.
+				$haystack                = preg_replace( '#^(http(s)?://)#', '', $haystack );
+				$needle                  = preg_replace( '#^(http(s)?://)#', '', $needle );
+				$len                     = strlen( $needle );
+				$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
+			}
+
 		}
 
 		/**
