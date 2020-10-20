@@ -52,7 +52,7 @@ register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
  * (https://github.com/webonyx/graphql-php) and makes use of the graphql-relay-php library by Ivome
  * (https://github.com/ivome/graphql-relay-php/)
  *
- * Special thanks to Digital First Media (http://digitalfirstmedia.com) for allocating development
+ * Special thanks to Digital First Media (http://digitalfirstmedia.com) and Gatsby (https://gatsbyjs.com) for allocating development
  * resources to push the project forward.
  *
  * Some of the concepts and code are based on the WordPress Rest API.
