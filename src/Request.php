@@ -43,6 +43,13 @@ class Request {
 	public $global_post;
 
 	/**
+	 * Cached global wp_the_query.
+	 *
+	 * @var \WP_Query
+	 */
+	private $global_wp_the_query;
+
+	/**
 	 * GraphQL operation parameters for this request. Can also be an array of
 	 * OperationParams.
 	 *
@@ -227,6 +234,10 @@ class Request {
 			$this->global_post = $GLOBALS['post'];
 		}
 
+		if ( ! empty( $GLOBALS['wp_query'] ) ) {
+			$this->global_wp_the_query = clone $GLOBALS['wp_the_query'];
+		}
+
 		/**
 		 * If the request is a batch request it will come back as an array
 		 */
@@ -381,6 +392,12 @@ class Request {
 		 * be anything the because the resolvers themself can set it to whatever. So we just manually reset the
 		 * post with setup_postdata we cached before this request.
 		 */
+
+		if ( ! empty( $this->global_wp_the_query ) ) {
+			$GLOBALS['wp_the_query'] = $this->global_wp_the_query;
+			wp_reset_query();
+		}
+
 		if ( ! empty( $this->global_post ) ) {
 			$GLOBALS['post'] = $this->global_post;
 			setup_postdata( $this->global_post );
