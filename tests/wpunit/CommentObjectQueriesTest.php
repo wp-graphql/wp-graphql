@@ -57,7 +57,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$comment_id = $this->factory->comment->create( $args );
+		$comment_id = $this->factory()->comment->create( $args );
 
 		/**
 		 * Return the $id of the comment_object that was created
@@ -171,7 +171,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'id'          => $global_id,
 				'karma'       => null,
 				'parent'      => null,
-				'type'        => null,
+				'type'        => 'comment',
 			],
 		];
 

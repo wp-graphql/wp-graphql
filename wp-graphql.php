@@ -610,7 +610,10 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$enabled = 'on' === $enabled ? true : false;
 			}
 
-			return (bool) $enabled;
+			/**
+			 * @param bool $enabled Whether GraphQL Debug is enabled or not
+			 */
+			return (bool) apply_filters( 'graphql_debug_enabled', $enabled );
 		}
 
 		/**

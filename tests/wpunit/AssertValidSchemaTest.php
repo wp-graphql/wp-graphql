@@ -42,6 +42,8 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testIntrospectionQueriesDisabledForPublicRequests() {
 
+		add_filter( 'graphql_debug_enabled', '__return_false' );
+
 		$settings = get_option( 'graphql_general_settings' );
 		$settings['public_introspection_enabled'] = 'off';
 		update_option( 'graphql_general_settings', $settings );
