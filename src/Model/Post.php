@@ -225,9 +225,9 @@ class Post extends Model {
 				] );
 			} else {
 				$wp_query->parse_query( [
-					$post_type => $post_name,
+					$post_type  => $post_name,
 					'post_type' => $post_type,
-					'name' => $post_name,
+					'name'      => $post_name,
 				] );
 			}
 
