@@ -136,7 +136,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					  id
 					}
 				}
-				type
+				
 			}
 		}";
 
@@ -172,7 +172,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'id'          => $global_id,
 				'karma'       => null,
 				'parent'      => null,
-				'type'        => 'comment',
 			],
 		];
 
