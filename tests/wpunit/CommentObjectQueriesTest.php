@@ -46,6 +46,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_date'     => $this->current_date,
 			'comment_date_gmt' => $this->current_date_gmt,
 			'user_id'          => $this->admin,
+			'comment_type'     => 'comment',
 		];
 
 		/**

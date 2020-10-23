@@ -71,6 +71,7 @@ class Comment extends Model {
 	 * Method for determining if the data should be considered private or not
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function is_private() {
 
