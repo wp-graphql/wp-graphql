@@ -72,6 +72,11 @@ class Router {
 		 */
 		add_action( 'parse_request', [ $this, 'resolve_http_request' ], 10 );
 
+		/**
+		 * Adds support for application passwords
+		 */
+		add_filter( 'application_password_is_api_request', [ $this, 'is_api_request' ] );
+
 	}
 
 	/**
@@ -89,6 +94,19 @@ class Router {
 			'top'
 		);
 
+	}
+
+	/**
+	 * Determines whether the request is an API request to play nice with
+	 * application passwords and potential other WordPress core functionality
+	 * for APIs
+	 *
+	 * @param bool $is_api_request Whether the request is an API request
+	 *
+	 * @return bool
+	 */
+	public function is_api_request( $is_api_request ) {
+		return true === is_graphql_http_request() ? true : $is_api_request;
 	}
 
 	/**
