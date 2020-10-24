@@ -161,12 +161,12 @@ class Settings {
 				'default' => 'administrator',
 			],
 			[
-				'name'    => 'public_introspection_enabled',
-				'label'   => __( 'Enable Public Introspection', 'wp-graphql' ),
-				'desc'    => __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
-				'value'   => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
+				'name'     => 'public_introspection_enabled',
+				'label'    => __( 'Enable Public Introspection', 'wp-graphql' ),
+				'desc'     => __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment.', 'wp-graphql' ),
+				'type'     => 'checkbox',
+				'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
+				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
 				'disabled' => true === \WPGraphQL::debug() ? true : false,
 			],
 		] );
