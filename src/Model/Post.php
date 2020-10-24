@@ -223,6 +223,12 @@ class Post extends Model {
 				$wp_query->parse_query( [
 					'attachment' => $post_name,
 				] );
+			} else {
+				$wp_query->parse_query( [
+					$post_type  => $post_name,
+					'post_type' => $post_type,
+					'name'      => $post_name,
+				] );
 			}
 
 			$wp_query->setup_postdata( $data );
