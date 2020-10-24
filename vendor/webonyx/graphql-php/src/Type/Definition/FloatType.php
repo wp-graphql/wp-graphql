@@ -10,6 +10,11 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function floatval;
+use function is_bool;
+use function is_finite;
+use function is_float;
+use function is_int;
 use function is_numeric;
 
 class FloatType extends ScalarType
@@ -26,60 +31,59 @@ values as specified by
     /**
      * @param mixed $value
      *
-     * @return float|null
-     *
      * @throws Error
      */
-    public function serialize($value)
+    public function serialize($value) : float
     {
-        return $this->coerceFloat($value);
-    }
+        $float = is_numeric($value) || is_bool($value)
+            ? (float) $value
+            : null;
 
-    private function coerceFloat($value)
-    {
-        if ($value === '') {
-            throw new Error(
-                'Float cannot represent non numeric value: (empty string)'
-            );
-        }
-
-        if (! is_numeric($value) && $value !== true && $value !== false) {
+        if ($float === null || ! is_finite($float)) {
             throw new Error(
                 'Float cannot represent non numeric value: ' .
                 Utils::printSafe($value)
             );
         }
 
-        return (float) $value;
+        return $float;
     }
 
     /**
      * @param mixed $value
      *
-     * @return float|null
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : float
     {
-        return $this->coerceFloat($value);
+        $float = is_float($value) || is_int($value)
+            ? (float) $value
+            : null;
+
+        if ($float === null || ! is_finite($float)) {
+            throw new Error(
+                'Float cannot represent non numeric value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return $float;
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return float|null
+     * @return float
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
             return (float) $valueNode->value;
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }

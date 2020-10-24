@@ -5,16 +5,23 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\DocumentValidator;
 use function array_map;
-use function array_reduce;
 use function sprintf;
 
 /**
@@ -26,7 +33,7 @@ class BuildSchema
     /** @var DocumentNode */
     private $ast;
 
-    /** @var Node[] */
+    /** @var TypeDefinitionNode[] */
     private $nodeMap;
 
     /** @var callable|null */
@@ -77,6 +84,7 @@ class BuildSchema
      *
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
+     *        This option is provided to ease adoption and will be removed in v16.
      *
      * @param bool[] $options
      *
@@ -95,39 +103,35 @@ class BuildSchema
 
     public function buildSchema()
     {
-        /** @var SchemaDefinitionNode $schemaDef */
+        $options = $this->options;
+        if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
+            DocumentValidator::assertValidSDL($this->ast);
+        }
+
         $schemaDef     = null;
         $typeDefs      = [];
         $this->nodeMap = [];
         $directiveDefs = [];
-        foreach ($this->ast->definitions as $d) {
-            switch ($d->kind) {
-                case NodeKind::SCHEMA_DEFINITION:
-                    if ($schemaDef) {
-                        throw new Error('Must provide only one schema definition.');
-                    }
-                    $schemaDef = $d;
+        foreach ($this->ast->definitions as $definition) {
+            switch (true) {
+                case $definition instanceof SchemaDefinitionNode:
+                    $schemaDef = $definition;
                     break;
-                case NodeKind::SCALAR_TYPE_DEFINITION:
-                case NodeKind::OBJECT_TYPE_DEFINITION:
-                case NodeKind::INTERFACE_TYPE_DEFINITION:
-                case NodeKind::ENUM_TYPE_DEFINITION:
-                case NodeKind::UNION_TYPE_DEFINITION:
-                case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
-                    $typeName = $d->name->value;
-                    if (! empty($this->nodeMap[$typeName])) {
+                case $definition instanceof TypeDefinitionNode:
+                    $typeName = $definition->name->value;
+                    if (isset($this->nodeMap[$typeName])) {
                         throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
                     }
-                    $typeDefs[]               = $d;
-                    $this->nodeMap[$typeName] = $d;
+                    $typeDefs[]               = $definition;
+                    $this->nodeMap[$typeName] = $definition;
                     break;
-                case NodeKind::DIRECTIVE_DEFINITION:
-                    $directiveDefs[] = $d;
+                case $definition instanceof DirectiveDefinitionNode:
+                    $directiveDefs[] = $definition;
                     break;
             }
         }
 
-        $operationTypes = $schemaDef
+        $operationTypes = $schemaDef !== null
             ? $this->getOperationTypes($schemaDef)
             : [
                 'query'        => isset($this->nodeMap['Query']) ? 'Query' : null,
@@ -138,7 +142,7 @@ class BuildSchema
         $DefinitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
-            static function ($typeName) {
+            static function ($typeName) : void {
                 throw new Error('Type "' . $typeName . '" not found in document.');
             },
             $this->typeConfigDecorator
@@ -152,33 +156,19 @@ class BuildSchema
         );
 
         // If specified directives were not explicitly declared, add them.
-        $skip = array_reduce(
+        $directivesByName = Utils::groupBy(
             $directives,
-            static function ($hasSkip, $directive) {
-                return (bool) $hasSkip || $directive->name === 'skip';
+            static function (Directive $directive) : string {
+                return $directive->name;
             }
         );
-        if (! $skip) {
+        if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }
-
-        $include = array_reduce(
-            $directives,
-            static function ($hasInclude, $directive) {
-                return (bool) $hasInclude || $directive->name === 'include';
-            }
-        );
-        if (! $include) {
+        if (! isset($directivesByName['include'])) {
             $directives[] = Directive::includeDirective();
         }
-
-        $deprecated = array_reduce(
-            $directives,
-            static function ($hasDeprecated, $directive) {
-                return (bool) $hasDeprecated || $directive->name === 'deprecated';
-            }
-        );
-        if (! $deprecated) {
+        if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
 
@@ -196,13 +186,14 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $DefinitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($DefinitionBuilder) {
+            'typeLoader'   => static function ($name) use ($DefinitionBuilder) : Type {
                 return $DefinitionBuilder->buildType($name);
             },
             'directives'   => $directives,
             'astNode'      => $schemaDef,
-            'types'        => function () use ($DefinitionBuilder) {
+            'types'        => function () use ($DefinitionBuilder) : array {
                 $types = [];
+                /** @var ScalarTypeDefinitionNode|ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|UnionTypeDefinitionNode|EnumTypeDefinitionNode|InputObjectTypeDefinitionNode $def */
                 foreach ($this->nodeMap as $name => $def) {
                     $types[] = $DefinitionBuilder->buildType($def->name->value);
                 }

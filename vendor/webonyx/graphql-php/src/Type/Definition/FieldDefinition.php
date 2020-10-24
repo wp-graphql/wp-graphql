@@ -6,7 +6,9 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;
@@ -30,7 +32,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      * Mutually exclusive with `map`
      *
-     * @var callable
+     * @var callable|null
      */
     public $resolveFn;
 
@@ -38,7 +40,7 @@ class FieldDefinition
      * Callback for mapping list of parent values to list of field values.
      * Mutually exclusive with `resolve`
      *
-     * @var callable
+     * @var callable|null
      */
     public $mapFn;
 
@@ -58,8 +60,8 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var OutputType */
-    public $type;
+    /** @var OutputType&Type */
+    private $type;
 
     /** @var callable|string */
     private $complexityFn;
@@ -70,7 +72,6 @@ class FieldDefinition
     protected function __construct(array $config)
     {
         $this->name      = $config['name'];
-        $this->type      = $config['type'];
         $this->resolveFn = $config['resolve'] ?? null;
         $this->mapFn     = $config['map'] ?? null;
         $this->args      = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
@@ -84,7 +85,12 @@ class FieldDefinition
         $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
-    public static function defineFieldMap(Type $type, $fields)
+    /**
+     * @param (callable():mixed[])|mixed[] $fields
+     *
+     * @return array<string, self>
+     */
+    public static function defineFieldMap(Type $type, $fields) : array
     {
         if (is_callable($fields)) {
             $fields = $fields();
@@ -164,7 +170,7 @@ class FieldDefinition
      */
     public function getArg($name)
     {
-        foreach ($this->args ?: [] as $arg) {
+        foreach ($this->args ?? [] as $arg) {
             /** @var FieldArgument $arg */
             if ($arg->name === $name) {
                 return $arg;
@@ -174,12 +180,71 @@ class FieldDefinition
         return null;
     }
 
-    /**
-     * @return Type
-     */
-    public function getType()
+    public function getType() : Type
     {
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&OutputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
         return $this->type;
+    }
+
+    public function __isset(string $name) : bool
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+
+                return isset($this->type);
+        }
+
+        return isset($this->$name);
+    }
+
+    public function __get(string $name)
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+
+                return $this->getType();
+            default:
+                return $this->$name;
+        }
+
+        return null;
+    }
+
+    public function __set(string $name, $value)
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public setter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    ' in the next major version.',
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+                $this->type = $value;
+                break;
+
+            default:
+                $this->$name = $value;
+                break;
+        }
     }
 
     /**
@@ -217,7 +282,7 @@ class FieldDefinition
             )
         );
 
-        $type = $this->type;
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
@@ -239,5 +304,9 @@ class FieldDefinition
                 Utils::printSafe($this->resolveFn)
             )
         );
+
+        foreach ($this->args as $fieldArgument) {
+            $fieldArgument->assertValid($this, $type);
+        }
     }
 }

@@ -6,23 +6,31 @@ namespace GraphQL\Experimental\Executor;
 
 use Generator;
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use function count;
 use function sprintf;
 
 /**
@@ -48,7 +56,7 @@ class Collector
     /** @var FieldNode[][] */
     private $fields;
 
-    /** @var string[] */
+    /** @var array<string, bool> */
     private $visitedFragments;
 
     public function __construct(Schema $schema, Runtime $runtime)
@@ -64,8 +72,7 @@ class Collector
         foreach ($documentNode->definitions as $definitionNode) {
             /** @var DefinitionNode|Node $definitionNode */
 
-            if ($definitionNode->kind === NodeKind::OPERATION_DEFINITION) {
-                /** @var OperationDefinitionNode $definitionNode */
+            if ($definitionNode instanceof OperationDefinitionNode) {
                 if ($operationName === null && $this->operation !== null) {
                     $hasMultipleAssumedOperations = true;
                 }
@@ -74,8 +81,7 @@ class Collector
                 ) {
                     $this->operation = $definitionNode;
                 }
-            } elseif ($definitionNode->kind === NodeKind::FRAGMENT_DEFINITION) {
-                /** @var FragmentDefinitionNode $definitionNode */
+            } elseif ($definitionNode instanceof FragmentDefinitionNode) {
                 $this->fragments[$definitionNode->name->value] = $definitionNode;
             }
         }
@@ -122,7 +128,7 @@ class Collector
             $fieldName = $fieldNode->name->value;
 
             $argumentValueMap = null;
-            if (! empty($fieldNode->arguments)) {
+            if (count($fieldNode->arguments) > 0) {
                 foreach ($fieldNode->arguments as $argumentNode) {
                     $argumentValueMap                             = $argumentValueMap ?? [];
                     $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
@@ -149,11 +155,10 @@ class Collector
 
         foreach ($selectionSet->selections as $selection) {
             /** @var FieldNode|FragmentSpreadNode|InlineFragmentNode $selection */
-
-            if (! empty($selection->directives)) {
+            if (count($selection->directives) > 0) {
                 foreach ($selection->directives as $directiveNode) {
                     if ($directiveNode->name->value === Directive::SKIP_NAME) {
-                        /** @var ValueNode|null $condition */
+                        /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $condition */
                         $condition = null;
                         foreach ($directiveNode->arguments as $argumentNode) {
                             if ($argumentNode->name->value === Directive::IF_ARGUMENT_NAME) {
@@ -173,7 +178,7 @@ class Collector
                             }
                         }
                     } elseif ($directiveNode->name->value === Directive::INCLUDE_NAME) {
-                        /** @var ValueNode|null $condition */
+                        /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $condition */
                         $condition = null;
                         foreach ($directiveNode->arguments as $argumentNode) {
                             if ($argumentNode->name->value === Directive::IF_ARGUMENT_NAME) {
@@ -196,19 +201,15 @@ class Collector
                 }
             }
 
-            if ($selection->kind === NodeKind::FIELD) {
-                /** @var FieldNode $selection */
-
-                $resultName = $selection->alias ? $selection->alias->value : $selection->name->value;
+            if ($selection instanceof FieldNode) {
+                $resultName = $selection->alias === null ? $selection->name->value : $selection->alias->value;
 
                 if (! isset($this->fields[$resultName])) {
                     $this->fields[$resultName] = [];
                 }
 
                 $this->fields[$resultName][] = $selection;
-            } elseif ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
-                /** @var FragmentSpreadNode $selection */
-
+            } elseif ($selection instanceof FragmentSpreadNode) {
                 $fragmentName = $selection->name->value;
 
                 if (isset($this->visitedFragments[$fragmentName])) {
@@ -249,9 +250,7 @@ class Collector
                 }
 
                 $this->doCollectFields($runtimeType, $fragmentDefinition->selectionSet);
-            } elseif ($selection->kind === NodeKind::INLINE_FRAGMENT) {
-                /** @var InlineFragmentNode $selection */
-
+            } elseif ($selection instanceof InlineFragmentNode) {
                 if ($selection->typeCondition !== null) {
                     $conditionTypeName = $selection->typeCondition->name->value;
 

@@ -9,6 +9,7 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
@@ -22,11 +23,11 @@ class UniqueOperationNames extends ValidationRule
         $this->knownOperationNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context) {
+            NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context) : VisitorOperation {
                 $operationName = $node->name;
 
-                if ($operationName) {
-                    if (empty($this->knownOperationNames[$operationName->value])) {
+                if ($operationName !== null) {
+                    if (! isset($this->knownOperationNames[$operationName->value])) {
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {
                         $context->reportError(new Error(
@@ -38,7 +39,7 @@ class UniqueOperationNames extends ValidationRule
 
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => static function () {
+            NodeKind::FRAGMENT_DEFINITION  => static function () : VisitorOperation {
                 return Visitor::skipNode();
             },
         ];

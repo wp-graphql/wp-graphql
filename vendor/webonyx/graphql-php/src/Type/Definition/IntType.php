@@ -10,8 +10,11 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function floatval;
+use function floor;
 use function intval;
 use function is_bool;
+use function is_float;
+use function is_int;
 use function is_numeric;
 
 class IntType extends ScalarType
@@ -41,63 +44,66 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function serialize($value)
     {
-        return $this->coerceInt($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return int
-     */
-    private function coerceInt($value)
-    {
-        if ($value === '') {
-            throw new Error(
-                'Int cannot represent non 32-bit signed integer value: (empty string)'
-            );
+        // Fast path for 90+% of cases:
+        if (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
+            return $value;
         }
 
-        $num = floatval($value);
-        if ((! is_numeric($value) && ! is_bool($value)) || $num > self::MAX_INT || $num < self::MIN_INT) {
-            throw new Error(
-                'Int cannot represent non 32-bit signed integer value: ' .
-                Utils::printSafe($value)
-            );
-        }
-        $int = intval($num);
-        // int cast with == used for performance reasons
-        // phpcs:ignore
-        if ($int != $num) {
+        $float = is_numeric($value) || is_bool($value)
+            ? (float) $value
+            : null;
+
+        if ($float === null || floor($float) !== $float) {
             throw new Error(
                 'Int cannot represent non-integer value: ' .
                 Utils::printSafe($value)
             );
         }
 
-        return $int;
+        if ($float > self::MAX_INT || $float < self::MIN_INT) {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (int) $float;
     }
 
     /**
      * @param mixed $value
      *
-     * @return int|null
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : int
     {
-        return $this->coerceInt($value);
+        $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
+
+        if (! $isInt) {
+            throw new Error(
+                'Int cannot represent non-integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        if ($value > self::MAX_INT || $value < self::MIN_INT) {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (int) $value;
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return int|null
+     * @return int
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof IntValueNode) {
             $val = (int) $valueNode->value;
@@ -107,6 +113,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }
