@@ -102,8 +102,28 @@ class SettingsRegistry {
 			'type'  => 'text',
 		];
 
-		$arg                                 = wp_parse_args( $field, $defaults );
-		$this->settings_fields[ $section ][] = $arg;
+		$field_config = wp_parse_args( $field, $defaults );
+
+		// Get the field name before the filter is passed.
+		$field_name = $field_config['name'];
+
+		// Unset it, as we don't want it to be filterable
+		unset( $field_config['name'] );
+
+		/**
+		 * Filter the setting field config
+		 *
+		 * @param array  $field_config The field config for the setting
+		 * @param string $field_name   The name of the field (unfilterable in the config)
+		 * @param string $section      The slug of the section the field is registered to
+		 */
+		$field = apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
+
+		// Add the field name back after the filter has been applied
+		$field['name'] = $field_name;
+
+		// Add the field to the section
+		$this->settings_fields[ $section ][] = $field;
 
 		return $this;
 	}
@@ -121,7 +141,14 @@ class SettingsRegistry {
 		// Action that fires when settings are being initialized
 		do_action( 'graphql_init_settings', $this );
 
-		foreach ( $this->settings_sections as $id => $section ) {
+		/**
+		 * Filter the settings sections
+		 *
+		 * @param array $setting_sections The registered settings sections
+		 */
+		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
+
+		foreach ( $setting_sections as $id => $section ) {
 			if ( false === get_option( $id ) ) {
 				add_option( $id );
 			}
@@ -211,7 +238,7 @@ class SettingsRegistry {
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
 		$disabled    = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
 		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
-		$html       .= $this->get_field_description( $args );
+		$html        .= $this->get_field_description( $args );
 
 		echo $html;
 	}
@@ -239,7 +266,7 @@ class SettingsRegistry {
 		$max         = ( '' === $args['max'] ) ? '' : ' max="' . $args['max'] . '"';
 		$step        = ( '' === $args['step'] ) ? '' : ' step="' . $args['step'] . '"';
 
-		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
+		$html = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
@@ -255,7 +282,7 @@ class SettingsRegistry {
 		$value    = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$disabled = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
 
-		$html  = '<fieldset>';
+		$html = '<fieldset>';
 		$html .= sprintf( '<label for="wpuf-%1$s[%2$s]">', $args['section'], $args['id'] );
 		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id'] );
 		$html .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s %4$s/>', $args['section'], $args['id'], checked( $value, 'on', false ), $disabled );
@@ -274,12 +301,12 @@ class SettingsRegistry {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="" />', $args['section'], $args['id'] );
+		$html  .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="" />', $args['section'], $args['id'] );
 		foreach ( $args['options'] as $key => $label ) {
 			$checked = isset( $value[ $key ] ) ? $value[ $key ] : '0';
-			$html   .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
-			$html   .= sprintf( '%1$s</label><br>', $label );
+			$html    .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
+			$html    .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+			$html    .= sprintf( '%1$s</label><br>', $label );
 		}
 
 		$html .= $this->get_field_description( $args );
@@ -342,7 +369,7 @@ class SettingsRegistry {
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
 
-		$html  = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%4$s>%5$s</textarea>', $size, $args['section'], $args['id'], $placeholder, $value );
+		$html = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%4$s>%5$s</textarea>', $size, $args['section'], $args['id'], $placeholder, $value );
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
@@ -400,7 +427,7 @@ class SettingsRegistry {
 		$id    = $args['section'] . '[' . $args['id'] . ']';
 		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File' );
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
+		$html = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
 		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '" />';
 		$html .= $this->get_field_description( $args );
 
@@ -417,7 +444,7 @@ class SettingsRegistry {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
+		$html = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
@@ -433,7 +460,7 @@ class SettingsRegistry {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
+		$html = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
@@ -612,82 +639,82 @@ class SettingsRegistry {
 	function script() {
 		?>
 		<script>
-			jQuery(document).ready(function ($) {
-				//Initiate Color Picker
-				$('.wp-color-picker-field').wpColorPicker();
+            jQuery(document).ready(function ($) {
+                //Initiate Color Picker
+                $('.wp-color-picker-field').wpColorPicker();
 
-				// Switches option sections
-				$('.group').hide();
-				var activetab = '';
-				if (typeof(localStorage) != 'undefined') {
-					activetab = localStorage.getItem("activetab");
-				}
+                // Switches option sections
+                $('.group').hide();
+                var activetab = '';
+                if (typeof(localStorage) != 'undefined') {
+                    activetab = localStorage.getItem("activetab");
+                }
 
-				//if url has section id as hash then set it as active or override the current local storage value
-				if (window.location.hash) {
-					activetab = window.location.hash;
-					if (typeof(localStorage) != 'undefined') {
-						localStorage.setItem("activetab", activetab);
-					}
-				}
+                //if url has section id as hash then set it as active or override the current local storage value
+                if (window.location.hash) {
+                    activetab = window.location.hash;
+                    if (typeof(localStorage) != 'undefined') {
+                        localStorage.setItem("activetab", activetab);
+                    }
+                }
 
-				if (activetab != '' && $(activetab).length) {
-					$(activetab).fadeIn();
-				} else {
-					$('.group:first').fadeIn();
-				}
-				$('.group .collapsed').each(function () {
-					$(this).find('input:checked').parent().parent().parent().nextAll().each(
-						function () {
-							if ($(this).hasClass('last')) {
-								$(this).removeClass('hidden');
-								return false;
-							}
-							$(this).filter('.hidden').removeClass('hidden');
-						});
-				});
+                if (activetab != '' && $(activetab).length) {
+                    $(activetab).fadeIn();
+                } else {
+                    $('.group:first').fadeIn();
+                }
+                $('.group .collapsed').each(function () {
+                    $(this).find('input:checked').parent().parent().parent().nextAll().each(
+                        function () {
+                            if ($(this).hasClass('last')) {
+                                $(this).removeClass('hidden');
+                                return false;
+                            }
+                            $(this).filter('.hidden').removeClass('hidden');
+                        });
+                });
 
-				if (activetab != '' && $(activetab + '-tab').length) {
-					$(activetab + '-tab').addClass('nav-tab-active');
-				}
-				else {
-					$('.nav-tab-wrapper a:first').addClass('nav-tab-active');
-				}
-				$('.nav-tab-wrapper a').click(function (evt) {
-					$('.nav-tab-wrapper a').removeClass('nav-tab-active');
-					$(this).addClass('nav-tab-active').blur();
-					var clicked_group = $(this).attr('href');
-					if (typeof(localStorage) != 'undefined') {
-						localStorage.setItem("activetab", $(this).attr('href'));
-					}
-					$('.group').hide();
-					$(clicked_group).fadeIn();
-					evt.preventDefault();
-				});
+                if (activetab != '' && $(activetab + '-tab').length) {
+                    $(activetab + '-tab').addClass('nav-tab-active');
+                }
+                else {
+                    $('.nav-tab-wrapper a:first').addClass('nav-tab-active');
+                }
+                $('.nav-tab-wrapper a').click(function (evt) {
+                    $('.nav-tab-wrapper a').removeClass('nav-tab-active');
+                    $(this).addClass('nav-tab-active').blur();
+                    var clicked_group = $(this).attr('href');
+                    if (typeof(localStorage) != 'undefined') {
+                        localStorage.setItem("activetab", $(this).attr('href'));
+                    }
+                    $('.group').hide();
+                    $(clicked_group).fadeIn();
+                    evt.preventDefault();
+                });
 
-				$('.wpsa-browse').on('click', function (event) {
-					event.preventDefault();
+                $('.wpsa-browse').on('click', function (event) {
+                    event.preventDefault();
 
-					var self = $(this);
+                    var self = $(this);
 
-					// Create the media frame.
-					var file_frame = wp.media.frames.file_frame = wp.media({
-						title: self.data('uploader_title'),
-						button: {
-							text: self.data('uploader_button_text'),
-						},
-						multiple: false
-					});
+                    // Create the media frame.
+                    var file_frame = wp.media.frames.file_frame = wp.media({
+                        title: self.data('uploader_title'),
+                        button: {
+                            text: self.data('uploader_button_text'),
+                        },
+                        multiple: false
+                    });
 
-					file_frame.on('select', function () {
-						attachment = file_frame.state().get('selection').first().toJSON();
-						self.prev('.wpsa-url').val(attachment.url).change();
-					});
+                    file_frame.on('select', function () {
+                        attachment = file_frame.state().get('selection').first().toJSON();
+                        self.prev('.wpsa-url').val(attachment.url).change();
+                    });
 
-					// Finally, open the modal
-					file_frame.open();
-				});
-			});
+                    // Finally, open the modal
+                    file_frame.open();
+                });
+            });
 		</script>
 		<?php
 		$this->_style_fix();
@@ -708,7 +735,7 @@ class SettingsRegistry {
 					padding-top: 5px;
 				}
 			</style>
-			<?php
+		<?php
 		endif;
 	}
 
