@@ -20,11 +20,14 @@ class BooleanType extends ScalarType
     public $description = 'The `Boolean` scalar type represents `true` or `false`.';
 
     /**
-     * @param mixed $value
+     * Serialize the given value to a boolean.
      *
-     * @return bool
+     * The GraphQL spec leaves this up to the implementations, so we just do what
+     * PHP does natively to make this intuitive for developers.
+     *
+     * @param mixed $value
      */
-    public function serialize($value)
+    public function serialize($value) : bool
     {
         return (bool) $value;
     }
@@ -42,22 +45,19 @@ class BooleanType extends ScalarType
             return $value;
         }
 
-        throw new Error('Cannot represent value as boolean: ' . Utils::printSafe($value));
+        throw new Error('Boolean cannot represent a non boolean value: ' . Utils::printSafe($value));
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
-     *
-     * @return bool|null
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (! $valueNode instanceof BooleanValueNode) {
             // Intentionally without message, as all information already in wrapped Exception
-            throw new Exception();
+            throw new Error();
         }
 
         return $valueNode->value;

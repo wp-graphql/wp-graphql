@@ -16,12 +16,14 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
 use function array_values;
+use function count;
 use function trigger_error;
 use const E_USER_DEPRECATED;
 
@@ -47,9 +49,11 @@ class GraphQL
      * rootValue:
      *    The value provided as the first argument to resolver functions on the top
      *    level type (e.g. the query object type).
-     * context:
-     *    The value provided as the third argument to all resolvers.
-     *    Use this to pass current session, user data, etc
+     * contextValue:
+     *    The context value is provided as an argument to resolver functions after
+     *    field arguments. It is used to pass shared information useful at any point
+     *    during executing this query, for example the currently logged in user and
+     *    connections to databases or other services.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -68,7 +72,7 @@ class GraphQL
      *
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
-     * @param mixed               $context
+     * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
      * @param ValidationRule[]    $validationRules
      *
@@ -78,7 +82,7 @@ class GraphQL
         SchemaType $schema,
         $source,
         $rootValue = null,
-        $context = null,
+        $contextValue = null,
         $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
@@ -91,7 +95,7 @@ class GraphQL
             $schema,
             $source,
             $rootValue,
-            $context,
+            $contextValue,
             $variableValues,
             $operationName,
             $fieldResolver,
@@ -128,11 +132,11 @@ class GraphQL
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
             } else {
-                $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
+                $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
 
             // FIXME
-            if (empty($validationRules)) {
+            if (count($validationRules ?? []) === 0) {
                 /** @var QueryComplexity $queryComplexity */
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 $queryComplexity->setRawVariableValues($variableValues);
@@ -148,7 +152,7 @@ class GraphQL
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
-            if (! empty($validationErrors)) {
+            if (count($validationErrors) > 0) {
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $validationErrors)
                 );
@@ -180,6 +184,8 @@ class GraphQL
      * @param mixed[]|null        $variableValues
      *
      * @return Promise|mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public static function execute(
         SchemaType $schema,
@@ -208,7 +214,7 @@ class GraphQL
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
             $result = $promiseAdapter->wait($result)->toArray();
         } else {
-            $result = $result->then(static function (ExecutionResult $r) {
+            $result = $result->then(static function (ExecutionResult $r) : array {
                 return $r->toArray();
             });
         }
@@ -225,6 +231,8 @@ class GraphQL
      * @param mixed[]|null        $variableValues
      *
      * @return ExecutionResult|Promise
+     *
+     * @codeCoverageIgnore
      */
     public static function executeAndReturnResult(
         SchemaType $schema,
@@ -285,7 +293,7 @@ class GraphQL
      * Replaces standard types with types from this list (matching by name)
      * Standard types not listed here remain untouched.
      *
-     * @param Type[] $types
+     * @param array<string, ScalarType> $types
      *
      * @api
      */
@@ -326,6 +334,10 @@ class GraphQL
      */
     public static function useExperimentalExecutor()
     {
+        trigger_error(
+            'Experimental Executor is deprecated and will be removed in the next major version',
+            E_USER_DEPRECATED
+        );
         Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
     }
 
@@ -343,6 +355,8 @@ class GraphQL
      * @deprecated Renamed to getStandardDirectives
      *
      * @return Directive[]
+     *
+     * @codeCoverageIgnore
      */
     public static function getInternalDirectives() : array
     {

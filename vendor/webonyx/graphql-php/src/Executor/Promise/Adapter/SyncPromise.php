@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use Throwable;
@@ -15,6 +14,14 @@ use function method_exists;
 /**
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
  * (using queue to defer promises execution)
+ *
+ * Note:
+ * Library users are not supposed to use SyncPromise class in their resolvers.
+ * Instead they should use GraphQL\Deferred which enforces $executor callback in the constructor.
+ *
+ * Root SyncPromise without explicit $executor will never resolve (actually throw while trying).
+ * The whole point of Deferred is to ensure it never happens and that any resolver creates
+ * at least one $executor to start the promise chain.
  */
 class SyncPromise
 {
@@ -28,7 +35,7 @@ class SyncPromise
     /** @var string */
     public $state = self::PENDING;
 
-    /** @var ExecutionResult|Throwable */
+    /** @var mixed */
     public $result;
 
     /**
@@ -38,16 +45,33 @@ class SyncPromise
      */
     private $waiting = [];
 
-    public static function runQueue()
+    public static function runQueue() : void
     {
         $q = self::$queue;
-        while ($q && ! $q->isEmpty()) {
+        while ($q !== null && ! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
     }
 
-    public function resolve($value)
+    /**
+     * @param callable() : mixed $executor
+     */
+    public function __construct(?callable $executor = null)
+    {
+        if ($executor === null) {
+            return;
+        }
+        self::getQueue()->enqueue(function () use ($executor) : void {
+            try {
+                $this->resolve($executor());
+            } catch (Throwable $e) {
+                $this->reject($e);
+            }
+        });
+    }
+
+    public function resolve($value) : self
     {
         switch ($this->state) {
             case self::PENDING:
@@ -56,10 +80,10 @@ class SyncPromise
                 }
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function ($resolvedValue) {
+                        function ($resolvedValue) : void {
                             $this->resolve($resolvedValue);
                         },
-                        function ($reason) {
+                        function ($reason) : void {
                             $this->reject($reason);
                         }
                     );
@@ -83,9 +107,9 @@ class SyncPromise
         return $this;
     }
 
-    public function reject($reason)
+    public function reject($reason) : self
     {
-        if (! $reason instanceof Exception && ! $reason instanceof Throwable) {
+        if (! $reason instanceof Throwable) {
             throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
         }
 
@@ -107,7 +131,7 @@ class SyncPromise
         return $this;
     }
 
-    private function enqueueWaitingPromises()
+    private function enqueueWaitingPromises() : void
     {
         Utils::invariant(
             $this->state !== self::PENDING,
@@ -115,15 +139,13 @@ class SyncPromise
         );
 
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor) {
-                /** @var $promise self */
+            self::getQueue()->enqueue(function () use ($descriptor) : void {
+                /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
                 if ($this->state === self::FULFILLED) {
                     try {
                         $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
-                    } catch (Exception $e) {
-                        $promise->reject($e);
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }
@@ -134,8 +156,6 @@ class SyncPromise
                         } else {
                             $promise->resolve($onRejected($this->result));
                         }
-                    } catch (Exception $e) {
-                        $promise->reject($e);
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }
@@ -145,17 +165,21 @@ class SyncPromise
         $this->waiting = [];
     }
 
-    public static function getQueue()
+    public static function getQueue() : SplQueue
     {
-        return self::$queue ?: self::$queue = new SplQueue();
+        return self::$queue ?? self::$queue = new SplQueue();
     }
 
-    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
+    /**
+     * @param callable(mixed) : mixed     $onFulfilled
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null) : self
     {
-        if ($this->state === self::REJECTED && ! $onRejected) {
+        if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
-        if ($this->state === self::FULFILLED && ! $onFulfilled) {
+        if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
         $tmp             = new self();
@@ -166,5 +190,13 @@ class SyncPromise
         }
 
         return $tmp;
+    }
+
+    /**
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function catch(callable $onRejected) : self
+    {
+        return $this->then(null, $onRejected);
     }
 }

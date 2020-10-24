@@ -21,6 +21,14 @@ use function array_merge_recursive;
 class ResolveInfo
 {
     /**
+     * The definition of the field being resolved.
+     *
+     * @api
+     * @var FieldDefinition
+     */
+    public $fieldDefinition;
+
+    /**
      * The name of the field being resolved.
      *
      * @api
@@ -29,20 +37,20 @@ class ResolveInfo
     public $fieldName;
 
     /**
+     * Expected return type of the field being resolved.
+     *
+     * @api
+     * @var Type
+     */
+    public $returnType;
+
+    /**
      * AST of all nodes referencing this field in the query.
      *
      * @api
      * @var FieldNode[]
      */
     public $fieldNodes = [];
-
-    /**
-     * Expected return type of the field being resolved.
-     *
-     * @api
-     * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
-     */
-    public $returnType;
 
     /**
      * Parent type of the field being resolved.
@@ -56,7 +64,7 @@ class ResolveInfo
      * Path to this field from the very root value.
      *
      * @api
-     * @var string[][]
+     * @var string[]
      */
     public $path;
 
@@ -100,21 +108,23 @@ class ResolveInfo
      */
     public $variableValues = [];
 
-    /** @var QueryPlan */
+    /**
+     * Lazily initialized.
+     *
+     * @var QueryPlan
+     */
     private $queryPlan;
 
     /**
-     * @param FieldNode[]                                                               $fieldNodes
-     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull $returnType
-     * @param string[][]                                                                $path
-     * @param FragmentDefinitionNode[]                                                  $fragments
-     * @param mixed|null                                                                $rootValue
-     * @param mixed[]                                                                   $variableValues
+     * @param FieldNode[]              $fieldNodes
+     * @param string[]                 $path
+     * @param FragmentDefinitionNode[] $fragments
+     * @param mixed|null               $rootValue
+     * @param mixed[]                  $variableValues
      */
     public function __construct(
-        string $fieldName,
+        FieldDefinition $fieldDefinition,
         iterable $fieldNodes,
-        $returnType,
         ObjectType $parentType,
         array $path,
         Schema $schema,
@@ -123,16 +133,17 @@ class ResolveInfo
         ?OperationDefinitionNode $operation,
         array $variableValues
     ) {
-        $this->fieldName      = $fieldName;
-        $this->fieldNodes     = $fieldNodes;
-        $this->returnType     = $returnType;
-        $this->parentType     = $parentType;
-        $this->path           = $path;
-        $this->schema         = $schema;
-        $this->fragments      = $fragments;
-        $this->rootValue      = $rootValue;
-        $this->operation      = $operation;
-        $this->variableValues = $variableValues;
+        $this->fieldDefinition = $fieldDefinition;
+        $this->fieldName       = $fieldDefinition->name;
+        $this->returnType      = $fieldDefinition->getType();
+        $this->fieldNodes      = $fieldNodes;
+        $this->parentType      = $parentType;
+        $this->path            = $path;
+        $this->schema          = $schema;
+        $this->fragments       = $fragments;
+        $this->rootValue       = $rootValue;
+        $this->operation       = $operation;
+        $this->variableValues  = $variableValues;
     }
 
     /**
@@ -168,7 +179,7 @@ class ResolveInfo
      *
      * @param int $depth How many levels to include in output
      *
-     * @return bool[]
+     * @return array<string, mixed>
      *
      * @api
      */
@@ -191,15 +202,19 @@ class ResolveInfo
         return $fields;
     }
 
-    public function lookAhead() : QueryPlan
+    /**
+     * @param mixed[] $options
+     */
+    public function lookAhead(array $options = []) : QueryPlan
     {
-        if ($this->queryPlan === null) {
+        if (! isset($this->queryPlan)) {
             $this->queryPlan = new QueryPlan(
                 $this->parentType,
                 $this->schema,
                 $this->fieldNodes,
                 $this->variableValues,
-                $this->fragments
+                $this->fragments,
+                $options
             );
         }
 
@@ -214,7 +229,7 @@ class ResolveInfo
         $fields = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fields[$selectionNode->name->value] = $descend > 0 && ! empty($selectionNode->selectionSet)
+                $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {

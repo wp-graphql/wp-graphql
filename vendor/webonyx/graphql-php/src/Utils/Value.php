@@ -36,7 +36,8 @@ class Value
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
      *
-     * @param mixed[] $path
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
+     * @param mixed[]                                                $path
      */
     public static function coerceValue($value, InputType $type, $blameNode = null, ?array $path = null)
     {
@@ -65,16 +66,6 @@ class Value
             // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
-            } catch (Exception $error) {
-                return self::ofErrors([
-                    self::coercionError(
-                        sprintf('Expected type %s', $type->name),
-                        $blameNode,
-                        $path,
-                        $error->getMessage(),
-                        $error
-                    ),
-                ]);
             } catch (Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(
@@ -99,7 +90,7 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    static function ($enumValue) {
+                    static function ($enumValue) : string {
                         return $enumValue->name;
                     },
                     $type->getValues()
@@ -190,7 +181,7 @@ class Value
                             sprintf(
                                 'Field %s of required type %s was not provided',
                                 $fieldPath,
-                                $field->type->toString()
+                                $field->getType()->toString()
                             ),
                             $blameNode
                         )
@@ -258,7 +249,7 @@ class Value
             ($subMessage ? '; ' . $subMessage : '.'),
             $blameNode,
             null,
-            null,
+            [],
             null,
             $originalError
         );

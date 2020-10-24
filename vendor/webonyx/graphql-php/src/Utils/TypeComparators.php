@@ -44,12 +44,9 @@ class TypeComparators
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
      *
-     * @param AbstractType $maybeSubType
-     * @param AbstractType $superType
-     *
      * @return bool
      */
-    public static function isTypeSubTypeOf(Schema $schema, $maybeSubType, $superType)
+    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
