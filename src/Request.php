@@ -618,9 +618,11 @@ class Request {
 	 */
 	private function get_server() {
 
+		$debug_flag = true === \WPGraphQL::debug() ? 2 : 0;
+
 		$config = new ServerConfig();
 		$config
-			->setDebug( \WPGraphQL::debug() )
+			->setDebugFlag( $debug_flag )
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
 			->setValidationRules( $this->validation_rules )
