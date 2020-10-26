@@ -21,12 +21,12 @@ class UniqueVariableNames extends ValidationRule
         $this->knownVariableNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function () {
+            NodeKind::OPERATION_DEFINITION => function () : void {
                 $this->knownVariableNames = [];
             },
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $node) use ($context) {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $node) use ($context) : void {
                 $variableName = $node->variable->name->value;
-                if (empty($this->knownVariableNames[$variableName])) {
+                if (! isset($this->knownVariableNames[$variableName])) {
                     $this->knownVariableNames[$variableName] = $node->variable->name;
                 } else {
                     $context->reportError(new Error(

@@ -71,8 +71,14 @@ class Comment extends Model {
 	 * Method for determining if the data should be considered private or not
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function is_private() {
+
+		// A comment is considered private if it is attached to a private post.
+		if ( ! empty( $this->data->comment_post_ID ) && ( new Post( get_post( $this->data->comment_post_ID ) ) )->is_private() ) {
+			return true;
+		}
 
 		// NOTE: Do a non-strict check here, as the return is a `1` or `0`.
 		// phpcs:disable WordPress.PHP.StrictComparisons.LooseComparison

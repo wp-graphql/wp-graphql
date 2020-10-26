@@ -102,8 +102,28 @@ class SettingsRegistry {
 			'type'  => 'text',
 		];
 
-		$arg                                 = wp_parse_args( $field, $defaults );
-		$this->settings_fields[ $section ][] = $arg;
+		$field_config = wp_parse_args( $field, $defaults );
+
+		// Get the field name before the filter is passed.
+		$field_name = $field_config['name'];
+
+		// Unset it, as we don't want it to be filterable
+		unset( $field_config['name'] );
+
+		/**
+		 * Filter the setting field config
+		 *
+		 * @param array  $field_config The field config for the setting
+		 * @param string $field_name   The name of the field (unfilterable in the config)
+		 * @param string $section      The slug of the section the field is registered to
+		 */
+		$field = apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
+
+		// Add the field name back after the filter has been applied
+		$field['name'] = $field_name;
+
+		// Add the field to the section
+		$this->settings_fields[ $section ][] = $field;
 
 		return $this;
 	}
@@ -121,7 +141,14 @@ class SettingsRegistry {
 		// Action that fires when settings are being initialized
 		do_action( 'graphql_init_settings', $this );
 
-		foreach ( $this->settings_sections as $id => $section ) {
+		/**
+		 * Filter the settings sections
+		 *
+		 * @param array $setting_sections The registered settings sections
+		 */
+		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
+
+		foreach ( $setting_sections as $id => $section ) {
 			if ( false === get_option( $id ) ) {
 				add_option( $id );
 			}

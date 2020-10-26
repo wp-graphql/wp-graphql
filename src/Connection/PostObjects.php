@@ -103,12 +103,13 @@ class PostObjects {
 		);
 
 		register_graphql_connection( [
-			'fromType'      => 'HierarchicalContentNode',
-			'toType'        => 'ContentNode',
-			'fromFieldName' => 'parent',
-			'description'   => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
-			'oneToOne'      => true,
-			'resolve'       => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'fromType'           => 'HierarchicalContentNode',
+			'toType'             => 'ContentNode',
+			'fromFieldName'      => 'parent',
+			'connectionTypeName' => 'HierarchicalContentNodeToParentContentNodeConnection',
+			'description'        => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
+			'oneToOne'           => true,
+			'resolve'            => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
 				if ( ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
 					return null;
@@ -123,12 +124,13 @@ class PostObjects {
 		] );
 
 		register_graphql_connection( [
-			'fromType'       => 'HierarchicalContentNode',
-			'fromFieldName'  => 'children',
-			'toType'         => 'ContentNode',
-			'connectionArgs' => self::get_connection_args(),
-			'queryClass'     => 'WP_Query',
-			'resolve'        => function( Post $post, $args, $context, $info ) {
+			'fromType'           => 'HierarchicalContentNode',
+			'fromFieldName'      => 'children',
+			'toType'             => 'ContentNode',
+			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeChildrenConnection',
+			'connectionArgs'     => self::get_connection_args(),
+			'queryClass'         => 'WP_Query',
+			'resolve'            => function( Post $post, $args, $context, $info ) {
 
 				if ( $post->isRevision ) {
 					$id = $post->parentDatabaseId;
@@ -145,13 +147,14 @@ class PostObjects {
 		] );
 
 		register_graphql_connection( [
-			'fromType'       => 'HierarchicalContentNode',
-			'toType'         => 'ContentNode',
-			'fromFieldName'  => 'ancestors',
-			'connectionArgs' => self::get_connection_args(),
-			'queryClass'     => 'WP_Query',
-			'description'    => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
-			'resolve'        => function( Post $post, $args, $context, $info ) {
+			'fromType'           => 'HierarchicalContentNode',
+			'toType'             => 'ContentNode',
+			'fromFieldName'      => 'ancestors',
+			'connectionArgs'     => self::get_connection_args(),
+			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeAncestorsConnection',
+			'queryClass'         => 'WP_Query',
+			'description'        => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+			'resolve'            => function( Post $post, $args, $context, $info ) {
 				$ancestors = get_ancestors( $post->ID, null, 'post_type' );
 				if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
 					return null;
@@ -162,6 +165,12 @@ class PostObjects {
 				return $resolver->get_connection();
 			},
 		] );
+
+		/**
+		 * Registers connections for each post_type that has a connection
+		 * to a taxonomy that's allowed in GraphQL
+		 */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		/**
 		 * Register Connections to PostObjects
@@ -229,16 +238,12 @@ class PostObjects {
 
 				}
 
-				/**
-				 * Registers connections for each post_type that has a connection
-				 * to a taxonomy that's allowed in GraphQL
-				 */
-				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							$tax_object = get_taxonomy( $taxonomy );
+
 							register_graphql_connection(
 								self::get_connection_config(
 									$post_type_object,
@@ -248,9 +253,9 @@ class PostObjects {
 											$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
 											$resolver->set_query_arg( 'tax_query', [
 												[
-													'taxonomy' => $term->taxonomyName,
-													'terms'    => [ $term->term_id ],
-													'field'    => 'term_id',
+													'taxonomy'         => $term->taxonomyName,
+													'terms'            => [ $term->term_id ],
+													'field'            => 'term_id',
 													'include_children' => false,
 												],
 											] );
@@ -260,6 +265,7 @@ class PostObjects {
 									]
 								)
 							);
+
 						}
 					}
 				}
@@ -286,6 +292,40 @@ class PostObjects {
 						)
 					);
 				}
+			}
+		}
+
+		// Register a connection from all taxonomies that are connected to
+		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			foreach ( $allowed_taxonomies as $taxonomy ) {
+
+				$tax_object = get_taxonomy( $taxonomy );
+
+				if ( empty( $tax_object->object_type ) ) {
+					return;
+				}
+
+				// Connection from the Taxonomy to Content Nodes
+				register_graphql_connection( self::get_connection_config( $tax_object, [
+					'fromType'      => $tax_object->graphql_single_name,
+					'fromFieldName' => 'contentNodes',
+					'toType'        => 'ContentNode',
+					'resolve'       => function( Term $term, $args, $context, $info ) {
+
+						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
+						$resolver->set_query_arg( 'tax_query', [
+							[
+								'taxonomy'         => $term->taxonomyName,
+								'terms'            => [ $term->term_id ],
+								'field'            => 'term_id',
+								'include_children' => false,
+							],
+						] );
+
+						return $resolver->get_connection();
+
+					},
+				] ) );
 			}
 		}
 

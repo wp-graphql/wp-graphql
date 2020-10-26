@@ -162,51 +162,50 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar'            => [
-						'size' => 96,
-					],
-					'capKey'            => 'wp_capabilities',
-					'capabilities'      => [ 'read', 'level_0', 'subscriber' ],
-					'comments'          => [
-						'edges' => [],
-					],
-					'description'       => null,
-					'email'             => 'test@test.com',
-					'extraCapabilities' => [ 'read', 'level_0', 'subscriber' ],
-					'firstName'         => null,
-					'id'                => $global_id,
-					'lastName'          => null,
-					'locale'            => 'en_US',
-					'mediaItems'        => [
-						'edges' => [],
-					],
-					'name'              => $user->data->display_name,
-					'nickname'          => $user->nickname,
-					'pages'             => [
-						'edges' => [],
-					],
-					'posts'             => [
-						'edges' => [],
-					],
-					'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
-					'roles'             => [
-						'nodes' => [
-							[
-								'name' => 'subscriber'
-							]
-						],
-					],
-					'slug'              => $user->data->user_nicename,
-					'url'               => null,
-					'userId'            => $user_id,
-					'username'          => $user->data->user_login,
+			'user' => [
+				'avatar'            => [
+					'size' => 96,
 				],
+				'capKey'            => 'wp_capabilities',
+				'capabilities'      => [ 'read', 'level_0', 'subscriber' ],
+				'comments'          => [
+					'edges' => [],
+				],
+				'description'       => null,
+				'email'             => 'test@test.com',
+				'extraCapabilities' => [ 'read', 'level_0', 'subscriber' ],
+				'firstName'         => null,
+				'id'                => $global_id,
+				'lastName'          => null,
+				'locale'            => 'en_US',
+				'mediaItems'        => [
+					'edges' => [],
+				],
+				'name'              => $user->data->display_name,
+				'nickname'          => $user->nickname,
+				'pages'             => [
+					'edges' => [],
+				],
+				'posts'             => [
+					'edges' => [],
+				],
+				'registeredDate'    => date( 'c', strtotime( $user->user_registered ) ),
+				'roles'             => [
+					'nodes' => [
+						[
+							'name' => 'subscriber'
+						]
+					],
+				],
+				'slug'              => $user->data->user_nicename,
+				'url'               => null,
+				'userId'            => $user_id,
+				'username'          => $user->data->user_login,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -256,14 +255,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'comments' => [
-						'edges' => [
-							[
-								'node' => [
-									'commentId' => $comment_id,
-								],
+			'user' => [
+				'comments' => [
+					'edges' => [
+						[
+							'node' => [
+								'commentId' => $comment_id,
 							],
 						],
 					],
@@ -271,7 +268,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -321,14 +319,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'posts' => [
-						'edges' => [
-							[
-								'node' => [
-									'postId' => $post_id,
-								],
+			'user' => [
+				'posts' => [
+					'edges' => [
+						[
+							'node' => [
+								'postId' => $post_id,
 							],
 						],
 					],
@@ -336,7 +332,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -389,14 +386,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'pages' => [
-						'edges' => [
-							[
-								'node' => [
-									'pageId' => $post_id,
-								],
+			'user' => [
+				'pages' => [
+					'edges' => [
+						[
+							'node' => [
+								'pageId' => $post_id,
 							],
 						],
 					],
@@ -404,7 +399,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -457,14 +453,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'mediaItems' => [
-						'edges' => [
-							[
-								'node' => [
-									'mediaItemId' => $post_id,
-								],
+			'user' => [
+				'mediaItems' => [
+					'edges' => [
+						[
+							'node' => [
+								'mediaItemId' => $post_id,
 							],
 						],
 					],
@@ -472,7 +466,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -506,13 +501,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data' => [
-				'user' => null,
-			],
+		$expected =  [
+			'user' => null,
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function testUsersQueryWithNoPublishedPosts() {
@@ -584,15 +578,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'users' => [
-					'edges' => [
-						[
-							'node' => [
-								'id'     => $global_id,
-								'userId' => $user_id,
-								'email'  => $email,
-							],
+		'users' => [
+				'edges' => [
+					[
+						'node' => [
+							'id'     => $global_id,
+							'userId' => $user_id,
+							'email'  => $email,
 						],
 					],
 				],
@@ -628,7 +620,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * The authenticated user should see their own user in the result
 		 */
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -675,35 +668,34 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'users' => [
-					'edges' => [
-						[
-							'node' => [
-								'userId'    => $user_2_id,
-								'username'  => $user_2['user_login'],
-								'email'     => $user_2['user_email'],
-								'firstName' => $user_2['first_name'],
-								'lastName'  => $user_2['last_name'],
-								'url'       => $user_2['user_url'],
-							],
+			'users' => [
+				'edges' => [
+					[
+						'node' => [
+							'userId'    => $user_2_id,
+							'username'  => $user_2['user_login'],
+							'email'     => $user_2['user_email'],
+							'firstName' => $user_2['first_name'],
+							'lastName'  => $user_2['last_name'],
+							'url'       => $user_2['user_url'],
 						],
-						[
-							'node' => [
-								'userId'    => $user_1_id,
-								'username'  => $user_1['user_login'],
-								'email'     => $user_1['user_email'],
-								'firstName' => $user_1['first_name'],
-								'lastName'  => $user_1['last_name'],
-								'url'       => $user_1['user_url'],
-							],
+					],
+					[
+						'node' => [
+							'userId'    => $user_1_id,
+							'username'  => $user_1['user_login'],
+							'email'     => $user_1['user_email'],
+							'firstName' => $user_1['first_name'],
+							'lastName'  => $user_1['last_name'],
+							'url'       => $user_1['user_url'],
 						],
 					],
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -765,39 +757,38 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'users' => [
-					'edges' => [
-						[
-							'node' => [
-								'userId'       => $user_2_id,
-								'username'     => $user_2['user_login'],
-								'email'        => $user_2['user_email'],
-								'firstName'    => $user_2['first_name'],
-								'lastName'     => $user_2['last_name'],
-								'url'          => $user_2['user_url'],
-								'description'  => $user_2['description'],
-								'isRestricted' => false,
-							],
+			'users' => [
+				'edges' => [
+					[
+						'node' => [
+							'userId'       => $user_2_id,
+							'username'     => $user_2['user_login'],
+							'email'        => $user_2['user_email'],
+							'firstName'    => $user_2['first_name'],
+							'lastName'     => $user_2['last_name'],
+							'url'          => $user_2['user_url'],
+							'description'  => $user_2['description'],
+							'isRestricted' => false,
 						],
-						[
-							'node' => [
-								'userId'       => $user_1_id,
-								'username'     => null,
-								'email'        => null,
-								'firstName'    => $user_1['first_name'],
-								'lastName'     => $user_2['last_name'],
-								'url'          => null,
-								'description'  => $user_1['description'],
-								'isRestricted' => true,
-							],
+					],
+					[
+						'node' => [
+							'userId'       => $user_1_id,
+							'username'     => null,
+							'email'        => null,
+							'firstName'    => $user_1['first_name'],
+							'lastName'     => $user_2['last_name'],
+							'url'          => null,
+							'description'  => $user_1['description'],
+							'isRestricted' => true,
 						],
 					],
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Schema;
@@ -54,7 +55,7 @@ class ServerConfig
         return $instance;
     }
 
-    /** @var Schema */
+    /** @var Schema|null */
     private $schema;
 
     /** @var mixed|callable */
@@ -69,22 +70,22 @@ class ServerConfig
     /** @var callable|null */
     private $errorsHandler;
 
-    /** @var bool */
-    private $debug = false;
+    /** @var int */
+    private $debugFlag = DebugFlag::NONE;
 
     /** @var bool */
     private $queryBatching = false;
 
-    /** @var ValidationRule[]|callable */
+    /** @var ValidationRule[]|callable|null */
     private $validationRules;
 
-    /** @var callable */
+    /** @var callable|null */
     private $fieldResolver;
 
-    /** @var PromiseAdapter */
+    /** @var PromiseAdapter|null */
     private $promiseAdapter;
 
-    /** @var callable */
+    /** @var callable|null */
     private $persistentQueryLoader;
 
     /**
@@ -158,7 +159,7 @@ class ServerConfig
     /**
      * Set validation rules for this server.
      *
-     * @param ValidationRule[]|callable $validationRules
+     * @param ValidationRule[]|callable|null $validationRules
      *
      * @return self
      *
@@ -207,17 +208,13 @@ class ServerConfig
     }
 
     /**
-     * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
-     *
-     * @param bool|int $set
-     *
-     * @return self
+     * Set response debug flags. @see \GraphQL\Error\DebugFlag class for a list of all available flags
      *
      * @api
      */
-    public function setDebug($set = true)
+    public function setDebugFlag(int $debugFlag = DebugFlag::INCLUDE_DEBUG_MESSAGE) : self
     {
-        $this->debug = $set;
+        $this->debugFlag = $debugFlag;
 
         return $this;
     }
@@ -263,7 +260,7 @@ class ServerConfig
     }
 
     /**
-     * @return Schema
+     * @return Schema|null
      */
     public function getSchema()
     {
@@ -287,7 +284,7 @@ class ServerConfig
     }
 
     /**
-     * @return PromiseAdapter
+     * @return PromiseAdapter|null
      */
     public function getPromiseAdapter()
     {
@@ -295,7 +292,7 @@ class ServerConfig
     }
 
     /**
-     * @return ValidationRule[]|callable
+     * @return ValidationRule[]|callable|null
      */
     public function getValidationRules()
     {
@@ -303,7 +300,7 @@ class ServerConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      */
     public function getFieldResolver()
     {
@@ -311,19 +308,16 @@ class ServerConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      */
     public function getPersistentQueryLoader()
     {
         return $this->persistentQueryLoader;
     }
 
-    /**
-     * @return bool
-     */
-    public function getDebug()
+    public function getDebugFlag() : int
     {
-        return $this->debug;
+        return $this->debugFlag;
     }
 
     /**

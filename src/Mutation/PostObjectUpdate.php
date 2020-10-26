@@ -96,6 +96,14 @@ class PostObjectUpdate {
 			}
 
 			/**
+			 * If the existing post was authored by another author, ensure the requesting user has permission to edit it
+			 */
+			if ( get_current_user_id() !== $existing_post->post_author && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+				// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
+				throw new UserError( sprintf( __( 'Sorry, you are not allowed to another author\'s %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
+			}
+
+			/**
 			 * If the mutation is setting the author to be someone other than the user making the request
 			 * make sure they have permission to edit others posts
 			 */

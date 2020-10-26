@@ -36,6 +36,7 @@ use WPGraphQL\Utils\Utils;
  * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
+ * @property boolean $isSticky
  * @property string  $toPing
  * @property string  $pinged
  * @property string  $modified
@@ -222,6 +223,12 @@ class Post extends Model {
 				$wp_query->parse_query( [
 					'attachment' => $post_name,
 				] );
+			} else {
+				$wp_query->parse_query( [
+					$post_type  => $post_name,
+					'post_type' => $post_type,
+					'name'      => $post_name,
+				] );
 			}
 
 			$wp_query->setup_postdata( $data );
@@ -303,7 +310,7 @@ class Post extends Model {
 	 *
 	 * @return bool
 	 */
-	protected function is_private() {
+	public function is_private() {
 
 		/**
 		 * If the post is of post_type "revision", we need to access the parent of the Post
@@ -687,6 +694,9 @@ class Post extends Model {
 					}
 
 					return false;
+				},
+				'isSticky'                  => function() {
+					return is_sticky( $this->databaseId );
 				},
 			];
 

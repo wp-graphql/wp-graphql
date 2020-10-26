@@ -144,7 +144,6 @@ function register_graphql_type( $type_name, $config ) {
 	add_action( get_graphql_register_action(), function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $config ) {
 		$type_registry->register_type( $type_name, $config );
 	}, 10 );
-
 }
 
 /**
@@ -330,8 +329,8 @@ function register_graphql_settings_section( $slug, $config ) {
 /**
  * Registers a GraphQL Settings Field
  *
- * @param string $group The name of the group to register a setting field to
- * @param array $config The config for the settings field being registered
+ * @param string $group  The name of the group to register a setting field to
+ * @param array  $config The config for the settings field being registered
  */
 function register_graphql_settings_field( $group, $config ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
@@ -340,10 +339,42 @@ function register_graphql_settings_field( $group, $config ) {
 }
 
 /**
+ * Given a message and an optional config array
+ *
+ * @param mixed|string|array $message The debug message
+ * @param array              $config  The debug config. Should be an associative array of keys and
+ *                                    values.
+ *                                    $config['type'] will set the "type" of the log, default type
+ *                                    is GRAPHQL_DEBUG. Other fields added to $config will be
+ *                                    merged into the debug entry.
+ */
+function graphql_debug( $message, $config = [] ) {
+	$config['backtrace'] = wp_list_pluck( debug_backtrace(), 'file' );
+	add_action( 'graphql_get_debug_log', function( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
+		return $debug_log->add_log_entry( $message, $config );
+	} );
+}
+
+/**
+ * Check if the name is valid for use in GraphQL
+ *
+ * @param $type_name
+ *
+ * @return bool
+ */
+function is_valid_graphql_name( $type_name ) {
+	if ( preg_match( '/^\d/', $type_name ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Registers a series of GraphQL Settings Fields
  *
- * @param string $group The name of the settings group to register fields to
- * @param array $fields Array of field configs to register to the group
+ * @param string $group  The name of the settings group to register fields to
+ * @param array  $fields Array of field configs to register to the group
  */
 function register_graphql_settings_fields( $group, $fields ) {
 	add_action( 'graphql_init_settings', function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
@@ -354,20 +385,40 @@ function register_graphql_settings_fields( $group, $fields ) {
 /**
  * Get an option value from GraphQL settings
  *
- * @param string $option  The key of the option to return
- * @param mixed  $default The default value the setting should return if no value is set
- * @param string $section The settings group section that the option belongs to
+ * @param string $option_name  The key of the option to return
+ * @param mixed  $default      The default value the setting should return if no value is set
+ * @param string $section_name The settings group section that the option belongs to
  *
  * @return mixed|string|int|boolean
  */
-function get_graphql_setting( $option, $default = '', $section = 'graphql_general_settings' ) {
-	$options = get_option( $section );
+function get_graphql_setting( $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
 
-	if ( isset( $options[ $option ] ) ) {
-		return $options[ $option ];
-	}
+	$section_fields = get_option( $section_name );
 
-	return $default;
+	/**
+	 * Filter the section fields
+	 *
+	 * @param array  $section_fields The values of the fields stored for the section
+	 * @param string $section_name   The name of the section
+	 * @param mixed  $default        The default value for the option being retrieved
+	 */
+	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default );
+
+	/**
+	 * Get the value from the stored data, or return the default
+	 */
+	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default;
+
+	/**
+	 * Filter the value before returning it
+	 *
+	 * @param mixed  $value          The value of the field
+	 * @param mixed  $default        The default value if there is no value set
+	 * @param string $option_name    The name of the option
+	 * @param array  $section_fields The setting values within the section
+	 * @param string $section_name   The name of the section the setting belongs to
+	 */
+	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default, $option_name, $section_fields, $section_name );
 }
 
 /**

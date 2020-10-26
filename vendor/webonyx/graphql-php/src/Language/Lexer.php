@@ -9,8 +9,11 @@ use GraphQL\Utils\BlockString;
 use GraphQL\Utils\Utils;
 use function chr;
 use function hexdec;
+use function mb_convert_encoding;
 use function ord;
+use function pack;
 use function preg_match;
+use function substr;
 
 /**
  * A Lexer is a stateful stream generator in that every time
@@ -118,7 +121,7 @@ class Lexer
         $token = $this->token;
         if ($token->kind !== Token::EOF) {
             do {
-                $token = $token->next ?: ($token->next = $this->readToken($token));
+                $token = $token->next ?? ($token->next = $this->readToken($token));
             } while ($token->kind === Token::COMMENT);
         }
 
@@ -314,11 +317,11 @@ class Lexer
         $start         = $this->position;
         [$char, $code] = $this->readChar();
 
-        while ($code && (
+        while ($code !== null && (
                 $code === 95 || // _
-                $code >= 48 && $code <= 57 || // 0-9
-                $code >= 65 && $code <= 90 || // A-Z
-                $code >= 97 && $code <= 122 // a-z
+                ($code >= 48 && $code <= 57) || // 0-9
+                ($code >= 65 && $code <= 90) || // A-Z
+                ($code >= 97 && $code <= 122) // a-z
             )) {
             $value        .= $char;
             [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
@@ -522,8 +525,27 @@ class Lexer
                                 'Invalid character escape sequence: \\u' . $hex
                             );
                         }
+
                         $code = hexdec($hex);
+
+                        // UTF-16 surrogate pair detection and handling.
+                        $highOrderByte = $code >> 8;
+                        if (0xD8 <= $highOrderByte && $highOrderByte <= 0xDF) {
+                            [$utf16Continuation] = $this->readChars(6, true);
+                            if (! preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation)) {
+                                throw new SyntaxError(
+                                    $this->source,
+                                    $this->position - 5,
+                                    'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation
+                                );
+                            }
+                            $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
+                            $value           .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
+                            break;
+                        }
+
                         $this->assertValidStringCharacterCode($code, $position - 2);
+
                         $value .= Utils::chr($code);
                         break;
                     default:
@@ -695,7 +717,7 @@ class Lexer
         do {
             [$char, $code, $bytes] = $this->moveStringCursor(1, $bytes)->readChar();
             $value                .= $char;
-        } while ($code &&
+        } while ($code !== null &&
         // SourceCharacter but not LineTerminator
         ($code > 0x001F || $code === 0x0009)
         );
@@ -771,7 +793,7 @@ class Lexer
     {
         $result     = '';
         $totalBytes = 0;
-        $byteOffset = $byteStreamPosition ?: $this->byteStreamPosition;
+        $byteOffset = $byteStreamPosition ?? $this->byteStreamPosition;
 
         for ($i = 0; $i < $charCount; $i++) {
             [$char, $code, $bytes] = $this->readChar(false, $byteOffset);

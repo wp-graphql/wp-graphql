@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
-use GraphQL\Utils\Utils;
 use function array_key_exists;
-use function array_keys;
-use function in_array;
 use function is_array;
 
 class Directive
 {
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 
-    const INCLUDE_NAME         = 'include';
-    const IF_ARGUMENT_NAME     = 'if';
-    const SKIP_NAME            = 'skip';
-    const DEPRECATED_NAME      = 'deprecated';
-    const REASON_ARGUMENT_NAME = 'reason';
+    public const INCLUDE_NAME         = 'include';
+    public const IF_ARGUMENT_NAME     = 'if';
+    public const SKIP_NAME            = 'skip';
+    public const DEPRECATED_NAME      = 'deprecated';
+    public const REASON_ARGUMENT_NAME = 'reason';
 
-    /** @var Directive[] */
+    /** @var Directive[]|null */
     public static $internalDirectives;
 
     // Schema Definitions
@@ -33,11 +31,14 @@ class Directive
     /** @var string|null */
     public $description;
 
-    /** @var string[] */
-    public $locations;
-
     /** @var FieldArgument[] */
     public $args = [];
+
+    /** @var bool */
+    public $isRepeatable;
+
+    /** @var string[] */
+    public $locations;
 
     /** @var DirectiveDefinitionNode|null */
     public $astNode;
@@ -50,6 +51,13 @@ class Directive
      */
     public function __construct(array $config)
     {
+        if (! isset($config['name'])) {
+            throw new InvariantViolation('Directive must be named.');
+        }
+        $this->name = $config['name'];
+
+        $this->description = $config['description'] ?? null;
+
         if (isset($config['args'])) {
             $args = [];
             foreach ($config['args'] as $name => $arg) {
@@ -60,14 +68,16 @@ class Directive
                 }
             }
             $this->args = $args;
-            unset($config['args']);
-        }
-        foreach ($config as $key => $value) {
-            $this->{$key} = $value;
         }
 
-        Utils::invariant($this->name, 'Directive must be named.');
-        Utils::invariant(is_array($this->locations), 'Must provide locations for directive.');
+        if (! isset($config['locations']) || ! is_array($config['locations'])) {
+            throw new InvariantViolation('Must provide locations for directive.');
+        }
+        $this->locations = $config['locations'];
+
+        $this->isRepeatable = $config['isRepeatable'] ?? false;
+        $this->astNode      = $config['astNode'] ?? null;
+
         $this->config = $config;
     }
 
@@ -84,9 +94,9 @@ class Directive
     /**
      * @return Directive[]
      */
-    public static function getInternalDirectives()
+    public static function getInternalDirectives() : array
     {
-        if (! self::$internalDirectives) {
+        if (self::$internalDirectives === null) {
             self::$internalDirectives = [
                 'include'    => new self([
                     'name'        => self::INCLUDE_NAME,
@@ -130,8 +140,8 @@ class Directive
                         'type'         => Type::string(),
                         'description'  =>
                             'Explains why this element was deprecated, usually also including a ' .
-                            'suggestion for how to access supported similar data. Formatted ' .
-                            'in [Markdown](https://daringfireball.net/projects/markdown/).',
+                            'suggestion for how to access supported similar data. Formatted using ' .
+                            'the Markdown syntax (as specified by [CommonMark](https://commonmark.org/).',
                         'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
                     ]),
                     ],

@@ -228,46 +228,44 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'post' => [
-					'id'            => $global_id,
-					'author'        => [
-						'node' => [
-							'userId' => $this->admin,
-						]
-					],
-					'commentCount'  => null,
-					'commentStatus' => 'open',
-					'content'       => apply_filters( 'the_content', 'Test page content' ),
-					'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( null, $this->current_date ),
-					'dateGmt'       => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
-					'desiredSlug'   => null,
-					'lastEditedBy'      => [
-						'node' => [
-							'userId' => $this->admin,
-						]
-					],
-					'editingLockedBy'      => null,
-					'enclosure'     => null,
-					'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
-					'status'        => 'publish',
-					'link'          => get_permalink( $post_id ),
-					'postId'        => $post_id,
-					'slug'          => 'test-title',
-					'toPing'        => null,
-					'pinged'        => null,
-					'modified'      => get_post( $post_id )->post_modified,
-					'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
-					'title'         => apply_filters( 'the_title', 'Test Title' ),
-					'guid'          => get_post( $post_id )->guid,
-					'featuredImage' => [
-						'node' => [
-							'mediaItemId' => $featured_image_id,
-							'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
-							'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
-							'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
-							'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
-						],
+			'post' => [
+				'id'            => $global_id,
+				'author'        => [
+					'node' => [
+						'userId' => $this->admin,
+					]
+				],
+				'commentCount'  => null,
+				'commentStatus' => 'open',
+				'content'       => apply_filters( 'the_content', 'Test page content' ),
+				'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( null, $this->current_date ),
+				'dateGmt'       => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+				'desiredSlug'   => null,
+				'lastEditedBy'      => [
+					'node' => [
+						'userId' => $this->admin,
+					]
+				],
+				'editingLockedBy'      => null,
+				'enclosure'     => null,
+				'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
+				'status'        => 'publish',
+				'link'          => get_permalink( $post_id ),
+				'postId'        => $post_id,
+				'slug'          => 'test-title',
+				'toPing'        => null,
+				'pinged'        => null,
+				'modified'      => get_post( $post_id )->post_modified,
+				'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+				'title'         => apply_filters( 'the_title', 'Test Title' ),
+				'guid'          => get_post( $post_id )->guid,
+				'featuredImage' => [
+					'node' => [
+						'mediaItemId' => $featured_image_id,
+						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
+						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
+						'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
+						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
 					],
 				],
 			],
@@ -277,7 +275,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -424,17 +422,15 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 		$expected = [
-			"data" => [
-				"post" => [
-					"id"            => $global_id,
-					"featuredImage" => null
-				]
+			"post" => [
+				"id"            => $global_id,
+				"featuredImage" => null
 			]
 		];
 
 
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -492,25 +488,23 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'post' => [
-					'id'            => $global_id,
-					'comments'      => [
-						'edges' => [
-							[
-								'node' => [
-									'commentId' => $comment_id,
-								],
+			'post' => [
+				'id'            => $global_id,
+				'comments'      => [
+					'edges' => [
+						[
+							'node' => [
+								'commentId' => $comment_id,
 							],
 						],
 					],
-					'commentCount'  => 1,
-					'commentStatus' => 'open',
 				],
+				'commentCount'  => 1,
+				'commentStatus' => 'open',
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -575,7 +569,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
 				'page' => [
 					'id'        => $global_id,
 					'parentId'  => $global_parent_id,
@@ -586,10 +579,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						],
 					],
 				],
-			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -648,25 +640,23 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'post' => [
-					'id'        => $global_id,
-					'tags'      => [
-						'edges' => [
-							[
-								'node' => [
-									'tagId' => $tag_id,
-									'name'  => 'Test Tag',
-								],
+			'post' => [
+				'id'        => $global_id,
+				'tags'      => [
+					'edges' => [
+						[
+							'node' => [
+								'tagId' => $tag_id,
+								'name'  => 'Test Tag',
 							],
 						],
 					],
-
 				],
+
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -730,16 +720,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'post' => [
-					'id'         => $global_id,
-					'categories' => [
-						'edges' => [
-							[
-								'node' => [
-									'categoryId' => $category_id,
-									'name'       => 'A category',
-								],
+			'post' => [
+				'id'         => $global_id,
+				'categories' => [
+					'edges' => [
+						[
+							'node' => [
+								'categoryId' => $category_id,
+								'name'       => 'A category',
 							],
 						],
 					],
@@ -749,7 +737,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -790,15 +778,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'postBy' => [
-					'id'    => $global_id,
-					'title' => 'This is a title, yo',
-				],
+			'postBy' => [
+				'id'    => $global_id,
+				'title' => 'This is a title, yo',
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -842,15 +828,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'postBy' => [
-					'id'    => $global_id,
-					'title' => 'This is a title, yo',
-				],
+			'postBy' => [
+				'id'    => $global_id,
+				'title' => 'This is a title, yo',
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -915,16 +899,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'pageBy' => [
-					'id'    => $global_child_id,
-					'title' => 'Child Page',
-					'uri'   => $uri,
-				],
+			'pageBy' => [
+				'id'    => $global_child_id,
+				'title' => 'Child Page',
+				'uri'   => $uri,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -1495,16 +1477,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	    }";
 
 		$expected = [
-			'data' => [
-				'postBy' => null
-			]
+			'postBy' => null
 		];
 
 		$actual = do_graphql_request( $query );
 
 		codecept_debug( $actual );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -1566,28 +1546,26 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $graphql_query );
 
 		$expected = [
-			'data' => [
-				'post' => [
-					'id' => $global_id,
-					'title' => $title,
-					'status' => $status,
-					'author' => [
-						'node' => [
-							'userId' => $author
-						],
+			'post' => [
+				'id' => $global_id,
+				'title' => $title,
+				'status' => $status,
+				'author' => [
+					'node' => [
+						'userId' => $author
 					],
-					'content' => apply_filters( 'the_content', $content ),
-				]
+				],
+				'content' => apply_filters( 'the_content', $content ),
 			]
 		];
 
 		if ( true === $restricted ) {
-			$expected['data']['post']['content'] = null;
-			$expected['data']['post']['author'] = null;
+			$expected['post']['content'] = null;
+			$expected['post']['author'] = null;
 		}
 
 		if ( 0 === $author ) {
-			$expected['data']['post']['author'] = null;
+			$expected['post']['author'] = null;
 		}
 
 		/**
@@ -1598,14 +1576,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertArrayNotHasKey( 'errors', $actual );
 
 			$expected = [
-				'data' => [
-					'post' => null,
-				],
+				'post' => null,
 			];
 
-			$this->assertEquals( $expected, $actual );
+			$this->assertEquals( $expected, $actual['data'] );
 		} else {
-			$this->assertEquals( $expected, $actual );
+			$this->assertEquals( $expected, $actual['data'] );
 		}
 
 
@@ -1844,7 +1820,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    ...PostFields
 		  }
 		}
-		
+
 		fragment PostFields on Post {
 		  id
 		  postId
@@ -1926,7 +1902,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    ...pageFields
 		  }
 		}
-		
+
 		fragment pageFields on Page {
 		  id
 		  pageId
@@ -2044,6 +2020,56 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// The content should be public for an admin
 		$this->assertSame( apply_filters( 'the_content', $content ), $actual['data']['posts']['nodes'][0]['content'] );
 		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+	}
+
+	public function testIsStickyFieldOnPost() {
+
+		$sticky_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Sticky Post',
+			'post_content' => 'Sticky post content',
+			'post_author' => $this->admin,
+		]);
+
+		$nonsticky_post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Non-sticky Post',
+			'post_content' => 'Non-sticky post content',
+			'post_author' => $this->admin,
+		]);
+
+		update_option('sticky_posts', [$sticky_post_id]);
+
+		$query = '
+		query testStickyPost($ids: [ID]) {
+			posts(first: 2, where: { in: $ids }) {
+				nodes {
+					databaseId
+					uri
+					link
+					isSticky
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'ids' => [
+					$sticky_post_id,
+					$nonsticky_post_id
+				],
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
+		$this->assertFalse($actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
 }

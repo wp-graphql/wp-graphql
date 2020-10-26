@@ -19,7 +19,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
@@ -60,7 +59,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
 
         return [
-            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) {
+            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) : void {
                 $conflicts = $this->findConflictsWithinSelectionSet(
                     $context,
                     $context->getParentType(),
@@ -381,7 +380,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 ];
             }
 
-            if (! $this->sameArguments($ast1->arguments ?: [], $ast2->arguments ?: [])) {
+            if (! $this->sameArguments($ast1->arguments ?? [], $ast2->arguments ?? [])) {
                 return [
                     [$responseName, 'they have differing arguments'],
                     [$ast1],
@@ -467,30 +466,28 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Two types conflict if both types could not apply to a value simultaneously.
      * Composite types are ignored as their individual field types will be compared
      * later recursively. However List and Non-Null types must match.
-     *
-     * @return bool
      */
-    private function doTypesConflict(OutputType $type1, OutputType $type2)
+    private function doTypesConflict(Type $type1, Type $type2) : bool
     {
         if ($type1 instanceof ListOfType) {
-            return $type2 instanceof ListOfType ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type2 instanceof ListOfType
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type2 instanceof ListOfType) {
-            return $type1 instanceof ListOfType ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type1 instanceof ListOfType
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type1 instanceof NonNull) {
-            return $type2 instanceof NonNull ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type2 instanceof NonNull
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type2 instanceof NonNull) {
-            return $type1 instanceof NonNull ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type1 instanceof NonNull
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if (Type::isLeafType($type1) || Type::isLeafType($type2)) {
             return $type1 !== $type2;
@@ -848,14 +845,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             ],
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) {
+                static function ($allFields, $conflict) : array {
                     return array_merge($allFields, $conflict[1]);
                 },
                 [$ast1]
             ),
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) {
+                static function ($allFields, $conflict) : array {
                     return array_merge($allFields, $conflict[2]);
                 },
                 [$ast2]
@@ -882,7 +879,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     {
         if (is_array($reason)) {
             $tmp = array_map(
-                static function ($tmp) {
+                static function ($tmp) : string {
                     [$responseName, $subReason] = $tmp;
 
                     $reasonMessage = self::reasonMessage($subReason);

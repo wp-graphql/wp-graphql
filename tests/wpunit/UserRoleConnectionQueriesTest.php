@@ -59,17 +59,16 @@ class UserRoleConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$expected = [
-			'data' => [
-				'userRoles' => [
-					'edges' => $nodes,
-				],
+			'userRoles' => [
+				'edges' => $nodes,
 			],
 		];
 
 		$actual = do_graphql_request( $query );
 		codecept_debug( $actual );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

@@ -6,7 +6,6 @@ namespace GraphQL\Error;
 
 use Countable;
 use ErrorException;
-use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -67,10 +66,10 @@ class FormattedError
     public static function printError(Error $error)
     {
         $printedLocations = [];
-        if ($error->nodes) {
+        if (count($error->nodes ?? []) !== 0) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
-                if (! $node->loc) {
+                if ($node->loc === null) {
                     continue;
                 }
 
@@ -83,14 +82,14 @@ class FormattedError
                     $node->loc->source->getLocation($node->loc->start)
                 );
             }
-        } elseif ($error->getSource() && $error->getLocations()) {
+        } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
-            foreach ($error->getLocations() as $location) {
+            foreach (($error->getLocations() ?? []) as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return ! $printedLocations
+        return count($printedLocations) === 0
             ? $error->getMessage()
             : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -162,11 +161,9 @@ class FormattedError
      * This method only exposes exception message when exception implements ClientAware interface
      * (or when debug flags are passed).
      *
-     * For a list of available debug flags see GraphQL\Error\Debug constants.
+     * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
-     * @param Throwable $e
-     * @param bool|int  $debug
-     * @param string    $internalErrorMessage
+     * @param string $internalErrorMessage
      *
      * @return mixed[]
      *
@@ -174,21 +171,15 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException($e, $debug = false, $internalErrorMessage = null)
+    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null) : array
     {
-        Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
-            'Expected exception, got %s',
-            Utils::getVariableType($e)
-        );
+        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
 
-        $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
-
-        if ($e instanceof ClientAware) {
+        if ($exception instanceof ClientAware) {
             $formattedError = [
-                'message'  => $e->isClientSafe() ? $e->getMessage() : $internalErrorMessage,
+                'message'  => $exception->isClientSafe() ? $exception->getMessage() : $internalErrorMessage,
                 'extensions' => [
-                    'category' => $e->getCategory(),
+                    'category' => $exception->getCategory(),
                 ],
             ];
         } else {
@@ -200,26 +191,27 @@ class FormattedError
             ];
         }
 
-        if ($e instanceof Error) {
+        if ($exception instanceof Error) {
             $locations = Utils::map(
-                $e->getLocations(),
-                static function (SourceLocation $loc) {
+                $exception->getLocations(),
+                static function (SourceLocation $loc) : array {
                     return $loc->toSerializableArray();
                 }
             );
-            if (! empty($locations)) {
+            if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
-            if (! empty($e->path)) {
-                $formattedError['path'] = $e->path;
+
+            if (count($exception->path ?? []) > 0) {
+                $formattedError['path'] = $exception->path;
             }
-            if (! empty($e->getExtensions())) {
-                $formattedError['extensions'] = $e->getExtensions() + $formattedError['extensions'];
+            if (count($exception->getExtensions() ?? []) > 0) {
+                $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
             }
         }
 
-        if ($debug) {
-            $formattedError = self::addDebugEntries($formattedError, $e, $debug);
+        if ($debug !== DebugFlag::NONE) {
+            $formattedError = self::addDebugEntries($formattedError, $exception, $debug);
         }
 
         return $formattedError;
@@ -227,54 +219,42 @@ class FormattedError
 
     /**
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags
-     * (see GraphQL\Error\Debug for available flags)
+     * (@see \GraphQL\Error\DebugFlag for available flags)
      *
-     * @param mixed[]   $formattedError
-     * @param Throwable $e
-     * @param bool|int  $debug
+     * @param mixed[] $formattedError
      *
      * @return mixed[]
      *
      * @throws Throwable
      */
-    public static function addDebugEntries(array $formattedError, $e, $debug)
+    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag) : array
     {
-        if (! $debug) {
+        if ($debugFlag === DebugFlag::NONE) {
             return $formattedError;
         }
 
-        Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
-            'Expected exception, got %s',
-            Utils::getVariableType($e)
-        );
-
-        $debug = (int) $debug;
-
-        if ($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) {
+        if (( $debugFlag & DebugFlag::RETHROW_INTERNAL_EXCEPTIONS) !== 0) {
             if (! $e instanceof Error) {
                 throw $e;
             }
 
-            if ($e->getPrevious()) {
+            if ($e->getPrevious() !== null) {
                 throw $e->getPrevious();
             }
         }
 
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if (($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) && $isUnsafe) {
-            if ($e->getPrevious()) {
-                throw $e->getPrevious();
-            }
+        if (($debugFlag & DebugFlag::RETHROW_UNSAFE_EXCEPTIONS) !== 0 && $isUnsafe && $e->getPrevious() !== null) {
+            throw $e->getPrevious();
         }
 
-        if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isUnsafe) {
+        if (($debugFlag & DebugFlag::INCLUDE_DEBUG_MESSAGE) !== 0 && $isUnsafe) {
             // Displaying debugMessage as a first entry:
             $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
         }
 
-        if ($debug & Debug::INCLUDE_TRACE) {
+        if (($debugFlag & DebugFlag::INCLUDE_TRACE) !== 0) {
             if ($e instanceof ErrorException || $e instanceof \Error) {
                 $formattedError += [
                     'file' => $e->getFile(),
@@ -282,10 +262,10 @@ class FormattedError
                 ];
             }
 
-            $isTrivial = $e instanceof Error && ! $e->getPrevious();
+            $isTrivial = $e instanceof Error && $e->getPrevious() === null;
 
             if (! $isTrivial) {
-                $debugging               = $e->getPrevious() ?: $e;
+                $debugging               = $e->getPrevious() ?? $e;
                 $formattedError['trace'] = static::toSafeTrace($debugging);
             }
         }
@@ -296,18 +276,14 @@ class FormattedError
     /**
      * Prepares final error formatter taking in account $debug flags.
      * If initial formatter is not set, FormattedError::createFromException is used
-     *
-     * @param  bool|int $debug
-     *
-     * @return callable|callable
      */
-    public static function prepareFormatter(?callable $formatter = null, $debug)
+    public static function prepareFormatter(?callable $formatter = null, int $debug) : callable
     {
-        $formatter = $formatter ?: static function ($e) {
+        $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
-        if ($debug) {
-            $formatter = static function ($e) use ($formatter, $debug) {
+        if ($debug !== DebugFlag::NONE) {
+            $formatter = static function ($e) use ($formatter, $debug) : array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
         }
@@ -338,12 +314,12 @@ class FormattedError
         }
 
         return array_map(
-            static function ($err) {
+            static function ($err) : array {
                 $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
                     $func    = $err['function'];
-                    $args    = ! empty($err['args']) ? array_map([self::class, 'printVar'], $err['args']) : [];
+                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
                     $funcStr = $func . '(' . implode(', ', $args) . ')';
 
                     if (isset($err['class'])) {
@@ -412,9 +388,9 @@ class FormattedError
     {
         $formatted = ['message' => $error];
 
-        if (! empty($locations)) {
+        if (count($locations) > 0) {
             $formatted['locations'] = array_map(
-                static function ($loc) {
+                static function ($loc) : array {
                     return $loc->toArray();
                 },
                 $locations
@@ -428,6 +404,8 @@ class FormattedError
      * @deprecated as of v0.10.0, use general purpose method createFromException() instead
      *
      * @return mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public static function createFromPHPError(ErrorException $e)
     {

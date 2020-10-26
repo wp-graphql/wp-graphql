@@ -9,7 +9,6 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -110,13 +109,12 @@ abstract class QuerySecurityRule extends ValidationRule
         ?ArrayObject $visitedFragmentNames = null,
         ?ArrayObject $astAndDefs = null
     ) {
-        $_visitedFragmentNames = $visitedFragmentNames ?: new ArrayObject();
-        $_astAndDefs           = $astAndDefs ?: new ArrayObject();
+        $_visitedFragmentNames = $visitedFragmentNames ?? new ArrayObject();
+        $_astAndDefs           = $astAndDefs ?? new ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
-            switch ($selection->kind) {
-                case NodeKind::FIELD:
-                    /** @var FieldNode $selection */
+            switch (true) {
+                case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -142,8 +140,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
-                case NodeKind::INLINE_FRAGMENT:
-                    /** @var InlineFragmentNode $selection */
+                case $selection instanceof InlineFragmentNode:
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
@@ -152,11 +149,10 @@ abstract class QuerySecurityRule extends ValidationRule
                         $_astAndDefs
                     );
                     break;
-                case NodeKind::FRAGMENT_SPREAD:
-                    /** @var FragmentSpreadNode $selection */
+                case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (empty($_visitedFragmentNames[$fragName])) {
+                    if (! ($_visitedFragmentNames[$fragName] ?? false)) {
                         $_visitedFragmentNames[$fragName] = true;
                         $fragment                         = $context->getFragment($fragName);
 

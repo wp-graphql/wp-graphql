@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
@@ -18,11 +19,14 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use function count;
 use function file_get_contents;
 use function header;
+use function html_entity_decode;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -30,6 +34,7 @@ use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
+use function parse_str;
 use function sprintf;
 use function stripos;
 
@@ -73,11 +78,15 @@ class Helper
             }
 
             if (stripos($contentType, 'application/graphql') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
-                $bodyParams = ['query' => $rawBody ?: ''];
+                $rawBody    = $readRawBodyFn
+                    ? $readRawBodyFn()
+                    : $this->readRawBody();
+                $bodyParams = ['query' => $rawBody ?? ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
-                $bodyParams = json_decode($rawBody ?: '', true);
+                $rawBody    = $readRawBodyFn ?
+                    $readRawBodyFn()
+                    : $this->readRawBody();
+                $bodyParams = json_decode($rawBody ?? '', true);
 
                 if (json_last_error()) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
@@ -142,7 +151,7 @@ class Helper
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid)
      *
-     * @return Error[]
+     * @return array<int, RequestError>
      *
      * @api
      */
@@ -157,21 +166,21 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && (! is_string($params->query) || empty($params->query))) {
+        if ($params->query !== null && ! is_string($params->query)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
 
-        if ($params->queryId !== null && (! is_string($params->queryId) || empty($params->queryId))) {
+        if ($params->queryId !== null && ! is_string($params->queryId)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "queryId" must be string, but got ' .
                 Utils::printSafeJson($params->queryId)
             );
         }
 
-        if ($params->operation !== null && (! is_string($params->operation) || empty($params->operation))) {
+        if ($params->operation !== null && ! is_string($params->operation)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "operation" must be string, but got ' .
                 Utils::printSafeJson($params->operation)
@@ -198,7 +207,7 @@ class Helper
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -220,7 +229,7 @@ class Helper
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = [];
 
         foreach ($operations as $operation) {
@@ -249,7 +258,7 @@ class Helper
         $isBatch = false
     ) {
         try {
-            if (! $config->getSchema()) {
+            if ($config->getSchema() === null) {
                 throw new InvariantViolation('Schema is required for the server');
             }
 
@@ -259,10 +268,10 @@ class Helper
 
             $errors = $this->validateOperationParams($op);
 
-            if (! empty($errors)) {
+            if (count($errors) > 0) {
                 $errors = Utils::map(
                     $errors,
-                    static function (RequestError $err) {
+                    static function (RequestError $err) : Error {
                         return Error::createLocatedError($err, null, null);
                     }
                 );
@@ -272,13 +281,20 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId ? $this->loadPersistedQuery($config, $op) : $op->query;
+            $doc = $op->queryId
+                ? $this->loadPersistedQuery($config, $op)
+                : $op->query;
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
             }
 
             $operationType = AST::getOperation($doc, $op->operation);
+
+            if ($operationType === false) {
+                throw new RequestError('Failed to determine operation type');
+            }
+
             if ($operationType !== 'query' && $op->isReadOnly()) {
                 throw new RequestError('GET supports only query operation');
             }
@@ -304,15 +320,15 @@ class Helper
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config) {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config) : ExecutionResult {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
-            if ($config->getErrorFormatter() || $config->getDebug()) {
+            if ($config->getErrorFormatter() || $config->getDebugFlag() !== DebugFlag::NONE) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
                         $config->getErrorFormatter(),
-                        $config->getDebug()
+                        $config->getDebugFlag()
                     )
                 );
             }
@@ -333,7 +349,7 @@ class Helper
         // Load query if we got persisted query id:
         $loader = $config->getPersistentQueryLoader();
 
-        if (! $loader) {
+        if ($loader === null) {
             throw new RequestError('Persisted queries are not supported by this server');
         }
 
@@ -379,19 +395,17 @@ class Helper
     }
 
     /**
-     * @param string $operationType
-     *
      * @return mixed
      */
-    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
+    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, string $operationType)
     {
-        $root = $config->getRootValue();
+        $rootValue = $config->getRootValue();
 
-        if (is_callable($root)) {
-            $root = $root($params, $doc, $operationType);
+        if (is_callable($rootValue)) {
+            $rootValue = $rootValue($params, $doc, $operationType);
         }
 
-        return $root;
+        return $rootValue;
     }
 
     /**
@@ -425,7 +439,7 @@ class Helper
     public function sendResponse($result, $exitWhenDone = false)
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone) {
+            $result->then(function ($actualResult) use ($exitWhenDone) : void {
                 $this->doSendResponse($actualResult, $exitWhenDone);
             });
         } else {
@@ -473,7 +487,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                static function ($executionResult, $index) {
+                static function ($executionResult, $index) : void {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
@@ -493,7 +507,7 @@ class Helper
                     Utils::printSafe($result)
                 ));
             }
-            if ($result->data === null && ! empty($result->errors)) {
+            if ($result->data === null && count($result->errors) > 0) {
                 $httpStatus = 400;
             } else {
                 $httpStatus = 200;
@@ -512,7 +526,7 @@ class Helper
      *
      * @api
      */
-    public function parsePsrRequest(ServerRequestInterface $request)
+    public function parsePsrRequest(RequestInterface $request)
     {
         if ($request->getMethod() === 'GET') {
             $bodyParams = [];
@@ -524,13 +538,17 @@ class Helper
             }
 
             if (stripos($contentType[0], 'application/graphql') !== false) {
-                $bodyParams = ['query' => $request->getBody()->getContents()];
+                $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = $request->getParsedBody();
+                $bodyParams = $request instanceof ServerRequestInterface
+                    ? $request->getParsedBody()
+                    : json_decode((string) $request->getBody(), true);
 
                 if ($bodyParams === null) {
                     throw new InvariantViolation(
-                        'PSR-7 request is expected to provide parsed body for "application/json" requests but got null'
+                        $request instanceof ServerRequestInterface
+                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request but got null'
+                         : 'Expected to receive a JSON array in body for "application/json" PSR-7 request'
                     );
                 }
 
@@ -541,7 +559,7 @@ class Helper
                     );
                 }
             } else {
-                $bodyParams = $request->getParsedBody();
+                parse_str((string) $request->getBody(), $bodyParams);
 
                 if (! is_array($bodyParams)) {
                     throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType[0]));
@@ -549,10 +567,12 @@ class Helper
             }
         }
 
+        parse_str(html_entity_decode($request->getUri()->getQuery()), $queryParams);
+
         return $this->parseRequestParams(
             $request->getMethod(),
             $bodyParams,
-            $request->getQueryParams()
+            $queryParams
         );
     }
 

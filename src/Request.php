@@ -2,10 +2,13 @@
 
 namespace WPGraphQL;
 
+use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Validator\Rules\DisableIntrospection;
 use WPGraphQL\Server\WPHelper;
+use WPGraphQL\Utils\DebugLog;
 use WPGraphQL\Utils\QueryLog;
 use WPGraphQL\Utils\Tracing;
 
@@ -24,21 +27,28 @@ class Request {
 	 *
 	 * @var \WPGraphQL\AppContext
 	 */
-	private $app_context;
+	public $app_context;
 
 	/**
 	 * Request data.
 	 *
 	 * @var array
 	 */
-	private $data;
+	public $data;
 
 	/**
 	 * Cached global post.
 	 *
 	 * @var \WP_Post
 	 */
-	private $global_post;
+	public $global_post;
+
+	/**
+	 * Cached global wp_the_query.
+	 *
+	 * @var \WP_Query
+	 */
+	private $global_wp_the_query;
 
 	/**
 	 * GraphQL operation parameters for this request. Can also be an array of
@@ -46,7 +56,7 @@ class Request {
 	 *
 	 * @var OperationParams|OperationParams[]
 	 */
-	private $params;
+	public $params;
 
 	/**
 	 * Schema for this request.
@@ -56,11 +66,39 @@ class Request {
 	public $schema;
 
 	/**
+	 * Debug log for WPGraphQL Requests
+	 *
+	 * @var DebugLog
+	 */
+	public $debug_log;
+
+	/**
 	 * The Type Registry the Schema is built with
 	 *
 	 * @var Registry\TypeRegistry
 	 */
 	public $type_registry;
+
+	/**
+	 * Validation rules for execution.
+	 *
+	 * @var array
+	 */
+	protected $validation_rules;
+
+	/**
+	 * The default field resolver function. Default null
+	 *
+	 * @var mixed|callable|null
+	 */
+	protected $field_resolver;
+
+	/**
+	 * The root value of the request. Default null;
+	 *
+	 * @var mixed
+	 */
+	protected $root_value;
 
 	/**
 	 * Constructor
@@ -90,6 +128,9 @@ class Request {
 		 */
 		do_action( 'init_graphql_request' );
 
+		// Start tracking debug log messages
+		$this->debug_log = new DebugLog();
+
 		// Set request data for passed-in (non-HTTP) requests.
 		$this->data = $data;
 
@@ -102,6 +143,10 @@ class Request {
 		// Get the App Context
 		$this->app_context = \WPGraphQL::get_app_context();
 
+		$this->root_value       = $this->get_root_value();
+		$this->validation_rules = $this->get_validation_rules();
+		$this->field_resolver   = $this->get_field_resolver();
+
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
 		 *
@@ -110,9 +155,61 @@ class Request {
 		$app_context                = new AppContext();
 		$app_context->viewer        = wp_get_current_user();
 		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function get_field_resolver() {
+		return null;
+	}
+
+	/**
+	 * Return the validation rules to use in the request
+	 *
+	 * @return array
+	 */
+	protected function get_validation_rules() {
+
+		$validation_rules = GraphQL::getStandardValidationRules();
+
+		// If there is no current user and public introspection is not enabled, add the disabled rule to the validation rules
+		if ( ! get_current_user_id() && ! \WPGraphQL::debug() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
+
+			$disable_introspection = new DisableIntrospection();
+			$validation_rules[]    = $disable_introspection;
+
+		}
+
+		/**
+		 * Return the validation rules to use in the request
+		 *
+		 * @param array   $validation_rules The validation rules to use in the request
+		 * @param Request $this             The Request instance
+		 */
+		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
+
+	}
+
+	/**
+	 * Returns the root value to use in the request.
+	 *
+	 * @return mixed|null
+	 */
+	protected function get_root_value() {
+
+		$root_value = null;
+
+		/**
+		 * Return the filtered root value
+		 *
+		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
+		 * @param Request $this       The Request instance
+		 */
+		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
 
 	/**
@@ -136,6 +233,10 @@ class Request {
 		 */
 		if ( ! empty( $GLOBALS['post'] ) ) {
 			$this->global_post = $GLOBALS['post'];
+		}
+
+		if ( ! empty( $GLOBALS['wp_query'] ) ) {
+			$this->global_wp_the_query = clone $GLOBALS['wp_the_query'];
 		}
 
 		/**
@@ -234,7 +335,8 @@ class Request {
 	 * Filter Authentication errors. Allows plugins that authenticate to hook in and prevent
 	 * execution if Authentication errors exist.
 	 *
-	 * @param boolean $authentication_errors Whether there are authentication errors with the request
+	 * @param boolean $authentication_errors Whether there are authentication errors with the
+	 *                                       request
 	 *
 	 * @return boolean
 	 */
@@ -245,7 +347,7 @@ class Request {
 		 * GraphQL request will be prevented and an error will be thrown.
 		 *
 		 * @param boolean $authentication_errors Whether there are authentication errors with the request
-		 * @param Request $this Instance of the Request
+		 * @param Request $this                  Instance of the Request
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
 	}
@@ -255,6 +357,7 @@ class Request {
 	 *
 	 * @param mixed|array|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
+	 *
 	 * @return array
 	 *
 	 * @throws \Exception
@@ -290,6 +393,12 @@ class Request {
 		 * be anything the because the resolvers themself can set it to whatever. So we just manually reset the
 		 * post with setup_postdata we cached before this request.
 		 */
+
+		if ( ! empty( $this->global_wp_the_query ) ) {
+			$GLOBALS['wp_the_query'] = $this->global_wp_the_query;
+			wp_reset_query();
+		}
+
 		if ( ! empty( $this->global_post ) ) {
 			$GLOBALS['post'] = $this->global_post;
 			setup_postdata( $this->global_post );
@@ -337,8 +446,20 @@ class Request {
 		 * @param string              $operation The name of the operation
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL query
+		 * @param Request             $this      Instance of the Request
 		 */
-		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables );
+		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
+
+		/**
+		 * Add the debug log to the request
+		 */
+		if ( ! empty( $response ) ) {
+			if ( is_array( $response ) ) {
+				$response['extensions']['debug'] = $this->debug_log->get_logs();
+			} elseif ( is_object( $response ) ) {
+				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
+			}
+		}
 
 		/**
 		 * Filter the $response of the GraphQL execution. This allows for the response to be filtered
@@ -361,8 +482,9 @@ class Request {
 		 * @param string              $operation The name of the operation
 		 * @param string              $query     The query that GraphQL executed
 		 * @param array|null          $variables Variables to passed to your GraphQL request
+		 * @param Request             $this      Instance of the Request
 		 */
-		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables );
+		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this );
 
 		/**
 		 * Run an action after the response has been filtered, as the response is being returned.
@@ -374,8 +496,9 @@ class Request {
 		 * @param string              $operation         The name of the operation
 		 * @param string              $query             The query that GraphQL executed
 		 * @param array|null          $variables         Variables to passed to your GraphQL query
+		 * @param Request             $this      Instance of the Request
 		 */
-		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables );
+		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this );
 
 		/**
 		 * Filter "is_graphql_request" back to false.
@@ -423,10 +546,12 @@ class Request {
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
 			$this->params->query,
-			null,
+			$this->root_value,
 			$this->app_context,
 			$this->params->variables,
-			$this->params->operation
+			$this->params->operation,
+			$this->field_resolver,
+			$this->validation_rules
 		);
 
 		/**
@@ -493,12 +618,23 @@ class Request {
 	 */
 	private function get_server() {
 
+		$debug_flag = true === \WPGraphQL::debug() ? 2 : 0;
+
 		$config = new ServerConfig();
 		$config
-			->setDebug( \WPGraphQL::debug() )
+			->setDebugFlag( $debug_flag )
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
+			->setValidationRules( $this->validation_rules )
 			->setQueryBatching( true );
+
+		if ( ! empty( $this->root_value ) ) {
+			$config->setFieldResolver( $this->root_value );
+		}
+
+		if ( ! empty( $this->field_resolver ) ) {
+			$config->setFieldResolver( $this->field_resolver );
+		}
 
 		/**
 		 * Run an action when the server config is created. The config can be acted
