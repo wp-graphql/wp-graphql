@@ -26,7 +26,7 @@ function graphql_deactivation_callback() {
 
 	// Loop over the registered settings fields and delete the options
 	if ( ! empty( $fields ) && is_array( $fields ) ) {
-		foreach( $fields as $group => $fields ) {
+		foreach ( $fields as $group => $fields ) {
 			delete_option( $group );
 		}
 	}

@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WordPress VIP Go" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+  <description>WordPress VIP Go Coding Standards</description>
+    <rule ref="WordPress">
+      <exclude name="Generic"/>
+      <!-- <exclude name="Pear"/> -->
+      <exclude name="Squiz"/>
+      <exclude name="WordPress.PHP.YodaConditions"/>
+      <exclude name="WordPress.NamingConventions.ValidVariableName.NotSnakeCase"/>
+      <exclude name="WordPress.WP.EnqueuedResourceParameters.MissingVersion"/>
+      <exclude name="WordPress.WP.I18n.NonSingularStringLiteralDomain"/>
+      <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+      <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role"/>
+      <exclude name="WordPressVIPMinimum.Variables.VariableAnalysis.SelfInsideClosure"/>
+      <exclude name="WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeader"/>
+      <exclude name="WordPress.Classes.ClassInstantiation.MissingParenthesis"/>
+      <exclude name="WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__"/>
+    </rule>
+
+  <!-- The rules below are the changes from between the original sniff or parent ruleset, and what should be applied for this Standard. -->
+  <!-- Include the base VIP Minimum ruleset -->
+  <rule ref="WordPress-VIP-Go"/>
+  <rule ref="WordPressVIPMinimum"/>
+
+  <!-- Things that may be incompatible with the VIP Go infrastructure and needs a dev to review -->
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_delete">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_flock">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputs">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_ftruncate">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_is_writable">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_is_writeable">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_link">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_rename">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_symlink">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_tempnam">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_touch">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>Removal of admin bar is highly discouraged for user roles of "administrator" and "vip_support" -- if these roles are already excluded, this warning can be ignored.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.UserExperience.AdminBarRemoval.HidingDetected">
+    <type>warning</type>
+    <severity>6</severity>
+    <message>Hiding of admin bar is highly discouraged for user roles of "administrator" and "vip_support" -- if these roles are already excluded, this warning can be ignored.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie">
+    <type>error</type>
+    <severity>6</severity>
+    <message>Due to server-side caching, server-side based client related logic might not work. We recommend implementing client side logic in JavaScript instead.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE">
+    <type>error</type>
+    <severity>6</severity>
+    <message>Due to server-side caching, server-side based client related logic might not work. We recommend implementing client side logic in JavaScript instead.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__">
+    <type>error</type>
+    <severity>6</severity>
+    <message>Due to server-side caching, server-side based client related logic might not work. We recommend implementing client side logic in JavaScript instead.</message>
+  </rule>
+
+
+  <!-- Things that really should be fixed, but don't necessarily have to be for the site to work.
+     This includes potential security holes as well as functions that may bring down sites for performance reasons.
+   -->
+  <rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
+  <!-- Should fix all of them but it doesn't need a manual review -->
+  <rule ref="WordPress.WP.AlternativeFunctions.file_system_read_fopen">
+    <type>warning</type>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPress.WP.AlternativeFunctions.file_system_read_fclose">
+    <type>warning</type>
+    <message>File system operations only work on the `/tmp/` and `wp-content/uploads/` directories. To avoid unexpected results, please use helper functions like `get_temp_dir()`  or `wp_get_upload_dir()` to get the proper directory path when using functions such as %s(). For more details, please see: https://wpvip.com/documentation/vip-go/writing-files-on-vip-go/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown">
+    <type>warning</type>
+    <message>%s() is uncached. If the function is being used to fetch a remote file (e.g. a URL starting with https://), please use wpcom_vip_file_get_contents() to ensure the results are cached. For more details, please see https://wpvip.com/documentation/vip-go/fetching-remote-data/</message>
+  </rule>
+
+
+  <!-- Warnings and other things -->
+  <rule ref="WordPress.Security.NonceVerification.NoNonceVerification">
+    <!-- Needs a manual check -->
+    <type>warning</type>
+    <severity>10</severity>
+  </rule>
+  <rule ref="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized">
+    <!-- Needs a manual check -->
+    <type>warning</type>
+    <severity>10</severity>
+  </rule>
+  <rule ref="WordPress.WP.PostsPerPage.posts_per_page_posts_per_page">
+    <message>Having more than 100 posts returned per page may lead to severe performance problems.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Hooks.RestrictedHooks.upload_mimes">
+    <severity>10</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Security.PHPFilterFunctions">
+    <severity>10</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.dbDelta_dbdelta">
+    <type>warning</type>
+    <severity>7</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail">
+    <severity>7</severity>
+  </rule>
+
+
+  <!-- VIP Uncached warnings -->
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid">
+    <type>warning</type>
+    <message>%s() is uncached, please use wpcom_vip_attachment_url_to_postid() instead.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_adjacent_post_get_adjacent_post">
+    <type>warning</type>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_adjacent_post_get_previous_post">
+    <type>warning</type>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_adjacent_post_get_previous_post_link">
+    <type>warning</type>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_adjacent_post_get_next_post">
+    <type>warning</type>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_adjacent_post_get_next_post_link">
+    <type>warning</type>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_title_get_page_by_title">
+    <type>warning</type>
+    <message>%s() is uncached, please use wpcom_vip_get_page_by_title() instead.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_children">
+    <type>warning</type>
+    <severity>3</severity>
+    <message>%s() is uncached and performs a no limit query. Please use get_posts or WP_Query instead. More Info: https://wpvip.com/documentation/vip-go/uncached-functions/</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_wp_get_recent_posts">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid">
+    <type>warning</type>
+    <message>%s() is uncached, please use wpcom_vip_url_to_postid() instead.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.wp_old_slug_redirect_wp_old_slug_redirect">
+    <type>warning</type>
+  </rule>
+
+  <!-- Miscellaneous sub-optimal things -->
+  <rule ref="Internal.LineEndings.Mixed">
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPress.CodeAnalysis.AssignmentInCondition.Found">
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPress.PHP.DontExtract">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPress.PHP.StrictComparisons.LooseComparison">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPress.PHP.StrictInArray.MissingTrueStrict">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPress.Security.EscapeOutput.UnsafePrintingFunction">
+    <!-- We trust that translations are safe on VIP Go -->
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPress.WP.GlobalVariablesOverride.OverrideProhibited">
+    <!-- This is often a false positive. Still nice to flag for a check -->
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPress.WP.EnqueuedResources.NonEnqueuedScript">
+    <type>warning</type>
+    <severity>3</severity>
+    <message>Scripts should be registered/enqueued via `wp_enqueue_script`. This can improve the site's performance due to script concatenation.</message>
+  </rule>
+  <rule ref="WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet">
+    <type>warning</type>
+    <severity>3</severity>
+    <message>Stylesheets should be registered/enqueued via `wp_enqueue_style`. This can improve the site's performance due to styles concatenation.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Performance.LowExpiryCacheTime.LowCacheTime">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Files.IncludingFile">
+    <type>warning</type>
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Variables.VariableAnalysis.UndefinedVariable">
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Variables.VariableAnalysis.UnusedVariable">
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.UserExperience.AdminBarRemoval">
+    <severity>3</severity>
+  </rule>
+  <rule ref="Generic.PHP.NoSilencedErrors">
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Security.ProperEscapingFunction.htmlAttrNotByEscHTML">
+    <!-- This is still safe, just sub-optimal-->
+    <severity>3</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.is_multi_author_is_multi_author">
+    <severity>1</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog">
+    <type>warning</type>
+    <severity>3</severity>
+    <message>Switch to blog may not work as expected since it only changes the database context for the blog and does not load the plugins or theme of that site. This means that filters or hooks that the blog you are switching to uses will not run.</message>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn">
+    <severity>3</severity>
+  </rule>
+
+  <!-- Silence is golden, these don't affect us on VIP Go -->
+  <rule ref="WordPress.DB.SlowDBQuery.slow_db_query_meta_key">
+    <!-- We are silencing this one because VIP Go has a combined index on meta_key, meta_value-->
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Performance.BatcacheWhitelistedParams">
+    <!-- We are silencing this one because VIP Go does not use Batcache-->
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.user_meta_add_user_meta">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.user_meta_delete_user_meta">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.user_meta_get_user_meta">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.user_meta_update_user_meta">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__usermeta">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.site_option_delete_site_option">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.site_option_update_site_option">
+    <severity>0</severity>
+  </rule>
+  <rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.site_option_add_site_option">
+    <severity>0</severity>
+  </rule>
+  <rule ref="Generic.PHP.DisallowShortOpenTag.EchoFound">
+    <severity>0</severity>
+  </rule>
+
+</ruleset>
