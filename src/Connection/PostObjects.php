@@ -675,10 +675,20 @@ class PostObjects {
 		/**
 		 * Filter the $connection_args args to allow custom query args
 		 *
-		 * @param array         $connection_args  The connection args
-		 * @param \WP_Post_Type $post_type_object The post type the connection is going to
-		 * @param array         $args             The defaults args
+		 * @param array         $connection_args  The connection args.
+		 * @param \WP_Post_Type $post_type_object The post type the connection is going to.
+		 * @param array         $args             The defaults arguments.
 		 */
-		return apply_filters( 'graphql_post_objects_connection_args', $connection_args, $post_type_object, $args );
+		$connection_args = apply_filters( 'graphql_post_objects_connection_args', $connection_args, $post_type_object, $args );
+
+		/**
+		 * Filter the $connection_args args to allow custom query args.
+		 * Dynamic part of the hook being the post type
+		 *
+		 * @param array         $connection_args  The connection args.
+		 * @param \WP_Post_Type $post_type_object The post type the connection is going to.
+		 * @param array         $args             The defaults arguments.
+		 */
+		return apply_filters( "graphql_{$post_type_object->graphql_single_name}_connection_args", $connection_args, $post_type_object, $args );
 	}
 }
