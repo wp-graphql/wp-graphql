@@ -147,7 +147,7 @@ class Users {
 				'type'        => [
 					'list_of' => 'UsersConnectionSearchColumnEnum',
 				],
-				'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' ),
+				'description' => __( 'Array of column names to be searched. Accepts \'ID\', \'LOGIN\', \'NICE_NAME\', \'EMAIL\', \'URL\'.', 'wp-graphql' ),
 			],
 			'hasPublishedPosts' => [
 				'type'        => [
