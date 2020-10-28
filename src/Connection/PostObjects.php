@@ -670,6 +670,15 @@ class PostObjects {
 			}
 		}
 
-		return array_merge( $fields, $args );
+		$connection_args = array_merge( $fields, $args );
+
+		/**
+		 * Filter the $connection_args args to allow custom query args
+		 *
+		 * @param array         $connection_args  The connection args
+		 * @param \WP_Post_Type $post_type_object The post type the connection is going to
+		 * @param array         $args             The defaults args
+		 */
+		return apply_filters( 'graphql_post_objects_connection_args', $connection_args, $post_type_object, $args );
 	}
 }

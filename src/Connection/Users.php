@@ -110,7 +110,7 @@ class Users {
 	 * @return array
 	 */
 	public static function get_connection_args() {
-		return [
+		$connection_args = [
 			'role'              => [
 				'type'        => 'UserRoleEnum',
 				'description' => __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' ),
@@ -194,6 +194,13 @@ class Users {
 				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 			],
 		];
+
+		/**
+		 * Filter the $connection_args args to allow custom query args
+		 *
+		 * @param array $connection_args The connection args
+		 */
+		return apply_filters( 'graphql_users_connection_args', $connection_args );
 	}
 
 }

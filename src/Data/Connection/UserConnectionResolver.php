@@ -141,7 +141,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
-		return $query_args;
+		/**
+		 * Filter the $query args to allow folks to customize queries programmatically
+		 *
+		 * @param array       $query_args The args that will be passed to the WP_User_Query
+		 * @param mixed       $source     The source that's passed down the GraphQL queries
+		 * @param array       $args       The inputArgs on the field
+		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
+		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 */
+		return apply_filters( 'graphql_user_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 	}
 
 	/**
