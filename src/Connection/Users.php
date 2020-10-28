@@ -196,9 +196,9 @@ class Users {
 		];
 
 		/**
-		 * Filter the $connection_args args to allow custom query args
+		 * Filter the $connection_args args to allow custom query args.
 		 *
-		 * @param array $connection_args The connection args
+		 * @param array $connection_args The connection arguments.
 		 */
 		return apply_filters( 'graphql_users_connection_args', $connection_args );
 	}
