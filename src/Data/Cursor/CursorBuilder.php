@@ -21,28 +21,34 @@ class CursorBuilder {
 		$this->compare = $compare;
 		$this->fields  = [];
 	}
-
+	
 	/**
 	 * Add ordering field. The order you call this method matters. First field
 	 * will be the primary field and latters ones will be used if the primary
 	 * field has duplicate values
 	 *
-	 * @param string $key   database colum
-	 * @param string $value value from the current cursor
-	 * @param string $type  type cast
-	 * @param string $order custom order
+	 * @param string                  $key           database column
+	 * @param string                  $value         value from the current cursor
+	 * @param null                    $type          type cast
+	 * @param null                    $order         custom order
+	 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 	 */
-	public function add_field( $key, $value, $type = null, $order = null ) {
+	public function add_field( $key, $value, $type = null, $order = null, $object_cursor = null ) {
 		/**
 		 * This only input for variables which are used in the SQL generation. So
 		 * escape them here.
 		 */
-		$this->fields[] = [
-			'key'   => esc_sql( $key ),
-			'value' => esc_sql( $value ),
-			'type'  => esc_sql( $type ),
-			'order' => esc_sql( $order ),
-		];
+		$this->fields[] = apply_filters(
+			'wpgraphql_cursor_ordering_field',
+			[
+				'key'   => esc_sql( $key ),
+				'value' => esc_sql( $value ),
+				'type'  => esc_sql( $type ),
+				'order' => esc_sql( $order ),
+			],
+			$this,
+			$object_cursor
+		);
 	}
 
 	/**
