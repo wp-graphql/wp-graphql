@@ -204,10 +204,6 @@ class NodeResolver {
 
 			if ( isset( $this->wp->extra_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $this->wp->extra_query_vars[ $wpvar ];
-			} elseif ( isset( $_GET[ $wpvar ] ) && isset( $_POST[ $wpvar ] ) && $_GET[ $wpvar ] !== $_POST[ $wpvar ] ) {
-				wp_die( esc_html__( 'A variable mismatch has been detected.' ), __( 'Sorry, you are not allowed to view this item.' ), 400 );
-			} elseif ( isset( $_POST[ $wpvar ] ) ) {
-				$this->wp->query_vars[ $wpvar ] = $_POST[ $wpvar ];
 			} elseif ( isset( $_GET[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $_GET[ $wpvar ];
 			} elseif ( isset( $perma_query_vars[ $wpvar ] ) ) {

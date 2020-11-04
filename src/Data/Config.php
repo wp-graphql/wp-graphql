@@ -200,6 +200,7 @@ class Config {
 		if ( true === is_graphql_request() ) {
 			global $wpdb;
 
+			// phpcs:ignore
 			return "{$orderby}, {$wpdb->users}.ID DESC ";
 		}
 
