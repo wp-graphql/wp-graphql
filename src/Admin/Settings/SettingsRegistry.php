@@ -2,77 +2,7 @@
 
 namespace WPGraphQL\Admin\Settings;
 
-
-global $wp_graphql_allowed_echo_tags;
-$allowed_atts = [
-    'align'      => [],
-    'class'      => [],
-    'type'       => [],
-    'id'         => [],
-    'dir'        => [],
-    'lang'       => [],
-    'style'      => [],
-    'xml:lang'   => [],
-    'src'        => [],
-    'alt'        => [],
-    'href'       => [],
-    'rel'        => [],
-    'rev'        => [],
-    'target'     => [],
-    'novalidate' => [],
-    'type'       => [],
-    'value'      => [],
-    'name'       => [],
-    'tabindex'   => [],
-    'action'     => [],
-    'method'     => [],
-    'for'        => [],
-    'width'      => [],
-    'height'     => [],
-    'data'       => [],
-    'title'      => [],
-    'type'       => [],
-    'name'       => [],
-    'value'      => [],
-    'checked'    => [],
-    'disabled'   => [],
-];
-$wp_graphql_allowed_echo_tags['form']     = $allowed_atts;
-$wp_graphql_allowed_echo_tags['label']    = $allowed_atts;
-$wp_graphql_allowed_echo_tags['input']    = $allowed_atts;
-$wp_graphql_allowed_echo_tags['textarea'] = $allowed_atts;
-$wp_graphql_allowed_echo_tags['iframe']   = $allowed_atts;
-$wp_graphql_allowed_echo_tags['script']   = $allowed_atts;
-$wp_graphql_allowed_echo_tags['style']    = $allowed_atts;
-$wp_graphql_allowed_echo_tags['strong']   = $allowed_atts;
-$wp_graphql_allowed_echo_tags['small']    = $allowed_atts;
-$wp_graphql_allowed_echo_tags['table']    = $allowed_atts;
-$wp_graphql_allowed_echo_tags['span']     = $allowed_atts;
-$wp_graphql_allowed_echo_tags['abbr']     = $allowed_atts;
-$wp_graphql_allowed_echo_tags['code']     = $allowed_atts;
-$wp_graphql_allowed_echo_tags['pre']      = $allowed_atts;
-$wp_graphql_allowed_echo_tags['div']      = $allowed_atts;
-$wp_graphql_allowed_echo_tags['img']      = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h1']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h2']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h3']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h4']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h5']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['h6']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['ol']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['ul']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['li']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['em']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['hr']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['br']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['tr']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['td']       = $allowed_atts;
-$wp_graphql_allowed_echo_tags['p']        = $allowed_atts;
-$wp_graphql_allowed_echo_tags['a']        = $allowed_atts;
-$wp_graphql_allowed_echo_tags['b']        = $allowed_atts;
-$wp_graphql_allowed_echo_tags['i']        = $allowed_atts;
-$wp_graphql_allowed_echo_tags['input']    = $allowed_atts;
-
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class SettingsRegistry
@@ -101,15 +31,11 @@ class SettingsRegistry {
 	 */
 	protected $settings_fields = [];
 
-    public $allowedposttags = [];
-
 	/**
 	 * SettingsRegistry constructor.
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
-        global $wp_graphql_allowed_echo_tags;
-        $this->allowedposttags = $wp_graphql_allowed_echo_tags;
 	}
 
 	public function get_settings_sections() {
@@ -232,7 +158,7 @@ class SettingsRegistry {
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 				$callback        = function() use ( $section ) {
-					echo str_replace( '"', '\"', wp_kses($section['desc'], $this->allowedposttags) );
+					echo wp_kses( str_replace( '"', '\"', $section['desc'] ), Utils::get_allowed_wp_kses_html() );
 				};
 			} elseif ( isset( $section['callback'] ) ) {
 				$callback = $section['callback'];
@@ -354,7 +280,7 @@ class SettingsRegistry {
 
 
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -383,7 +309,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -403,7 +329,7 @@ class SettingsRegistry {
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -426,7 +352,7 @@ class SettingsRegistry {
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -448,7 +374,7 @@ class SettingsRegistry {
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -469,7 +395,7 @@ class SettingsRegistry {
 		$html .= sprintf( '</select>' );
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -486,7 +412,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%4$s>%5$s</textarea>', $size, $args['section'], $args['id'], $placeholder, $value );
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -497,7 +423,7 @@ class SettingsRegistry {
 	 * @return string
 	 */
 	function callback_html( $args ) {
-        echo wp_kses( $this->get_field_description( $args ), $this->allowedposttags );
+        echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -526,7 +452,7 @@ class SettingsRegistry {
 
 		echo '</div>';
 
-        echo wp_kses( $this->get_field_description( $args ), $this->allowedposttags );
+        echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -545,7 +471,7 @@ class SettingsRegistry {
 		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '" />';
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -561,7 +487,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -577,7 +503,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
 		$html .= $this->get_field_description( $args );
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 
@@ -594,8 +520,8 @@ class SettingsRegistry {
 			'id'       => $args['section'] . '[' . $args['id'] . ']',
 			'echo'     => 0,
 		];
-		$html          = wp_dropdown_pages( wp_kses($dropdown_args, $this->allowedposttags) );
-		echo wp_kses($html, $this->allowedposttags);
+		$html          = wp_dropdown_pages( wp_kses($dropdown_args, Utils::get_allowed_wp_kses_html()) );
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**
@@ -617,7 +543,7 @@ class SettingsRegistry {
 		echo '<option value="any">Any</option>';
 		wp_dropdown_roles( $selected );
 		echo '</select>';
-        echo wp_kses( $this->get_field_description( $args ), $this->allowedposttags );
+        echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -712,7 +638,7 @@ class SettingsRegistry {
 
 		$html .= '</h2>';
 
-		echo wp_kses($html, $this->allowedposttags);
+		echo wp_kses($html, Utils::get_allowed_wp_kses_html());
 	}
 
 	/**

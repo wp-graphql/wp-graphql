@@ -34,14 +34,14 @@ class NodeResolver {
 
 		global $wp_rewrite;
 
-		$parsed_url = parse_url( $uri );
+		$parsed_url = wp_parse_url( $uri );
 
 		if ( isset( $parsed_url['host'] ) ) {
 			if ( ! in_array(
 				$parsed_url['host'],
 				[
-					parse_url( site_url() )['host'],
-					parse_url( home_url() )['host'],
+					wp_parse_url( site_url() )['host'],
+					wp_parse_url( home_url() )['host'],
 				],
 				true
 			) ) {
@@ -79,7 +79,7 @@ class NodeResolver {
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
-			$home_path       = trim( parse_url( home_url(), PHP_URL_PATH ), '/' );
+			$home_path       = trim( wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
 			$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
 			// Trim path info from the end and the leading home path from the
