@@ -48,7 +48,9 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the taxonomy for the $args
 		 */
 		$all_taxonomies         = get_taxonomies( [ 'show_in_graphql' => true ] );
-		$query_args['taxonomy'] = ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies;
+		$query_args = [
+			'taxonomy' => ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies,
+		];
 
 		/**
 		 * Prepare for later use
