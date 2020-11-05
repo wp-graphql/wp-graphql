@@ -1,5 +1,8 @@
 <?php
+
 namespace WPGraphQL\Utils;
+
+use WPGraphQL\Model\Model;
 
 class Utils {
 
@@ -56,6 +59,7 @@ class Utils {
 	 *
 	 * @param string      $date_gmt GMT publication time.
 	 * @param string|null $date     Optional. Local publication time. Default null.
+	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 */
 	public static function prepare_date_response( $date_gmt, $date = null ) {
@@ -67,6 +71,7 @@ class Utils {
 		if ( '0000-00-00 00:00:00' === $date_gmt ) {
 			return null;
 		}
+
 		// Return the formatted datetime.
 		return mysql_to_rfc3339( $date_gmt );
 	}
@@ -83,6 +88,7 @@ class Utils {
 		$field_name = lcfirst( str_replace( '_', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( '-', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( ' ', '', ucwords( $field_name, ' ' ) ) );
+
 		return $field_name;
 	}
 
@@ -95,6 +101,31 @@ class Utils {
 	 */
 	public static function format_type_name( $type_name ) {
 		return ucfirst( self::format_field_name( $type_name ) );
+	}
+
+	/**
+	 * Given a string, and optional context, this decodes html entities if html_entity_decode is
+	 * enabled.
+	 *
+	 * @param string $string     The string to decode
+	 * @param string $field_name The name of the field being encoded
+	 * @param Model  $model      The Model the field is being decoded on
+	 *
+	 * @return string
+	 */
+	public static function html_entity_decode( $string, $field_name, $model ) {
+
+		/**
+		 * Determine whether html_entity_decode should be applied to the string
+		 */
+		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', false, $field_name, $model );
+
+		if ( false === $decoding_enabled ) {
+			return $string;
+		}
+
+		return html_entity_decode( $string );
+
 	}
 
 }

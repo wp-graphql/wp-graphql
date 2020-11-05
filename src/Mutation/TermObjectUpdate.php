@@ -147,6 +147,18 @@ class TermObjectUpdate {
 			 * Fires an action when a term is updated via a GraphQL Mutation
 			 *
 			 * @param int         $term_id       The ID of the term object that was mutated
+			 * @param \WP_Taxonomy $taxonomy     The taxonomy of the term being updated
+			 * @param array       $args          The args used to update the term
+			 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
+			 * @param AppContext  $context       The AppContext passed down the resolve tree
+			 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 */
+			do_action( "graphql_update_term", $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
+
+			/**
+			 * Fires an action when a term is updated via a GraphQL Mutation
+			 *
+			 * @param int         $term_id       The ID of the term object that was mutated
 			 * @param array       $args          The args used to update the term
 			 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
 			 * @param AppContext  $context       The AppContext passed down the resolve tree
