@@ -50,9 +50,9 @@ class Comment {
 						],
 						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								return $comment->contentRaw;
+								return isset( $comment->contentRaw ) ? $comment->contentRaw : null;
 							} else {
-								return $comment->contentRendered;
+								return isset( $comment->contentRendered ) ? $comment->contentRendered : null;
 							}
 						},
 					],

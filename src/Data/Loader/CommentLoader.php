@@ -24,7 +24,12 @@ class CommentLoader extends AbstractDataLoader {
 			return null;
 		}
 
-		return new Comment( $entry );
+		$comment_model = new Comment( $entry );
+		if ( ! isset( $comment_model->fields ) || empty( $comment_model->fields ) ) {
+			return null;
+		}
+
+		return $comment_model;
 	}
 
 	/**

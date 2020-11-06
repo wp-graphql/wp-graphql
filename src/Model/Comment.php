@@ -49,6 +49,7 @@ class Comment extends Model {
 			'id',
 			'ID',
 			'commentId',
+			'databaseId',
 			'contentRendered',
 			'date',
 			'dateGmt',
