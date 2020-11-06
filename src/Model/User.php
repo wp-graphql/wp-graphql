@@ -212,7 +212,7 @@ class User extends Model {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
 				'registeredDate'           => function() {
-					return ! empty( $this->data->user_registered ) ? date( 'c', strtotime( $this->data->user_registered ) ) : null;
+					return ! empty( $this->data->user_registered ) ? gmdate( 'c', strtotime( $this->data->user_registered ) ) : null;
 				},
 				'nickname'                 => function() {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
