@@ -128,7 +128,7 @@ class Term extends Model {
 					return ! empty( $this->data->description ) ? Utils::html_entity_decode( $this->data->description, 'description', $this ) : null;
 				},
 				'name'                     => function() {
-					return ! empty( $this->data->name ) ? Utils::html_entity_decode( $this->data->name, 'name', $this ) : null;
+					return ! empty( $this->data->name ) ? Utils::html_entity_decode( $this->data->name, 'name', $this, true ) : null;
 				},
 				'slug'                     => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;

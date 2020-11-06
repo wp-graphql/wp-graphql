@@ -110,15 +110,16 @@ class Utils {
 	 * @param string $string     The string to decode
 	 * @param string $field_name The name of the field being encoded
 	 * @param Model  $model      The Model the field is being decoded on
+	 * @param bool   $enabled    Whether decoding is enabled by default for the string passed in
 	 *
 	 * @return string
 	 */
-	public static function html_entity_decode( $string, $field_name, $model ) {
+	public static function html_entity_decode( $string, $field_name, $model, $enabled = false ) {
 
 		/**
 		 * Determine whether html_entity_decode should be applied to the string
 		 */
-		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', false, $field_name, $model );
+		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $string, $field_name, $model );
 
 		if ( false === $decoding_enabled ) {
 			return $string;
