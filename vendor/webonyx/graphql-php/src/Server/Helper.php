@@ -71,7 +71,7 @@ class Helper
         $urlParams  = $_GET;
 
         if ($method === 'POST') {
-            $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
+            $contentType = sanitize_text_field($_SERVER['CONTENT_TYPE']) ?? null;
 
             if ($contentType === null) {
                 throw new RequestError('Missing "Content-Type" header');
@@ -103,7 +103,7 @@ class Helper
             } elseif (stripos($contentType, 'multipart/form-data') !== false) {
                 $bodyParams = $_POST;
             } else {
-                throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
+                throw new RequestError('Unexpected content type: ' . Utils::printSafeJson( $contentType));
             }
         }
 
@@ -462,7 +462,7 @@ class Helper
     {
         $body = json_encode($jsonSerializable);
         header('Content-Type: application/json', true, $httpStatus);
-        echo $body;
+        echo esc_html($body);
 
         if ($exitWhenDone) {
             exit;
