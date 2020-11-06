@@ -153,7 +153,7 @@ class TermObjectUpdate {
 			 * @param AppContext  $context       The AppContext passed down the resolve tree
 			 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
 			 */
-			do_action( "graphql_update_term", $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
+			do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
 
 			/**
 			 * Fires an action when a term is updated via a GraphQL Mutation

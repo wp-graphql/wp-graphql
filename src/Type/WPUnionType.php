@@ -72,7 +72,7 @@ class WPUnionType extends UnionType {
 		 *
 		 * @return array
 		 */
-		$config['types'] = apply_filters( "graphql_union_possible_types", $config['types'], $config );
+		$config['types'] = apply_filters( 'graphql_union_possible_types', $config['types'], $config );
 
 		/**
 		 * Filter the config of WPUnionType

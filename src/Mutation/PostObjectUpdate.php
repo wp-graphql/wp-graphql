@@ -151,7 +151,7 @@ class PostObjectUpdate {
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */
-			do_action( "graphql_insert_post_object", $post_id, $post_type_object, $post_args, $mutation_name );
+			do_action( 'graphql_insert_post_object', $post_id, $post_type_object, $post_args, $mutation_name );
 
 			/**
 			 * Fires after a single term is created or updated via a GraphQL mutation
