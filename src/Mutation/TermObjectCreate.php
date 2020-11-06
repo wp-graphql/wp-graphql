@@ -164,7 +164,7 @@ class TermObjectCreate {
 			 * @param AppContext  $context       The AppContext passed down the resolve tree
 			 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
 			 */
-			do_action( "graphql_insert_term", $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
+			do_action( 'graphql_insert_term', $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
 
 			/**
 			 * Fires after a single term is created or updated via a GraphQL mutation
