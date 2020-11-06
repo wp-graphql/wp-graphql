@@ -3,7 +3,6 @@
 namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class Comment - Models data for Comments
@@ -142,7 +141,7 @@ class Comment extends Model {
 				},
 				'contentRendered'    => function() {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
-					return Utils::html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', $this, false );
+					return $this->html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', false );
 				},
 				'karma'              => function() {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;

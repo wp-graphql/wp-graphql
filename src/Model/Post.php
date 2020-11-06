@@ -482,7 +482,7 @@ class Post extends Model {
 				'contentRendered'           => function() {
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
-					return ! empty( $content ) ? Utils::html_entity_decode( apply_filters( 'the_content', $content ), 'contentRendered', $this, false ) : null;
+					return ! empty( $content ) ? $this->html_entity_decode( apply_filters( 'the_content', $content ), 'contentRendered', false ) : null;
 				},
 				'pageTemplate'              => function() {
 					$slug = get_page_template_slug( $this->data->ID );
@@ -499,7 +499,7 @@ class Post extends Model {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
-					return Utils::html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered', $this, true );
+					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered',true );
 				},
 				'titleRaw'                  => [
 					'callback'   => function() {
@@ -511,7 +511,7 @@ class Post extends Model {
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
-					return Utils::html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered', $this );
+					return $this->html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered' );
 				},
 				'excerptRaw'                => [
 					'callback'   => function() {
