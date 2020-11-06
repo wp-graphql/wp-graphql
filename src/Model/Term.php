@@ -125,10 +125,10 @@ class Term extends Model {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'description'              => function() {
-					return ! empty( $this->data->description ) ? Utils::html_entity_decode( $this->data->description, 'description', $this ) : null;
+					return ! empty( $this->data->description ) ? $this->html_entity_decode( $this->data->description, 'description' ) : null;
 				},
 				'name'                     => function() {
-					return ! empty( $this->data->name ) ? Utils::html_entity_decode( $this->data->name, 'name', $this, true ) : null;
+					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
 				},
 				'slug'                     => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;

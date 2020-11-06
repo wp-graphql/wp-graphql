@@ -103,30 +103,4 @@ class Utils {
 		return ucfirst( self::format_field_name( $type_name ) );
 	}
 
-	/**
-	 * Given a string, and optional context, this decodes html entities if html_entity_decode is
-	 * enabled.
-	 *
-	 * @param string $string     The string to decode
-	 * @param string $field_name The name of the field being encoded
-	 * @param Model  $model      The Model the field is being decoded on
-	 * @param bool   $enabled    Whether decoding is enabled by default for the string passed in
-	 *
-	 * @return string
-	 */
-	public static function html_entity_decode( $string, $field_name, $model, $enabled = false ) {
-
-		/**
-		 * Determine whether html_entity_decode should be applied to the string
-		 */
-		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $string, $field_name, $model );
-
-		if ( false === $decoding_enabled ) {
-			return $string;
-		}
-
-		return html_entity_decode( $string );
-
-	}
-
 }
