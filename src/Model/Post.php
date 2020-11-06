@@ -32,6 +32,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $commentStatus
  * @property string  $pingStatus
  * @property string  $slug
+ * @property array   $template
  * @property boolean $isFrontPage
  * @property boolean $isPostsPage
  * @property boolean $isPreview
@@ -533,6 +534,45 @@ class Post extends Model {
 				},
 				'slug'                      => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
+				},
+				'template' => function() {
+
+					$registered_templates = wp_get_theme()->get_post_templates();
+
+					$template = [
+						'__typename'   => 'DefaultTemplate',
+						'templateName' => 'Default',
+					];
+
+
+					if ( ! isset( $registered_templates[ $this->data->post_type ] ) ) {
+						return $template;
+					}
+
+					$set_template = get_post_meta( $this->data->ID, '_wp_page_template', true );
+
+					$template_name = get_page_template_slug( $this->data->ID );
+
+					$template = [
+						'__typename'   => 'DefaultTemplate',
+						'templateName' => ! empty( $template_name ) ? $template_name : 'Default',
+					];
+
+
+					if ( ! empty( $registered_templates[ $this->data->post_type ][ $set_template ] ) ) {
+						$name     = ucwords( $registered_templates[ $this->data->post_type ][ $set_template ] );
+						$name     = preg_replace( '/[^\w]/', '', $name );
+						if ( preg_match('/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+							$name = 'Template_' . $name;
+						}
+
+						$template = [
+							'__typename'   => $name,
+							'templateName' => ucwords( $registered_templates[ $this->data->post_type ][ $set_template ] ),
+						];
+					}
+
+					return $template;
 				},
 				'isFrontPage'               => function() {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {

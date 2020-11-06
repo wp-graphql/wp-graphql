@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Registry;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -69,6 +68,7 @@ use WPGraphQL\Type\InterfaceType\NodeWithExcerpt;
 use WPGraphQL\Type\InterfaceType\NodeWithFeaturedImage;
 use WPGraphQL\Type\InterfaceType\NodeWithPageAttributes;
 use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
+use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
@@ -227,6 +227,7 @@ class TypeRegistry {
 		NodeWithFeaturedImage::register_type( $type_registry );
 		NodeWithRevisions::register_type( $type_registry );
 		NodeWithTitle::register_type( $type_registry );
+		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
@@ -338,7 +339,7 @@ class TypeRegistry {
 
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
 
-			$page_templates['default'] = 'Default';
+			$page_templates['default'] = 'DefaultTemplate';
 			foreach ( $registered_page_templates as $post_type_templates ) {
 				foreach ( $post_type_templates as $file => $name ) {
 					$page_templates[ $file ] = $name;
@@ -347,10 +348,14 @@ class TypeRegistry {
 		}
 
 		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
+
 			foreach ( $page_templates as $file => $name ) {
 				$name               = ucwords( $name );
 				$name               = preg_replace( '/[^\w]/', '', $name );
-				$template_type_name = $name . 'Template';
+				if ( preg_match('/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+					$name = 'Template_' . $name;
+				}
+				$template_type_name = $name;
 				register_graphql_object_type(
 					$template_type_name,
 					[
@@ -557,6 +562,9 @@ class TypeRegistry {
 	 */
 	public function register_type( $type_name, $config ) {
 
+		/**
+		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
+		 */
 		if ( ! is_valid_graphql_name( $type_name ) ) {
 			graphql_debug(
 				sprintf( __( 'The Type name \'%1$s\' is invalid and has not been added to the GraphQL Schema.', 'wp-graphql' ), $type_name ),
