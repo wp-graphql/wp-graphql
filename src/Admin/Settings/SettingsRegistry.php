@@ -613,10 +613,10 @@ class SettingsRegistry {
 				<div id="<?php echo $id; ?>" class="group" style="display: none;">
 					<form method="post" action="options.php">
 						<?php
-						do_action( 'wsa_form_top_' . $form['id'], $form );
+						do_action( 'graphql_settings_form_top', $form );
 						settings_fields( $id );
 						do_settings_sections( $id );
-						do_action( 'wsa_form_bottom_' . $id, $form );
+						do_action( 'graphql_settings_form_bottom', $form );
 						if ( isset( $this->settings_fields[ $id ] ) ) :
 							?>
 							<div style="padding-left: 10px">

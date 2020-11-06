@@ -3,6 +3,7 @@
 namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class Term - Models data for Terms
@@ -124,10 +125,10 @@ class Term extends Model {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'description'              => function() {
-					return ! empty( $this->data->description ) ? html_entity_decode( $this->data->description ) : null;
+					return ! empty( $this->data->description ) ? Utils::html_entity_decode( $this->data->description, 'description', $this ) : null;
 				},
 				'name'                     => function() {
-					return ! empty( $this->data->name ) ? html_entity_decode( $this->data->name ) : null;
+					return ! empty( $this->data->name ) ? Utils::html_entity_decode( $this->data->name, 'name', $this, true ) : null;
 				},
 				'slug'                     => function() {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
