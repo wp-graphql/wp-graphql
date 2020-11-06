@@ -347,6 +347,7 @@ return array(
     'WPGraphQL\\Type\\InterfaceType\\NodeWithFeaturedImage' => $baseDir . '/src/Type/InterfaceType/NodeWithFeaturedImage.php',
     'WPGraphQL\\Type\\InterfaceType\\NodeWithPageAttributes' => $baseDir . '/src/Type/InterfaceType/NodeWithPageAttributes.php',
     'WPGraphQL\\Type\\InterfaceType\\NodeWithRevisions' => $baseDir . '/src/Type/InterfaceType/NodeWithRevisions.php',
+    'WPGraphQL\\Type\\InterfaceType\\NodeWithTemplate' => $baseDir . '/src/Type/InterfaceType/NodeWithTemplate.php',
     'WPGraphQL\\Type\\InterfaceType\\NodeWithTitle' => $baseDir . '/src/Type/InterfaceType/NodeWithTitle.php',
     'WPGraphQL\\Type\\InterfaceType\\NodeWithTrackbacks' => $baseDir . '/src/Type/InterfaceType/NodeWithTrackbacks.php',
     'WPGraphQL\\Type\\InterfaceType\\TermNode' => $baseDir . '/src/Type/InterfaceType/TermNode.php',

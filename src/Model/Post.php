@@ -535,7 +535,7 @@ class Post extends Model {
 				'slug'                      => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
-				'template' => function() {
+				'template'                  => function() {
 
 					$registered_templates = wp_get_theme()->get_post_templates();
 
@@ -544,15 +544,13 @@ class Post extends Model {
 						'templateName' => 'Default',
 					];
 
-
-
 					if ( $this->isPreview ) {
 
 						$post_type = get_post( $this->parentDatabaseId )->post_type;
 						if ( ! isset( $registered_templates[ $post_type ] ) ) {
 							return $template;
 						}
-						$set_template = get_post_meta( $this->parentDatabaseId, '_wp_page_template', true );
+						$set_template  = get_post_meta( $this->parentDatabaseId, '_wp_page_template', true );
 						$template_name = get_page_template_slug( $this->parentDatabaseId );
 
 						if ( empty( $set_template ) ) {
@@ -565,22 +563,21 @@ class Post extends Model {
 
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
 
-
 					} else {
 						if ( ! isset( $registered_templates[ $this->data->post_type ] ) ) {
 							return $template;
 						}
-						$post_type = $this->data->post_type;
-						$set_template = get_post_meta( $this->data->ID, '_wp_page_template', true );
+						$post_type     = $this->data->post_type;
+						$set_template  = get_post_meta( $this->data->ID, '_wp_page_template', true );
 						$template_name = get_page_template_slug( $this->data->ID );
 
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
 					}
 
 					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $post_type ][ $set_template ] ) ) {
-						$name     = ucwords( $registered_templates[ $post_type ][ $set_template ] );
-						$name     = preg_replace( '/[^\w]/', '', $name );
-						if ( preg_match('/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+						$name = ucwords( $registered_templates[ $post_type ][ $set_template ] );
+						$name = preg_replace( '/[^\w]/', '', $name );
+						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 							$name = 'Template_' . $name;
 						}
 

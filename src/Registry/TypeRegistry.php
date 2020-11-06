@@ -350,9 +350,9 @@ class TypeRegistry {
 		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
 
 			foreach ( $page_templates as $file => $name ) {
-				$name               = ucwords( $name );
-				$name               = preg_replace( '/[^\w]/', '', $name );
-				if ( preg_match('/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+				$name = ucwords( $name );
+				$name = preg_replace( '/[^\w]/', '', $name );
+				if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 					$name = 'Template_' . $name;
 				}
 				$template_type_name = $name;
