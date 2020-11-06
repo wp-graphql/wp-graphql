@@ -108,7 +108,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
 				},
 				'databaseId'         => function() {
-					return ! empty( $this->data->comment_ID ) ? $this->commentId : 0;
+					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function() {
 					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : 0;
@@ -142,7 +142,7 @@ class Comment extends Model {
 				},
 				'contentRendered'    => function() {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
-					return $this->html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', false );
+					return html_entity_decode( apply_filters( 'comment_text', $content ) );
 				},
 				'karma'              => function() {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
