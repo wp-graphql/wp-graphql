@@ -50,13 +50,12 @@
   "autoload": {
     "psr-4": {
       "WPGraphQL\\": "src/"
-    },
-    "classmap": ["src/"]
+    }
   },
   "scripts": {
-    "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
-    "check-cs": ["@php ./vendor/bin/phpcs"],
-    "fix-cs": ["@php ./vendor/bin/phpcbf"],
-    "phpstan": ["@php ./vendor/bin/phpstan analyze --ansi --memory-limit=1G"]
+    "phpcs-i": ["phpcs -i"],
+    "check-cs": ["phpcs"],
+    "fix-cs": ["phpcbf"],
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   }
 }

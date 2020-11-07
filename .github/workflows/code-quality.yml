@@ -39,4 +39,4 @@ jobs:
         run: composer install --no-progress
 
       - name: Run PHPStan
-        run: composer run-script check-code
+        run: composer run-script phpstan
