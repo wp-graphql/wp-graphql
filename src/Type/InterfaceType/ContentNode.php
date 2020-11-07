@@ -62,6 +62,10 @@ class ContentNode {
 						],
 						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
 					],
+					'template'                  => [
+						'type'        => 'ContentTemplate',
+						'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
+					],
 					'databaseId'                => [
 						'type'        => [
 							'non_null' => 'Int',

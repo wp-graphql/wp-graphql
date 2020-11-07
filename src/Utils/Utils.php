@@ -1,5 +1,8 @@
 <?php
+
 namespace WPGraphQL\Utils;
+
+use WPGraphQL\Model\Model;
 
 class Utils {
 
@@ -56,6 +59,7 @@ class Utils {
 	 *
 	 * @param string      $date_gmt GMT publication time.
 	 * @param string|null $date     Optional. Local publication time. Default null.
+	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 */
 	public static function prepare_date_response( $date_gmt, $date = null ) {
@@ -67,6 +71,7 @@ class Utils {
 		if ( '0000-00-00 00:00:00' === $date_gmt ) {
 			return null;
 		}
+
 		// Return the formatted datetime.
 		return mysql_to_rfc3339( $date_gmt );
 	}
@@ -83,6 +88,7 @@ class Utils {
 		$field_name = lcfirst( str_replace( '_', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( '-', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( ' ', '', ucwords( $field_name, ' ' ) ) );
+
 		return $field_name;
 	}
 
