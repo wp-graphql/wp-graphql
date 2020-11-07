@@ -370,6 +370,7 @@ class ComposerStaticInita74000dd84470923841fe31227868e4c
         'WPGraphQL\\Type\\InterfaceType\\NodeWithFeaturedImage' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithFeaturedImage.php',
         'WPGraphQL\\Type\\InterfaceType\\NodeWithPageAttributes' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithPageAttributes.php',
         'WPGraphQL\\Type\\InterfaceType\\NodeWithRevisions' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithRevisions.php',
+        'WPGraphQL\\Type\\InterfaceType\\NodeWithTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTemplate.php',
         'WPGraphQL\\Type\\InterfaceType\\NodeWithTitle' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTitle.php',
         'WPGraphQL\\Type\\InterfaceType\\NodeWithTrackbacks' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTrackbacks.php',
         'WPGraphQL\\Type\\InterfaceType\\TermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/TermNode.php',

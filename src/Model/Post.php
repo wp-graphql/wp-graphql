@@ -32,6 +32,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $commentStatus
  * @property string  $pingStatus
  * @property string  $slug
+ * @property array   $template
  * @property boolean $isFrontPage
  * @property boolean $isPostsPage
  * @property boolean $isPreview
@@ -482,7 +483,7 @@ class Post extends Model {
 				'contentRendered'           => function() {
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
-					return ! empty( $content ) ? html_entity_decode( apply_filters( 'the_content', $content ) ) : null;
+					return ! empty( $content ) ? $this->html_entity_decode( apply_filters( 'the_content', $content ), 'contentRendered', false ) : null;
 				},
 				'pageTemplate'              => function() {
 					$slug = get_page_template_slug( $this->data->ID );
@@ -499,7 +500,7 @@ class Post extends Model {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
-					return html_entity_decode( apply_filters( 'the_title', $title, $id ) );
+					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered',true );
 				},
 				'titleRaw'                  => [
 					'callback'   => function() {
@@ -511,7 +512,7 @@ class Post extends Model {
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
-					return html_entity_decode( apply_filters( 'the_excerpt', $excerpt ) );
+					return $this->html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered' );
 				},
 				'excerptRaw'                => [
 					'callback'   => function() {
@@ -533,6 +534,60 @@ class Post extends Model {
 				},
 				'slug'                      => function() {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
+				},
+				'template'                  => function() {
+
+					$registered_templates = wp_get_theme()->get_post_templates();
+
+					$template = [
+						'__typename'   => 'DefaultTemplate',
+						'templateName' => 'Default',
+					];
+
+					if ( $this->isPreview ) {
+
+						$post_type = get_post( $this->parentDatabaseId )->post_type;
+						if ( ! isset( $registered_templates[ $post_type ] ) ) {
+							return $template;
+						}
+						$set_template  = get_post_meta( $this->parentDatabaseId, '_wp_page_template', true );
+						$template_name = get_page_template_slug( $this->parentDatabaseId );
+
+						if ( empty( $set_template ) ) {
+							$set_template = get_post_meta( $this->data->ID, '_wp_page_template', true );
+						}
+
+						if ( empty( $template_name ) ) {
+							$template_name = get_page_template_slug( $this->data->ID );
+						}
+
+						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
+
+					} else {
+						if ( ! isset( $registered_templates[ $this->data->post_type ] ) ) {
+							return $template;
+						}
+						$post_type     = $this->data->post_type;
+						$set_template  = get_post_meta( $this->data->ID, '_wp_page_template', true );
+						$template_name = get_page_template_slug( $this->data->ID );
+
+						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
+					}
+
+					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $post_type ][ $set_template ] ) ) {
+						$name = ucwords( $registered_templates[ $post_type ][ $set_template ] );
+						$name = preg_replace( '/[^\w]/', '', $name );
+						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+							$name = 'Template_' . $name;
+						}
+
+						$template = [
+							'__typename'   => $name,
+							'templateName' => ucwords( $registered_templates[ $post_type ][ $set_template ] ),
+						];
+					}
+
+					return $template;
 				},
 				'isFrontPage'               => function() {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {

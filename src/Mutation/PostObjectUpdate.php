@@ -147,6 +147,18 @@ class PostObjectUpdate {
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
 			 * @param int    $post_id       Inserted post ID
+			 * @param \WP_Post_Type $post_type_object The Post Type object for the post being mutated
+			 * @param array  $args          The args used to insert the term
+			 * @param string $mutation_name The name of the mutation being performed
+			 */
+			do_action( 'graphql_insert_post_object', $post_id, $post_type_object, $post_args, $mutation_name );
+
+			/**
+			 * Fires after a single term is created or updated via a GraphQL mutation
+			 *
+			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
+			 *
+			 * @param int    $post_id       Inserted post ID
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */
