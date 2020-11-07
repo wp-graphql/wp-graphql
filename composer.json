@@ -57,6 +57,6 @@
     "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
     "check-cs": ["@php ./vendor/bin/phpcs"],
     "fix-cs": ["@php ./vendor/bin/phpcbf"],
-    "check-code": ["@php ./vendor/bin/phpstan analyze --ansi --memory-limit=1G"]
+    "phpstan": ["@php ./vendor/bin/phpstan analyze --ansi --memory-limit=1G"]
   }
 }
