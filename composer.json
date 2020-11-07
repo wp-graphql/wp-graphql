@@ -56,6 +56,6 @@
     "phpcs-i": ["phpcs -i"],
     "check-cs": ["phpcs"],
     "fix-cs": ["phpcbf"],
-    "check-code": ["phpstan analyze --ansi --memory-limit=1G"]
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   }
 }
