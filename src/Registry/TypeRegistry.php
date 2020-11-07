@@ -368,13 +368,6 @@ class TypeRegistry {
 									return isset( $template['templateName'] ) ? $template['templateName'] : null;
 								},
 							],
-							'templateFile' => [
-								'resolve' => function( $template ) use ( $file ) {
-									// The template file could expose implementation details. Default is reserved for non-http request queries
-									// or authenticated users. This way internal graphql queries can get it or authenticated users
-									return ( ! is_graphql_http_request() || is_user_logged_in() ) && isset( $file ) ? $file : null;
-								},
-							],
 						],
 					]
 				);
