@@ -34,6 +34,7 @@ class CursorBuilder {
 	 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 	 */
 	public function add_field( $key, $value, $type = null, $order = null, $object_cursor = null ) {
+		
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination
 		 *
@@ -41,7 +42,7 @@ class CursorBuilder {
 		 * @param CursorBuilder           $this          The CursorBuilder class
 		 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 		 */
-		$this->fields[] = apply_filters(
+		$field = apply_filters(
 			'wpgraphql_cursor_ordering_field',
 			[
 				'key'   => esc_sql( $key ),
@@ -52,6 +53,25 @@ class CursorBuilder {
 			$this,
 			$object_cursor
 		);
+		
+		// Bail if the filtered field comes back empty
+		if ( empty( $field ) ) {
+			return;
+		}
+		
+		// Bail if the filtered field doesn't come back as an array
+		if ( ! is_array( $field ) ) {
+			return;
+		}
+		
+		$escaped_field = [];
+		
+		// Escape the filtered array
+		foreach ( $field as $key => $value ) {
+			$escaped_field[$key] = esc_sql( $value );
+		}
+		
+		$this->fields[] = $escaped_field;
 	}
 
 	/**
