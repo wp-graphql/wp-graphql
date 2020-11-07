@@ -35,8 +35,11 @@ class CursorBuilder {
 	 */
 	public function add_field( $key, $value, $type = null, $order = null, $object_cursor = null ) {
 		/**
-		 * This only input for variables which are used in the SQL generation. So
-		 * escape them here.
+		 * Filters the field used for ordering when cursors are used for pagination
+		 *
+		 * @param array                   $field         The field key, value, type and order
+		 * @param CursorBuilder           $this          The CursorBuilder class
+		 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 		 */
 		$this->fields[] = apply_filters(
 			'wpgraphql_cursor_ordering_field',
