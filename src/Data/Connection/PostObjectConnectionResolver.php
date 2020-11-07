@@ -230,7 +230,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				unset( $query_args['post_parent'] );
 
 			}
-
 		}
 
 		/**
