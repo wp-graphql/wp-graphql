@@ -64,6 +64,13 @@ abstract class AbstractConnectionResolver {
 	protected $should_execute = true;
 
 	/**
+	 * The loader the resolver is configured to use.
+	 *
+	 * @var AbstractDataLoader
+	 */
+	protected $loader;
+
+	/**
 	 * Whether the connection is a one to one connection. Default false.
 	 *
 	 * @var bool
