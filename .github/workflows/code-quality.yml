@@ -18,8 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PHP
-        if: matrix.phpcs == 1
-        uses: shivammathur/setup-php@v1
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4.5
           extensions: mbstring, intl
@@ -29,16 +28,15 @@ jobs:
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      - name: Install dependencies
-        run: |
-          composer install
-
       - name: Cache dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer
 
-      - name: Run PHP CodeSniffer
-        run: composer run check-code
+      - name: Install dependencies
+        run: composer install --no-progress
+
+      - name: Run PHPStan
+        run: composer run-script check-code
