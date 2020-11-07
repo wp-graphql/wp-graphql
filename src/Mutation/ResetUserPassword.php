@@ -3,7 +3,6 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use function Patchwork\Utils\args;
 use WPGraphQL\AppContext;
 
 class ResetUserPassword {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a0dac9ab28bfb3ee97b3973f0abd31a",
+    "content-hash": "69c1d360db0c0ef1fbe1d578c4245f8b",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -3262,6 +3262,51 @@
                 "stub"
             ],
             "time": "2020-09-29T09:10:42+00:00"
+        },
+        {
+            "name": "phpstan/extension-installer",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/extension-installer.git",
+                "reference": "5c2da3846819f951385cb6a25d3277051481c48a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/extension-installer/zipball/5c2da3846819f951385cb6a25d3277051481c48a",
+                "reference": "5c2da3846819f951385cb6a25d3277051481c48a",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.1 || ^2.0",
+                "php": "^7.1 || ^8.0",
+                "phpstan/phpstan": ">=0.11.6"
+            },
+            "require-dev": {
+                "composer/composer": "^1.8",
+                "consistence/coding-standard": "^3.8",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+                "ergebnis/composer-normalize": "^2.0.2",
+                "phing/phing": "^2.16",
+                "php-parallel-lint/php-parallel-lint": "^1.2.0",
+                "phpstan/phpstan-strict-rules": "^0.11",
+                "slevomat/coding-standard": "^5.0.4"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "PHPStan\\ExtensionInstaller\\Plugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\ExtensionInstaller\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Composer plugin for automatic installation of PHPStan extensions",
+            "time": "2020-08-30T12:06:42+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -6756,31 +6801,30 @@
         },
         {
             "name": "szepeviktor/phpstan-wordpress",
-            "version": "v0.5.0",
+            "version": "v0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/szepeviktor/phpstan-wordpress.git",
-                "reference": "1946738cdec130df4727f780ac541f8c6fd746a2"
+                "reference": "6195a6a19830d5ad187df0a3fb350e77cd571a5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/1946738cdec130df4727f780ac541f8c6fd746a2",
-                "reference": "1946738cdec130df4727f780ac541f8c6fd746a2",
+                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/6195a6a19830d5ad187df0a3fb350e77cd571a5f",
+                "reference": "6195a6a19830d5ad187df0a3fb350e77cd571a5f",
                 "shasum": ""
             },
             "require": {
-                "php": "~7.1",
+                "php": "^7.1 || ^8.0",
                 "php-stubs/wordpress-stubs": "^4.7 || ^5.0",
-                "phpstan/phpstan": "^0.12.0",
+                "phpstan/phpstan": "^0.12.26",
                 "symfony/polyfill-php73": "^1.12.0"
             },
             "require-dev": {
                 "composer/composer": "^1.8.6",
-                "consistence/coding-standard": "^3.8",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
-                "jakub-onderka/php-parallel-lint": "^1.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+                "php-parallel-lint/php-parallel-lint": "^1.1",
                 "phpstan/phpstan-strict-rules": "^0.12",
-                "slevomat/coding-standard": "^5.0.4"
+                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.4.3"
             },
             "type": "phpstan-extension",
             "extra": {
@@ -6807,7 +6851,13 @@
                 "static analysis",
                 "wordpress"
             ],
-            "time": "2019-12-05T22:19:53+00:00"
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/szepeviktor",
+                    "type": "custom"
+                }
+            ],
+            "time": "2020-11-05T00:12:19+00:00"
         },
         {
             "name": "theseer/tokenizer",
