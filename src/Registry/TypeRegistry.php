@@ -934,12 +934,12 @@ class TypeRegistry {
 	 * @return string
 	 */
 	protected function get_connection_name( $from_type, $to_type, $from_field_name ) {
-		// Create connection name using $from_type + To + $to_type.
+		// Create connection name using $from_type + To + $to_type + Connection.
 		$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
 
 		// If connection type already exists with that connection name. Set connection name using 
 		// $from_field_name + To + $to_type + Connection.
-		if ( $this->get_type( $connection_name ) ) {
+		if ( ! empty( $this->get_type( $connection_name ) ) ) {
 			$connection_name = ucfirst( $from_field_name ) . 'To' . ucfirst( $to_type ) . 'Connection';
 		}
 
