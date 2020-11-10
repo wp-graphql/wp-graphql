@@ -929,7 +929,7 @@ class TypeRegistry {
 	 *
 	 * @param string $from_type        Name of the Type the connection is coming from
 	 * @param string $to_type          Name of the Type the connection is going to
-	 * @param string $from_field_name  Acts as an alternative "fromType" if connection type already defined using $from_type.
+	 * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
 	 *
 	 * @return string
 	 */
@@ -940,7 +940,7 @@ class TypeRegistry {
 		// If connection type already exists with that connection name. Set connection name using 
 		// $from_field_name + To + $to_type + Connection.
 		if ( ! empty( $this->get_type( $connection_name ) ) ) {
-			$connection_name = ucfirst( $from_field_name ) . 'To' . ucfirst( $to_type ) . 'Connection';
+			$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $from_field_name ) . 'Connection';
 		}
 
 		return $connection_name;
