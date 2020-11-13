@@ -103,39 +103,40 @@ class Utils {
 		return ucfirst( self::format_field_name( $type_name ) );
 	}
 
+	/**
+	 * Helper function that defines the allowed HTML to use on the Settings pages
+	 *
+	 * @return array
+	 */
 	public static function get_allowed_wp_kses_html() {
 		$allowed_atts = [
-		    'align'      => [],
-		    'class'      => [],
-		    'type'       => [],
-		    'id'         => [],
-		    'dir'        => [],
-		    'lang'       => [],
-		    'style'      => [],
-		    'xml:lang'   => [],
-		    'src'        => [],
-		    'alt'        => [],
-		    'href'       => [],
-		    'rel'        => [],
-		    'rev'        => [],
-		    'target'     => [],
-		    'novalidate' => [],
-		    'type'       => [],
-		    'value'      => [],
-		    'name'       => [],
-		    'tabindex'   => [],
-		    'action'     => [],
-		    'method'     => [],
-		    'for'        => [],
-		    'width'      => [],
-		    'height'     => [],
-		    'data'       => [],
-		    'title'      => [],
-		    'type'       => [],
-		    'name'       => [],
-		    'value'      => [],
-		    'checked'    => [],
-		    'disabled'   => [],
+			'align'      => [],
+			'class'      => [],
+			'type'       => [],
+			'id'         => [],
+			'dir'        => [],
+			'lang'       => [],
+			'style'      => [],
+			'xml:lang'   => [],
+			'src'        => [],
+			'alt'        => [],
+			'href'       => [],
+			'rel'        => [],
+			'rev'        => [],
+			'target'     => [],
+			'novalidate' => [],
+			'value'      => [],
+			'name'       => [],
+			'tabindex'   => [],
+			'action'     => [],
+			'method'     => [],
+			'for'        => [],
+			'width'      => [],
+			'height'     => [],
+			'data'       => [],
+			'title'      => [],
+			'checked'    => [],
+			'disabled'   => [],
 		];
 		return [
 			'form'     => $allowed_atts,
@@ -172,7 +173,6 @@ class Utils {
 			'a'        => $allowed_atts,
 			'b'        => $allowed_atts,
 			'i'        => $allowed_atts,
-			'input'    => $allowed_atts,
 		];
 	}
 }
