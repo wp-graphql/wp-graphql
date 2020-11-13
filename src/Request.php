@@ -618,7 +618,13 @@ class Request {
 	 */
 	private function get_server() {
 
-		$debug_flag = true === \WPGraphQL::debug() ? 2 : 0;
+		$flag = 1;
+		if ( 0 !== get_current_user_id() ) {
+			// Flag 2 shows the trace data, which should require user to be logged in to see by default
+			$flag = 2;
+		}
+
+		$debug_flag = true === \WPGraphQL::debug() ? $flag : 0;
 
 		$config = new ServerConfig();
 		$config
