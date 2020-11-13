@@ -500,7 +500,7 @@ class Post extends Model {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
-					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered',true );
+					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered', true );
 				},
 				'titleRaw'                  => [
 					'callback'   => function() {

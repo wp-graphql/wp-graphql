@@ -155,7 +155,7 @@ class MenuItem extends Model {
 						if ( isset( $parsed['host'] ) ) {
 							if ( strpos( home_url(), $parsed['host'] ) ) {
 								return $parsed['path'];
-							} else if ( strpos( home_url(), $parsed['host'] ) ) {
+							} elseif ( strpos( home_url(), $parsed['host'] ) ) {
 								return $parsed['path'];
 							}
 						}
