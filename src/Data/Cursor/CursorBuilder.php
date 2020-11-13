@@ -43,7 +43,7 @@ class CursorBuilder {
 		 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 		 */
 		$field = apply_filters(
-			'wpgraphql_cursor_ordering_field',
+			'graphql_cursor_ordering_field',
 			[
 				'key'   => esc_sql( $key ),
 				'value' => esc_sql( $value ),
