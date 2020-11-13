@@ -227,7 +227,8 @@ class Tracing {
 	 * @return string
 	 */
 	public function format_timestamp( $time ) {
-		$timestamp = \DateTime::createFromFormat( 'U.u', $time );
+		$time_as_float = sprintf( '%.4f', $time );
+		$timestamp     = \DateTime::createFromFormat( 'U.u', $time_as_float );
 
 		return $timestamp->format( 'Y-m-d\TH:i:s.uP' );
 	}

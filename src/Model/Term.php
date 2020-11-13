@@ -174,7 +174,7 @@ class Term extends Model {
 				},
 				'uri'                      => function() {
 					$link = get_term_link( $this->name );
-					return ! ( is_wp_error( $link ) ) ? trailingslashit( str_ireplace( home_url(), get_term_link( $this->name ) ) ) : null;
+					return ! ( is_wp_error( $link ) ) ? trailingslashit( str_ireplace( home_url(), get_term_link( $this->name ), $link ) ) : null;
 				},
 			];
 

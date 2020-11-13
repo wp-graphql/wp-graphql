@@ -475,7 +475,6 @@ abstract class Model {
 		 * @param string                 $string     The string to decode
 		 * @param string                 $field_name The name of the field being encoded
 		 * @param \WPGraphQL\Model\Model $model      The Model the field is being decoded on
-		 *
 		 */
 		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $string, $field_name, $this );
 

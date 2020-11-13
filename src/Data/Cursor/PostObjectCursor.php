@@ -247,7 +247,7 @@ class PostObjectCursor {
 
 		$this->meta_join_alias ++;
 
-		$this->builder->add_field( $key, $meta_value, $meta_type, $order );
+		$this->builder->add_field( $key, $meta_value, $meta_type, $order, $this );
 	}
 
 	/**
