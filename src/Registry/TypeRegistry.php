@@ -1148,9 +1148,7 @@ class TypeRegistry {
 
 		$output_fields = [
 			'clientMutationId' => [
-				'type' => [
-					'non_null' => 'String',
-				],
+				'type' => 'String',
 			],
 		];
 
@@ -1168,9 +1166,7 @@ class TypeRegistry {
 
 		$input_fields = [
 			'clientMutationId' => [
-				'type' => [
-					'non_null' => 'String',
-				],
+				'type' => 'String',
 			],
 		];
 
