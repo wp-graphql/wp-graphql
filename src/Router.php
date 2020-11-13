@@ -411,7 +411,7 @@ class Router {
 		 * @see: https://apollographql.slack.com/archives/C10HTKHPC/p1507649812000123
 		 * @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
 		 */
-		if ( 'OPTIONS' === $_SERVER['REQUEST_METHOD'] ) {
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'OPTIONS' === $_SERVER['REQUEST_METHOD'] ) {
 			self::$http_status_code = 200;
 			self::set_headers();
 			exit;

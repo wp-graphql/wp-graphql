@@ -139,7 +139,7 @@ class MediaItemCreate {
 			/**
 			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 			 */
-			if ( 'file' === parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
+			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
 				$uploaded_file     = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
 				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
 			}

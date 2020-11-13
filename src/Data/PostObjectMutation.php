@@ -40,7 +40,7 @@ class PostObjectMutation {
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
-			$insert_post_args['post_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
+			$insert_post_args['post_date'] = gmdate( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
 		if ( ! empty( $input['content'] ) ) {
