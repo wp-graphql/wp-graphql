@@ -40,8 +40,9 @@
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
     "squizlabs/php_codesniffer": "3.5.4",
     "phpstan/phpstan": "^0.12.25",
-    "szepeviktor/phpstan-wordpress": "^0.5.0",
-    "codeception/module-rest": "^1.2"
+    "szepeviktor/phpstan-wordpress": "^0.7.1",
+    "codeception/module-rest": "^1.2",
+    "phpstan/extension-installer": "^1.0"
   },
   "config": {
     "optimize-autoloader": true
@@ -49,12 +50,12 @@
   "autoload": {
     "psr-4": {
       "WPGraphQL\\": "src/"
-    },
-    "classmap": ["src/"]
+    }
   },
   "scripts": {
-    "phpcs-i": ["@php ./vendor/bin/phpcs -i"],
-    "check-cs": ["@php ./vendor/bin/phpcs"],
-    "fix-cs": ["@php ./vendor/bin/phpcbf"]
+    "phpcs-i": ["phpcs -i"],
+    "check-cs": ["phpcs"],
+    "fix-cs": ["phpcbf"],
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   }
 }

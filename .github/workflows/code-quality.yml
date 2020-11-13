@@ -1,4 +1,4 @@
-name: WordPress Coding Standards
+name: Code Quality
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 7.4.5
           extensions: mbstring, intl
           tools: composer
 
@@ -36,11 +36,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer
 
       - name: Install dependencies
-        run: |
-          composer require --dev \
-            phpcompatibility/phpcompatibility-wp \
-            wp-coding-standards/wpcs \
-            dealerdirect/phpcodesniffer-composer-installer
+        run: composer install --no-progress
 
-      - name: Run PHP_CodeSniffer
-        run: composer run-script check-cs
+      - name: Run PHPStan
+        run: composer run-script phpstan

@@ -1,8 +1,7 @@
-includes:
-    - vendor/szepeviktor/phpstan-wordpress/extension.neon
 parameters:
-    level: max
-    autoload_files:
+    level: 0
+    inferPrivatePropertyTypeFromConstructor: true
+    bootstrapFiles:
         - wp-graphql.php
         - access-functions.php
     paths:
@@ -11,4 +10,5 @@ parameters:
         - src/
     ignoreErrors:
         # Uses func_get_args()
-        - '#^Function apply_filters(_ref_array)? invoked with ([3456789]|10) parameters, 2 required\.$#'
+        # Ignore any filters that are applied with more than 2 paramaters
+        # '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'

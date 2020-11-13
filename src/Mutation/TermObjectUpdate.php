@@ -111,7 +111,7 @@ class TermObjectUpdate {
 
 			if ( $taxonomy->name !== $existing_term->taxonomy ) {
 				// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $post_type_object->name ) );
+				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $taxonomy->name ) );
 			}
 
 			/**

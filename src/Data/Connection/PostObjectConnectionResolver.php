@@ -221,12 +221,15 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( 'attachment' === $this->post_type || 'revision' === $this->post_type ) {
 			$query_args['post_status'] = 'inherit';
 
-			/**
-			 * Unset the "post_parent" for attachments, as we don't really care if they
-			 * have a post_parent set by default
-			 */
-			unset( $query_args['post_parent'] );
+			if ( isset( $query_args['post_parent'] ) ) {
 
+				/**
+				 * Unset the "post_parent" for attachments, as we don't really care if they
+				 * have a post_parent set by default
+				 */
+				unset( $query_args['post_parent'] );
+
+			}
 		}
 
 		/**
