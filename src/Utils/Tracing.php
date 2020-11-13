@@ -109,7 +109,7 @@ class Tracing {
 	 * @return string
 	 */
 	public function init_trace() {
-		$this->request_start_microtime = microtime( true );
+		$this->request_start_microtime = microtime( TRUE );
 		$this->request_start_timestamp = $this->format_timestamp( $this->request_start_microtime );
 
 		return $this->request_start_timestamp;
@@ -121,7 +121,7 @@ class Tracing {
 	 * @return string
 	 */
 	public function end_trace() {
-		$this->request_end_microtime = microtime( true );
+		$this->request_end_microtime = microtime( TRUE );
 		$this->request_end_timestamp = $this->format_timestamp( $this->request_end_microtime );
 
 		return $this->request_end_timestamp;
@@ -138,7 +138,7 @@ class Tracing {
 			'fieldName'      => $info->fieldName,
 			'returnType'     => $info->returnType->name ? $info->returnType->name : $info->returnType,
 			'startOffset'    => $this->get_start_offset(),
-			'startMicrotime' => microtime( true ),
+			'startMicrotime' => microtime( TRUE ),
 		];
 
 	}
@@ -164,7 +164,7 @@ class Tracing {
 	 * @return float|int
 	 */
 	public function get_field_resolver_duration() {
-		return ( microtime( true ) - $this->field_trace['startMicrotime'] ) * 1000000;
+		return ( microtime( TRUE ) - $this->field_trace['startMicrotime'] ) * 1000000;
 	}
 
 	/**
@@ -173,7 +173,7 @@ class Tracing {
 	 * @return float|int
 	 */
 	public function get_start_offset() {
-		return ( microtime( true ) - $this->request_start_microtime ) * 1000000;
+		return ( microtime( TRUE ) - $this->request_start_microtime ) * 1000000;
 	}
 
 	/**
@@ -227,7 +227,8 @@ class Tracing {
 	 * @return string
 	 */
 	public function format_timestamp( $time ) {
-		$timestamp = \DateTime::createFromFormat( 'U.u', $time );
+		$time_as_float = sprintf('%.4f', $time );
+		$timestamp = \DateTime::createFromFormat( 'U.u', $time_as_float );
 
 		return $timestamp->format( 'Y-m-d\TH:i:s.uP' );
 	}
