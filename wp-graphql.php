@@ -9,7 +9,7 @@
  * Version: 0.15.3
  * Text Domain: wp-graphql
  * Domain Path: /languages/
- * Requires at least: 4.7.0
+ * Requires at least: 5.0
  * Tested up to: 5.4
  * Requires PHP: 7.1
  * License: GPL-3
