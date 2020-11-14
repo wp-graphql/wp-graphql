@@ -161,6 +161,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
 
+		$query_args = [];
 		/**
 		 * Ignore sticky posts by default
 		 */

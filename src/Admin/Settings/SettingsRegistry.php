@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Admin\Settings;
 
+use WPGraphQL\Utils\Utils;
+
 /**
  * Class SettingsRegistry
  *
@@ -156,7 +158,7 @@ class SettingsRegistry {
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 				$callback        = function() use ( $section ) {
-					echo str_replace( '"', '\"', $section['desc'] );
+					echo wp_kses( str_replace( '"', '\"', $section['desc'] ), Utils::get_allowed_wp_kses_html() );
 				};
 			} elseif ( isset( $section['callback'] ) ) {
 				$callback = $section['callback'];
@@ -240,7 +242,43 @@ class SettingsRegistry {
 		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
 		$html       .= $this->get_field_description( $args );
 
-		echo $html;
+		$allowedtags = [
+			'a'          => [
+				'href'  => true,
+				'title' => true,
+			],
+			'abbr'       => [
+				'title' => true,
+			],
+			'acronym'    => [
+				'title' => true,
+			],
+			'b'          => [],
+			'blockquote' => [
+				'cite' => true,
+			],
+			'cite'       => [],
+			'code'       => [],
+			'del'        => [
+				'datetime' => true,
+			],
+			'em'         => [],
+			'i'          => [],
+			'q'          => [
+				'cite' => true,
+			],
+			'strike'     => [],
+			'strong'     => [],
+			'input'      => [
+				'type'    => [],
+				'name'    => [],
+				'value'   => [],
+				'checked' => [],
+			],
+			'p'          => [],
+		];
+
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -269,7 +307,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -289,7 +327,7 @@ class SettingsRegistry {
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -312,7 +350,7 @@ class SettingsRegistry {
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -334,7 +372,7 @@ class SettingsRegistry {
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -355,7 +393,7 @@ class SettingsRegistry {
 		$html .= sprintf( '</select>' );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -372,7 +410,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%4$s>%5$s</textarea>', $size, $args['section'], $args['id'], $placeholder, $value );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -383,7 +421,7 @@ class SettingsRegistry {
 	 * @return string
 	 */
 	function callback_html( $args ) {
-		echo $this->get_field_description( $args );
+		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -396,7 +434,7 @@ class SettingsRegistry {
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : '500px';
 
-		echo '<div style="max-width: ' . $size . ';">';
+		echo '<div style="max-width: ' . esc_attr( $size ) . ';">';
 
 		$editor_settings = [
 			'teeny'         => true,
@@ -412,7 +450,7 @@ class SettingsRegistry {
 
 		echo '</div>';
 
-		echo $this->get_field_description( $args );
+		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -431,7 +469,7 @@ class SettingsRegistry {
 		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '" />';
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -447,7 +485,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -463,7 +501,7 @@ class SettingsRegistry {
 		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 
@@ -480,8 +518,8 @@ class SettingsRegistry {
 			'id'       => $args['section'] . '[' . $args['id'] . ']',
 			'echo'     => 0,
 		];
-		$html          = wp_dropdown_pages( $dropdown_args );
-		echo $html;
+		$html          = wp_dropdown_pages( wp_kses( $dropdown_args, Utils::get_allowed_wp_kses_html() ) );
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -499,11 +537,11 @@ class SettingsRegistry {
 		$name = $args['section'] . '[' . $args['id'] . ']';
 		$id   = $args['section'] . '[' . $args['id'] . ']';
 
-		echo '<select id="' . $id . '" name="' . $name . '">';
+		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
 		echo '<option value="any">Any</option>';
 		wp_dropdown_roles( $selected );
 		echo '</select>';
-		echo $this->get_field_description( $args );
+		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -598,7 +636,7 @@ class SettingsRegistry {
 
 		$html .= '</h2>';
 
-		echo $html;
+		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -610,7 +648,7 @@ class SettingsRegistry {
 		?>
 		<div class="metabox-holder">
 			<?php foreach ( $this->settings_sections as $id => $form ) { ?>
-				<div id="<?php echo $id; ?>" class="group" style="display: none;">
+				<div id="<?php echo esc_attr( $id ); ?>" class="group" style="display: none;">
 					<form method="post" action="options.php">
 						<?php
 						do_action( 'graphql_settings_form_top', $form );
