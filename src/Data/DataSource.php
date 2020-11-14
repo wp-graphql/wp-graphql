@@ -409,6 +409,7 @@ class DataSource {
 		 * settings for each group ( general, reading, discussion, writing, reading, etc. )
 		 * if the setting is allowed in REST or GraphQL
 		 */
+		$allowed_settings_by_group = [];
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {

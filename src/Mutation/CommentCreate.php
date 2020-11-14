@@ -141,7 +141,7 @@ class CommentCreate {
 				'comment_type'       => '',
 				'comment_parent'     => 0,
 				'user_id'            => 0,
-				'comment_date'       => date( 'Y-m-d H:i:s' ),
+				'comment_date'       => gmdate( 'Y-m-d H:i:s' ),
 			];
 
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'createComment' );

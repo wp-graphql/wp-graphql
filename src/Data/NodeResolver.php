@@ -34,14 +34,14 @@ class NodeResolver {
 
 		global $wp_rewrite;
 
-		$parsed_url = parse_url( $uri );
+		$parsed_url = wp_parse_url( $uri );
 
 		if ( isset( $parsed_url['host'] ) ) {
 			if ( ! in_array(
 				$parsed_url['host'],
 				[
-					parse_url( site_url() )['host'],
-					parse_url( home_url() )['host'],
+					wp_parse_url( site_url() )['host'],
+					wp_parse_url( home_url() )['host'],
 				],
 				true
 			) ) {
@@ -79,7 +79,7 @@ class NodeResolver {
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
-			$home_path       = trim( parse_url( home_url(), PHP_URL_PATH ), '/' );
+			$home_path       = trim( wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
 			$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
 			// Trim path info from the end and the leading home path from the
@@ -204,10 +204,6 @@ class NodeResolver {
 
 			if ( isset( $this->wp->extra_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $this->wp->extra_query_vars[ $wpvar ];
-			} elseif ( isset( $_GET[ $wpvar ] ) && isset( $_POST[ $wpvar ] ) && $_GET[ $wpvar ] !== $_POST[ $wpvar ] ) {
-				wp_die( __( 'A variable mismatch has been detected.' ), __( 'Sorry, you are not allowed to view this item.' ), 400 );
-			} elseif ( isset( $_POST[ $wpvar ] ) ) {
-				$this->wp->query_vars[ $wpvar ] = $_POST[ $wpvar ];
 			} elseif ( isset( $_GET[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $_GET[ $wpvar ];
 			} elseif ( isset( $perma_query_vars[ $wpvar ] ) ) {

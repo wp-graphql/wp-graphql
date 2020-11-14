@@ -27,7 +27,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		/**
 		 * Set the file path for where to save the static schema
 		 */
-		$file_path = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
+		$file_path = get_temp_dir() . 'schema.graphql';
 
 		if ( ! defined( 'GRAPHQL_REQUEST') ) {
 			define( 'GRAPHQL_REQUEST', true );

@@ -927,13 +927,23 @@ class TypeRegistry {
 	 * Utility method that formats the connection name given the name of the from Type and the to
 	 * Type
 	 *
-	 * @param string $from_type Name of the Type the connection is coming from
-	 * @param string $to_type   Name of the Type the connection is going to
+	 * @param string $from_type        Name of the Type the connection is coming from
+	 * @param string $to_type          Name of the Type the connection is going to
+	 * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
 	 *
 	 * @return string
 	 */
-	protected function get_connection_name( $from_type, $to_type ) {
-		return ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
+	protected function get_connection_name( $from_type, $to_type, $from_field_name ) {
+		// Create connection name using $from_type + To + $to_type + Connection.
+		$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
+
+		// If connection type already exists with that connection name. Set connection name using
+		// $from_field_name + To + $to_type + Connection.
+		if ( ! empty( $this->get_type( $connection_name ) ) ) {
+			$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $from_field_name ) . 'Connection';
+		}
+
+		return $connection_name;
 	}
 
 	/**
@@ -970,7 +980,7 @@ class TypeRegistry {
 		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
 			return null;
 		};
-		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type );
+		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
 		$where_args         = [];
 		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
 

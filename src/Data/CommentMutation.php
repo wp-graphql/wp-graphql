@@ -71,7 +71,7 @@ class CommentMutation {
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
-			$output_args['comment_date'] = date( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
+			$output_args['comment_date'] = gmdate( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
 		if ( ! empty( $input['content'] ) ) {
