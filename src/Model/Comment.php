@@ -14,6 +14,8 @@ use GraphQLRelay\Relay;
  * @property string     $comment_author_url
  * @property int        $comment_ID
  * @property int        $comment_parent_id
+ * @property string     $parentId
+ * @property int        $parentDatabaseId
  * @property string     $authorIp
  * @property string     $date
  * @property string     $dateGmt
@@ -59,6 +61,8 @@ class Comment extends Model {
 			'comment_post_ID',
 			'approved',
 			'comment_parent_id',
+			'parentId',
+			'parentDatabaseId',
 			'isRestricted',
 			'userId',
 		];
@@ -121,6 +125,12 @@ class Comment extends Model {
 				},
 				'comment_parent_id'  => function() {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
+				},
+				'parentDatabaseId'   => function() {
+					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
+				},
+				'parentId'           => function() {
+					return ! empty( $this->comment_parent_id ) ? Relay::toGlobalId( 'comment', $this->data->comment_parent ) : null;
 				},
 				'comment_author'     => function() {
 					return ! empty( $this->data->comment_author ) ? absint( $this->data->comment_author ) : null;
