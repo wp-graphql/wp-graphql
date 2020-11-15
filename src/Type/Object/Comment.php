@@ -76,6 +76,14 @@ class Comment {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
+					'parentId'         => [
+						'type'        => 'ID',
+						'description' => __( 'The globally unique identifier of the parent comment node.', 'wp-graphql' ),
+					],
+					'parentDatabaseId' => [
+						'type'        => 'Int',
+						'description' => __( 'The database id of the parent comment node or null if it is the root comment', 'wp-graphql' ),
+					],
 				],
 			]
 		);
