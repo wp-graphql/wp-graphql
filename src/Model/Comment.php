@@ -126,10 +126,10 @@ class Comment extends Model {
 				'comment_parent_id'  => function() {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
 				},
-				'parentDatabaseId' => function() {
+				'parentDatabaseId'   => function() {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
 				},
-				'parentId' => function() {
+				'parentId'           => function() {
 					return ! empty( $this->comment_parent_id ) ? Relay::toGlobalId( 'comment', $this->data->comment_parent ) : null;
 				},
 				'comment_author'     => function() {
