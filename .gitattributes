@@ -13,4 +13,4 @@
 codeception.yml export-ignore
 coveralls.yml export-ignore
 netlify.toml export-ignore
-node_modules
+node_modules export-ignore
