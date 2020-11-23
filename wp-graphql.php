@@ -341,16 +341,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * This gets the allowed post types and taxonomies when a GraphQL request has started
-		 *
-		 * @deprecated v0.4.3
-		 */
-		public function get_allowed_types() {
-			self::get_allowed_post_types();
-			self::get_allowed_taxonomies();
-		}
-
-		/**
 		 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
 		 */
 		public function maybe_flush_permalinks() {
@@ -541,6 +531,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 								$tax_object->name
 							)
 						);
+
 					}
 				},
 				$taxonomies
