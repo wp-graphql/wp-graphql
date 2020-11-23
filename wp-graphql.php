@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 0.15.4
+ * Version: 1.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 5.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  0.15.4
+ * @version  1.0
  */
 
 // Exit if accessed directly.
@@ -178,7 +178,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '0.15.4' );
+				define( 'WPGRAPHQL_VERSION', '1.0' );
 			}
 
 			// Plugin Folder Path.
@@ -338,16 +338,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Setup the settings, post_types and taxonomies to show_in_graphql
 			 */
 			self::show_in_graphql();
-		}
-
-		/**
-		 * This gets the allowed post types and taxonomies when a GraphQL request has started
-		 *
-		 * @deprecated v0.4.3
-		 */
-		public function get_allowed_types() {
-			self::get_allowed_post_types();
-			self::get_allowed_taxonomies();
 		}
 
 		/**
@@ -541,6 +531,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 								$tax_object->name
 							)
 						);
+
 					}
 				},
 				$taxonomies

@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.5.3
 Requires PHP: 7.1
-Stable tag: 0.15.4
+Stable tag: 1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -51,9 +51,9 @@ WPGraphQL publishes [release notes on Github](https://github.com/wp-graphql/wp-g
 
 WPGraphQL has been following Semver practices for a few years. We will continue to follow Semver and let version numbers communicate meaning. The summary of Semver versioning is as follows:
 
-- * MAJOR * version when you make incompatible API changes,
-- * MINOR * version when you add functionality in a backwards compatible manner, and
-- * PATCH * version when you make backwards compatible bug fixes.
+- *MAJOR* version when you make incompatible API changes,
+- *MINOR* version when you add functionality in a backwards compatible manner, and
+- *PATCH* version when you make backwards compatible bug fixes.
 
 You can read more about the details of Semver at semver.org
 
