@@ -1,5 +1,5 @@
 === WPGraphQL ===
-Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach
+Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, REST, JSON,  HTTP, Remote, Query Language
 Requires at least: 5.0
 Tested up to: 5.5.3
