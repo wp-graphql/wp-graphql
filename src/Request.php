@@ -2,6 +2,7 @@
 
 namespace WPGraphQL;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
@@ -618,13 +619,13 @@ class Request {
 	 */
 	private function get_server() {
 
-		$flag = 1;
+		$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE;
 		if ( 0 !== get_current_user_id() ) {
 			// Flag 2 shows the trace data, which should require user to be logged in to see by default
-			$flag = 2;
+			$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 		}
 
-		$debug_flag = true === \WPGraphQL::debug() ? $flag : 0;
+		$debug_flag = true === \WPGraphQL::debug() ? $flag : DebugFlag::NONE;
 
 		$config = new ServerConfig();
 		$config
