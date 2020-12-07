@@ -79,20 +79,20 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Convert Interfaces from Strings to Types
 		 */
-		$config['interfaces'] = function() use ( $config, $interfaces ) {
+		$config['interfaces'] = function () use ( $interfaces ) {
 			$new_interfaces = [];
-			if ( ! empty( $interfaces ) && is_array( $interfaces ) ) {
-				foreach ( $interfaces as $interface_name ) {
-					$interface_type = null;
-					if ( is_string( $interface_name ) ) {
-						$interface_type = $this->type_registry->get_type( $interface_name );
-					} elseif ( $interface_name instanceof WPInterfaceType ) {
-						$interface_type = $interface_name;
-					}
+			if ( ! is_array( $interfaces ) ) {
+				// TODO Throw an error.
+				return $new_interfaces;
+			}
 
-					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
-						$new_interfaces[ $interface_name ] = $interface_type;
-					}
+			foreach ( $interfaces as $interface ) {
+				if ( is_string( $interface ) ) {
+					$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
+					continue;
+				}
+				if ( $interface instanceof WPInterfaceType ) {
+					$new_interfaces[ get_class( $interface ) ] = $interface;
 				}
 			}
 

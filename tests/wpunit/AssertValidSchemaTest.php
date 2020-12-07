@@ -16,6 +16,8 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
+		unregister_post_type( 'test_aaa' );
+		unregister_taxonomy( 'test_tax_aaa' );
 		WPGraphQL::clear_schema();
 	}
 
@@ -38,6 +40,78 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			// Fail upon throwing
 			$this->assertTrue( false );
 		}
+	}
+
+	public function testPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralNameThrowsException() {
+
+		WPGraphQL::clear_schema();
+
+		register_post_type( 'test_aaa', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'testName',
+			'graphql_plural_name' => 'testName',
+		] );
+
+
+		$this->expectException( '\GraphQL\Error\InvariantViolation' );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			  __schema {
+			    queryType {
+			      name
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		WPGraphQL::clear_schema();
+
+	}
+
+	public function testTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralNameThrowsException() {
+
+		WPGraphQL::clear_schema();
+
+		register_taxonomy( 'test_tax_aaa', 'post', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'testTaxName',
+			'graphql_plural_name' => 'testTaxName',
+		] );
+
+
+		$this->expectException( '\GraphQL\Error\InvariantViolation' );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			  __schema {
+			    queryType {
+			      name
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		WPGraphQL::clear_schema();
+
 	}
 
 	public function testIntrospectionQueriesDisabledForPublicRequests() {

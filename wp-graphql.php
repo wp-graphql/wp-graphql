@@ -227,8 +227,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * so this is set to false for tests.
 			 */
 			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+
+				if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+					wp_die( __( 'WPGraphQL has been installed without dependencies. Try installing from WordPress.org or run "composer install" from the plugin directory to install dependencies', 'wp-graphql' ) );
+				}
+
 				// Autoload Required Classes.
 				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
+
 			}
 
 			// Required non-autoloaded classes.
@@ -338,16 +344,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * Setup the settings, post_types and taxonomies to show_in_graphql
 			 */
 			self::show_in_graphql();
-		}
-
-		/**
-		 * This gets the allowed post types and taxonomies when a GraphQL request has started
-		 *
-		 * @deprecated v0.4.3
-		 */
-		public function get_allowed_types() {
-			self::get_allowed_post_types();
-			self::get_allowed_taxonomies();
 		}
 
 		/**
@@ -541,6 +537,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 								$tax_object->name
 							)
 						);
+
 					}
 				},
 				$taxonomies
