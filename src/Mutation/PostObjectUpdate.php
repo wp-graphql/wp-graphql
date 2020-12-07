@@ -114,10 +114,6 @@ class PostObjectUpdate {
 			}
 
 			/**
-			 * If the current user is trying to edit a post
-			 */
-
-			/**
 			 * @todo: when we add support for making posts sticky, we should check permissions to make sure users can make posts sticky
 			 * @see : https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L640-L642
 			 */

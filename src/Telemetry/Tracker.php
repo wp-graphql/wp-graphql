@@ -216,7 +216,7 @@ class Tracker {
 			'phpVersion'         => phpversion(),
 			'serverSoftware'     => $this->clean_server_data( 'SERVER_SOFTWARE' ),
 			'userName'           => $this->hash( $this->clean_server_data( 'USER' ) ),
-			'sessionId'          => $this->hash( $this->clean_server_data( 'HTTP_COOKIE' ) ),
+			'sessionId'          => '',
 			'httpAcceptLanguage' => $this->clean_server_data( 'HTTP_ACCEPT_LANGUAGE' ),
 			'userAgent'          => $this->clean_server_data( 'HTTP_USER_AGENT' ),
 			'host'               => $this->sanitize( site_url() ),
