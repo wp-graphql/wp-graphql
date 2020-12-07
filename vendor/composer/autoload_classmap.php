@@ -3212,6 +3212,7 @@ return array(
     'WPGraphQL\\Request' => $baseDir . '/src/Request.php',
     'WPGraphQL\\Router' => $baseDir . '/src/Router.php',
     'WPGraphQL\\Server\\WPHelper' => $baseDir . '/src/Server/WPHelper.php',
+    'WPGraphQL\\Telemetry\\Tracker' => $baseDir . '/src/Telemetry/Tracker.php',
     'WPGraphQL\\Type\\Enum\\AvatarRatingEnum' => $baseDir . '/src/Type/Enum/AvatarRatingEnum.php',
     'WPGraphQL\\Type\\Enum\\CommentsConnectionOrderbyEnum' => $baseDir . '/src/Type/Enum/CommentsConnectionOrderbyEnum.php',
     'WPGraphQL\\Type\\Enum\\ContentNodeIdTypeEnum' => $baseDir . '/src/Type/Enum/ContentNodeIdTypeEnum.php',

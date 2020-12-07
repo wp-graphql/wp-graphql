@@ -8,6 +8,19 @@
  */
 function graphql_deactivation_callback() {
 
+	// Fire an action when WPGraphQL is de-activating
+	do_action( 'graphql_deactivate' );
+
+	// Delete data during activation
+	delete_graphql_data();
+
+}
+
+/**
+ * Delete data on deactivation
+ */
+function delete_graphql_data() {
+
 	// Check if the plugin is set to delete data or not
 	$delete_data = get_graphql_setting( 'delete_data_on_deactivate' );
 
@@ -15,6 +28,9 @@ function graphql_deactivation_callback() {
 	if ( "on" !== $delete_data ) {
 		return;
 	}
+
+	// Delete graphql version
+	delete_option( 'wp_graphql_version' );
 
 	// Initialize the settings API
 	$settings = new WPGraphQL\Admin\Settings\Settings();
@@ -31,7 +47,6 @@ function graphql_deactivation_callback() {
 		}
 	}
 
-	// Fire an action when WPGraphQL is de-activating
-	do_action( 'graphql_deactivate' );
+	do_action( 'graphql_delete_data' );
 
 }

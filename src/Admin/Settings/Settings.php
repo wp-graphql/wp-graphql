@@ -104,6 +104,13 @@ class Settings {
 
 		$this->settings_api->register_fields( 'graphql_general_settings', [
 			[
+				'name'    => 'telemetry_enabled',
+				'label'   => __( 'Data Sharing Opt-In', 'wp-graphql' ),
+				'desc'    => __( 'Help us improve WPGraphQL by allowing tracking of usage. Tracking data allows us to better understand how WPGraphQL is used so we can better prioritize features & integrations with popular WordPress plugins, and can allow us to notify site owners if we detect a security issue. All data are treated in accordance with Gatsby\'s Privacy Policy. <a href="https://www.gatsbyjs.com/privacy-policy" target="_blank">Learn more</a>.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'off',
+			],
+			[
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
