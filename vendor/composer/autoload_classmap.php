@@ -390,6 +390,7 @@ return array(
     'WPGraphQL\\Types' => $baseDir . '/src/Types.php',
     'WPGraphQL\\Utils\\DebugLog' => $baseDir . '/src/Utils/DebugLog.php',
     'WPGraphQL\\Utils\\InstrumentSchema' => $baseDir . '/src/Utils/InstrumentSchema.php',
+    'WPGraphQL\\Utils\\Preview' => $baseDir . '/src/Utils/Preview.php',
     'WPGraphQL\\Utils\\QueryLog' => $baseDir . '/src/Utils/QueryLog.php',
     'WPGraphQL\\Utils\\Tracing' => $baseDir . '/src/Utils/Tracing.php',
     'WPGraphQL\\Utils\\Utils' => $baseDir . '/src/Utils/Utils.php',

@@ -381,7 +381,19 @@ class TypeRegistry {
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
+
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
+					throw new \GraphQL\Error\InvariantViolation(
+						sprintf(
+						/* translators: %s will replaced with the registered type */
+							__( 'The %s post_type cannot declare the same value for "graphql_single_name" and "graphql_plural_name".', 'wp-graphql' ),
+							$post_type_object->name
+						)
+					);
+				}
+
 				PostObject::register_post_object_types( $post_type_object, $type_registry );
 
 				/**
@@ -406,7 +418,19 @@ class TypeRegistry {
 				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
+
 						$tax_object = get_taxonomy( $taxonomy );
+
+						if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
+							throw new \GraphQL\Error\InvariantViolation(
+								sprintf(
+								/* translators: %s will replaced with the registered type */
+									__( 'The %s taxonomy cannot declare the same value for "graphql_single_name" and "graphql_plural_name".', 'wp-graphql' ),
+									$tax_object->name
+								)
+							);
+						}
+
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
 							register_graphql_input_type(

@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 1.0
+ * Version: 1.0.1
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 5.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.0
+ * @version  1.0.1
  */
 
 // Exit if accessed directly.
@@ -179,7 +179,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			// Plugin version.
 			if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-				define( 'WPGRAPHQL_VERSION', '1.0' );
+				define( 'WPGRAPHQL_VERSION', '1.0.1' );
 			}
 
 			// Plugin Folder Path.
@@ -228,8 +228,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 * so this is set to false for tests.
 			 */
 			if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+
+				if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+					wp_die( __( 'WPGraphQL has been installed without dependencies. Try installing from WordPress.org or run "composer install" from the plugin directory to install dependencies', 'wp-graphql' ) );
+				}
+
 				// Autoload Required Classes.
 				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
+
 			}
 
 			// Required non-autoloaded classes.
@@ -353,16 +359,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
-		 * This gets the allowed post types and taxonomies when a GraphQL request has started
-		 *
-		 * @deprecated v0.4.3
-		 */
-		public function get_allowed_types() {
-			self::get_allowed_post_types();
-			self::get_allowed_taxonomies();
-		}
-
-		/**
 		 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
 		 */
 		public function maybe_flush_permalinks() {
@@ -384,6 +380,9 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				'\WPGraphQL\Utils\InstrumentSchema',
 				'instrument_schema',
 			], 10, 1 );
+
+			// Filter how metadata is retrieved during GraphQL requests
+			add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
 		}
 
 		/**
@@ -531,6 +530,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 								$tax_object->name
 							)
 						);
+
 					}
 				},
 				$taxonomies

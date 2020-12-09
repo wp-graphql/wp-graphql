@@ -100,13 +100,6 @@ class Post extends Model {
 	protected $wp_query;
 
 	/**
-	 * Whether to filter revision meta
-	 *
-	 * @var bool
-	 */
-	protected $filter_revision_meta;
-
-	/**
 	 * Post constructor.
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
@@ -127,9 +120,8 @@ class Post extends Model {
 		 * of the parent post type to determine capabilities from
 		 */
 		if ( 'revision' === $post->post_type && ! empty( $post->post_parent ) ) {
-			$this->filter_revision_meta = true;
-			$parent                     = get_post( absint( $post->post_parent ) );
-			$this->post_type_object     = get_post_type_object( $parent->post_type );
+			$parent                 = get_post( absint( $post->post_parent ) );
+			$this->post_type_object = get_post_type_object( $parent->post_type );
 		}
 
 		/**
@@ -173,8 +165,6 @@ class Post extends Model {
 	public function setup() {
 
 		global $wp_query, $post;
-
-		add_filter( 'get_post_metadata', [ $this, 'filter_revision_metadata' ], 10, 4 );
 
 		/**
 		 * Store the global post before overriding
@@ -238,44 +228,6 @@ class Post extends Model {
 			$wp_query->queried_object_id = $this->data->ID;
 
 		}
-	}
-
-	/**
-	 * Filter revision metadata to resolve from the parent.
-	 *
-	 * @param $null
-	 * @param $object_id
-	 * @param $meta_key
-	 * @param $single
-	 *
-	 * @return mixed
-	 */
-	public function filter_revision_metadata( $null, $object_id, $meta_key, $single ) {
-
-		if ( ! $this->filter_revision_meta ) {
-			return $null;
-		}
-
-		/**
-		 * Filters whether to resolve revision metadata from the parent node
-		 * by default.
-		 *
-		 * @param bool   $should    Whether to resolve using the parent object. Default true.
-		 * @param int    $object_id The ID of the object to resolve meta for
-		 * @param string $meta_key  The key for the meta to resolve
-		 * @param bool   $single    Whether a single value should be returned
-		 */
-		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
-
-		if ( true === $resolve_revision_meta_from_parent && 'revision' === get_post( $object_id )->post_type ) {
-			$meta                       = get_post_meta( get_post( $object_id )->post_parent, $meta_key, $single );
-			$this->filter_revision_meta = false;
-
-			return $meta;
-		}
-
-		return $null;
-
 	}
 
 	/**

@@ -58,19 +58,14 @@ class Tracker {
 	 *
 	 * @param string $plugin_name The name of the plugin
 	 */
-	public function __construct( $plugin_name ) {
+	public function __construct( string $plugin_name ) {
 
-		$this->endpoint_url = 'https://analytics.gatsbyjs.com/events';
-
-		$this->plugin_name = $plugin_name;
-
-		$this->plugin_slug = strtolower( Utils::format_field_name( $this->plugin_name ) );
-
+		$this->endpoint_url                   = 'https://analytics.gatsbyjs.com/events';
+		$this->plugin_name                    = $plugin_name;
+		$this->plugin_slug                    = strtolower( Utils::format_field_name( $this->plugin_name ) );
 		$this->identity_timestamp_option_name = '_' . $this->plugin_slug . '_telemetry_identity_last_logged';
-
-		$tracking_enabled       = 'on' === get_graphql_setting( 'telemetry_enabled', 'off' ) ? true : false;
-		$this->tracking_enabled = apply_filters( 'graphql_telemetry_enabled', $tracking_enabled, $this );
-
+		$tracking_enabled                     = 'on' === get_graphql_setting( 'telemetry_enabled', 'off' );
+		$this->tracking_enabled               = apply_filters( 'graphql_telemetry_enabled', $tracking_enabled, $this );
 		$this->init();
 
 	}
@@ -141,16 +136,14 @@ class Tracker {
 	 */
 	public function track_identity() {
 
-		$last_logged = get_option( $this->get_identity_timestamp_option_name(), null );
-
-		// If the last time the identity was logged is less than 24 hours ago,
-		// Don't log again
-		if ( ! empty( $last_logged ) && ( strtotime( $last_logged ) < ( strtotime( '-1 day' ) ) ) ) {
+		if ( ! $this->should_track_identity() ) {
 			return;
 		}
-		update_option( $this->get_identity_timestamp_option_name(), strtotime( 'now' ) );
-		$this->track_event( 'IDENTITY' );
 
+		update_option( $this->get_identity_timestamp_option_name(), strtotime( 'now' ) );
+
+		graphql_debug( __( 'Identity Tracked', 'wp-graphql' ) );
+		$this->track_event( 'IDENTITY' );
 	}
 
 	/**
@@ -200,7 +193,7 @@ class Tracker {
 	 *
 	 * @return array
 	 */
-	public function get_info( $event_type = 'IDENTITY', $extra_info ) {
+	public function get_info( $event_type = 'IDENTITY', array $extra_info ) {
 
 		global $_SERVER;
 
@@ -257,12 +250,31 @@ class Tracker {
 	 *
 	 * @return void
 	 */
-	public function track_event( $event_type, $extra_info = [] ) {
+	public function track_event( string $event_type, $extra_info = [] ) {
 		if ( ! $this->tracking_enabled ) {
 			return;
 		}
 
 		$this->events[] = $this->get_info( $event_type, $extra_info );
+
+	}
+
+	/**
+	 * Determines whether the event should be tracked
+	 *
+	 * @return bool
+	 */
+	public function should_track_identity() {
+
+		$last_logged = get_option( $this->get_identity_timestamp_option_name(), null );
+
+		// If the last time the identity was logged is less than 24 hours ago,
+		// Don't log again
+		if ( ! empty( $last_logged ) && ( (int) $last_logged > strtotime( '-1 day' ) ) ) {
+			return false;
+		}
+
+		return true;
 
 	}
 
@@ -289,7 +301,7 @@ class Tracker {
 	 *
 	 * @param array $event_info The event info to log
 	 */
-	protected function send_request( $event_info ) {
+	protected function send_request( array $event_info ) {
 
 		if ( ! $this->tracking_enabled ) {
 			return;
