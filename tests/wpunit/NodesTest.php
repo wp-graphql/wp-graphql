@@ -258,7 +258,10 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testThemeNodeQuery() {
 
-		$theme_slug = 'twentyseventeen';
+		$theme = wp_get_theme();
+
+		$theme_slug = $theme->get_stylesheet();
+
 		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $theme_slug );
 		$query      = "
 		query { 

@@ -27,7 +27,7 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a theme
 		 */
-		$theme_slug = 'twentyseventeen';
+		$theme_slug = wp_get_theme()->get_stylesheet();
 
 		/**
 		 * Create the global ID based on the theme_type and the created $id
@@ -72,11 +72,11 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'authorUri'   => 'https://wordpress.org/',
 				'description' => $theme->description,
 				'id'          => $global_id,
-				'name'        => 'Twenty Seventeen',
+				'name'        => $theme->get('Name'),
 				'screenshot'  => $theme->get_screenshot(),
-				'slug'        => 'twentyseventeen',
+				'slug'        => $theme->get_stylesheet(),
 				'tags'        => $theme->tags,
-				'themeUri'    => 'https://wordpress.org/themes/twentyseventeen/',
+				'themeUri'    => $theme->get( 'ThemeURI' ),
 				'version'     => $theme->version,
 			],
 		];

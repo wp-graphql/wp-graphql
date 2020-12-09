@@ -10,8 +10,6 @@ use GraphQL\Server\StandardServer;
 use GraphQL\Validator\Rules\DisableIntrospection;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
-use WPGraphQL\Utils\QueryLog;
-use WPGraphQL\Utils\Tracing;
 
 /**
  * Class Request
