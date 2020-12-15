@@ -1040,6 +1040,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * This should not return errors, and postBy should be null
 		 */

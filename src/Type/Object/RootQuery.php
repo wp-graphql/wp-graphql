@@ -531,7 +531,12 @@ class RootQuery {
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return ! empty( $post_id ) ? DataSource::resolve_post_object( $post_id, $context ) : null;
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+									return null;
+								}
+								return $post;
+							});
 						},
 					]
 				);
@@ -586,12 +591,13 @@ class RootQuery {
 								$slug = esc_html( $args['slug'] );
 								return $context->node_resolver->resolve_uri( $slug );
 							}
-							$post = DataSource::resolve_post_object( $post_id, $context );
-							if ( ! get_post( $post_id ) || get_post( $post_id )->post_type !== $post_type_object->name ) {
-								return null;
-							}
 
-							return $post;
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+									return null;
+								}
+								return $post;
+							});
 						},
 					]
 				);
