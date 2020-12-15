@@ -269,20 +269,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					return absint( $id );
 				}, $ids );
 				if ( ! empty( $this->get_offset() ) ) {
-					if ( ! empty( $this->get_offset() ) ) {
-						// Determine if the offset is in the array
-						$key = array_search( $this->get_offset(), $ids, true );
-						// If the offset is in the array
-						if ( false !== $key ) {
-							$key = absint( $key );
-							// Slice the array from the back
-							if ( ! empty( $this->args['before'] ) ) {
-								$ids = array_slice( $ids, 0, $key, true );
-								// Slice the array from the front
-							} else {
-								$key++;
-								$ids = array_slice( $ids, $key, null, true );
-							}
+					// Determine if the offset is in the array
+					$key = array_search( $this->get_offset(), $ids, true );
+					// If the offset is in the array
+					if ( false !== $key ) {
+						$key = absint( $key );
+						// Slice the array from the back
+						if ( ! empty( $this->args['before'] ) ) {
+							$ids = array_slice( $ids, 0, $key, true );
+							// Slice the array from the front
+						} else {
+							$key++;
+							$ids = array_slice( $ids, $key, null, true );
 						}
 					}
 				}

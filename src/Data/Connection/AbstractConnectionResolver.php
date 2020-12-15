@@ -502,7 +502,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
-			return count( $this->ids ) > $this->query_amount;
+			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
 		}
 
 		if ( ! empty( $this->args['before'] ) ) {
@@ -525,7 +525,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
-			return count( $this->ids ) > $this->query_amount;
+			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
 		}
 
 		if ( ! empty( $this->args['after'] ) ) {
@@ -556,7 +556,7 @@ abstract class AbstractConnectionResolver {
 	 * @return mixed string|null
 	 */
 	public function get_end_cursor() {
-		$last_edge = $this->edges && ! empty( $this->edges ) ? $this->edges[ count( $this->edges ) - 1 ] : null;
+		$last_edge = ! empty( $this->edges ) ? $this->edges[ count( $this->edges ) - 1 ] : null;
 
 		return isset( $last_edge['cursor'] ) ? $last_edge['cursor'] : null;
 	}
@@ -585,20 +585,18 @@ abstract class AbstractConnectionResolver {
 		$ids = array_slice( $ids, 0, $this->query_amount, true );
 
 		if ( ! empty( $this->get_offset() ) ) {
-			if ( ! empty( $this->get_offset() ) ) {
-				// Determine if the offset is in the array
-				$key = array_search( $this->get_offset(), $ids, true );
-				// If the offset is in the array
-				if ( false !== $key ) {
-					$key = absint( $key );
-					// Slice the array from the back
-					if ( ! empty( $this->args['before'] ) ) {
-						$ids = array_slice( $ids, 0, $key, true );
-						// Slice the array from the front
-					} else {
-						$key++;
-						$ids = array_slice( $ids, $key, null, true );
-					}
+			// Determine if the offset is in the array
+			$key = array_search( $this->get_offset(), $ids, true );
+			// If the offset is in the array
+			if ( false !== $key ) {
+				$key = absint( $key );
+				// Slice the array from the back
+				if ( ! empty( $this->args['before'] ) ) {
+					$ids = array_slice( $ids, 0, $key, true );
+					// Slice the array from the front
+				} else {
+					$key++;
+					$ids = array_slice( $ids, $key, null, true );
 				}
 			}
 		}
