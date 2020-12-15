@@ -461,10 +461,11 @@ class Router {
 		 * @param string $operation_name The name of the operation
 		 * @param string $query          The request that GraphQL executed
 		 * @param array  $variables      Variables to passed to your GraphQL query
+		 * @param mixed  $status_code    The status code for the response
 		 *
 		 * @since 0.0.5
 		 */
-		do_action( 'graphql_process_http_request_response', $response, $result, $operation_name, $query, $variables );
+		do_action( 'graphql_process_http_request_response', $response, $result, $operation_name, $query, $variables, self::$http_status_code );
 
 		/**
 		 * Send the response
