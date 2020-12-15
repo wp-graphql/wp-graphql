@@ -125,7 +125,7 @@ class CommentCreate {
 			/**
 			 * Stop if post not open to comments
 			 */
-			if ( empty( $input['commentOn'] ) || get_post( $input['commentOn'] )->post_status === 'closed' ) {
+			if ( empty( $input['commentOn'] ) || get_post( $input['commentOn'] )->comment_status === 'closed' ) {
 				throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
 			}
 
