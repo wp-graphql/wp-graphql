@@ -977,4 +977,62 @@ class PostObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testUpdatingPostByOtherAuthorRequiresEditOtherPostCapability() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->author
+		]);
+
+		wp_set_current_user( $this->contributor );
+
+		$mutation = '
+		mutation updatePost( $input: UpdatePostInput! ) {
+		  updatePost( input: $input ) {
+		    post {
+		      id
+		      title
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => [
+				'input' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+					'title' => 'Test Update',
+					'clientMutationId' => 'test...'
+				],
+			],
+		]);
+
+
+		// A contributor cannot edit another authors posts
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		wp_set_current_user( $this->admin );
+
+		$updated_title = uniqid();
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => [
+				'input' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+					'title' => $updated_title,
+					'clientMutationId' => 'test...'
+				],
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $updated_title, $actual['data']['updatePost']['post']['title'] );
+
+	}
+
 }
