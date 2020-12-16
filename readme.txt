@@ -2,9 +2,9 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, REST, JSON,  HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 5.5.3
+Tested up to: 5.6
 Requires PHP: 7.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
