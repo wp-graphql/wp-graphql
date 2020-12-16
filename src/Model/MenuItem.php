@@ -123,7 +123,7 @@ class MenuItem extends Model {
 					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
 				},
 				'label'            => function() {
-					return ( ! empty( $this->data->title ) ) ? $this->data->title : null;
+					return ( ! empty( $this->data->title ) ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
 				},
 				'linkRelationship' => function() {
 					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;

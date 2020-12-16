@@ -1040,6 +1040,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * This should not return errors, and postBy should be null
 		 */
@@ -2070,6 +2072,59 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
 		$this->assertFalse($actual['data']['posts']['nodes'][1]['isSticky'] );
+	}
+
+	public function testQueryPostOfAnotherPostTypeReturnsNull() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->admin
+		]);
+
+		$page_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_author' => $this->admin
+		]);
+
+		$query = '
+		query getPage($id:ID!){
+		  page(id:$id) {
+		    id
+		    __typename
+		  }
+		}
+		';
+
+		$global_post_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $global_post_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( null, $actual['data']['page'] );
+
+		$global_page_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $global_page_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
+
 	}
 
 }
