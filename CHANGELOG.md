@@ -2,7 +2,10 @@
 
 ## 1.0.3
 
-- 
+### Bugfixes
+
+- ([#1623](https://github.com/wp-graphql/wp-graphql/pull/1623)): Queries for single posts will only return posts of that post_type 
+- ([#1624](https://github.com/wp-graphql/wp-graphql/pull/1624)): Passes Menu Item Labels through html_entity_decode
 
 ## 1.0.2
 
