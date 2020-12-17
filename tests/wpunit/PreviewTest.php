@@ -77,6 +77,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		      }
 		    }
 		  }
+		  preview:post( id: $id idType: DATABASE_ID asPreview: true ) {
+		    ...PostFields
+		  }
 		}
 		fragment PostFields on Post {
 		  __typename
@@ -433,6 +436,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 				     }
 				   }
 				 }
+				 preview:post(id:$id idType: DATABASE_ID asPreview:true) {
+				   publishedMetaKey
+				 }
 				}
 			',
 			'variables' => [
@@ -443,6 +449,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 	    $this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
+		$this->assertSame( $published_meta_value, $actual['data']['preview']['publishedMetaKey'] );
 
 		// Asking for the meta of a revision directly using the get_post_meta function should
 		// get the meta from the revision ID, which should be empty since we didn't set any

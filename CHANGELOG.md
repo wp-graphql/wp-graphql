@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+### Bugfixes
+
+- Fixes a regression to previews introduced by v1.0.3 
+
 ## 1.0.3
 
 ### Bugfixes

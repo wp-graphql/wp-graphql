@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 
 /**
@@ -532,7 +533,7 @@ class RootQuery {
 							}
 
 							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
 									return null;
 								}
 								return $post;
@@ -593,11 +594,12 @@ class RootQuery {
 							}
 
 							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
 									return null;
 								}
 								return $post;
 							});
+
 						},
 					]
 				);
