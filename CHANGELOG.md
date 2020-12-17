@@ -1,6 +1,6 @@
 # Changelog
 
-## Upcoming
+## 1.0.4
 
 ### Bugfixes
 
