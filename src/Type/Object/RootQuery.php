@@ -532,25 +532,11 @@ class RootQuery {
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( Post $post_object ) use ( $post_type_object ) {
-
-								if ( ! isset( $post_object->post_type ) ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
 									return null;
 								}
-
-								if ( 'revision' === $post_object->post_type ) {
-
-									if ( empty( $post_object->parentDatabaseId ) ) {
-										return null;
-									}
-
-									$post_object = get_post( $post_object->parentDatabaseId );
-								}
-
-								if ( $post_object->post_type !== $post_type_object->name ) {
-									return null;
-								}
-								return $post_object;
+								return $post;
 							});
 						},
 					]
@@ -607,26 +593,13 @@ class RootQuery {
 								return $context->node_resolver->resolve_uri( $slug );
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( Post $post_object ) use ( $post_type_object ) {
-
-								if ( ! isset( $post_object->post_type ) ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
 									return null;
 								}
-
-								if ( 'revision' === $post_object->post_type ) {
-
-									if ( empty( $post_object->parentDatabaseId ) ) {
-										return null;
-									}
-
-									$post_object = get_post( $post_object->parentDatabaseId );
-								}
-
-								if ( $post_object->post_type !== $post_type_object->name ) {
-									return null;
-								}
-								return $post_object;
+								return $post;
 							});
+
 						},
 					]
 				);

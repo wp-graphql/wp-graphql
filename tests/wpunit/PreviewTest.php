@@ -77,6 +77,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		      }
 		    }
 		  }
+		  preview:post( id: $id idType: DATABASE_ID asPreview: true ) {
+		    ...PostFields
+		  }
 		}
 		fragment PostFields on Post {
 		  __typename
