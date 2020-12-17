@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 
 /**
@@ -531,11 +532,25 @@ class RootQuery {
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( Post $post_object ) use ( $post_type_object ) {
+
+								if ( ! isset( $post_object->post_type ) ) {
 									return null;
 								}
-								return $post;
+
+								if ( 'revision' === $post_object->post_type ) {
+
+									if ( empty( $post_object->parentDatabaseId ) ) {
+										return null;
+									}
+
+									$post_object = get_post( $post_object->parentDatabaseId );
+								}
+
+								if ( $post_object->post_type !== $post_type_object->name ) {
+									return null;
+								}
+								return $post_object;
 							});
 						},
 					]
@@ -592,11 +607,25 @@ class RootQuery {
 								return $context->node_resolver->resolve_uri( $slug );
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || $post->post_type !== $post_type_object->name ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( Post $post_object ) use ( $post_type_object ) {
+
+								if ( ! isset( $post_object->post_type ) ) {
 									return null;
 								}
-								return $post;
+
+								if ( 'revision' === $post_object->post_type ) {
+
+									if ( empty( $post_object->parentDatabaseId ) ) {
+										return null;
+									}
+
+									$post_object = get_post( $post_object->parentDatabaseId );
+								}
+
+								if ( $post_object->post_type !== $post_type_object->name ) {
+									return null;
+								}
+								return $post_object;
 							});
 						},
 					]
