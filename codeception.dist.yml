@@ -14,11 +14,11 @@ settings:
 coverage:
   enabled: true
   remote: false
-  c3_url: '%WP_URL%/wp-content/plugins/wp-gatsby/wp-gatsby.php'
+  c3_url: '%WP_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
   include:
     - includes/*
   exclude:
-    - wp-gatsby.php
+    - wp-graphql.php
     - vendor/*
   show_only_summary: false
 extensions:
@@ -73,9 +73,9 @@ modules:
       adminEmail: '%ADMIN_EMAIL%'
       title: 'Test'
       plugins:
+        - wp-graphql/tests/_bootstrap/bootstrap.php
         - wp-graphql/wp-graphql.php
-        - wp-gatsby/wp-gatsby.php
       activatePlugins:
+        - wp-graphql/tests/_bootstrap/bootstrap.php
         - wp-graphql/wp-graphql.php
-        - wp-gatsby/wp-gatsby.php
       configFile: 'tests/_data/config.php'
