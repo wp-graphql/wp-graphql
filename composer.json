@@ -46,7 +46,8 @@
     "phpunit/phpunit": "9.4.1"
   },
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "process-timeout": 0
   },
   "autoload": {
     "psr-4": {
