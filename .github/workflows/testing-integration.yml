@@ -1,4 +1,4 @@
-name: Automated-Testing
+name: Testing Integration
 
 on:
   push:
