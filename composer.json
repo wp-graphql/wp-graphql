@@ -22,7 +22,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
+    "php": "^7",
     "webonyx/graphql-php": "14.4.0",
     "ivome/graphql-relay-php": "0.5.0"
   },
