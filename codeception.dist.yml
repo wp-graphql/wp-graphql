@@ -1,0 +1,81 @@
+paths:
+  tests: '%TESTS_DIR%'
+  output: '%TESTS_OUTPUT%'
+  data: '%TESTS_DATA%'
+  support: '%TESTS_SUPPORT%'
+  envs: '%TESTS_ENVS%'
+params:
+  - env
+  - .env.dist
+actor_suffix: Tester
+settings:
+  colors: true
+  memory_limit: 1024M
+coverage:
+  enabled: true
+  remote: false
+  c3_url: '%WP_URL%/wp-content/plugins/wp-gatsby/wp-gatsby.php'
+  include:
+    - includes/*
+  exclude:
+    - wp-gatsby.php
+    - vendor/*
+  show_only_summary: false
+extensions:
+  enabled:
+    - Codeception\Extension\RunFailed
+  commands:
+    - Codeception\Command\GenerateWPUnit
+    - Codeception\Command\GenerateWPRestApi
+    - Codeception\Command\GenerateWPRestController
+    - Codeception\Command\GenerateWPRestPostTypeController
+    - Codeception\Command\GenerateWPAjax
+    - Codeception\Command\GenerateWPCanonical
+    - Codeception\Command\GenerateWPXMLRPC
+modules:
+  config:
+    WPDb:
+      dsn: 'mysql:host=%DB_HOST%;dbname=%DB_NAME%'
+      user: '%DB_USER%'
+      password: '%DB_PASSWORD%'
+      populator: 'mysql -u $user -p$password -h $host $dbname < $dump'
+      dump: 'tests/_data/dump.sql'
+      populate: false
+      cleanup: true
+      waitlock: 0
+      url: '%WP_URL%'
+      urlReplacement: true
+      tablePrefix: '%WP_TABLE_PREFIX%'
+    WPBrowser:
+      url: '%WP_URL%'
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      adminUsername: '%ADMIN_USERNAME%'
+      adminPassword: '%ADMIN_PASSWORD%'
+      adminPath: '/wp-admin'
+      cookies: false
+    REST:
+      depends: WPBrowser
+      url: '%WP_URL%'
+    WPFilesystem:
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      plugins: '/wp-content/plugins'
+      mu-plugins: '/wp-content/mu-plugins'
+      themes: '/wp-content/themes'
+      uploads: '/wp-content/uploads'
+    WPLoader:
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      dbName: '%DB_NAME%'
+      dbHost: '%DB_HOST%'
+      dbUser: '%DB_USER%'
+      dbPassword: '%DB_PASSWORD%'
+      tablePrefix: '%WP_TABLE_PREFIX%'
+      domain: '%WP_DOMAIN%'
+      adminEmail: '%ADMIN_EMAIL%'
+      title: 'Test'
+      plugins:
+        - wp-graphql/wp-graphql.php
+        - wp-gatsby/wp-gatsby.php
+      activatePlugins:
+        - wp-graphql/wp-graphql.php
+        - wp-gatsby/wp-gatsby.php
+      configFile: 'tests/_data/config.php'
