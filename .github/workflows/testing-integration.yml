@@ -74,7 +74,7 @@ jobs:
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
-        if: ${{ matrix.coverage == 1 && env.STRIPE_API_PUBLISHABLE_KEY != 0 }}
+        if: ${{ matrix.coverage == 1 }}
         env:
           COVERALLS_RUN_LOCALLY: 1
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}

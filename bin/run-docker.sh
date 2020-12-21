@@ -64,7 +64,7 @@ case "$subcommand" in
                 t )
 				source ${env_file}
                 docker-compose run --rm \
-                    -e SUITES=${SUITES-wpunit} \
+                    -e SUITES=${SUITES-} \
                     -e COVERAGE=${COVERAGE-} \
                     -e DEBUG=${DEBUG-} \
                     -e SKIP_TESTS_CLEANUP=${SKIP_TESTS_CLEANUP-} \

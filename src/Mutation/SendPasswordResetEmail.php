@@ -45,8 +45,8 @@ class SendPasswordResetEmail {
 					if ( is_wp_error( $key ) ) {
 						throw new UserError( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
 					}
-					$subject    = self::get_email_subject( $user_data );
-					$message    = self::get_email_message( $user_data, $key );
+					$subject = self::get_email_subject( $user_data );
+					$message = self::get_email_message( $user_data, $key );
 
 					$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
 
