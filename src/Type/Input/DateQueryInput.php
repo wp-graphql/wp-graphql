@@ -38,12 +38,12 @@ class DateQueryInput {
 						'description' => __( 'Second (0 to 59)', 'wp-graphql' ),
 					],
 					'after'     => [
-						'type'        => 'DateInput',
-						'description' => __( 'Nodes should be returned after this date', 'wp-graphql' ),
+						'type'        => 'String',
+						'description' => __( 'Nodes should be returned after this date. An ISO 8601 formatted date, such as "2025-03-29T10:05:45-06:00" is preferred. Alternatively, other English date formats that can be parsed by PHP\'s strtotime() function may be used.', 'wp-graphql' ),
 					],
 					'before'    => [
-						'type'        => 'DateInput',
-						'description' => __( 'Nodes should be returned before this date', 'wp-graphql' ),
+						'type'        => 'String',
+						'description' => __( 'Nodes should be returned before this date. An ISO 8601 formatted date, such as "2025-03-29T10:05:45-06:00" is preferred. Alternatively, other English date formats that can be parsed by PHP\'s strtotime() function may be used.', 'wp-graphql' ),
 					],
 					'inclusive' => [
 						'type'        => 'Boolean',
