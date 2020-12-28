@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -eu
+
+if [ 'run' = "$1" ]; then
+	declare no_exit="--no-exit";
+fi
+
+echo "Running 'codecept $@' in Docker..."
+~/.composer/vendor/bin/codecept $@ --env docker $no_exit
+
+if [ 'run' = "$1" ]; then
+	declare test_output="/var/www/html/tests/_output";
+	if [ -n "$(ls $test_output )" ]; then
+		echo 'Setting result files permissions'.
+		chmod 777 -R ${test_output}/*
+	fi
+
+	# Check results and exit accordingly.
+	if [ -f "$test_output/failed" ]; then
+		echo "Uh oh, some went wrong." >> /dev/stderr
+		exit 1
+	else
+		echo "Woohoo! It's working!"
+		exit 0
+	fi
+fi

@@ -63,15 +63,10 @@ jobs:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
           USE_XDEBUG: ${{ matrix.use_xdebug }}
-        run: composer build-test
+        run: composer docker-build -- --build-arg PHP_VERSION=${{ matrix.php }} run_tests
 
       - name: Run Tests w/ Docker.
-        env:
-          COVERAGE: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
-          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          LOWEST: ${{ matrix.lowest }}
-        run: composer run-test
+          run: FILTER="${{ matrix.coverage }} ${{ matrix.debug }}" composer docker-run-test-standalone
 
       - name: Push Codecoverage to Coveralls.io
         if: ${{ matrix.coverage == 1 }}

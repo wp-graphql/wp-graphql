@@ -22,13 +22,6 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 	}
 
-	public function testGraphQLPhpVersion() {
-
-		$contents = file_get_contents( dirname( __FILE__, 3 ) . '/vendor/webonyx/graphql-php/CHANGELOG.md' );
-		codecept_debug( $contents );
-
-	}
-
 	/**
 	 * Tests whether custom scalars can be registered and used in the Schema
 	 *

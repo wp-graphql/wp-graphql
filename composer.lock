@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16ad7f0c85f9cbba02655e96ed3aa1c4",
+    "content-hash": "e2ecc7b92d896288de9522b8d33b494c",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -232,16 +232,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.13",
+            "version": "4.1.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "e817f83fe019ed3f9c280254b88f90cc70c3d7cf"
+                "reference": "bf2d7861cc6cf4e118a21c6945f482a5c822636c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/e817f83fe019ed3f9c280254b88f90cc70c3d7cf",
-                "reference": "e817f83fe019ed3f9c280254b88f90cc70c3d7cf",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/bf2d7861cc6cf4e118a21c6945f482a5c822636c",
+                "reference": "bf2d7861cc6cf4e118a21c6945f482a5c822636c",
                 "shasum": ""
             },
             "require": {
@@ -315,7 +315,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.13"
+                "source": "https://github.com/Codeception/Codeception/tree/4.1.14"
             },
             "funding": [
                 {
@@ -323,7 +323,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2020-12-20T13:35:09+00:00"
+            "time": "2020-12-28T19:16:28+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -498,20 +498,20 @@
         },
         {
             "name": "codeception/module-cli",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-cli.git",
-                "reference": "acbdca0e99b8da003b53f3738f2ce77c8787a992"
+                "reference": "1f841ad4a1d43e5d9e60a43c4cc9e5af8008024f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-cli/zipball/acbdca0e99b8da003b53f3738f2ce77c8787a992",
-                "reference": "acbdca0e99b8da003b53f3738f2ce77c8787a992",
+                "url": "https://api.github.com/repos/Codeception/module-cli/zipball/1f841ad4a1d43e5d9e60a43c4cc9e5af8008024f",
+                "reference": "1f841ad4a1d43e5d9e60a43c4cc9e5af8008024f",
                 "shasum": ""
             },
             "require": {
-                "codeception/codeception": "^4.0",
+                "codeception/codeception": "*@dev",
                 "php": ">=5.6.0 <9.0"
             },
             "conflict": {
@@ -539,9 +539,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-cli/issues",
-                "source": "https://github.com/Codeception/module-cli/tree/1.1.0"
+                "source": "https://github.com/Codeception/module-cli/tree/1.1.1"
             },
-            "time": "2020-11-16T06:26:49+00:00"
+            "time": "2020-12-26T16:56:19+00:00"
         },
         {
             "name": "codeception/module-db",
@@ -708,60 +708,6 @@
             "time": "2020-10-24T15:29:28+00:00"
         },
         {
-            "name": "codeception/module-rest",
-            "version": "1.2.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Codeception/module-rest.git",
-                "reference": "beeb5a91a97d042273bf10f00063e9b8f541879a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/beeb5a91a97d042273bf10f00063e9b8f541879a",
-                "reference": "beeb5a91a97d042273bf10f00063e9b8f541879a",
-                "shasum": ""
-            },
-            "require": {
-                "codeception/codeception": "^4.0",
-                "justinrainbow/json-schema": "~5.2.9",
-                "php": ">=5.6.0 <9.0",
-                "softcreatr/jsonpath": "^0.5 || ^0.7"
-            },
-            "require-dev": {
-                "codeception/lib-innerbrowser": "^1.0",
-                "codeception/util-universalframework": "^1.0"
-            },
-            "suggest": {
-                "aws/aws-sdk-php": "For using AWS Auth"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Gintautas Miselis"
-                }
-            ],
-            "description": "REST module for Codeception",
-            "homepage": "http://codeception.com/",
-            "keywords": [
-                "codeception",
-                "rest"
-            ],
-            "support": {
-                "issues": "https://github.com/Codeception/module-rest/issues",
-                "source": "https://github.com/Codeception/module-rest/tree/1.2.7"
-            },
-            "time": "2020-11-04T16:58:11+00:00"
-        },
-        {
             "name": "codeception/module-webdriver",
             "version": "1.1.4",
             "source": {
@@ -819,16 +765,16 @@
         },
         {
             "name": "codeception/phpunit-wrapper",
-            "version": "9.0.5",
+            "version": "9.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/phpunit-wrapper.git",
-                "reference": "72bac7770866799e23a7dda1ac6bec2f8baccf45"
+                "reference": "b0c06abb3181eedca690170f7ed0fd26a70bfacc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/72bac7770866799e23a7dda1ac6bec2f8baccf45",
-                "reference": "72bac7770866799e23a7dda1ac6bec2f8baccf45",
+                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/b0c06abb3181eedca690170f7ed0fd26a70bfacc",
+                "reference": "b0c06abb3181eedca690170f7ed0fd26a70bfacc",
                 "shasum": ""
             },
             "require": {
@@ -837,6 +783,7 @@
             },
             "require-dev": {
                 "codeception/specify": "*",
+                "consolidation/robo": "^3.0.0-alpha3",
                 "vlucas/phpdotenv": "^3.0"
             },
             "type": "library",
@@ -861,9 +808,9 @@
             "description": "PHPUnit classes used by Codeception",
             "support": {
                 "issues": "https://github.com/Codeception/phpunit-wrapper/issues",
-                "source": "https://github.com/Codeception/phpunit-wrapper/tree/9.0.5"
+                "source": "https://github.com/Codeception/phpunit-wrapper/tree/9.0.6"
             },
-            "time": "2020-10-11T18:14:42+00:00"
+            "time": "2020-12-28T13:59:47+00:00"
         },
         {
             "name": "codeception/stub",
@@ -2212,7 +2159,7 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v8.19.0",
+            "version": "v8.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
@@ -2266,16 +2213,16 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v8.19.0",
+            "version": "v8.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "ecc0ae5e02efa49b50efac567f410911f75fd993"
+                "reference": "073109b521aec104f11c5cf5aded97aa0e63f313"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/ecc0ae5e02efa49b50efac567f410911f75fd993",
-                "reference": "ecc0ae5e02efa49b50efac567f410911f75fd993",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/073109b521aec104f11c5cf5aded97aa0e63f313",
+                "reference": "073109b521aec104f11c5cf5aded97aa0e63f313",
                 "shasum": ""
             },
             "require": {
@@ -2310,11 +2257,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2020-12-11T14:35:03+00:00"
+            "time": "2020-12-18T14:24:20+00:00"
         },
         {
             "name": "illuminate/macroable",
-            "version": "v8.19.0",
+            "version": "v8.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -2360,16 +2307,16 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v8.19.0",
+            "version": "v8.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "91c965bddd834aaae650043c4726bedf00d033dd"
+                "reference": "f221a31bfd107d173510e15e34c3aa667c75602d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/91c965bddd834aaae650043c4726bedf00d033dd",
-                "reference": "91c965bddd834aaae650043c4726bedf00d033dd",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/f221a31bfd107d173510e15e34c3aa667c75602d",
+                "reference": "f221a31bfd107d173510e15e34c3aa667c75602d",
                 "shasum": ""
             },
             "require": {
@@ -2423,7 +2370,155 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2020-12-14T14:16:56+00:00"
+            "time": "2020-12-22T16:13:18+00:00"
+        },
+        {
+            "name": "johnpbloch/wordpress",
+            "version": "5.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnpbloch/wordpress.git",
+                "reference": "3055975734646c8d0b8caf7b5af168ced6ec4309"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnpbloch/wordpress/zipball/3055975734646c8d0b8caf7b5af168ced6ec4309",
+                "reference": "3055975734646c8d0b8caf7b5af168ced6ec4309",
+                "shasum": ""
+            },
+            "require": {
+                "johnpbloch/wordpress-core": "5.6.0",
+                "johnpbloch/wordpress-core-installer": "^1.0 || ^2.0",
+                "php": ">=5.6.20"
+            },
+            "type": "package",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "WordPress Community",
+                    "homepage": "http://wordpress.org/about/"
+                }
+            ],
+            "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
+            "homepage": "http://wordpress.org/",
+            "keywords": [
+                "blog",
+                "cms",
+                "wordpress"
+            ],
+            "support": {
+                "forum": "http://wordpress.org/support/",
+                "irc": "irc://irc.freenode.net/wordpress",
+                "issues": "http://core.trac.wordpress.org/",
+                "source": "http://core.trac.wordpress.org/browser",
+                "wiki": "http://codex.wordpress.org/"
+            },
+            "time": "2020-12-08T22:34:35+00:00"
+        },
+        {
+            "name": "johnpbloch/wordpress-core",
+            "version": "5.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnpbloch/wordpress-core.git",
+                "reference": "f074617dd69f466302836d1ae5de75c0bd7b6dfd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnpbloch/wordpress-core/zipball/f074617dd69f466302836d1ae5de75c0bd7b6dfd",
+                "reference": "f074617dd69f466302836d1ae5de75c0bd7b6dfd",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.6.20"
+            },
+            "provide": {
+                "wordpress/core-implementation": "5.6.0"
+            },
+            "type": "wordpress-core",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "WordPress Community",
+                    "homepage": "https://wordpress.org/about/"
+                }
+            ],
+            "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
+            "homepage": "https://wordpress.org/",
+            "keywords": [
+                "blog",
+                "cms",
+                "wordpress"
+            ],
+            "support": {
+                "forum": "https://wordpress.org/support/",
+                "irc": "irc://irc.freenode.net/wordpress",
+                "issues": "https://core.trac.wordpress.org/",
+                "source": "https://core.trac.wordpress.org/browser",
+                "wiki": "https://codex.wordpress.org/"
+            },
+            "time": "2020-12-08T22:34:23+00:00"
+        },
+        {
+            "name": "johnpbloch/wordpress-core-installer",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnpbloch/wordpress-core-installer.git",
+                "reference": "237faae9a60a4a2e1d45dce1a5836ffa616de63e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnpbloch/wordpress-core-installer/zipball/237faae9a60a4a2e1d45dce1a5836ffa616de63e",
+                "reference": "237faae9a60a4a2e1d45dce1a5836ffa616de63e",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0 || ^2.0",
+                "php": ">=5.6.0"
+            },
+            "conflict": {
+                "composer/installers": "<1.0.6"
+            },
+            "require-dev": {
+                "composer/composer": "^1.0 || ^2.0",
+                "phpunit/phpunit": ">=5.7.27"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "johnpbloch\\Composer\\WordPressCorePlugin"
+            },
+            "autoload": {
+                "psr-0": {
+                    "johnpbloch\\Composer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "John P. Bloch",
+                    "email": "me@johnpbloch.com"
+                }
+            ],
+            "description": "A custom installer to handle deploying WordPress with composer",
+            "keywords": [
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/johnpbloch/wordpress-core-installer/issues",
+                "source": "https://github.com/johnpbloch/wordpress-core-installer/tree/master"
+            },
+            "time": "2020-04-16T21:44:57+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -4010,16 +4105,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.4.1",
+            "version": "9.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1f09a12726593737e8a228ebb1c8647305d07c41"
+                "reference": "6535e637961f0829832621dc1b7308c2d24a799e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1f09a12726593737e8a228ebb1c8647305d07c41",
-                "reference": "1f09a12726593737e8a228ebb1c8647305d07c41",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6535e637961f0829832621dc1b7308c2d24a799e",
+                "reference": "6535e637961f0829832621dc1b7308c2d24a799e",
                 "shasum": ""
             },
             "require": {
@@ -4097,7 +4192,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.4.1"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.4.4"
             },
             "funding": [
                 {
@@ -4109,7 +4204,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-11T07:41:19+00:00"
+            "time": "2020-12-01T04:58:47+00:00"
         },
         {
             "name": "psr/container",
@@ -5591,73 +5686,6 @@
                 "source": "https://github.com/Seldaek/phar-utils/tree/master"
             },
             "time": "2020-07-07T18:42:57+00:00"
-        },
-        {
-            "name": "softcreatr/jsonpath",
-            "version": "0.7.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/SoftCreatR/JSONPath.git",
-                "reference": "46689608586a8081be399342755c36e179f3b5fc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/SoftCreatR/JSONPath/zipball/46689608586a8081be399342755c36e179f3b5fc",
-                "reference": "46689608586a8081be399342755c36e179f3b5fc",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.1"
-            },
-            "conflict": {
-                "phpunit/phpunit": "<7.0 || >= 10.0"
-            },
-            "replace": {
-                "flow/jsonpath": "*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">=7.0",
-                "roave/security-advisories": "dev-master",
-                "squizlabs/php_codesniffer": "^3.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Flow\\JSONPath\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Stephen Frank",
-                    "email": "stephen@flowsa.com",
-                    "homepage": "https://prismaticbytes.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Sascha Greuel",
-                    "email": "hello@1-2.dev",
-                    "homepage": "http://1-2.dev",
-                    "role": "Developer"
-                }
-            ],
-            "description": "JSONPath implementation for parsing, searching and flattening arrays",
-            "support": {
-                "email": "hello@1-2.dev",
-                "issues": "https://github.com/SoftCreatR/JSONPath/issues",
-                "source": "https://github.com/SoftCreatR/JSONPath"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/softcreatr",
-                    "type": "github"
-                }
-            ],
-            "time": "2020-10-27T11:37:08+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -9714,16 +9742,16 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "2.1.1",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "bd9c33152115e6741e3510ff7189605b35167908"
+                "reference": "7da1894633f168fe244afc6de00d141f27517b62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/bd9c33152115e6741e3510ff7189605b35167908",
-                "reference": "bd9c33152115e6741e3510ff7189605b35167908",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/7da1894633f168fe244afc6de00d141f27517b62",
+                "reference": "7da1894633f168fe244afc6de00d141f27517b62",
                 "shasum": ""
             },
             "require": {
@@ -9731,12 +9759,13 @@
                 "squizlabs/php_codesniffer": "^3.3.1"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5 || ^0.6",
                 "phpcompatibility/php-compatibility": "^9.0",
+                "phpcsstandards/phpcsdevtools": "^1.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "suggest": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.6 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
             },
             "type": "phpcodesniffer-standard",
             "notification-url": "https://packagist.org/downloads/",
@@ -9746,7 +9775,7 @@
             "authors": [
                 {
                     "name": "Contributors",
-                    "homepage": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/graphs/contributors"
+                    "homepage": "https://github.com/WordPress/WordPress-Coding-Standards/graphs/contributors"
                 }
             ],
             "description": "PHP_CodeSniffer rules (sniffs) to enforce WordPress coding conventions",
@@ -9756,11 +9785,11 @@
                 "wordpress"
             ],
             "support": {
-                "issues": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/issues",
-                "source": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards",
-                "wiki": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki"
+                "issues": "https://github.com/WordPress/WordPress-Coding-Standards/issues",
+                "source": "https://github.com/WordPress/WordPress-Coding-Standards",
+                "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki"
             },
-            "time": "2019-05-21T02:50:00+00:00"
+            "time": "2020-05-13T23:57:56+00:00"
         },
         {
             "name": "wp-graphql/wp-graphql-testcase",
@@ -9827,6 +9856,24 @@
             "time": "2020-08-26T17:14:57+00:00"
         },
         {
+            "name": "wpackagist-theme/twentytwentyone",
+            "version": "1.1",
+            "source": {
+                "type": "svn",
+                "url": "https://themes.svn.wordpress.org/twentytwentyone/",
+                "reference": "1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/theme/twentytwentyone.1.1.zip"
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-theme",
+            "homepage": "https://wordpress.org/themes/twentytwentyone/"
+        },
+        {
             "name": "zordius/lightncandy",
             "version": "v1.2.5",
             "source": {
@@ -9889,7 +9936,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7"
+        "php": ">=7.1.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"

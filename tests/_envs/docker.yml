@@ -1,8 +1,57 @@
+coverage:
+    enabled: true
+    remote: false
+    c3_url: '%WORDPRESS_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
+    include:
+        - wp-content/plugins/wp-graphql/src/*
+    exclude:
+        - wp-content/plugins/wp-graphql/wp-graphql.php
+        - wp-content/plugins/wp-graphql/access-functions.php
+        - wp-content/plugins/wp-graphql/vendor/*
+    show_only_summary: false
 modules:
     config:
         WPDb:
-            dsn: 'mysql:host=mysql_test;dbname=wpgraphql_test'
-            password: 'testing'
+            dsn: 'mysql:host=testing_db;dbname=wordpress'
+            user: wordpress
+            password: password
+            dump: 'wp-content/plugins/wp-graphql/local/db/app_db.sql'
+            populate: false
+            cleanup: false
+            waitlock: 10
+            url: '%WORDPRESS_URL%'
+            urlReplacement: true
+            tablePrefix: 'wp_'
+        WPBrowser:
+            url: '%WORDPRESS_URL%'
+            wpRootFolder: /var/www/html
+            adminUsername: admin
+            adminPassword: password
+            adminPath: '/wp-admin'
+            cookies: false
+        REST:
+            depends: WPBrowser
+            url: '%WORDPRESS_URL%'
+            WPFilesystem:
+            wpRootFolder: '/var/www/html'
+            plugins: '/wp-content/plugins'
+            mu-plugins: '/wp-content/mu-plugins'
+            themes: '/wp-content/themes'
+            uploads: '/wp-content/uploads'
         WPLoader:
-            dbHost: "mysql_test"
-            dbPassword: "testing"
+            wpRootFolder: '/var/www/html'
+            dbName: wordpress
+            dbHost: testing_db
+            dbUser: wordpress
+            dbPassword: password
+            tablePrefix: wp_
+            domain: '%WORDPRESS_DOMAIN%'
+            adminEmail: 'admin@example.com'
+            title: 'WPGraphQL Tests'
+            plugins:
+                - wp-graphql/tests/_bootstrap/bootstrap.php
+                - wp-graphql/wp-graphql.php
+            activatePlugins:
+                - wp-graphql/tests/_bootstrap/bootstrap.php
+                - wp-graphql/wp-graphql.php
+            configFile: 'tests/_data/config.php'

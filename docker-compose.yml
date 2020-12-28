@@ -1,63 +1,81 @@
 version: '3.3'
 
 services:
-  app:
-    depends_on:
-      - app_db
-    image: wpgraphql-app:latest
-    volumes:
-      - '.:/var/www/html/wp-content/plugins/wp-graphql'
-      - './.log/app:/var/log/apache2'
-    environment:
-      WP_URL: 'http://localhost:8091'
-      WP_DOMAIN: 'localhost:8091'
-      DB_HOST: app_db
-      DB_NAME: wordpress
-      DB_USER: wordpress
-      DB_PASSWORD: wordpress
-      WP_DOMAIN: localhost
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: password
-      INCLUDE_WPGRAPHIQL: 1
-      IMPORT_WC_PRODUCTS: 1
-      STRIPE_GATEWAY: 1
-    ports:
-      - '8091:80'
-    networks:
-      local:
-
+  # Main application database.
   app_db:
-    image: mysql:5.7
+    image: mysql
+    volumes:
+      - db_data
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE:      wordpress
-      MYSQL_USER:          wordpress
-      MYSQL_PASSWORD:      wordpress
-    ports:
-      - '3306'
-    networks:
-      testing:
-      local:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: password
 
-  testing:
+  # Capture and display all email sent by WordPress.
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  # Main application service
+  testable_app:
+    image: wpgraphql/wordpress:${WORDPRESS_IMAGE_VERSION:-latest}
     depends_on:
       - app_db
-    image: wpgraphql-testing:latest
+      - mailhog
+    build: .
     volumes:
-      - '.:/var/www/html/wp-content/plugins/wp-graphql'
-      - './.log/testing:/var/log/apache2'
-      - './codeception.dist.yml:/var/www/html/wp-content/plugins/wp-graphql/codeception.yml'
+      - .:/var/www/html/wp-content/plugins/wp-graphql
+      - ./local/public:/var/www/html # WP core files.
+      - ./local/.htaccess:/var/www/html/.htaccess
+      - ./tests:/var/www/html/tests
+      - ./codeception.dist.yml:/var/www/html/codeception.yml
     env_file: .env.dist
     environment:
-      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
-      DB_HOST: app_db
-      WP_URL: 'http://localhost'
-      WP_DOMAIN: 'localhost'
-      STRIPE_GATEWAY: 1
-    networks:
-      testing:
+      APACHE_RUN_USER: "#1000" # Ensure Apache can write to the filesystem.
+      XDEBUG_CONFIG: remote_host=10.0.0.120 idekey=vscode
+      WPGRAPHQL_AUTOLOAD: 1
+    ports:
+      - 8080:80
 
-networks:
-  local:
-  testing:
+  # Main application database clone for testing inside the main application service.
+  testing_db:
+    image: mysql
+    volumes:
+      - ./local/db:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: password
+
+  # Standalone testing application
+  run_tests:
+    image: wpgraphql/wordpress:${WORDPRESS_IMAGE_VERSION:-latest}
+    depends_on:
+      - testing_db
+    build:
+      context: .
+      args:
+        PHPUNIT_VERSION: ${PHPUNIT_VERSION:-:<=9.4.4}
+        PHP_VERSION: ${PHP_VERSION:-7.4}
+    volumes:
+      - .:/var/www/html/wp-content/plugins/wp-graphql
+      - ./local/public:/var/www/html # WP core files.
+      - ./local/.htaccess:/var/www/html/.htaccess
+      - ./tests:/var/www/html/tests
+      - ./codeception.dist.yml:/var/www/html/codeception.yml
+    env_file: .env.dist
+    environment:
+      APACHE_RUN_USER: "#1000" # Ensure Apache can write to the filesystem.
+      DB_HOST: testing_db
+      WPGRAPHQL_AUTOLOAD: 1
+    command: ./setup-database.sh testing codecept run ${FILTER:-}
+    ports:
+      - 8080:80
+volumes:
+  db_data: {}

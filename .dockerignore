@@ -5,7 +5,6 @@
 
 .git
 .idea
-bin
 docker-output
 docs
 img

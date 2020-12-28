@@ -5,4 +5,7 @@
  * fatal errors when the autoloader is loaded twice
  */
 define( 'GRAPHQL_DEBUG', true );
-define( 'WPGRAPHQL_AUTOLOAD', false );
+
+if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) && false === getenv( 'WPGRAPHQL_AUTOLOAD') ) {
+	define( 'WPGRAPHQL_AUTOLOAD', getenv( 'WPGRAPHQL_AUTOLOAD') );
+}

@@ -1,9 +1,9 @@
 paths:
-    tests: '%TESTS_DIR%'
-    output: '%TESTS_OUTPUT%'
-    data: '%TESTS_DATA%'
-    support: '%TESTS_SUPPORT%'
-    envs: '%TESTS_ENVS%'
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
 params:
     - env
     - .env
@@ -13,12 +13,10 @@ settings:
     memory_limit: 1024M
 coverage:
     enabled: true
-    remote: false
-    c3_url: '%WP_URL%/wp-content/plugins/wp-gatsby/wp-gatsby.php'
     include:
         - includes/*
     exclude:
-        - wp-gatsby.php
+        - wp-graphql.php
         - vendor/*
     show_only_summary: false
 extensions:
@@ -38,44 +36,42 @@ modules:
             dsn: 'mysql:host=%DB_HOST%;dbname=%DB_NAME%'
             user: '%DB_USER%'
             password: '%DB_PASSWORD%'
-            populator: 'mysql -u $user -p$password -h $host $dbname < $dump'
-            dump: 'tests/_data/dump.sql'
+            dump: 'local/db/app_db.sql'
             populate: false
-            cleanup: true
-            waitlock: 0
-            url: '%WP_URL%'
+            cleanup: false
+            waitlock: 10
+            url: '%WORDPRESS_URL%'
             urlReplacement: true
             tablePrefix: '%WP_TABLE_PREFIX%'
         WPBrowser:
-            url: '%WP_URL%'
-            wpRootFolder: '%WP_ROOT_FOLDER%'
+            url: '%WORDPRESS_URL%'
+            wpRootFolder: '%WP_CORE_DIR%'
             adminUsername: '%ADMIN_USERNAME%'
             adminPassword: '%ADMIN_PASSWORD%'
             adminPath: '/wp-admin'
-            cookies: false
         REST:
             depends: WPBrowser
-            url: '%WP_URL%'
+            url: '%WORDPRESS_URL%'
         WPFilesystem:
-            wpRootFolder: '%WP_ROOT_FOLDER%'
+            wpRootFolder: '%WP_CORE_DIR%'
             plugins: '/wp-content/plugins'
             mu-plugins: '/wp-content/mu-plugins'
             themes: '/wp-content/themes'
             uploads: '/wp-content/uploads'
         WPLoader:
-            wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
-            dbName: '%TEST_DB_NAME%'
-            dbHost: '%TEST_DB_HOST%'
-            dbUser: '%TEST_DB_USER%'
-            dbPassword: '%TEST_DB_PASSWORD%'
+            wpRootFolder: '%WP_CORE_DIR%'
+            dbName: '%DB_NAME%'
+            dbHost: '%DB_HOST%'
+            dbUser: '%DB_USER%'
+            dbPassword: '%DB_PASSWORD%'
             tablePrefix: '%WP_TABLE_PREFIX%'
-            domain: '%WP_DOMAIN%'
+            domain: '%WORDPRESS_DOMAIN%'
             adminEmail: '%ADMIN_EMAIL%'
-            title: 'Test'
+            title: 'WPGraphQL Tests'
             plugins:
+                - wp-graphql/tests/_bootstrap/bootstrap.php
                 - wp-graphql/wp-graphql.php
-                - wp-gatsby/wp-gatsby.php
             activatePlugins:
+                - wp-graphql/tests/_bootstrap/bootstrap.php
                 - wp-graphql/wp-graphql.php
-                - wp-gatsby/wp-gatsby.php
             configFile: 'tests/_data/config.php'

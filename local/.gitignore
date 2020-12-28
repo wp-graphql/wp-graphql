@@ -1,0 +1,6 @@
+*
+!.gitignore
+!wp-config.php
+!wp-cli.yml
+!.htaccess
+!php.ini

@@ -64,6 +64,8 @@ case "$subcommand" in
                 t )
 				source ${env_file}
                 docker-compose run --rm \
+                    -e STRIPE_API_PUBLISHABLE_KEY=${STRIPE_API_PUBLISHABLE_KEY-} \
+                    -e STRIPE_API_SECRET_KEY=${STRIPE_API_SECRET_KEY-} \
                     -e SUITES=${SUITES-} \
                     -e COVERAGE=${COVERAGE-} \
                     -e DEBUG=${DEBUG-} \
