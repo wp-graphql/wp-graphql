@@ -43,6 +43,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: json, mbstring
+          tools: composer
 
       - name: Get Composer Cache Directory
         id: composercache
@@ -56,17 +57,15 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-dev
+        run: |
+          composer require --dev johnpbloch/wordpress:~${{ matrix.wordpress }}
+          composer install
 
       - name: Build "testing" Docker Image
-        env:
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-          USE_XDEBUG: ${{ matrix.use_xdebug }}
         run: composer docker-build -- --build-arg PHP_VERSION=${{ matrix.php }} run_tests
 
       - name: Run Tests w/ Docker.
-          run: FILTER="${{ matrix.coverage }} ${{ matrix.debug }}" composer docker-run-test-standalone
+        run: FILTER="${{ matrix.coverage }} ${{ matrix.debug }}" composer docker-run-test-standalone
 
       - name: Push Codecoverage to Coveralls.io
         if: ${{ matrix.coverage == 1 }}
