@@ -258,11 +258,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testThemeNodeQuery() {
 
-		$theme = wp_get_theme();
 
-		$theme_slug = $theme->get_stylesheet();
+		$themes = wp_get_themes();
+		$active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
+		update_option( 'template', $active_theme );
+		update_option( 'stylesheet', $active_theme );
 
-		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $theme_slug );
+		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $active_theme );
 		$query      = "
 		query { 
 			node(id: \"{$global_id}\") { 
@@ -275,10 +277,12 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual     = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$expected = [
 			'node' => [
 				'__typename' => 'Theme',
-				'slug'       => $theme_slug,
+				'slug'       => $active_theme,
 			],
 		];
 

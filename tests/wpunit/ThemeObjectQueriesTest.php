@@ -4,9 +4,23 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
+	/**
+	 * @var WP_Theme
+	 */
+	public $active_theme;
+
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory->user->create( [
+
+		$themes = wp_get_themes();
+
+		codecept_debug( $themes );
+
+		$this->active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
+		update_option( 'template', $this->active_theme );
+		update_option( 'stylesheet', $this->active_theme );
+
+		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
 	}
@@ -25,14 +39,9 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testThemeQuery() {
 
 		/**
-		 * Create a theme
-		 */
-		$theme_slug = wp_get_theme()->get_stylesheet();
-
-		/**
 		 * Create the global ID based on the theme_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $theme_slug );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $this->active_theme );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -59,10 +68,12 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$screenshot = $actual['data']['theme']['screenshot'];
 		$this->assertTrue( is_string( $screenshot ) || null === $screenshot );
 
-		$theme = wp_get_theme( $theme_slug );
+		$theme = wp_get_theme( $this->active_theme );
 		/**
 		 * Establish the expectation for the output of the query
 		 */

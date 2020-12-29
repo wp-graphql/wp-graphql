@@ -38,7 +38,7 @@ class ArrayConnection
      * to use; if the cursor contains a valid offset, that will be used,
      * otherwise it will be the default.
      */
-    public static function getOffsetWidthDefault($cursor, $defaultOffset)
+    public static function getOffsetWithDefault($cursor, $defaultOffset)
     {
         if ($cursor == null){
             return $defaultOffset;
@@ -84,8 +84,8 @@ class ArrayConnection
         $sliceStart = self::getArrayValueSafe($meta, 'sliceStart');
         $arrayLength = self::getArrayValueSafe($meta, 'arrayLength');
         $sliceEnd = $sliceStart + count($arraySlice);
-        $beforeOffset = self::getOffsetWidthDefault($before, $arrayLength);
-        $afterOffset = self::getOffsetWidthDefault($after, -1);
+        $beforeOffset = self::getOffsetWithDefault($before, $arrayLength);
+        $afterOffset = self::getOffsetWithDefault($after, -1);
 
         $startOffset = max([
             $sliceStart - 1,

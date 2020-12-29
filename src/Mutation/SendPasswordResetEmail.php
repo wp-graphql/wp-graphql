@@ -37,6 +37,7 @@ class SendPasswordResetEmail {
 						throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
 					}
 					$user_data = self::get_user_data( $input['username'] );
+
 					if ( ! $user_data ) {
 						throw new UserError( self::get_user_not_found_error_message( $input['username'] ) );
 					}
@@ -44,11 +45,19 @@ class SendPasswordResetEmail {
 					if ( is_wp_error( $key ) ) {
 						throw new UserError( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
 					}
-					$subject    = self::get_email_subject( $user_data );
-					$message    = self::get_email_message( $user_data, $key );
+					$subject = self::get_email_subject( $user_data );
+					$message = self::get_email_message( $user_data, $key );
+
 					$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
-					if ( ! $email_sent ) {
-						throw new UserError( __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' ) );
+
+					if ( is_wp_error( $email_sent ) ) {
+
+						$message = __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' );
+						if ( ! \WPGraphQL::debug() ) {
+							throw new UserError( $message );
+						} else {
+							graphql_debug( $message );
+						}
 					}
 
 					/**

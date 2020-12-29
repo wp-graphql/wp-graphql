@@ -5,7 +5,7 @@ class IsGraphqlHttpRequestTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Must match with the one in the codeception config
 	 */
-	private $host = 'wpgraphql.test';
+	private $host = 'localhost';
 
 
 	public function tearDown(): void {
@@ -21,7 +21,7 @@ class IsGraphqlHttpRequestTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Request from wp-graphqi comes to urls like
-	 * 	https://wpgraphql.test/index.php?graphql
+	 * 	https://localhost/index.php?graphql
 	 */
 	public function testGraphiqlRequest() {
 		$_SERVER['HTTP_HOST'] = $this->host;
