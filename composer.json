@@ -44,7 +44,7 @@
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "^1.0",
     "phpunit/phpunit": "9.4.1",
-    "pcov/clobber": "^2.0"
+    "pcov/clobber": "^1.0||^2.0"
   },
   "config": {
     "optimize-autoloader": true,
