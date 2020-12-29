@@ -23,6 +23,7 @@ jobs:
          - php: '7.4'
            wordpress: '5.6'
            coverage: 1
+
          - php: '7.4'
            wordpress: '5.5.3'
          - php: '7.4'
@@ -63,7 +64,7 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
-          USE_XDEBUG: ${{ matrix.coverage }}
+          USE_XDEBUG: ${{ matrix.use_xdebug }}
         run: composer build-test
 
       - name: Run Tests w/ Docker.
