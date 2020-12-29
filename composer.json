@@ -43,7 +43,8 @@
     "szepeviktor/phpstan-wordpress": "^0.7.1",
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "^1.0",
-    "phpunit/phpunit": "9.4.1"
+    "phpunit/phpunit": "9.4.1",
+    "pcov/clobber": "^2.0"
   },
   "config": {
     "optimize-autoloader": true,

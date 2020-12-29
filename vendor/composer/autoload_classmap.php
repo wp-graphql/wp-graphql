@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'GraphQLRelay\\Connection\\ArrayConnection' => $vendorDir . '/ivome/graphql-relay-php/src/Connection/ArrayConnection.php',
     'GraphQLRelay\\Connection\\Connection' => $vendorDir . '/ivome/graphql-relay-php/src/Connection/Connection.php',
     'GraphQLRelay\\Mutation\\Mutation' => $vendorDir . '/ivome/graphql-relay-php/src/Mutation/Mutation.php',
