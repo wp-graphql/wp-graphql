@@ -22,7 +22,7 @@ jobs:
         include:
          - php: '7.4'
            wordpress: '5.6'
-           coverage: true
+           coverage: 1
          - php: '7.4'
            wordpress: '5.5.3'
          - php: '7.4'
