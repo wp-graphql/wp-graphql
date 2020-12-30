@@ -134,7 +134,7 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
-		if ( ! empty( $this->fields[ $key ] ) ) {
+		if ( isset( $this->fields[ $key ] ) ) {
 			/**
 			 * If the property has already been processed and cached to the model
 			 * return the processed value.

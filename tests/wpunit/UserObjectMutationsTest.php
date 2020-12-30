@@ -844,6 +844,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$username = 'userDoesNotExist';
 		// Run the mutation, passing in an invalid username.
 		$actual = $this->sendPasswordResetEmailMutation( $username );
+
+		codecept_debug( $actual );
+
 		/**
 		 * We're asserting that this will properly return an error
 		 * because this user does not exist.
@@ -856,6 +859,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$username = $user->user_login;
 		// Run the mutation, passing in a valid username.
 		$actual   = $this->sendPasswordResetEmailMutation( $username );
+
+		codecept_debug( $actual );
+
 		$expected = $this->getSendPasswordResetEmailExpected();
 		/**
 		 * Assert that the expected user data was returned.
@@ -868,6 +874,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
 		$actual   = $this->sendPasswordResetEmailMutation( $email );
+
+		codecept_debug( $actual );
+
 		$expected = $this->getSendPasswordResetEmailExpected();
 		/**
 		 * Assert that the expected user data was returned.

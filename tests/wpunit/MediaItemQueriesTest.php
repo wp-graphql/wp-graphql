@@ -281,9 +281,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
 
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
 
 		$this->assertEquals(
 			[

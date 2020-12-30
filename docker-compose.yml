@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  app:
+    depends_on:
+      - app_db
+    image: wpgraphql-app:latest
+    volumes:
+      - '.:/var/www/html/wp-content/plugins/wp-graphql'
+      - './.log/app:/var/log/apache2'
+    environment:
+      WP_URL: 'http://localhost:8091'
+      WP_DOMAIN: 'localhost:8091'
+      DB_HOST: app_db
+      DB_NAME: wordpress
+      DB_USER: wordpress
+      DB_PASSWORD: wordpress
+      WP_DOMAIN: localhost
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: password
+      INCLUDE_WPGRAPHIQL: 1
+      IMPORT_WC_PRODUCTS: 1
+      STRIPE_GATEWAY: 1
+    ports:
+      - '8091:80'
+    networks:
+      local:
+
+  app_db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE:      wordpress
+      MYSQL_USER:          wordpress
+      MYSQL_PASSWORD:      wordpress
+    ports:
+      - '3306'
+    networks:
+      testing:
+      local:
+
+  testing:
+    depends_on:
+      - app_db
+    image: wpgraphql-testing:latest
+    volumes:
+      - '.:/var/www/html/wp-content/plugins/wp-graphql'
+      - './.log/testing:/var/log/apache2'
+      - './codeception.dist.yml:/var/www/html/wp-content/plugins/wp-graphql/codeception.yml'
+    env_file: .env.dist
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
+      DB_HOST: app_db
+      WP_URL: 'http://localhost'
+      WP_DOMAIN: 'localhost'
+      STRIPE_GATEWAY: 1
+    networks:
+      testing:
+
+networks:
+  local:
+  testing:

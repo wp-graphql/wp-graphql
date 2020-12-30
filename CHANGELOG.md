@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.5
+
+### New
+
+- Updates GraphQL-PHP from v14.3.0 to v14.4.0
+- Updates GraphQL-Relay-PHP from v0.3.1 to v0.5.0
+
+### Bugfixes
+
+- Fixes a bug where CI Tests were not passing when code coverage is enabled
+- ([#1633](https://github.com/wp-graphql/wp-graphql/pull/1633)) Fixes bug where Introspection Queries were showing fields with no deprecationReason as deprecated because it was outputting an empty string instead of a null value.
+- ([#1627](https://github.com/wp-graphql/wp-graphql/pull/1627)) Fixes bug where fields on the Model called multiple times might weren't being set properly
+- Updates Theme tests to be more resilient for WP Core updates where new themes are introduced
+
 ## 1.0.4
 
 ### Bugfixes
