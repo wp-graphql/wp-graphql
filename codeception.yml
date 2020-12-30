@@ -16,9 +16,9 @@ coverage:
     remote: false
     c3_url: '%WP_URL%/wp-content/plugins/wp-gatsby/wp-gatsby.php'
     include:
-        - includes/*
+        - src/*
     exclude:
-        - wp-gatsby.php
+        - wp-graphql.php
         - vendor/*
     show_only_summary: false
 extensions:
