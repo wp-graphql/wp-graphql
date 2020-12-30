@@ -15,7 +15,7 @@ use WPGraphQL\Data\DataSource;
 class ThemeConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * @return bool|int|mixed|null|string
+	 * @return mixed
 	 */
 	public function get_offset() {
 		$offset = null;
@@ -111,7 +111,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Determine if the offset used for pagination is valid
 	 *
-	 * @param $offset
+	 * @param mixed $offset
 	 *
 	 * @return bool
 	 */

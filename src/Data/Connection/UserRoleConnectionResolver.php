@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Model\User;
 
 /**
@@ -15,19 +18,19 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * UserRoleConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
+	 * @param mixed       $source     source passed down from the resolve tree
+	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		parent::__construct( $source, $args, $context, $info );
 	}
 
 	/**
-	 * @return bool|int|mixed|null|string
+	 * @return mixed
 	 */
 	public function get_offset() {
 		$offset = null;
@@ -83,7 +86,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_nodes() {
 		$nodes = parent::get_nodes();
@@ -113,7 +116,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @param $offset
+	 * @param mixed $offset Whether the provided offset is valid for the connection
 	 *
 	 * @return bool
 	 */
