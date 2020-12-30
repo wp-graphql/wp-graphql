@@ -33,14 +33,14 @@ class CursorBuilder {
 	 * @param null                    $order         custom order
 	 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
 	 */
-	public function add_field( $key, $value, $type = null, $order = null, $object_cursor = null ) {
+	public function add_field( string $key, string $value, $type = null, $order = null, $object_cursor = null ) {
 
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination
 		 *
-		 * @param array                   $field         The field key, value, type and order
-		 * @param CursorBuilder           $this          The CursorBuilder class
-		 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
+		 * @param array                   $field          The field key, value, type and order
+		 * @param CursorBuilder           $cursor_builder The CursorBuilder class
+		 * @param null | PostObjectCursor $object_cursor  The PostObjectCursor class
 		 */
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',

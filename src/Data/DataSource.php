@@ -2,11 +2,13 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
+use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PluginConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -57,10 +59,10 @@ class DataSource {
 	 * @param AppContext $context The context of the request.
 	 *
 	 * @return Deferred object
-	 * @since      0.0.5
-	 *
 	 * @throws UserError Throws UserError.
-	 * @throws \Exception Throws UserError.
+	 * @throws Exception Throws UserError.
+	 *
+	 * @since      0.0.5
 	 *
 	 * @deprecated Use the Loader passed in $context instead
 	 */
@@ -74,7 +76,7 @@ class DataSource {
 	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
 	 * @return CommentAuthor
-	 * @throws \Exception Throws Exception.
+	 * @throws Exception Throws Exception.
 	 */
 	public static function resolve_comment_author( $comment_id ) {
 		global $wpdb;
@@ -87,34 +89,33 @@ class DataSource {
 	/**
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
-	 * @param mixed  object $source
+	 * @param mixed       $source  The object the connection is coming from
 	 * @param array       $args    Query args to pass to the connection resolver
 	 * @param AppContext  $context The context of the query to pass along
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return mixed
+	 * @throws Exception
 	 * @since 0.0.5
-	 * @throws \Exception
 	 */
-	public static function resolve_comments_connection( $source, array $args, $context, ResolveInfo $info ) {
-		$resolver   = new CommentConnectionResolver( $source, $args, $context, $info );
-		$connection = $resolver->get_connection();
+	public static function resolve_comments_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
+		$resolver = new CommentConnectionResolver( $source, $args, $context, $info );
 
-		return $connection;
+		return $resolver->get_connection();
 	}
 
 	/**
 	 * Wrapper for PluginsConnectionResolver::resolve
 	 *
-	 * @param \WP_Post    $source  WP_Post object
-	 * @param array       $args    Array of arguments to pass to reolve method
+	 * @param mixed       $source  The object the connection is coming from
+	 * @param array       $args    Array of arguments to pass to resolve method
 	 * @param AppContext  $context AppContext object passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
+	 * @throws Exception
 	 * @since  0.0.5
 	 *
-	 * @throws \Exception
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new PluginConnectionResolver( $source, $args, $context, $info );
@@ -128,15 +129,15 @@ class DataSource {
 	 * @param int        $id      ID of the post you are trying to retrieve
 	 * @param AppContext $context The context of the GraphQL Request
 	 *
-	 * @throws UserError
-	 * @since      0.0.5
 	 * @return Deferred
 	 *
-	 * @throws \Exception
+	 * @throws UserError
+	 * @throws Exception
 	 *
+	 * @since      0.0.5
 	 * @deprecated Use the Loader passed in $context instead
 	 */
-	public static function resolve_post_object( $id, AppContext $context ) {
+	public static function resolve_post_object( int $id, AppContext $context ) {
 		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
@@ -145,7 +146,7 @@ class DataSource {
 	 * @param AppContext $context The context of the GraphQL request
 	 *
 	 * @return Deferred|null
-	 * @throws \Exception
+	 * @throws Exception
 	 *
 	 * @deprecated Use the Loader passed in $context instead
 	 */
@@ -156,15 +157,15 @@ class DataSource {
 	/**
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
-	 * @param             $source
-	 * @param array       $args    Arguments to pass to the resolve method
-	 * @param AppContext  $context AppContext object to pass down
-	 * @param ResolveInfo $info    The ResolveInfo object
-	 * @param mixed string|array $post_type Post type of the post we are trying to resolve
+	 * @param mixed              $source    The object the connection is coming from
+	 * @param array              $args      Arguments to pass to the resolve method
+	 * @param AppContext         $context   AppContext object to pass down
+	 * @param ResolveInfo        $info      The ResolveInfo object
+	 * @param mixed|string|array $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
+	 * @throws Exception
 	 * @since  0.0.5
-	 * @throws \Exception
 	 */
 	public static function resolve_post_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, $post_type ) {
 		$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, $post_type );
@@ -178,7 +179,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return Taxonomy object
-	 * @throws UserError | \Exception
+	 * @throws UserError | Exception
 	 * @since  0.0.5
 	 */
 	public static function resolve_taxonomy( $taxonomy ) {
@@ -206,7 +207,7 @@ class DataSource {
 	 * @param AppContext $context The context of the GraphQL Request
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since      0.0.5
 	 *
 	 * @deprecated Use the Loader passed in $context instead
@@ -218,21 +219,20 @@ class DataSource {
 	/**
 	 * Wrapper for TermObjectConnectionResolver::resolve
 	 *
-	 * @param              $source
-	 * @param array        $args     Array of args to be passed to the resolve method
-	 * @param AppContext   $context  The AppContext object to be passed down
-	 * @param ResolveInfo  $info     The ResolveInfo object
-	 * @param \WP_Taxonomy $taxonomy The WP_Taxonomy object of the taxonomy the term is connected to
+	 * @param mixed       $source   The object the connection is coming from
+	 * @param array       $args     Array of args to be passed to the resolve method
+	 * @param AppContext  $context  The AppContext object to be passed down
+	 * @param ResolveInfo $info     The ResolveInfo object
+	 * @param string      $taxonomy The name of the taxonomy the term belongs to
 	 *
 	 * @return array
+	 * @throws Exception
 	 * @since  0.0.5
-	 * @throws \Exception
 	 */
-	public static function resolve_term_objects_connection( $source, array $args, $context, ResolveInfo $info, $taxonomy ) {
-		$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomy );
-		$connection = $resolver->get_connection();
+	public static function resolve_term_objects_connection( $source, array $args, AppContext $context, ResolveInfo $info, string $taxonomy ) {
+		$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomy );
 
-		return $connection;
+		return $resolver->get_connection();
 	}
 
 	/**
@@ -242,9 +242,9 @@ class DataSource {
 	 *
 	 * @return Theme object
 	 * @throws UserError
+	 * @throws Exception
 	 * @since  0.0.5
 	 *
-	 * @throws \Exception
 	 */
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
@@ -258,16 +258,16 @@ class DataSource {
 	/**
 	 * Wrapper for the ThemesConnectionResolver::resolve method
 	 *
-	 * @param             $source
+	 * @param mixed       $source  The object the connection is coming from
 	 * @param array       $args    Passes an array of arguments to the resolve method
 	 * @param AppContext  $context The AppContext object to be passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
+	 * @throws Exception
 	 * @since  0.0.5
-	 * @throws \Exception
 	 */
-	public static function resolve_themes_connection( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_themes_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
 	}
 
@@ -278,9 +278,9 @@ class DataSource {
 	 * @param AppContext $context The AppContext
 	 *
 	 * @return Deferred
-	 * @since      0.0.5
-	 * @throws \Exception
+	 * @throws Exception
 	 *
+	 * @since      0.0.5
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
@@ -290,16 +290,16 @@ class DataSource {
 	/**
 	 * Wrapper for the UsersConnectionResolver::resolve method
 	 *
-	 * @param             $source
+	 * @param mixed       $source  The object the connection is coming from
 	 * @param array       $args    Array of args to be passed down to the resolve method
 	 * @param AppContext  $context The AppContext object to be passed down
 	 * @param ResolveInfo $info    The ResolveInfo object
 	 *
 	 * @return array
+	 * @throws Exception
 	 * @since  0.0.5
-	 * @throws \Exception
 	 */
-	public static function resolve_users_connection( $source, array $args, $context, ResolveInfo $info ) {
+	public static function resolve_users_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
 
 		return $resolver->get_connection();
@@ -312,7 +312,7 @@ class DataSource {
 	 * @param string $name Name of the user role you want info for
 	 *
 	 * @return UserRole
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since  0.0.30
 	 */
 	public static function resolve_user_role( $name ) {
@@ -339,7 +339,7 @@ class DataSource {
 	 * @param array $args    The args to pass to the get_avatar_data function
 	 *
 	 * @return array|null|Avatar
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function resolve_avatar( $user_id, $args ) {
 
@@ -363,8 +363,8 @@ class DataSource {
 	 * @param AppContext  $context The AppContext passed down to the query
 	 * @param ResolveInfo $info    The ResloveInfo object
 	 *
-	 * @throws \Exception
 	 * @return array
+	 * @throws Exception
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
@@ -413,11 +413,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key'] = $key;
+					$setting['key']                                         = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key'] = $key;
+				$setting['key']                                         = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};
@@ -602,7 +602,7 @@ class DataSource {
 	 * @param ResolveInfo $info      The ResolveInfo for the GraphQL Request
 	 *
 	 * @return null|string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
 
@@ -664,7 +664,7 @@ class DataSource {
 	 * @param ResolveInfo $info    The ResolveInfo passed through the GraphQL Resolve tree
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {
 		$node_resolver = new NodeResolver( $context );

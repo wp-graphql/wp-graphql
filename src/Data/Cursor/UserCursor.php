@@ -2,6 +2,10 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_User;
+use WP_User_Query;
+use wpdb;
+
 /**
  * User Cursor
  *
@@ -12,28 +16,28 @@ namespace WPGraphQL\Data\Cursor;
 class UserCursor {
 
 	/**
-	 * The global wpdb instance
+	 * The global WordPress Database instance
 	 *
-	 * @var $wpdb
+	 * @var wpdb $wpdb WordPress Database
 	 */
 	public $wpdb;
 
 	/**
 	 * The WP_User_Query instance
 	 *
-	 * @var $query
+	 * @var WP_User_Query $query The WP_User_Query Instance
 	 */
 	public $query;
 
 	/**
 	 * The current user id which is our cursor offset
 	 *
-	 * @var $user
+	 * @var int $cursor_offset The current user ID
 	 */
 	public $cursor_offset;
 
 	/**
-	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
+	 * @var CursorBuilder
 	 */
 	public $builder;
 
@@ -52,7 +56,7 @@ class UserCursor {
 	/**
 	 * UserCursor constructor.
 	 *
-	 * @param \WP_User_Query $query The WP_User_Query instance
+	 * @param WP_User_Query $query The WP_User_Query instance
 	 */
 	public function __construct( $query ) {
 		global $wpdb;
@@ -173,7 +177,7 @@ class UserCursor {
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
 	 *
-	 * @return string
+	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
 
@@ -215,10 +219,8 @@ class UserCursor {
 	 *
 	 * @param string $meta_key user meta key
 	 * @param string $order    The comparison string
-	 *
-	 * @return string
 	 */
-	private function compare_with_meta_field( $meta_key, $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_user_meta( $this->cursor_offset, $meta_key, true );
 
