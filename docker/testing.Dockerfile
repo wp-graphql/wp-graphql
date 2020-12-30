@@ -19,7 +19,7 @@ RUN docker-php-ext-install pdo_mysql
 
 
 # Install PCOV and XDebug
-RUN if [ "$USING_XDEBUG" ]]; then \
+RUN if [[ "$USING_XDEBUG" ]]; then \
         yes | pecl install xdebug \
         && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
         && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
