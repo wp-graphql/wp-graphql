@@ -16,10 +16,12 @@ coverage:
   remote: false
   c3_url: '%WP_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
   include:
-    - includes/*
+    - src/*
   exclude:
     - wp-graphql.php
     - vendor/*
+    - src/Admin/GraphiQL/app/*
+    - src/Admin/GraphiQL/js/*
   show_only_summary: false
 extensions:
   enabled:
