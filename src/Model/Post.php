@@ -56,7 +56,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $featuredImageId
  * @property int     $featuredImageDatabaseId
  * @property string  $pageTemplate
- * @property int     previewRevisionDatabaseId
+ * @property int     $previewRevisionDatabaseId
  *
  * @property string  $captionRaw
  * @property string  $captionRendered
