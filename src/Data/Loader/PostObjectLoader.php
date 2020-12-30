@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use GraphQL\Deferred;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
@@ -15,11 +16,11 @@ use WPGraphQL\Model\Post;
 class PostObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
 	 * @return mixed|Post
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function get_model( $entry, $key ) {
 
@@ -74,7 +75,7 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
 

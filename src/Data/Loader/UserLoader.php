@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use WPGraphQL\Model\User;
 
 /**
@@ -11,11 +12,11 @@ use WPGraphQL\Model\User;
 class UserLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
 	 * @return mixed|User
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function get_model( $entry, $key ) {
 		if ( $entry instanceof \WP_User ) {
@@ -38,7 +39,7 @@ class UserLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
 
