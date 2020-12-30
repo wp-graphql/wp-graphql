@@ -198,8 +198,8 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Get the loader name
 	 *
-	 * @throws \Exception
 	 * @return AbstractDataLoader
+	 * @throws \Exception
 	 */
 	protected function getLoader() {
 		$name = $this->get_loader_name();
@@ -269,6 +269,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function set_query_arg( $key, $value ) {
 		$this->query_args[ $key ] = $value;
+
 		return $this;
 	}
 
@@ -279,6 +280,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function one_to_one() {
 		$this->one_to_one = true;
+
 		return $this;
 	}
 
@@ -452,7 +454,7 @@ abstract class AbstractConnectionResolver {
 		 * This filter allows to modify the requested connection page size
 		 *
 		 * @param int                        $amount the requested amount
-		 * @param AbstractConnectionResolver $this Instance of the connection resolver class
+		 * @param AbstractConnectionResolver $this   Instance of the connection resolver class
 		 */
 		return max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
 
@@ -595,7 +597,7 @@ abstract class AbstractConnectionResolver {
 					$ids = array_slice( $ids, 0, $key, true );
 					// Slice the array from the front
 				} else {
-					$key++;
+					$key ++;
 					$ids = array_slice( $ids, $key, null, true );
 				}
 			}
@@ -607,6 +609,7 @@ abstract class AbstractConnectionResolver {
 				$nodes[ $id ] = $model;
 			}
 		}
+
 		return $nodes;
 	}
 
@@ -616,12 +619,12 @@ abstract class AbstractConnectionResolver {
 	 * If model isn't a class with a `fields` member, this function with have be overridden in
 	 * the Connection class.
 	 *
-	 * @param array $model model.
+	 * @param Model $model model.
 	 *
 	 * @return bool
 	 */
-	protected function is_valid_model( $model ) {
-		return isset( $model ) && ! empty( $model->fields );
+	protected function is_valid_model( Model $model ) {
+		return isset( $model->fields ) && ! empty( $model->fields );
 	}
 
 	/**
