@@ -364,7 +364,7 @@ class TypeRegistry {
 						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
 						'fields'      => [
 							'templateName' => [
-								'resolve' => function( $template ) use ( $page_templates ) {
+								'resolve' => function( $template ) {
 									return isset( $template['templateName'] ) ? $template['templateName'] : null;
 								},
 							],
@@ -855,10 +855,10 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function register_fields( $type_name, $fields ) {
-		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
+	public function register_fields( string $type_name, array $fields = [] ) {
+		if ( is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
-				if ( isset( $field_name ) && is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
+				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
 					$this->register_field( $type_name, $field_name, $config );
 				}
 			}
@@ -874,7 +874,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function register_field( $type_name, $field_name, $config ) {
+	public function register_field( string $type_name, string $field_name, array $config ) {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
@@ -934,7 +934,7 @@ class TypeRegistry {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function( $fields ) use ( $type_name, $field_name ) {
+			function( $fields ) use ( $field_name ) {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					unset( $fields[ $field_name ] );
@@ -1158,7 +1158,7 @@ class TypeRegistry {
 				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
 				'args'        => array_merge( $pagination_args, $where_args ),
 				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name, $one_to_one ) {
+				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection ) {
 					/**
 					 * Return the results
 					 */
