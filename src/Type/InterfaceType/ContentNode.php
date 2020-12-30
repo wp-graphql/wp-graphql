@@ -26,7 +26,7 @@ class ContentNode {
 			'ContentNode',
 			[
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
-				'resolveType' => function( $post ) use ( $type_registry ) {
+				'resolveType' => function( Post $post ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
