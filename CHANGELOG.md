@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.5
+
+### Bugfixes
+
+- Fixes a bug where CI Tests were not passing when code coverage is enabled
+- ([#1633](https://github.com/wp-graphql/wp-graphql/pull/1633)) Fixes bug where Introspection Queries were showing fields with no deprecationReason as deprecated because it was outputting an empty string instead of a null value.
+- ([#1627](https://github.com/wp-graphql/wp-graphql/pull/1627)) Fixes bug where fields on the Model called multiple times might weren't being set properly
+
 ## 1.0.4
 
 ### Bugfixes
