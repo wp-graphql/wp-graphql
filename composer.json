@@ -44,7 +44,8 @@
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "^1.0",
     "phpunit/phpunit": "9.4.1",
-    "simpod/php-coveralls-mirror": "^3.0"
+    "simpod/php-coveralls-mirror": "^3.0",
+    "phpstan/extension-installer": "^1.1"
   },
   "config": {
     "optimize-autoloader": true,

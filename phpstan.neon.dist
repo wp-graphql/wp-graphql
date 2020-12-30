@@ -1,7 +1,8 @@
 parameters:
-    level: 0
+    level: 1
     inferPrivatePropertyTypeFromConstructor: true
     bootstrapFiles:
+        - phpstan/constants.php
         - wp-graphql.php
         - access-functions.php
     paths:
@@ -11,4 +12,4 @@ parameters:
     ignoreErrors:
         # Uses func_get_args()
         # Ignore any filters that are applied with more than 2 paramaters
-        # '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'
+        - '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'
