@@ -26,9 +26,9 @@ class NodeResolver {
 	 * @param array|string $uri              The path to be used as an identifier for the resource.
 	 * @param string       $extra_query_vars Any extra query vars to consider
 	 *
+	 * @return mixed
 	 * @throws \Exception
 	 *
-	 * @return mixed
 	 */
 	public function resolve_uri( $uri, $extra_query_vars = '' ) {
 
@@ -74,9 +74,9 @@ class NodeResolver {
 			$error                   = '404';
 			$this->wp->did_permalink = true;
 
-			$pathinfo         = isset( $uri ) ? $uri : '';
+			$pathinfo = isset( $uri ) ? $uri : '';
 			list( $pathinfo ) = explode( '?', $pathinfo );
-			$pathinfo         = str_replace( '%', '%25', $pathinfo );
+			$pathinfo = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
 			$home_path       = trim( wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
@@ -86,6 +86,8 @@ class NodeResolver {
 			// front. For path info requests, this leaves us with the requesting
 			// filename, if any. For 404 requests, this leaves us with the
 			// requested permalink.
+			$query    = '';
+			$matches  = null;
 			$req_uri  = str_replace( $pathinfo, '', $req_uri );
 			$req_uri  = trim( $req_uri, '/' );
 			$req_uri  = preg_replace( $home_path_regex, '', $req_uri );
@@ -182,9 +184,10 @@ class NodeResolver {
 		 * to executing the query. Needed to allow custom rewrite rules using your own arguments
 		 * to work, or any other custom query variables you want to be publicly available.
 		 *
+		 * @param string[] $public_query_vars The array of whitelisted query variable names.
+		 *
 		 * @since 1.5.0
 		 *
-		 * @param string[] $public_query_vars The array of whitelisted query variable names.
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
@@ -267,9 +270,10 @@ class NodeResolver {
 		/**
 		 * Filters the array of parsed query variables.
 		 *
+		 * @param array $query_vars The array of requested query variables.
+		 *
 		 * @since 2.1.0
 		 *
-		 * @param array $query_vars The array of requested query variables.
 		 */
 		$this->wp->query_vars = apply_filters( 'request', $this->wp->query_vars );
 
@@ -306,6 +310,7 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+
 			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['cat'] ) ) {
@@ -328,14 +333,17 @@ class NodeResolver {
 			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 		} elseif ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
+
 			return $this->context->get_loader( 'user' )->load_deferred( $user->ID );
 		} elseif ( isset( $this->wp->query_vars['category_name'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
+
 			return $this->context->get_loader( 'term' )->load_deferred( $node->term_id );
 
 		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
-				$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
-				return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
+			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
+
+			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
 		} else {
 			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
 			foreach ( $taxonomies as $taxonomy ) {
