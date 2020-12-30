@@ -20,6 +20,8 @@ coverage:
   exclude:
     - wp-graphql.php
     - vendor/*
+    - src/Admin/GraphiQL/app/*
+    - src/Admin/GraphiQL/js/*
   show_only_summary: false
 extensions:
   enabled:
