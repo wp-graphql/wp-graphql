@@ -8,39 +8,76 @@ on:
   pull_request:
     branches:
       - develop
-      - master
+    paths:
+      - '**.php'
+      - '!docs/**'
+
 jobs:
-  run:
+  continuous_integration:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '7.3' ]
-        wordpress: ['5.3.2', '5.4.1', '5.5.3']
+        php: [ '7.3', '7.4' ]
+        wordpress: [ '5.6', '5.5.3', '5.4.2' ]
         include:
           - php: '7.4'
+            wordpress: '5.6'
+            coverage: 1
+          - php: '7.4'
             wordpress: '5.5.3'
-            coverage: true
+          - php: '7.4'
+            wordpress: '5.4.2'
+          - php: '7.3'
+            wordpress: '5.6'
+          - php: '7.3'
+            wordpress: '5.5.3'
+          - php: '7.3'
+            wordpress: '5.4.2'
       fail-fast: false
-    name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Run tests w/ Docker.
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json, mbstring
+
+      - name: Get Composer Cache Directory
+        id: composercache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-dev
+
+      - name: Build "testing" Docker Image
         env:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
+          USE_XDEBUG: ${{ matrix.coverage }}
+        run: composer build-test
+
+      - name: Run Tests w/ Docker.
+        env:
           COVERAGE: ${{ matrix.coverage }}
-        run: |
-          ./bin/run-docker-tests.sh 'wpunit'
-          ./bin/run-docker-tests.sh 'functional'
-          ./bin/run-docker-tests.sh 'acceptance'
-      - name: Setup PHP
-        if: matrix.coverage == true
-        uses: shivammathur/setup-php@v1
-        with:
-          php-version: 7.4.5
-          extensions: mbstring, intl
-          tools: composer
-      - name: Upload coverage to codecov
-        if: matrix.coverage == true
-        run: bash <(curl -s https://codecov.io/bash)
+          USE_XDEBUG: ${{ matrix.coverage }}
+          DEBUG: ${{ matrix.debug }}
+          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
+          LOWEST: ${{ matrix.lowest }}
+        run: composer run-test
+
+      - name: Push Codecoverage to Coveralls.io
+        if: ${{ matrix.coverage == 1 }}
+        env:
+          COVERALLS_RUN_LOCALLY: 1
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: vendor/bin/php-coveralls -v

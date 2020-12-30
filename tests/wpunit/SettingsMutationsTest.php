@@ -397,7 +397,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 						'generalSettingsTimeFormat'                      => $this->generalSettingsTimeFormat,
 						'generalSettingsTimezone'                        => $this->generalSettingsTimezone,
 						'generalSettingsTitle'                           => $this->generalSettingsTitle,
-						'generalSettingsUrl'                             => 'http://wpgraphql.test',
+						'generalSettingsUrl'                             => 'http://localhost',
 						'readingSettingsPostsPerPage'                    => $this->readingSettingsPostsPerPage,
 						'writingSettingsDefaultCategory'                 => $this->writingSettingsDefaultCategory,
 						'writingSettingsDefaultPostFormat'               => $this->writingSettingsDefaultPostFormat,
@@ -416,7 +416,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 						'timeFormat'  => $this->generalSettingsTimeFormat,
 						'timezone'    => $this->generalSettingsTimezone,
 						'title'       => $this->generalSettingsTitle,
-						'url'         => 'http://wpgraphql.test',
+						'url'         => 'http://localhost',
 					],
 					'readingSettings'       => [
 						'postsPerPage' => $this->readingSettingsPostsPerPage,

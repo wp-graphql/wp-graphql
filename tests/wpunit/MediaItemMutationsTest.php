@@ -79,7 +79,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->date             = '2017-08-01T15:00:00';
 	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
-	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
+	    $this->filePath         = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
 	    $this->fileType         = 'IMAGE_GIF';
 	    $this->slug             = 'magic-shia';
 	    $this->status           = 'INHERIT';

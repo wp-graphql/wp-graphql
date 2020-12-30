@@ -4,7 +4,7 @@ $I->wantTo( 'Send a preflight Options request like Apollo and check the response
 
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendOPTIONS( 'http://wpgraphql.test/graphql' );
+$I->sendOPTIONS( 'http://localhost/graphql' );
 
 $I->seeResponseCodeIs( 200 );
 
