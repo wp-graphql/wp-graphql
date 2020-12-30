@@ -571,14 +571,14 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param mixed|array|Type $config The config for the type
 	 *
 	 * @throws Exception
 	 *
 	 * @return mixed
 	 */
-	public function register_type( $type_name, $config ) {
+	public function register_type( string $type_name, $config ) {
 
 		/**
 		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
@@ -615,68 +615,68 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param array $config The configuration of the type
 	 *
 	 * @throws Exception
 	 */
-	public function register_object_type( $type_name, $config ) {
+	public function register_object_type( string $type_name, array $config ) {
 		$config['kind'] = 'object';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
 	 *
 	 * @throws Exception
 	 */
-	public function register_interface_type( $type_name, $config ) {
+	public function register_interface_type( string $type_name, array $config ) {
 		$config['kind'] = 'interface';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
 	 *
 	 * @throws Exception
 	 */
-	public function register_enum_type( $type_name, $config ) {
+	public function register_enum_type( string $type_name, array $config ) {
 		$config['kind'] = 'enum';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
 	 *
 	 * @throws Exception
 	 */
-	public function register_input_type( $type_name, $config ) {
+	public function register_input_type( string $type_name, array $config ) {
 		$config['kind'] = 'input';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
 	 *
 	 * @throws Exception
 	 */
-	public function register_union_type( $type_name, $config ) {
+	public function register_union_type( string $type_name, array $config ) {
 		$config['kind'] = 'union';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param mixed|array|Type $config he configuration of the type
 	 *
 	 * @return array|WPObjectType
 	 * @throws Exception
 	 */
-	public function prepare_type( $type_name, $config ) {
+	public function prepare_type( string $type_name, $config ) {
 
 		if ( ! is_array( $config ) ) {
 			return $config;
@@ -684,7 +684,7 @@ class TypeRegistry {
 
 		$prepared_type = null;
 
-		if ( is_array( $config ) ) {
+		if ( ! empty( $config ) ) {
 
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
@@ -817,7 +817,7 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param mixed string|array $type
+	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
 	 * @throws Exception
@@ -1251,7 +1251,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
-	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @param mixed $type The Type being wrapped
 	 *
 	 * @return NonNull
 	 */
@@ -1268,7 +1268,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
-	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @param mixed $type The Type being wrapped
 	 *
 	 * @return ListOfType
 	 */
