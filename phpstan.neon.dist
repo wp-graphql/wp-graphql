@@ -1,5 +1,5 @@
 parameters:
-    level: 1
+    level: 2
     inferPrivatePropertyTypeFromConstructor: true
     bootstrapFiles:
         - phpstan/constants.php
@@ -13,3 +13,11 @@ parameters:
         # Uses func_get_args()
         # Ignore any filters that are applied with more than 2 paramaters
         - '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'
+        - "#Access to an undefined property WP_Post_Type::\\$graphql_single_name.#"
+        - "#Access to an undefined property WP_Post_Type::\\$graphql_plural_name.#"
+        - "#Access to an undefined property WP_Post_Type::\\$show_in_graphql.#"
+        - "#Cannot access property \\$graphql_single_name on WP_Taxonomy\\|false.#"
+        - "#Cannot access property \\$graphql_plural_name on WP_Taxonomy\\|false.#"
+        - "#Access to an undefined property WP_Taxonomy::\\$graphql_single_name.#"
+        - "#Access to an undefined property WP_Taxonomy::\\$graphql_plural_name.#"
+        - "#Access to an undefined property WP_Taxonomy::\\$show_in_graphql.#"

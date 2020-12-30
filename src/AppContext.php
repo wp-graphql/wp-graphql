@@ -3,6 +3,7 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\UserError;
+use WP_User;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
@@ -18,6 +19,7 @@ use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
 use WPGraphQL\Data\NodeResolver;
 use WPGraphQL\Model\Term;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class AppContext
@@ -42,28 +44,33 @@ class AppContext {
 	/**
 	 * Stores the WP_User object of the current user
 	 *
-	 * @var \WP_User $viewer
+	 * @var WP_User $viewer
 	 */
 	public $viewer;
 
 	/**
+	 * @var TypeRegistry
+	 */
+	public $type_registry;
+
+	/**
 	 * Stores everything from the $_REQUEST global
 	 *
-	 * @var \mixed $request
+	 * @var mixed $request
 	 */
 	public $request;
 
 	/**
 	 * Stores additional $config properties
 	 *
-	 * @var \mixed $config
+	 * @var mixed $config
 	 */
 	public $config;
 
 	/**
 	 * Passes context about the current connection being resolved
 	 *
-	 * @var mixed| String | null
+	 * @var mixed|String|null
 	 */
 	public $currentConnection = null;
 
