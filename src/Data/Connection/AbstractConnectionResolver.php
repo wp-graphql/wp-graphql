@@ -619,11 +619,11 @@ abstract class AbstractConnectionResolver {
 	 * If model isn't a class with a `fields` member, this function with have be overridden in
 	 * the Connection class.
 	 *
-	 * @param Model $model model.
+	 * @param mixed Model|null $model model.
 	 *
 	 * @return bool
 	 */
-	protected function is_valid_model( Model $model ) {
+	protected function is_valid_model( $model ) {
 		return isset( $model->fields ) && ! empty( $model->fields );
 	}
 
