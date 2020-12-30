@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Registry;
 
+use Exception;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -168,7 +169,7 @@ class TypeRegistry {
 	/**
 	 * Initialize the TypeRegistry
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function init() {
 
@@ -562,7 +563,7 @@ class TypeRegistry {
 	 * @param string $type_name The name of the Type to register
 	 * @param array  $config    The config for the scalar type to register
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_scalar( $type_name, $config ) {
 		$config['kind'] = 'scalar';
@@ -573,7 +574,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 *
 	 * @return mixed
 	 */
@@ -617,7 +618,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_object_type( $type_name, $config ) {
 		$config['kind'] = 'object';
@@ -628,7 +629,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_interface_type( $type_name, $config ) {
 		$config['kind'] = 'interface';
@@ -639,7 +640,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_enum_type( $type_name, $config ) {
 		$config['kind'] = 'enum';
@@ -650,7 +651,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_input_type( $type_name, $config ) {
 		$config['kind'] = 'input';
@@ -661,7 +662,7 @@ class TypeRegistry {
 	 * @param $type_name
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_union_type( $type_name, $config ) {
 		$config['kind'] = 'union';
@@ -673,7 +674,7 @@ class TypeRegistry {
 	 * @param $config
 	 *
 	 * @return array|WPObjectType
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function prepare_type( $type_name, $config ) {
 
@@ -738,7 +739,7 @@ class TypeRegistry {
 	 * @param string $type_name Name of the Type to register the fields to
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function prepare_fields( $fields, $type_name ) {
 		$prepared_fields = [];
@@ -767,7 +768,7 @@ class TypeRegistry {
 	 * @param string $type_name    Name of the type to prepare the field for
 	 *
 	 * @return array|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
@@ -819,7 +820,7 @@ class TypeRegistry {
 	 * @param mixed string|array $type
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function setup_type_modifiers( $type ) {
 
@@ -977,7 +978,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 * @throws \InvalidArgumentException
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_connection( $config ) {
 
@@ -1176,7 +1177,7 @@ class TypeRegistry {
 	 * @param array  $config        Info about the mutation being registered
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_mutation( $mutation_name, $config ) {
 
@@ -1235,7 +1236,7 @@ class TypeRegistry {
 				'resolve'     => function( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
 					if ( ! is_callable( $mutateAndGetPayload ) ) {
 						// Translators: The placeholder is the name of the mutation
-						throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
+						throw new Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
 					}
 					$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
 					$payload['clientMutationId'] = $args['input']['clientMutationId'];
