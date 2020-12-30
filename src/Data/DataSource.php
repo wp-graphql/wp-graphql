@@ -115,7 +115,6 @@ class DataSource {
 	 * @return array
 	 * @throws Exception
 	 * @since  0.0.5
-	 *
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new PluginConnectionResolver( $source, $args, $context, $info );
@@ -244,7 +243,6 @@ class DataSource {
 	 * @throws UserError
 	 * @throws Exception
 	 * @since  0.0.5
-	 *
 	 */
 	public static function resolve_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
@@ -413,11 +411,11 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                                         = $key;
+					$setting['key'] = $key;
 					$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                                         = $key;
+				$setting['key'] = $key;
 				$allowed_settings_by_group[ $setting['group'] ][ $key ] = $setting;
 			}
 		};

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -121,14 +122,16 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * ConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
+	 * @param mixed       $source  source passed down from the resolve tree
+	 * @param array       $args    array of arguments input in the field as part of the GraphQL
+	 *                             query
+	 * @param AppContext  $context Object containing app context that gets passed down the resolve
+	 *                             tree
+	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
@@ -199,12 +202,12 @@ abstract class AbstractConnectionResolver {
 	 * Get the loader name
 	 *
 	 * @return AbstractDataLoader
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function getLoader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
-			throw new \Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+			throw new Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
 		return $this->context->get_loader( $name );
@@ -366,7 +369,7 @@ abstract class AbstractConnectionResolver {
 	 * @param $id
 	 *
 	 * @return mixed|Model|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_node_by_id( $id ) {
 		return $this->loader->load( $id );
@@ -379,7 +382,7 @@ abstract class AbstractConnectionResolver {
 	 * ensure that queries don't exceed unwanted limits when querying data.
 	 *
 	 * @return int
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query_amount() {
 
@@ -409,7 +412,7 @@ abstract class AbstractConnectionResolver {
 	 * This checks the $args to determine the amount requested, and if
 	 *
 	 * @return int|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_amount_requested() {
 
@@ -574,7 +577,7 @@ abstract class AbstractConnectionResolver {
 	 * For backward pagination, we reverse the order of nodes.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_nodes() {
 		if ( empty( $this->ids ) ) {
@@ -734,7 +737,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function execute_and_get_ids() {
 
@@ -809,7 +812,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed|array|Deferred
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_connection() {
 

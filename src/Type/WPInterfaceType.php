@@ -68,7 +68,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public function prepare_fields( array $fields,string $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param

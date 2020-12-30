@@ -259,7 +259,6 @@ class Request {
 	 *
 	 * @return boolean
 	 * @throws \Exception
-	 *
 	 */
 	protected function has_authentication_errors() {
 
@@ -446,7 +445,6 @@ class Request {
 		 * @param Request    $this      Instance of the Request
 		 *
 		 * @since 0.0.4
-		 *
 		 */
 		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -483,7 +481,6 @@ class Request {
 		 * @param Request    $request      Instance of the Request
 		 *
 		 * @since 0.0.5
-		 *
 		 */
 		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -652,7 +649,6 @@ class Request {
 		 * @param OperationParams $params Request operation params
 		 *
 		 * @since 0.2.0
-		 *
 		 */
 		do_action( 'graphql_server_config', $config, $this->params );
 
