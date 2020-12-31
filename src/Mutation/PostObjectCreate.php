@@ -122,9 +122,9 @@ class PostObjectCreate {
 		}
 
 		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [
-				'attachment',
-				'revision'
-			], true ) ) {
+			'attachment',
+			'revision',
+		], true ) ) {
 			$fields['parentId'] = [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
@@ -249,9 +249,9 @@ class PostObjectCreate {
 			 * default the status to pending.
 			 */
 			if ( ! current_user_can( $post_type_object->cap->publish_posts ) && ! in_array( $intended_post_status, [
-					'draft',
-					'pending'
-				], true ) ) {
+				'draft',
+				'pending',
+			], true ) ) {
 				$intended_post_status = 'pending';
 			}
 

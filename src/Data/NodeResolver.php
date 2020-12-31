@@ -28,7 +28,6 @@ class NodeResolver {
 	 *
 	 * @return mixed
 	 * @throws \Exception
-	 *
 	 */
 	public function resolve_uri( $uri, $extra_query_vars = '' ) {
 
@@ -74,9 +73,9 @@ class NodeResolver {
 			$error                   = '404';
 			$this->wp->did_permalink = true;
 
-			$pathinfo = isset( $uri ) ? $uri : '';
+			$pathinfo         = isset( $uri ) ? $uri : '';
 			list( $pathinfo ) = explode( '?', $pathinfo );
-			$pathinfo = str_replace( '%', '%25', $pathinfo );
+			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
 			$home_path       = trim( wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
@@ -187,7 +186,6 @@ class NodeResolver {
 		 * @param string[] $public_query_vars The array of whitelisted query variable names.
 		 *
 		 * @since 1.5.0
-		 *
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
@@ -273,7 +271,6 @@ class NodeResolver {
 		 * @param array $query_vars The array of requested query variables.
 		 *
 		 * @since 2.1.0
-		 *
 		 */
 		$this->wp->query_vars = apply_filters( 'request', $this->wp->query_vars );
 
