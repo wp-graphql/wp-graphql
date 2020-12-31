@@ -1,19 +1,20 @@
 <?php
+
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Taxonomy;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\TermObjectMutation;
 
 class TermObjectCreate {
 	/**
 	 * Registers the TermObjectCreate mutation.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 */
-	public static function register_mutation( \WP_Taxonomy $taxonomy ) {
+	public static function register_mutation( WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'create' . ucwords( $taxonomy->graphql_single_name );
 
 		register_graphql_mutation(
@@ -40,11 +41,11 @@ class TermObjectCreate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_input_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		$fields = [
 			'aliasOf'     => [
 				'type'        => 'String',
@@ -79,18 +80,19 @@ class TermObjectCreate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return [
 			$taxonomy->graphql_single_name => [
 				'type'        => $taxonomy->graphql_single_name,
 				// translators: Placeholder is the name of the taxonomy
 				'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) use ( $taxonomy ) {
+				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					$id = isset( $payload['termId'] ) ? absint( $payload['termId'] ) : null;
+
 					return $context->get_loader( 'term' )->load_deferred( $id );
 
 				},
@@ -101,12 +103,12 @@ class TermObjectCreate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param \WP_Taxonomy $taxonomy       The taxonomy type of the mutation.
-	 * @param string       $mutation_name  The name of the mutation.
+	 * @param WP_Taxonomy $taxonomy      The taxonomy type of the mutation.
+	 * @param string      $mutation_name The name of the mutation.
 	 *
 	 * @return callable
 	 */
-	public static function mutate_and_get_payload( \WP_Taxonomy $taxonomy, $mutation_name ) {
+	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
 		return function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 			/**
@@ -158,7 +160,7 @@ class TermObjectCreate {
 			 * Fires after a single term is created or updated via a GraphQL mutation
 			 *
 			 * @param int         $term_id       Inserted term object
-			 * @param \WP_Taxonomy $taxonomy     The taxonomy of the term being updated
+			 * @param WP_Taxonomy $taxonomy      The taxonomy of the term being updated
 			 * @param array       $args          The args used to insert the term
 			 * @param string      $mutation_name The name of the mutation being performed
 			 * @param AppContext  $context       The AppContext passed down the resolve tree

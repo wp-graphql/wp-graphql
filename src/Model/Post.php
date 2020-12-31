@@ -19,6 +19,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $post_type
  * @property string  $authorId
  * @property string  $authorDatabaseId
+ * @property int     $databaseId
  * @property string  $date
  * @property string  $dateGmt
  * @property string  $contentRendered
@@ -104,8 +105,8 @@ class Post extends Model {
 	 *
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
-	 * @throws \Exception
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post $post ) {
 
@@ -551,7 +552,7 @@ class Post extends Model {
 
 					return false;
 				},
-				'isPostsPage'               => function () {
+				'isPostsPage'               => function() {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}

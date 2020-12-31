@@ -598,7 +598,7 @@ class Request {
 		$server   = $this->get_server();
 		$response = $server->executeRequest( $this->params );
 
-		return $this->after_execute( $response, $this->params );
+		return $this->after_execute( $response );
 	}
 
 	/**
