@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\WPSchema;
 
 /**
  * Class InstrumentSchema
@@ -27,11 +28,11 @@ class InstrumentSchema {
 	private static $cached_post = null;
 
 	/**
-	 * @param \WPGraphQL\WPSchema $schema Instance of the Schema.
+	 * @param WPSchema $schema Instance of the Schema.
 	 *
-	 * @return \WPGraphQL\WPSchema
+	 * @return WPSchema
 	 */
-	public static function instrument_schema( \WPGraphQL\WPSchema $schema ) {
+	public static function instrument_schema( WPSchema $schema ) {
 
 		$new_types = [];
 		$types     = $schema->getTypeMap();
@@ -51,7 +52,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config['types'] = $new_types;
+			$schema->config->types = $new_types;
 		}
 
 		return $schema;

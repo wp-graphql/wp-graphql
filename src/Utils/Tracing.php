@@ -106,7 +106,7 @@ class Tracing {
 	/**
 	 * Sets the timestamp and microtime for the start of the request
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function init_trace() {
 		$this->request_start_microtime = microtime( true );
@@ -118,7 +118,7 @@ class Tracing {
 	/**
 	 * Sets the timestamp and microtime for the end of the request
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function end_trace() {
 		$this->request_end_microtime = microtime( true );
@@ -224,13 +224,13 @@ class Tracing {
 	 *
 	 * @param mixed|string|float|int $time The timestamp to format
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function format_timestamp( $time ) {
 		$time_as_float = sprintf( '%.4f', $time );
 		$timestamp     = \DateTime::createFromFormat( 'U.u', $time_as_float );
 
-		return $timestamp->format( 'Y-m-d\TH:i:s.uP' );
+		return (float) $timestamp->format( 'Y-m-d\TH:i:s.uP' );
 	}
 
 	/**
