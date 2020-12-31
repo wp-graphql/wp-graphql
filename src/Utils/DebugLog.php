@@ -29,7 +29,7 @@ class DebugLog {
 		$this->logs = [];
 
 		// Whether WPGraphQL Debug is enabled
-		$enabled            = \WPGraphQL::debug();
+		$enabled = \WPGraphQL::debug();
 
 		/**
 		 * Filters whether GraphQL Debug is enabled enabled. Serves as the default state for enabling debug logs.
