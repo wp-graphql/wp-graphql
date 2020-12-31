@@ -191,9 +191,9 @@ class UserMutation {
 		/**
 		 * Filters the mappings for input to arguments
 		 *
-		 * @var array  $insert_user_args The arguments to ultimately be passed to the WordPress function
-		 * @var array  $input            Input data from the GraphQL mutation
-		 * @var string $mutation_name    What user mutation is being performed for context
+		 * @param array  $insert_user_args The arguments to ultimately be passed to the WordPress function
+		 * @param array  $input            Input data from the GraphQL mutation
+		 * @param string $mutation_name    What user mutation is being performed for context
 		 */
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 

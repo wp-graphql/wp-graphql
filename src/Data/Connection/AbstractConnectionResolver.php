@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -121,14 +122,16 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * ConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
+	 * @param mixed       $source  source passed down from the resolve tree
+	 * @param array       $args    array of arguments input in the field as part of the GraphQL
+	 *                             query
+	 * @param AppContext  $context Object containing app context that gets passed down the resolve
+	 *                             tree
+	 * @param ResolveInfo $info    Info about fields passed down the resolve tree
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
@@ -178,9 +181,9 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * Filters the args
 		 *
-		 * @param array                      $query_args The query args to be used with the executable query to get data.
-		 *                                               This should take in the GraphQL args and return args for use in fetching the data.
-		 * @param AbstractConnectionResolver $this       Instance of the ConnectionResolver
+		 * @param array                      $query_args                   The query args to be used with the executable query to get data.
+		 *                                                                 This should take in the GraphQL args and return args for use in fetching the data.
+		 * @param AbstractConnectionResolver $connection_resolver          Instance of the ConnectionResolver
 		 */
 		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this );
 
@@ -199,12 +202,12 @@ abstract class AbstractConnectionResolver {
 	 * Get the loader name
 	 *
 	 * @return AbstractDataLoader
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function getLoader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
-			throw new \Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+			throw new Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
 		return $this->context->get_loader( $name );
@@ -363,10 +366,11 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Given an ID, return the model for the entity or null
 	 *
-	 * @param $id
+	 * @param mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID
+	 *                  (like post_type name)
 	 *
 	 * @return mixed|Model|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_node_by_id( $id ) {
 		return $this->loader->load( $id );
@@ -379,7 +383,7 @@ abstract class AbstractConnectionResolver {
 	 * ensure that queries don't exceed unwanted limits when querying data.
 	 *
 	 * @return int
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query_amount() {
 
@@ -409,7 +413,7 @@ abstract class AbstractConnectionResolver {
 	 * This checks the $args to determine the amount requested, and if
 	 *
 	 * @return int|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_amount_requested() {
 
@@ -574,7 +578,7 @@ abstract class AbstractConnectionResolver {
 	 * For backward pagination, we reverse the order of nodes.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_nodes() {
 		if ( empty( $this->ids ) ) {
@@ -619,11 +623,12 @@ abstract class AbstractConnectionResolver {
 	 * If model isn't a class with a `fields` member, this function with have be overridden in
 	 * the Connection class.
 	 *
-	 * @param mixed Model|null $model model.
+	 * @param mixed $model The model being validated
 	 *
 	 * @return bool
 	 */
 	protected function is_valid_model( $model ) {
+
 		return isset( $model->fields ) && ! empty( $model->fields );
 	}
 
@@ -661,8 +666,8 @@ abstract class AbstractConnectionResolver {
 				/**
 				 * Create the edge, pass it through a filter.
 				 *
-				 * @param array                      $edge The edge within the connection
-				 * @param AbstractConnectionResolver $this Instance of the connection resolver class
+				 * @param array                      $edge                The edge within the connection
+				 * @param AbstractConnectionResolver $connection_resolver Instance of the connection resolver class
 				 */
 				$edge = apply_filters(
 					'graphql_connection_edge',
@@ -734,7 +739,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function execute_and_get_ids() {
 
@@ -752,8 +757,8 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * Filter whether the connection should execute.
 		 *
-		 * @param bool                       $should_execute Whether the connection should execute
-		 * @param AbstractConnectionResolver $this           Instance of the Connection Resolver
+		 * @param bool                       $should_execute      Whether the connection should execute
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
 		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
 		if ( false === $this->should_execute ) {
@@ -776,16 +781,16 @@ abstract class AbstractConnectionResolver {
 		 * the query to that instead of a native WP_Query class. You could override this with a
 		 * query to that datasource instead.
 		 *
-		 * @param mixed                      $query Instance of the Query for the resolver
-		 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+		 * @param mixed                      $query               Instance of the Query for the resolver
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
 		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
 
 		/**
 		 * Filter the connection IDs
 		 *
-		 * @param array                      $ids  Array of IDs this connection will be resolving
-		 * @param AbstractConnectionResolver $this Instance of the Connection Resolver
+		 * @param array                      $ids                 Array of IDs this connection will be resolving
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
 		$this->ids = apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
 
@@ -809,7 +814,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return mixed|array|Deferred
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_connection() {
 
@@ -831,16 +836,16 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * Filters the nodes in the connection
 				 *
-				 * @param array                      $nodes The nodes in the connection
-				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+				 * @param array                      $nodes               The nodes in the connection
+				 * @param AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 				 */
 				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
 				/**
 				 * Filters the edges in the connection
 				 *
-				 * @param array                      $nodes The nodes in the connection
-				 * @param AbstractConnectionResolver $this  Instance of the Connection Resolver
+				 * @param array                      $nodes               The nodes in the connection
+				 * @param AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 				 */
 				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
@@ -862,8 +867,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * This filter allows additional fields to be returned to the connection resolver
 				 *
-				 * @param array                      $connection The connection data being returned
-				 * @param AbstractConnectionResolver $this       The instance of the connection resolver
+				 * @param array                      $connection          The connection data being returned
+				 * @param AbstractConnectionResolver $connection_resolver The instance of the connection resolver
 				 */
 				return apply_filters( 'graphql_connection', $connection, $this );
 

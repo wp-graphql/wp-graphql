@@ -24,7 +24,7 @@ class WPObjectType extends ObjectType {
 	 * to easily define themselves as a node type by implementing
 	 * self::$node_interface
 	 *
-	 * @var $node_interface
+	 * @var array|Node $node_interface
 	 * @since 0.0.5
 	 */
 	private static $node_interface;
@@ -54,8 +54,8 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Filter the config of WPObjectType
 		 *
-		 * @param array        $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPObjectType $this   The instance of the WPObjectType class
+		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
@@ -69,9 +69,9 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Filters the interfaces applied to an object type
 		 *
-		 * @param array        $interfaces List of interfaces applied to the Object Type
-		 * @param array        $config     The config for the Object Type
-		 * @param WPObjectType $this       The WPObjectType instance
+		 * @param array        $interfaces     List of interfaces applied to the Object Type
+		 * @param array        $config         The config for the Object Type
+		 * @param WPObjectType $wp_object_type The WPObjectType instance
 		 */
 		$interfaces               = apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $this );
 		$config['interfaceNames'] = $interfaces;
@@ -79,7 +79,7 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Convert Interfaces from Strings to Types
 		 */
-		$config['interfaces'] = function () use ( $interfaces ) {
+		$config['interfaces'] = function() use ( $interfaces ) {
 			$new_interfaces = [];
 			if ( ! is_array( $interfaces ) ) {
 				// TODO Throw an error.
@@ -153,8 +153,8 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
-		 * @param array        $config Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPObjectType $this   The instance of the WPObjectType class
+		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
 
@@ -200,10 +200,10 @@ class WPObjectType extends ObjectType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array        $fields        The array of fields for the object config
-		 * @param string       $type_name     The name of the object type
-		 * @param WPObjectType $this          The WPObjectType Class
-		 * @param TypeRegistry $type_registry The Type Registry
+		 * @param array        $fields         The array of fields for the object config
+		 * @param string       $type_name      The name of the object type
+		 * @param WPObjectType $wp_object_type The WPObjectType Class
+		 * @param TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
 
@@ -219,9 +219,9 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array        $fields        The array of fields for the object config
-		 * @param WPObjectType $this          The WPObjectType Class
-		 * @param TypeRegistry $type_registry The Type Registry
+		 * @param array        $fields         The array of fields for the object config
+		 * @param WPObjectType $wp_object_type The WPObjectType Class
+		 * @param TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
 
@@ -231,9 +231,9 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array        $fields        The array of fields for the object config
-		 * @param WPObjectType $this          The WPObjectType Class
-		 * @param TypeRegistry $type_registry The Type Registry
+		 * @param array        $fields         The array of fields for the object config
+		 * @param WPObjectType $wp_object_type The WPObjectType Class
+		 * @param TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );
 

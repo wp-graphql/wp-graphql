@@ -202,7 +202,7 @@ class Tracing {
 	/**
 	 * Given input from a Resolver Path, this sanitizes the input for output in the trace
 	 *
-	 * @param $input
+	 * @param mixed $input The input to sanitize
 	 *
 	 * @return int|null|string
 	 */
@@ -222,7 +222,7 @@ class Tracing {
 	 *
 	 * @see https://github.com/apollographql/apollo-tracing
 	 *
-	 * @param $time
+	 * @param mixed|string|float|int $time The timestamp to format
 	 *
 	 * @return string
 	 */
@@ -237,11 +237,11 @@ class Tracing {
 	 * Filter the headers that WPGraphQL returns to include headers that indicate the WPGraphQL
 	 * server supports Apollo Tracing and Credentials
 	 *
-	 * @param $headers
+	 * @param array $headers The headers to return
 	 *
 	 * @return array
 	 */
-	public function return_tracing_headers( $headers ): array {
+	public function return_tracing_headers( array $headers ) {
 		$headers[] = 'X-Insights-Include-Tracing';
 		$headers[] = 'X-Apollo-Tracing';
 		$headers[] = 'Credentials';

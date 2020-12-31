@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_Query;
+use wpdb;
+
 /**
  * Post Cursor
  *
@@ -12,28 +15,28 @@ namespace WPGraphQL\Data\Cursor;
 class PostObjectCursor {
 
 	/**
-	 * The global wpdb instance
+	 * The global WordPress Database instance
 	 *
-	 * @var $wpdb
+	 * @var wpdb $wpdb
 	 */
 	public $wpdb;
 
 	/**
 	 * The WP_Query instance
 	 *
-	 * @var $query
+	 * @var WP_Query $query
 	 */
 	public $query;
 
 	/**
 	 * The current post id which is our cursor offset
 	 *
-	 * @var $post_type
+	 * @var int $cursor_offset
 	 */
 	public $cursor_offset;
 
 	/**
-	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
+	 * @var CursorBuilder
 	 */
 	public $builder;
 
@@ -52,7 +55,7 @@ class PostObjectCursor {
 	/**
 	 * PostCursor constructor.
 	 *
-	 * @param \WP_Query $query The WP_Query instance
+	 * @param WP_Query $query The WP_Query instance
 	 */
 	public function __construct( $query ) {
 		global $wpdb;
@@ -184,7 +187,7 @@ class PostObjectCursor {
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
 	 *
-	 * @return string
+	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
 
@@ -228,8 +231,6 @@ class PostObjectCursor {
 	 *
 	 * @param string $meta_key post meta key
 	 * @param string $order    The comparison string
-	 *
-	 * @return string
 	 */
 	private function compare_with_meta_field( $meta_key, $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Utils;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -108,13 +109,8 @@ class InstrumentSchema {
 					 * @param AppContext  $context The AppContext passed down the ResolveTree
 					 * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
 					 *
-					 * @use   function|null $field_resolve_function
-					 * @use   string $type_name
-					 * @use   string $field_key
-					 * @use   object $field
-					 *
 					 * @return mixed
-					 * @throws \Exception
+					 * @throws Exception
 					 */
 					$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 

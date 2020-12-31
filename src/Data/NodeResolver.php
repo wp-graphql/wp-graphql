@@ -164,8 +164,6 @@ class NodeResolver {
 				// Substitute the substring matches into the query.
 				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) );
 
-				$this->wp->matched_query = $query;
-
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
 
@@ -191,7 +189,7 @@ class NodeResolver {
 
 		foreach ( get_post_types( [ 'show_in_graphql' => true ], 'objects' ) as $post_type => $t ) {
 
-			if ( true === $t->show_in_graphql && $t->query_var ) {
+			if ( isset( $t->show_in_graphql ) && true === $t->show_in_graphql && $t->query_var ) {
 				$post_type_query_vars[ $t->query_var ] = $post_type;
 			}
 		}

@@ -60,7 +60,7 @@ class Request {
 	/**
 	 * Schema for this request.
 	 *
-	 * @var \WPGraphQL\WPSchema
+	 * @var WPSchema
 	 */
 	public $schema;
 
@@ -102,7 +102,7 @@ class Request {
 	/**
 	 * Constructor
 	 *
-	 * @param  array|null $data The request data (for non-HTTP requests).
+	 * @param array|null $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
 	 *
@@ -257,9 +257,8 @@ class Request {
 	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
 	 * request.
 	 *
-	 * @throws \Exception
-	 *
 	 * @return boolean
+	 * @throws \Exception
 	 */
 	protected function has_authentication_errors() {
 
@@ -438,14 +437,14 @@ class Request {
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @since 0.0.4
+		 * @param array      $response  The response your GraphQL request
+		 * @param WPSchema   $schema    The schema object for the root request
+		 * @param string     $operation The name of the operation
+		 * @param string     $query     The query that GraphQL executed
+		 * @param array|null $variables Variables to passed to your GraphQL query
+		 * @param Request    $this      Instance of the Request
 		 *
-		 * @param array               $response  The response your GraphQL request
-		 * @param \WPGraphQL\WPSchema $schema    The schema object for the root request
-		 * @param string              $operation The name of the operation
-		 * @param string              $query     The query that GraphQL executed
-		 * @param array|null          $variables Variables to passed to your GraphQL query
-		 * @param Request             $this      Instance of the Request
+		 * @since 0.0.4
 		 */
 		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -474,14 +473,14 @@ class Request {
 		 * every response, regardless of the request that was sent to it, this could allow for that
 		 * to be hooked in and included in the $response.
 		 *
-		 * @since 0.0.5
+		 * @param array      $response  The response for your GraphQL query
+		 * @param WPSchema   $schema    The schema object for the root query
+		 * @param string     $operation The name of the operation
+		 * @param string     $query     The query that GraphQL executed
+		 * @param array|null $variables Variables to passed to your GraphQL request
+		 * @param Request    $request      Instance of the Request
 		 *
-		 * @param array               $response  The response for your GraphQL query
-		 * @param \WPGraphQL\WPSchema $schema    The schema object for the root query
-		 * @param string              $operation The name of the operation
-		 * @param string              $query     The query that GraphQL executed
-		 * @param array|null          $variables Variables to passed to your GraphQL request
-		 * @param Request             $this      Instance of the Request
+		 * @since 0.0.5
 		 */
 		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -489,13 +488,13 @@ class Request {
 		 * Run an action after the response has been filtered, as the response is being returned.
 		 * This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param array               $filtered_response The filtered response for the GraphQL request
-		 * @param array               $response          The response for your GraphQL request
-		 * @param \WPGraphQL\WPSchema $schema            The schema object for the root request
-		 * @param string              $operation         The name of the operation
-		 * @param string              $query             The query that GraphQL executed
-		 * @param array|null          $variables         Variables to passed to your GraphQL query
-		 * @param Request             $this      Instance of the Request
+		 * @param array      $filtered_response The filtered response for the GraphQL request
+		 * @param array      $response          The response for your GraphQL request
+		 * @param WPSchema   $schema            The schema object for the root request
+		 * @param string     $operation         The name of the operation
+		 * @param string     $query             The query that GraphQL executed
+		 * @param array|null $variables         Variables to passed to your GraphQL query
+		 * @param Request    $this              Instance of the Request
 		 */
 		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -510,7 +509,7 @@ class Request {
 	/**
 	 * Run action for a request.
 	 *
-	 * @param  OperationParams $params OperationParams for the request.
+	 * @param OperationParams $params OperationParams for the request.
 	 *
 	 * @return void
 	 */
@@ -646,10 +645,10 @@ class Request {
 		 * upon directly to override default values or implement new features, e.g.,
 		 * $config->setValidationRules().
 		 *
-		 * @since 0.2.0
-		 *
 		 * @param ServerConfig    $config Server config
 		 * @param OperationParams $params Request operation params
+		 *
+		 * @since 0.2.0
 		 */
 		do_action( 'graphql_server_config', $config, $this->params );
 

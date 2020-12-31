@@ -153,18 +153,18 @@ class Tracker {
 	 *
 	 * @return string
 	 */
-	public function hash( $value ) {
+	public function hash( string $value ) {
 		return hash( 'sha256', $value );
 	}
 
 	/**
 	 * Given a key from the $_SERVER super global, returns sanitized data
 	 *
-	 * @param $key
+	 * @param string $key
 	 *
 	 * @return null
 	 */
-	public function clean_server_data( $key ) {
+	public function clean_server_data( string $key ) {
 		return isset( $_SERVER[ $key ] ) ? $this->sanitize( $_SERVER[ $key ] ) : null;
 	}
 

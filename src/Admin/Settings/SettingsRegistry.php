@@ -417,10 +417,8 @@ class SettingsRegistry {
 	 * Displays the html for a settings field
 	 *
 	 * @param array $args settings field args
-	 *
-	 * @return string
 	 */
-	function callback_html( $args ) {
+	function callback_html( array $args ) {
 		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 

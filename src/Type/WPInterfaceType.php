@@ -36,12 +36,13 @@ class WPInterfaceType extends InterfaceType {
 			if ( is_callable( $config['resolveType'] ) ) {
 				$type = call_user_func( $config['resolveType'], $object );
 			}
+
 			/**
 			 * Filter the resolve type method for all interfaces
 			 *
-			 * @param mixed       $type    The Type to resolve to, based on the object being resolved.
-			 * @param mixed       $object  The Object being resolved.
-			 * @param WPInterfaceType $this    The WPInterfaceType instance.
+			 * @param mixed           $type   The Type to resolve to, based on the object being resolved.
+			 * @param mixed           $object The Object being resolved.
+			 * @param WPInterfaceType $wp_interface_type   The WPInterfaceType instance.
 			 */
 			return apply_filters( 'graphql_interface_resolve_type', $type, $object, $this );
 		};
@@ -50,7 +51,7 @@ class WPInterfaceType extends InterfaceType {
 		 * Filter the config of WPInterfaceType
 		 *
 		 * @param array           $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
-		 * @param WPInterfaceType $this   The instance of the WPObjectType class
+		 * @param WPInterfaceType $wp_interface_type   The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 
@@ -67,7 +68,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
@@ -75,8 +76,8 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array        $fields        The array of fields for the object config
-		 * @param string       $type_name     The name of the object type
+		 * @param array  $fields    The array of fields for the object config
+		 * @param string $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 

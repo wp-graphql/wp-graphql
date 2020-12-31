@@ -110,10 +110,9 @@ class CommentMutation {
 	 * @param string      $mutation_name           The name of the mutation ( ex: create, update, delete )
 	 * @param AppContext  $context                 The AppContext passed down to all resolvers
 	 * @param ResolveInfo $info                    The ResolveInfo passed down to all resolvers
-	 * @param string      $intended_comment_status The intended post_status the post should have according to the mutation input
-	 * @param string      $intended_comment_status The default status posts should use if an intended status wasn't set
 	 */
-	public static function update_additional_comment_data( $comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
+	public static function update_additional_comment_data( int $comment_id, array $input, string $mutation_name, AppContext $context, ResolveInfo $info ) {
+
 		/**
 		* @todo: should account for authentication
 		*/
