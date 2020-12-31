@@ -106,7 +106,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @param $offset
+	 * @param mixed $offset
 	 *
 	 * @return bool
 	 */

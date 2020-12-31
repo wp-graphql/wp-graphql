@@ -358,11 +358,11 @@ function graphql_debug( $message, $config = [] ) {
 /**
  * Check if the name is valid for use in GraphQL
  *
- * @param $type_name
+ * @param string $type_name The name of the type to validate
  *
  * @return bool
  */
-function is_valid_graphql_name( $type_name ) {
+function is_valid_graphql_name( string $type_name ) {
 	if ( preg_match( '/^\d/', $type_name ) ) {
 		return false;
 	}
@@ -391,7 +391,7 @@ function register_graphql_settings_fields( $group, $fields ) {
  *
  * @return mixed|string|int|boolean
  */
-function get_graphql_setting( $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
+function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
 
 	$section_fields = get_option( $section_name );
 

@@ -8,7 +8,6 @@ use WPGraphQL\Data\Loader\CommentAuthorLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
 use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
-use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
@@ -18,7 +17,6 @@ use WPGraphQL\Data\Loader\ThemeLoader;
 use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
 use WPGraphQL\Data\NodeResolver;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -131,7 +129,7 @@ class AppContext {
 		/**
 		 * This sets up the NodeResolver to allow nodes to be resolved by URI
 		 *
-		 * @param AppContext $this The AppContext instance
+		 * @param AppContext $app_context The AppContext instance
 		 */
 		$this->node_resolver = new NodeResolver( $this );
 
