@@ -22,6 +22,12 @@
  */
 
 // Exit if accessed directly.
+use WPGraphQL\Admin\Admin;
+use WPGraphQL\AppContext;
+use WPGraphQL\Registry\SchemaRegistry;
+use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\WPSchema;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -87,14 +93,14 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * Holds the Schema def
 		 *
-		 * @var \WPGraphQL\WPSchema
+		 * @var mixed|null|WPSchema $schema The Schema used for the GraphQL API
 		 */
 		protected static $schema;
 
 		/**
 		 * Holds the TypeRegistry instance
 		 *
-		 * @var \WPGraphQL\Registry\TypeRegistry $type_registry
+		 * @var mixed|null|TypeRegistry $type_registry The registry that holds all GraphQL Types
 		 */
 		protected static $type_registry;
 
@@ -389,7 +395,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Initialize admin functionality
 		 */
 		public function init_admin() {
-			$admin = new \WPGraphQL\Admin\Admin();
+			$admin = new Admin();
 			$admin->init();
 		}
 
@@ -555,7 +561,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
-		 * @return \WPGraphQL\WPSchema
+		 * @return WPSchema
 		 *
 		 * @throws Exception
 		 */
@@ -563,7 +569,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			if ( null === self::$schema ) {
 
-				$schema_registry = new \WPGraphQL\Registry\SchemaRegistry();
+				$schema_registry = new SchemaRegistry();
 				$schema          = $schema_registry->get_schema();
 
 				/**
@@ -572,7 +578,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 * @since 0.0.5
 				 *
 				 * @param array                 $schema      The executable Schema that GraphQL executes against
-				 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+				 * @param AppContext $app_context Object The AppContext object containing all of the
 				 *                                           information about the context we know at this point
 				 */
 				self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
@@ -610,7 +616,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Returns the Schema as defined by static registrations throughout
 		 * the WP Load.
 		 *
-		 * @return \WPGraphQL\Registry\TypeRegistry
+		 * @return TypeRegistry
 		 *
 		 * @throws Exception
 		 */
@@ -618,7 +624,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 			if ( null === self::$type_registry ) {
 
-				$type_registry = new \WPGraphQL\Registry\TypeRegistry();
+				$type_registry = new TypeRegistry();
 
 				/**
 				 * Generate & Filter the schema.
@@ -626,7 +632,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				 * @since 0.0.5
 				 *
 				 * @param array                 $type_registry The TypeRegistry for the API
-				 * @param \WPGraphQL\AppContext $app_context   Object The AppContext object containing all of the
+				 * @param AppContext $app_context   Object The AppContext object containing all of the
 				 *                                             information about the context we know at this point
 				 */
 				self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
@@ -661,7 +667,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		/**
 		 * Get the AppContext for use in passing down the Resolve Tree
 		 *
-		 * @return \WPGraphQL\AppContext
+		 * @return AppContext
 		 */
 		public static function get_app_context() {
 
@@ -670,7 +676,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 *
 			 * @since 0.0.4
 			 */
-			$app_context           = new \WPGraphQL\AppContext();
+			$app_context           = new AppContext();
 			$app_context->viewer   = wp_get_current_user();
 			$app_context->root_url = get_bloginfo( 'url' );
 			$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
