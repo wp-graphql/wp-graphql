@@ -133,7 +133,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 */
 		public static function instance() {
 
-			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof WPGraphQL ) ) {
+			if ( ! isset( self::$instance ) || ! ( self::$instance instanceof WPGraphQL ) ) {
 				self::$instance = new WPGraphQL();
 				self::$instance->setup_constants();
 				self::$instance->includes();
