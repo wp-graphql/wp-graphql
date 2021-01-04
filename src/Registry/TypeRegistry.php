@@ -342,8 +342,10 @@ class TypeRegistry {
 
 			$page_templates['default'] = 'DefaultTemplate';
 			foreach ( $registered_page_templates as $post_type_templates ) {
-				foreach ( $post_type_templates as $file => $name ) {
-					$page_templates[ $file ] = $name;
+				if ( is_array( $post_type_templates ) && ! empty( $post_type_templates ) ) {
+					foreach ( $post_type_templates as $file => $name ) {
+						$page_templates[ $file ] = $name;
+					}
 				}
 			}
 		}

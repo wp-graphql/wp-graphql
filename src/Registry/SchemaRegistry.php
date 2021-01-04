@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Registry;
 
+use GraphQL\Type\SchemaConfig;
 use WPGraphQL\WPSchema;
 
 /**
@@ -35,19 +36,18 @@ class SchemaRegistry {
 
 		$this->type_registry->init();
 
+		$schema_config             = new SchemaConfig();
+		$schema_config->query      = $this->type_registry->get_type( 'RootQuery' );
+		$schema_config->mutation   = $this->type_registry->get_type( 'RootMutation' );
+		$schema_config->typeLoader = function( $type ) {
+			return $this->type_registry->get_type( $type );
+		};
+		$schema_config->types      = $this->type_registry->get_types();
+
 		/**
 		 * Create a new instance of the Schema
 		 */
-		$schema = new WPSchema(
-			[
-				'query'      => $this->type_registry->get_type( 'RootQuery' ),
-				'mutation'   => $this->type_registry->get_type( 'RootMutation' ),
-				'typeLoader' => function( $type ) {
-					return $this->type_registry->get_type( $type );
-				},
-				'types'      => $this->type_registry->get_types(),
-			]
-		);
+		$schema = new WPSchema( $schema_config );
 
 		/**
 		 * Filter the Schema

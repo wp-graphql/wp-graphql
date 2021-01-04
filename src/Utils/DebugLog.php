@@ -25,12 +25,19 @@ class DebugLog {
 	 */
 	public function __construct() {
 
+		// Instantiate array to start capturing logs
 		$this->logs = [];
 
-		$enabled            = \WPGraphQL::debug() ? true : false;
-		$this->logs_enabled = apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
+		// Whether WPGraphQL Debug is enabled
+		$enabled = \WPGraphQL::debug();
 
-		return $this;
+		/**
+		 * Filters whether GraphQL Debug is enabled enabled. Serves as the default state for enabling debug logs.
+		 *
+		 * @param bool $enabled Whether logs are enabled or not
+		 * @param DebugLog $debug_log The DebugLog class instance
+		 */
+		$this->logs_enabled = apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
 	}
 
 	/**

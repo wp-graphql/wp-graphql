@@ -2,7 +2,9 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
+use WP_Comment;
 
 /**
  * Class CommentAuthor - Models the CommentAuthor object
@@ -19,18 +21,18 @@ class CommentAuthor extends Model {
 	/**
 	 * Stores the comment author to be modeled
 	 *
-	 * @var array $data
+	 * @var WP_Comment $data The raw data passed to he model
 	 */
 	protected $data;
 
 	/**
 	 * CommentAuthor constructor.
 	 *
-	 * @param \WP_Comment $comment_author The incoming comment author array to be modeled
+	 * @param WP_Comment $comment_author The incoming comment author array to be modeled
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $comment_author ) {
+	public function __construct( WP_Comment $comment_author ) {
 		$this->data = $comment_author;
 		parent::__construct();
 	}
