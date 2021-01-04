@@ -80,18 +80,14 @@ class SettingGroup {
 								case 'integer':
 								case 'int':
 									return absint( $option );
-									break;
 								case 'string':
 									return (string) $option;
-									break;
 								case 'boolean':
 								case 'bool':
 									return (bool) $option;
-									break;
 								case 'number':
 								case 'float':
 									return (float) $option;
-									break;
 							}
 
 							return ! empty( $option ) ? $option : null;

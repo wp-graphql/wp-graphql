@@ -23,8 +23,9 @@ class NodeResolver {
 	 * Given the URI of a resource, this method attempts to resolve it and return the
 	 * appropriate related object
 	 *
-	 * @param array|string $uri              The path to be used as an identifier for the resource.
-	 * @param string       $extra_query_vars Any extra query vars to consider
+	 * @param array|string       $uri              The path to be used as an identifier for the
+	 *                                             resource.
+	 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
 	 * @throws \Exception

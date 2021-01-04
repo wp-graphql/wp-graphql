@@ -79,7 +79,6 @@ class RootQuery {
 							switch ( $idType ) {
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
-									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
@@ -341,7 +340,6 @@ class RootQuery {
 									break;
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
-									break;
 								case 'global_id':
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
@@ -396,7 +394,6 @@ class RootQuery {
 									break;
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
-									break;
 								case 'login':
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_login !== $args['id'] ) {
@@ -505,7 +502,6 @@ class RootQuery {
 									] );
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'], [ 'post_type' => $post_type_object->name ] );
-									break;
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
@@ -650,7 +646,6 @@ class RootQuery {
 									break;
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
-									break;
 								case 'global_id':
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );

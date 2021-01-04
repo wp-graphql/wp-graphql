@@ -68,7 +68,7 @@ class Term extends Model {
 		 */
 		$this->global_post = $post;
 
-		if ( $this->data ) {
+		if ( ! empty( $this->data ) ) {
 
 			/**
 			 * Reset global post

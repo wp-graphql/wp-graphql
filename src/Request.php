@@ -412,8 +412,8 @@ class Request {
 	/**
 	 * Apply filters and do actions after GraphQL execution
 	 *
-	 * @param array          $response The response for your GraphQL request
-	 * @param mixed|Int|null $key      The array key of the params for batch requests
+	 * @param mixed|array|object $response The response for your GraphQL request
+	 * @param mixed|Int|null     $key      The array key of the params for batch requests
 	 *
 	 * @return array
 	 */
@@ -437,12 +437,12 @@ class Request {
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param array      $response  The response your GraphQL request
-		 * @param WPSchema   $schema    The schema object for the root request
-		 * @param string     $operation The name of the operation
-		 * @param string     $query     The query that GraphQL executed
-		 * @param array|null $variables Variables to passed to your GraphQL query
-		 * @param Request    $this      Instance of the Request
+		 * @param mixed|array $response  The response your GraphQL request
+		 * @param WPSchema    $schema    The schema object for the root request
+		 * @param string      $operation The name of the operation
+		 * @param string      $query     The query that GraphQL executed
+		 * @param array|null  $variables Variables to passed to your GraphQL query
+		 * @param Request     $this      Instance of the Request
 		 *
 		 * @since 0.0.4
 		 */
@@ -454,7 +454,7 @@ class Request {
 		if ( ! empty( $response ) ) {
 			if ( is_array( $response ) ) {
 				$response['extensions']['debug'] = $this->debug_log->get_logs();
-			} elseif ( is_object( $response ) ) {
+			} else {
 				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
 			}
 		}
@@ -478,7 +478,7 @@ class Request {
 		 * @param string     $operation The name of the operation
 		 * @param string     $query     The query that GraphQL executed
 		 * @param array|null $variables Variables to passed to your GraphQL request
-		 * @param Request    $request      Instance of the Request
+		 * @param Request    $request   Instance of the Request
 		 *
 		 * @since 0.0.5
 		 */

@@ -44,7 +44,7 @@ class CommentMutation {
 			$output_args['user_id']              = $user->ID;
 			$output_args['comment_author']       = $user->display_name;
 			$output_args['comment_author_email'] = $user->user_email;
-			if ( ! is_null( $user->user_url ) ) {
+			if ( ! empty( $user->user_url ) ) {
 				$output_args['comment_author_url'] = $user->user_url;
 			}
 		} else {

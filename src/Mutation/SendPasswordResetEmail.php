@@ -50,6 +50,9 @@ class SendPasswordResetEmail {
 
 					$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
 
+					// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
+					// phpstan should ignore this check.
+					// @phpstan-ignore-next-line
 					if ( is_wp_error( $email_sent ) ) {
 
 						$message = __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' );

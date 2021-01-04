@@ -181,7 +181,7 @@ class Tracker {
 		if ( is_array( $input ) ) {
 			return array_map( [ $this, 'sanitize' ], $input );
 		} else {
-			return is_scalar( $input ) ? sanitize_text_field( $input ) : $input;
+			return sanitize_text_field( $input );
 		}
 	}
 
