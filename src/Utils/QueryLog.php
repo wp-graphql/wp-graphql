@@ -133,8 +133,11 @@ class QueryLog {
 	public function get_query_log() {
 		global $wpdb;
 
+		$save_queries_value = defined( 'SAVEQUERIES' ) && true === SAVEQUERIES ? 'true' : 'false';
+		$default_message    = sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), $save_queries_value );
+
 		// Default message
-		$trace = [ sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), SAVEQUERIES ? 'true' : 'false' ) ];
+		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
 			$queries = array_map( function( $query ) {

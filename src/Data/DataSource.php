@@ -8,7 +8,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PluginConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -580,7 +579,7 @@ class DataSource {
 		 *
 		 * @since 0.0.6
 		 */
-		if ( null === $type ) {
+		if ( empty( $type ) ) {
 			throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
 		}
 

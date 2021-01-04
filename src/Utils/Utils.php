@@ -9,8 +9,8 @@ class Utils {
 	/**
 	 * Maps new input query args and sanitizes the input
 	 *
-	 * @param array $args The raw query args from the GraphQL query
-	 * @param array $map  The mapping of where each of the args should go
+	 * @param mixed|array|string $args The raw query args from the GraphQL query
+	 * @param mixed|array|string $map  The mapping of where each of the args should go
 	 *
 	 * @since  0.5.0
 	 * @return array

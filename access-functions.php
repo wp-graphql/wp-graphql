@@ -44,8 +44,8 @@ function graphql_format_type_name( $type_name ) {
  * @param array $request_data The GraphQL request data (query, variables, operation_name).
  *
  * @return array
- * @since  0.2.0
  * @throws Exception
+ * @since  0.2.0
  */
 function graphql( $request_data = [] ) {
 	$request = new \WPGraphQL\Request( $request_data );
@@ -62,8 +62,8 @@ function graphql( $request_data = [] ) {
  * @param array  $variables      Variables to be passed to your GraphQL request
  *
  * @return array
- * @since  0.0.2
  * @throws \Exception
+ * @since  0.0.2
  */
 function do_graphql_request( $query, $operation_name = '', $variables = [] ) {
 	return graphql( [
@@ -94,10 +94,10 @@ function get_graphql_register_action() {
  *
  * Should be used at the `graphql_register_types` hook.
  *
- * @param array $interface_names Array of one or more names of the GraphQL Interfaces to apply to
- *                               the GraphQL Types
- * @param array $type_names      Array of one or more names of the GraphQL Types to apply the
- *                               interfaces to
+ * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL
+ *                                                    Interfaces to apply to the GraphQL Types
+ * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL
+ *                                                    Types to apply the interfaces to
  *
  * example:
  * The following would register the "MyNewInterface" interface to the Post and Page type in the
@@ -112,7 +112,7 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 	}
 
 	if ( is_string( $interface_names ) ) {
-		$interface_names[] = $interface_names;
+		$interface_names = [ $interface_names ];
 	}
 
 	if ( ! empty( $type_names ) && is_array( $type_names ) && ! empty( $interface_names ) && is_array( $interface_names ) ) {
@@ -289,8 +289,8 @@ function register_graphql_mutation( $mutation_name, $config ) {
  *
  * Default false.
  *
- * @since 0.4.1
  * @return bool
+ * @since 0.4.1
  */
 function is_graphql_request() {
 	return WPGraphQL::is_graphql_request();
@@ -307,8 +307,8 @@ function is_graphql_request() {
  *
  * Default false.
  *
- * @since 0.4.1
  * @return bool
+ * @since 0.4.1
  */
 function is_graphql_http_request() {
 	return \WPGraphQL\Router::is_graphql_http_request();

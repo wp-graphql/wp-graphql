@@ -177,7 +177,7 @@ class Post extends Model {
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
 		 */
-		if ( $this->data ) {
+		if ( ! empty( $this->data ) ) {
 
 			$id        = $this->data->ID;
 			$post_type = $this->data->post_type;
@@ -563,10 +563,13 @@ class Post extends Model {
 					return false;
 				},
 				'toPing'                    => function() {
-					return ! empty( $this->data->to_ping ) && is_array( $this->data->to_ping ) ? implode( ',', (array) $this->data->to_ping ) : null;
+					$to_ping = get_to_ping( $this->databaseId );
+
+					return ! empty( $to_ping ) ? implode( ',', (array) $to_ping ) : null;
 				},
 				'pinged'                    => function() {
-					return ! empty( $this->data->pinged ) && is_array( $this->data->pinged ) ? implode( ',', (array) $this->data->pinged ) : null;
+					$punged = get_pung( $this->databaseId );
+					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
 				},
 				'modified'                  => function() {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;

@@ -39,7 +39,7 @@ class InstrumentSchema {
 
 		if ( ! empty( $types ) && is_array( $types ) ) {
 			foreach ( $types as $type_name => $type_object ) {
-				if ( $type_object instanceof ObjectType || $type_object instanceof WPObjectType ) {
+				if ( $type_object instanceof ObjectType ) {
 					$fields                            = $type_object->getFields();
 					$new_fields                        = self::wrap_fields( $fields, $type_name );
 					$new_type_object                   = $type_object;

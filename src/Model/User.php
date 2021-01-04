@@ -101,7 +101,7 @@ class User extends Model {
 		$this->global_post       = $post;
 		$this->global_authordata = $authordata;
 
-		if ( $this->data ) {
+		if ( ! empty( $this->data ) ) {
 
 			// Reset postdata
 			$wp_query->reset_postdata();
