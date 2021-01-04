@@ -1,0 +1,38 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - graphiql > codemirror-graphql > graphql-language-service-parser > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-parser > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-parser > graphql-language-service-types > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-types > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-parser > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-utils > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-parser > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-parser > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-utils > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-parser > graphql-language-service-types > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-utils > graphql-language-service-types > graphql-config > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-parser > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'
+    - graphiql > codemirror-graphql > graphql-language-service-interface > graphql-language-service-utils > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2021-01-04T15:10:32.477Z'

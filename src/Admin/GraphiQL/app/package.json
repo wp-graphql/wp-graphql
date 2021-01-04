@@ -12,18 +12,22 @@
     "react-scripts": "^1.1.4"
   },
   "dependencies": {
-    "graphiql": "^0.13.2",
+    "graphiql": "^0.17.0",
     "graphiql-code-exporter": "^2.0.5",
     "graphiql-explorer": "^0.4.3",
     "graphql": "^14.4.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "whatwg-fetch": "^3.0.0"
+    "whatwg-fetch": "^3.0.0",
+    "snyk": "^1.437.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "eject": "react-scripts eject",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "snyk": true
 }
