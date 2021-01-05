@@ -74,15 +74,14 @@ class DataSource {
 	 *
 	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
-	 * @return CommentAuthor
+	 * @return mixed|CommentAuthor|null
 	 * @throws Exception Throws Exception.
 	 */
-	public static function resolve_comment_author( $comment_id ) {
-		global $wpdb;
-		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
-		$comment_author = ! empty( $comment_author ) ? (array) $comment_author : [];
+	public static function resolve_comment_author( int $comment_id ) {
 
-		return new CommentAuthor( $comment_author );
+		$comment_author = get_comment( $comment_id );
+
+		return ! empty( $comment_author ) ? new CommentAuthor( $comment_author ) : null;
 	}
 
 	/**
