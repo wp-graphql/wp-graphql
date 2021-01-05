@@ -33,7 +33,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
-		$menu_locations = get_theme_mod( 'nav_menu_locations', [] );
+
+		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
 		$query_args = [
 			'orderby' => 'menu_order',
