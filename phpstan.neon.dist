@@ -1,5 +1,5 @@
 parameters:
-    level: 4
+    level: 5
     inferPrivatePropertyTypeFromConstructor: true
     bootstrapFiles:
         - phpstan/constants.php
@@ -21,3 +21,4 @@ parameters:
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_single_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_plural_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$show_in_graphql.#"
+        - "#^Parameter \\#1 \\$taxonomy of function get_taxonomy expects string, WP_Taxonomy given.#"

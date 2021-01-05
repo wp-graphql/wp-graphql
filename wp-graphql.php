@@ -304,6 +304,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			);
 
 			// Prevent WPGraphQL Insights from running
+			// @phpstan-ignore-next-line
 			remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
 
 			/**
