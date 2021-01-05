@@ -5,7 +5,6 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WP_Post_Type;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 class PostObjectDelete {
@@ -65,7 +64,7 @@ class PostObjectDelete {
 				'resolve'     => function( $payload ) {
 					$deleted = (object) $payload['postObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', absint( $deleted->ID ) ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
 				},
 			],
 			$post_type_object->graphql_single_name => [

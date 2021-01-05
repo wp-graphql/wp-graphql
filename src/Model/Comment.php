@@ -68,7 +68,8 @@ class Comment extends Model {
 		];
 
 		$this->data = $comment;
-		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
+		$owner      = ! empty( $comment->user_id ) ? absint( $comment->user_id ) : null;
+		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $owner );
 
 	}
 
@@ -81,7 +82,7 @@ class Comment extends Model {
 	protected function is_private() {
 
 		// A comment is considered private if it is attached to a private post.
-		if ( ! empty( $this->data->comment_post_ID ) && ( new Post( get_post( $this->data->comment_post_ID ) ) )->is_private() ) {
+		if ( ! empty( $this->data->comment_post_ID ) && ( new Post( get_post( absint( $this->data->comment_post_ID ) ) ) )->is_private() ) {
 			return true;
 		}
 

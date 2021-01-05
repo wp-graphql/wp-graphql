@@ -12,8 +12,8 @@ class Utils {
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
 	 *
-	 * @since  0.5.0
 	 * @return array
+	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map ) {
 
@@ -55,14 +55,13 @@ class Utils {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
-	 * @since 4.7.0
-	 *
-	 * @param string      $date_gmt GMT publication time.
-	 * @param string|null $date     Optional. Local publication time. Default null.
+	 * @param string $date_gmt GMT publication time.
+	 * @param mixed|string|null $date Optional. Local publication time. Default null.
 	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
+	 * @since 4.7.0
 	 */
-	public static function prepare_date_response( $date_gmt, $date = null ) {
+	public static function prepare_date_response( string $date_gmt, $date = null ) {
 		// Use the date if passed.
 		if ( isset( $date ) ) {
 			return mysql_to_rfc3339( $date );
@@ -138,6 +137,7 @@ class Utils {
 			'checked'    => [],
 			'disabled'   => [],
 		];
+
 		return [
 			'form'     => $allowed_atts,
 			'label'    => $allowed_atts,

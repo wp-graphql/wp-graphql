@@ -167,7 +167,7 @@ class User extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'                       => function() {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
 				},
 				'capabilities'             => function() {
 					if ( ! empty( $this->data->allcaps ) ) {

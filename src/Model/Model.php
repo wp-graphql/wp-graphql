@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
+
 /**
  * Class Model - Abstract class for modeling data for all core types
  *
@@ -77,12 +79,12 @@ abstract class Model {
 	 *                                            data to compare with the current user ID
 	 *
 	 * @return void
-	 * @throws \Exception Throws Exception.
+	 * @throws Exception Throws Exception.
 	 */
 	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 
 		if ( empty( $this->data ) ) {
-			throw new \Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
+			throw new Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
 		}
 
 		$this->restricted_cap            = $restricted_cap;

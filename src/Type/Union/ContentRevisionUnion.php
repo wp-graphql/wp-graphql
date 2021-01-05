@@ -30,7 +30,7 @@ class ContentRevisionUnion {
 					'resolveType' => function( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';
-						$parent = get_post( $object->parentId );
+						$parent = get_post( (int) $object->parentDatabaseId );
 						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
 							$parent_post_type_object = get_post_type_object( $parent->post_type );
 							if ( isset( $parent_post_type_object->graphql_single_name ) ) {

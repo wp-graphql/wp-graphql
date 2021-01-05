@@ -159,7 +159,7 @@ class UserCursor {
 			$this->compare_with_login();
 		}
 
-		$this->builder->add_field( "{$this->wpdb->users}.ID", $this->cursor_offset, 'ID' );
+		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID' );
 
 		return $this->to_sql();
 	}

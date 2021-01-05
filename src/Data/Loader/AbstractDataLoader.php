@@ -59,7 +59,7 @@ abstract class AbstractDataLoader {
 	/**
 	 * Given a Database ID, the particular loader will buffer it and resolve it deferred.
 	 *
-	 * @param Int $database_id The database ID for a particular loader to load an object
+	 * @param mixed|int|string $database_id The database ID for a particular loader to load an object
 	 *
 	 * @return Deferred|null
 	 * @throws Exception
@@ -279,7 +279,7 @@ abstract class AbstractDataLoader {
 				throw new Exception(
 					'Method ' . get_class( $this ) . '::loadKeys is expected to return array, but it threw: ' .
 					$e->getMessage(),
-					null,
+					0,
 					$e
 				);
 			}

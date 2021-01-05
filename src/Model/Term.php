@@ -116,7 +116,7 @@ class Term extends Model {
 
 			$this->fields = [
 				'id'                       => function() {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
 				},
 				'term_id'                  => function() {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
@@ -148,7 +148,7 @@ class Term extends Model {
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
 				'parentId'                 => function() {
-					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', $this->data->parent ) : null;
+					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', (string) $this->data->parent ) : null;
 				},
 				'parentDatabaseId'         => function() {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;

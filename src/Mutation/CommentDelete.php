@@ -56,7 +56,7 @@ class CommentDelete {
 				'resolve'     => function( $payload ) {
 					$deleted = (object) $payload['commentObject'];
 
-					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
+					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', $deleted->comment_ID ) : null;
 				},
 			],
 			'comment'   => [

@@ -57,7 +57,7 @@ class CommentRestore {
 				'resolve'     => function ( $payload ) {
 					$restore = (object) $payload['commentObject'];
 
-					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
+					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', $restore->comment_ID ) : null;
 				},
 			],
 			'comment'    => [

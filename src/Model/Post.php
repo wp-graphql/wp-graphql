@@ -7,7 +7,11 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
+use WP_Post;
+use WP_Post_Type;
+use WP_Query;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -75,40 +79,40 @@ class Post extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var \WP_Post $data
+	 * @var WP_Post $data
 	 */
 	protected $data;
 
 	/**
 	 * Store the global post to reset during model tear down
 	 *
-	 * @var \WP_Post
+	 * @var WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * Stores the incoming post type object for the post being modeled
 	 *
-	 * @var null|\WP_Post_Type $post_type_object
+	 * @var null|WP_Post_Type $post_type_object
 	 */
 	protected $post_type_object;
 
 	/**
 	 * Store the instance of the WP_Query
 	 *
-	 * @var \WP_Query
+	 * @var WP_Query
 	 */
 	protected $wp_query;
 
 	/**
 	 * Post constructor.
 	 *
-	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
+	 * @param WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( \WP_Post $post ) {
+	public function __construct( WP_Post $post ) {
 
 		/**
 		 * Set the data as the Post object
@@ -156,7 +160,7 @@ class Post extends Model {
 
 		$restricted_cap = $this->get_restricted_cap();
 
-		parent::__construct( $restricted_cap, $allowed_restricted_fields, $post->post_author );
+		parent::__construct( $restricted_cap, $allowed_restricted_fields, (int) $post->post_author );
 
 	}
 
@@ -277,7 +281,7 @@ class Post extends Model {
 			$parent_post = get_post( $this->data->post_parent );
 
 			// If the parent post doesn't exist, the revision should be considered private
-			if ( ! $parent_post instanceof \WP_Post ) {
+			if ( ! $parent_post instanceof WP_Post ) {
 				return true;
 			}
 
@@ -316,7 +320,7 @@ class Post extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @param \WP_Post $post_object The object of the post we need to verify permissions for
+	 * @param WP_Post $post_object The object of the post we need to verify permissions for
 	 *
 	 * @return bool
 	 */
@@ -400,7 +404,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
 				'id'                        => function() {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', $this->databaseId ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
 				},
 				'databaseId'                => function() {
 					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
@@ -428,7 +432,7 @@ class Post extends Model {
 
 				},
 				'date'                      => function() {
-					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Utils::prepare_date_response( null, $this->data->post_date ) : null;
+					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Utils::prepare_date_response( $this->data->post_date_gmt, $this->data->post_date ) : null;
 				},
 				'dateGmt'                   => function() {
 					return ! empty( $this->data->post_date_gmt ) ? Utils::prepare_date_response( $this->data->post_date_gmt ) : null;
@@ -578,7 +582,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_modified_gmt ) ? Utils::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
 				'parentId'                  => function() {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( 'post', $this->data->post_parent ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( 'post', (string) $this->data->post_parent ) : null;
 				},
 				'parentDatabaseId'          => function() {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
@@ -635,7 +639,7 @@ class Post extends Model {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
 				},
 				'featuredImageId'           => function() {
-					return ! empty( $this->featuredImageDatabaseId ) ? Relay::toGlobalId( 'post', absint( $this->featuredImageDatabaseId ) ) : null;
+					return ! empty( $this->featuredImageDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->featuredImageDatabaseId ) : null;
 				},
 				'featuredImageDatabaseId'   => function() {
 
@@ -689,7 +693,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'previewRevisionId'         => function() {
-					return ! empty( $this->previewRevisionDatabaseId ) ? Relay::toGlobalId( 'post', $this->previewRevisionDatabaseId ) : null;
+					return ! empty( $this->previewRevisionDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->previewRevisionDatabaseId ) : null;
 				},
 				'isPreview'                 => function() {
 					if ( $this->isRevision ) {

@@ -338,8 +338,8 @@ class Tracing {
 		// Compile the trace to return with the GraphQL Response
 		$trace = [
 			'version'   => absint( $this->trace_spec_version ),
-			'startTime' => esc_html( $this->request_start_microtime ),
-			'endTime'   => esc_html( $this->request_end_microtime ),
+			'startTime' => (float) $this->request_start_microtime,
+			'endTime'   => (float) $this->request_end_microtime,
 			'duration'  => absint( $this->get_request_duration() ),
 			'execution' => [
 				'resolvers' => $this->trace_logs,

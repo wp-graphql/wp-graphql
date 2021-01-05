@@ -54,7 +54,7 @@ class MediaItemDelete {
 				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['mediaItemObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', absint( $deleted->ID ) ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
 				},
 			],
 			'mediaItem' => [

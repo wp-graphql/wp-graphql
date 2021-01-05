@@ -162,10 +162,10 @@ class Tracker {
 	 *
 	 * @param string $key
 	 *
-	 * @return null
+	 * @return string
 	 */
 	public function clean_server_data( string $key ) {
-		return isset( $_SERVER[ $key ] ) ? $this->sanitize( $_SERVER[ $key ] ) : null;
+		return isset( $_SERVER[ $key ] ) ? $this->sanitize( $_SERVER[ $key ] ) : '';
 	}
 
 	/**
