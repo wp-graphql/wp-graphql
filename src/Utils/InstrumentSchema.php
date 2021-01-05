@@ -103,8 +103,6 @@ class InstrumentSchema {
 					 * Replace the existing field resolve method with a new function that captures data about
 					 * the resolver to be stored in the resolver_report
 					 *
-					 * @since 0.0.1
-					 *
 					 * @param mixed       $source  The source passed down the Resolve Tree
 					 * @param array       $args    The args for the field
 					 * @param AppContext  $context The AppContext passed down the ResolveTree
@@ -112,6 +110,8 @@ class InstrumentSchema {
 					 *
 					 * @return mixed
 					 * @throws Exception
+					 * @since 0.0.1
+					 *
 					 */
 					$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
@@ -129,13 +129,14 @@ class InstrumentSchema {
 						/**
 						 * Fire an action BEFORE the field resolves
 						 *
-						 * @param mixed           $source    The source passed down the Resolve Tree
-						 * @param array           $args      The args for the field
-						 * @param AppContext      $context   The AppContext passed down the ResolveTree
-						 * @param ResolveInfo     $info      The ResolveInfo passed down the ResolveTree
-						 * @param string          $type_name The name of the type the fields belong to
-						 * @param string          $field_key The name of the field
-						 * @param FieldDefinition $field     The Field Definition for the resolving field
+						 * @param mixed           $source         The source passed down the Resolve Tree
+						 * @param array           $args           The args for the field
+						 * @param AppContext      $context        The AppContext passed down the ResolveTree
+						 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+						 * @param callable        $field_resolver The Resolve function for the field
+						 * @param string          $type_name      The name of the type the fields belong to
+						 * @param string          $field_key      The name of the field
+						 * @param FieldDefinition $field          The Field Definition for the resolving field
 						 */
 						do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
@@ -164,8 +165,8 @@ class InstrumentSchema {
 						$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
 						/**
-						* Check if the field preresolved
-						*/
+						 * Check if the field preresolved
+						 */
 						if ( $nil === $result ) {
 							/**
 							 * If the current field doesn't have a resolve function, use the defaultFieldResolver,

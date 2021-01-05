@@ -22,6 +22,7 @@
  */
 
 // Exit if accessed directly.
+use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
@@ -255,6 +256,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * Set whether the request is a GraphQL request or not
 		 *
 		 * @param bool $is_graphql_request
+		 *
+		 * @return void
 		 */
 		public static function set_is_graphql_request( $is_graphql_request = false ) {
 			self::$is_graphql_request = $is_graphql_request;
@@ -269,6 +272,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
+		 *
+		 * @return void
 		 */
 		private function actions() {
 
@@ -345,6 +350,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		 * further execution.
 		 *
 		 * @throws Exception
+		 *
+		 * @return void
 		 */
 		public function min_php_version_check() {
 
@@ -356,6 +363,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Determine the post_types and taxonomies, etc that should show in GraphQL
+		 *
+		 * @return void
 		 */
 		public function setup_types() {
 
@@ -367,6 +376,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
+		 *
+		 * @return void
 		 */
 		public function maybe_flush_permalinks() {
 			$rules = get_option( 'rewrite_rules' );
@@ -377,6 +388,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Setup filters
+		 *
+		 * @return void
 		 */
 		private function filters() {
 
@@ -394,6 +407,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Initialize admin functionality
+		 *
+		 * @return void
 		 */
 		public function init_admin() {
 			$admin = new Admin();
@@ -477,7 +492,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				function( $post_type ) {
 					$post_type_object = get_post_type_object( $post_type );
 					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
-						throw new \GraphQL\Error\UserError(
+						throw new UserError(
 							sprintf(
 							/* translators: %s will replaced with the registered type */
 								__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
@@ -528,9 +543,15 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			 */
 			array_map(
 				function( $taxonomy ) {
+
 					$tax_object = get_taxonomy( $taxonomy );
-					if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
-						throw new \GraphQL\Error\UserError(
+
+					if ( ! $tax_object instanceof WP_Taxonomy ) {
+						return;
+					}
+
+					if ( ! isset( $tax_object->graphql_single_name ) || ! isset( $tax_object->graphql_plural_name ) ) {
+						throw new UserError(
 							sprintf(
 							/* translators: %s will replaced with the registered taxonomty */
 								__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
@@ -552,6 +573,8 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 
 		/**
 		 * Allow Schema to be cleared
+		 *
+		 * @return void
 		 */
 		public static function clear_schema() {
 			self::$type_registry = null;
@@ -693,6 +716,8 @@ if ( ! function_exists( 'graphql_init' ) ) {
 	 * Function that instantiates the plugins main class
 	 *
 	 * @since 0.0.1
+	 *
+	 * @return object
 	 */
 	function graphql_init() {
 		/**
