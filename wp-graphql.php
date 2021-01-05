@@ -597,6 +597,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 		}
 
 		/**
+		 * Whether WPGraphQL is operating in Debug mode
 		 * @return bool
 		 */
 		public static function debug(): bool {
@@ -604,7 +605,7 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$enabled = (bool) GRAPHQL_DEBUG;
 			} else {
 				$enabled = get_graphql_setting( 'debug_mode_enabled', 'off' );
-				$enabled = 'on' === $enabled ? true : false;
+				$enabled = 'on' === $enabled;
 			}
 
 			/**

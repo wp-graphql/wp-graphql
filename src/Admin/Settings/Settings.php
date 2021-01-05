@@ -174,7 +174,7 @@ class Settings {
 				'type'     => 'checkbox',
 				'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
 				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
-				'disabled' => true === \WPGraphQL::debug() ? true : false,
+				'disabled' => true === \WPGraphQL::debug(),
 			],
 		] );
 
