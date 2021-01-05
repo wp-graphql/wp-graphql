@@ -508,16 +508,20 @@ class SettingsRegistry {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_pages( $args ) {
+	function callback_pages( array $args ) {
 
-		$dropdown_args = [
+		$dropdown_args = array_merge( [
 			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
 			'name'     => $args['section'] . '[' . $args['id'] . ']',
 			'id'       => $args['section'] . '[' . $args['id'] . ']',
 			'echo'     => 0,
-		];
-		$html          = wp_dropdown_pages( wp_kses( $dropdown_args, Utils::get_allowed_wp_kses_html() ) );
-		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
+		], $args );
+
+		$clean_args = [];
+		foreach ( $dropdown_args as $key => $arg ) {
+			$clean_args[ $key ] = wp_kses( $arg, Utils::get_allowed_wp_kses_html() );
+		}
+		echo wp_dropdown_pages( $clean_args );
 	}
 
 	/**
@@ -682,14 +686,14 @@ class SettingsRegistry {
 				// Switches option sections
 				$('.group').hide();
 				var activetab = '';
-				if (typeof(localStorage) != 'undefined') {
+				if (typeof (localStorage) != 'undefined') {
 					activetab = localStorage.getItem("activetab");
 				}
 
 				//if url has section id as hash then set it as active or override the current local storage value
 				if (window.location.hash) {
 					activetab = window.location.hash;
-					if (typeof(localStorage) != 'undefined') {
+					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", activetab);
 					}
 				}
@@ -712,15 +716,14 @@ class SettingsRegistry {
 
 				if (activetab != '' && $(activetab + '-tab').length) {
 					$(activetab + '-tab').addClass('nav-tab-active');
-				}
-				else {
+				} else {
 					$('.nav-tab-wrapper a:first').addClass('nav-tab-active');
 				}
 				$('.nav-tab-wrapper a').click(function (evt) {
 					$('.nav-tab-wrapper a').removeClass('nav-tab-active');
 					$(this).addClass('nav-tab-active').blur();
 					var clicked_group = $(this).attr('href');
-					if (typeof(localStorage) != 'undefined') {
+					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", $(this).attr('href'));
 					}
 					$('.group').hide();
