@@ -24,16 +24,16 @@ class CursorBuilder {
 
 	/**
 	 * Add ordering field. The order you call this method matters. First field
-	 * will be the primary field and latters ones will be used if the primary
+	 * will be the primary field and latter ones will be used if the primary
 	 * field has duplicate values
 	 *
-	 * @param string                  $key           database column
-	 * @param string                  $value         value from the current cursor
-	 * @param null                    $type          type cast
-	 * @param null                    $order         custom order
-	 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
+	 * @param string           $key           database column
+	 * @param mixed|string|int $value         value from the current cursor
+	 * @param string           $type          type cast
+	 * @param string           $order         custom order
+	 * @param PostObjectCursor $object_cursor The PostObjectCursor class
 	 */
-	public function add_field( string $key, string $value, $type = null, $order = null, $object_cursor = null ) {
+	public function add_field( string $key, $value, string $type = null, string $order = null, PostObjectCursor $object_cursor = null ) {
 
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination
