@@ -420,9 +420,10 @@ class Router {
 		$query          = '';
 		$operation_name = '';
 		$variables      = [];
+		$request        = new Request();
 
 		try {
-			$request  = new Request();
+
 			$response = $request->execute_http();
 
 			// Get the operation params from the request.
@@ -440,7 +441,7 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, \WPGraphQL::debug() ) ];
+			$response['errors']     = [ FormattedError::createFromException( $error, $request->get_debug_flag() ) ];
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but
