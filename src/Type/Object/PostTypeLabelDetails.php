@@ -11,6 +11,8 @@ class PostTypeLabelDetails {
 
 	/**
 	 * Register the PostTypeLabelDetails type
+	 *
+	 * @return void
 	 */
 	public static function register_type() {
 		register_graphql_object_type(

@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
 
@@ -16,9 +17,11 @@ class TermObjectUpdate {
 	/**
 	 * Registers the TermObjectUpdate mutation.
 	 *
-	 * @param \WP_Taxonomy $taxonomy The Taxonomy the mutation is registered for.
+	 * @param WP_Taxonomy $taxonomy The Taxonomy the mutation is registered for.
+	 *
+	 * @return void
 	 */
-	public static function register_mutation( \WP_Taxonomy $taxonomy ) {
+	public static function register_mutation( WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );
 		register_graphql_mutation(
 			$mutation_name,
@@ -33,11 +36,11 @@ class TermObjectUpdate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_input_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		return array_merge(
 			TermObjectCreate::get_input_fields( $taxonomy ),
 			[
@@ -60,23 +63,23 @@ class TermObjectUpdate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return TermObjectCreate::get_output_fields( $taxonomy );
 	}
 
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param \WP_Taxonomy $taxonomy       The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy       The taxonomy type of the mutation.
 	 * @param string       $mutation_name  The name of the mutation.
 	 *
 	 * @return callable
 	 */
-	public static function mutate_and_get_payload( \WP_Taxonomy $taxonomy, $mutation_name ) {
+	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, $mutation_name ) {
 		return function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 			/**
 			 * Get the ID parts
@@ -99,13 +102,18 @@ class TermObjectUpdate {
 			/**
 			 * If there was an error getting the existing term, return the error message
 			 */
-			if ( is_wp_error( $existing_term ) ) {
-				$error_message = $existing_term->get_error_message();
-				if ( ! empty( $error_message ) ) {
-					throw new UserError( esc_html( $error_message ) );
+			if ( ! $existing_term instanceof \WP_Term ) {
+				if ( is_wp_error( $existing_term ) ) {
+					$error_message = $existing_term->get_error_message();
+					if ( ! empty( $error_message ) ) {
+						throw new UserError( esc_html( $error_message ) );
+					} else {
+						// Translators: The placeholder is the name of the taxonomy for the term being deleted
+						throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
+					}
 				} else {
 					// Translators: The placeholder is the name of the taxonomy for the term being deleted
-					throw new UserError( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
+					throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
 				}
 			}
 
@@ -147,7 +155,7 @@ class TermObjectUpdate {
 			 * Fires an action when a term is updated via a GraphQL Mutation
 			 *
 			 * @param int         $term_id       The ID of the term object that was mutated
-			 * @param \WP_Taxonomy $taxonomy     The taxonomy of the term being updated
+			 * @param WP_Taxonomy $taxonomy     The taxonomy of the term being updated
 			 * @param array       $args          The args used to update the term
 			 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
 			 * @param AppContext  $context       The AppContext passed down the resolve tree

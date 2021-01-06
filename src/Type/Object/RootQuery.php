@@ -7,8 +7,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 
 /**
  * Class RootQuery
@@ -19,6 +17,8 @@ class RootQuery {
 
 	/**
 	 * Register the RootQuery type
+	 *
+	 * @return void
 	 */
 	public static function register_type() {
 		register_graphql_object_type(
@@ -451,7 +451,7 @@ class RootQuery {
 					'viewer'      => [
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
 							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 						},
 					],
@@ -462,6 +462,8 @@ class RootQuery {
 
 	/**
 	 * Register RootQuery fields for Post Objects of supported post types
+	 *
+	 * @return void
 	 */
 	public static function register_post_object_fields() {
 
@@ -605,6 +607,8 @@ class RootQuery {
 
 	/**
 	 * Register RootQuery fields for Term Objects of supported taxonomies
+	 *
+	 * @return void
 	 */
 	public static function register_term_object_fields() {
 
@@ -641,7 +645,7 @@ class RootQuery {
 									if ( 'database_id' === $idType ) {
 										$idType = 'id';
 									}
-									$term    = get_term_by( $idType, $args['id'], $taxonomy_object->name );
+									$term    = isset( $taxonomy_object->name ) ? get_term_by( $idType, $args['id'], $taxonomy_object->name ) : null;
 									$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 									break;
 								case 'uri':

@@ -9,6 +9,14 @@ use WPGraphQL\Model\User;
 use WPGraphQL\Registry\TypeRegistry;
 
 class UniformResourceIdentifiable {
+
+	/**
+	 * Registers the UniformResourceIdentifiable Interface to the Schema.
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'UniformResourceIdentifiable',

@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class UserRoleEnum {
+
+	/**
+	 * Register the UserRoleEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		global $wp_roles;
 		$all_roles      = $wp_roles->roles;

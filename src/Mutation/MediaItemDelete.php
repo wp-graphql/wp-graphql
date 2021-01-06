@@ -3,12 +3,13 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 class MediaItemDelete {
 	/**
 	 * Registers the MediaItemDelete mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -94,14 +95,14 @@ class MediaItemDelete {
 			/**
 			 * Stop now if a user isn't allowed to delete a mediaItem
 			 */
-			if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
+			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 			}
 
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			/**
 			 * Get the mediaItem object before deleting it

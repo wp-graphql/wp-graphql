@@ -4,9 +4,14 @@ namespace WPGraphQL\Type\Object;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 
 class MenuItem {
+
+	/**
+	 * Register the MenuItem Type
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		register_graphql_object_type(
 			'MenuItem',

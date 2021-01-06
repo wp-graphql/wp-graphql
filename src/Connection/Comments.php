@@ -19,6 +19,8 @@ class Comments {
 
 	/**
 	 * Register connections to Comments
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

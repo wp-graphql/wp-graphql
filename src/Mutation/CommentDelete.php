@@ -11,6 +11,8 @@ use WPGraphQL\Model\Comment;
 class CommentDelete {
 	/**
 	 * Registers the CommentDelete mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

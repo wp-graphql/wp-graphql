@@ -25,6 +25,8 @@ class PostObjects {
 
 	/**
 	 * Registers the various connections from other Types to PostObjects
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

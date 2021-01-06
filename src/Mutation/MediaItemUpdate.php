@@ -6,12 +6,13 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\MediaItemMutation;
 
 class MediaItemUpdate {
 	/**
 	 * Registers the MediaItemUpdate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -86,7 +87,7 @@ class MediaItemUpdate {
 			/**
 			 * Stop now if a user isn't allowed to edit mediaItems
 			 */
-			if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
@@ -103,7 +104,7 @@ class MediaItemUpdate {
 			 * Check to see if the existing_media_item author matches the current user,
 			 * if not they need to be able to edit others posts to proceed
 			 */
-			if ( get_current_user_id() !== $author_id && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 			}
 
@@ -114,13 +115,23 @@ class MediaItemUpdate {
 			$post_args['ID']          = absint( $id_parts['id'] );
 			$post_args['post_author'] = $author_id;
 
+			$clean_args = wp_slash( (array) $post_args );
+
+			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
+				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Insert the post and retrieve the ID
 			 *
 			 * This will not fail as long as we have an ID in $post_args
 			 * Thanks to the validation above we will always have the ID
 			 */
-			$post_id = wp_update_post( wp_slash( (array) $post_args ), true );
+			$post_id = wp_update_post( $clean_args, true );
+
+			if ( is_wp_error( $post_id ) ) {
+				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+			}
 
 			/**
 			 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)

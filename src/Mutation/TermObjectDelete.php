@@ -17,6 +17,8 @@ class TermObjectDelete {
 	 * Registers the TermObjectDelete mutation.
 	 *
 	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation( WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'delete' . ucfirst( $taxonomy->graphql_single_name );
@@ -102,6 +104,10 @@ class TermObjectDelete {
 			 * Get the term before deleting it
 			 */
 			$term_object = get_term( $term_id, $taxonomy->name );
+
+			if ( ! $term_object instanceof \WP_Term ) {
+				throw new UserError( __( 'The ID passed is invalid', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Ensure the type for the Global ID matches the type being mutated

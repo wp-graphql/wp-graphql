@@ -190,7 +190,13 @@ class DataSource {
 		 * If the $post_type is one of the allowed_post_types
 		 */
 		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
-			return new Taxonomy( get_taxonomy( $taxonomy ) );
+			$tax_object = get_taxonomy( $taxonomy );
+
+			if ( ! $tax_object instanceof \WP_Taxonomy ) {
+				throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			}
+
+			return new Taxonomy( $tax_object );
 		} else {
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
@@ -377,7 +383,7 @@ class DataSource {
 	 *
 	 * @return array $settings_groups[ $group ]
 	 */
-	public static function get_setting_group_fields( $group ) {
+	public static function get_setting_group_fields( string $group ) {
 
 		/**
 		 * Get all of the settings, sorted by group
@@ -512,6 +518,13 @@ class DataSource {
 		return self::$node_definition;
 	}
 
+	/**
+	 * Given a node, returns the GraphQL Type
+	 *
+	 * @param mixed $node The node to resolve the type of
+	 *
+	 * @return string
+	 */
 	public static function resolve_node_type( $node ) {
 		$type = null;
 

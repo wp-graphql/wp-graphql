@@ -49,6 +49,8 @@ class Settings {
 
 	/**
 	 * Add the options page to the WP Admin
+	 *
+	 * @return void
 	 */
 	public function add_options_page() {
 		add_menu_page(
@@ -73,6 +75,8 @@ class Settings {
 
 	/**
 	 * Registers the initial settings for WPGraphQL
+	 *
+	 * @return void
 	 */
 	public function register_settings() {
 

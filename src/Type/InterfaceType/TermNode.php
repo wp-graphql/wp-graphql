@@ -12,6 +12,8 @@ class TermNode {
 	 * Register the TermNode Interface
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 

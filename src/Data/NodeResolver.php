@@ -2,16 +2,29 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
+use WP;
 use WPGraphQL\AppContext;
 
 class NodeResolver {
 
+	/**
+	 * @var WP
+	 */
 	protected $wp;
+
+	/**
+	 * @var AppContext
+	 */
 	protected $context;
 
 	/**
 	 * NodeResolver constructor.
+	 *
+	 * @param AppContext $context
+	 *
+	 * @return void
 	 */
 	public function __construct( AppContext $context ) {
 		global $wp;
@@ -23,14 +36,14 @@ class NodeResolver {
 	 * Given the URI of a resource, this method attempts to resolve it and return the
 	 * appropriate related object
 	 *
-	 * @param array|string       $uri              The path to be used as an identifier for the
+	 * @param string       $uri              The path to be used as an identifier for the
 	 *                                             resource.
 	 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function resolve_uri( $uri, $extra_query_vars = '' ) {
+	public function resolve_uri( string $uri, $extra_query_vars = '' ) {
 
 		global $wp_rewrite;
 
@@ -141,10 +154,10 @@ class NodeResolver {
 
 							$post_status_obj = get_post_status_object( $page->post_status );
 							if (
-								! $post_status_obj->public &&
-								! $post_status_obj->protected &&
-								! $post_status_obj->private &&
-								$post_status_obj->exclude_from_search
+								( ! isset( $post_status_obj->public ) || ! $post_status_obj->public ) &&
+								( ! isset( $post_status_obj->protected ) || ! $post_status_obj->protected ) &&
+								( ! isset( $post_status_obj->private ) || ! $post_status_obj->private ) &&
+								( ! isset( $post_status_obj->exclude_from_search ) || $post_status_obj->exclude_from_search )
 							) {
 								continue;
 							}
@@ -305,19 +318,20 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
+			// @phpstan-ignore-next-line
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
 
-			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+			return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['cat'] ) ) {
 			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
 
-			return ! empty( $node ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
+			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['tag'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['tag'], 'post_tag' );
 
-			return ! empty( $node ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
+			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
 
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
@@ -330,11 +344,11 @@ class NodeResolver {
 		} elseif ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
 
-			return $this->context->get_loader( 'user' )->load_deferred( $user->ID );
+			return isset( $user->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $user->ID ) : null;
 		} elseif ( isset( $this->wp->query_vars['category_name'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
 
-			return $this->context->get_loader( 'term' )->load_deferred( $node->term_id );
+			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
@@ -346,7 +360,7 @@ class NodeResolver {
 				if ( isset( $this->wp->query_vars[ $taxonomy->query_var ] ) ) {
 					$node = get_term_by( 'slug', $this->wp->query_vars[ $taxonomy->query_var ], $taxonomy->name );
 
-					return $this->context->get_loader( 'term' )->load_deferred( $node->term_id );
+					return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 				}
 			}
 		}

@@ -14,6 +14,8 @@ class HierarchicalTermNode {
 	 * Register the HierarchicalTermNode Interface Type
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 

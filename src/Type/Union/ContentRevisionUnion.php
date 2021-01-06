@@ -6,6 +6,14 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class ContentRevisionUnion {
+
+	/**
+	 * Register the ContentRevisionUnion Type
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
 		$cpts_with_revisions              = get_post_types_by_support( 'revisions' );

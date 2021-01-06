@@ -12,6 +12,8 @@ class PostObjectDelete {
 	 * Registers the PostObjectDelete mutation.
 	 *
 	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -98,7 +100,7 @@ class PostObjectDelete {
 			/**
 			 * Stop now if a user isn't allowed to delete a post
 			 */
-			if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
+			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -106,7 +108,7 @@ class PostObjectDelete {
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			/**
 			 * Get the post object before deleting it

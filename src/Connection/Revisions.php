@@ -10,6 +10,8 @@ class Revisions {
 	 * Register connections to Revisions
 	 *
 	 * @param TypeRegistry $type_registry Instance of the TypeRegistry
+	 *
+	 * @return void
 	 */
 	public static function register_connections( TypeRegistry $type_registry ) {
 

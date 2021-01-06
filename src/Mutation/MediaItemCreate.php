@@ -12,6 +12,8 @@ use WPGraphQL\Data\MediaItemMutation;
 class MediaItemCreate {
 	/**
 	 * Registers the MediaItemCreate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -136,11 +138,13 @@ class MediaItemCreate {
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
+			$file_contents = file_get_contents( $input['filePath'] );
+
 			/**
 			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
 			 */
-			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) ) {
-				$uploaded_file     = wp_upload_bits( $file_name, null, file_get_contents( $input['filePath'] ) );
+			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
+				$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
 				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
 			}
 
@@ -196,9 +200,9 @@ class MediaItemCreate {
 			$media_item_args = MediaItemMutation::prepare_media_item( $input, get_post_type_object( 'attachment' ), 'createMediaItem', $file );
 
 			/**
-			 * Get the post parent and if it's not set, set it to false
+			 * Get the post parent and if it's not set, set it to 0
 			 */
-			$attachment_parent_id = ( ! empty( $media_item_args['post_parent'] ) ? absint( $media_item_args['post_parent'] ) : false );
+			$attachment_parent_id = ! empty( $media_item_args['post_parent'] ) ? absint( $media_item_args['post_parent'] ) : 0;
 
 			/**
 			 * Stop now if a user isn't allowed to edit the parent post
@@ -207,16 +211,18 @@ class MediaItemCreate {
 
 			if ( null !== get_post( $attachment_parent_id ) ) {
 				$post_parent_type = get_post_type_object( $parent->post_type );
-				if ( 'attachment' !== $post_parent_type && ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) {
+				if ( 'attachment' !== $post_parent_type && ( ! isset( $post_parent_type->cap->edit_post ) || ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) ) {
 					throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems assigned to this parent node', 'wp-graphql' ) );
 				}
 			}
+
+			$post_type_object = get_post_type_object( 'attachment' );
 
 			/**
 			 * If the mediaItem being created is being assigned to another user that's not the current user, make sure
 			 * the current user has permission to edit others mediaItems
 			 */
-			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( get_post_type_object( 'attachment' )->cap->edit_others_posts ) ) {
+			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
 			}
 
@@ -231,6 +237,10 @@ class MediaItemCreate {
 			 * post_mime_type (pulled from the file if not entered in the mutation)
 			 */
 			$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id );
+
+			if ( is_wp_error( $attachment_id ) ) {
+				throw new UserError( __( 'The Media Item failed to create', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Check if the wp_generate_attachment_metadata method exists and include it if not

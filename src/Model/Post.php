@@ -166,6 +166,8 @@ class Post extends Model {
 
 	/**
 	 * Setup the global data for the model to have proper context when resolving
+	 *
+	 * @return void
 	 */
 	public function setup() {
 
@@ -242,17 +244,17 @@ class Post extends Model {
 	 */
 	protected function get_restricted_cap() {
 		if ( ! empty( $this->data->post_password ) ) {
-			return $this->post_type_object->cap->edit_others_posts;
+			return isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
 		}
 
 		switch ( $this->data->post_status ) {
 			case 'trash':
-				$cap = $this->post_type_object->cap->edit_posts;
+				$cap = isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts';
 				break;
 			case 'draft':
 			case 'future':
 			case 'pending':
-				$cap = $this->post_type_object->cap->edit_others_posts;
+				$cap = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
 				break;
 			default:
 				$cap = '';
@@ -340,7 +342,7 @@ class Post extends Model {
 		 * If the status is NOT publish and the user does NOT have capabilities to edit posts,
 		 * consider the post private.
 		 */
-		if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+		if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 			return true;
 		}
 
@@ -360,7 +362,7 @@ class Post extends Model {
 			return true;
 		}
 
-		if ( 'private' === $this->data->post_status && ! current_user_can( $post_type_object->cap->read_private_posts ) ) {
+		if ( 'private' === $this->data->post_status && ( ! isset( $post_type_object->cap->read_private_posts ) || ! current_user_can( $post_type_object->cap->read_private_posts ) ) ) {
 			return true;
 		}
 
@@ -369,9 +371,9 @@ class Post extends Model {
 			$parent_post_type_obj = $post_type_object;
 
 			if ( 'private' === $parent->post_status ) {
-				$cap = $parent_post_type_obj->cap->read_private_posts;
+				$cap = isset( $parent_post_type_obj->cap->read_private_posts ) ? $parent_post_type_obj->cap->read_private_posts : 'read_private_posts';
 			} else {
-				$cap = $parent_post_type_obj->cap->edit_post;
+				$cap = isset( $parent_post_type_obj->cap->edit_post ) ? $parent_post_type_obj->cap->edit_post : 'edit_post';
 			}
 
 			if ( ! current_user_can( $cap, $parent->ID ) ) {
@@ -451,7 +453,7 @@ class Post extends Model {
 					'callback'   => function() {
 						return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_posts,
+					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
 				'titleRendered'             => function() {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
@@ -463,7 +465,7 @@ class Post extends Model {
 					'callback'   => function() {
 						return ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_posts,
+					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
 				'excerptRendered'           => function() {
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
@@ -475,7 +477,7 @@ class Post extends Model {
 					'callback'   => function() {
 						return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_posts,
+					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
 				'post_status'               => function() {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
@@ -573,6 +575,7 @@ class Post extends Model {
 				},
 				'pinged'                    => function() {
 					$punged = get_pung( $this->databaseId );
+
 					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
 				},
 				'modified'                  => function() {
@@ -657,7 +660,7 @@ class Post extends Model {
 					'callback'   => function() {
 						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_others_posts,
+					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
 				],
 				'enqueuedScriptsQueue'      => function() {
 					global $wp_scripts;
@@ -678,7 +681,7 @@ class Post extends Model {
 					return $queue;
 				},
 				'isRevision'                => function() {
-					return 'revision' === $this->data->post_type ? true : false;
+					return 'revision' === $this->data->post_type;
 				},
 				'previewRevisionDatabaseId' => [
 					'callback'   => function() {
@@ -690,7 +693,7 @@ class Post extends Model {
 
 						return is_array( $revisions ) && ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 					},
-					'capability' => $this->post_type_object->cap->edit_posts,
+					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
 				'previewRevisionId'         => function() {
 					return ! empty( $this->previewRevisionDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->previewRevisionDatabaseId ) : null;
@@ -726,7 +729,7 @@ class Post extends Model {
 						'callback'   => function() {
 							return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 						},
-						'capability' => $this->post_type_object->cap->edit_posts,
+						'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 					],
 					'altText'             => function() {
 						return get_post_meta( $this->data->ID, '_wp_attachment_image_alt', true );
@@ -738,7 +741,7 @@ class Post extends Model {
 						'callback'   => function() {
 							return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 						},
-						'capability' => $this->post_type_object->cap->edit_posts,
+						'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 					],
 					'mediaType'           => function() {
 						return wp_attachment_is_image( $this->data->ID ) ? 'image' : 'file';
@@ -749,14 +752,15 @@ class Post extends Model {
 					'sourceUrl'           => function() {
 						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
 
-						return isset( $source_url[0] ) ? $source_url[0] : null;
+						return ! empty( $source_url ) && isset( $source_url[0] ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function() {
 						$sizes = get_intermediate_image_sizes();
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
 							foreach ( $sizes as $size ) {
-								$urls[ $size ] = wp_get_attachment_image_src( $this->data->ID, $size )[0];
+								$img_src       = wp_get_attachment_image_src( $this->data->ID, $size );
+								$urls[ $size ] = ! empty( $img_src ) && isset( $img_src[0] ) ? $img_src[0] : null;
 							}
 						}
 

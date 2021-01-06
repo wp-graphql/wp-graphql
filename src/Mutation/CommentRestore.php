@@ -16,6 +16,8 @@ use WPGraphQL\Data\DataSource;
 class CommentRestore {
 	/**
 	 * Registers the CommentRestore mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

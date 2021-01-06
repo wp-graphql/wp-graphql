@@ -90,7 +90,7 @@ class Settings {
 								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 
-							$option = ! empty( $key ) ? get_option( $key ) : null;
+							$option = ! empty( $key ) ? get_option( (string) $key ) : null;
 
 							switch ( $setting_field['type'] ) {
 								case 'integer':

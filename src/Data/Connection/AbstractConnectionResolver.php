@@ -359,6 +359,8 @@ abstract class AbstractConnectionResolver {
 	 * exists. Offset is equivalent to WordPress ID (e.g post_id, term_id). So this function is
 	 * equivalent to checking if the WordPress object exists for the given ID.
 	 *
+	 * @param mixed $offset The offset to validate. Typically a WordPress Database ID
+	 *
 	 * @return bool
 	 */
 	abstract public function is_valid_offset( $offset );

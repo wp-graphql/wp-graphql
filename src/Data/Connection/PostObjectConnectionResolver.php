@@ -131,7 +131,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 			if ( $this->source instanceof Post ) {
 				$parent_post_type_obj = get_post_type_object( $this->source->post_type );
-				if ( ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
+				if ( ! isset( $parent_post_type_obj->cap->edit_post ) || ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
 					$this->should_execute = false;
 				}
 				/**
@@ -367,10 +367,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * this was quick. I'd be down to explore more dynamic ways to map this, but for
 	 * now this gets the job done.
 	 *
+	 * @param array $where_args The args passed to the connection
+	 *
 	 * @return array
 	 * @since  0.0.5
 	 */
-	public function sanitize_input_fields( $where_args ) {
+	public function sanitize_input_fields( array $where_args ) {
 
 		$arg_mapping = [
 			'authorName'    => 'author_name',
@@ -487,11 +489,16 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 						if ( 'publish' === $status ) {
 							return $status;
 						}
-						if ( current_user_can( $post_type_object->cap->edit_posts ) || 'private' === $status && current_user_can( $post_type_object->cap->read_private_posts ) ) {
-							return $status;
-						} else {
+
+						if ( 'private' === $status && ( ! isset( $post_type_object->cap->read_private_posts ) || ! current_user_can( $post_type_object->cap->read_private_posts ) ) ) {
 							return null;
 						}
+
+						if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+							return null;
+						}
+
+						return $status;
 					}
 				},
 				$statuses

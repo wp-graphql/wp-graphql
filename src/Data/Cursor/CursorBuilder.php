@@ -9,14 +9,25 @@ class CursorBuilder {
 
 	/**
 	 * The field by which the cursor should order the results
+	 *
+	 * @var array
 	 */
 	public $fields;
 
 	/**
 	 * Default comparison operator. < or >
+	 *
+	 * @var string
 	 */
-	public $compare = null;
+	public $compare;
 
+	/**
+	 * CursorBuilder constructor.
+	 *
+	 * @param string $compare
+	 *
+	 * @return void
+	 */
 	public function __construct( $compare = '>' ) {
 		$this->compare = $compare;
 		$this->fields  = [];
@@ -32,6 +43,8 @@ class CursorBuilder {
 	 * @param string           $type          type cast
 	 * @param string           $order         custom order
 	 * @param PostObjectCursor $object_cursor The PostObjectCursor class
+	 *
+	 * @return void
 	 */
 	public function add_field( string $key, $value, string $type = null, string $order = null, PostObjectCursor $object_cursor = null ) {
 
@@ -85,6 +98,8 @@ class CursorBuilder {
 
 	/**
 	 * Generate the final SQL string to be appended to WHERE clause
+	 *
+	 * @param mixed|array|null $fields
 	 *
 	 * @return string
 	 */

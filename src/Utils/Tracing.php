@@ -280,7 +280,6 @@ class Tracing {
 			return $response;
 		}
 
-
 		if ( is_array( $response ) ) {
 			$response['extensions']['tracing'] = $trace;
 		} elseif ( is_object( $response ) ) {

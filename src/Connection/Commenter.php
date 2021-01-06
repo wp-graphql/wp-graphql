@@ -14,6 +14,8 @@ class Commenter {
 
 	/**
 	 * Register connections to Commenter type
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

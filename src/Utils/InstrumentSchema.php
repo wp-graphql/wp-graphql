@@ -111,7 +111,6 @@ class InstrumentSchema {
 					 * @return mixed
 					 * @throws Exception
 					 * @since 0.0.1
-					 *
 					 */
 					$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
@@ -228,17 +227,18 @@ class InstrumentSchema {
 	 *
 	 * This takes into account auth params defined in the Schema
 	 *
-	 * @param mixed           $source    The source passed down the Resolve Tree
-	 * @param array           $args      The args for the field
-	 * @param AppContext      $context   The AppContext passed down the ResolveTree
-	 * @param ResolveInfo     $info      The ResolveInfo passed down the ResolveTree
-	 * @param string          $type_name The name of the type the fields belong to
-	 * @param string          $field_key The name of the field
-	 * @param FieldDefinition $field     The Field Definition for the resolving field
+	 * @param mixed                 $source         The source passed down the Resolve Tree
+	 * @param array                 $args           The args for the field
+	 * @param AppContext            $context        The AppContext passed down the ResolveTree
+	 * @param ResolveInfo           $info           The ResolveInfo passed down the ResolveTree
+	 * @param mixed|callable|string $field_resolver The Resolve function for the field
+	 * @param string                $type_name      The name of the type the fields belong to
+	 * @param string                $field_key      The name of the field
+	 * @param FieldDefinition       $field          The Field Definition for the resolving field
 	 *
 	 * @return bool|mixed
 	 */
-	public static function check_field_permissions( $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field ) {
+	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
 
 		/**
 		 * Set the default auth error message

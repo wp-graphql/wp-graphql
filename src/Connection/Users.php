@@ -20,6 +20,8 @@ class Users {
 
 	/**
 	 * Register connections to Users
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

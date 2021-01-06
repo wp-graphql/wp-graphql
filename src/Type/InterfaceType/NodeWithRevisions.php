@@ -4,6 +4,14 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithRevisions {
+
+	/**
+	 * Registers the NodeWithRevisions Type to the Schema
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithRevisions',

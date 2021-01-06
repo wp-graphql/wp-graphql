@@ -11,6 +11,8 @@ use WPGraphQL\Data\DataSource;
 class CommentCreate {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

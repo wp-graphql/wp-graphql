@@ -16,6 +16,8 @@ use WPGraphQL\Data\CommentMutation;
 class CommentUpdate {
 	/**
 	 * Registers the CommentUpdate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
