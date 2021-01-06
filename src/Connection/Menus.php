@@ -18,6 +18,8 @@ class Menus {
 
 	/**
 	 * Registers connections to Menus
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

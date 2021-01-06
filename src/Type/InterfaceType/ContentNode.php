@@ -15,6 +15,8 @@ class ContentNode {
 	 * Adds the ContentNode Type to the WPGraphQL Registry
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 

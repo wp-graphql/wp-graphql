@@ -13,6 +13,8 @@ class TermObjectCreate {
 	 * Registers the TermObjectCreate mutation.
 	 *
 	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation( WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'create' . ucwords( $taxonomy->graphql_single_name );
@@ -114,7 +116,7 @@ class TermObjectCreate {
 			/**
 			 * Ensure the user can edit_terms
 			 */
-			if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
+			if ( ! isset( $taxonomy->cap->edit_terms ) || ! current_user_can( $taxonomy->cap->edit_terms ) ) {
 				// translators: the $taxonomy->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
 			}
@@ -132,10 +134,16 @@ class TermObjectCreate {
 				throw new UserError( sprintf( __( 'A name is required to create a %1$s' ), $taxonomy->name ) );
 			}
 
+			$term_name = wp_slash( $args['name'] );
+
+			if ( ! is_string( $term_name ) ) {
+				throw new UserError( sprintf( __( 'A valid name is required to create a %1$s' ), $taxonomy->name ) );
+			}
+
 			/**
 			 * Insert the term
 			 */
-			$term = wp_insert_term( wp_slash( $args['name'] ), $taxonomy->name, wp_slash( (array) $args ) );
+			$term = wp_insert_term( $term_name, $taxonomy->name, wp_slash( (array) $args ) );
 
 			/**
 			 * If it was an error, return the message as an exception

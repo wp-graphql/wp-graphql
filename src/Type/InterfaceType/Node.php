@@ -4,6 +4,12 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Data\DataSource;
 
 class Node {
+
+	/**
+	 * Register the Node interface
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		register_graphql_interface_type(
 			'Node',

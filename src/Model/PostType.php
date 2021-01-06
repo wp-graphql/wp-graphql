@@ -74,7 +74,9 @@ class PostType extends Model {
 			'isFrontPage',
 		];
 
-		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
+		$capability = isset( $post_type->cap->edit_posts ) ? $post_type->cap->edit_posts : 'edit_posts';
+
+		parent::__construct( $capability, $allowed_restricted_fields );
 
 	}
 
@@ -85,7 +87,7 @@ class PostType extends Model {
 	 */
 	protected function is_private() {
 
-		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_posts ) ) {
+		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_posts ) || ! current_user_can( $this->data->cap->edit_posts ) ) ) {
 			return true;
 		}
 

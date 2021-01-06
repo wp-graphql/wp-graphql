@@ -192,15 +192,15 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			user(id: \"{$global_id}\") {
 				avatar(size: 48) {
-					default,
-					extraAttr,
-					forceDefault,
-					foundAvatar,
-					height,
-					rating,
-					scheme,
-					size,
-					url,
+					default
+					extraAttr
+					forceDefault
+					foundAvatar
+					height
+					rating
+					scheme
+					size
+					url
 					width
 				}
 			}

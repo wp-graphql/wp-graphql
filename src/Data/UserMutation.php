@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 
 /**
  * Class UserMutation
@@ -211,7 +211,8 @@ class UserMutation {
 	 * @param AppContext  $context       The AppContext passed down the resolve tree
 	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
 	 *
-	 * @throws \Exception
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
@@ -239,7 +240,8 @@ class UserMutation {
 	 * @param int   $user_id The ID of the user
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
-	 * @throws \Exception
+	 * @return void
+	 * @throws Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
 
@@ -259,10 +261,10 @@ class UserMutation {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
 					$message = $verified->get_error_message();
-					throw new \Exception( $message );
+					throw new Exception( $message );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
+					throw new Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
 				}
 			}
 		}

@@ -6,6 +6,14 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class ContentRevisionUnion {
+
+	/**
+	 * Register the ContentRevisionUnion Type
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
 		$cpts_with_revisions              = get_post_types_by_support( 'revisions' );
@@ -30,7 +38,7 @@ class ContentRevisionUnion {
 					'resolveType' => function( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';
-						$parent = get_post( $object->parentId );
+						$parent = get_post( (int) $object->parentDatabaseId );
 						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
 							$parent_post_type_object = get_post_type_object( $parent->post_type );
 							if ( isset( $parent_post_type_object->graphql_single_name ) ) {

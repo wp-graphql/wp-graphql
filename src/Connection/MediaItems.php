@@ -15,6 +15,8 @@ class MediaItems {
 
 	/**
 	 * Register connections to MediaItems
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

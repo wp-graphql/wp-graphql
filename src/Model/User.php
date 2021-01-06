@@ -92,6 +92,8 @@ class User extends Model {
 
 	/**
 	 * Setup the global data for the model to have proper context when resolving
+	 *
+	 * @return void
 	 */
 	public function setup() {
 
@@ -125,6 +127,8 @@ class User extends Model {
 	/**
 	 * Reset global state after the model fields
 	 * have been generated
+	 *
+	 * @return void
 	 */
 	public function tear_down() {
 		$GLOBALS['authordata'] = $this->global_authordata;
@@ -167,7 +171,7 @@ class User extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'                       => function() {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
 				},
 				'capabilities'             => function() {
 					if ( ! empty( $this->data->allcaps ) ) {
@@ -218,7 +222,8 @@ class User extends Model {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
 				'registeredDate'           => function() {
-					return ! empty( $this->data->user_registered ) ? gmdate( 'c', strtotime( $this->data->user_registered ) ) : null;
+					$timestamp = ! empty( $this->data->user_registered ) ? strtotime( $this->data->user_registered ) : null;
+					return ! empty( $timestamp ) ? gmdate( 'c', $timestamp ) : null;
 				},
 				'nickname'                 => function() {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;

@@ -9,6 +9,11 @@ use WPGraphQL\Model\Taxonomy;
 
 class ContentTypes {
 
+	/**
+	 * Registers connections to the ContentType Type
+	 *
+	 * @return void
+	 */
 	public static function register_connections() {
 
 		/**

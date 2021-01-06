@@ -8,6 +8,12 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Model\User;
 
 class SendPasswordResetEmail {
+
+	/**
+	 * Registers the sendPasswordResetEmail Mutation
+	 *
+	 * @return void
+	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
 			'sendPasswordResetEmail',
@@ -27,6 +33,11 @@ class SendPasswordResetEmail {
 						'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
 						'resolve'     => function ( $payload ) {
 							$user = get_user_by( 'ID', absint( $payload['id'] ) );
+
+							if ( empty( $user ) ) {
+								return null;
+							}
+
 							return new User( $user );
 						},
 					],
@@ -94,7 +105,14 @@ class SendPasswordResetEmail {
 	 */
 	private static function get_user_data( $username ) {
 		if ( self::is_email_address( $username ) ) {
-			return get_user_by( 'email', trim( wp_unslash( $username ) ) );
+
+			$username = wp_unslash( $username );
+
+			if ( ! is_string( $username ) ) {
+				return false;
+			}
+
+			return get_user_by( 'email', trim( $username ) );
 		}
 
 		return get_user_by( 'login', trim( $username ) );
@@ -122,8 +140,8 @@ class SendPasswordResetEmail {
 	 *
 	 * @return bool
 	 */
-	private static function is_email_address( $username ) {
-		return strpos( $username, '@' );
+	private static function is_email_address( string $username ) {
+		return (bool) strpos( $username, '@' );
 	}
 
 	/**

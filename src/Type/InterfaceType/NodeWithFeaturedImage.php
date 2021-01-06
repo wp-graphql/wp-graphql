@@ -4,10 +4,15 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithFeaturedImage {
+
 	/**
-	 * @param TypeRegistry $type_registry Instance of the Type Registry
+	 * Registers the NodeWithFeaturedImage Type to the Schema
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
-	public static function register_type( $type_registry ) {
+	public static function register_type( TypeRegistry $type_registry ) {
 
 		register_graphql_interface_type(
 			'NodeWithFeaturedImage',

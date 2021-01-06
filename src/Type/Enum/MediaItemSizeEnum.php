@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class MediaItemSizeEnum {
+
+	/**
+	 * Register the MediaItemSizeEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		$values = [];
 

@@ -543,11 +543,11 @@ class Request {
 
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
-			$this->params->query,
+			isset( $this->params->query ) ? $this->params->query : null,
 			$this->root_value,
 			$this->app_context,
-			$this->params->variables,
-			$this->params->operation,
+			isset( $this->params->variables ) ? $this->params->variables : null,
+			isset( $this->params->operation ) ? $this->params->operation : null,
 			$this->field_resolver,
 			$this->validation_rules
 		);
@@ -555,7 +555,7 @@ class Request {
 		/**
 		 * Return the result of the request
 		 */
-		$response = $result->toArray( \WPGraphQL::debug() );
+		$response = $result->toArray( $this->get_debug_flag() );
 
 		/**
 		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
@@ -603,10 +603,25 @@ class Request {
 	/**
 	 * Get the operation params for the request.
 	 *
-	 * @return OperationParams
+	 * @return OperationParams|OperationParams[]
 	 */
 	public function get_params() {
 		return $this->params;
+	}
+
+	/**
+	 * Returns the debug flag value
+	 *
+	 * @return int
+	 */
+	public function get_debug_flag() {
+		$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE;
+		if ( 0 !== get_current_user_id() ) {
+			// Flag 2 shows the trace data, which should require user to be logged in to see by default
+			$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
+		}
+
+		return true === \WPGraphQL::debug() ? $flag : DebugFlag::NONE;
 	}
 
 	/**
@@ -616,13 +631,7 @@ class Request {
 	 */
 	private function get_server() {
 
-		$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE;
-		if ( 0 !== get_current_user_id() ) {
-			// Flag 2 shows the trace data, which should require user to be logged in to see by default
-			$flag = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
-		}
-
-		$debug_flag = true === \WPGraphQL::debug() ? $flag : DebugFlag::NONE;
+		$debug_flag = $this->get_debug_flag();
 
 		$config = new ServerConfig();
 		$config

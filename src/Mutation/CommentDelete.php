@@ -11,6 +11,8 @@ use WPGraphQL\Model\Comment;
 class CommentDelete {
 	/**
 	 * Registers the CommentDelete mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -56,7 +58,7 @@ class CommentDelete {
 				'resolve'     => function( $payload ) {
 					$deleted = (object) $payload['commentObject'];
 
-					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
+					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', $deleted->comment_ID ) : null;
 				},
 			],
 			'comment'   => [
