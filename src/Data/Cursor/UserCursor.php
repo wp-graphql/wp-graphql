@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_User_Query;
+use wpdb;
+
 /**
  * User Cursor
  *
@@ -12,28 +15,28 @@ namespace WPGraphQL\Data\Cursor;
 class UserCursor {
 
 	/**
-	 * The global wpdb instance
+	 * The global WordPress Database instance
 	 *
-	 * @var $wpdb
+	 * @var wpdb $wpdb WordPress Database
 	 */
 	public $wpdb;
 
 	/**
 	 * The WP_User_Query instance
 	 *
-	 * @var $query
+	 * @var WP_User_Query $query The WP_User_Query Instance
 	 */
 	public $query;
 
 	/**
 	 * The current user id which is our cursor offset
 	 *
-	 * @var $user
+	 * @var int $cursor_offset The current user ID
 	 */
 	public $cursor_offset;
 
 	/**
-	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
+	 * @var CursorBuilder
 	 */
 	public $builder;
 
@@ -46,15 +49,19 @@ class UserCursor {
 
 	/**
 	 * Copy of query vars so we can modify them safely
+	 *
+	 * @var array
 	 */
-	public $query_vars = null;
+	public $query_vars = [];
 
 	/**
 	 * UserCursor constructor.
 	 *
-	 * @param \WP_User_Query $query The WP_User_Query instance
+	 * @param WP_User_Query $query The WP_User_Query instance
+	 *
+	 * @return void
 	 */
-	public function __construct( $query ) {
+	public function __construct( WP_User_Query $query ) {
 		global $wpdb;
 		$this->wpdb       = $wpdb;
 		$this->query      = $query;
@@ -103,14 +110,18 @@ class UserCursor {
 	/**
 	 * Get current WP_User_Query instance's query variables.
 	 *
+	 * @param string $name The query var to get
+	 *
 	 * @return mixed array|null
 	 */
-	public function get_query_var( $name ) {
+	public function get_query_var( string $name ) {
 		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
 	}
 
 	/**
 	 * Return the additional AND operators for the where statement
+	 *
+	 * @return string
 	 */
 	public function get_where() {
 
@@ -155,13 +166,15 @@ class UserCursor {
 			$this->compare_with_login();
 		}
 
-		$this->builder->add_field( "{$this->wpdb->users}.ID", $this->cursor_offset, 'ID' );
+		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID' );
 
 		return $this->to_sql();
 	}
 
 	/**
 	 * Use user login based comparison
+	 *
+	 * @return void
 	 */
 	private function compare_with_login() {
 		$this->builder->add_field( "{$this->wpdb->users}.user_login", $this->get_cursor_user()->user_login, 'CHAR' );
@@ -173,7 +186,7 @@ class UserCursor {
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
 	 *
-	 * @return string
+	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
 
@@ -216,9 +229,9 @@ class UserCursor {
 	 * @param string $meta_key user meta key
 	 * @param string $order    The comparison string
 	 *
-	 * @return string
+	 * @return void
 	 */
-	private function compare_with_meta_field( $meta_key, $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_user_meta( $this->cursor_offset, $meta_key, true );
 

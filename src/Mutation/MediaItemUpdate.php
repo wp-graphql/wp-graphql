@@ -2,16 +2,19 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\MediaItemMutation;
 
 class MediaItemUpdate {
 	/**
 	 * Registers the MediaItemUpdate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -61,10 +64,15 @@ class MediaItemUpdate {
 	public static function mutate_and_get_payload() {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
 			$post_type_object = get_post_type_object( 'attachment' );
-			$mutation_name    = 'updateMediaItem';
+
+			if ( empty( $post_type_object ) ) {
+				return null;
+			}
+
+			$mutation_name = 'updateMediaItem';
 
 			$id_parts            = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$existing_media_item = get_post( absint( $id_parts['id'] ) );
+			$existing_media_item = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? get_post( absint( $id_parts['id'] ) ) : null;
 
 			/**
 			 * If there's no existing mediaItem, throw an exception
@@ -80,13 +88,13 @@ class MediaItemUpdate {
 			 */
 			if ( $post_type_object->name !== $existing_media_item->post_type ) {
 				// translators: The placeholder is the ID of the mediaItem being edited
-				throw new UserError( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $id_parts['id'] ) );
+				throw new UserError( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $input['id'] ) );
 			}
 
 			/**
 			 * Stop now if a user isn't allowed to edit mediaItems
 			 */
-			if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
@@ -103,7 +111,7 @@ class MediaItemUpdate {
 			 * Check to see if the existing_media_item author matches the current user,
 			 * if not they need to be able to edit others posts to proceed
 			 */
-			if ( get_current_user_id() !== $author_id && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 			}
 
@@ -111,8 +119,14 @@ class MediaItemUpdate {
 			 * Insert the post object and get the ID
 			 */
 			$post_args                = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
-			$post_args['ID']          = absint( $id_parts['id'] );
+			$post_args['ID']          = isset( $id_parts['id'] ) ? absint( $id_parts['id'] ) : null;
 			$post_args['post_author'] = $author_id;
+
+			$clean_args = wp_slash( (array) $post_args );
+
+			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
+				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Insert the post and retrieve the ID
@@ -120,7 +134,11 @@ class MediaItemUpdate {
 			 * This will not fail as long as we have an ID in $post_args
 			 * Thanks to the validation above we will always have the ID
 			 */
-			$post_id = wp_update_post( wp_slash( (array) $post_args ), true );
+			$post_id = wp_update_post( $clean_args, true );
+
+			if ( is_wp_error( $post_id ) ) {
+				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+			}
 
 			/**
 			 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)

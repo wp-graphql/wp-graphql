@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
@@ -19,6 +20,9 @@ class Comments {
 
 	/**
 	 * Register connections to Comments
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 
@@ -77,6 +81,11 @@ class Comments {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
+
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 					register_graphql_connection(
 						self::get_connection_config(

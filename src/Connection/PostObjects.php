@@ -2,7 +2,10 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Post_Type;
+use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
@@ -23,6 +26,9 @@ class PostObjects {
 
 	/**
 	 * Registers the various connections from other Types to PostObjects
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 
@@ -155,7 +161,7 @@ class PostObjects {
 			'queryClass'         => 'WP_Query',
 			'description'        => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 			'resolve'            => function( Post $post, $args, $context, $info ) {
-				$ancestors = get_ancestors( $post->ID, null, 'post_type' );
+				$ancestors = get_ancestors( $post->ID, '', 'post_type' );
 				if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
 					return null;
 				}
@@ -180,6 +186,10 @@ class PostObjects {
 			foreach ( $allowed_post_types as $post_type ) {
 
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
 
 				/**
 				 * Registers the RootQuery connection for each post_type
@@ -335,17 +345,17 @@ class PostObjects {
 	 * Given the Post Type Object and an array of args, this returns an array of args for use in
 	 * registering a connection.
 	 *
-	 * @param \WP_Post_Type $post_type_object The post type object for the post_type having a
+	 * @param mixed|WP_Post_Type|WP_Taxonomy $graphql_object The post type object for the post_type having a
 	 *                                        connection registered to it
-	 * @param array         $args             The custom args to modify the connection registration
+	 * @param array                          $args           The custom args to modify the connection registration
 	 *
 	 * @return array
 	 */
-	public static function get_connection_config( $post_type_object, $args = [] ) {
+	public static function get_connection_config( $graphql_object, $args = [] ) {
 
-		$connection_args = self::get_connection_args( [], $post_type_object );
+		$connection_args = self::get_connection_args( [], $graphql_object );
 
-		if ( 'revision' === $post_type_object->name ) {
+		if ( 'revision' === $graphql_object->name ) {
 			unset( $connection_args['status'] );
 			unset( $connection_args['stati'] );
 		}
@@ -353,12 +363,12 @@ class PostObjects {
 		return array_merge(
 			[
 				'fromType'       => 'RootQuery',
-				'toType'         => $post_type_object->graphql_single_name,
+				'toType'         => $graphql_object->graphql_single_name,
 				'queryClass'     => 'WP_Query',
-				'fromFieldName'  => lcfirst( $post_type_object->graphql_plural_name ),
+				'fromFieldName'  => lcfirst( $graphql_object->graphql_plural_name ),
 				'connectionArgs' => $connection_args,
-				'resolve'        => function( $root, $args, $context, $info ) use ( $post_type_object ) {
-					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $post_type_object->name );
+				'resolve'        => function( $root, $args, $context, $info ) use ( $graphql_object ) {
+					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $graphql_object->name );
 				},
 			],
 			$args
@@ -369,7 +379,7 @@ class PostObjects {
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
 	 * @param array         $args             The args to modify the defaults
-	 * @param \WP_Post_Type $post_type_object The post type the connection is going to
+	 * @param WP_Post_Type $post_type_object The post type the connection is going to
 	 *
 	 * @return array
 	 */
@@ -564,7 +574,7 @@ class PostObjects {
 		 * houses by author isn't possible, so exposing it in the Schema is quite misleading to
 		 * consumers.
 		 */
-		if ( isset( $post_type_object ) && $post_type_object instanceof \WP_Post_Type ) {
+		if ( isset( $post_type_object ) && $post_type_object instanceof WP_Post_Type ) {
 
 			/**
 			 * Add arguments to post types that support author

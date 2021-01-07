@@ -8,9 +8,14 @@ use WPGraphQL\Data\DataSource;
 class SettingGroup {
 
 	/**
-	 * @param string $group_name
+	 * Register each settings group to the GraphQL Schema
+	 *
+	 * @param string $group_name The name of the setting group
+	 * @param string $group      The settings group config
+	 *
+	 * @return void
 	 */
-	public static function register_settings_group( $group_name, $group ) {
+	public static function register_settings_group( string $group_name, string $group ) {
 		register_graphql_object_type(
 			ucfirst( $group_name ) . 'Settings',
 			[
@@ -23,11 +28,12 @@ class SettingGroup {
 	/**
 	 * Given the name of a registered settings group, retrieve GraphQL fields for the group
 	 *
-	 * @param string $group_name Name  of the settings group to retrieve fields for
+	 * @param string $group_name Name of the settings group to retrieve fields for
+	 * @param string $group      The settings group config
 	 *
 	 * @return array
 	 */
-	public static function get_settings_group_fields( $group_name, $group ) {
+	public static function get_settings_group_fields( string $group_name, string $group ) {
 
 		$setting_fields = DataSource::get_setting_group_fields( $group );
 
@@ -62,7 +68,7 @@ class SettingGroup {
 					$fields[ $field_key ] = [
 						'type'        => $setting_field['type'],
 						'description' => $setting_field['description'],
-						'resolve'     => function( $root, array $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
+						'resolve'     => function( $root, array $args, $context, $info ) use ( $setting_field ) {
 
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
@@ -80,18 +86,14 @@ class SettingGroup {
 								case 'integer':
 								case 'int':
 									return absint( $option );
-									break;
 								case 'string':
 									return (string) $option;
-									break;
 								case 'boolean':
 								case 'bool':
 									return (bool) $option;
-									break;
 								case 'number':
 								case 'float':
 									return (float) $option;
-									break;
 							}
 
 							return ! empty( $option ) ? $option : null;

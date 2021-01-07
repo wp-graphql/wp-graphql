@@ -9,6 +9,11 @@ use WPGraphQL\Model\MenuItem;
 
 class MenuItemLinkableConnection {
 
+	/**
+	 * Registers connections to the MenuItemLinkable type
+	 *
+	 * @return void
+	 */
 	public static function register_connections() {
 
 		register_graphql_connection([

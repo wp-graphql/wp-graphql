@@ -1,8 +1,10 @@
 <?php
+
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WP_Taxonomy;
 use WPGraphQL\Model\Term;
 
 /**
@@ -14,9 +16,11 @@ class TermObjectDelete {
 	/**
 	 * Registers the TermObjectDelete mutation.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
+	 *
+	 * @return void
 	 */
-	public static function register_mutation( \WP_Taxonomy $taxonomy ) {
+	public static function register_mutation( WP_Taxonomy $taxonomy ) {
 		$mutation_name = 'delete' . ucfirst( $taxonomy->graphql_single_name );
 
 		register_graphql_mutation(
@@ -32,11 +36,11 @@ class TermObjectDelete {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_input_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		return [
 			'id' => [
 				'type'        => [
@@ -51,16 +55,16 @@ class TermObjectDelete {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param \WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( \WP_Taxonomy $taxonomy ) {
+	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return [
 			'deletedId'                    => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) use ( $taxonomy ) {
+				'resolve'     => function( $payload ) {
 					$deleted = (object) $payload['termObject'];
 
 					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( 'term', $deleted->term_id ) : null;
@@ -69,7 +73,7 @@ class TermObjectDelete {
 			$taxonomy->graphql_single_name => [
 				'type'        => $taxonomy->graphql_single_name,
 				'description' => __( 'The deteted term object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) use ( $taxonomy ) {
+				'resolve'     => function( $payload ) {
 					return new Term( $payload['termObject'] );
 				},
 			],
@@ -79,13 +83,13 @@ class TermObjectDelete {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param \WP_Taxonomy $taxonomy       The taxonomy type of the mutation.
-	 * @param string       $mutation_name  The name of the mutation.
+	 * @param WP_Taxonomy $taxonomy      The taxonomy type of the mutation.
+	 * @param string      $mutation_name The name of the mutation.
 	 *
 	 * @return callable
 	 */
-	public static function mutate_and_get_payload( \WP_Taxonomy $taxonomy, $mutation_name ) {
-		return function( $input ) use ( $taxonomy, $mutation_name ) {
+	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
+		return function( $input ) use ( $taxonomy ) {
 
 			$id_parts = Relay::fromGlobalId( $input['id'] );
 
@@ -100,6 +104,10 @@ class TermObjectDelete {
 			 * Get the term before deleting it
 			 */
 			$term_object = get_term( $term_id, $taxonomy->name );
+
+			if ( ! $term_object instanceof \WP_Term ) {
+				throw new UserError( __( 'The ID passed is invalid', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Ensure the type for the Global ID matches the type being mutated

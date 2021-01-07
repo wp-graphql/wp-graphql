@@ -27,6 +27,8 @@ class QueryLog {
 
 	/**
 	 * Initialize Query Logging
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -48,6 +50,8 @@ class QueryLog {
 	 * Tell WordPress to start saving queries.
 	 *
 	 * NOTE: This will affect all requests, not just GraphQL requests.
+	 *
+	 * @return void
 	 */
 	public function init_save_queries() {
 		if ( is_graphql_http_request() && ! defined( 'SAVEQUERIES' ) ) {
@@ -117,6 +121,7 @@ class QueryLog {
 			if ( is_array( $response ) ) {
 				$response['extensions']['queryLog'] = $query_log;
 			} elseif ( is_object( $response ) ) {
+				// @phpstan-ignore-next-line
 				$response->extensions['queryLog'] = $query_log;
 			}
 		}
@@ -133,8 +138,11 @@ class QueryLog {
 	public function get_query_log() {
 		global $wpdb;
 
+		$save_queries_value = defined( 'SAVEQUERIES' ) && true === SAVEQUERIES ? 'true' : 'false';
+		$default_message    = sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), $save_queries_value );
+
 		// Default message
-		$trace = [ sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), SAVEQUERIES ? 'true' : 'false' ) ];
+		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
 			$queries = array_map( function( $query ) {

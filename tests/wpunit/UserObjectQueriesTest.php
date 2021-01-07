@@ -222,7 +222,17 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$user_id = $this->createUserObject();
 
-		$comment_id = $this->factory()->comment->create( [ 'user_id' => $user_id ] );
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
+		]);
+
+		$comment_id = $this->factory()->comment->create( [
+			'user_id' => $user_id,
+			'comment_post_ID' => $post_id,
+		] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id

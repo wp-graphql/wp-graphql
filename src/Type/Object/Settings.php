@@ -81,7 +81,7 @@ class Settings {
 						'type'        => $setting_field['type'],
 						'description' => $setting_field['description'],
 
-						'resolve'     => function( $root, $args, $context, $info ) use ( $setting_field, $field_key, $key ) {
+						'resolve'     => function( $root, $args, $context, $info ) use ( $setting_field, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
@@ -90,7 +90,7 @@ class Settings {
 								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 
-							$option = ! empty( $key ) ? get_option( $key ) : null;
+							$option = ! empty( $key ) ? get_option( (string) $key ) : null;
 
 							switch ( $setting_field['type'] ) {
 								case 'integer':

@@ -12,6 +12,8 @@ class EnqueuedScripts {
 
 	/**
 	 * Register connections to Enqueued Assets
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 

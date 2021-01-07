@@ -31,14 +31,15 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type' => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...'
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
 		]);
 
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_id' => $post_id,
+			'comment_post_ID' => $post_id,
 			'comment_parent'   => 0,
 			'comment_author'   => get_user_by( 'id', $this->admin )->user_email,
 			'comment_content'  => 'Test comment content',
@@ -54,6 +55,9 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * passed through
 		 */
 		$args = array_merge( $defaults, $args );
+
+		codecept_debug( $args );
+		codecept_debug( get_post( $post_id ) );
 
 		/**
 		 * Create the page
@@ -121,9 +125,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				commentedOn {
 					node {
-						... on Post {
-							id
-						}
+						__typename
 					}
 				}
 				content
@@ -165,7 +167,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'edges' => [],
 				],
 				'commentId'   => $comment_id,
-				'commentedOn' => null,
+				'commentedOn' => [
+					'node' => [
+						'__typename' => 'Post',
+					],
+				],
 				'content'     => apply_filters( 'comment_text', 'Test comment content' ),
 				'date'        => $this->current_date,
 				'dateGmt'     => $this->current_date_gmt,
@@ -198,10 +204,14 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'user_id' => 0,
 		] );
 
+		codecept_debug( $comment_id );
+
 		/**
 		 * Create the global ID based on the comment_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', (string) $comment_id );
+
+		codecept_debug( $global_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -572,7 +582,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPrivatePostCommentsNotQueryableWithoutAuth( ) {
 
-		$post_id = $this->factory->post->create( [
+		$post_id = $this->factory()->post->create( [
 			'post_status' => 'private',
 			'post_content' => 'Test',
 		] );

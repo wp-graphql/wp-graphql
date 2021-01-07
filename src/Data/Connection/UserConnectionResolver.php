@@ -91,14 +91,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ID';
 
 		/**
-		 * If the request is not authenticated, limit the query to users that have
-		 * published posts, as they're considered publicly facing users.
-		 */
-		if ( ! is_user_logged_in() ) {
-			$query_args['has_published_posts'] = true;
-		}
-
-		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {

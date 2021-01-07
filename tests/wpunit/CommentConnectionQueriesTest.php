@@ -13,7 +13,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		$this->post_id = $this->factory->post->create();
+		$this->post_id = $this->factory()->post->create();
 
 		$this->current_time        = strtotime( '- 1 day' );
 		$this->current_date        = date( 'Y-m-d H:i:s', $this->current_time );
@@ -32,10 +32,19 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function createCommentObject( $args = [] ) {
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
+		]);
+
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
+			'comment_post_ID' => $post_id,
 			'comment_author'   => $this->admin,
 			'comment_content'  => 'Test comment content',
 			'comment_approved' => 1,
@@ -50,7 +59,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$comment_id = $this->factory->comment->create( $args );
+		$comment_id = $this->factory()->comment->create( $args );
 
 		/**
 		 * Return the $id of the comment_object that was created

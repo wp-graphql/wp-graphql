@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -15,6 +16,9 @@ class ContentNode {
 	 * Adds the ContentNode Type to the WPGraphQL Registry
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
@@ -26,7 +30,7 @@ class ContentNode {
 			'ContentNode',
 			[
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
-				'resolveType' => function( $post ) use ( $type_registry ) {
+				'resolveType' => function( Post $post ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
@@ -37,13 +41,13 @@ class ContentNode {
 					 * $post->post_type attribute.
 					 */
 					$type      = null;
-					$post_type = null;
+					$post_type = isset( $post->post_type ) ? $post->post_type : null;
 
 					if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
-						$parent    = get_post( $post->parentDatabaseId );
-						$post_type = $parent->post_type;
-					} else {
-						$post_type = isset( $post->post_type ) ? $post->post_type : null;
+						$parent = get_post( $post->parentDatabaseId );
+						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
+							$post_type = $parent->post_type;
+						}
 					}
 
 					$post_type_object = ! empty( $post_type ) ? get_post_type_object( $post_type ) : null;

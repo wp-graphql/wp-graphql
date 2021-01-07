@@ -8,6 +8,9 @@ use WPGraphQL\AppContext;
 class ResetUserPassword {
 	/**
 	 * Registers the ResetUserPassword mutation.
+	 *
+	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

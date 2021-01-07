@@ -2,9 +2,13 @@
 
 namespace WPGraphQL\Type\Object;
 
-use WPGraphQL\Model\Taxonomy as TaxonomyModel;
-
 class Taxonomy {
+
+	/**
+	 * Register the Taxonomy type to the GraphQL Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();

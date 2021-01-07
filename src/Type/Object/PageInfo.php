@@ -3,6 +3,12 @@
 namespace WPGraphQL\Type\Object;
 
 class PageInfo {
+
+	/**
+	 * Register WPPageInfo Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 
 		/**

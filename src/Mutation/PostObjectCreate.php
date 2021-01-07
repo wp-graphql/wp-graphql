@@ -4,8 +4,8 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Post_Type;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\PostObjectMutation;
 
 /**
@@ -17,9 +17,11 @@ class PostObjectCreate {
 	/**
 	 * Registers the PostObjectCreate mutation.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 *
+	 * @return void
 	 */
-	public static function register_mutation( \WP_Post_Type $post_type_object ) {
+	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'create' . ucwords( $post_type_object->graphql_single_name );
 
 		register_graphql_mutation(
@@ -35,7 +37,7 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -120,7 +122,10 @@ class PostObjectCreate {
 			];
 		}
 
-		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
+		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [
+			'attachment',
+			'revision',
+		], true ) ) {
 			$fields['parentId'] = [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
@@ -155,21 +160,21 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( $post_type_object ) {
+	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
 			$post_type_object->graphql_single_name => [
 				'type'    => $post_type_object->graphql_single_name,
-				'resolve' => function ( $payload, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'resolve' => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}
 
-					return DataSource::resolve_post_object( $payload['postObjectId'], $context );
+					return $context->get_loader( 'post' )->load_deferred( $payload['postObjectId'] );
 				},
 			],
 		];
@@ -178,13 +183,13 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param \WP_Post_Type $post_type_object   The post type of the mutation.
-	 * @param string        $mutation_name      The mutation name.
+	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param string       $mutation_name    The mutation name.
 	 *
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
-		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+		return function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 			/**
 			 * Throw an exception if there's no input
@@ -196,7 +201,7 @@ class PostObjectCreate {
 			/**
 			 * Stop now if a user isn't allowed to create a post
 			 */
-			if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
+			if ( ! isset( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->create_posts ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -205,7 +210,7 @@ class PostObjectCreate {
 			 * If the post being created is being assigned to another user that's not the current user, make sure
 			 * the current user has permission to edit others posts for this post_type
 			 */
-			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -226,9 +231,9 @@ class PostObjectCreate {
 			 * allow other plugins to override the default (for example, Edit Flow, which provides control over
 			 * customizing stati or various E-commerce plugins that make heavy use of custom stati)
 			 *
-			 * @param string        $default_status   The default status to be used when the post is initially inserted
-			 * @param \WP_Post_Type $post_type_object The Post Type that is being inserted
-			 * @param string        $mutation_name    The name of the mutation currently in progress
+			 * @param string       $default_status   The default status to be used when the post is initially inserted
+			 * @param WP_Post_Type $post_type_object The Post Type that is being inserted
+			 * @param string       $mutation_name    The name of the mutation currently in progress
 			 */
 			$default_post_status = apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
 
@@ -244,7 +249,10 @@ class PostObjectCreate {
 			 * If the current user cannot publish posts but their intent was to publish,
 			 * default the status to pending.
 			 */
-			if ( ! current_user_can( $post_type_object->cap->publish_posts ) && ! in_array( $intended_post_status, [ 'draft', 'pending' ], true ) ) {
+			if ( ( ! isset( $post_type_object->cap->publish_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) && ! in_array( $intended_post_status, [
+				'draft',
+				'pending',
+			], true ) ) {
 				$intended_post_status = 'pending';
 			}
 
@@ -254,10 +262,16 @@ class PostObjectCreate {
 			 */
 			$post_args['post_status'] = $default_post_status;
 
+			$clean_args = wp_slash( (array) $post_args );
+
+			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
+				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Insert the post and retrieve the ID
 			 */
-			$post_id = wp_insert_post( wp_slash( (array) $post_args ), true );
+			$post_id = wp_insert_post( $clean_args, true );
 
 			/**
 			 * Throw an exception if the post failed to create
@@ -297,13 +311,13 @@ class PostObjectCreate {
 			 * be deferred (cron or whatever), and when those actions complete they could come back and set
 			 * the $intended_status.
 			 *
-			 * @param boolean       $should_set_intended_status Whether to set the intended post_status or not. Default true.
-			 * @param \WP_Post_Type $post_type_object           The Post Type Object for the post being mutated
-			 * @param string        $mutation_name              The name of the mutation currently in progress
-			 * @param AppContext    $context                    The AppContext passed down to all resolvers
-			 * @param ResolveInfo   $info                       The ResolveInfo passed down to all resolvers
-			 * @param string        $intended_post_status       The intended post_status the post should have according to the mutation input
-			 * @param string        $default_post_status        The default status posts should use if an intended status wasn't set
+			 * @param boolean      $should_set_intended_status Whether to set the intended post_status or not. Default true.
+			 * @param WP_Post_Type $post_type_object           The Post Type Object for the post being mutated
+			 * @param string       $mutation_name              The name of the mutation currently in progress
+			 * @param AppContext   $context                    The AppContext passed down to all resolvers
+			 * @param ResolveInfo  $info                       The ResolveInfo passed down to all resolvers
+			 * @param string       $intended_post_status       The intended post_status the post should have according to the mutation input
+			 * @param string       $default_post_status        The default status posts should use if an intended status wasn't set
 			 */
 			$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status );
 

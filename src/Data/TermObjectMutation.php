@@ -71,13 +71,12 @@ class TermObjectMutation {
 				 */
 				$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
-				if ( ! $parent_term || is_wp_error( $parent_term ) ) {
+				if ( $parent_term instanceof \WP_Term ) {
+					// Otherwise set the parent as the parent term's ID
+					$insert_args['parent'] = $parent_term->term_id;
+				} else {
 					throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
 				}
-
-				// Otherwise set the parent as the parent term's ID
-				$insert_args['parent'] = $parent_term->term_id;
-
 			} else {
 				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
 			} // End if().

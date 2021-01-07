@@ -32,16 +32,18 @@ class WPSchema extends Schema {
 	/**
 	 * WPSchema constructor.
 	 *
-	 * @param array|null $config The config for the Schema.
+	 * @param SchemaConfig $config The config for the Schema.
 	 *
 	 * @since 0.0.9
 	 */
-	public function __construct( $config ) {
+	public function __construct( SchemaConfig $config ) {
 
 		$this->config = $config;
 
 		/**
 		 * Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
+		 *
+		 * @param SchemaConfig $config The config for the Schema.
 		 *
 		 * @since 0.0.9
 		 */

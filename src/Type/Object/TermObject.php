@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\Object;
 
+use WP_Taxonomy;
 use WPGraphQL\Model\Term;
 
 /**
@@ -14,9 +15,11 @@ class TermObject {
 	/**
 	 * Register the Type for each kind of Taxonomy
 	 *
-	 * @param \WP_Taxonomy $taxonomy_object The taxonomy being registered
+	 * @param WP_Taxonomy $taxonomy_object The taxonomy being registered
+	 *
+	 * @return void
 	 */
-	public static function register_taxonomy_object_type( $taxonomy_object ) {
+	public static function register_taxonomy_object_type( WP_Taxonomy $taxonomy_object ) {
 
 		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
 

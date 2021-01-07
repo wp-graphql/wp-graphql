@@ -238,7 +238,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'commentCount'  => null,
 				'commentStatus' => 'open',
 				'content'       => apply_filters( 'the_content', 'Test page content' ),
-				'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( null, $this->current_date ),
+				'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( 'now', $this->current_date ),
 				'dateGmt'       => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 				'desiredSlug'   => null,
 				'lastEditedBy'      => [

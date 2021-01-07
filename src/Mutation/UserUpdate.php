@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -10,6 +11,9 @@ use WPGraphQL\Data\UserMutation;
 class UserUpdate {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -60,13 +64,13 @@ class UserUpdate {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
 
 			$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$existing_user = get_user_by( 'ID', $id_parts['id'] );
+			$existing_user = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? get_user_by( 'ID', absint( $id_parts['id'] ) ) : null;
 
 			/**
 			 * If there's no existing user, throw an exception
 			 */
-			if ( empty( $id_parts['id'] ) || false === $existing_user ) {
-				throw new UserError( $id_parts['id'] );
+			if ( ! isset( $id_parts['id'] ) || empty( $existing_user ) ) {
+				throw new UserError( __( 'A user could not be updated with the provided ID', 'wp-graphql' ) );
 			}
 
 			if ( ! current_user_can( 'edit_user', $existing_user->ID ) ) {
