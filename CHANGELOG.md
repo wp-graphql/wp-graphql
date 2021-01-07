@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+### New
+- This updates the codebase to be compliant with PHPStan Level 8 checks.
+
+### Bugfixes
+- Fixes some inconsistencies with return Types and Docblocks
+- Adds early returns in places where execution should not reach
+- Adds some checks for possible unset values on objects and arrays before using their values
+
 ## 1.0.5
 
 ### New
