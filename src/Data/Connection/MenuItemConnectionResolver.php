@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
 use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -15,12 +16,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * MenuItemConnectionResolver constructor.
 	 *
-	 * @param             $source
-	 * @param array       $args
-	 * @param AppContext  $context
-	 * @param ResolveInfo $info
+	 * @param mixed       $source     source passed down from the resolve tree
+	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
@@ -32,7 +33,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
-		$menu_locations = get_theme_mod( 'nav_menu_locations', [] );
+
+		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
 		$query_args = [
 			'orderby' => 'menu_order',

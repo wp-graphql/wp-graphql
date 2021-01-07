@@ -4,6 +4,7 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WP_Post_Type;
 use WPGraphQL\AppContext;
 
 /**
@@ -16,9 +17,10 @@ class PostObjectMutation {
 	/**
 	 * This handles inserting the post object
 	 *
-	 * @param array         $input            The input for the mutation
-	 * @param \WP_Post_Type $post_type_object The post_type_object for the type of post being mutated
-	 * @param string        $mutation_name    The name of the mutation being performed
+	 * @param array        $input             The input for the mutation
+	 * @param WP_Post_Type $post_type_object  The post_type_object for the type of post being
+	 *                                        mutated
+	 * @param string       $mutation_name     The name of the mutation being performed
 	 *
 	 * @return array $insert_post_args
 	 * @throws \Exception
@@ -103,10 +105,10 @@ class PostObjectMutation {
 		/**
 		 * Filter the $insert_post_args
 		 *
-		 * @param array         $insert_post_args The array of $input_post_args that will be passed to wp_insert_post
-		 * @param array         $input            The data that was entered as input for the mutation
-		 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
-		 * @param string        $mutation_type    The type of mutation being performed (create, edit, etc)
+		 * @param array        $insert_post_args The array of $input_post_args that will be passed to wp_insert_post
+		 * @param array        $input            The data that was entered as input for the mutation
+		 * @param WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
+		 * @param string       $mutation_type    The type of mutation being performed (create, edit, etc)
 		 */
 		$insert_post_args = apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
@@ -118,31 +120,38 @@ class PostObjectMutation {
 	}
 
 	/**
-	 * This updates additional data related to a post object, such as postmeta, term relationships, etc.
+	 * This updates additional data related to a post object, such as postmeta, term relationships,
+	 * etc.
 	 *
-	 * @param int           $post_id              $post_id      The ID of the postObject being mutated
-	 * @param array         $input                The input for the mutation
-	 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
-	 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
-	 * @param AppContext    $context              The AppContext passed down to all resolvers
-	 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
-	 * @param string        $intended_post_status The intended post_status the post should have according to the
-	 *                                            mutation input
-	 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+	 * @param int          $post_id               $post_id      The ID of the postObject being
+	 *                                            mutated
+	 * @param array        $input                 The input for the mutation
+	 * @param WP_Post_Type $post_type_object      The Post Type Object for the type of post being
+	 *                                            mutated
+	 * @param string       $mutation_name         The name of the mutation (ex: create, update,
+	 *                                            delete)
+	 * @param AppContext   $context               The AppContext passed down to all resolvers
+	 * @param ResolveInfo  $info                  The ResolveInfo passed down to all resolvers
+	 * @param string       $intended_post_status  The intended post_status the post should have
+	 *                                            according to the mutation input
+	 * @param string       $default_post_status   The default status posts should use if an
+	 *                                            intended status wasn't set
+	 *
+	 * @return void
 	 */
 	public static function update_additional_post_object_data( $post_id, $input, $post_type_object, $mutation_name, AppContext $context, ResolveInfo $info, $default_post_status = null, $intended_post_status = null ) {
 
 		/**
 		 * Sets the post lock
 		 *
-		 * @param int           $post_id              The ID of the postObject being mutated
-		 * @param array         $input                The input for the mutation
-		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
-		 * @param AppContext    $context              The AppContext passed down to all resolvers
-		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
-		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param int          $post_id              The ID of the postObject being mutated
+		 * @param array        $input                The input for the mutation
+		 * @param WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext   $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
+		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
 		 *
 		 * @return bool
 		 */
@@ -168,10 +177,10 @@ class PostObjectMutation {
 		/**
 		 * Set the object terms
 		 *
-		 * @param int           $post_id          The ID of the postObject being mutated
-		 * @param array         $input            The input for the mutation
-		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 * @param int          $post_id          The ID of the postObject being mutated
+		 * @param array        $input            The input for the mutation
+		 * @param WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
+		 * @param string       $mutation_name    The name of the mutation (ex: create, update, delete)
 		 */
 		self::set_object_terms( $post_id, $input, $post_type_object, $mutation_name );
 
@@ -180,28 +189,28 @@ class PostObjectMutation {
 		 * update additional data related to postObjects, such as setting relationships, updating additional postmeta,
 		 * or sending emails to Kevin. . .whatever you need to do with the postObject.
 		 *
-		 * @param int           $post_id              The ID of the postObject being mutated
-		 * @param array         $input                The input for the mutation
-		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
-		 * @param AppContext    $context              The AppContext passed down to all resolvers
-		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
-		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param int          $post_id              The ID of the postObject being mutated
+		 * @param array        $input                The input for the mutation
+		 * @param WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext   $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
+		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
 		 */
 		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
 		/**
 		 * Sets the post lock
 		 *
-		 * @param int           $post_id              The ID of the postObject being mutated
-		 * @param array         $input                The input for the mutation
-		 * @param \WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name        The name of the mutation (ex: create, update, delete)
-		 * @param AppContext    $context              The AppContext passed down to all resolvers
-		 * @param ResolveInfo   $info                 The ResolveInfo passed down to all resolvers
-		 * @param string        $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string        $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param int          $post_id              The ID of the postObject being mutated
+		 * @param array        $input                The input for the mutation
+		 * @param WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
+		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
+		 * @param AppContext   $context              The AppContext passed down to all resolvers
+		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
+		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
 		 *
 		 * @return bool
 		 */
@@ -215,25 +224,28 @@ class PostObjectMutation {
 	}
 
 	/**
-	 * Given a $post_id and $input from the mutation, check to see if any term associations are being made, and
-	 * properly set the relationships
+	 * Given a $post_id and $input from the mutation, check to see if any term associations are
+	 * being made, and properly set the relationships
 	 *
-	 * @param int           $post_id          The ID of the postObject being mutated
-	 * @param array         $input            The input for the mutation
-	 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
-	 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+	 * @param int          $post_id           The ID of the postObject being mutated
+	 * @param array        $input             The input for the mutation
+	 * @param WP_Post_Type $post_type_object  The Post Type Object for the type of post being
+	 *                                        mutated
+	 * @param string       $mutation_name     The name of the mutation (ex: create, update, delete)
+	 *
+	 * @return void
 	 */
-	protected static function set_object_terms( $post_id, $input, $post_type_object, $mutation_name ) {
+	protected static function set_object_terms( int $post_id, array $input, WP_Post_Type $post_type_object, string $mutation_name ) {
 
 		/**
 		 * Fire an action before setting object terms during a GraphQL Post Object Mutation.
 		 *
 		 * One example use for this hook would be to create terms from the input that may not exist yet, so that they can be set as a relation below.
 		 *
-		 * @param int           $post_id          The ID of the postObject being mutated
-		 * @param array         $input            The input for the mutation
-		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
-		 * @param string        $mutation_name    The name of the mutation (ex: create, update, delete)
+		 * @param int          $post_id          The ID of the postObject being mutated
+		 * @param array        $input            The input for the mutation
+		 * @param WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
+		 * @param string       $mutation_name    The name of the mutation (ex: create, update, delete)
 		 */
 		do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
 
@@ -243,7 +255,6 @@ class PostObjectMutation {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 
 				/**
@@ -255,6 +266,10 @@ class PostObjectMutation {
 					 * Get the tax object
 					 */
 					$tax_object = get_taxonomy( $taxonomy );
+
+					if ( ! $tax_object instanceof \WP_Taxonomy ) {
+						return;
+					}
 
 					/**
 					 * If there is input for the taxonomy, process it
@@ -306,13 +321,13 @@ class PostObjectMutation {
 
 										if ( ! empty( $id_parts['id'] ) ) {
 											$term_exists = get_term_by( 'id', absint( $id_parts['id'] ), $tax_object->name );
-											if ( $term_exists ) {
+											if ( isset( $term_exists->term_id ) ) {
 												$terms_to_connect[] = $term_exists->term_id;
 											}
 										}
 									} else {
 										$term_exists = get_term_by( 'id', absint( $node['id'] ), $tax_object->name );
-										if ( $term_exists ) {
+										if ( isset( $term_exists->term_id ) ) {
 											$terms_to_connect[] = $term_exists->term_id;
 										}
 									}
@@ -323,7 +338,7 @@ class PostObjectMutation {
 								} elseif ( ! empty( $node['slug'] ) ) {
 									$sanitized_slug = sanitize_text_field( $node['slug'] );
 									$term_exists    = get_term_by( 'slug', $sanitized_slug, $tax_object->name );
-									if ( $term_exists ) {
+									if ( isset( $term_exists->term_id ) ) {
 										$terms_to_connect[] = $term_exists->term_id;
 									}
 									/**
@@ -342,7 +357,7 @@ class PostObjectMutation {
 									/**
 									 * If the current user cannot edit terms, don't create terms to connect
 									 */
-									if ( ! current_user_can( $tax_object->cap->edit_terms ) ) {
+									if ( ! isset( $tax_object->cap->edit_terms ) || ! current_user_can( $tax_object->cap->edit_terms ) ) {
 										return;
 									}
 
@@ -358,7 +373,7 @@ class PostObjectMutation {
 						/**
 						 * If the current user cannot edit terms, don't create terms to connect
 						 */
-						if ( ! current_user_can( $tax_object->cap->assign_terms ) ) {
+						if ( ! isset( $tax_object->cap->assign_terms ) || ! current_user_can( $tax_object->cap->assign_terms ) ) {
 							return;
 						}
 
@@ -372,7 +387,8 @@ class PostObjectMutation {
 	}
 
 	/**
-	 * Given an array of Term properties (slug, name, description, etc), create the term and return a term_id
+	 * Given an array of Term properties (slug, name, description, etc), create the term and return
+	 * a term_id
 	 *
 	 * @param array  $node     The node input for the term
 	 * @param string $taxonomy The taxonomy the term input is for
@@ -403,18 +419,24 @@ class PostObjectMutation {
 		 * @todo: consider supporting "parent" input in $term_args
 		 */
 
-		if ( ! empty( $term_to_create['name'] ) ) {
+		if ( isset( $term_to_create['name'] ) && ! empty( $term_to_create['name'] ) ) {
 			$created_term = wp_insert_term( $term_to_create['name'], $taxonomy, $term_args );
 		}
 
-		if ( is_wp_error( $created_term ) && isset( $created_term->error_data['term_exists'] ) ) {
-			return $created_term->error_data['term_exists'];
+		if ( is_wp_error( $created_term ) ) {
+
+			if ( isset( $created_term->error_data['term_exists'] ) ) {
+				return $created_term->error_data['term_exists'];
+			}
+
+			return 0;
+
 		}
 
 		/**
 		 * Return the created term, or 0
 		 */
-		return ! empty( $created_term['term_id'] ) ? $created_term['term_id'] : 0;
+		return isset( $created_term['term_id'] ) ? absint( $created_term['term_id'] ) : 0;
 
 	}
 
@@ -457,11 +479,11 @@ class PostObjectMutation {
 	 *
 	 * @return bool
 	 */
-	public static function remove_edit_lock( $post_id ) {
+	public static function remove_edit_lock( int $post_id ) {
 
 		$post = get_post( $post_id );
 
-		if ( ! is_a( $post, 'WP_Post' ) ) {
+		if ( empty( $post ) ) {
 			return false;
 		}
 

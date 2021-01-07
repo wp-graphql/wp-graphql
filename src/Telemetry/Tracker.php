@@ -72,6 +72,8 @@ class Tracker {
 
 	/**
 	 * Initialize the tracker.
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -153,36 +155,31 @@ class Tracker {
 	 *
 	 * @return string
 	 */
-	public function hash( $value ) {
+	public function hash( string $value ) {
 		return hash( 'sha256', $value );
 	}
 
 	/**
 	 * Given a key from the $_SERVER super global, returns sanitized data
 	 *
-	 * @param $key
+	 * @param string $key
 	 *
-	 * @return null
+	 * @return string
 	 */
-	public function clean_server_data( $key ) {
-		return isset( $_SERVER[ $key ] ) ? $this->sanitize( $_SERVER[ $key ] ) : null;
+	public function clean_server_data( string $key ) {
+		return isset( $_SERVER[ $key ] ) ? $this->sanitize( $_SERVER[ $key ] ) : '';
 	}
 
 	/**
 	 * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
 	 * Non-scalar values are ignored.
 	 *
-	 * @param string|array $input Data to sanitize.
+	 * @param string $input String to sanitize.
 	 *
-	 * @return string|array
+	 * @return string
 	 */
-	public function sanitize( $input ) {
-
-		if ( is_array( $input ) ) {
-			return array_map( [ $this, 'sanitize' ], $input );
-		} else {
-			return is_scalar( $input ) ? sanitize_text_field( $input ) : $input;
-		}
+	public function sanitize( string $input ) {
+		return sanitize_text_field( $input );
 	}
 
 	/**
@@ -200,7 +197,7 @@ class Tracker {
 		$active_plugins = get_option( 'active_plugins', [] );
 		$active_plugins = array_map( function( $plugin ) {
 			return [
-				'path' => $plugin,
+				'path' => $this->sanitize( $plugin ),
 			];
 		}, $active_plugins );
 
@@ -215,7 +212,7 @@ class Tracker {
 			'host'               => $this->sanitize( site_url() ),
 			'pwd'                => $this->hash( $this->clean_server_data( 'DOCUMENT_ROOT' ) ),
 			'filename'           => $this->hash( $this->clean_server_data( 'SCRIPT_FILENAME' ) ),
-			'activePlugins'      => ! empty( $active_plugins ) ? $this->sanitize( $active_plugins ) : null,
+			'activePlugins'      => ! empty( $active_plugins ) ? $active_plugins : null,
 			'name'               => $this->sanitize( $this->plugin_name ),
 			'adminEmail'         => $this->sanitize( get_option( 'admin_email' ) ),
 			'installationId'     => $this->sanitize( site_url() ) . ':' . $this->hash( $this->clean_server_data( 'DOCUMENT_ROOT' ) ),
@@ -300,6 +297,8 @@ class Tracker {
 	 * Given an array of event info, this sends a request for the event to be logged
 	 *
 	 * @param array $event_info The event info to log
+	 *
+	 * @return void
 	 */
 	protected function send_request( array $event_info ) {
 

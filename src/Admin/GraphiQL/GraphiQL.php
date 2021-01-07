@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Admin\GraphiQL;
 
+use WP_Admin_Bar;
+
 /**
  * Class GraphiQL
  *
@@ -18,6 +20,8 @@ class GraphiQL {
 
 	/**
 	 * Initialize Admin functionality for WPGraphQL
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -41,9 +45,11 @@ class GraphiQL {
 	/**
 	 * Registers admin bar menu
 	 *
-	 * @param \WP_Admin_Bar $admin_bar The Admin Bar Instance
+	 * @param WP_Admin_Bar $admin_bar The Admin Bar Instance
+	 *
+	 * @return void
 	 */
-	public function register_admin_bar_menu( $admin_bar ) {
+	public function register_admin_bar_menu( WP_Admin_Bar $admin_bar ) {
 
 		if ( ! current_user_can( 'manage_options' ) || 'off' === get_graphql_setting( 'show_graphiql_link_in_admin_bar' ) ) {
 			return;
@@ -66,6 +72,8 @@ class GraphiQL {
 
 	/**
 	 * Register the admin page as a subpage
+	 *
+	 * @return void
 	 */
 	public function register_admin_page() {
 		add_submenu_page(
@@ -80,6 +88,8 @@ class GraphiQL {
 
 	/**
 	 * Render the markup to load GraphiQL to
+	 *
+	 * @return void
 	 */
 	public function render_graphiql_admin_page() {
 		echo '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>';
@@ -88,11 +98,11 @@ class GraphiQL {
 	/**
 	 * Gets the contents of the Create React App manifest file
 	 *
-	 * @return array|bool|string
+	 * @return array
 	 */
 	public function get_app_manifest() {
 		$manifest = file_get_contents( dirname( __FILE__ ) . '/app/build/asset-manifest.json' );
-		$manifest = (array) json_decode( $manifest );
+		$manifest = ! empty( $manifest ) ? (array) json_decode( $manifest ) : [];
 		return $manifest;
 	}
 
@@ -137,15 +147,17 @@ class GraphiQL {
 
 	/**
 	 * Enqueues the stylesheet and js for the WPGraphiQL app
+	 *
+	 * @return void
 	 */
 	public function enqueue_graphiql() {
 
 		/**
 		 * Only enqueue the assets on the proper admin page, and only if WPGraphQL is also active
 		 */
-		if ( strpos( get_current_screen()->id, 'graphiql' ) ) {
+		if ( ! empty( get_current_screen() ) && strpos( get_current_screen()->id, 'graphiql' ) ) {
 
-			wp_enqueue_style( 'graphiql', $this->get_app_stylesheet(), [], false, false );
+			wp_enqueue_style( 'graphiql', $this->get_app_stylesheet(), [], false );
 			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
 			wp_enqueue_script( 'graphiql', $this->get_app_script(), [], false, true );
 

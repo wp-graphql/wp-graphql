@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Data\Connection;
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 
 /**
  * Class EnqueuedScriptsConnectionResolver
@@ -12,14 +14,14 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * EnqueuedScriptsConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
+	 * @param mixed       $source     source passed down from the resolve tree
+	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Filter the query amount to be 1000 for
@@ -91,7 +93,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * For backward pagination, we reverse the order of nodes.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_nodes() {
 
@@ -137,7 +139,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Determine if the offset used for pagination is valid
 	 *
-	 * @param $offset
+	 * @param mixed $offset
 	 *
 	 * @return bool
 	 */

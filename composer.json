@@ -39,12 +39,13 @@
     "wp-coding-standards/wpcs": "2.1.1",
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
     "squizlabs/php_codesniffer": "3.5.4",
-    "phpstan/phpstan": "^0.12.25",
+    "phpstan/phpstan": "^0.12.64",
     "szepeviktor/phpstan-wordpress": "^0.7.1",
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "^1.0",
     "phpunit/phpunit": "9.4.1",
-    "simpod/php-coveralls-mirror": "^3.0"
+    "simpod/php-coveralls-mirror": "^3.0",
+    "phpstan/extension-installer": "^1.1"
   },
   "config": {
     "optimize-autoloader": true,

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\Object;
 
+use WP_Post_Type;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -15,10 +16,12 @@ class PostObject {
 	/**
 	 * Registers a post_type WPObject type to the schema.
 	 *
-	 * @param \WP_Post_Type $post_type_object Post type.
-	 * @param TypeRegistry  $type_registry    The Type Registry
+	 * @param WP_Post_Type $post_type_object Post type.
+	 * @param TypeRegistry $type_registry    The Type Registry
+	 *
+	 * @return void
 	 */
-	public static function register_post_object_types( $post_type_object, $type_registry ) {
+	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
 
 		$single_name = $post_type_object->graphql_single_name;
 
@@ -159,7 +162,7 @@ class PostObject {
 							}
 
 							$url = wp_get_attachment_image_src( $source->ID, $size );
-							if ( empty( $url[0] ) ) {
+							if ( ! is_array( $url ) || ! isset( $url[0] ) ) {
 								return null;
 							}
 
@@ -234,8 +237,9 @@ class PostObject {
 							$sourceUrl     = ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->mediaItemUrl;
 							$path_parts    = pathinfo( $sourceUrl );
 							$original_file = get_attached_file( absint( $image->databaseId ) );
-							$filesize_path = path_join( dirname( $original_file ), $path_parts['basename'] );
-							return filesize( $filesize_path );
+							$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
+
+							return ! empty( $filesize_path ) ? filesize( $filesize_path ) : null;
 
 						},
 					],
@@ -255,8 +259,8 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @param \WP_Post_Type $post_type_object Post type.
-	 * @param TypeRegistry  $type_registry    The Type Registry
+	 * @param WP_Post_Type $post_type_object Post type.
+	 * @param TypeRegistry $type_registry    The Type Registry
 	 *
 	 * @return array
 	 */

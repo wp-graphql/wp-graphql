@@ -3,7 +3,7 @@
 namespace WPGraphQL\Utils;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\WPSchema;
+use WPGraphQL\AppContext;
 
 /**
  * Class Tracing
@@ -79,12 +79,14 @@ class Tracing {
 
 	/**
 	 * Initialize tracing
+	 *
+	 * @return void
 	 */
 	public function init() {
 
 		// Check whether Query Logs have been enabled from the settings page
 		$enabled               = get_graphql_setting( 'tracing_enabled', 'off' );
-		$this->tracing_enabled = 'on' === $enabled ? true : false;
+		$this->tracing_enabled = 'on' === $enabled;
 
 		$this->tracing_user_role = get_graphql_setting( 'tracing_user_role', 'manage_options' );
 
@@ -98,15 +100,15 @@ class Tracing {
 		add_filter( 'graphql_request_results', [
 			$this,
 			'add_tracing_to_response_extensions',
-		], 10, 5 );
-		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 8 );
-		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10, 8 );
+		], 10, 4 );
+		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
+		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
 	}
 
 	/**
 	 * Sets the timestamp and microtime for the start of the request
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function init_trace() {
 		$this->request_start_microtime = microtime( true );
@@ -118,7 +120,7 @@ class Tracing {
 	/**
 	 * Sets the timestamp and microtime for the end of the request
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function end_trace() {
 		$this->request_end_microtime = microtime( true );
@@ -129,9 +131,15 @@ class Tracing {
 
 	/**
 	 * Initialize tracing for an individual field
+	 *
+	 * @param mixed               $source         The source passed down the Resolve Tree
+	 * @param array               $args           The args for the field
+	 * @param AppContext          $context        The AppContext passed down the ResolveTree
+	 * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+	 *
+	 * @return void
 	 */
-	public function init_field_resolver_trace( $source, $args, $context, ResolveInfo $info, $field_resolver, $type_name, $field_key, $field ) {
-
+	public function init_field_resolver_trace( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$this->field_trace = [
 			'path'           => $info->path,
 			'parentType'     => $info->parentType->name,
@@ -145,6 +153,8 @@ class Tracing {
 
 	/**
 	 * End the tracing for a resolver
+	 *
+	 * @return void
 	 */
 	public function end_field_resolver_trace() {
 
@@ -202,7 +212,7 @@ class Tracing {
 	/**
 	 * Given input from a Resolver Path, this sanitizes the input for output in the trace
 	 *
-	 * @param $input
+	 * @param mixed $input The input to sanitize
 	 *
 	 * @return int|null|string
 	 */
@@ -222,26 +232,26 @@ class Tracing {
 	 *
 	 * @see https://github.com/apollographql/apollo-tracing
 	 *
-	 * @param $time
+	 * @param mixed|string|float|int $time The timestamp to format
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function format_timestamp( $time ) {
 		$time_as_float = sprintf( '%.4f', $time );
 		$timestamp     = \DateTime::createFromFormat( 'U.u', $time_as_float );
 
-		return $timestamp->format( 'Y-m-d\TH:i:s.uP' );
+		return ! empty( $timestamp ) ? (float) $timestamp->format( 'Y-m-d\TH:i:s.uP' ) : (float) 0;
 	}
 
 	/**
 	 * Filter the headers that WPGraphQL returns to include headers that indicate the WPGraphQL
 	 * server supports Apollo Tracing and Credentials
 	 *
-	 * @param $headers
+	 * @param array $headers The headers to return
 	 *
 	 * @return array
 	 */
-	public function return_tracing_headers( $headers ): array {
+	public function return_tracing_headers( array $headers ) {
 		$headers[] = 'X-Insights-Include-Tracing';
 		$headers[] = 'X-Apollo-Tracing';
 		$headers[] = 'Credentials';
@@ -252,15 +262,14 @@ class Tracing {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed    $response
-	 * @param WPSchema $schema         The WPGraphQL Schema
-	 * @param string   $operation_name The operation name being executed
-	 * @param string   $request        The GraphQL Request being made
-	 * @param array    $variables      The variables sent with the request
+	 * @param mixed|array|object $response       The response of the GraphQL Request
+	 * @param mixed              $schema         The WPGraphQL Schema
+	 * @param string             $operation_name The operation name being executed
+	 * @param string             $request        The GraphQL Request being made
 	 *
 	 * @return mixed $response
 	 */
-	public function add_tracing_to_response_extensions( $response, $schema, $operation_name, $request, $variables ) {
+	public function add_tracing_to_response_extensions( $response, $schema, string $operation_name, string $request ) {
 
 		// Get the trace
 		$trace = $this->get_trace();
@@ -271,12 +280,11 @@ class Tracing {
 			return $response;
 		}
 
-		if ( ! empty( $response ) ) {
-			if ( is_array( $response ) ) {
-				$response['extensions']['tracing'] = $trace;
-			} elseif ( is_object( $response ) ) {
-				$response->extensions['tracing'] = $trace;
-			}
+		if ( is_array( $response ) ) {
+			$response['extensions']['tracing'] = $trace;
+		} elseif ( is_object( $response ) ) {
+			// @phpstan-ignore-next-line
+			$response->extensions['tracing'] = $trace;
 		}
 
 		return $response;
@@ -338,8 +346,8 @@ class Tracing {
 		// Compile the trace to return with the GraphQL Response
 		$trace = [
 			'version'   => absint( $this->trace_spec_version ),
-			'startTime' => esc_html( $this->request_start_microtime ),
-			'endTime'   => esc_html( $this->request_end_microtime ),
+			'startTime' => (float) $this->request_start_microtime,
+			'endTime'   => (float) $this->request_end_microtime,
 			'duration'  => absint( $this->get_request_duration() ),
 			'execution' => [
 				'resolvers' => $this->trace_logs,

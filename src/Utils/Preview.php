@@ -48,7 +48,7 @@ class Preview {
 
 		if ( 'revision' === $post->post_type ) {
 			$parent = get_post( $post->post_parent );
-			return get_post_meta( $parent->ID, $meta_key, $single );
+			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
 		}
 
 		return $default_value;

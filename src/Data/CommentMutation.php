@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -17,12 +18,14 @@ class CommentMutation {
 	 * This handles inserting the comment and creating
 	 *
 	 * @param array  $input         The input for the mutation
+	 * @param array  $output_args   The output args
 	 * @param string $mutation_name The name of the mutation being performed
+	 * @param bool   $update        Whether it's an update action
 	 *
 	 * @return array $output_args
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function prepare_comment_object( $input, &$output_args, $mutation_name, $update = false ) {
+	public static function prepare_comment_object( array $input, array &$output_args, string $mutation_name, $update = false ) {
 		/**
 		 * Prepare the data for inserting the comment
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_comment/
@@ -44,7 +47,7 @@ class CommentMutation {
 			$output_args['user_id']              = $user->ID;
 			$output_args['comment_author']       = $user->display_name;
 			$output_args['comment_author_email'] = $user->user_email;
-			if ( ! is_null( $user->user_url ) ) {
+			if ( ! empty( $user->user_url ) ) {
 				$output_args['comment_author_url'] = $user->user_url;
 			}
 		} else {
@@ -105,18 +108,19 @@ class CommentMutation {
 	/**
 	 * This updates commentmeta.
 	 *
-	 * @param int         $comment_id              The ID of the postObject the comment is connected to
-	 * @param array       $input                   The input for the mutation
-	 * @param string      $mutation_name           The name of the mutation ( ex: create, update, delete )
-	 * @param AppContext  $context                 The AppContext passed down to all resolvers
-	 * @param ResolveInfo $info                    The ResolveInfo passed down to all resolvers
-	 * @param string      $intended_comment_status The intended post_status the post should have according to the mutation input
-	 * @param string      $intended_comment_status The default status posts should use if an intended status wasn't set
+	 * @param int         $comment_id    The ID of the postObject the comment is connected to
+	 * @param array       $input         The input for the mutation
+	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
+	 * @param AppContext  $context       The AppContext passed down to all resolvers
+	 * @param ResolveInfo $info          The ResolveInfo passed down to all resolvers
+	 *
+	 * @return void
 	 */
-	public static function update_additional_comment_data( $comment_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
+	public static function update_additional_comment_data( int $comment_id, array $input, string $mutation_name, AppContext $context, ResolveInfo $info ) {
+
 		/**
-		* @todo: should account for authentication
-		*/
+		 * @todo: should account for authentication
+		 */
 		$intended_comment_status = 0;
 		$default_comment_status  = 0;
 

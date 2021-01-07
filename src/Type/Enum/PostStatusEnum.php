@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class PostStatusEnum {
+
+	/**
+	 * Register the PostStatusEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		$post_status_enum_values = [
 			'name'  => 'PUBLISH',

@@ -2,7 +2,11 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
+use WP_Post;
+use WP_User;
+use WPGraphQL;
 
 /**
  * Class User - Models the data for the User object type
@@ -36,36 +40,36 @@ class User extends Model {
 	/**
 	 * Stores the WP_User object for the incoming data
 	 *
-	 * @var \WP_User $data
+	 * @var WP_User $data
 	 */
 	protected $data;
 
 	/**
 	 * The Global Post at time of Model generation
 	 *
-	 * @var \WP_Post
+	 * @var WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * The global authordata at time of Model generation
 	 *
-	 * @var \WP_User
+	 * @var WP_User
 	 */
 	protected $global_authordata;
 
 	/**
 	 * User constructor.
 	 *
-	 * @param \WP_User $user The incoming WP_User object that needs modeling
+	 * @param WP_User $user The incoming WP_User object that needs modeling
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( \WP_User $user ) {
+	public function __construct( WP_User $user ) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
-		$user->user_pass = null;
+		$user->user_pass = '';
 		$this->data      = $user;
 
 		$allowed_restricted_fields = [
@@ -88,6 +92,8 @@ class User extends Model {
 
 	/**
 	 * Setup the global data for the model to have proper context when resolving
+	 *
+	 * @return void
 	 */
 	public function setup() {
 
@@ -97,15 +103,17 @@ class User extends Model {
 		$this->global_post       = $post;
 		$this->global_authordata = $authordata;
 
-		if ( $this->data ) {
+		if ( ! empty( $this->data ) ) {
 
 			// Reset postdata
 			$wp_query->reset_postdata();
 
 			// Parse the query to setup global state
-			$wp_query->parse_query([
-				'author_name' => $this->data->user_nicename,
-			]);
+			$wp_query->parse_query(
+				[
+					'author_name' => $this->data->user_nicename,
+				]
+			);
 
 			// Setup globals
 			$wp_query->is_author         = true;
@@ -119,6 +127,8 @@ class User extends Model {
 	/**
 	 * Reset global state after the model fields
 	 * have been generated
+	 *
+	 * @return void
 	 */
 	public function tear_down() {
 		$GLOBALS['authordata'] = $this->global_authordata;
@@ -142,7 +152,7 @@ class User extends Model {
 			 *      For now, we only query if the current user doesn't have list_users, instead of querying
 			 *      for ALL users. Slightly more efficient for authenticated users at least.
 			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::get_allowed_post_types(), true ) ) {
+			if ( ! count_user_posts( absint( $this->data->ID ), WPGraphQL::get_allowed_post_types(), true ) ) {
 				return true;
 			}
 		}
@@ -161,7 +171,7 @@ class User extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'                       => function() {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
 				},
 				'capabilities'             => function() {
 					if ( ! empty( $this->data->allcaps ) ) {
@@ -212,7 +222,8 @@ class User extends Model {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
 				'registeredDate'           => function() {
-					return ! empty( $this->data->user_registered ) ? gmdate( 'c', strtotime( $this->data->user_registered ) ) : null;
+					$timestamp = ! empty( $this->data->user_registered ) ? strtotime( $this->data->user_registered ) : null;
+					return ! empty( $timestamp ) ? gmdate( 'c', $timestamp ) : null;
 				},
 				'nickname'                 => function() {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
@@ -243,6 +254,7 @@ class User extends Model {
 					$queue = $wp_scripts->queue;
 					$wp_scripts->reset();
 					$wp_scripts->queue = [];
+
 					return $queue;
 				},
 				'enqueuedStylesheetsQueue' => function() {
@@ -251,6 +263,7 @@ class User extends Model {
 					$queue = $wp_styles->queue;
 					$wp_styles->reset();
 					$wp_styles->queue = [];
+
 					return $queue;
 				},
 			];

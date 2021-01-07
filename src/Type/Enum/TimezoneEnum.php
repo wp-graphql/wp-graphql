@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class TimezoneEnum {
+
+	/**
+	 * Register the TimezoneEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		/**
 		 * Logic for this taken from the `wp_timezone_choice` here:

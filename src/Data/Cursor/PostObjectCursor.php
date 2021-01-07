@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_Query;
+use wpdb;
+
 /**
  * Post Cursor
  *
@@ -12,28 +15,28 @@ namespace WPGraphQL\Data\Cursor;
 class PostObjectCursor {
 
 	/**
-	 * The global wpdb instance
+	 * The global WordPress Database instance
 	 *
-	 * @var $wpdb
+	 * @var wpdb $wpdb
 	 */
 	public $wpdb;
 
 	/**
 	 * The WP_Query instance
 	 *
-	 * @var $query
+	 * @var WP_Query $query
 	 */
 	public $query;
 
 	/**
 	 * The current post id which is our cursor offset
 	 *
-	 * @var $post_type
+	 * @var int $cursor_offset
 	 */
 	public $cursor_offset;
 
 	/**
-	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
+	 * @var CursorBuilder
 	 */
 	public $builder;
 
@@ -46,13 +49,15 @@ class PostObjectCursor {
 
 	/**
 	 * Copy of query vars so we can modify them safely
+	 *
+	 * @var array
 	 */
-	public $query_vars = null;
+	public $query_vars = [];
 
 	/**
 	 * PostCursor constructor.
 	 *
-	 * @param \WP_Query $query The WP_Query instance
+	 * @param WP_Query $query The WP_Query instance
 	 */
 	public function __construct( $query ) {
 		global $wpdb;
@@ -91,6 +96,9 @@ class PostObjectCursor {
 		return \WP_Post::get_instance( $this->cursor_offset );
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function to_sql() {
 
 		$orderby = isset( $this->query_vars['orderby'] ) ? $this->query_vars['orderby'] : null;
@@ -103,7 +111,7 @@ class PostObjectCursor {
 				'post_parent__in',
 			],
 			true
-		) ? true : false;
+		);
 
 		if ( true === $orderby_should_not_convert_to_sql ) {
 			return null;
@@ -116,12 +124,19 @@ class PostObjectCursor {
 		return ' AND ' . $sql;
 	}
 
-	public function get_query_var( $name ) {
+	/**
+	 * @param string $name The name of the query var to get
+	 *
+	 * @return mixed|null
+	 */
+	public function get_query_var( string $name ) {
 		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
 	}
 
 	/**
 	 * Return the additional AND operators for the where statement
+	 *
+	 * @return string|null
 	 */
 	public function get_where() {
 
@@ -173,6 +188,8 @@ class PostObjectCursor {
 
 	/**
 	 * Use post date based comparison
+	 *
+	 * @return void
 	 */
 	private function compare_with_date() {
 		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->get_cursor_post()->post_date, 'DATETIME' );
@@ -184,7 +201,7 @@ class PostObjectCursor {
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
 	 *
-	 * @return string
+	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
 
@@ -229,9 +246,9 @@ class PostObjectCursor {
 	 * @param string $meta_key post meta key
 	 * @param string $order    The comparison string
 	 *
-	 * @return string
+	 * @return void
 	 */
-	private function compare_with_meta_field( $meta_key, $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
 

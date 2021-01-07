@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
@@ -25,22 +26,22 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * TermObjectConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
-	 * @param $taxonomy
+	 * @param mixed       $source     source passed down from the resolve tree
+	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
+	 * @param mixed|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info, $taxonomy = null ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
 		$this->taxonomy = $taxonomy;
 		parent::__construct( $source, $args, $context, $info );
 	}
 
 	/**
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query_args() {
 
@@ -139,7 +140,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * Return an instance of WP_Term_Query with the args mapped to the query
 	 *
 	 * @return mixed|\WP_Term_Query
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query() {
 		$query = new \WP_Term_Query( $this->query_args );

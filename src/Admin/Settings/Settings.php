@@ -49,6 +49,8 @@ class Settings {
 
 	/**
 	 * Add the options page to the WP Admin
+	 *
+	 * @return void
 	 */
 	public function add_options_page() {
 		add_menu_page(
@@ -73,6 +75,8 @@ class Settings {
 
 	/**
 	 * Registers the initial settings for WPGraphQL
+	 *
+	 * @return void
 	 */
 	public function register_settings() {
 
@@ -174,7 +178,7 @@ class Settings {
 				'type'     => 'checkbox',
 				'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
 				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
-				'disabled' => true === \WPGraphQL::debug() ? true : false,
+				'disabled' => true === \WPGraphQL::debug(),
 			],
 		] );
 

@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class TaxonomyEnum {
+
+	/**
+	 * Register the TaxonomyEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 

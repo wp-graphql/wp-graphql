@@ -1,6 +1,8 @@
 <?php
 
 namespace WPGraphQL\Data\Loader;
+use Exception;
+use WPGraphQL\Model\Model;
 use WPGraphQL\Model\Plugin;
 
 /**
@@ -11,11 +13,11 @@ use WPGraphQL\Model\Plugin;
 class PluginLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return \WPGraphQL\Model\Model|Plugin
-	 * @throws \Exception
+	 * @return Model|Plugin
+	 * @throws Exception
 	 */
 	protected function get_model( $entry, $key ) {
 		return new Plugin( $entry );
@@ -27,7 +29,7 @@ class PluginLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
 

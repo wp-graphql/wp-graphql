@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data;
 
+use WP_Comment_Query;
 use WPGraphQL\Data\Cursor\PostObjectCursor;
 use WPGraphQL\Data\Cursor\UserCursor;
 
@@ -288,11 +289,11 @@ class Config {
 	 * is a GraphQL Request and the query has a graphql_cursor_offset defined
 	 *
 	 * @param array             $pieces A compacted array of comment query clauses.
-	 * @param \WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
+	 * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
 	 *
 	 * @return array $pieces
 	 */
-	public function graphql_wp_comments_query_cursor_pagination_support( array $pieces, \WP_Comment_Query $query ) {
+	public function graphql_wp_comments_query_cursor_pagination_support( array $pieces, WP_Comment_Query $query ) {
 
 		/**
 		 * Access the global $wpdb object
@@ -311,7 +312,7 @@ class Config {
 			 */
 			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
 
-				$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
+				$compare = ! empty( $query->query_vars['graphql_cursor_compare'] ) ? $query->query_vars['graphql_cursor_compare'] : '>';
 				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 				$order_by      = ! empty( $query->query_vars['order_by'] ) ? $query->query_vars['order_by'] : 'comment_date';

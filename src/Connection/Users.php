@@ -20,6 +20,8 @@ class Users {
 
 	/**
 	 * Register connections to Users
+	 *
+	 * @return void
 	 */
 	public static function register_connections() {
 
@@ -50,7 +52,7 @@ class Users {
 						if ( isset( $edge['source'] ) && ( $edge['source'] instanceof Post ) ) {
 							$edit_lock = $edge['source']->editLock;
 							$time      = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
-							return ! empty( $time ) ? Utils::prepare_date_response( null, gmdate( 'Y-m-d H:i:s', $time ) ) : null;
+							return ! empty( $time ) ? Utils::prepare_date_response( $time, gmdate( 'Y-m-d H:i:s', $time ) ) : null;
 						}
 						return null;
 					},

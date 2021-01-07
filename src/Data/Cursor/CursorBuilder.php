@@ -9,14 +9,25 @@ class CursorBuilder {
 
 	/**
 	 * The field by which the cursor should order the results
+	 *
+	 * @var array
 	 */
 	public $fields;
 
 	/**
 	 * Default comparison operator. < or >
+	 *
+	 * @var string
 	 */
-	public $compare = null;
+	public $compare;
 
+	/**
+	 * CursorBuilder constructor.
+	 *
+	 * @param string $compare
+	 *
+	 * @return void
+	 */
 	public function __construct( $compare = '>' ) {
 		$this->compare = $compare;
 		$this->fields  = [];
@@ -24,31 +35,33 @@ class CursorBuilder {
 
 	/**
 	 * Add ordering field. The order you call this method matters. First field
-	 * will be the primary field and latters ones will be used if the primary
+	 * will be the primary field and latter ones will be used if the primary
 	 * field has duplicate values
 	 *
-	 * @param string                  $key           database column
-	 * @param string                  $value         value from the current cursor
-	 * @param null                    $type          type cast
-	 * @param null                    $order         custom order
-	 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
+	 * @param string           $key           database column
+	 * @param mixed|string|int $value         value from the current cursor
+	 * @param string           $type          type cast
+	 * @param string           $order         custom order
+	 * @param PostObjectCursor $object_cursor The PostObjectCursor class
+	 *
+	 * @return void
 	 */
-	public function add_field( $key, $value, $type = null, $order = null, $object_cursor = null ) {
+	public function add_field( string $key, $value, string $type = null, string $order = null, PostObjectCursor $object_cursor = null ) {
 
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination
 		 *
-		 * @param array                   $field         The field key, value, type and order
-		 * @param CursorBuilder           $this          The CursorBuilder class
-		 * @param null | PostObjectCursor $object_cursor The PostObjectCursor class
+		 * @param array                   $field          The field key, value, type and order
+		 * @param CursorBuilder           $cursor_builder The CursorBuilder class
+		 * @param null | PostObjectCursor $object_cursor  The PostObjectCursor class
 		 */
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',
 			[
 				'key'   => esc_sql( $key ),
 				'value' => esc_sql( $value ),
-				'type'  => esc_sql( $type ),
-				'order' => esc_sql( $order ),
+				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
+				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
 			],
 			$this,
 			$object_cursor
@@ -85,6 +98,8 @@ class CursorBuilder {
 
 	/**
 	 * Generate the final SQL string to be appended to WHERE clause
+	 *
+	 * @param mixed|array|null $fields
 	 *
 	 * @return string
 	 */
