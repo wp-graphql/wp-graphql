@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Model\Post;
@@ -10,6 +11,7 @@ class MediaItemDelete {
 	 * Registers the MediaItemDelete mutation.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -108,7 +110,11 @@ class MediaItemDelete {
 			 * Get the mediaItem object before deleting it
 			 */
 			$media_item_before_delete = get_post( absint( $id_parts['id'] ) );
-			$media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? new Post( $media_item_before_delete ) : $media_item_before_delete;
+			$media_item_before_delete = isset( $media_item_before_delete->ID ) && absint( $media_item_before_delete->ID ) ? new Post( $media_item_before_delete ) : $media_item_before_delete;
+
+			if ( empty( $media_item_before_delete ) ) {
+				throw new UserError( __( 'The Media Item could not be deleted', 'wp-graphql' ) );
+			}
 
 			/**
 			 * If the mediaItem isn't of the attachment post type, throw an error

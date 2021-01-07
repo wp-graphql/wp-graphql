@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WP_Taxonomy;
@@ -27,6 +28,7 @@ class PostObjects {
 	 * Registers the various connections from other Types to PostObjects
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 
@@ -184,6 +186,10 @@ class PostObjects {
 			foreach ( $allowed_post_types as $post_type ) {
 
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
 
 				/**
 				 * Registers the RootQuery connection for each post_type

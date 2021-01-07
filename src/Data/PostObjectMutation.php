@@ -483,7 +483,7 @@ class PostObjectMutation {
 
 		$post = get_post( $post_id );
 
-		if ( ! is_a( $post, 'WP_Post' ) ) {
+		if ( empty( $post ) ) {
 			return false;
 		}
 

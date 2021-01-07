@@ -60,8 +60,8 @@ class CursorBuilder {
 			[
 				'key'   => esc_sql( $key ),
 				'value' => esc_sql( $value ),
-				'type'  => esc_sql( $type ),
-				'order' => esc_sql( $order ),
+				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
+				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
 			],
 			$this,
 			$object_cursor

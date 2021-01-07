@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -13,6 +14,7 @@ class CommentDelete {
 	 * Registers the CommentDelete mutation.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -89,6 +91,10 @@ class CommentDelete {
 			$comment_id            = absint( $id_parts['id'] );
 			$comment_before_delete = get_comment( $comment_id );
 
+			if ( empty( $comment_before_delete ) ) {
+				throw new UserError( __( 'The Comment could not be deleted', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Stop now if a user isn't allowed to delete the comment
 			 */
@@ -120,7 +126,7 @@ class CommentDelete {
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			$comment_before_delete = new Comment( $comment_before_delete );
 

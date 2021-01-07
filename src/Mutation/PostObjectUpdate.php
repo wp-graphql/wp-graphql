@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -12,9 +13,10 @@ class PostObjectUpdate {
 	/**
 	 * Registers the PostObjectUpdate mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
@@ -74,12 +76,12 @@ class PostObjectUpdate {
 		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 			$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$existing_post = get_post( absint( $id_parts['id'] ) );
+			$existing_post = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? get_post( absint( $id_parts['id'] ) ) : null;
 
 			/**
 			 * If there's no existing post, throw an exception
 			 */
-			if ( empty( $id_parts['id'] ) || empty( $existing_post ) ) {
+			if ( ! isset( $id_parts['id'] ) || empty( $existing_post ) ) {
 				// translators: the placeholder is the name of the type of post being updated
 				throw new UserError( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) );
 			}

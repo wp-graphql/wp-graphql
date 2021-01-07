@@ -361,8 +361,13 @@ class TypeRegistry {
 		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
 
 			foreach ( $page_templates as $file => $name ) {
-				$name = ucwords( $name );
-				$name = preg_replace( '/[^\w]/', '', $name );
+				$name          = ucwords( $name );
+				$replaced_name = preg_replace( '/[^\w]/', '', $name );
+
+				if ( ! empty( $replaced_name ) ) {
+					$name = $replaced_name;
+				}
+
 				if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 					$name = 'Template_' . $name;
 				}
@@ -394,6 +399,10 @@ class TypeRegistry {
 			foreach ( $allowed_post_types as $post_type ) {
 
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
 
 				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
 					throw new \GraphQL\Error\InvariantViolation(
@@ -540,13 +549,18 @@ class TypeRegistry {
 				] );
 			}
 
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
+			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
-				$group_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $group ) );
+				$replaced_group_name = preg_replace( '[^a-zA-Z0-9 -]', '_', $group_name );
+
+				if ( ! empty( $replaced_group_name ) ) {
+					$group_name = lcfirst( $replaced_group_name );
+				}
+
 				$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
 				$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
 				$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
-				SettingGroup::register_settings_group( $group_name, $group );
+				SettingGroup::register_settings_group( $group_name, $group_name );
 
 				register_graphql_field(
 					'RootQuery',

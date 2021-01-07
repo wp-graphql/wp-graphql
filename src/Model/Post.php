@@ -125,8 +125,10 @@ class Post extends Model {
 		 * of the parent post type to determine capabilities from
 		 */
 		if ( 'revision' === $post->post_type && ! empty( $post->post_parent ) ) {
-			$parent                 = get_post( absint( $post->post_parent ) );
-			$this->post_type_object = get_post_type_object( $parent->post_type );
+			$parent = get_post( absint( $post->post_parent ) );
+			if ( ! empty( $parent ) ) {
+				$this->post_type_object = get_post_type_object( $parent->post_type );
+			}
 		}
 
 		/**
@@ -191,8 +193,12 @@ class Post extends Model {
 			$data      = $this->data;
 
 			if ( 'revision' === $this->data->post_type ) {
-				$id        = $this->data->post_parent;
-				$parent    = get_post( $this->data->post_parent );
+				$id     = $this->data->post_parent;
+				$parent = get_post( $this->data->post_parent );
+				if ( empty( $parent ) ) {
+					$this->fields = [];
+					return;
+				}
 				$post_type = $parent->post_type;
 				$post_name = $parent->post_name;
 				$data      = $parent;
@@ -208,25 +214,33 @@ class Post extends Model {
 			 * setup global state
 			 */
 			if ( 'post' === $post_type ) {
-				$wp_query->parse_query( [
-					'page' => '',
-					'p'    => $id,
-				] );
+				$wp_query->parse_query(
+					[
+						'page' => '',
+						'p'    => $id,
+					]
+				);
 			} elseif ( 'page' === $post_type ) {
-				$wp_query->parse_query( [
-					'page'     => '',
-					'pagename' => $post_name,
-				] );
+				$wp_query->parse_query(
+					[
+						'page'     => '',
+						'pagename' => $post_name,
+					]
+				);
 			} elseif ( 'attachment' === $post_type ) {
-				$wp_query->parse_query( [
-					'attachment' => $post_name,
-				] );
+				$wp_query->parse_query(
+					[
+						'attachment' => $post_name,
+					]
+				);
 			} else {
-				$wp_query->parse_query( [
-					$post_type  => $post_name,
-					'post_type' => $post_type,
-					'name'      => $post_name,
-				] );
+				$wp_query->parse_query(
+					[
+						$post_type  => $post_name,
+						'post_type' => $post_type,
+						'name'      => $post_name,
+					]
+				);
 			}
 
 			$wp_query->setup_postdata( $data );
@@ -367,8 +381,17 @@ class Post extends Model {
 		}
 
 		if ( 'revision' === $this->data->post_type || 'auto-draft' === $this->data->post_status ) {
-			$parent               = get_post( (int) $this->data->post_parent );
+			$parent = get_post( (int) $this->data->post_parent );
+
+			if ( empty( $parent ) ) {
+				return true;
+			}
+
 			$parent_post_type_obj = $post_type_object;
+
+			if ( empty( $parent_post_type_obj ) ) {
+				return true;
+			}
 
 			if ( 'private' === $parent->post_status ) {
 				$cap = isset( $parent_post_type_obj->cap->read_private_posts ) ? $parent_post_type_obj->cap->read_private_posts : 'read_private_posts';
@@ -400,7 +423,12 @@ class Post extends Model {
 				},
 				'post_author'               => function() {
 					if ( $this->isPreview ) {
-						return get_post( $this->parentDatabaseId )->post_author;
+						$parent_post = get_post( $this->parentDatabaseId );
+						if ( empty( $parent_post ) ) {
+							return null;
+						}
+
+						return (int) $parent_post->post_author;
 					}
 
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
@@ -417,17 +445,26 @@ class Post extends Model {
 				'authorId'                  => function() {
 
 					if ( true === $this->isPreview ) {
-						$id = get_post( $this->data->post_parent )->post_author;
+						$parent_post = get_post( $this->data->post_parent );
+						if ( empty( $parent_post ) ) {
+							return null;
+						}
+						$id = (int) $parent_post->post_author;
 
 					} else {
-						$id = isset( $this->data->post_author ) ? $this->data->post_author : null;
+						$id = isset( $this->data->post_author ) ? (int) $this->data->post_author : null;
 					}
 
-					return Relay::toGlobalId( 'user', $id );
+					return Relay::toGlobalId( 'user', (string) $id );
 				},
 				'authorDatabaseId'          => function() {
 					if ( true === $this->isPreview ) {
-						return get_post( $this->data->post_parent )->post_author;
+						$parent_post = get_post( $this->data->post_parent );
+						if ( empty( $parent_post ) ) {
+							return null;
+						}
+
+						return $parent_post->post_author;
 					}
 
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
@@ -503,9 +540,16 @@ class Post extends Model {
 						'templateName' => 'Default',
 					];
 
-					if ( $this->isPreview ) {
+					if ( true === $this->isPreview ) {
 
-						$post_type = get_post( $this->parentDatabaseId )->post_type;
+						$parent_post = get_post( $this->parentDatabaseId );
+
+						if ( empty( $parent_post ) ) {
+							return $template;
+						}
+
+						$post_type = $parent_post->post_type;
+
 						if ( ! isset( $registered_templates[ $post_type ] ) ) {
 							return $template;
 						}
@@ -534,8 +578,12 @@ class Post extends Model {
 					}
 
 					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $post_type ][ $set_template ] ) ) {
-						$name = ucwords( $registered_templates[ $post_type ][ $set_template ] );
-						$name = preg_replace( '/[^\w]/', '', $name );
+						$name          = ucwords( $registered_templates[ $post_type ][ $set_template ] );
+						$replaced_name = preg_replace( '/[^\w]/', '', $name );
+
+						if ( ! empty( $replaced_name ) ) {
+							$name = $replaced_name;
+						}
 						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 							$name = 'Template_' . $name;
 						}
@@ -685,11 +733,14 @@ class Post extends Model {
 				},
 				'previewRevisionDatabaseId' => [
 					'callback'   => function() {
-						$revisions = wp_get_post_revisions( $this->data->ID, [
-							'posts_per_page' => 1,
-							'fields'         => 'ids',
-							'check_enabled'  => false,
-						] );
+						$revisions = wp_get_post_revisions(
+							$this->data->ID,
+							[
+								'posts_per_page' => 1,
+								'fields'         => 'ids',
+								'check_enabled'  => false,
+							]
+						);
 
 						return is_array( $revisions ) && ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 					},
@@ -700,11 +751,14 @@ class Post extends Model {
 				},
 				'isPreview'                 => function() {
 					if ( $this->isRevision ) {
-						$revisions = wp_get_post_revisions( $this->parentDatabaseId, [
-							'posts_per_page' => 1,
-							'fields'         => 'ids',
-							'check_enabled'  => false,
-						] );
+						$revisions = wp_get_post_revisions(
+							$this->parentDatabaseId,
+							[
+								'posts_per_page' => 1,
+								'fields'         => 'ids',
+								'check_enabled'  => false,
+							]
+						);
 
 						if ( in_array( $this->data->ID, array_values( $revisions ), true ) ) {
 							return true;

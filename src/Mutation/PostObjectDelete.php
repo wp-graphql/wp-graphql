@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WP_Post_Type;
@@ -14,6 +15,7 @@ class PostObjectDelete {
 	 * @param WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -58,7 +60,7 @@ class PostObjectDelete {
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( $post_type_object ) {
+	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
 			'deletedId'                            => [
 				'type'        => 'Id',
@@ -114,6 +116,11 @@ class PostObjectDelete {
 			 * Get the post object before deleting it
 			 */
 			$post_before_delete = get_post( absint( $id_parts['id'] ) );
+
+			if ( empty( $post_before_delete ) ) {
+				throw new UserError( __( 'The post could not be deleted', 'wp-graphql' ) );
+			}
+
 			$post_before_delete = new Post( $post_before_delete );
 
 			/**

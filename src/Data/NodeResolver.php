@@ -99,14 +99,22 @@ class NodeResolver {
 			// front. For path info requests, this leaves us with the requesting
 			// filename, if any. For 404 requests, this leaves us with the
 			// requested permalink.
-			$query    = '';
-			$matches  = null;
-			$req_uri  = str_replace( $pathinfo, '', $req_uri );
-			$req_uri  = trim( $req_uri, '/' );
-			$req_uri  = preg_replace( $home_path_regex, '', $req_uri );
-			$req_uri  = trim( $req_uri, '/' );
-			$pathinfo = trim( $pathinfo, '/' );
-			$pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
+			$query        = '';
+			$matches      = null;
+			$req_uri      = str_replace( $pathinfo, '', $req_uri );
+			$req_uri      = trim( $req_uri, '/' );
+			$replaced_uri = preg_replace( $home_path_regex, '', $req_uri );
+
+			if ( ! empty( $replaced_uri ) ) {
+				$req_uri = $replaced_uri;
+			}
+
+			$req_uri           = trim( $req_uri, '/' );
+			$pathinfo          = trim( $pathinfo, '/' );
+			$replaced_pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
+			if ( ! empty( $replaced_pathinfo ) ) {
+				$pathinfo = $replaced_pathinfo;
+			}
 			$pathinfo = trim( $pathinfo, '/' );
 
 			// The requested permalink is in $pathinfo for path info requests and

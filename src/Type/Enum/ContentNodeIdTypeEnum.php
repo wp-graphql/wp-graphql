@@ -23,7 +23,12 @@ class ContentNodeIdTypeEnum {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
-				$values           = self::get_values();
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
+
+				$values = self::get_values();
 				if ( ! $post_type_object->hierarchical ) {
 					$values['slug'] = [
 						'name'        => 'SLUG',

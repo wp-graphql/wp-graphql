@@ -82,8 +82,16 @@ class Utils {
 	 *
 	 * @return string
 	 */
-	public static function format_field_name( $field_name ) {
-		$field_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name ) );
+	public static function format_field_name( string $field_name ) {
+
+		$replaced = preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name );
+
+		// If any values were replaced, use the replaced string as the new field name
+		if ( ! empty( $replaced ) ) {
+			$field_name = $replaced;
+		}
+
+		$field_name = lcfirst( $field_name );
 		$field_name = lcfirst( str_replace( '_', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( '-', ' ', ucwords( $field_name, '_' ) ) );
 		$field_name = lcfirst( str_replace( ' ', '', ucwords( $field_name, ' ' ) ) );

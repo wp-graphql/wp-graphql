@@ -176,14 +176,21 @@ class Router {
 					return false;
 				}
 
-				$haystack = $host . $uri;
-				$needle   = site_url( self::$route );
+				$full_path = $host . $uri;
+				$site_url  = site_url( self::$route );
 
 				// Strip protocol.
-				$haystack                = preg_replace( '#^(http(s)?://)#', '', $haystack );
-				$needle                  = preg_replace( '#^(http(s)?://)#', '', $needle );
-				$len                     = strlen( $needle );
-				$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
+				$replaced_path = preg_replace( '#^(http(s)?://)#', '', $full_path );
+				if ( ! empty( $replaced_path ) ) {
+					$full_path = $replaced_path;
+				}
+				$replaced_url = preg_replace( '#^(http(s)?://)#', '', $site_url );
+				if ( ! empty( $replaced_url ) ) {
+					$site_url = $replaced_url;
+				}
+
+				$len                     = strlen( $site_url );
+				$is_graphql_http_request = ( substr( $full_path, 0, $len ) === $site_url );
 			}
 		}
 

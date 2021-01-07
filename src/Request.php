@@ -2,12 +2,15 @@
 
 namespace WPGraphQL;
 
+use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use GraphQL\Validator\Rules\DisableIntrospection;
+use WP_Post;
+use WP_Query;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
 
@@ -38,14 +41,14 @@ class Request {
 	/**
 	 * Cached global post.
 	 *
-	 * @var \WP_Post
+	 * @var WP_Post
 	 */
 	public $global_post;
 
 	/**
 	 * Cached global wp_the_query.
 	 *
-	 * @var \WP_Query
+	 * @var WP_Query
 	 */
 	private $global_wp_the_query;
 
@@ -102,13 +105,13 @@ class Request {
 	/**
 	 * Constructor
 	 *
-	 * @param array|null $data The request data (for non-HTTP requests).
+	 * @param array $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $data = null ) {
+	public function __construct( array $data = [] ) {
 
 		/**
 		 * Whether it's a GraphQL Request (http or internal)
@@ -258,7 +261,7 @@ class Request {
 	 * request.
 	 *
 	 * @return boolean
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function has_authentication_errors() {
 
@@ -319,7 +322,7 @@ class Request {
 			$result = wp_verify_nonce( $nonce, 'wp_rest' );
 
 			if ( ! $result ) {
-				throw new \Exception( __( 'Cookie nonce is invalid', 'wp-graphql' ) );
+				throw new Exception( __( 'Cookie nonce is invalid', 'wp-graphql' ) );
 			}
 		}
 
@@ -358,7 +361,7 @@ class Request {
 	 *
 	 * @return array
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function after_execute( $response ) {
 
@@ -366,7 +369,7 @@ class Request {
 		 * If there are authentication errors, prevent execution and throw an exception.
 		 */
 		if ( false !== $this->has_authentication_errors() ) {
-			throw new \Exception( __( 'Authentication Error', 'wp-graphql' ) );
+			throw new Exception( __( 'Authentication Error', 'wp-graphql' ) );
 		}
 
 		/**
@@ -529,11 +532,12 @@ class Request {
 	 * Execute an internal request (graphql() function call).
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function execute() {
 
-		$helper       = new WPHelper();
+		$helper = new WPHelper();
+
 		$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
 
 		/**
@@ -543,7 +547,7 @@ class Request {
 
 		$result = \GraphQL\GraphQL::executeQuery(
 			$this->schema,
-			isset( $this->params->query ) ? $this->params->query : null,
+			isset( $this->params->query ) ? $this->params->query : '',
 			$this->root_value,
 			$this->app_context,
 			isset( $this->params->variables ) ? $this->params->variables : null,
@@ -576,7 +580,7 @@ class Request {
 	 * Execute an HTTP request.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function execute_http() {
 

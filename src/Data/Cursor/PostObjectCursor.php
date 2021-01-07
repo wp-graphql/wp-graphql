@@ -136,7 +136,7 @@ class PostObjectCursor {
 	/**
 	 * Return the additional AND operators for the where statement
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_where() {
 

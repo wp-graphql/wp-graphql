@@ -491,7 +491,12 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 			array_map(
 				function( $post_type ) {
 					$post_type_object = get_post_type_object( $post_type );
-					if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
+
+					if ( ! $post_type_object instanceof WP_Post_Type ) {
+						return;
+					}
+
+					if ( empty( $post_type_object ) || empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
 						throw new UserError(
 							sprintf(
 							/* translators: %s will replaced with the registered type */

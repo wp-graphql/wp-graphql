@@ -1,5 +1,5 @@
 parameters:
-    level: 7
+    level: 8
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingIterableValueType: false
     bootstrapFiles:
@@ -19,6 +19,7 @@ parameters:
         - "#Access to an undefined property WP_Post_Type::\\$show_in_graphql.#"
         - "#Cannot access property \\$graphql_single_name on WP_Taxonomy\\|false.#"
         - "#Cannot access property \\$graphql_plural_name on WP_Taxonomy\\|false.#"
+        - "#Cannot access property \\$graphql_single_name on WP_Post_Type\\|null.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_single_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_plural_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$show_in_graphql.#"

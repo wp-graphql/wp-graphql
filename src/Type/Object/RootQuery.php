@@ -472,6 +472,10 @@ class RootQuery {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
 
+				if ( ! $post_type_object instanceof \WP_Post_Type ) {
+					return;
+				}
+
 				register_graphql_field(
 					'RootQuery',
 					$post_type_object->graphql_single_name,
@@ -592,6 +596,11 @@ class RootQuery {
 							}
 
 							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+
+								if ( ! $post_type_object instanceof \WP_Post_Type ) {
+									return null;
+								}
+
 								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
 									return null;
 								}

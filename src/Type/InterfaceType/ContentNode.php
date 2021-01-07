@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -17,6 +18,7 @@ class ContentNode {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
@@ -39,13 +41,13 @@ class ContentNode {
 					 * $post->post_type attribute.
 					 */
 					$type      = null;
-					$post_type = null;
+					$post_type = isset( $post->post_type ) ? $post->post_type : null;
 
 					if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
-						$parent    = get_post( $post->parentDatabaseId );
-						$post_type = $parent->post_type;
-					} else {
-						$post_type = isset( $post->post_type ) ? $post->post_type : null;
+						$parent = get_post( $post->parentDatabaseId );
+						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
+							$post_type = $parent->post_type;
+						}
 					}
 
 					$post_type_object = ! empty( $post_type ) ? get_post_type_object( $post_type ) : null;

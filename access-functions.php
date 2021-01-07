@@ -16,8 +16,14 @@ use WPGraphQL\Router;
  * @since  0.0.2
  */
 function graphql_format_field_name( $field_name ) {
-	$field_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $field_name );
-	$field_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $field_name ) );
+	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $field_name );
+	if ( ! empty( $replace_field_name ) ) {
+		$field_name = $replace_field_name;
+	}
+	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $field_name ) );
+	if ( ! empty( $replace_field_name ) ) {
+		$field_name = $replace_field_name;
+	}
 	$field_name = lcfirst( $field_name );
 
 	return $field_name;
@@ -32,8 +38,14 @@ function graphql_format_field_name( $field_name ) {
  * @since  0.0.2
  */
 function graphql_format_type_name( $type_name ) {
-	$type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $type_name );
-	$type_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $type_name ) );
+	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $type_name );
+	if ( ! empty( $replace_type_name ) ) {
+		$type_name = $replace_type_name;
+	}
+	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $type_name ) );
+	if ( ! empty( $replace_type_name ) ) {
+		$type_name = $replace_type_name;
+	}
 	$type_name = ucfirst( $type_name );
 
 	return $type_name;

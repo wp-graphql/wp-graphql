@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -14,6 +15,7 @@ class MediaItemCreate {
 	 * Registers the MediaItemCreate mutation.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -194,10 +196,16 @@ class MediaItemCreate {
 				throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
 			}
 
+			$post_type_object = get_post_type_object( 'attachment' );
+
+			if ( empty( $post_type_object ) ) {
+				return null;
+			}
+
 			/**
 			 * Insert the mediaItem object and get the ID
 			 */
-			$media_item_args = MediaItemMutation::prepare_media_item( $input, get_post_type_object( 'attachment' ), 'createMediaItem', $file );
+			$media_item_args = MediaItemMutation::prepare_media_item( $input, $post_type_object, 'createMediaItem', $file );
 
 			/**
 			 * Get the post parent and if it's not set, set it to 0
@@ -209,9 +217,14 @@ class MediaItemCreate {
 			 */
 			$parent = get_post( $attachment_parent_id );
 
-			if ( null !== get_post( $attachment_parent_id ) ) {
+			if ( null !== $parent ) {
 				$post_parent_type = get_post_type_object( $parent->post_type );
-				if ( 'attachment' !== $post_parent_type && ( ! isset( $post_parent_type->cap->edit_post ) || ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) ) {
+
+				if ( empty( $post_parent_type ) ) {
+					throw new UserError( __( 'The parent of the Media Item is of an invalid type', 'wp-graphql' ) );
+				}
+
+				if ( 'attachment' !== $post_parent_type->name && ( ! isset( $post_parent_type->cap->edit_post ) || ! current_user_can( $post_parent_type->cap->edit_post, $attachment_parent_id ) ) ) {
 					throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems assigned to this parent node', 'wp-graphql' ) );
 				}
 			}
@@ -255,10 +268,16 @@ class MediaItemCreate {
 			$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
 			wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
+			$post_type_object = get_post_type_object( 'attachment' );
+
+			if ( empty( $post_type_object ) ) {
+				throw new UserError( __( 'The Media Item could not be created', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Update alt text postmeta for mediaItem
 			 */
-			MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, get_post_type_object( 'attachment' ), 'createMediaItem', $context, $info );
+			MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, $post_type_object, 'createMediaItem', $context, $info );
 
 			return [
 				'postObjectId' => $attachment_id,

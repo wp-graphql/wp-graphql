@@ -533,8 +533,11 @@ class DataSource {
 			switch ( true ) {
 				case $node instanceof Post:
 					if ( $node->isRevision ) {
-						$parent_post_type = get_post( $node->parentDatabaseId )->post_type;
-						$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+						$parent_post = get_post( $node->parentDatabaseId );
+						if ( ! empty( $parent_post ) ) {
+							$parent_post_type = $parent_post->post_type;
+							$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+						}
 					} else {
 						$type = get_post_type_object( $node->post_type )->graphql_single_name;
 					}
