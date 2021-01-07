@@ -6,6 +6,8 @@ use Exception;
 use GraphQL\Error\UserError;
 use WP;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Model\PostType;
 
 class NodeResolver {
 
@@ -62,29 +64,30 @@ class NodeResolver {
 			}
 		}
 
+		$this->wp->query_vars = [];
+		$post_type_query_vars = [];
+
 		if ( isset( $parsed_url['query'] ) && '/' === $parsed_url['path'] ) {
-			$uri   = $parsed_url['query'];
-			$query = $parsed_url['query'];
+			$uri = $parsed_url['query'];
 		} elseif ( isset( $parsed_url['path'] ) ) {
 			$uri = $parsed_url['path'];
 		}
 
-		$this->wp->query_vars = [];
-		$post_type_query_vars = [];
-
 		if ( is_array( $extra_query_vars ) ) {
-			$this->wp->extra_query_vars = &$extra_query_vars;
+			$this->wp->query_vars = &$extra_query_vars;
 		} elseif ( ! empty( $extra_query_vars ) ) {
 			parse_str( $extra_query_vars, $this->wp->extra_query_vars );
 		}
+
+		$this->wp->query_vars['uri'] = $uri;
 		// Process PATH_INFO, REQUEST_URI, and 404 for permalinks.
 
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
-
+		$error   = '404';
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
-			$error                   = '404';
+			$error                   = null;
 			$this->wp->did_permalink = true;
 
 			$pathinfo         = isset( $uri ) ? $uri : '';
@@ -189,10 +192,6 @@ class NodeResolver {
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
 
-				// If we're processing a 404 request, clear the error var since we found something.
-				if ( '404' === $error ) {
-					unset( $error );
-				}
 			}
 		}
 
@@ -302,11 +301,30 @@ class NodeResolver {
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
-			$page_id = get_option( 'page_on_front', 0 );
-			if ( ! empty( $page_id ) ) {
-				$this->wp->query_vars['page_id'] = absint( $page_id );
+
+			$page_id       = get_option( 'page_on_front', 0 );
+			$show_on_front = get_option( 'show_on_front', 'posts' );
+
+			if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
+
+				if ( empty( $page_id ) ) {
+					return null;
+				}
+				$page = get_post( $page_id );
+
+				if ( empty( $page ) ) {
+					return null;
+				}
+
+				return new Post( $page );
+
 			} else {
-				$this->wp->query_vars['post_type'] = 'post';
+
+				if ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] ) {
+					return null;
+				}
+
+				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 			}
 		}
 
@@ -345,7 +363,7 @@ class NodeResolver {
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
 
 			if ( isset( $post->ID ) && (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
-				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
+				return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
 			}
 
 			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
@@ -359,6 +377,20 @@ class NodeResolver {
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
+
+			// If the query is asking for a Page nodeType with the home uri, try and resolve it.
+			if ( '/' === $this->wp->query_vars['uri'] && ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] ) ) {
+
+				// If the post type is not a page, but the uri is for the home page, we can return null now
+				if ( 'page' !== $this->wp->query_vars['post_type'] ) {
+					return null;
+				}
+
+				$page_on_front = get_option( 'page_on_front', 0 );
+				$post          = get_post( absint( $page_on_front ) );
+				return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+			}
+
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
 
 			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
