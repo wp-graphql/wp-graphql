@@ -507,7 +507,11 @@ class RootQuery {
 										'post_type' => $post_type_object->name,
 									] );
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'], [ 'post_type' => $post_type_object->name ] );
+									return $context->node_resolver->resolve_uri( $args['id'], [
+										'post_type' => $post_type_object->name,
+										'archive'   => false,
+										'nodeType'  => 'Page',
+									] );
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
