@@ -491,7 +491,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// The nesting is added to the fourth item.
 		// Convernt it to the global relay id from the database id.
-		$parent_id = Relay::toGlobalId( 'nav_menu_item', $created['menu_item_ids'][3] );
+		$parent_id = Relay::toGlobalId( 'post', $created['menu_item_ids'][3] );
 
 		$query = "
 		{
