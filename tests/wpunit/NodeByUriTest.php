@@ -371,7 +371,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		update_option( 'page_on_front', 0 );
 		update_option( 'page_for_posts', 0 );
-		update_option( 'show_on_front', 0 );
+		update_option( 'show_on_front', 'posts' );
 
 		$actual = graphql([ 'query' => $query ]);
 		codecept_debug( $actual );
@@ -389,6 +389,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		// homepage should still be the Post ContentType
 		update_option( 'show_on_front', 'page' );
 		$actual = graphql([ 'query' => $query ]);
+		codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotNull( $actual['data']['nodeByUri'] );
 		$this->assertSame( '/', $actual['data']['nodeByUri']['uri'] );
@@ -405,6 +406,52 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isFrontPage'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isPostsPage'] );
+
+	}
+
+	public function testPageQueryWhenPageIsSetToHomePage() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish'
+		]);
+
+		update_option( 'page_on_front', $page_id );
+		update_option( 'show_on_front', 'page' );
+
+		$query = '
+		{
+		  page( id:"/" idType: URI ) {
+		    __typename
+		    databaseId
+		    isPostsPage
+		    isFrontPage
+		    title
+		    uri
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $page_id, $actual['data']['page']['databaseId']);
+		$this->assertTrue( $actual['data']['page']['isFrontPage'] );
+		$this->assertSame( '/', $actual['data']['page']['uri']);
+
+		update_option( 'page_on_front', $page_id );
+		update_option( 'show_on_front', 'posts' );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( null, $actual['data']['page']);
 
 	}
 
@@ -521,4 +568,5 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
 
 	}
+
 }
