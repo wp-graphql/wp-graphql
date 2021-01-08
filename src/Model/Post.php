@@ -610,7 +610,7 @@ class Post extends Model {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}
-					if ( absint( get_option( 'page_for_posts', 0 ) ) === $this->data->ID ) {
+					if ( 'posts' !== get_option( 'show_on_front', 'posts' ) && absint( get_option( 'page_for_posts', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
 
