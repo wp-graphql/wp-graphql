@@ -206,6 +206,23 @@ abstract class Model {
 	 */
 	public function get_visibility() {
 
+		/**
+		 * Filter to set the visibility to bypass check
+		 *
+		 * Possible visibility options are private|public|restricted. Default null.
+		 *
+		 * @param string|null $visibility     The visibility that has currently been set for the data at this point
+		 * @param string      $model_name     Name of the model the filter is currently being executed in
+		 * @param mixed       $data           The un-modeled incoming data
+		 * @param null|int    $owner          The user ID for the owner of this piece of data
+		 * @param WP_User     $current_user   The current user for the session
+		 *
+		 * @since 1.1.2
+		 *
+		 * @return string
+		 */
+		$this->visibility = apply_filters( 'graphql_set_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
+
 		if ( null === $this->visibility ) {
 
 			/**

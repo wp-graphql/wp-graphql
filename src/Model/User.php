@@ -88,6 +88,8 @@ class User extends Model {
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
 
+		add_action( 'save_post', [ $this, 'flush_user_post_count_cache' ], 10, 2 );
+
 	}
 
 	/**
@@ -152,7 +154,7 @@ class User extends Model {
 			 *      For now, we only query if the current user doesn't have list_users, instead of querying
 			 *      for ALL users. Slightly more efficient for authenticated users at least.
 			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), WPGraphQL::get_allowed_post_types(), true ) ) {
+			if ( ! $this->count_user_posts( absint( $this->data->ID ), WPGraphQL::get_allowed_post_types(), true ) ) {
 				return true;
 			}
 		}
@@ -269,6 +271,85 @@ class User extends Model {
 			];
 
 		}
+
+	}
+
+	/**
+	 * Cached version (and variation) of count_user_posts, which is uncached but doesn't always
+	 * need to hit the db
+	 *
+	 * count_user_posts is generally fast on smaller sites, but slows on large data sets.
+	 *
+	 * It can also be easy to end up with many redundant queries if it's called several times per
+	 * request. This allows bypassing the db queries in favor of the cache
+	 *
+	 * @param int                $userid      ID of the User
+	 * @param mixed|string|array $post_type   The post type(s) to check for published posts in
+	 * @param boolean            $public_only Whether to count only publicly published posts
+	 *
+	 * @return int|mixed|boolean
+	 */
+	protected function count_user_posts( $userid, $post_type = 'post', $public_only = false ) {
+
+		if ( ! is_numeric( $userid ) ) {
+			return 0;
+		}
+
+		$cache_key       = 'graphql_user_' . (int) $userid;
+		$cache_group     = 'user_posts_count';
+		$user_post_count = wp_cache_get( $cache_key, $cache_group );
+
+		/**
+		 * If there's no cache, query to see if the author has 1 published post.
+		 *
+		 * This method of querying is more efficient on large datasets
+		 * then the core count_user_posts() method as this stops at the first match,
+		 * where the count_user_psts() method needs to find all matches and
+		 * it can take a while to calculate.
+		 *
+		 * We only care if there's at least 1 published post, not the total.
+		 */
+		if ( false === $user_post_count ) {
+			global $wpdb;
+
+			$where           = get_posts_by_author_sql( $post_type, true, $userid, $public_only );
+			$results         = $wpdb->get_results( "SELECT id FROM $wpdb->posts $where LIMIT 1" );
+			$user_post_count = $results ? count( $results ) : 0;
+
+			wp_cache_set( $cache_key, $user_post_count, $cache_group, 5 * MINUTE_IN_SECONDS ); // Cache for 5 mins.
+		}
+
+		/**
+		 * Filters the number of posts a user has written.
+		 *
+		 * @param int          $user_post_count The user's post count.
+		 * @param int          $userid          User ID.
+		 * @param string|array $post_type       Single post type or array of post types to count the number of posts for.
+		 * @param bool         $public_only     Whether to limit counted posts to public posts.
+		 */
+		return (int) apply_filters( 'graphql_count_user_posts', $user_post_count, $userid, $post_type, $public_only );
+
+	}
+
+	/**
+	 * Function to flush user post count cache.
+	 *
+	 * @param int     $post_ID Post ID.
+	 * @param WP_Post $post    Post object.
+	 *
+	 * @return void
+	 */
+	public function flush_user_post_count_cache( $post_ID, $post ) {
+
+		// Check post author is empty.
+		if ( empty( $post ) || empty( $post->post_author ) ) {
+			return;
+		}
+
+		$cache_key   = 'graphql_user_' . (int) $post->post_author;
+		$cache_group = 'user_posts_count';
+
+		wp_cache_delete( $cache_key, $cache_group );
 
 	}
 
