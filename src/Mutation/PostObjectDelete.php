@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WP_Post_Type;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 class PostObjectDelete {
@@ -13,6 +13,9 @@ class PostObjectDelete {
 	 * Registers the PostObjectDelete mutation.
 	 *
 	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -57,7 +60,7 @@ class PostObjectDelete {
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields( $post_type_object ) {
+	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
 			'deletedId'                            => [
 				'type'        => 'Id',
@@ -65,7 +68,7 @@ class PostObjectDelete {
 				'resolve'     => function( $payload ) {
 					$deleted = (object) $payload['postObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', absint( $deleted->ID ) ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
 				},
 			],
 			$post_type_object->graphql_single_name => [
@@ -99,7 +102,7 @@ class PostObjectDelete {
 			/**
 			 * Stop now if a user isn't allowed to delete a post
 			 */
-			if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
+			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -107,12 +110,17 @@ class PostObjectDelete {
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			/**
 			 * Get the post object before deleting it
 			 */
 			$post_before_delete = get_post( absint( $id_parts['id'] ) );
+
+			if ( empty( $post_before_delete ) ) {
+				throw new UserError( __( 'The post could not be deleted', 'wp-graphql' ) );
+			}
+
 			$post_before_delete = new Post( $post_before_delete );
 
 			/**

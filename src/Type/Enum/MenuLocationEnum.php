@@ -5,6 +5,12 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Type\WPEnumType;
 
 class MenuLocationEnum {
+
+	/**
+	 * Register the MenuLocationEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		$values = [];
 

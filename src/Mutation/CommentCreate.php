@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -11,6 +12,9 @@ use WPGraphQL\Data\DataSource;
 class CommentCreate {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -122,10 +126,16 @@ class CommentCreate {
 				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
 			}
 
+			$commented_on = get_post( absint( $input['commentOn'] ) );
+
+			if ( empty( $commented_on ) ) {
+				return new UserError( __( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Stop if post not open to comments
 			 */
-			if ( empty( $input['commentOn'] ) || get_post( $input['commentOn'] )->comment_status === 'closed' ) {
+			if ( empty( $input['commentOn'] ) || 'closed' === $commented_on->comment_status ) {
 				throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
 			}
 

@@ -1,14 +1,17 @@
 <?php
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 
 class MediaItemDelete {
 	/**
 	 * Registers the MediaItemDelete mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -54,7 +57,7 @@ class MediaItemDelete {
 				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['mediaItemObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', absint( $deleted->ID ) ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
 				},
 			],
 			'mediaItem' => [
@@ -94,20 +97,24 @@ class MediaItemDelete {
 			/**
 			 * Stop now if a user isn't allowed to delete a mediaItem
 			 */
-			if ( ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
+			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, absint( $id_parts['id'] ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 			}
 
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			/**
 			 * Get the mediaItem object before deleting it
 			 */
 			$media_item_before_delete = get_post( absint( $id_parts['id'] ) );
-			$media_item_before_delete = isset( $media_item_before_delete->ID ) && isset( $media_item_before_delete->ID ) ? new Post( $media_item_before_delete ) : $media_item_before_delete;
+			$media_item_before_delete = isset( $media_item_before_delete->ID ) && absint( $media_item_before_delete->ID ) ? new Post( $media_item_before_delete ) : $media_item_before_delete;
+
+			if ( empty( $media_item_before_delete ) ) {
+				throw new UserError( __( 'The Media Item could not be deleted', 'wp-graphql' ) );
+			}
 
 			/**
 			 * If the mediaItem isn't of the attachment post type, throw an error

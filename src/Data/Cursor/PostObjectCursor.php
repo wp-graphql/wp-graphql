@@ -49,8 +49,10 @@ class PostObjectCursor {
 
 	/**
 	 * Copy of query vars so we can modify them safely
+	 *
+	 * @var array
 	 */
-	public $query_vars = null;
+	public $query_vars = [];
 
 	/**
 	 * PostCursor constructor.
@@ -94,6 +96,9 @@ class PostObjectCursor {
 		return \WP_Post::get_instance( $this->cursor_offset );
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function to_sql() {
 
 		$orderby = isset( $this->query_vars['orderby'] ) ? $this->query_vars['orderby'] : null;
@@ -106,7 +111,7 @@ class PostObjectCursor {
 				'post_parent__in',
 			],
 			true
-		) ? true : false;
+		);
 
 		if ( true === $orderby_should_not_convert_to_sql ) {
 			return null;
@@ -119,12 +124,19 @@ class PostObjectCursor {
 		return ' AND ' . $sql;
 	}
 
-	public function get_query_var( $name ) {
+	/**
+	 * @param string $name The name of the query var to get
+	 *
+	 * @return mixed|null
+	 */
+	public function get_query_var( string $name ) {
 		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
 	}
 
 	/**
 	 * Return the additional AND operators for the where statement
+	 *
+	 * @return string|null
 	 */
 	public function get_where() {
 
@@ -176,6 +188,8 @@ class PostObjectCursor {
 
 	/**
 	 * Use post date based comparison
+	 *
+	 * @return void
 	 */
 	private function compare_with_date() {
 		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->get_cursor_post()->post_date, 'DATETIME' );
@@ -231,8 +245,10 @@ class PostObjectCursor {
 	 *
 	 * @param string $meta_key post meta key
 	 * @param string $order    The comparison string
+	 *
+	 * @return void
 	 */
-	private function compare_with_meta_field( $meta_key, $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_post_meta( $this->cursor_offset, $meta_key, true );
 

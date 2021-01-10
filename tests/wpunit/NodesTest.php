@@ -402,11 +402,19 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_id = $this->factory->user->create( $user_args );
 
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
+		]);
+
 		$comment_args = array(
 			'user_id'         => $user_id,
 			'comment_content' => 'GraphQL is really awesome, dude!',
+			'comment_post_ID' => $post_id
 		);
-		$comment_id   = $this->factory->comment->create( $comment_args );
+		$comment_id   = $this->factory()->comment->create( $comment_args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 		$query     = "

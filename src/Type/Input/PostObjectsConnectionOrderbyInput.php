@@ -3,6 +3,12 @@
 namespace WPGraphQL\Type\Input;
 
 class PostObjectsConnectionOrderbyInput {
+
+	/**
+	 * Register the PostObjectsConnectionOrderbyInput Input
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		register_graphql_input_type(
 			'PostObjectsConnectionOrderbyInput',

@@ -66,7 +66,9 @@ class Taxonomy extends Model {
 			'isRestricted',
 		];
 
-		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields );
+		$capability = isset( $this->data->cap->edit_terms ) ? $this->data->cap->edit_terms : 'edit_terms';
+
+		parent::__construct( $capability, $allowed_restricted_fields );
 
 	}
 
@@ -77,7 +79,7 @@ class Taxonomy extends Model {
 	 */
 	protected function is_private() {
 
-		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_terms ) ) {
+		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
 			return true;
 		}
 

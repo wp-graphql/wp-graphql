@@ -8,7 +8,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PluginConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -75,15 +74,14 @@ class DataSource {
 	 *
 	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
-	 * @return CommentAuthor
+	 * @return mixed|CommentAuthor|null
 	 * @throws Exception Throws Exception.
 	 */
-	public static function resolve_comment_author( $comment_id ) {
-		global $wpdb;
-		$comment_author = $wpdb->get_row( $wpdb->prepare( "SELECT comment_id, comment_author_email, comment_author, comment_author_url, comment_author_email from $wpdb->comments WHERE comment_id = %s LIMIT 1", esc_sql( $comment_id ) ) );
-		$comment_author = ! empty( $comment_author ) ? (array) $comment_author : [];
+	public static function resolve_comment_author( int $comment_id ) {
 
-		return new CommentAuthor( $comment_author );
+		$comment_author = get_comment( $comment_id );
+
+		return ! empty( $comment_author ) ? new CommentAuthor( $comment_author ) : null;
 	}
 
 	/**
@@ -192,7 +190,13 @@ class DataSource {
 		 * If the $post_type is one of the allowed_post_types
 		 */
 		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
-			return new Taxonomy( get_taxonomy( $taxonomy ) );
+			$tax_object = get_taxonomy( $taxonomy );
+
+			if ( ! $tax_object instanceof \WP_Taxonomy ) {
+				throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			}
+
+			return new Taxonomy( $tax_object );
 		} else {
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
@@ -379,7 +383,7 @@ class DataSource {
 	 *
 	 * @return array $settings_groups[ $group ]
 	 */
-	public static function get_setting_group_fields( $group ) {
+	public static function get_setting_group_fields( string $group ) {
 
 		/**
 		 * Get all of the settings, sorted by group
@@ -514,6 +518,13 @@ class DataSource {
 		return self::$node_definition;
 	}
 
+	/**
+	 * Given a node, returns the GraphQL Type
+	 *
+	 * @param mixed $node The node to resolve the type of
+	 *
+	 * @return string
+	 */
 	public static function resolve_node_type( $node ) {
 		$type = null;
 
@@ -522,8 +533,11 @@ class DataSource {
 			switch ( true ) {
 				case $node instanceof Post:
 					if ( $node->isRevision ) {
-						$parent_post_type = get_post( $node->parentDatabaseId )->post_type;
-						$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+						$parent_post = get_post( $node->parentDatabaseId );
+						if ( ! empty( $parent_post ) ) {
+							$parent_post_type = $parent_post->post_type;
+							$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+						}
 					} else {
 						$type = get_post_type_object( $node->post_type )->graphql_single_name;
 					}
@@ -580,7 +594,7 @@ class DataSource {
 		 *
 		 * @since 0.0.6
 		 */
-		if ( null === $type ) {
+		if ( empty( $type ) ) {
 			throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
 		}
 

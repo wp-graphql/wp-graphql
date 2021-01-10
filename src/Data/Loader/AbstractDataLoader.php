@@ -59,7 +59,8 @@ abstract class AbstractDataLoader {
 	/**
 	 * Given a Database ID, the particular loader will buffer it and resolve it deferred.
 	 *
-	 * @param Int $database_id The database ID for a particular loader to load an object
+	 * @param mixed|int|string $database_id The database ID for a particular loader to load an
+	 *                                      object
 	 *
 	 * @return Deferred|null
 	 * @throws Exception
@@ -189,6 +190,7 @@ abstract class AbstractDataLoader {
 	 * invalidations across this particular `DataLoader`. Returns itself for
 	 * method chaining.
 	 *
+	 * @return AbstractDataLoader
 	 * @deprecated in favor of clear_all
 	 */
 	public function clearAll() {
@@ -199,6 +201,8 @@ abstract class AbstractDataLoader {
 	 * Clears the entire cache. To be used when some event results in unknown
 	 * invalidations across this particular `DataLoader`. Returns itself for
 	 * method chaining.
+	 *
+	 * @return AbstractDataLoader
 	 */
 	public function clear_all() {
 		$this->cached = [];
@@ -279,7 +283,7 @@ abstract class AbstractDataLoader {
 				throw new Exception(
 					'Method ' . get_class( $this ) . '::loadKeys is expected to return array, but it threw: ' .
 					$e->getMessage(),
-					null,
+					0,
 					$e
 				);
 			}

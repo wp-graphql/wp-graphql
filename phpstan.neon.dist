@@ -1,6 +1,7 @@
 parameters:
-    level: 2
+    level: 8
     inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
     bootstrapFiles:
         - phpstan/constants.php
         - wp-graphql.php
@@ -18,6 +19,9 @@ parameters:
         - "#Access to an undefined property WP_Post_Type::\\$show_in_graphql.#"
         - "#Cannot access property \\$graphql_single_name on WP_Taxonomy\\|false.#"
         - "#Cannot access property \\$graphql_plural_name on WP_Taxonomy\\|false.#"
+        - "#Cannot access property \\$graphql_single_name on WP_Post_Type\\|null.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_single_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_plural_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$show_in_graphql.#"
+        - "#^Parameter \\#1 \\$taxonomy of function get_taxonomy expects string, WP_Taxonomy given.#"
+        - "#^Parameter \\#1 \\$post_type of function get_post_type_object expects string, string|WP_Taxonomy given.#"

@@ -6,7 +6,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\PostObjectMutation;
 
 /**
@@ -19,6 +18,8 @@ class PostObjectCreate {
 	 * Registers the PostObjectCreate mutation.
 	 *
 	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'create' . ucwords( $post_type_object->graphql_single_name );
@@ -200,7 +201,7 @@ class PostObjectCreate {
 			/**
 			 * Stop now if a user isn't allowed to create a post
 			 */
-			if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
+			if ( ! isset( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->create_posts ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -209,7 +210,7 @@ class PostObjectCreate {
 			 * If the post being created is being assigned to another user that's not the current user, make sure
 			 * the current user has permission to edit others posts for this post_type
 			 */
-			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			if ( ! empty( $input['authorId'] ) && get_current_user_id() !== $input['authorId'] ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
@@ -248,7 +249,7 @@ class PostObjectCreate {
 			 * If the current user cannot publish posts but their intent was to publish,
 			 * default the status to pending.
 			 */
-			if ( ! current_user_can( $post_type_object->cap->publish_posts ) && ! in_array( $intended_post_status, [
+			if ( ( ! isset( $post_type_object->cap->publish_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) && ! in_array( $intended_post_status, [
 				'draft',
 				'pending',
 			], true ) ) {
@@ -261,10 +262,16 @@ class PostObjectCreate {
 			 */
 			$post_args['post_status'] = $default_post_status;
 
+			$clean_args = wp_slash( (array) $post_args );
+
+			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
+				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Insert the post and retrieve the ID
 			 */
-			$post_id = wp_insert_post( wp_slash( (array) $post_args ), true );
+			$post_id = wp_insert_post( $clean_args, true );
 
 			/**
 			 * Throw an exception if the post failed to create

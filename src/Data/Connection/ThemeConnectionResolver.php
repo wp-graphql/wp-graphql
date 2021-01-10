@@ -163,7 +163,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 
 		$connection['nodes'] = ! empty( $nodes ) ? $nodes : null;
 
-		return ! empty( $themes_array ) ? $connection : null;
+		return ! empty( $themes_array ) ? $connection : [];
 	}
 
 }

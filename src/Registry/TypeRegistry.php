@@ -170,6 +170,8 @@ class TypeRegistry {
 	 * Initialize the TypeRegistry
 	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -200,6 +202,8 @@ class TypeRegistry {
 	 * Initialize the Type Registry
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
@@ -207,7 +211,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
 
@@ -342,8 +346,14 @@ class TypeRegistry {
 
 			$page_templates['default'] = 'DefaultTemplate';
 			foreach ( $registered_page_templates as $post_type_templates ) {
-				foreach ( $post_type_templates as $file => $name ) {
-					$page_templates[ $file ] = $name;
+				// Post templates are returned as an array of arrays. PHPStan believes they're returned as
+				// an array of strings and believes this will always evaluate to false.
+				// We should ignore the phpstan check here.
+				// @phpstan-ignore-next-line
+				if ( ! empty( $post_type_templates ) && is_array( $post_type_templates ) ) {
+					foreach ( $post_type_templates as $file => $name ) {
+						$page_templates[ $file ] = $name;
+					}
 				}
 			}
 		}
@@ -351,8 +361,13 @@ class TypeRegistry {
 		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
 
 			foreach ( $page_templates as $file => $name ) {
-				$name = ucwords( $name );
-				$name = preg_replace( '/[^\w]/', '', $name );
+				$name          = ucwords( $name );
+				$replaced_name = preg_replace( '/[^\w]/', '', $name );
+
+				if ( ! empty( $replaced_name ) ) {
+					$name = $replaced_name;
+				}
+
 				if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 					$name = 'Template_' . $name;
 				}
@@ -384,6 +399,10 @@ class TypeRegistry {
 			foreach ( $allowed_post_types as $post_type ) {
 
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
 
 				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
 					throw new \GraphQL\Error\InvariantViolation(
@@ -421,6 +440,16 @@ class TypeRegistry {
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 
 						$tax_object = get_taxonomy( $taxonomy );
+
+						if ( ! $tax_object instanceof \WP_Taxonomy ) {
+							throw new \GraphQL\Error\InvariantViolation(
+								sprintf(
+								/* translators: %s will replaced with the registered type */
+									__( 'The %s taxonomy cannot be found.', 'wp-graphql' ),
+									$taxonomy
+								)
+							);
+						}
 
 						if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
 							throw new \GraphQL\Error\InvariantViolation(
@@ -489,10 +518,12 @@ class TypeRegistry {
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
-				TermObject::register_taxonomy_object_type( $taxonomy_object );
-				TermObjectCreate::register_mutation( $taxonomy_object );
-				TermObjectUpdate::register_mutation( $taxonomy_object );
-				TermObjectDelete::register_mutation( $taxonomy_object );
+				if ( $taxonomy_object instanceof \WP_Taxonomy ) {
+					TermObject::register_taxonomy_object_type( $taxonomy_object );
+					TermObjectCreate::register_mutation( $taxonomy_object );
+					TermObjectUpdate::register_mutation( $taxonomy_object );
+					TermObjectDelete::register_mutation( $taxonomy_object );
+				}
 			}
 		}
 
@@ -518,13 +549,18 @@ class TypeRegistry {
 				] );
 			}
 
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
+			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
-				$group_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $group ) );
+				$replaced_group_name = preg_replace( '[^a-zA-Z0-9 -]', '_', $group_name );
+
+				if ( ! empty( $replaced_group_name ) ) {
+					$group_name = lcfirst( $replaced_group_name );
+				}
+
 				$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
 				$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
 				$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
-				SettingGroup::register_settings_group( $group_name, $group );
+				SettingGroup::register_settings_group( $group_name, $group_name );
 
 				register_graphql_field(
 					'RootQuery',
@@ -551,7 +587,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 
@@ -564,13 +600,17 @@ class TypeRegistry {
 	 * @param array  $config    The config for the scalar type to register
 	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
-	public function register_scalar( $type_name, $config ) {
+	public function register_scalar( string $type_name, array $config ) {
 		$config['kind'] = 'scalar';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
+	 * Add a Type to the Registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param mixed|array|Type $config The config for the type
 	 *
@@ -615,10 +655,13 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Add an Object Type to the Registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array $config The configuration of the type
 	 *
 	 * @throws Exception
+	 * @return void
 	 */
 	public function register_object_type( string $type_name, array $config ) {
 		$config['kind'] = 'object';
@@ -626,10 +669,13 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Add an Interface Type to the registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array $config he configuration of the type
 	 *
 	 * @throws Exception
+	 * @return void
 	 */
 	public function register_interface_type( string $type_name, array $config ) {
 		$config['kind'] = 'interface';
@@ -637,9 +683,12 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Add an Enum Type to the registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array $config he configuration of the type
 	 *
+	 * @return void
 	 * @throws Exception
 	 */
 	public function register_enum_type( string $type_name, array $config ) {
@@ -648,9 +697,12 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Add an Input Type to the Registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array $config he configuration of the type
 	 *
+	 * @return void
 	 * @throws Exception
 	 */
 	public function register_input_type( string $type_name, array $config ) {
@@ -659,8 +711,12 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Add a Union Type to the Registry
+	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array $config he configuration of the type
+	 *
+	 * @return void
 	 *
 	 * @throws Exception
 	 */
@@ -673,7 +729,7 @@ class TypeRegistry {
 	 * @param string $type_name The name of the type to register
 	 * @param mixed|array|Type $config he configuration of the type
 	 *
-	 * @return array|WPObjectType
+	 * @return mixed|array|Type|null
 	 * @throws Exception
 	 */
 	public function prepare_type( string $type_name, $config ) {
@@ -724,10 +780,22 @@ class TypeRegistry {
 
 	}
 
-	public function get_type( $type_name ) {
+	/**
+	 * Given a type name, returns the type or null if not found
+	 *
+	 * @param string $type_name The name of the Type to get from the registry
+	 *
+	 * @return mixed|null
+	 */
+	public function get_type( string $type_name ) {
 		return isset( $this->types[ $this->format_key( $type_name ) ] ) ? ( $this->types[ $this->format_key( $type_name ) ] ) : null;
 	}
 
+	/**
+	 * Return the Types in the registry
+	 *
+	 * @return array
+	 */
 	public function get_types() {
 		return $this->types;
 	}

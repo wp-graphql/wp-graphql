@@ -2,30 +2,31 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
 
 /**
  * Class Comment - Models data for Comments
  *
- * @property string     $id
- * @property int        $commentId
- * @property string     $commentAuthorEmail
- * @property string     $comment_author
- * @property string     $comment_author_url
- * @property int        $comment_ID
- * @property int        $comment_parent_id
- * @property string     $parentId
- * @property int        $parentDatabaseId
- * @property string     $authorIp
- * @property string     $date
- * @property string     $dateGmt
- * @property string     $contentRaw
- * @property string     $contentRendered
- * @property string     $karma
- * @property int        $approved
- * @property string     $agent
- * @property string     $type
- * @property int        $userId
+ * @property string $id
+ * @property int    $commentId
+ * @property string $commentAuthorEmail
+ * @property string $comment_author
+ * @property string $comment_author_url
+ * @property int    $comment_ID
+ * @property int    $comment_parent_id
+ * @property string $parentId
+ * @property int    $parentDatabaseId
+ * @property string $authorIp
+ * @property string $date
+ * @property string $dateGmt
+ * @property string $contentRaw
+ * @property string $contentRendered
+ * @property string $karma
+ * @property int    $approved
+ * @property string $agent
+ * @property string $type
+ * @property int    $userId
  *
  * @package WPGraphQL\Model
  */
@@ -43,7 +44,7 @@ class Comment extends Model {
 	 *
 	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct( \WP_Comment $comment ) {
 
@@ -68,7 +69,8 @@ class Comment extends Model {
 		];
 
 		$this->data = $comment;
-		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $comment->user_id );
+		$owner      = ! empty( $comment->user_id ) ? absint( $comment->user_id ) : null;
+		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $owner );
 
 	}
 
@@ -76,12 +78,22 @@ class Comment extends Model {
 	 * Method for determining if the data should be considered private or not
 	 *
 	 * @return bool
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function is_private() {
 
+		if ( empty( $this->data->comment_post_ID ) ) {
+			return true;
+		}
+
+		$commented_on = get_post( (int) $this->data->comment_post_ID );
+
+		if ( empty( $commented_on ) ) {
+			return true;
+		}
+
 		// A comment is considered private if it is attached to a private post.
-		if ( ! empty( $this->data->comment_post_ID ) && ( new Post( get_post( $this->data->comment_post_ID ) ) )->is_private() ) {
+		if ( empty( $commented_on ) || true === ( new Post( $commented_on ) )->is_private() ) {
 			return true;
 		}
 
@@ -152,6 +164,7 @@ class Comment extends Model {
 				},
 				'contentRendered'    => function() {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
+
 					return $this->html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', false );
 				},
 				'karma'              => function() {

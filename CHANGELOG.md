@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.1.1
+
+## Bugfix
+
+- ([#1670](https://github.com/wp-graphql/wp-graphql/issues/1670)) Fixes a bug with querying pages that are set as to be the posts page
+
+## 1.1.0
+
+This release centers around updating code quality by implementing [PHPStan](https://phpstan.org/) checks. PHPStan is a tool that statically analyzes PHP codebases to detect bugs. This release centers around updating Docblocks and overall code quality, and implements automated tests to check code quality on every pull request.
+
+## New
+
+- Update PHPStan (Code Quality checker) to v0.12.64
+- Increases PHPStan code quality checks to Level 8 (highest level).
+
+## Bugfixes
+- ([#1653](https://github.com/wp-graphql/wp-graphql/issues/1653)) Fixes bug where WPGraphQL was explicitly setting `has_published_posts` on WP_Query but WP_Query does this under the hood already. Thanks @jmartinhoj!
+- Fixes issue with Comment Model returning comments that are not associated with a Post object. Comments with no associated Post object are not public entities.
+- Update docblocks to be compatible with PHPStan Level 8. 
+- Removed some uncalled code
+- Added early returns in some places to prevent unnecessary added execution
+
 ## 1.0.5
 
 ### New
