@@ -44,7 +44,7 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( get_theme_mod( 'nav_menu_locations' ) );
 
-		$menu_item_relay_id = Relay::toGlobalId( 'nav_menu_item', $menu_item_id );
+		$menu_item_relay_id = Relay::toGlobalId( 'post', $menu_item_id );
 
 		$query = '
 		{
@@ -79,6 +79,44 @@ class MenuItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
 		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['locations'] );
 		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
+
+		$old_id = Relay::toGlobalId( 'nav_menu_itemci', $menu_item_id );
+
+		$query = '
+		{
+			menuItem( id: "' . $old_id . '" ) {
+				id
+				databaseId
+				connectedObject {
+					... on Post {
+						id
+						postId
+					}
+				}
+				locations
+				menu {
+				  node {
+				    slug
+				    locations
+				  }
+				}
+			}
+		}
+		';
+
+		$actual = do_graphql_request( $query );
+
+
+		codecept_debug( $actual );
+
+		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['databaseId'] );
+		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
+		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedObject']['postId'] );
+		$this->assertEquals( $menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['locations'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
+
+
 	}
 
 }
