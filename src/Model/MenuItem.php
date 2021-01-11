@@ -104,10 +104,10 @@ class MenuItem extends Model {
 
 			$this->fields = [
 				'id'               => function() {
-					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->ID ) : null;
+					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
 				},
 				'parentId'         => function() {
-					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'nav_menu_item', $this->data->menu_item_parent ) : null;
+					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'post', $this->data->menu_item_parent ) : null;
 				},
 				'parentDatabaseId' => function() {
 					return $this->data->menu_item_parent;

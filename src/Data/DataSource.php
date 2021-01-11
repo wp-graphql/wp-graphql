@@ -147,8 +147,8 @@ class DataSource {
 	 *
 	 * @deprecated Use the Loader passed in $context instead
 	 */
-	public static function resolve_menu_item( $id, AppContext $context ) {
-		return $context->get_loader( 'nav_menu_item' )->load_deferred( $id );
+	public static function resolve_menu_item( int $id, AppContext $context ) {
+		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
 	/**
