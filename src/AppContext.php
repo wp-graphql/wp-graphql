@@ -107,6 +107,7 @@ class AppContext {
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
 			'plugin'              => new PluginLoader( $this ),
+			'nav_menu_item'       => new PostObjectLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
 			'taxonomy'            => new TaxonomyLoader( $this ),
