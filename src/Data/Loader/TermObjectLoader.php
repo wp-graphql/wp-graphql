@@ -26,7 +26,7 @@ class TermObjectLoader extends AbstractDataLoader {
 		if ( is_a( $entry, 'WP_Term' ) ) {
 
 			/**
-			 * For nav_menu_item terms, we want to pass through a different model
+			 * For nav_menu terms, we want to pass through a different model
 			 */
 			if ( 'nav_menu' === $entry->taxonomy ) {
 

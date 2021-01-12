@@ -1,8 +1,16 @@
 # Changelog
 
+## 1.1.2
+
+### Bugfixes
+
+- ([#1676](https://github.com/wp-graphql/wp-graphql/pull/1676)) Add a `nav_menu_item` loader to allow previous menu item IDs to work properly with WPGraphQL should they be passed to a node query (like, if the ID were persisted somewhere already)
+- Update cases of menu item IDs to be `post:$id` instead of `nav_menu_item:$id`
+- Update tests to test that both the old `nav_menu_item:$id` and `post:$id` work for nav menu item node queries to support previously issued IDs
+
 ## 1.1.1
 
-## Bugfix
+### Bugfix
 
 - ([#1670](https://github.com/wp-graphql/wp-graphql/issues/1670)) Fixes a bug with querying pages that are set as to be the posts page
 
