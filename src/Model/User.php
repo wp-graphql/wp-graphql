@@ -143,6 +143,26 @@ class User extends Model {
 	 */
 	protected function is_private() {
 
+		/**
+		 * Filter whether the user is private.
+		 *
+		 * If true, the user will be considered private without further checks.
+		 *
+		 * @param mixed|null|boolean $is_private If set, return without executing the manual query
+		 *                                       to see if the user has published posts.
+		 * @param User               $this       Instance of the User Model
+		 */
+		$is_private = apply_filters( 'graphql_user_model_is_private', null, $this );
+
+		/**
+		 * If the filter returns true, we can return now as the user is considered private.
+		 *
+		 * Otherwise we need to continue and check if the User should be considered private or not
+		 */
+		if ( null !== $is_private ) {
+			return (bool) $is_private;
+		}
+
 		if ( ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
 
 			/**
