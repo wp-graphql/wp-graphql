@@ -41,7 +41,7 @@ class UserLoader extends AbstractDataLoader {
 	 * In this example, user 1 is not public (has no published posts) and is
 	 * omitted from the returned array.
 	 *
-	 * @param array[int] $keys Array of author IDs.
+	 * @param array $keys Array of author IDs (int).
 	 *
 	 * @return array
 	 */
@@ -89,7 +89,7 @@ class UserLoader extends AbstractDataLoader {
 		 */
 		return array_reduce(
 			$results,
-			function ( $carry, $result ) use ( $results ) {
+			function ( $carry, $result ) {
 				$carry[ intval( $result->post_author ) ] = true;
 				return $carry;
 			},

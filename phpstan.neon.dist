@@ -23,5 +23,6 @@ parameters:
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_single_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$graphql_plural_name.#"
         - "#Access to an undefined property WP_Taxonomy::\\$show_in_graphql.#"
+        - "#Access to an undefined property WP_User::\\$is_private.#"
         - "#^Parameter \\#1 \\$taxonomy of function get_taxonomy expects string, WP_Taxonomy given.#"
         - "#^Parameter \\#1 \\$post_type of function get_post_type_object expects string, string|WP_Taxonomy given.#"
