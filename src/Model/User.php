@@ -143,9 +143,19 @@ class User extends Model {
 	 */
 	protected function is_private() {
 		/**
-		 * NB: Caps check for 'list_users' and 'owner_matches_current_user' is
-		 * handled by Model abstract class.
+		 * If the user has permissions to list users.
 		 */
+		if ( current_user_can( $this->restricted_cap ) ) {
+			return false;
+		}
+
+		/**
+		 * If the owner of the content is the current user
+		 */
+		if ( true === $this->owner_matches_current_user() ) {
+			return false;
+		}
+
 		return $this->data->is_private;
 	}
 
