@@ -195,7 +195,14 @@ class RootQuery {
 							],
 						],
 						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
-							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
+							if ( ! empty( $args['uri'] ) ) {
+								$context->config = !! $context->config ? $context->config : [];
+								$context->config['source_type'] = 'UniformResourceIdentifiable';
+
+								return $context->node_resolver->resolve_uri( $args['uri'] );
+							 } else {
+								return null;
+							 }
 						},
 					],
 					'menu'        => [

@@ -363,7 +363,12 @@ class NodeResolver {
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
 
 			if ( isset( $post->ID ) && (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
-				return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
+				if ( ! empty( $this->context->config['source_type'] ) && $this->context->config['source_type'] === 'UniformResourceIdentifiable' ) {
+					$this->context->config['source_type'] = null;
+					return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
+				} else {
+					return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
+				}
 			}
 
 			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
