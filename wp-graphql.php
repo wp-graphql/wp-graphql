@@ -287,6 +287,11 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				$tracker->delete_timestamp();
 			} );
 
+      /**
+       * Set up router actions/filters as early as possible
+       */
+			new \WPGraphQL\Router();
+
 			/**
 			 * Init WPGraphQL after themes have been setup,
 			 * allowing for both plugins and themes to register
@@ -297,7 +302,6 @@ if ( ! class_exists( 'WPGraphQL' ) ) :
 				function() {
 
 					new \WPGraphQL\Data\Config();
-					new \WPGraphQL\Router();
 
 					/**
 					 * Fire off init action
