@@ -236,7 +236,9 @@ abstract class Model {
 			 */
 			$is_private = apply_filters( 'graphql_pre_model_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
-			if ( null !== $is_private ) {
+			// If 3rd party code has not filtered this, use the Models default logic to determine
+			// whether the model should be considered private
+			if ( null === $is_private ) {
 				$is_private = $this->is_private();
 			}
 
