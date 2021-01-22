@@ -234,13 +234,29 @@ abstract class Model {
 			 *
 			 * @return bool|null
 			 */
-			$is_private = apply_filters( 'graphql_pre_model_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+			$pre_is_private = apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			// If 3rd party code has not filtered this, use the Models default logic to determine
 			// whether the model should be considered private
-			if ( null === $is_private ) {
+			if ( null !== $pre_is_private ) {
+				$is_private = $pre_is_private;
+			} else {
 				$is_private = $this->is_private();
 			}
+
+			/**
+			 * Filter to determine if the data should be considered private or not
+			 *
+			 * @param boolean     $is_private   Whether the model is private
+			 * @param string      $model_name   Name of the model the filter is currently being executed in
+			 * @param mixed       $data         The un-modeled incoming data
+			 * @param string|null $visibility   The visibility that has currently been set for the data at this point
+			 * @param null|int    $owner        The user ID for the owner of this piece of data
+			 * @param WP_User     $current_user The current user for the session
+			 *
+			 * @return bool
+			 */
+			$is_private = apply_filters( 'graphql_data_is_private', $is_private, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 			if ( true === $is_private ) {
 				$this->visibility = 'private';
