@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3
+
+## New
+
+- ([#972](https://github.com/wp-graphql/wp-graphql/pull/972)) `graphql_pre_model_data_is_private` filter was added to the Abstract Model.php allowing Model's `is_private()` check to be bypassed.
+
+
 ## 1.1.2
 
 ### Bugfixes
