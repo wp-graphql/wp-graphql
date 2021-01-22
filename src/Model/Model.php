@@ -286,7 +286,7 @@ abstract class Model {
 			return false;
 		}
 
-		return ( absint( $this->owner ) === absint( $this->current_user->ID ) ) ? true : false;
+		return absint( $this->owner ) === absint( $this->current_user->ID );
 	}
 
 	/**
