@@ -408,11 +408,30 @@ class Router {
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
 	 * @since  0.0.1
+	 * @global WP_User $current_user The currently authenticated user.
 	 * @return mixed
 	 * @throws \Exception Throws Exception.
 	 * @throws \Throwable Throws Exception.
 	 */
 	public static function process_http_request() {
+		/* @var WP_User|null $current_user */
+		global $current_user;
+
+		if ( $current_user instanceof WP_User && ! $current_user->exists() ) {
+			/*
+			 * If there is no current user authenticated via other means, clear
+			 * the cached lack of user, so that an authenticate check can set it
+			 * properly.
+			 *
+			 * This is done because for authentications such as Application
+			 * Passwords, we don't want it to be accepted unless the current HTTP
+			 * request is a GraphQL API request, which can't always be identified early
+			 * enough in evaluation.
+			 *
+			 * See serve_request in wp-includes/rest-api/class-wp-rest-server.php.
+			 */
+			$current_user = null;
+		}
 
 		/**
 		 * This action can be hooked to to enable various debug tools,
