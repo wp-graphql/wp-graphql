@@ -1,7 +1,12 @@
 <?php
 namespace WPGraphQL\Connection;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\UserConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
+use WPGraphQL\Utils\Utils;
 
 
 /**
@@ -16,7 +21,7 @@ class Users {
 	/**
 	 * Register connections to Users
 	 *
-	 * @access public
+	 * @return void
 	 */
 	public static function register_connections() {
 
@@ -28,9 +33,6 @@ class Users {
 				'fromType'       => 'RootQuery',
 				'toType'         => 'User',
 				'fromFieldName'  => 'users',
-				'resolveNode'    => function( $id, $args, $context, $info ) {
-					return DataSource::resolve_user( $id, $context );
-				},
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
 				},
@@ -38,13 +40,76 @@ class Users {
 			]
 		);
 
+		register_graphql_connection([
+			'fromType'           => 'ContentNode',
+			'toType'             => 'User',
+			'connectionTypeName' => 'ContentNodeToEditLockConnection',
+			'edgeFields'         => [
+				'lockTimestamp' => [
+					'type'        => 'String',
+					'description' => __( 'The timestamp for when the node was last edited', 'wp-graphql' ),
+					'resolve'     => function( $edge, $args, $context, $info ) {
+						if ( isset( $edge['source'] ) && ( $edge['source'] instanceof Post ) ) {
+							$edit_lock = $edge['source']->editLock;
+							$time      = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
+							return ! empty( $time ) ? Utils::prepare_date_response( $time, gmdate( 'Y-m-d H:i:s', $time ) ) : null;
+						}
+						return null;
+					},
+				],
+			],
+			'fromFieldName'      => 'editingLockedBy',
+			'description'        => __( 'If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
+			'oneToOne'           => true,
+			'resolve'            => function( Post $source, $args, $context, $info ) {
+
+				if ( ! isset( $source->editLock[1] ) || ! absint( $source->editLock[1] ) ) {
+					return $source->editLock;
+				}
+
+				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+				$resolver->one_to_one()->set_query_arg( 'include', [ $source->editLock[1] ] );
+
+				return $resolver->get_connection();
+
+			},
+		]);
+
+		register_graphql_connection([
+			'fromType'           => 'ContentNode',
+			'toType'             => 'User',
+			'fromFieldName'      => 'lastEditedBy',
+			'connectionTypeName' => 'ContentNodeToEditLastConnection',
+			'description'        => __( 'The user that most recently edited the node', 'wp-graphql' ),
+			'oneToOne'           => true,
+			'resolve'            => function( Post $source, $args, $context, $info ) {
+
+				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+				$resolver->set_query_arg( 'include', [ $source->editLastId ] );
+				return $resolver->one_to_one()->get_connection();
+
+			},
+		]);
+
+		register_graphql_connection( [
+			'fromType'      => 'NodeWithAuthor',
+			'toType'        => 'User',
+			'fromFieldName' => 'author',
+			'oneToOne'      => true,
+			'resolve'       => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+
+				$resolver = new UserConnectionResolver( $post, $args, $context, $info );
+				$resolver->set_query_arg( 'include', [ $post->authorDatabaseId ] );
+				return $resolver->one_to_one()->get_connection();
+			},
+		] );
+
 	}
 
 	/**
 	 * Returns the connection args for use in the connection
 	 *
 	 * @return array
-	 * @access public
 	 */
 	public static function get_connection_args() {
 		return [
@@ -88,7 +153,7 @@ class Users {
 			],
 			'hasPublishedPosts' => [
 				'type'        => [
-					'list_of' => 'PostTypeEnum',
+					'list_of' => 'ContentTypeEnum',
 				],
 				'description' => __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' ),
 			],
@@ -113,14 +178,18 @@ class Users {
 				'description' => __( 'The user login.', 'wp-graphql' ),
 			],
 			'loginIn'           => [
-				'type'        => 'Int',
+				'type'        => [
+					'list_of' => 'String',
+				],
 				'description' => __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' ),
 			],
 			'loginNotIn'        => [
-				'type'        => 'Int',
+				'type'        => [
+					'list_of' => 'String',
+				],
 				'description' => __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' ),
 			],
-			'orderby'      => [
+			'orderby'           => [
 				'type'        => [
 					'list_of' => 'UsersConnectionOrderbyInput',
 				],

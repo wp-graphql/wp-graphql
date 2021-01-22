@@ -1,117 +1,188 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Executor\Promise\Adapter;
 
+use Exception;
 use GraphQL\Utils\Utils;
+use SplQueue;
+use Throwable;
+use function is_object;
+use function method_exists;
 
 /**
- * Class SyncPromise
- *
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
  * (using queue to defer promises execution)
  *
- * @package GraphQL\Executor\Promise\Adapter
+ * Note:
+ * Library users are not supposed to use SyncPromise class in their resolvers.
+ * Instead they should use GraphQL\Deferred which enforces $executor callback in the constructor.
+ *
+ * Root SyncPromise without explicit $executor will never resolve (actually throw while trying).
+ * The whole point of Deferred is to ensure it never happens and that any resolver creates
+ * at least one $executor to start the promise chain.
  */
 class SyncPromise
 {
-    const PENDING = 'pending';
+    const PENDING   = 'pending';
     const FULFILLED = 'fulfilled';
-    const REJECTED = 'rejected';
+    const REJECTED  = 'rejected';
 
-    /**
-     * @var \SplQueue
-     */
+    /** @var SplQueue */
     public static $queue;
 
-    public static function getQueue()
-    {
-        return self::$queue ?: self::$queue = new \SplQueue();
-    }
+    /** @var string */
+    public $state = self::PENDING;
 
-    public static function runQueue()
+    /** @var mixed */
+    public $result;
+
+    /**
+     * Promises created in `then` method of this promise and awaiting for resolution of this promise
+     *
+     * @var mixed[][]
+     */
+    private $waiting = [];
+
+    public static function runQueue() : void
     {
         $q = self::$queue;
-        while ($q && !$q->isEmpty()) {
+        while ($q !== null && ! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
     }
 
-    public $state = self::PENDING;
-
-    public $result;
-
     /**
-     * Promises created in `then` method of this promise and awaiting for resolution of this promise
-     * @var array
+     * @param callable() : mixed $executor
      */
-    private $waiting = [];
-
-    public function reject($reason)
+    public function __construct(?callable $executor = null)
     {
-        if (!$reason instanceof \Exception && !$reason instanceof \Throwable) {
-            throw new \Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
+        if ($executor === null) {
+            return;
         }
-
-        switch ($this->state) {
-            case self::PENDING:
-                $this->state = self::REJECTED;
-                $this->result = $reason;
-                $this->enqueueWaitingPromises();
-                break;
-            case self::REJECTED:
-                if ($reason !== $this->result) {
-                    throw new \Exception("Cannot change rejection reason");
-                }
-                break;
-            case self::FULFILLED:
-                throw new \Exception("Cannot reject fulfilled promise");
-        }
-        return $this;
+        self::getQueue()->enqueue(function () use ($executor) : void {
+            try {
+                $this->resolve($executor());
+            } catch (Throwable $e) {
+                $this->reject($e);
+            }
+        });
     }
 
-    public function resolve($value)
+    public function resolve($value) : self
     {
         switch ($this->state) {
             case self::PENDING:
                 if ($value === $this) {
-                    throw new \Exception("Cannot resolve promise with self");
+                    throw new Exception('Cannot resolve promise with self');
                 }
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function($resolvedValue) {
+                        function ($resolvedValue) : void {
                             $this->resolve($resolvedValue);
                         },
-                        function($reason) {
+                        function ($reason) : void {
                             $this->reject($reason);
                         }
                     );
+
                     return $this;
                 }
 
-                $this->state = self::FULFILLED;
+                $this->state  = self::FULFILLED;
                 $this->result = $value;
                 $this->enqueueWaitingPromises();
                 break;
             case self::FULFILLED:
                 if ($this->result !== $value) {
-                    throw new \Exception("Cannot change value of fulfilled promise");
+                    throw new Exception('Cannot change value of fulfilled promise');
                 }
                 break;
             case self::REJECTED:
-                throw new \Exception("Cannot resolve rejected promise");
+                throw new Exception('Cannot resolve rejected promise');
         }
+
         return $this;
     }
 
-    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    public function reject($reason) : self
     {
-        if ($this->state === self::REJECTED && !$onRejected) {
+        if (! $reason instanceof Throwable) {
+            throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
+        }
+
+        switch ($this->state) {
+            case self::PENDING:
+                $this->state  = self::REJECTED;
+                $this->result = $reason;
+                $this->enqueueWaitingPromises();
+                break;
+            case self::REJECTED:
+                if ($reason !== $this->result) {
+                    throw new Exception('Cannot change rejection reason');
+                }
+                break;
+            case self::FULFILLED:
+                throw new Exception('Cannot reject fulfilled promise');
+        }
+
+        return $this;
+    }
+
+    private function enqueueWaitingPromises() : void
+    {
+        Utils::invariant(
+            $this->state !== self::PENDING,
+            'Cannot enqueue derived promises when parent is still pending'
+        );
+
+        foreach ($this->waiting as $descriptor) {
+            self::getQueue()->enqueue(function () use ($descriptor) : void {
+                /** @var self $promise */
+                [$promise, $onFulfilled, $onRejected] = $descriptor;
+
+                if ($this->state === self::FULFILLED) {
+                    try {
+                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
+                    } catch (Throwable $e) {
+                        $promise->reject($e);
+                    }
+                } elseif ($this->state === self::REJECTED) {
+                    try {
+                        if ($onRejected === null) {
+                            $promise->reject($this->result);
+                        } else {
+                            $promise->resolve($onRejected($this->result));
+                        }
+                    } catch (Throwable $e) {
+                        $promise->reject($e);
+                    }
+                }
+            });
+        }
+        $this->waiting = [];
+    }
+
+    public static function getQueue() : SplQueue
+    {
+        return self::$queue ?? self::$queue = new SplQueue();
+    }
+
+    /**
+     * @param callable(mixed) : mixed     $onFulfilled
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null) : self
+    {
+        if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
-        if ($this->state === self::FULFILLED && !$onFulfilled) {
+        if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
-        $tmp = new self();
+        $tmp             = new self();
         $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
 
         if ($this->state !== self::PENDING) {
@@ -121,38 +192,11 @@ class SyncPromise
         return $tmp;
     }
 
-    private function enqueueWaitingPromises()
+    /**
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function catch(callable $onRejected) : self
     {
-        Utils::invariant($this->state !== self::PENDING, 'Cannot enqueue derived promises when parent is still pending');
-
-        foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor) {
-                /** @var $promise self */
-                list($promise, $onFulfilled, $onRejected) = $descriptor;
-
-                if ($this->state === self::FULFILLED) {
-                    try {
-                        $promise->resolve($onFulfilled ? $onFulfilled($this->result) : $this->result);
-                    } catch (\Exception $e) {
-                        $promise->reject($e);
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                } else if ($this->state === self::REJECTED) {
-                    try {
-                        if ($onRejected) {
-                            $promise->resolve($onRejected($this->result));
-                        } else {
-                            $promise->reject($this->result);
-                        }
-                    } catch (\Exception $e) {
-                        $promise->reject($e);
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                }
-            });
-        }
-        $this->waiting = [];
+        return $this->then(null, $onRejected);
     }
 }

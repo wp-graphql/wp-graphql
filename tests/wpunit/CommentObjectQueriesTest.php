@@ -8,7 +8,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->current_time     = strtotime( '- 1 day' );
@@ -22,23 +22,24 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		]);
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory->post->create([
+		$post_id = $this->factory()->post->create([
 			'post_type' => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...'
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
 		]);
 
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_id' => $post_id,
+			'comment_post_ID' => $post_id,
 			'comment_parent'   => 0,
 			'comment_author'   => get_user_by( 'id', $this->admin )->user_email,
 			'comment_content'  => 'Test comment content',
@@ -46,6 +47,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_date'     => $this->current_date,
 			'comment_date_gmt' => $this->current_date_gmt,
 			'user_id'          => $this->admin,
+			'comment_type'     => 'comment',
 		];
 
 		/**
@@ -54,10 +56,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$args = array_merge( $defaults, $args );
 
+		codecept_debug( $args );
+		codecept_debug( get_post( $post_id ) );
+
 		/**
 		 * Create the page
 		 */
-		$comment_id = $this->factory->comment->create( $args );
+		$comment_id = $this->factory()->comment->create( $args );
 
 		/**
 		 * Return the $id of the comment_object that was created
@@ -96,27 +101,31 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				agent
 				approved
 				author{
-				    __typename
-					...on User {
-					  userId
+				   node {
+					    __typename
+						...on User {
+						  userId
+						}
 					}
 				}
 				authorIp
 				commentId
-				children {
+				replies {
 					edges {
 						node {
 							id
 							commentId
 							parent {
-								commentId
+							    node {
+									commentId
+								}
 							}
 						}
 					}
 				}
 				commentedOn {
-					... on Post {
-						id
+					node {
+						__typename
 					}
 				}
 				content
@@ -125,9 +134,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				id
 				karma
 				parent {
-					id
+				   node {
+					  id
+					}
 				}
-				type
+				
 			}
 		}";
 
@@ -136,36 +147,41 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'agent'       => null,
-					'approved'    => true,
-					'author'      => [
+			'comment' => [
+				'agent'       => null,
+				'approved'    => true,
+				'author'      => [
+					'node' => [
 						'__typename' => 'User',
 						'userId' => $this->admin,
-					],
-					'authorIp'    => null,
-					'children'    => [
-						'edges' => [],
-					],
-					'commentId'   => $comment_id,
-					'commentedOn' => null,
-					'content'     => apply_filters( 'comment_text', 'Test comment content' ),
-					'date'        => $this->current_date,
-					'dateGmt'     => $this->current_date_gmt,
-					'id'          => $global_id,
-					'karma'       => null,
-					'parent'      => null,
-					'type'        => null,
+					]
 				],
+				'authorIp'    => null,
+				'replies'    => [
+					'edges' => [],
+				],
+				'commentId'   => $comment_id,
+				'commentedOn' => [
+					'node' => [
+						'__typename' => 'Post',
+					],
+				],
+				'content'     => apply_filters( 'comment_text', 'Test comment content' ),
+				'date'        => $this->current_date,
+				'dateGmt'     => $this->current_date_gmt,
+				'id'          => $global_id,
+				'karma'       => null,
+				'parent'      => null,
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 	}
 
 	/**
@@ -188,10 +204,14 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'user_id' => 0,
 		] );
 
+		codecept_debug( $comment_id );
+
 		/**
 		 * Create the global ID based on the comment_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', (string) $comment_id );
+
+		codecept_debug( $global_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -202,11 +222,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				agent
 				approved
 				author{
-					...on CommentAuthor {
-					  id
-					  name
-					  email
-					  url
+				    node {
+						...on CommentAuthor {
+						  id
+						  name
+						  email
+						  url
+						}
 					}
 				}
 			}
@@ -223,12 +245,42 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'agent'    => null,
-					'approved' => true,
-					'author'   => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'commentAuthor', $comment_id ),
+			'comment' => [
+				'agent'    => null,
+				'approved' => true,
+				'author'   => [
+					'node' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'name'  => get_comment_author( $comment_id ),
+						'email' => null, // Email is restricted to users with moderate_comments capability
+						'url'   => get_comment_author_url( $comment_id ),
+					],
+				],
+			],
+		];
+
+		$this->assertEqualSets( $expected, $actual['data'] );
+
+		wp_set_current_user( $this->admin );
+
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
+		/**
+		 * Establish the expectation for the output of the query
+		 */
+		$expected = [
+			'comment' => [
+				'agent'    => null,
+				'approved' => true,
+				'author'   => [
+					'node' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'name'  => get_comment_author( $comment_id ),
 						'email' => get_comment_author_email( $comment_id ),
 						'url'   => get_comment_author_url( $comment_id ),
@@ -237,7 +289,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
+
 	}
 
 	/**
@@ -251,7 +304,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testCommentQueryWithChildrenAssignedPostAndParent() {
 
 		// Post object to assign comments to.
-		$post_id = $this->factory->post->create( [
+		$post_id = $this->factory()->post->create( [
 			'post_content' => 'Post object',
 			'post_author' => $this->admin,
 			'post_status' => 'publish'
@@ -298,7 +351,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			comment(id: \"{$global_id}\") {
-				children {
+				replies {
 					edges {
 						node {
 							commentId
@@ -308,14 +361,18 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				commentId
 				commentedOn {
-					... on Post {
-						content
+				    node {
+						... on Post {
+							content
+						}
 					}
 				}
 				content
 				parent {
-					commentId
-					content
+				    node {
+						commentId
+						content
+					}
 				}
 			}
 		}";
@@ -325,34 +382,38 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'comment' => [
-					'children'    => [
-						'edges' => [
-							[
-								'node' => [
-									'commentId' => $child_2,
-									'content'   => apply_filters( 'comment_text', 'Child 2' ),
-								],
+			'comment' => [
+				'replies'    => [
+					'edges' => [
+						[
+							'node' => [
+								'commentId' => $child_2,
+								'content'   => apply_filters( 'comment_text', 'Child 2' ),
 							],
-							[
-								'node' => [
-									'commentId' => $child_1,
-									'content'   => apply_filters( 'comment_text', 'Child 1' ),
-								],
+						],
+						[
+							'node' => [
+								'commentId' => $child_1,
+								'content'   => apply_filters( 'comment_text', 'Child 1' ),
 							],
 						],
 					],
-					'commentId'   => $comment_id,
-					'commentedOn' => [
+				],
+				'commentId'   => $comment_id,
+				'commentedOn' => [
+					'node' => [
 						'content' => apply_filters( 'the_content', 'Post object' ),
-					],
-					'content'     => apply_filters( 'comment_text', 'Test comment' ),
-					'parent'      => [
+					]
+				],
+				'content'     => apply_filters( 'comment_text', 'Test comment' ),
+				'parent'      => [
+					'node' => [
 						'commentId' => $parent_comment,
 						'content'   => apply_filters( 'comment_text', 'Parent comment' ),
 					],
@@ -360,14 +421,18 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $actual['data'] );
 	}
 
 	/**
 	 * Assert that fields containing sensitive data are not exposed to users without proper caps
+	 *
 	 * @dataProvider dataProviderSwitchUser
+	 *
 	 * @param $user
 	 * @param $should_display
+	 *
+	 * @throws Exception
 	 */
 	public function testCommentQueryHiddenFields( $user, $should_display ) {
 
@@ -401,12 +466,14 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    karma
 		    content
 		    commentedOn{
-		      ... on Post{
-		        postId
+		      node {
+			      ... on Post{
+			        postId
+			      }
 		      }
 		    }
 		  }
-		} 
+		}
 		';
 
 		wp_set_current_user( $this->{$user} );
@@ -437,6 +504,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @dataProvider dataProviderSwitchUser
 	 * @param $user
 	 * @param $should_display
+	 * @throws Exception
 	 */
 	public function testUnapprovedCommentsNotQueryableWithoutAuth( $user, $should_display ) {
 
@@ -472,17 +540,24 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		    karma
 		    content
 		    commentedOn{
-		      ... on Post{
-		        postId
+		      node {
+			    ... on Post{
+			      postId
+			    }
 		      }
 		    }
 		  }
-		} 
+		}
 		';
 
 		wp_set_current_user( $this->{$user} );
 		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
+
+		codecept_debug( $admin_actual );
+
 		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
+
+		codecept_debug( $subscriber_actual );
 
 		if ( true === $should_display ) {
 			$this->assertArrayNotHasKey( 'errors', $admin_actual );
@@ -496,6 +571,74 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		} else {
 			$this->assertEmpty( $admin_actual['data']['comment'] );
 		}
+
+	}
+
+	/**
+	 * Assert that comments attached to private posts are hidden from users
+	 * without proper caps
+	 *
+	 * @throws Exception
+	 */
+	public function testPrivatePostCommentsNotQueryableWithoutAuth( ) {
+
+		$post_id = $this->factory()->post->create( [
+			'post_status' => 'private',
+			'post_content' => 'Test',
+		] );
+
+		$comment_args = [
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Private Post Comment',
+			'comment_approved' => 1,
+			'comment_author_email' => 'admin@test.com',
+			'comment_author_IP' => '127.0.0.1',
+			'comment_agent' => 'Admin Agent',
+		];
+		$comment = $this->createCommentObject( $comment_args );
+
+		$query = '
+		query commentQuery( $id:ID! ) {
+		  comment(id: $id) {
+			commentId
+		    id
+		    authorIp
+		    agent
+		    approved
+		    karma
+		    content
+		    commentedOn{
+		      node {
+			    ... on Post{
+			      postId
+			    }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$public_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment ) ] ) );
+
+		codecept_debug( $public_actual );
+
+		wp_set_current_user( $this->admin );
+		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment ) ] ) );
+
+		codecept_debug( $admin_actual );
+
+		// Verify there are no errors.
+		$this->assertArrayNotHasKey( 'errors', $public_actual );
+		$this->assertArrayNotHasKey( 'errors', $admin_actual );
+
+		// Verify the Public request is empty.
+		$this->assertEmpty( $public_actual['data']['comment'] );
+
+		// Verify the Admin request has the correct comment.
+		$this->assertNotNull( $admin_actual['data']['comment']['authorIp'] );
+		$this->assertNotNull( $admin_actual['data']['comment']['agent'] );
+		$this->assertEquals( $comment, $admin_actual['data']['comment']['commentId'] );
+		$this->assertEquals( apply_filters( 'comment_text', $comment_args['comment_content'] ), $admin_actual['data']['comment']['content'] );
 
 	}
 

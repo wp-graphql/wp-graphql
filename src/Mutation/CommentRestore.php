@@ -8,9 +8,16 @@ use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 
+/**
+ * Class CommentRestore
+ *
+ * @package WPGraphQL\Mutation
+ */
 class CommentRestore {
 	/**
 	 * Registers the CommentRestore mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -52,7 +59,7 @@ class CommentRestore {
 				'resolve'     => function ( $payload ) {
 					$restore = (object) $payload['commentObject'];
 
-					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
+					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', $restore->comment_ID ) : null;
 				},
 			],
 			'comment'    => [
@@ -89,7 +96,7 @@ class CommentRestore {
 			 * Stop now if a user isn't allowed to delete the comment
 			 */
 			if ( ! current_user_can( 'moderate_comments' ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
+				throw new UserError( __( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
 			}
 
 			/**

@@ -4,14 +4,28 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	/**
+	 * @var WP_Theme
+	 */
+	public $active_theme;
+
+	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory->user->create( [
+
+		$themes = wp_get_themes();
+
+		codecept_debug( $themes );
+
+		$this->active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
+		update_option( 'template', $this->active_theme );
+		update_option( 'stylesheet', $this->active_theme );
+
+		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -25,14 +39,9 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testThemeQuery() {
 
 		/**
-		 * Create a theme
-		 */
-		$theme_slug = 'twentyseventeen';
-
-		/**
 		 * Create the global ID based on the theme_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $theme_slug );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $this->active_theme );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -59,31 +68,31 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$screenshot = $actual['data']['theme']['screenshot'];
 		$this->assertTrue( is_string( $screenshot ) || null === $screenshot );
 
-		$theme = wp_get_theme( $theme_slug );
+		$theme = wp_get_theme( $this->active_theme );
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'theme' => [
-					'author'      => $theme->author,
-					'authorUri'   => 'https://wordpress.org/',
-					'description' => $theme->description,
-					'id'          => $global_id,
-					'name'        => 'Twenty Seventeen',
-					'screenshot'  => $theme->get_screenshot(),
-					'slug'        => 'twentyseventeen',
-					'tags'        => $theme->tags,
-					'themeUri'    => 'https://wordpress.org/themes/twentyseventeen/',
-					'version'     => $theme->version,
-				],
+			'theme' => [
+				'author'      => $theme->author,
+				'authorUri'   => 'https://wordpress.org/',
+				'description' => $theme->description,
+				'id'          => $global_id,
+				'name'        => $theme->get('Name'),
+				'screenshot'  => $theme->get_screenshot(),
+				'slug'        => $theme->get_stylesheet(),
+				'tags'        => $theme->tags,
+				'themeUri'    => $theme->get( 'ThemeURI' ),
+				'version'     => $theme->version,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -114,31 +123,30 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data'   => [
-				'theme' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'No theme was found with the stylesheet: doesNotExist',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
+		$expected_errors = [
+			[
+				'message'   => 'No theme was found with the stylesheet: doesNotExist',
+				'locations' => [
+					[
+						'line'   => 3,
+						'column' => 4,
 					],
-					'path'      => [
-						'theme',
-					],
-					'category'  => 'user',
 				],
+				'path'      => [
+					'theme',
+				],
+				'extensions' => [
+					'category'  => 'user',
+				]
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected_errors, $actual['errors'] );
 	}
 
 }

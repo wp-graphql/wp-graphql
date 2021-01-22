@@ -1,0 +1,41 @@
+name: Schema Linter
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: Lint WPGraphQL Schema
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP w/ Composer & WP-CLI
+        uses: kidunot89/setup-php@new-tool-wp-cli
+        with:
+          php-version: 7.3
+          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
+          coverage: none
+          tools: composer, wp-cli
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+
+      - name: Setup GraphQL Schema Linter
+        run: npm install -g graphql-schema-linter
+
+      - name: Setup WordPress
+        run: bin/install-wp-tests.sh wpgraphql_test root root localhost latest
+      - name: Generate the Static Schema
+        run: |
+          cd /tmp/wordpress
+          wp graphql generate-static-schema
+          cd /tmp/wordpress/wp-content/plugins/wp-graphql
+          graphql-schema-linter ./schema.graphql

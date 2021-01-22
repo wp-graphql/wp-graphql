@@ -16,7 +16,7 @@ class Plugins {
 	/**
 	 * Register connections to Plugins
 	 *
-	 * @access public
+	 * @return void
 	 */
 	public static function register_connections() {
 		register_graphql_connection(

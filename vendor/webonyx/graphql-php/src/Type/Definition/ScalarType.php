@@ -1,8 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
+use function is_string;
 
 /**
  * Scalar Type Definition
@@ -22,19 +27,24 @@ use GraphQL\Utils\Utils;
  *     }
  * }
  */
-abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NamedType
+abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
-    /**
-     * @var ScalarTypeDefinitionNode|null
-     */
+    /** @var ScalarTypeDefinitionNode|null */
     public $astNode;
 
-    function __construct(array $config = [])
+    /** @var ScalarTypeExtensionNode[] */
+    public $extensionASTNodes;
+
+    /**
+     * @param mixed[] $config
+     */
+    public function __construct(array $config = [])
     {
-        $this->name = isset($config['name']) ? $config['name'] : $this->tryInferName();
-        $this->description = isset($config['description']) ? $config['description'] : $this->description;
-        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
-        $this->config = $config;
+        $this->name              = $config['name'] ?? $this->tryInferName();
+        $this->description       = $config['description'] ?? $this->description;
+        $this->astNode           = $config['astNode'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->config            = $config;
 
         Utils::invariant(is_string($this->name), 'Must provide name.');
     }

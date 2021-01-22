@@ -1,39 +1,42 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function is_bool;
 
-/**
- * Class BooleanType
- * @package GraphQL\Type\Definition
- */
 class BooleanType extends ScalarType
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name = Type::BOOLEAN;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $description = 'The `Boolean` scalar type represents `true` or `false`.';
 
     /**
+     * Serialize the given value to a boolean.
+     *
+     * The GraphQL spec leaves this up to the implementations, so we just do what
+     * PHP does natively to make this intuitive for developers.
+     *
      * @param mixed $value
-     * @return bool
      */
-    public function serialize($value)
+    public function serialize($value) : bool
     {
-        return !!$value;
+        return (bool) $value;
     }
 
     /**
      * @param mixed $value
+     *
      * @return bool
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -42,22 +45,21 @@ class BooleanType extends ScalarType
             return $value;
         }
 
-        throw new Error("Cannot represent value as boolean: " . Utils::printSafe($value));
+        throw new Error('Boolean cannot represent a non boolean value: ' . Utils::printSafe($value));
     }
 
     /**
-     * @param Node $valueNode
-     * @param array|null $variables
-     * @return bool|null
-     * @throws \Exception
+     * @param mixed[]|null $variables
+     *
+     * @throws Exception
      */
-    public function parseLiteral($valueNode, array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
-        if ($valueNode instanceof BooleanValueNode) {
-            return (bool) $valueNode->value;
+        if (! $valueNode instanceof BooleanValueNode) {
+            // Intentionally without message, as all information already in wrapped Exception
+            throw new Error();
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        return $valueNode->value;
     }
 }

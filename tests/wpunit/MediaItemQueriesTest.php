@@ -7,7 +7,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -21,7 +21,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -157,7 +157,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
-		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $attachment_id );
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$post_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
@@ -168,7 +168,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			mediaItem(id: \"{$attachment_global_id}\") {
 				altText
 				author{
-				  id
+				  node {
+				    id
+				  }
 				}
 				caption
 				commentCount
@@ -180,19 +182,19 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    }
 				  }
 				}
-				content
 				date
 				dateGmt
 				description
 				desiredSlug
-				editLast{
-				  userId
+				lastEditedBy{
+				  node {
+				    databaseId
+				  }
 				}
-				editLock{
-				  editTime
+				editingLockedBy{
+				  lockTimestamp
 				}
 				enclosure
-				excerpt
 				guid
 				id
 				link
@@ -224,22 +226,21 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  width
 				}
 				mediaItemId
-				mediaType
-				menuOrder
+				mediaType				
 				mimeType
 				modified
 				modifiedGmt
 				parent{
-				  ...on Post{
-				    id
+				  node {
+				    ...on Post{
+					  id
+					}
 				  }
 				}
-				pingStatus
 				slug
 				sourceUrl
 				status
 				title
-				toPing
 				srcSet
 			}
 		}";
@@ -256,12 +257,11 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $mediaItem );
 
 		$this->assertTrue( ( null === $mediaItem['altText'] || is_string( $mediaItem['altText'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['id'] ) ) );
+		$this->assertTrue( ( null === $mediaItem['author'] || is_string( $mediaItem['author']['node']['id'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['caption'] || is_string( $mediaItem['caption'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentCount'] || is_int( $mediaItem['commentCount'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['commentStatus'] || is_string( $mediaItem['commentStatus'] ) ) );
 		$this->assertTrue( ( empty( $mediaItem['comments']['edges'] ) || is_string( $mediaItem['comments']['edges'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['content'] || is_string( $mediaItem['content'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['date'] || is_string( $mediaItem['date'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['dateGmt'] || is_string( $mediaItem['dateGmt'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['description'] || is_string( $mediaItem['description'] ) ) );
@@ -269,31 +269,28 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( empty( $mediaItem['editLast'] ) || is_integer( $mediaItem['editLast']['userId'] ) ) );
 		$this->assertTrue( ( empty( $mediaItem['editLock'] ) || is_string( $mediaItem['editLock']['editTime'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['enclosure'] || is_string( $mediaItem['enclosure'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['excerpt'] || is_string( $mediaItem['excerpt'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['guid'] || is_string( $mediaItem['guid'] ) ) );
 		$this->assertEquals( $attachment_global_id, $mediaItem['id'] );
 		$this->assertEquals( $attachment_id, $mediaItem['mediaItemId'] );
 		$this->assertTrue( ( null === $mediaItem['mediaType'] || is_string( $mediaItem['mediaType'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['menuOrder'] || is_integer( $mediaItem['menuOrder'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['mimeType'] || is_string( $mediaItem['mimeType'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['modified'] || is_string( $mediaItem['modified'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['modifiedGmt'] || is_string( $mediaItem['modifiedGmt'] ) ) );
-		$this->assertTrue( ( null === $mediaItem['pingStatus'] || is_string( $mediaItem['pingStatus'] ) ) );
-		$this->assertTrue( ( empty( $mediaItem['pinged'] ) || is_array( $mediaItem['pinged'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['slug'] || is_string( $mediaItem['slug'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['sourceUrl'] || is_string( $mediaItem['sourceUrl'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
-		$this->assertTrue( ( empty( $mediaItem['toPing'] ) || is_array( $mediaItem['toPing'] ) ) );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
-		$this->assertContains( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
+
+		$this->assertStringContainsString( '/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
 
 		$this->assertEquals(
 			[
 				'id' => $post_global_id,
 			],
-			$mediaItem['parent']
+			$mediaItem['parent']['node']
+
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );
@@ -335,5 +332,160 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0], $sizes[0]['sourceUrl'] );
 
 	}
+
+    /**
+     * testPostQuery
+     *
+     * This tests creates a single attachment and retrieves said post URL via a GraphQL query
+     *
+     * @since 0.3.6
+     */
+    public function testMediaItemImageUrl() {
+
+        $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+        $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+	    $expected_filesize = filesize( $filename );
+
+	    $query = '
+        query GET_MEDIA_ITEM( $id: Int! ) {
+          mediaItemBy(mediaItemId: $id) {
+            mediaItemUrl
+            fileSize
+          }
+        }
+        ';
+
+        $result = graphql([
+            'query' => $query,
+            'variables' => [
+                'id' => $attachment_id,
+            ],
+        ]);
+
+        $expected = wp_get_attachment_url( $attachment_id );
+
+        $this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
+	    $this->assertEquals( $expected_filesize, $result['data']['mediaItemBy']['fileSize'] );
+
+    }
+
+	/**
+	 * @throws Exception
+	 */
+    public function testQueryMediaItemBySourceUrl() {
+
+	    $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
+	    $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+	    $expected_filesize = filesize( $filename );
+
+	    $default_image_meta = [
+		    'aperture' => 0,
+		    'credit' => 'some photographer',
+		    'camera' => 'some camera',
+		    'caption' => 'some caption',
+		    'created_timestamp' => strtotime( $this->current_date ),
+		    'copyright' => 'Copyright WPGraphQL',
+		    'focal_length' => 0,
+		    'iso' => 0,
+		    'shutter_speed' => 0,
+		    'title' => 'some title',
+		    'orientation' => 'some orientation',
+		    'keywords' => [
+			    'keyword1',
+			    'keyword2',
+		    ],
+	    ];
+
+	    $meta_data = [
+		    'width' => 300,
+		    'height' => 300,
+		    'file' => 'example.jpg',
+		    'sizes' => [
+			    'thumbnail' => [
+				    'file' => 'example-thumbnail.jpg',
+				    'width' => 150,
+				    'height' => 150,
+				    'mime-type' => 'image/jpeg',
+				    'source_url' => 'example-thumbnail.jpg',
+			    ],
+			    'full' => [
+				    'file' => 'example-full.jpg',
+				    'width' => 1500,
+				    'height' => 1500,
+				    'mime-type' => 'image/jpeg',
+				    'source_url' => 'example-full.jpg',
+			    ],
+		    ],
+		    'image_meta' => array_merge( $default_image_meta, [] ),
+	    ];
+
+	    update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
+
+
+	    $query = '
+        query GET_MEDIA_ITEM( $id: ID! ) {
+          mediaItem(id: $id, idType: DATABASE_ID) {
+            sourceUrl
+            fileSize
+          }
+        }
+        ';
+
+	    $media_item = graphql(['query' => $query, 'variables' => [ 'id' => $attachment_id ]]);
+
+	    codecept_debug( $media_item );
+
+	    $this->assertArrayNotHasKey( 'errors', $media_item );
+	    $this->assertEquals( $expected_filesize, $media_item['data']['mediaItem']['fileSize'] );
+
+	    $source_url = $media_item['data']['mediaItem']['sourceUrl'];
+
+	    /**
+	     * Mock saving the _wp_attached_file to meta
+	     *
+	     * SEE: https://developer.wordpress.org/reference/functions/attachment_url_to_postid/#source
+	     */
+	    $dir  = wp_get_upload_dir();
+	    $path = $source_url;
+
+	    $site_url   = parse_url( $dir['url'] );
+	    $image_path = parse_url( $path );
+
+	    //force the protocols to match if needed
+	    if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
+		    $path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
+	    }
+
+	    if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
+		    $path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
+	    }
+	    update_post_meta( $attachment_id, '_wp_attached_file', $path );
+
+	    codecept_debug( $source_url );
+
+	    $query_by_source_url = '
+	    query GetMediaItem($id:ID!) {
+            mediaItem(
+				id: $id, 
+				idType: SOURCE_URL
+			) {
+			    __typename
+                id
+                sourceUrl
+            }
+		}
+	    ';
+
+	    $actual = graphql([
+	    	'query' => $query_by_source_url,
+		    'variables' => [
+		    	'id' => $source_url,
+		    ],
+	    ]);
+
+	    codecept_debug( $actual );
+
+    }
 
 }

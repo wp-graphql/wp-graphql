@@ -28,7 +28,7 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
  * Query for posts with all 3 statuses. Since it's a public request, we should
  * ONLY get the published post in response.
  */
-$I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
+$I->sendPOST( 'http://localhost/graphql', json_encode( [
 	'query' => '
 	{
 		posts( where: { stati: [ PUBLISH, DRAFT, FUTURE ] } ){
@@ -41,6 +41,7 @@ $I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
 		}
 	}'
 ] ) );
+
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();

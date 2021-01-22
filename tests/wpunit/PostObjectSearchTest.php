@@ -8,10 +8,9 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $query;
 	public $app_context;
-	public $app_info;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		parent::setUp();
 
@@ -21,18 +20,21 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->subscriber = $this->factory()->user->create( [
-			'role' => 'subscriber'
-		]);
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->subscriber       = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
 
-		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
 
 		$this->query = '
 		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String $where:RootQueryToPostConnectionWhereArgs) {
@@ -56,10 +58,9 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		global $wpdb;
 		$wpdb->delete( $wpdb->prefix . 'posts', array( 'post_type' => 'post' ) );
 		parent::tearDown();
@@ -71,15 +72,15 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'post_author'  => $this->admin,
-			'post_content' => 'test',
-			'post_excerpt' => 'Test excerpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
-			'post_type'    => 'post',
-			'post_date'    => $this->current_date,
-			'has_password' => false,
-			'post_password'=> null,
+			'post_author'   => $this->admin,
+			'post_content'  => 'test',
+			'post_excerpt'  => 'Test excerpt',
+			'post_status'   => 'publish',
+			'post_title'    => 'Test Title',
+			'post_type'     => 'post',
+			'post_date'     => $this->current_date,
+			'has_password'  => false,
+			'post_password' => null,
 		];
 
 		/**
@@ -122,12 +123,14 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		for ( $i = 1; $i <= $count; $i ++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
-			$created_posts[ $i ] = $this->createPostObject( [
-				'post_type'   => 'post',
-				'post_date'   => $date,
-				'post_status' => 'publish',
-				'post_title'  => 'search | ' . $i,
-			] );
+			$created_posts[ $i ] = $this->createPostObject(
+				[
+					'post_type'   => 'post',
+					'post_date'   => $date,
+					'post_status' => 'publish',
+					'post_title'  => 'search | ' . $i,
+				]
+			);
 		}
 
 		return $created_posts;
@@ -139,83 +142,96 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testSearchPostsForwardPagination() {
 
-		$actual = graphql([
-			'query' => $this->query,
-			'variables' => [
-				'first' => 2,
-				'where' => [
-					'search' => 'test'
-				]
+		$actual = graphql(
+			[
+				'query'     => $this->query,
+				'variables' => [
+					'first' => 2,
+					'where' => [
+						'search' => 'test',
+					],
+				],
 			]
-		]);
+		);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->created_post_ids[20], $actual['data']['posts']['edges'][0]['node']['postId'] );
 		$this->assertEquals( $this->created_post_ids[19], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
-		$actual = graphql([
-			'query' => $this->query,
-			'variables' => [
-				'first' => 2,
-				'after' => $actual['data']['posts']['pageInfo']['endCursor'],
-				'where' => [
-					'search' => 'test'
-				]
+		$actual = graphql(
+			[
+				'query'     => $this->query,
+				'variables' => [
+					'first' => 2,
+					'after' => $actual['data']['posts']['pageInfo']['endCursor'],
+					'where' => [
+						'search' => 'test',
+					],
+				],
 			]
-		]);
+		);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->created_post_ids[18], $actual['data']['posts']['edges'][0]['node']['postId'] );
 		$this->assertEquals( $this->created_post_ids[17], $actual['data']['posts']['edges'][1]['node']['postId'] );
-
+		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
 
 	}
 
 	/**
 	 * Tests the backward pagination of connections
+	 *
 	 * @throws Exception
 	 */
 	public function testSearchPostsBackwardPagination() {
 
-		$actual = graphql([
-			'query' => $this->query,
-			'variables' => [
-				'last' => 2,
-				'where' => [
-					'search' => 'test'
-				]
+		$actual = graphql(
+			[
+				'query'     => $this->query,
+				'variables' => [
+					'last'  => 2,
+					'where' => [
+						'search' => 'test',
+					],
+				],
 			]
-		]);
+		);
+
+		codecept_debug( $this->created_post_ids );
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+
+		$actual = graphql(
+			[
+				'query'     => $this->query,
+				'variables' => [
+					'last'   => 2,
+					'before' => $actual['data']['posts']['pageInfo']['startCursor'],
+					'where'  => [
+						'search' => 'test',
+					],
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['edges'][1]['node']['postId'] );
-
-		$actual = graphql([
-			'query' => $this->query,
-			'variables' => [
-				'last' => 2,
-				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
-				'where' => [
-					'search' => 'test'
-				]
-			]
-		]);
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[4], $actual['data']['posts']['edges'][0]['node']['postId'] );
 		$this->assertEquals( $this->created_post_ids[3], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}
 
 }
-
-

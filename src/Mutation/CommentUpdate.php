@@ -2,15 +2,24 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\CommentMutation;
 
+/**
+ * Class CommentUpdate
+ *
+ * @package WPGraphQL\Mutation
+ */
 class CommentUpdate {
 	/**
 	 * Registers the CommentUpdate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -66,23 +75,40 @@ class CommentUpdate {
 			}
 
 			$id_parts     = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$comment_id   = absint( $id_parts['id'] );
-			$comment_args = get_comment( $comment_id, ARRAY_A );
+			$comment_id   = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? absint( $id_parts['id'] ) : null;
+			$comment_args = ! empty( $comment_id ) ? get_comment( $comment_id, ARRAY_A ) : null;
+
+			if ( empty( $comment_id ) || empty( $comment_args ) ) {
+				throw new UserError( __( 'The Comment could not be updated', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
-			$user_id = $comment_args['user_id'];
+			$user_id = isset( $comment_args['user_id'] ) ? $comment_args['user_id'] : null;
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
+			// Prevent comment deletions by default
+			$not_allowed = true;
+
+			// If the current user can moderate comments proceed
+			if ( current_user_can( 'moderate_comments' ) ) {
+				$not_allowed = false;
+			} else {
+				// Get the current user id
+				$current_user_id = absint( get_current_user_id() );
+				// If the current user ID is the same as the comment author's ID, then the
+				// current user is the comment author and can delete the comment
+				if ( 0 !== $current_user_id && absint( $user_id ) === $current_user_id ) {
+					$not_allowed = false;
+				}
+			}
+
 			/**
-			 * Check if use has required capabilities
+			 * If the mutation has been prevented
 			 */
-			if (
-				! current_user_can( 'moderate_comments' ) &&
-				absint( get_current_user_id() ) !== absint( $user_id )
-			) {
-				throw new UserError( __( 'You do not have the appropriate capabilities to update this comment.', 'wp-graphql' ) );
+			if ( true === $not_allowed ) {
+				throw new UserError( __( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
 			/**

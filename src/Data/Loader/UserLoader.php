@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use WPGraphQL\Model\User;
 
 /**
@@ -9,6 +10,21 @@ use WPGraphQL\Model\User;
  * @package WPGraphQL\Data\Loader
  */
 class UserLoader extends AbstractDataLoader {
+
+	/**
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
+	 *
+	 * @return mixed|User
+	 * @throws Exception
+	 */
+	protected function get_model( $entry, $key ) {
+		if ( $entry instanceof \WP_User ) {
+			return new User( $entry );
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -23,15 +39,13 @@ class UserLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
 
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
-
-		$all_users = [];
 
 		/**
 		 * Prepare the args for the query. We're provided a specific
@@ -53,23 +67,22 @@ class UserLoader extends AbstractDataLoader {
 		 * Query for the users and get the results
 		 */
 		$query = new \WP_User_Query( $args );
-		$users = $query->get_results();
+		$query->get_results();
 
 		/**
-		 * If no users are returned, return an empty array
-		 */
-		if ( empty( $users ) || ! is_array( $users ) ) {
-			return [];
-		}
-
-		/**
-		 *
+		 * Loop over the Users and return an array of loaded_users,
+		 * where the key is the ID and the value is the Post passed through
+		 * the model layer.
 		 */
 		foreach ( $keys as $key ) {
-			$user                   = get_user_by( 'id', $key );
-			$all_users[ $user->ID ] = new User( $user );
+			$user = get_user_by( 'id', $key );
+			if ( $user instanceof \WP_User ) {
+				$loaded_users[ $key ] = $user;
+			} elseif ( ! isset( $loaded_users[0] ) ) {
+				$loaded_users[0] = null;
+			}
 		}
-		return $all_users;
+		return ! empty( $loaded_users ) ? $loaded_users : [];
 
 	}
 

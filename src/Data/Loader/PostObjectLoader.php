@@ -2,9 +2,10 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use GraphQL\Deferred;
-use GraphQL\Error\UserError;
-use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Menu;
+use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 
 /**
@@ -15,9 +16,51 @@ use WPGraphQL\Model\Post;
 class PostObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @var array
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
+	 *
+	 * @return mixed|Post
+	 * @throws Exception
 	 */
-	protected $loaded_posts;
+	protected function get_model( $entry, $key ) {
+
+		if ( ! $entry instanceof \WP_Post ) {
+			return null;
+		}
+
+		/**
+		 * If there's a Post Author connected to the post, we need to resolve the
+		 * user as it gets set in the globals via `setup_post_data()` and doing it this way
+		 * will batch the loading so when `setup_post_data()` is called the user
+		 * is already in the cache.
+		 */
+		$context     = $this->context;
+		$user_id     = null;
+		$post_parent = null;
+
+		if ( ! empty( $entry->post_author ) && absint( $entry->post_author ) ) {
+			if ( ! empty( $entry->post_author ) ) {
+				$user_id = $entry->post_author;
+				$context->get_loader( 'user' )->load_deferred( $user_id );
+			}
+		}
+
+		if ( 'revision' === $entry->post_type && ! empty( $entry->post_parent ) && absint( $entry->post_parent ) ) {
+			$post_parent = $entry->post_parent;
+			$context->get_loader( 'post' )->load_deferred( $post_parent );
+		}
+
+		if ( 'nav_menu_item' === $entry->post_type ) {
+			return new MenuItem( $entry );
+		}
+
+		$post = new Post( $entry );
+		if ( ! isset( $post->fields ) || empty( $post->fields ) ) {
+			return null;
+		}
+
+		return $post;
+	}
 
 	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
@@ -32,7 +75,7 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
 
@@ -48,8 +91,10 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * to the count of the keys provided. The query must also return results
 		 * in the same order the keys were provided in.
 		 */
-		$args = [
-			'post_type'           => 'any',
+		$post_types = \WPGraphQL::get_allowed_post_types();
+		$post_types = array_merge( $post_types, [ 'revision', 'nav_menu_item' ] );
+		$args       = [
+			'post_type'           => $post_types,
 			'post_status'         => 'any',
 			'posts_per_page'      => count( $keys ),
 			'post__in'            => $keys,
@@ -64,7 +109,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 */
 		add_filter(
 			'split_the_query',
-			function ( $split, \WP_Query $query ) {
+			function( $split, \WP_Query $query ) {
 				if ( false === $query->get( 'split_the_query' ) ) {
 					return false;
 				}
@@ -74,16 +119,9 @@ class PostObjectLoader extends AbstractDataLoader {
 			10,
 			2
 		);
-
 		new \WP_Query( $args );
-
-		/**
-		 * Loop over the posts and return an array of all_posts,
-		 * where the key is the ID and the value is the Post passed through
-		 * the model layer.
-		 */
+		$loaded_posts = [];
 		foreach ( $keys as $key ) {
-
 			/**
 			 * The query above has added our objects to the cache
 			 * so now we can pluck them from the cache to return here
@@ -92,45 +130,18 @@ class PostObjectLoader extends AbstractDataLoader {
 			 */
 			$post_object = get_post( (int) $key );
 
-			if ( empty( $post_object ) ) {
-				throw new UserError( sprintf( __( 'No item was found with ID %s', 'wp-graphql' ), $key ) );
+			if ( ! $post_object instanceof \WP_Post ) {
+				$loaded_posts[ $key ] = null;
+			} else {
+
+				/**
+				 * Once dependencies are loaded, return the Post Object
+				 */
+				$loaded_posts[ $key ] = $post_object;
+
 			}
-
-			/**
-			 * Return the instance through the Model to ensure we only
-			 * return fields the consumer has access to.
-			 */
-			$this->loaded_posts[ $key ] = new Deferred(
-				function () use ( $post_object ) {
-
-					if ( ! $post_object instanceof \WP_Post ) {
-						  return null;
-					}
-
-						/**
-						 * If there's a Post Author connected to the post, we need to resolve the
-						 * user as it gets set in the globals via `setup_post_data()` and doing it this way
-						 * will batch the loading so when `setup_post_data()` is called the user
-						 * is already in the cache.
-						 */
-					if ( ! empty( $post_object->post_author ) && absint( $post_object->post_author ) ) {
-						$author = DataSource::resolve_user( $post_object->post_author, $this->context );
-
-						return $author->then(
-							function () use ( $post_object ) {
-								return new Post( $post_object );
-							}
-						);
-					} else {
-						return new Post( $post_object );
-					}
-				}
-			);
-
 		}
-
-		return ! empty( $this->loaded_posts ) ? $this->loaded_posts : [];
-
+		return ! empty( $loaded_posts ) ? $loaded_posts : [];
 	}
 
 }

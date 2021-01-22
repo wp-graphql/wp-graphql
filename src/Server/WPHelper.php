@@ -12,21 +12,23 @@ use GraphQL\Server\RequestError;
  * @package WPGraphQL\Server
  */
 class WPHelper extends Helper {
+
 	/**
 	 * Parses normalized request params and returns instance of OperationParams
 	 * or array of OperationParams in case of batch operation.
 	 *
-	 * @param string $method
-	 * @param array  $bodyParams
-	 * @param array  $queryParams
+	 * @param string $method The method of the request (GET, POST, etc).
+	 * @param array  $bodyParams The params passed to the body of the request.
+	 * @param array  $queryParams The query params passed to the request.
 	 * @return OperationParams|OperationParams[]
-	 * @throws RequestError
+	 * @throws RequestError Throws RequestError.
 	 */
 	public function parseRequestParams( $method, array $bodyParams, array $queryParams ) {
 		// Apply wp_unslash to query (GET) variables to undo wp_magic_quotes. We
 		// don't need to do this for POST variables because graphql-php reads the
 		// HTTP body directly.
-		$parsed_body_params  = $this->parse_params( $bodyParams );
+		$parsed_body_params = $this->parse_params( $bodyParams );
+		// @phpstan-ignore-next-line
 		$parsed_query_params = $this->parse_extensions( wp_unslash( $queryParams ) );
 
 		$request_context = [

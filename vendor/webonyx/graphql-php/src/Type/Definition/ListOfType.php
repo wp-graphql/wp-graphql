@@ -1,45 +1,44 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils\Utils;
+use GraphQL\Type\Schema;
+use function is_callable;
 
-/**
- * Class ListOfType
- * @package GraphQL\Type\Definition
- */
-class ListOfType extends Type implements WrappingType, OutputType, InputType
+class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /**
-     * @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
-     */
+    /** @var callable():Type|Type */
     public $ofType;
 
     /**
-     * @param callable|Type $type
+     * @param callable():Type|Type $type
      */
     public function __construct($type)
     {
-        $this->ofType = Type::assertType($type);
+        $this->ofType = is_callable($type) ? $type : Type::assertType($type);
+    }
+
+    public function toString() : string
+    {
+        return '[' . $this->getOfType()->toString() . ']';
+    }
+
+    public function getOfType()
+    {
+        return Schema::resolveType($this->ofType);
     }
 
     /**
-     * @return string
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|(Type&WrappingType)
      */
-    public function toString()
+    public function getWrappedType(bool $recurse = false) : Type
     {
-        $type = $this->ofType;
-        $str = $type instanceof Type ? $type->toString() : (string) $type;
-        return '[' . $str . ']';
-    }
+        $type = $this->getOfType();
 
-    /**
-     * @param bool $recurse
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
-     */
-    public function getWrappedType($recurse = false)
-    {
-        $type = $this->ofType;
-        return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
+        return $recurse && $type instanceof WrappingType
+            ? $type->getWrappedType($recurse)
+            : $type;
     }
 }

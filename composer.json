@@ -22,35 +22,63 @@
     }
   ],
   "require": {
-    "webonyx/graphql-php": "0.12.6",
-    "ivome/graphql-relay-php": "^0.3.1"
+    "php": "^7",
+    "webonyx/graphql-php": "14.4.0",
+    "ivome/graphql-relay-php": "0.5.0"
   },
   "require-dev": {
-    "lucatume/wp-browser": "^2.2.",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
-    "wp-coding-standards/wpcs": "^2.1",
-    "phpcompatibility/phpcompatibility-wp": "^2.0"
+    "lucatume/wp-browser": "^2.4",
+    "codeception/module-asserts": "^1.0",
+    "codeception/module-phpbrowser": "^1.0",
+    "codeception/module-webdriver": "^1.0",
+    "codeception/module-db": "^1.0",
+    "codeception/module-filesystem": "^1.0",
+    "codeception/module-cli": "^1.0",
+    "codeception/util-universalframework": "^1.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+    "wp-coding-standards/wpcs": "2.1.1",
+    "phpcompatibility/phpcompatibility-wp": "2.1.0",
+    "squizlabs/php_codesniffer": "3.5.4",
+    "phpstan/phpstan": "^0.12.64",
+    "szepeviktor/phpstan-wordpress": "^0.7.1",
+    "codeception/module-rest": "^1.2",
+    "wp-graphql/wp-graphql-testcase": "^1.0",
+    "phpunit/phpunit": "9.4.1",
+    "simpod/php-coveralls-mirror": "^3.0",
+    "phpstan/extension-installer": "^1.1"
   },
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "process-timeout": 0
   },
   "autoload": {
     "psr-4": {
       "WPGraphQL\\": "src/"
-    },
-    "classmap": [
-      "src/"
-    ]
+    }
   },
   "scripts": {
+    "install-test-env": "bash bin/install-test-env.sh",
+    "docker-build": "bash bin/run-docker.sh build",
+    "docker-run": "bash bin/run-docker.sh run",
+    "docker-destroy": "docker-compose down",
+    "build-and-run": [
+      "@docker-build",
+      "@docker-run"
+    ],
+    "build-app": "@docker-build -a",
+    "build-test": "@docker-build -t",
+    "run-app": "@docker-run -a",
+    "run-test": "@docker-run -t",
+    "lint": "vendor/bin/phpcs",
     "phpcs-i": [
-      "@php ./vendor/bin/phpcs -i"
+      "php ./vendor/bin/phpcs -i"
     ],
     "check-cs": [
-      "@php ./vendor/bin/phpcs"
+      "php ./vendor/bin/phpcs src"
     ],
     "fix-cs": [
-      "@php ./vendor/bin/phpcbf"
-    ]
+      "php ./vendor/bin/phpcbf src"
+    ],
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   }
 }

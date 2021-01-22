@@ -7,18 +7,27 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $current_date_gmt;
 	public $admin;
 
-	public function setUp() {
+	/**
+	 * @var WP_Theme
+	 */
+	public $active_theme;
+
+	public function setUp(): void {
 		// before
 		parent::setUp();
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory->user->create( [
+		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		$themes = wp_get_themes();
+		$this->active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
+		update_option( 'template', $this->active_theme );
+		update_option( 'stylesheet', $this->active_theme );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// your tear down methods here
 
 		// then
@@ -48,16 +57,22 @@ class ThemeConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
+		$themes       = wp_get_themes();
+
+		codecept_debug( $themes );
+
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
-			$return_count = 3;
+			$return_count = count( $themes );
 		} else {
 			$current_user = 0;
 			$return_count = 1;
 		}
 
 		wp_set_current_user( $current_user );
-		$actual = do_graphql_request( $query );
+		$actual = graphql( [ 'query' => $query ] );
+
+		codecept_debug( $actual );
 
 		/**
 		 * We don't really care what the specifics are because the default theme could change at any time

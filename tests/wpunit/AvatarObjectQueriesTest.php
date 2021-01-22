@@ -4,7 +4,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public $admin;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
@@ -18,7 +18,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		]);
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -67,29 +67,29 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => [
-						'default'      => 'mm',
-						'extraAttr'    => null,
-						'forceDefault' => true,
-						'foundAvatar'  => true,
-						'height'       => 96,
-						'rating'       => 'g',
-						'scheme'       => null,
-						'size'         => 96,
-						'url'          => 'http://test-url.com',
-						'width'        => 96,
-					],
+			'user' => [
+				'avatar' => [
+					'default'      => 'mm',
+					'extraAttr'    => null,
+					'forceDefault' => true,
+					'foundAvatar'  => true,
+					'height'       => 96,
+					'rating'       => 'g',
+					'scheme'       => null,
+					'size'         => 96,
+					'url'          => 'http://test-url.com',
+					'width'        => 96,
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
@@ -138,29 +138,29 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => [
-						'default'      => 'mm',
-						'extraAttr'    => null,
-						'forceDefault' => false,
-						'foundAvatar'  => true,
-						'height'       => 48,
-						'rating'       => 'g',
-						'scheme'       => null,
-						'size'         => 48,
-						'url'          => 'http://test-url.com',
-						'width'        => 48,
-					],
+			'user' => [
+				'avatar' => [
+					'default'      => 'mm',
+					'extraAttr'    => null,
+					'forceDefault' => false,
+					'foundAvatar'  => true,
+					'height'       => 48,
+					'rating'       => 'g',
+					'scheme'       => null,
+					'size'         => 48,
+					'url'          => 'http://test-url.com',
+					'width'        => 48,
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
@@ -172,6 +172,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
+	 * @throws Exception
 	 */
 	public function testAvatarQueryNotFound() {
 		/**
@@ -191,15 +192,15 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			user(id: \"{$global_id}\") {
 				avatar(size: 48) {
-					default,
-					extraAttr,
-					forceDefault,
-					foundAvatar,
-					height,
-					rating,
-					scheme,
-					size,
-					url,
+					default
+					extraAttr
+					forceDefault
+					foundAvatar
+					height
+					rating
+					scheme
+					size
+					url
 					width
 				}
 			}
@@ -208,20 +209,20 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = graphql([ 'query' => $query ] );
+
+		codecept_debug( $actual );
 
 		/**
 		 * The avatar should be empty.
 		 */
 		$expected = [
-			'data' => [
-				'user' => [
-					'avatar' => null
-				],
+			'user' => [
+				'avatar' => null
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );

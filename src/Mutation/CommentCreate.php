@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -11,6 +12,9 @@ use WPGraphQL\Data\DataSource;
 class CommentCreate {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -34,10 +38,6 @@ class CommentCreate {
 				'type'        => 'Int',
 				'description' => __( 'The ID of the post object the comment belongs to.', 'wp-graphql' ),
 			],
-			'userId'      => [
-				'type'        => 'Int',
-				'description' => __( 'The userID of the comment\'s author.', 'wp-graphql' ),
-			],
 			'author'      => [
 				'type'        => 'String',
 				'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),
@@ -50,10 +50,6 @@ class CommentCreate {
 				'type'        => 'String',
 				'description' => __( 'The url of the comment\'s author.', 'wp-graphql' ),
 			],
-			'authorIp'    => [
-				'type'        => 'String',
-				'description' => __( 'IP address for the comment\'s author.', 'wp-graphql' ),
-			],
 			'content'     => [
 				'type'        => 'String',
 				'description' => __( 'Content of the comment.', 'wp-graphql' ),
@@ -65,10 +61,6 @@ class CommentCreate {
 			'parent'      => [
 				'type'        => 'ID',
 				'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
-			],
-			'agent'       => [
-				'type'        => 'String',
-				'description' => __( 'User agent used to post the comment.', 'wp-graphql' ),
 			],
 			'date'        => [
 				'type'        => 'String',
@@ -134,10 +126,16 @@ class CommentCreate {
 				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
 			}
 
+			$commented_on = get_post( absint( $input['commentOn'] ) );
+
+			if ( empty( $commented_on ) ) {
+				return new UserError( __( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Stop if post not open to comments
 			 */
-			if ( empty( $input['commentOn'] ) || get_post( $input['commentOn'] )->post_status === 'closed' ) {
+			if ( empty( $input['commentOn'] ) || 'closed' === $commented_on->comment_status ) {
 				throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
 			}
 
@@ -153,9 +151,7 @@ class CommentCreate {
 				'comment_type'       => '',
 				'comment_parent'     => 0,
 				'user_id'            => 0,
-				'comment_author_IP'  => ':1',
-				'comment_agent'      => '',
-				'comment_date'       => date( 'Y-m-d H:i:s' ),
+				'comment_date'       => gmdate( 'Y-m-d H:i:s' ),
 			];
 
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'createComment' );

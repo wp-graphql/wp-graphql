@@ -37,7 +37,6 @@ class Taxonomy extends Model {
 	 * Stores the incoming WP_Taxonomy object to be modeled
 	 *
 	 * @var \WP_Taxonomy $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -46,7 +45,6 @@ class Taxonomy extends Model {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The incoming Taxonomy to model
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Taxonomy $taxonomy ) {
@@ -65,21 +63,23 @@ class Taxonomy extends Model {
 			'graphql_plural_name',
 			'graphqlPluralName',
 			'showInGraphql',
+			'isRestricted',
 		];
 
-		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields );
+		$capability = isset( $this->data->cap->edit_terms ) ? $this->data->cap->edit_terms : 'edit_terms';
+
+		parent::__construct( $capability, $allowed_restricted_fields );
 
 	}
 
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
 
-		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_terms ) ) {
+		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
 			return true;
 		}
 
@@ -90,7 +90,6 @@ class Taxonomy extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {

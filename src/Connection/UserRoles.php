@@ -2,7 +2,9 @@
 
 namespace WPGraphQL\Connection;
 
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\User;
 
 /**
  * Class UserRoles
@@ -16,7 +18,7 @@ class UserRoles {
 	/**
 	 * Register the connections
 	 *
-	 * @access public
+	 * @return void
 	 */
 	public static function register_connections() {
 
@@ -29,6 +31,10 @@ class UserRoles {
 					'fromType'      => 'RootQuery',
 					'toType'        => 'UserRole',
 					'fromFieldName' => 'userRoles',
+					'resolve'       => function( $user, $args, $context, $info ) {
+						$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
+						return $resolver->get_connection();
+					},
 				]
 			)
 		);
@@ -42,6 +48,16 @@ class UserRoles {
 					'fromType'      => 'User',
 					'toType'        => 'UserRole',
 					'fromFieldName' => 'roles',
+					'resolve'       => function( User $user, $args, $context, $info ) {
+						$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
+						// Only get roles matching the slugs of the roles belonging to the user
+
+						if ( ! empty( $user->roles ) ) {
+							$resolver->setQueryArg( 'slugIn', $user->roles );
+						}
+
+						return $resolver->get_connection();
+					},
 				]
 			)
 		);
@@ -60,12 +76,6 @@ class UserRoles {
 				'fromType'      => 'User',
 				'toType'        => 'UserRole',
 				'fromFieldName' => 'roles',
-				'resolveNode'   => function( $role ) {
-					return DataSource::resolve_user_role( $role );
-				},
-				'resolve'       => function( $user, $args, $context, $info ) {
-					return DataSource::resolve_user_role_connection( $user, $args, $context, $info );
-				},
 			],
 			$config
 		);

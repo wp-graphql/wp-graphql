@@ -1,14 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function floatval;
+use function floor;
+use function intval;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_numeric;
 
-/**
- * Class IntType
- * @package GraphQL\Type\Definition
- */
 class IntType extends ScalarType
 {
     // As per the GraphQL Spec, Integers are only treated as valid when a valid
@@ -16,48 +24,86 @@ class IntType extends ScalarType
     //
     // n.b. JavaScript's integers are safe between -(2^53 - 1) and 2^53 - 1 because
     // they are internally represented as IEEE 754 doubles.
-    const MAX_INT = 2147483647;
-    const MIN_INT = -2147483648;
+    private const MAX_INT = 2147483647;
+    private const MIN_INT = -2147483648;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name = Type::INT;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $description =
-'The `Int` scalar type represents non-fractional signed whole numeric
+        'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     /**
      * @param mixed $value
+     *
      * @return int|null
+     *
      * @throws Error
      */
     public function serialize($value)
     {
-        return $this->coerceInt($value);
+        // Fast path for 90+% of cases:
+        if (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
+            return $value;
+        }
+
+        $float = is_numeric($value) || is_bool($value)
+            ? (float) $value
+            : null;
+
+        if ($float === null || floor($float) !== $float) {
+            throw new Error(
+                'Int cannot represent non-integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        if ($float > self::MAX_INT || $float < self::MIN_INT) {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (int) $float;
     }
 
     /**
      * @param mixed $value
-     * @return int|null
+     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : int
     {
-        return $this->coerceInt($value);
+        $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
+
+        if (! $isInt) {
+            throw new Error(
+                'Int cannot represent non-integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        if ($value > self::MAX_INT || $value < self::MIN_INT) {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (int) $value;
     }
 
     /**
-     * @param $valueNode
-     * @param array|null $variables
-     * @return int|null
-     * @throws \Exception
+     * @param mixed[]|null $variables
+     *
+     * @return int
+     *
+     * @throws Exception
      */
-    public function parseLiteral($valueNode, array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof IntValueNode) {
             $val = (int) $valueNode->value;
@@ -67,30 +113,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
-    }
-
-    private function coerceInt($value) {
-        if ($value === '') {
-            throw new Error(
-                'Int cannot represent non 32-bit signed integer value: (empty string)'
-            );
-        }
-
-        $num = floatval($value);
-        if (!is_numeric($value) && !is_bool($value) || $num > self::MAX_INT || $num < self::MIN_INT) {
-            throw new Error(
-                'Int cannot represent non 32-bit signed integer value: ' .
-                Utils::printSafe($value)
-            );
-        }
-        $int = intval($num);
-        if ($int != $num) {
-            throw new Error(
-                'Int cannot represent non-integer value: ' .
-                Utils::printSafe($value)
-            );
-        }
-        return $int;
+        throw new Error();
     }
 }

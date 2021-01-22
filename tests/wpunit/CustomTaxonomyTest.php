@@ -2,14 +2,14 @@
 
 class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
-
+		WPGraphQL::clear_schema();
 	}
 
 	/**
@@ -50,7 +50,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 
 		// Just create a post of the same cpt to expose issue #905
-		$this->factory->post->create( [
+		$this->factory()->post->create( [
 			'post_content'  => 'Test page content',
 			'post_excerpt'  => 'Test excerpt',
 			'post_status'   => 'publish',
@@ -71,7 +71,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TaxonomyChildren {
-		  bootstrapTerms {
+		  bootstrapTerms(where:{parent:0}) {
 		    nodes {
 			  name
 			  children {
@@ -92,6 +92,8 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query'     => $query,
 		] );
+
+		codecept_debug( $actual );
 
 		$this->assertEquals( 'child', $actual['data']['bootstrapTerms']['nodes'][0]['children']['nodes'][0]['name'] );
 

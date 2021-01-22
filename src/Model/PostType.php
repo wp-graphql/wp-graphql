@@ -32,6 +32,7 @@ use GraphQLRelay\Relay;
  * @property string $graphql_single_name
  * @property string $graphqlPluralName
  * @property string $graphql_plural_name
+ * @property string $taxonomies
  *
  * @package WPGraphQL\Model
  */
@@ -41,7 +42,6 @@ class PostType extends Model {
 	 * Stores the incoming WP_Post_Type to be modeled
 	 *
 	 * @var \WP_Post_Type $data
-	 * @access protected
 	 */
 	protected $data;
 
@@ -50,7 +50,6 @@ class PostType extends Model {
 	 *
 	 * @param \WP_Post_Type $post_type The incoming post type to model
 	 *
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
@@ -69,21 +68,26 @@ class PostType extends Model {
 			'graphql_plural_name',
 			'graphqlPluralName',
 			'showInGraphql',
+			'isRestricted',
+			'uri',
+			'isPostsPage',
+			'isFrontPage',
 		];
 
-		parent::__construct( $post_type->cap->edit_posts, $allowed_restricted_fields );
+		$capability = isset( $post_type->cap->edit_posts ) ? $post_type->cap->edit_posts : 'edit_posts';
+
+		parent::__construct( $capability, $allowed_restricted_fields );
 
 	}
 
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @access protected
 	 * @return bool
 	 */
 	protected function is_private() {
 
-		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_posts ) ) {
+		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_posts ) || ! current_user_can( $this->data->cap->edit_posts ) ) ) {
 			return true;
 		}
 
@@ -94,7 +98,6 @@ class PostType extends Model {
 	/**
 	 * Initializes the object
 	 *
-	 * @access protected
 	 * @return void
 	 */
 	protected function init() {
@@ -103,7 +106,7 @@ class PostType extends Model {
 
 			$this->fields = [
 				'id'                  => function() {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'postType', $this->data->name ) : null;
+					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
 				},
 				'name'                => function() {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
@@ -148,7 +151,7 @@ class PostType extends Model {
 					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
 				},
 				'hasArchive'          => function() {
-					return ( true === $this->data->has_archive ) ? true : false;
+					return ! empty( $this->uri ) ? true : false;
 				},
 				'canExport'           => function() {
 					return ( true === $this->data->can_export ) ? true : false;
@@ -183,6 +186,38 @@ class PostType extends Model {
 				},
 				'graphql_plural_name' => function() {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				},
+				'uri'                 => function() {
+					$link = get_post_type_archive_link( $this->name );
+					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
+				},
+				// If the homepage settings are ot set to
+				'isPostsPage'         => function () {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_for_posts', 0 ) ) )
+					) {
+						return true;
+					}
+
+					return false;
+				},
+				'isFrontPage'         => function() {
+
+					if (
+						'post' === $this->name &&
+						(
+							'posts' === get_option( 'show_on_front', 'posts' ) ||
+							empty( (int) get_option( 'page_on_front', 0 ) )
+						)
+					) {
+						return true;
+					}
+
+					return false;
 				},
 			];
 

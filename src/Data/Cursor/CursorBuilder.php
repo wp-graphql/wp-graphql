@@ -9,14 +9,25 @@ class CursorBuilder {
 
 	/**
 	 * The field by which the cursor should order the results
+	 *
+	 * @var array
 	 */
 	public $fields;
 
 	/**
 	 * Default comparison operator. < or >
+	 *
+	 * @var string
 	 */
-	public $compare = null;
+	public $compare;
 
+	/**
+	 * CursorBuilder constructor.
+	 *
+	 * @param string $compare
+	 *
+	 * @return void
+	 */
 	public function __construct( $compare = '>' ) {
 		$this->compare = $compare;
 		$this->fields  = [];
@@ -24,25 +35,56 @@ class CursorBuilder {
 
 	/**
 	 * Add ordering field. The order you call this method matters. First field
-	 * will be the primary field and latters ones will be used if the primary
+	 * will be the primary field and latter ones will be used if the primary
 	 * field has duplicate values
 	 *
-	 * @param string $key   database colum
-	 * @param string $value value from the current cursor
-	 * @param string $type  type cast
-	 * @param string $order custom order
+	 * @param string           $key           database column
+	 * @param mixed|string|int $value         value from the current cursor
+	 * @param string           $type          type cast
+	 * @param string           $order         custom order
+	 * @param PostObjectCursor $object_cursor The PostObjectCursor class
+	 *
+	 * @return void
 	 */
-	public function add_field( $key, $value, $type = null, $order = null ) {
+	public function add_field( string $key, $value, string $type = null, string $order = null, PostObjectCursor $object_cursor = null ) {
+
 		/**
-		 * This only input for variables which are used in the SQL generation. So
-		 * escape them here.
+		 * Filters the field used for ordering when cursors are used for pagination
+		 *
+		 * @param array                   $field          The field key, value, type and order
+		 * @param CursorBuilder           $cursor_builder The CursorBuilder class
+		 * @param null | PostObjectCursor $object_cursor  The PostObjectCursor class
 		 */
-		$this->fields[] = [
-			'key'   => esc_sql( $key ),
-			'value' => esc_sql( $value ),
-			'type'  => esc_sql( $type ),
-			'order' => esc_sql( $order ),
-		];
+		$field = apply_filters(
+			'graphql_cursor_ordering_field',
+			[
+				'key'   => esc_sql( $key ),
+				'value' => esc_sql( $value ),
+				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
+				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
+			],
+			$this,
+			$object_cursor
+		);
+
+		// Bail if the filtered field comes back empty
+		if ( empty( $field ) ) {
+			return;
+		}
+
+		// Bail if the filtered field doesn't come back as an array
+		if ( ! is_array( $field ) ) {
+			return;
+		}
+
+		$escaped_field = [];
+
+		// Escape the filtered array
+		foreach ( $field as $key => $value ) {
+			$escaped_field[ $key ] = esc_sql( $value );
+		}
+
+		$this->fields[] = $escaped_field;
 	}
 
 	/**
@@ -55,7 +97,9 @@ class CursorBuilder {
 	}
 
 	/**
-	 * Generate the final SQL string to be appended to WHERE claise
+	 * Generate the final SQL string to be appended to WHERE clause
+	 *
+	 * @param mixed|array|null $fields
 	 *
 	 * @return string
 	 */
@@ -121,7 +165,7 @@ class CursorBuilder {
 		if ( ! preg_match( '/^(?:BINARY|CHAR|DATE|DATETIME|SIGNED|UNSIGNED|TIME|NUMERIC(?:\(\d+(?:,\s?\d+)?\))?|DECIMAL(?:\(\d+(?:,\s?\d+)?\))?)$/', $meta_type ) ) {
 			return 'CHAR';
 		}
-		if ( 'NUMERIC' == $meta_type ) {
+		if ( 'NUMERIC' === $meta_type ) {
 			$meta_type = 'SIGNED';
 		}
 

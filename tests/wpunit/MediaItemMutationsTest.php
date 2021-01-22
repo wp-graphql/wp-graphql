@@ -16,7 +16,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $slug;
 	public $status;
 	public $title;
-	public $pingStatus;
 	public $parentId;
 	public $clientMutationId;
 	public $updated_title;
@@ -28,7 +27,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $updated_dateGmt;
 	public $updated_slug;
 	public $updated_status;
-	public $updated_pingStatus;
 	public $updated_clientMutationId;
 
 	public $create_variables;
@@ -45,7 +43,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $attachment_id;
 	public $media_item_id;
 
-    public function setUp()
+    public function setUp(): void
     {
         // before
         parent::setUp();
@@ -81,12 +79,11 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->date             = '2017-08-01T15:00:00';
 	    $this->dateGmt          = '2017-08-01T21:00:00';
 	    $this->description      = 'This is a magic description.';
-	    $this->filePath         = 'http://www.reactiongifs.com/r/mgc.gif';
+	    $this->filePath         = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
 	    $this->fileType         = 'IMAGE_GIF';
 	    $this->slug             = 'magic-shia';
 	    $this->status           = 'INHERIT';
 	    $this->title            = 'Magic Shia Gif';
-	    $this->pingStatus       = 'closed';
 	    $this->parentId         = null;
 	    $this->clientMutationId = 'someUniqueId';
 
@@ -102,7 +99,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    $this->updated_dateGmt = '2017-08-01T22:00:00';
 	    $this->updated_slug = 'updated-shia-magic';
 	    $this->updated_status = 'INHERIT';
-	    $this->updated_pingStatus = 'open';
 	    $this->updated_clientMutationId = 'someUpdatedUniqueId';
 
 	    /**
@@ -110,7 +106,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	     * and it's WPGraphQL ID for using in our updateMediaItem mutation
 	     */
 	    $this->attachment_id = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif', 'post_author' => $this->admin] );
-	    $this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'attachment', $this->attachment_id );
+	    $this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
 
 	    /**
 	     * Set the createMediaItem mutation input variables
@@ -130,7 +126,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->dateGmt,
 			    'slug'             => $this->slug,
 			    'status'           => $this->status,
-			    'pingStatus'       => $this->pingStatus,
 			    'authorId'         => $this->authorId,
 		    ],
 	    ];
@@ -151,7 +146,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			    'dateGmt'          => $this->updated_dateGmt,
 			    'slug'             => $this->updated_slug,
 			    'status'           => $this->updated_status,
-			    'pingStatus'       => $this->updated_pingStatus,
 			    'fileType'         => $this->fileType,
 		    ]
 	    ];
@@ -168,7 +162,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	    ];
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // your tear down methods here
 
@@ -181,7 +175,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and is reused throughout the createMediaItem tests
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
-	 * @access public
 	 * @return array $actual
 	 */
 	public function createMediaItemMutation() {
@@ -203,14 +196,15 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			      status
 			      title
 			      commentStatus
-			      pingStatus
 			      altText
 			      caption
 			      description
 			      mimeType
 			      parent {
-			        ... on Post {
-			          id
+			        node {
+				      ... on Post {
+				        id
+				      }
 			        }
 			      }
 			      sourceUrl
@@ -255,7 +249,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:54
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemAsSubscriber() {
@@ -269,7 +262,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * does not exist on the test server.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:89
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemFilePath() {
@@ -286,7 +278,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * get an error back from the source because they are required.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:211
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemNoInput() {
@@ -315,7 +306,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts with someone else's id
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemOtherAuthor() {
@@ -352,7 +342,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 				'dateGmt'          => $this->dateGmt,
 				'slug'             => $this->slug,
 				'status'           => $this->status,
-				'pingStatus'       => $this->pingStatus,
 				'authorId'         => $this->admin,
 			],
 		];
@@ -367,7 +356,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * still get created
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:89
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemWithInvalidUrl() {
@@ -383,7 +371,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * still get created
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:121
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemWithNoFile() {
@@ -400,11 +387,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * succeed as an admin
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php:142
-	 * @access public
 	 * @return void
 	 */
-	public function testCreateMediaItemAttachToParent() {
-		$post = $this->factory()->post->create( [
+	public function testCreateMediaItemAttachToParentAsAuthor() {
+		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
 			'post_status' => 'publish'
 		] );
@@ -416,10 +402,25 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		wp_set_current_user( $this->author );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
+
 		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	public function testCreateMediaItemAttachToParentAsAdmin() {
+
+		$post                                        = $this->factory()->post->create( [
+			'post_author' => $this->admin,
+			'post_status' => 'publish'
+		] );
+		$this->create_variables['input']['parentId'] = absint( $post );
 
 		wp_set_current_user( $this->admin );
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( $actual );
 
 		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
 		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
@@ -427,54 +428,53 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
-						'description'      => apply_filters( 'the_content', $this->description ),
-						'altText'          => $this->altText,
-						'caption'          => apply_filters( 'the_content', $this->caption ),
-						'commentStatus'    => $this->commentStatus,
-						'date'             => $this->date,
-						'dateGmt'          => $this->dateGmt,
-						'slug'             => $this->slug,
-						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
-						'mimeType'         => 'image/gif',
-						'parent'           => [
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'title'            => $this->title,
+					'description'      => apply_filters( 'the_content', $this->description ),
+					'altText'          => $this->altText,
+					'caption'          => apply_filters( 'the_content', $this->caption ),
+					'commentStatus'    => $this->commentStatus,
+					'date'             => $this->date,
+					'dateGmt'          => $this->dateGmt,
+					'slug'             => $this->slug,
+					'status'           => strtolower( $this->status ),
+					'mimeType'         => 'image/gif',
+					'parent'           => [
+						'node' => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
 						],
-						'mediaType'        => 'image',
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+					],
+					'mediaType'        => 'image',
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -482,7 +482,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 
 	}
@@ -493,7 +493,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:151
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemEditOthersPosts() {
@@ -525,7 +524,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * post_mime_type
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemMutation.php:171
 	 *
-	 * @access public
 	 * @returnn void
 	 */
 	public function testCreateMediaItemDefaultValues() {
@@ -548,13 +546,17 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      status
 		      title
 		      author {
-		        id
+		        node {
+		          id
+		        }
 		      }
 		      description
 		      mimeType
 		      parent {
-		        ... on Post {
-		          id
+		        node {
+  		          ... on Post {
+  		            id
+		          }
 		        }
 		      }
 		      sourceUrl
@@ -612,47 +614,47 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'status'           => strtolower( $this->status ),
-						'title'            => $attachment_title,
-						'description'      => '',
-						'mimeType'         => 'image/gif',
-						'author'           => [
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'status'           => strtolower( $this->status ),
+					'title'            => $attachment_title,
+					'description'      => '',
+					'mimeType'         => 'image/gif',
+					'author'           => [
+						'node' => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 						],
-						'parent'           => null,
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+					],
+					'parent'           => null,
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -660,7 +662,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -668,7 +670,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the createMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testCreateMediaItemMutation() {
@@ -690,52 +691,49 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
-			'data' => [
-				'createMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'mediaItem' => [
-						'id'               => $media_item_id,
-						'mediaItemId'      => $attachment_id,
-						'title'            => $this->title,
-						'description'      => apply_filters( 'the_content', $this->description ),
-						'altText'          => $this->altText,
-						'caption'          => apply_filters( 'the_content', $this->caption ),
-						'commentStatus'    => $this->commentStatus,
-						'date'             => $this->date,
-						'dateGmt'          => $this->dateGmt,
-						'slug'             => $this->slug,
-						'status'           => strtolower( $this->status ),
-						'pingStatus'       => $this->pingStatus,
-						'mimeType'         => 'image/gif',
-						'parent'           => null,
-						'mediaType'        => 'image',
-						'sourceUrl'        => $attachment_url,
-						'mediaDetails'     => [
-							'file'   => $attachment_details['file'],
-							'height' => $attachment_details['height'],
-							'meta'   => [
-								'aperture' => 0.0,
-								'credit'   => '',
-								'camera'   => '',
-								'caption'  => '',
-								'createdTimestamp' => null,
-								'copyright' => '',
-								'focalLength' => null,
-								'iso' => 0,
-								'shutterSpeed' => null,
-								'title' => '',
-								'orientation' => '0',
-							],
-							'width' => $attachment_details['width'],
-							'sizes' => [
-								0 => [
-									'name' => 'thumbnail',
-									'file' => $attachment_details['sizes']['thumbnail']['file'],
-									'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-									'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-									'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
-									'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
-								],
+			'createMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'mediaItem' => [
+					'id'               => $media_item_id,
+					'mediaItemId'      => $attachment_id,
+					'title'            => $this->title,
+					'description'      => apply_filters( 'the_content', $this->description ),
+					'altText'          => $this->altText,
+					'caption'          => apply_filters( 'the_content', $this->caption ),
+					'commentStatus'    => $this->commentStatus,
+					'date'             => $this->date,
+					'dateGmt'          => $this->dateGmt,
+					'slug'             => $this->slug,
+					'status'           => strtolower( $this->status ),
+					'mimeType'         => 'image/gif',
+					'parent'           => null,
+					'mediaType'        => 'image',
+					'sourceUrl'        => $attachment_url,
+					'mediaDetails'     => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture' => 0.0,
+							'credit'   => '',
+							'camera'   => '',
+							'caption'  => '',
+							'createdTimestamp' => null,
+							'copyright' => '',
+							'focalLength' => null,
+							'iso' => 0,
+							'shutterSpeed' => null,
+							'title' => '',
+							'orientation' => '0',
+						],
+						'width' => $attachment_details['width'],
+						'sizes' => [
+							0 => [
+								'name' => 'thumbnail',
+								'file' => $attachment_details['sizes']['thumbnail']['file'],
+								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
 					],
@@ -743,7 +741,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -751,7 +749,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the updateMediaItem mutation
 	 * and is reused throughout the updateMediaItem tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function updateMediaItemMutation() {
@@ -772,13 +769,14 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		      status
 		      title
 		      commentStatus
-		      pingStatus
 		      altText
 		      caption
 		      description
 		      mimeType
 		      author {
-		        id
+		        node {
+		          id
+		        }
 		      }
 		    }
 		  }
@@ -796,11 +794,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * wanted to update.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:57
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemInvalidId() {
-		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'attachment', 123456 );
+		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', 123456 );
 		$actual = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['id'] = $this->media_item_id;
@@ -810,7 +807,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Test whether the mediaItem we're updating is actually a mediaItem
 	 *
 	 * @souce wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:67
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemUpdatePost() {
@@ -826,7 +822,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * and test whether they can create posts
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:74
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAsSubscriber() {
@@ -841,7 +836,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemEditOthersPosts() {
@@ -861,7 +855,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * edit other users posts.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAuthor() {
@@ -877,7 +870,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * to that post as an admin. It should be created.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemUpdate.php:91
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
@@ -894,7 +886,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the updateMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php
-	 * @access public
 	 * @return void
 	 */
 	public function testUpdateMediaItemMutation() {
@@ -912,24 +903,23 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Define the expected output.
 		 */
 		$expected = [
-			'data' => [
-				'updateMediaItem' => [
-					'clientMutationId' => $this->updated_clientMutationId,
-					'mediaItem'             => [
-						'id'               => $this->media_item_id,
-						'title'            => $this->updated_title,
-						'description'      => apply_filters( 'the_content', $this->updated_description ),
-						'mediaItemId'      => $this->attachment_id,
-						'altText'          => $this->updated_altText,
-						'caption'          => apply_filters( 'the_content', $this->updated_caption ),
-						'commentStatus'    => $this->updated_commentStatus,
-						'date'             => $this->updated_date,
-						'dateGmt'          => $this->updated_dateGmt,
-						'slug'             => $this->updated_slug,
-						'status'           => strtolower( $this->updated_status ),
-						'pingStatus'       => $this->updated_pingStatus,
-						'mimeType'         => 'image/gif',
-						'author'           => [
+			'updateMediaItem' => [
+				'clientMutationId' => $this->updated_clientMutationId,
+				'mediaItem'             => [
+					'id'               => $this->media_item_id,
+					'title'            => $this->updated_title,
+					'description'      => apply_filters( 'the_content', $this->updated_description ),
+					'mediaItemId'      => $this->attachment_id,
+					'altText'          => $this->updated_altText,
+					'caption'          => apply_filters( 'the_content', $this->updated_caption ),
+					'commentStatus'    => $this->updated_commentStatus,
+					'date'             => $this->updated_date,
+					'dateGmt'          => $this->updated_dateGmt,
+					'slug'             => $this->updated_slug,
+					'status'           => strtolower( $this->updated_status ),
+					'mimeType'         => 'image/gif',
+					'author'           => [
+						'node' => [
 							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 						],
 					],
@@ -937,12 +927,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 			],
 		];
 
-		$attachment = get_post( $this->attachment_id );
+		get_post( $this->attachment_id );
 
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -950,7 +940,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the deletMediaItem mutation
 	 * and is reused throughout the deleteMediaItem tests
 	 *
-	 * @access public
 	 * @return array $actual
 	 */
 	public function deleteMediaItemMutation() {
@@ -980,7 +969,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Set the mediaItem id to a fake id and the mutation should fail
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemInvalidId() {
@@ -995,7 +983,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * the deletion should fail because we're a subscriber.
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:86
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemAsSubscriber() {
@@ -1008,13 +995,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * Set the force delete input to false and the
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
-	 * @access public
 	 * @return array $actual
 	 */
 	public function testDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( ['post_status' => 'trash'] );
-		$post = get_post( $deleted_media_item );
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1037,7 +1023,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$delete_trash_variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'attachment', $deleted_media_item ),
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
 				'clientMutationId' => $this->clientMutationId,
 				'forceDelete'      => false,
 			]
@@ -1048,8 +1034,47 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 
 		$this->assertArrayHasKey( 'errors', $actual );
+	}
 
+	/**
+	 * Set the force delete input to false and the
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:92
+	 * @return array $actual
+	 */
+	public function testForceDeleteMediaItemAlreadyInTrash() {
 
+		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$post               = get_post( $deleted_media_item );
+
+		/**
+		 * Prepare the deleteMediaItem mutation
+		 */
+		$mutation = '
+		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
+		  deleteMediaItem(input: $input) {
+		    clientMutationId
+		    deletedId
+		    mediaItem {
+		      id
+		      mediaItemId
+		    }
+		  }
+		}
+		';
+
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$delete_trash_variables = [
+			'input' => [
+				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
+				'clientMutationId' => $this->clientMutationId,
+				'forceDelete'      => false,
+			]
+		];
+
+		wp_set_current_user( $this->admin );
 
 		$delete_trash_variables['input']['forceDelete'] = true;
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
@@ -1063,7 +1088,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * instead of an attachment
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:103
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemAsPost() {
@@ -1106,7 +1130,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * This function tests the deleteMediaItem mutation
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php
-	 * @access public
 	 * @return void
 	 */
 	public function testDeleteMediaItemMutation() {
@@ -1121,14 +1144,12 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Define the expected output.
 		 */
 		$expected = [
-			'data' => [
-				'deleteMediaItem' => [
-					'clientMutationId' => $this->clientMutationId,
-					'deletedId' => $this->media_item_id,
-					'mediaItem' => [
-						'id'               => $this->media_item_id,
-						'mediaItemId'      => $this->attachment_id,
-					],
+			'deleteMediaItem' => [
+				'clientMutationId' => $this->clientMutationId,
+				'deletedId' => $this->media_item_id,
+				'mediaItem' => [
+					'id'               => $this->media_item_id,
+					'mediaItemId'      => $this->attachment_id,
 				],
 			],
 		];
@@ -1136,7 +1157,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $actual, $expected );
+		$this->assertEquals( $expected,  $actual['data'] );
 
 		/**
 		 * Try to delete again but we should have errors, because there's nothing to be deleted

@@ -1,0 +1,34 @@
+{
+  "name": "wp-graphql",
+  "version": "0.3.6",
+  "description": "GraphQL API for WordPress",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wp-graphql/wp-graphql.git"
+  },
+  "keywords": [
+    "WordPress",
+    "GraphQL"
+  ],
+  "author": "WPGraphQL",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/wp-graphql/wp-graphql/issues"
+  },
+  "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
+  "devDependencies": {
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2"
+  },
+  "lint-staged": {
+    "*.php": "composer run check-cs"
+  }
+}

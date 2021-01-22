@@ -25,4 +25,8 @@ coverage/*
 schema.graphql
 phpunit.xml
 docker-output
-
+node_modules
+codeception.yml
+php-coveralls.phar
+.log
+c3.php

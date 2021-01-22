@@ -5,6 +5,7 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -26,6 +27,10 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		return true;
 	}
 
+	public function get_loader_name() {
+		return 'user';
+	}
+
 	/**
 	 * Converts the args that were input to the connection into args that can be executed
 	 * by WP_User_Query
@@ -34,10 +39,12 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_query_args() {
+		$query_args = [];
+
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		/**
 		 * Set the $query_args based on various defaults and primary input $args
@@ -84,14 +91,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ID';
 
 		/**
-		 * If the request is not authenticated, limit the query to users that have
-		 * published posts, as they're considered publicly facing users.
-		 */
-		if ( ! is_user_logged_in() ) {
-			$query_args['has_published_posts'] = true;
-		}
-
-		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
@@ -100,12 +99,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
-				if ( in_array( $orderby_input['field'], [
-					'login__in',
-					'nicename__in',
-				], true ) ) {
+				if ( in_array(
+					$orderby_input['field'],
+					[
+						'login__in',
+						'nicename__in',
+					],
+					true
+				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} else if ( ! empty( $orderby_input['field'] ) ) {
+				} elseif ( ! empty( $orderby_input['field'] ) ) {
 					$query_args['orderby'] = [
 						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
 					];
@@ -119,7 +122,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order']
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
@@ -146,12 +149,12 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns an array of items from the query being executed.
+	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function get_items() {
+	public function get_ids() {
 		$results = $this->query->get_results();
 
 		return ! empty( $results ) ? $results : [];
@@ -168,19 +171,19 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @since  0.0.5
 	 * @return array
-	 * @access protected
 	 */
 	protected function sanitize_input_fields( array $args ) {
 
 		/**
 		 * Only users with the "list_users" capability can filter users by roles
 		 */
-		if ( (
-				 ! empty( $args['roleIn'] ) ||
-				 ! empty( $args['roleNotIn'] ) ||
-				 ! empty( $args['role'] )
-			 ) &&
-			 ! current_user_can( 'list_users' )
+		if (
+			(
+				! empty( $args['roleIn'] ) ||
+				! empty( $args['roleNotIn'] ) ||
+				! empty( $args['role'] )
+			) &&
+			! current_user_can( 'list_users' )
 		) {
 			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}
@@ -221,5 +224,18 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the user corresponding to the offset
+	 * exists. Offset is equivalent to user_id. So this function is equivalent to checking if the
+	 * user with the given ID exists.
+	 *
+	 * @param int $offset The ID of the node used as the offset in the cursor
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_user_by( 'ID', absint( $offset ) ) );
 	}
 }

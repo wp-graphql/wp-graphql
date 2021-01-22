@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 
 /**
  * Class UserMutation
@@ -18,7 +18,6 @@ class UserMutation {
 	 * Stores the input fields static definition
 	 *
 	 * @var array $input_fields
-	 * @access private
 	 */
 	private static $input_fields = [];
 
@@ -26,7 +25,6 @@ class UserMutation {
 	 * Defines the accepted input arguments
 	 *
 	 * @return array|null
-	 * @access public
 	 */
 	public static function input_fields() {
 
@@ -34,67 +32,67 @@ class UserMutation {
 
 			$input_fields = [
 				'password'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that contains the plain text password for the user.', 'wp-graphql' ),
 				],
 				'nicename'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that contains a URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' ),
 				],
 				'websiteUrl'  => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-grapql' ),
 				],
 				'email'       => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
 				],
 				'displayName' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string that will be shown on the site. Defaults to user\'s username. It is likely that you will want to change this, for both appearance and security through obscurity (that is if you dont use and delete the default admin user).', 'wp-graphql' ),
 				],
 				'nickname'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The user\'s nickname, defaults to the user\'s username.', 'wp-graphql' ),
 				],
 				'firstName'   => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( '	The user\'s first name.', 'wp-graphql' ),
 				],
 				'lastName'    => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The user\'s last name.', 'wp-graphql' ),
 				],
 				'description' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string containing content about the user.', 'wp-graphql' ),
 				],
 				'richEditing' => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'A string for whether to enable the rich editor or not. False if not empty.', 'wp-graphql' ),
 				],
 				'registered'  => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'The date the user registered. Format is Y-m-d H:i:s.', 'wp-graphql' ),
 				],
 				'roles'       => [
-					'type'        => Types::list_of( Types::string() ),
+					'type'        => [ 'list_of' => 'String' ],
 					'description' => __( 'An array of roles to be assigned to the user.', 'wp-graphql' ),
 				],
 				'jabber'      => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s Jabber account.', 'wp-graphql' ),
 				],
 				'aim'         => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s AOL IM account.', 'wp-graphql' ),
 				],
 				'yim'         => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s Yahoo IM account.', 'wp-graphql' ),
 				],
 				'locale'      => [
-					'type'        => Types::string(),
+					'type'        => 'String',
 					'description' => __( 'User\'s locale.', 'wp-graphql' ),
 				],
 			];
@@ -118,7 +116,6 @@ class UserMutation {
 	 * @param array  $input         Data coming from the GraphQL mutation query input
 	 * @param string $mutation_name Name of the mutation being performed
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
@@ -194,9 +191,9 @@ class UserMutation {
 		/**
 		 * Filters the mappings for input to arguments
 		 *
-		 * @var array  $insert_user_args The arguments to ultimately be passed to the WordPress function
-		 * @var array  $input            Input data from the GraphQL mutation
-		 * @var string $mutation_name    What user mutation is being performed for context
+		 * @param array  $insert_user_args The arguments to ultimately be passed to the WordPress function
+		 * @param array  $input            Input data from the GraphQL mutation
+		 * @param string $mutation_name    What user mutation is being performed for context
 		 */
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
@@ -214,7 +211,8 @@ class UserMutation {
 	 * @param AppContext  $context       The AppContext passed down the resolve tree
 	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
 	 *
-	 * @throws \Exception
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
@@ -242,8 +240,8 @@ class UserMutation {
 	 * @param int   $user_id The ID of the user
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
-	 * @access private
-	 * @throws \Exception
+	 * @return void
+	 * @throws Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
 
@@ -263,10 +261,10 @@ class UserMutation {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
 					$message = $verified->get_error_message();
-					throw new \Exception( $message );
+					throw new Exception( $message );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
+					throw new Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
 				}
 			}
 		}
@@ -281,7 +279,6 @@ class UserMutation {
 	 * @param int    $user_id The ID of the user being mutated
 	 *
 	 * @return mixed|bool|\WP_Error
-	 * @access private
 	 */
 	private static function verify_user_role( $role, $user_id ) {
 
@@ -298,9 +295,10 @@ class UserMutation {
 		 * Don't let anyone with 'edit_users' (admins) edit their own role to something without it.
 		 * Multisite super admins can freely edit their blog roles -- they possess all caps.
 		 */
-		if ( ! ( is_multisite() && current_user_can( 'manage_sites' ) )
-			 && get_current_user_id() === $user_id
-			 && ! $potential_role->has_cap( 'edit_users' )
+		if (
+			! ( is_multisite() && current_user_can( 'manage_sites' ) ) &&
+			get_current_user_id() === $user_id &&
+			! $potential_role->has_cap( 'edit_users' )
 		) {
 			return new \WP_Error( 'wpgraphql_user_invalid_role', __( 'Sorry, you cannot remove user editing permissions for your own account.', 'wp-graphql' ) );
 		}

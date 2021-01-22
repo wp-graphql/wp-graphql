@@ -2,12 +2,13 @@
 
 class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 	}

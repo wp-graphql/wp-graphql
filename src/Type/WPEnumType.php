@@ -29,8 +29,15 @@ class WPEnumType extends EnumType {
 	 * @param  string $value Enum value.
 	 * @return string
 	 */
-	public static function get_safe_name( $value ) {
-		$safe_name = strtoupper( preg_replace( '#[^A-z0-9]#', '_', $value ) );
+	public static function get_safe_name( string $value ) {
+
+		$replaced = preg_replace( '#[^A-z0-9]#', '_', $value );
+
+		if ( ! empty( $replaced ) ) {
+			$value = $replaced;
+		}
+
+		$safe_name = strtoupper( $value );
 
 		// Enum names must start with a letter or underscore.
 		if ( ! preg_match( '#^[_a-zA-Z]#', $value ) ) {
@@ -41,8 +48,6 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
-	 * prepare_values
-	 *
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
@@ -56,7 +61,7 @@ class WPEnumType extends EnumType {
 		/**
 		 * Pass the values through a filter
 		 *
-		 * lcfirst( $type_name ) filter was added for backward compatibility
+		 * Filter for lcfirst( $type_name ) was added for backward compatibility
 		 *
 		 * @param array $values
 		 *

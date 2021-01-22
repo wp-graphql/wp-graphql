@@ -1,30 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
 class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $kind = NodeKind::ENUM_TYPE_DEFINITION;
 
-    /**
-     * @var NameNode
-     */
+    /** @var NameNode */
     public $name;
 
-    /**
-     * @var DirectiveNode[]
-     */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /**
-     * @var EnumValueDefinitionNode[]|null|NodeList
-     */
+    /** @var NodeList<EnumValueDefinitionNode>|null */
     public $values;
 
-    /**
-     * @var StringValueNode|null
-     */
+    /** @var StringValueNode|null */
     public $description;
 }

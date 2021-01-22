@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\FieldNode;
@@ -8,16 +11,25 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
+use function array_merge_recursive;
 
 /**
  * Structure containing information useful for field resolution process.
- * Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
+ *
+ * Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
  */
 class ResolveInfo
 {
     /**
-     * The name of the field being resolved
+     * The definition of the field being resolved.
+     *
+     * @api
+     * @var FieldDefinition
+     */
+    public $fieldDefinition;
+
+    /**
+     * The name of the field being resolved.
      *
      * @api
      * @var string
@@ -25,23 +37,23 @@ class ResolveInfo
     public $fieldName;
 
     /**
+     * Expected return type of the field being resolved.
+     *
+     * @api
+     * @var Type
+     */
+    public $returnType;
+
+    /**
      * AST of all nodes referencing this field in the query.
      *
      * @api
      * @var FieldNode[]
      */
-    public $fieldNodes;
+    public $fieldNodes = [];
 
     /**
-     * Expected return type of the field being resolved
-     *
-     * @api
-     * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
-     */
-    public $returnType;
-
-    /**
-     * Parent type of the field being resolved
+     * Parent type of the field being resolved.
      *
      * @api
      * @var ObjectType
@@ -49,15 +61,15 @@ class ResolveInfo
     public $parentType;
 
     /**
-     * Path to this field from the very root value
+     * Path to this field from the very root value.
      *
      * @api
-     * @var array
+     * @var string[]
      */
     public $path;
 
     /**
-     * Instance of a schema used for execution
+     * Instance of a schema used for execution.
      *
      * @api
      * @var Schema
@@ -65,15 +77,15 @@ class ResolveInfo
     public $schema;
 
     /**
-     * AST of all fragments defined in query
+     * AST of all fragments defined in query.
      *
      * @api
      * @var FragmentDefinitionNode[]
      */
-    public $fragments;
+    public $fragments = [];
 
     /**
-     * Root value passed to query execution
+     * Root value passed to query execution.
      *
      * @api
      * @var mixed
@@ -81,29 +93,62 @@ class ResolveInfo
     public $rootValue;
 
     /**
-     * AST of operation definition node (query, mutation)
+     * AST of operation definition node (query, mutation).
      *
      * @api
-     * @var OperationDefinitionNode
+     * @var OperationDefinitionNode|null
      */
     public $operation;
 
     /**
-     * Array of variables passed to query execution
+     * Array of variables passed to query execution.
      *
      * @api
-     * @var array
+     * @var mixed[]
      */
-    public $variableValues;
+    public $variableValues = [];
 
-    public function __construct(array $values)
-    {
-        Utils::assign($this, $values);
+    /**
+     * Lazily initialized.
+     *
+     * @var QueryPlan
+     */
+    private $queryPlan;
+
+    /**
+     * @param FieldNode[]              $fieldNodes
+     * @param string[]                 $path
+     * @param FragmentDefinitionNode[] $fragments
+     * @param mixed|null               $rootValue
+     * @param mixed[]                  $variableValues
+     */
+    public function __construct(
+        FieldDefinition $fieldDefinition,
+        iterable $fieldNodes,
+        ObjectType $parentType,
+        array $path,
+        Schema $schema,
+        array $fragments,
+        $rootValue,
+        ?OperationDefinitionNode $operation,
+        array $variableValues
+    ) {
+        $this->fieldDefinition = $fieldDefinition;
+        $this->fieldName       = $fieldDefinition->name;
+        $this->returnType      = $fieldDefinition->getType();
+        $this->fieldNodes      = $fieldNodes;
+        $this->parentType      = $parentType;
+        $this->path            = $path;
+        $this->schema          = $schema;
+        $this->fragments       = $fragments;
+        $this->rootValue       = $rootValue;
+        $this->operation       = $operation;
+        $this->variableValues  = $variableValues;
     }
 
     /**
      * Helper method that returns names of all fields selected in query for
-     * $this->fieldName up to $depth levels
+     * $this->fieldName up to $depth levels.
      *
      * Example:
      * query MyQuery{
@@ -132,9 +177,11 @@ class ResolveInfo
      * Warning: this method it is a naive implementation which does not take into account
      * conditional typed fragments. So use it with care for fields of interface and union types.
      *
-     * @api
      * @param int $depth How many levels to include in output
-     * @return array
+     *
+     * @return array<string, mixed>
+     *
+     * @api
      */
     public function getFieldSelection($depth = 0)
     {
@@ -142,30 +189,64 @@ class ResolveInfo
 
         /** @var FieldNode $fieldNode */
         foreach ($this->fieldNodes as $fieldNode) {
-            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldNode->selectionSet, $depth));
+            if ($fieldNode->selectionSet === null) {
+                continue;
+            }
+
+            $fields = array_merge_recursive(
+                $fields,
+                $this->foldSelectionSet($fieldNode->selectionSet, $depth)
+            );
         }
 
         return $fields;
     }
 
-    private function foldSelectionSet(SelectionSetNode $selectionSet, $descend)
+    /**
+     * @param mixed[] $options
+     */
+    public function lookAhead(array $options = []) : QueryPlan
+    {
+        if (! isset($this->queryPlan)) {
+            $this->queryPlan = new QueryPlan(
+                $this->parentType,
+                $this->schema,
+                $this->fieldNodes,
+                $this->variableValues,
+                $this->fragments,
+                $options
+            );
+        }
+
+        return $this->queryPlan;
+    }
+
+    /**
+     * @return bool[]
+     */
+    private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend) : array
     {
         $fields = [];
-
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fields[$selectionNode->name->value] = $descend > 0 && !empty($selectionNode->selectionSet)
+                $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
-            } else if ($selectionNode instanceof FragmentSpreadNode) {
+            } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
-                    $fields = array_merge_recursive($this->foldSelectionSet($fragment->selectionSet, $descend), $fields);
+                    $fields   = array_merge_recursive(
+                        $this->foldSelectionSet($fragment->selectionSet, $descend),
+                        $fields
+                    );
                 }
-            } else if ($selectionNode instanceof InlineFragmentNode) {
-                $fields = array_merge_recursive($this->foldSelectionSet($selectionNode->selectionSet, $descend), $fields);
+            } elseif ($selectionNode instanceof InlineFragmentNode) {
+                $fields = array_merge_recursive(
+                    $this->foldSelectionSet($selectionNode->selectionSet, $descend),
+                    $fields
+                );
             }
         }
 

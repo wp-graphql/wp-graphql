@@ -2,12 +2,12 @@
 
 class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 	}
@@ -16,7 +16,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the term
 		 */
-		$term_id = $this->factory->term->create( $args );
+		$term_id = $this->factory()->term->create( $args );
 
 		/**
 		 * Return the $id of the term_object that was created
@@ -163,7 +163,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, $term_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $term_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -186,7 +186,9 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				slug
 				taxonomy {
-					name
+					node {
+						name
+					}
 				}
 				termGroupId
 				termTaxonomyId
@@ -198,33 +200,35 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'categoryId'     => $term_id,
-					'count'          => null,
-					'description'    => 'just a description',
-					'id'             => $global_id,
-					'link'           => get_term_link( $term_id ),
-					'name'           => 'A Category',
-					'posts'          => [
-						'edges' => [],
-					],
-					'slug'           => 'a-category',
-					'taxonomy'       => [
+			'category' => [
+				'categoryId'     => $term_id,
+				'count'          => null,
+				'description'    => 'just a description',
+				'id'             => $global_id,
+				'link'           => get_term_link( $term_id ),
+				'name'           => 'A Category',
+				'posts'          => [
+					'edges' => [],
+				],
+				'slug'           => 'a-category',
+				'taxonomy'       => [
+					'node' => [
 						'name' => 'category',
 					],
-					'termGroupId'    => null,
-					'termTaxonomyId' => $term_id,
 				],
+				'termGroupId'    => null,
+				'termTaxonomyId' => $term_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -240,23 +244,37 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a term
 		 */
-		$term_id = $this->createTermObject( [ 'name' => 'A category', 'taxonomy' => 'category' ] );
+		$term_id = $this->createTermObject( [ 'name' => uniqid(), 'taxonomy' => 'category' ] );
 
 		// Create a comment and assign it to term.
-		$post_id  = $this->factory->post->create( [ 'post_type' => 'post' ] );
-		$page_id  = $this->factory->post->create( [ 'post_type' => 'page' ] );
-		$media_id = $this->factory->post->create( [ 'post_type' => 'attachment' ] );
+		$post_id  = $this->factory()->post->create( [
+			'post_type' => 'post' ,
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
 
-		wp_set_object_terms( $post_id, $term_id, 'category' );
-		wp_set_object_terms( $page_id, $term_id, 'category' );
-		wp_set_object_terms( $media_id, $term_id, 'category' );
+		codecept_debug( $post_id );
+		$page_id  = $this->factory()->post->create( [
+			'post_type' => 'page',
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
+		$media_id = $this->factory()->post->create( [
+			'post_type' => 'attachment',
+			'post_title' => uniqid(),
+			'post_status' => 'publish',
+		] );
+
+		wp_set_object_terms( $post_id, $term_id, 'category', false );
+		wp_set_object_terms( $page_id, $term_id, 'category', false );
+		wp_set_object_terms( $media_id, $term_id, 'category', false );
 
 		$taxonomy = 'category';
 
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, $term_id );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $term_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -279,18 +297,18 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		/**
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'posts' => [
-						'edges' => [
-							[
-								'node' => [
-									'postId' => $post_id,
-								],
+			'category' => [
+				'posts' => [
+					'edges' => [
+						[
+							'node' => [
+								'postId' => $post_id,
 							],
 						],
 					],
@@ -298,7 +316,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -321,8 +339,8 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'parent'   => $parent_id,
 		] );
 
-		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
-		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
 
 		$query = "
 		query {
@@ -342,23 +360,21 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_parent_id,
-					'categoryId' => $parent_id,
-					'children'   => [
-						'nodes' => [
-							[
-								'id'         => $global_child_id,
-								'categoryId' => $child_id,
-							],
+			'category' => [
+				'id'         => $global_parent_id,
+				'categoryId' => $parent_id,
+				'children'   => [
+					'nodes' => [
+						[
+							'id'         => $global_child_id,
+							'categoryId' => $child_id,
 						],
 					],
 				],
-			],
+			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -381,17 +397,24 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'parent'   => $parent_id,
 		] );
 
-		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'category', $parent_id );
-		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'category', $child_id );
+		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
+		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
 
 		$query = "
 		query {
 			category(id: \"{$global_child_id}\") {
 				id
 				categoryId
+				parent {
+				  node {
+				    id
+				  }
+				}
 				ancestors {
-					id
-					categoryId
+				  nodes {
+					  id
+					  categoryId
+					}
 				}
 			}
 		}
@@ -400,22 +423,27 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_child_id,
-					'categoryId' => $child_id,
-					'ancestors'  => [
+			'category' => [
+				'id'         => $global_child_id,
+				'categoryId' => $child_id,
+				'parent' => [
+					'node' => [
+						'id' => $global_parent_id,
+					]
+				],
+				'ancestors'  => [
+					'nodes' => [
 						[
 							'id'         => $global_parent_id,
 							'categoryId' => $parent_id,
 						],
-					],
+					]
 				],
 			],
 		];
 
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -427,12 +455,11 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @since 0.0.5
 	 */
 	public function testTermQueryWhereTermDoesNotExist() {
-		$taxonomy = 'category';
 
 		/**
 		 * Create the global ID based on the term_type and the created $id
 		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( $taxonomy, 'doesNotExist' );
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', 'doesNotExist' );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -452,28 +479,25 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data'   => [
-				'category' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'The ID input is invalid',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
+		$expected_errors = [
+			[
+				'message'   => 'The ID input is invalid',
+				'locations' => [
+					[
+						'line'   => 3,
+						'column' => 4,
 					],
-					'path'      => [
-						'category',
-					],
-					'category'  => 'user',
+				],
+				'path'      => [
+					'category',
+				],
+				'extensions' => [
+					'category' => 'user'
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected_errors, $actual['errors'] );
 	}
 
 }

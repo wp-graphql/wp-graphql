@@ -8,27 +8,32 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public $admin;
 	public $subscriber;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->subscriber       = $this->factory()->user->create( [
-			'role' => 'subscriber'
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->subscriber       = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
 
-		$this->app_info = new \GraphQL\Type\Definition\ResolveInfo( array() );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 
@@ -90,12 +95,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		for ( $i = 1; $i <= $count; $i ++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
-			$created_posts[ $i ] = $this->createPostObject( [
-				'post_type'   => 'post',
-				'post_date'   => $date,
-				'post_status' => 'publish',
-				'post_title'  => $i,
-			] );
+			$created_posts[ $i ] = $this->createPostObject(
+				[
+					'post_type'   => 'post',
+					'post_date'   => $date,
+					'post_status' => 'publish',
+					'post_title'  => $i,
+				]
+			);
 		}
 
 		return $created_posts;
@@ -140,7 +147,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		if ( empty( $field ) ) {
 			return $data;
-		} else if ( ! empty( $data ) ) {
+		} elseif ( ! empty( $data ) ) {
 			$data = $data[ $field ];
 		}
 
@@ -158,12 +165,16 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 		$results   = $this->postsQuery( $variables );
 
+		codecept_debug( $results );
+
 		/**
 		 * Let's query the first post in our data set so we can test against it
 		 */
-		$first_post      = new WP_Query( [
-			'posts_per_page' => 1,
-		] );
+		$first_post      = new WP_Query(
+			[
+				'posts_per_page' => 1,
+			]
+		);
 		$first_post_id   = $first_post->posts[0]->ID;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_post_id );
 		$this->assertNotEmpty( $results );
@@ -173,6 +184,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
 		$this->assertEquals( $first_post_id, $results['data']['posts']['nodes'][0]['postId'] );
+		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 		$this->forwardPagination( $expected_cursor );
 
@@ -190,10 +203,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Let's query the last post in our data set so we can test against it
 		 */
-		$last_post    = new WP_Query( [
-			'posts_per_page' => 1,
-			'order'          => 'ASC',
-		] );
+		$last_post    = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'order'          => 'ASC',
+			]
+		);
 		$last_post_id = $last_post->posts[0]->ID;
 
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_post_id );
@@ -204,6 +219,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 		$this->backwardPagination( $expected_cursor );
 
@@ -218,10 +235,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->postsQuery( $variables );
 
-		$second_post     = new WP_Query( [
-			'posts_per_page' => 1,
-			'paged'          => 2,
-		] );
+		codecept_debug( $results );
+
+		$second_post     = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'paged'          => 2,
+			]
+		);
 		$second_post_id  = $second_post->posts[0]->ID;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_post_id );
 		$this->assertNotEmpty( $results );
@@ -230,6 +251,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
+
 	}
 
 	public function backwardPagination( $cursor ) {
@@ -241,11 +264,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->postsQuery( $variables );
 
-		$second_to_last_post    = new WP_Query( [
-			'posts_per_page' => 1,
-			'paged'          => 2,
-			'order'          => 'ASC',
-		] );
+		$second_to_last_post    = new WP_Query(
+			[
+				'posts_per_page' => 1,
+				'paged'          => 2,
+				'order'          => 'ASC',
+			]
+		);
 		$second_to_last_post_id = $second_to_last_post->posts[0]->ID;
 		$expected_cursor        = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_post_id );
 		$this->assertNotEmpty( $results );
@@ -254,6 +279,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}
 
@@ -276,18 +302,24 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Test the filter to make sure it's capping the results properly
 		 */
-		add_filter( 'graphql_connection_max_query_amount', function() {
-			return 20;
-		} );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			function() {
+				return 20;
+			}
+		);
 
 		$variables = [
 			'first' => 150,
 		];
 		$results   = $this->postsQuery( $variables );
 
-		add_filter( 'graphql_connection_max_query_amount', function() {
-			return 100;
-		} );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			function() {
+				return 100;
+			}
+		);
 
 		$this->assertCount( 20, $results['data']['posts']['edges'] );
 		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
@@ -295,19 +327,23 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPostHasPassword() {
 		// Create a test post with a password
-		$this->createPostObject( [
-			'post_title'    => 'Password protected',
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_password' => 'password',
-		] );
+		$this->createPostObject(
+			[
+				'post_title'    => 'Password protected',
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'password',
+			]
+		);
 
 		/**
 		 * WP_Query posts with a password
 		 */
-		$wp_query_posts_with_password = new WP_Query( [
-			'has_password' => true,
-		] );
+		$wp_query_posts_with_password = new WP_Query(
+			[
+				'has_password' => true,
+			]
+		);
 
 		/**
 		 * GraphQL query posts that have a password
@@ -345,28 +381,34 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPageWithChildren() {
 
-		$parent_id = $this->factory->post->create( [
-			'post_type' => 'page'
-		] );
+		$parent_id = $this->factory->post->create(
+			[
+				'post_type' => 'page',
+			]
+		);
 
-		$child_id = $this->factory->post->create( [
-			'post_type'   => 'page',
-			'post_parent' => $parent_id
-		] );
+		$child_id = $this->factory->post->create(
+			[
+				'post_type'   => 'page',
+				'post_parent' => $parent_id,
+			]
+		);
 
-		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'page', $parent_id );
-		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'page', $child_id );
+		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_id );
+		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'post', $child_id );
 
 		$query = '
 		{
 			page( id: "' . $global_id . '" ) {
 				id
 				pageId
-				childPages {
+				children {
 					edges {
 						node {
-							id
-							pageId
+						    ...on Page {
+							  id
+							  pageId
+							}
 						}
 					}
 				}
@@ -382,7 +424,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$parent = $actual['data']['page'];
-		$child  = $parent['childPages']['edges'][0]['node'];
+		$child  = $parent['children']['edges'][0]['node'];
 
 		/**
 		 * Make sure the child and parent data matches what we expect
@@ -391,7 +433,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $parent_id, $parent['pageId'] );
 		$this->assertEquals( $global_child_id, $child['id'] );
 		$this->assertEquals( $child_id, $child['pageId'] );
-
 
 	}
 
@@ -428,20 +469,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPrivatePostsWithoutProperCaps() {
 
-		$private_post = $this->createPostObject( [
-			'post_status' => 'private',
-		] );
-		$public_post  = $this->createPostObject( [
-			'post_status' => 'publish',
-		] );
+		$private_post = $this->createPostObject(
+			[
+				'post_status' => 'private',
+			]
+		);
+		$public_post  = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $private_post, $public_post ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $private_post, $public_post ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
 
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
@@ -460,12 +507,17 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->admin );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $post_id ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $post_id ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
+
+		codecept_debug( $actual );
+
 		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
 
 	}
@@ -481,12 +533,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->createPostObject( $post_args );
 
 		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $post_id ],
-				'stati' => [ 'PUBLISH', 'PRIVATE' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $post_id ],
+					'stati' => [ 'PUBLISH', 'PRIVATE' ],
+				],
 			]
-		] );
+		);
 
 		/**
 		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
@@ -503,7 +557,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 *
 		 * We're going in the direction of the REST API here. Where certain statuses can only be
 		 * queried by users with certain capabilities.
-		 *
 		 */
 		$this->assertEmpty( $actual['data']['posts']['edges'] );
 		$this->assertEmpty( $actual['data']['posts']['nodes'] );
@@ -516,11 +569,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
 
 		$parent_post = $this->createPostObject( [] );
-		$revision    = $this->createPostObject( [
-			'post_type'   => 'revision',
-			'post_parent' => $parent_post,
-			'post_status' => 'inherit',
-		] );
+		$revision    = $this->createPostObject(
+			[
+				'post_type'   => 'revision',
+				'post_parent' => $parent_post,
+				'post_status' => 'inherit',
+			]
+		);
 
 		$query = "
 		{
@@ -535,7 +590,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		          edges {
 		            node{
 		              id
-		              revisionId
+		              postId
 		              title
 		              content
 		            }
@@ -550,10 +605,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->{$role} );
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 		if ( true === $show_revisions ) {
-			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['revisionId'] );
+			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['postId'] );
 		} else {
 			$this->assertEmpty( $actual['data']['posts']['edges'][0]['node']['revisions']['edges'] );
 		}
@@ -575,12 +632,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $public_post, $draft_post ],
-				'stati' => [ 'PUBLISH', 'DRAFT' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $public_post, $draft_post ],
+					'stati' => [ 'PUBLISH', 'DRAFT' ],
+				],
 			]
-		] );
+		);
 
 		if ( 'admin' === $role ) {
 
@@ -601,7 +660,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				$this->assertNull( $content_field );
 				$this->assertNull( $excerpt_field );
 			}
-		} else if ( 'subscriber' === $role ) {
+		} elseif ( 'subscriber' === $role ) {
 
 			/**
 			 * The subscriber should only have access to 1 post, the public one.
@@ -627,12 +686,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery( [
-			'where' => [
-				'in'    => [ $public_post, $draft_post ],
-				'stati' => [ 'PUBLISH', 'TRASH' ]
+		$actual = $this->postsQuery(
+			[
+				'where' => [
+					'in'    => [ $public_post, $draft_post ],
+					'stati' => [ 'PUBLISH', 'TRASH' ],
+				],
 			]
-		] );
+		);
 
 		if ( 'admin' === $role ) {
 			/**
@@ -651,7 +712,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				$this->assertNull( $content_field );
 				$this->assertNull( $excerpt_field );
 			}
-		} else if ( 'subscriber' === $role ) {
+		} elseif ( 'subscriber' === $role ) {
 			/**
 			 * The subscriber should only be able to see 1 post, the public one, not the trashed post.
 			 */
@@ -670,8 +731,334 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'admin',
 				true,
-			]
+			],
 		];
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
+
+		$public_post_id = $this->factory()->post->create( [
+			'post_type' => 'Post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$private_post_id = $this->factory()->post->create( [
+			'post_type' => 'Post',
+			'post_status' => 'publish',
+			'post_title' => 'Private Post',
+		] );
+
+		update_post_meta( $private_post_id, '_private_key', true );
+
+		$query = '
+		{
+		  posts {
+		    nodes {
+		      id
+		      databaseId
+		      title
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$nodes = $actual['data']['posts']['nodes'];
+
+		$ids = [];
+		foreach ( $nodes as $node ) {
+			$ids[$node['databaseId']] = $node;
+		}
+
+		$this->assertArrayHasKey( $private_post_id, $ids );
+
+		/**
+		 * Filter posts with a certain meta key to be private. These posts
+		 * should NOT be returned as nodes at all. They should be stripped before
+		 * nodes array is returned.
+		 */
+		add_filter( 'graphql_data_is_private', function( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
+			if ( 'PostObject' === $model_name ) {
+				$is_private_meta = get_post_meta( $data->ID, '_private_key' );
+				if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
+					$is_private = true;
+				}
+			}
+			return $is_private;
+		}, 10, 6 );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		codecept_debug( $actual );
+
+		$nodes = $actual['data']['posts']['nodes'];
+
+		$ids = [];
+		foreach ( $nodes as $node ) {
+			$ids[$node['databaseId']] = $node;
+		}
+
+		$this->assertArrayNotHasKey( $private_post_id, $ids );
+
+
+	}
+
+	public function testSuppressFiltersThrowsException() {
+
+		WPGraphQL::clear_schema();
+
+		add_filter( 'graphql_post_object_connection_query_args', function( $args ) {
+			$args['suppress_filters'] = true;
+			return $args;
+		} );
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts {
+			    nodes {
+			      id
+			      title
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1477
+	 */
+	public function testPostInArgumentWorksWithCursors() {
+
+		$post_1 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_2 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_3 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_4 = $this->factory()->post->create( [
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Public Post',
+		] );
+
+		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
+
+		$query = '
+		query GetPostsByIds($post_ids: [ID] $after:String $before:String) {
+		  posts(where: {in: $post_ids} after:$after before:$before) {
+		    edges {
+		      cursor
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => null,
+			]
+		] );
+
+		$actual_ids = [];
+
+		codecept_debug( $post_ids );
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( $post_ids, $actual_ids );
+
+		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'after' => $cursor
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_4, $post_1 ], $actual_ids );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'post_ids' => $post_ids,
+				'before' => $cursor
+			]
+		]);
+
+		codecept_debug( [ 'variables' => [
+			'post_ids' => $post_ids,
+			'before' => $cursor
+		] ]);
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_3 ], $actual_ids );
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1477
+	 */
+	public function testCustomPostConnectionWithSetIdsWorksWithCursors() {
+
+		$post_1 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_2 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_3 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_4 = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Public Post',
+		] );
+
+		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
+
+		register_graphql_connection([
+			'connectionTypeName' => 'OrderbyDebug',
+			'description' => __( 'debugging', 'wp-graphql' ),
+			'fromType' => 'RootQuery',
+			'toType' => 'MediaItem',
+			'fromFieldName' => 'postOrderbyDebug',
+			'resolve' => function( $root, $args, $context, $info ) use ( $post_ids ) {
+				$args['where']['in'] = $post_ids;
+				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
+				return $resolver->get_connection();
+			}
+		]);
+
+		$query = '
+		query GetPostsWithSpecificIdsInResolver($after:String $before:String) {
+		  posts: postOrderbyDebug(after:$after before:$before) {
+		    edges {
+		      cursor
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'after'    => null,
+				'before' => null,
+			]
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( $post_ids, $actual_ids );
+
+		$cursor_from_first_query = $actual['data']['posts']['edges'][1]['cursor'];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'after' => $cursor_from_first_query
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_ids[2], $post_ids[3] ], $actual_ids );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'before' => $cursor_from_first_query,
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = [];
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$actual_ids[] = $edge['node']['databaseId'];
+		}
+
+		$this->assertSame( [ $post_ids[0] ], $actual_ids );
+
+
+	}
+
+
 
 }
