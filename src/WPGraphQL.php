@@ -183,11 +183,6 @@ final class WPGraphQL {
 
 		}
 
-		// Required non-autoloaded classes.
-		require_once WPGRAPHQL_PLUGIN_DIR . 'access-functions.php';
-		require_once WPGRAPHQL_PLUGIN_DIR . 'activation.php';
-		require_once WPGRAPHQL_PLUGIN_DIR . 'deactivation.php';
-
 	}
 
 	/**
