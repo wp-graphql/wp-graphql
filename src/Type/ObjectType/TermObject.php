@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Type\Object;
+namespace WPGraphQL\Type\ObjectType;
 
 use WP_Taxonomy;
 use WPGraphQL\Model\Term;
