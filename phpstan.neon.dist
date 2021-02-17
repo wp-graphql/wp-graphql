@@ -13,7 +13,7 @@ parameters:
     ignoreErrors:
         # Uses func_get_args()
         # Ignore any filters that are applied with more than 2 paramaters
-        - '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'
+        - '#^Function apply_filters(_ref_array)? invoked with ([1-9]|1[0-2]) parameters, 2 required\.$#'
         - "#Access to an undefined property WP_Post_Type::\\$graphql_single_name.#"
         - "#Access to an undefined property WP_Post_Type::\\$graphql_plural_name.#"
         - "#Access to an undefined property WP_Post_Type::\\$show_in_graphql.#"
