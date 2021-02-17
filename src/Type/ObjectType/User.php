@@ -1,7 +1,7 @@
 <?php
 
 
-namespace WPGraphQL\Type\Object;
+namespace WPGraphQL\Type\ObjectType;
 
 use WPGraphQL\Data\DataSource;
 

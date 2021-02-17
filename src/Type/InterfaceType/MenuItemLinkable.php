@@ -5,7 +5,7 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\Object\User;
+use WPGraphQL\Type\ObjectType\User;
 
 class MenuItemLinkable {
 

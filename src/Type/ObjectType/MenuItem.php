@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Type\Object;
+namespace WPGraphQL\Type\ObjectType;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;

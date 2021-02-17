@@ -1,11 +1,11 @@
 <?php
 
-namespace WPGraphQL\Type\Object;
+namespace WPGraphQL\Type\ObjectType;
 
 /**
  * Class MediaItemMeta
  *
- * @package WPGraphQL\Type\Object
+ * @package WPGraphQL\Type\ObjectType
  */
 class MediaItemMeta {
 
