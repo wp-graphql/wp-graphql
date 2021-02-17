@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.5
+
+### Bugfixes / Chores
+
+- ([#1718](https://github.com/wp-graphql/wp-graphql/pull/1718)) Simplify the main plugin file to adhere to more modern WP plugin standards. Move the WPGraphQL class to it's own file under the src directory. Thanks @szepeviktor!
+- ([#1704](https://github.com/wp-graphql/wp-graphql/pull/1704)) Fix end tags for inputs on the WPGraphQL Settings page to adhere to the w3 spec for inputs. Thanks @therealgilles!
+
 ## 1.1.4
 
 ### Bugfixes
