@@ -452,7 +452,19 @@ function register_graphql_settings_field( string $group, array $config ) {
  * @return void
  */
 function graphql_debug( $message, $config = [] ) {
-	$config['backtrace'] = wp_list_pluck( debug_backtrace(), 'file' );
+	$debug_backtrace = debug_backtrace();
+	$config['backtrace'] = ! empty( $debug_backtrace )
+		? array_column(
+			array_filter( // Filter out steps without files
+				$debug_backtrace,
+				function( $step ) {
+					return ! empty( $step['file'] );
+				}
+			),
+			'file'
+		)
+		: [];
+
 	add_action(
 		'graphql_get_debug_log',
 		function( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
