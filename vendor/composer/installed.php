@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'b83e64dfb9553315db4f5ac766adcb576dadd628',
+    'reference' => '8cc7e0aab9a45e7ca53d0b9803a0147c49981d60',
     'name' => 'wp-graphql/wp-graphql',
   ),
   'versions' => 
@@ -36,7 +36,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'b83e64dfb9553315db4f5ac766adcb576dadd628',
+      'reference' => '8cc7e0aab9a45e7ca53d0b9803a0147c49981d60',
     ),
   ),
 );
