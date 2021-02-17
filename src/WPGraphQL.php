@@ -564,6 +564,7 @@ final class WPGraphQL {
 
 	/**
 	 * Whether WPGraphQL is operating in Debug mode
+	 *
 	 * @return bool
 	 */
 	public static function debug(): bool {
