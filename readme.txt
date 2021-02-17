@@ -67,13 +67,18 @@ WPGraphQL turns your WordPress site into a GraphQL API. Any client that can make
 
 WPGraphQL Swag is available on the Gatsby Swag store.
 
-= What's the relationship between Gatsby and WPGraphQL? =
+= What's the relationship between Gatsby, WP Engine, and WPGraphQL? =
 
-[Gatsby](https://gatsbyjs.com) employs Jason Bahl, the creator and maintainer of WPGraphQL. Gatsby believes that a strong GraphQL API for WordPress is a benefit for the web. Gatsby makes no restrictions on how you use WPGraphQL, however Gatsby is investing a lot into making the Gatsby + WordPress experience a great one, and WPGraphQL is a central part of that experience.
+[WP Engine](https://wpengine.com/) is the employer of Jason Bahl, the creator and maintainer of WPGraphQL. He was previously employed by [Gatsby](https://gatsbyjs.com).
+
+You can read more about this [here](https://www.wpgraphql.com/2021/02/07/whats-next-for-wpgraphql/).
+
+Gatsby and WP Engine both believe that a strong GraphQL API for WordPress is a benefit for the web. Neither Gatsby or WP Engine are required to be used with WPGraphQL, however it's important to acknowledge and understand what's possible because of their investments into WPGraphQL and the future of headless WordPress!
+
 
 == Upgrade Notice ==
 
 
 == Changelog ==
 
-See [Release Notes](https://github.com/wp-graphql/wp-graphql/releases)
+See [Github Changelog](https://github.com/wp-graphql/wp-graphql/blob/master/CHANGELOG.md)
