@@ -17,9 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Start MySQL
-        run: sudo systemctl start mysql.service
-
       - name: Setup PHP w/ Composer & WP-CLI
         uses: kidunot89/setup-php@new-tool-wp-cli
         with:
@@ -33,6 +30,11 @@ jobs:
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
+
+      - name: Setup MySQL
+        run: |
+            sudo systemctl start mysql.service
+            echo 'CREATE DATABASE `wptests`;' | mysql -u root -proot
 
       - name: Setup WordPress
         run: |
