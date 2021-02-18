@@ -43,7 +43,7 @@ jobs:
       - name: Generate the Static Schema
         # 💡 Neutralize for now
         run: |
-          cd /tmp/wordpress
+          # Output: /tmp/schema.graphql
           wp graphql generate-static-schema
-          cd /tmp/wordpress/wp-content/plugins/wp-graphql
-          graphql-schema-linter ./schema.graphql || true
+          cd /tmp/wordpress/wp-content/plugins/wp-graphql/
+          graphql-schema-linter /tmp/schema.graphql || true
