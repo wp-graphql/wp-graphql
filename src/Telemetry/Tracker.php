@@ -190,7 +190,7 @@ class Tracker {
 	 *
 	 * @return array
 	 */
-	public function get_info( $event_type = 'IDENTITY', array $extra_info ) {
+	public function get_info( $event_type = 'IDENTITY', array $extra_info = [] ) {
 
 		global $_SERVER;
 

@@ -52,6 +52,11 @@
     "process-timeout": 0
   },
   "autoload": {
+    "files": [
+      "access-functions.php",
+      "activation.php",
+      "deactivation.php"
+    ],
     "psr-4": {
       "WPGraphQL\\": "src/"
     }

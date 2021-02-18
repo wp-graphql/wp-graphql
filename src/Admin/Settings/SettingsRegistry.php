@@ -253,7 +253,7 @@ class SettingsRegistry {
 		$type        = isset( $args['type'] ) ? $args['type'] : 'text';
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
 		$disabled    = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
-		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
+		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
 		$html       .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -286,7 +286,7 @@ class SettingsRegistry {
 		$max         = ( '' === $args['max'] ) ? '' : ' max="' . $args['max'] . '"';
 		$step        = ( '' === $args['step'] ) ? '' : ' step="' . $args['step'] . '"';
 
-		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
+		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -306,8 +306,8 @@ class SettingsRegistry {
 
 		$html  = '<fieldset>';
 		$html .= sprintf( '<label for="wpuf-%1$s[%2$s]">', $args['section'], $args['id'] );
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id'] );
-		$html .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s %4$s/>', $args['section'], $args['id'], checked( $value, 'on', false ), $disabled );
+		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off">', $args['section'], $args['id'] );
+		$html .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s %4$s>', $args['section'], $args['id'], checked( $value, 'on', false ), $disabled );
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
@@ -325,11 +325,11 @@ class SettingsRegistry {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="" />', $args['section'], $args['id'] );
+		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="">', $args['section'], $args['id'] );
 		foreach ( $args['options'] as $key => $label ) {
 			$checked = isset( $value[ $key ] ) ? $value[ $key ] : '0';
 			$html   .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s>', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
 			$html   .= sprintf( '%1$s</label><br>', $label );
 		}
 
@@ -353,7 +353,7 @@ class SettingsRegistry {
 
 		foreach ( $args['options'] as $key => $label ) {
 			$html .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html .= sprintf( '<input type="radio" class="radio" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
+			$html .= sprintf( '<input type="radio" class="radio" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s>', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
 			$html .= sprintf( '%1$s</label><br>', $label );
 		}
 
@@ -461,8 +461,8 @@ class SettingsRegistry {
 		$id    = $args['section'] . '[' . $args['id'] . ']';
 		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File' );
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
-		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '" />';
+		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
+		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '">';
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -480,7 +480,7 @@ class SettingsRegistry {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
+		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -498,7 +498,7 @@ class SettingsRegistry {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
+		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s">', $size, $args['section'], $args['id'], $value, $args['std'] );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
