@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.6
+
+## Bugfixes / Chores
+
+- ([#1723](https://github.com/wp-graphql/wp-graphql/pull/1723)) Fix CI Schema Linter action. Thanks @szepeviktor!
+- ([#1722](https://github.com/wp-graphql/wp-graphql/pull/1722)) Update PR Template message. Thanks @szepeviktor!
+- ([#1730](https://github.com/wp-graphql/wp-graphql/pull/1730)) Updates redundant test configuration in Github workflow. Thanks @szepeviktor!
+
 ## 1.1.5
 
 ### Bugfixes / Chores
