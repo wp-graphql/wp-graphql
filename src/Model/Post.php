@@ -155,7 +155,7 @@ class Post extends Model {
 			'uri',
 			'isPostsPage',
 			'isFrontPage',
-			'isPrivacyPage'
+			'isPrivacyPage',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
@@ -608,7 +608,7 @@ class Post extends Model {
 
 					return false;
 				},
-				'isPrivacyPage'               => function() {
+				'isPrivacyPage'             => function() {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}
