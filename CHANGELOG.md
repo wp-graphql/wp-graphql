@@ -1,10 +1,17 @@
 # Changelog
 
+## 1.1.8
+
+## Bugfixes / Chores
+
+- Fix release asset url in Github action.
+
+
 ## 1.1.7
 
 ## Bugfixes / Chores
 
-- ([#1723](https://github.com/wp-graphql/wp-graphql/pull/1723)) Fix release upload url in Github action.
+- Fix release upload url in Github action.
 
 ## 1.1.6
 
