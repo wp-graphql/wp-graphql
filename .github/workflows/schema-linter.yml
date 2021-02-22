@@ -31,11 +31,20 @@ jobs:
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
 
-      - name: Setup WordPress
-        run: bin/install-wp-tests.sh wpgraphql_test root root localhost latest
-      - name: Generate the Static Schema
+      - name: Setup MySQL
         run: |
-          cd /tmp/wordpress
+            sudo systemctl start mysql.service
+            echo 'CREATE DATABASE `wptests`;' | mysql -u root -proot
+
+      - name: Setup WordPress
+        run: |
+          bin/install-test-env.sh wpgraphql_test root root localhost latest
+
+      - name: Generate the Static Schema
+        # 💡 Neutralize for now
+        run: |
+          cd /tmp/wordpress/
+          # Output: /tmp/schema.graphql
           wp graphql generate-static-schema
-          cd /tmp/wordpress/wp-content/plugins/wp-graphql
-          graphql-schema-linter ./schema.graphql
+          cd /tmp/wordpress/wp-content/plugins/wp-graphql/
+          graphql-schema-linter /tmp/schema.graphql || true
