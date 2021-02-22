@@ -1,10 +1,14 @@
+<!--
+
 ### Your checklist for this pull request
 Thanks for sending a pull request! Please make sure you click the link above to view the contribution guidelines, then fill out the blanks below.
 
-🚨Please review the [guidelines for contributing](.github/CONTRIBUTING.md) to this repository.
+🚨 Please review the [guidelines for contributing](/.github/CONTRIBUTING.md) to this repository.
 
 - [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our develop*.
 - [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
+
+-->
 
 What does this implement/fix? Explain your changes.
 ---------------------------------------------------
