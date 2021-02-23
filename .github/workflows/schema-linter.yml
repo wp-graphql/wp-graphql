@@ -38,7 +38,7 @@ jobs:
 
       - name: Setup WordPress
         run: |
-          bin/install-test-env.sh wpgraphql_test root root localhost latest
+          bin/install-test-env.sh wptests root root localhost latest
 
       - name: Generate the Static Schema
         # 💡 Neutralize for now
