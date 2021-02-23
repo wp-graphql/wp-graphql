@@ -147,6 +147,7 @@ configure_wordpress() {
 }
 
 setup_plugin() {
+
 	# Add this repo as a plugin to the repo
 	if [ ! -d $WP_CORE_DIR/wp-content/plugins/wp-graphql ]; then
 		ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
@@ -155,9 +156,13 @@ setup_plugin() {
 		ls
 	fi
 
+	cd $PLUGIN_DIR
+
+	composer install --no-dev
+
 	cd $WP_CORE_DIR
 
-    wp plugin list
+  wp plugin list
 
 	# activate the plugin
 	wp plugin activate wp-graphql
@@ -167,6 +172,7 @@ setup_plugin() {
 
 	# Export the db for codeception to use
 	wp db export $PLUGIN_DIR/tests/_data/dump.sql
+
 }
 
 install_wp
