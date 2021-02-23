@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: kidunot89/setup-php@new-tool-wp-cli
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 7.3
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
