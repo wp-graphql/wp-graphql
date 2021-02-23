@@ -39,6 +39,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $slug
  * @property array   $template
  * @property boolean $isFrontPage
+ * @property boolean $isPrivacyPage
  * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
@@ -154,6 +155,7 @@ class Post extends Model {
 			'uri',
 			'isPostsPage',
 			'isFrontPage',
+			'isPrivacyPage',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
@@ -601,6 +603,16 @@ class Post extends Model {
 						return false;
 					}
 					if ( absint( get_option( 'page_on_front', 0 ) ) === $this->data->ID ) {
+						return true;
+					}
+
+					return false;
+				},
+				'isPrivacyPage'             => function() {
+					if ( 'page' !== $this->data->post_type ) {
+						return false;
+					}
+					if ( absint( get_option( 'wp_page_for_privacy_policy', 0 ) ) === $this->data->ID ) {
 						return true;
 					}
 
