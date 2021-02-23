@@ -35,6 +35,7 @@ jobs:
         run: |
           sudo systemctl start mysql.service
           echo 'CREATE DATABASE `wpgraphql_test`;' | mysql -u root -proot
+          echo 'MySQL Port' | mysql> SHOW GLOBAL VARIABLES LIKE 'PORT';
 
       - name: Setup WordPress
         run: |
