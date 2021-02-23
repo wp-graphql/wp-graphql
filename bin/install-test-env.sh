@@ -3,8 +3,11 @@
 source .env
 
 print_usage_instruction() {
-	echo "Ensure that .env file exist in project root directory exists."
-	echo "And run the following 'composer install-wp-tests' in the project root directory"
+  echo "ERROR!"
+  echo ".env file not detected."
+  echo "The local test environment needs a .env file to setup properly."
+	echo "Copy the .env.dist file from the root of the plugin to a new file named .env"
+	echo "Then fill in the values to match your local environment."
 	exit 1
 }
 
@@ -158,7 +161,7 @@ setup_plugin() {
 
 	cd $PLUGIN_DIR
 
-	composer install --no-dev
+	composer install
 
 	cd $WP_CORE_DIR
 
