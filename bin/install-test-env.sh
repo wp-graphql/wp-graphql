@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
+if [[ ! -f ".env" ]]; then
+  echo "No .env file was detected. .env.dist has been copied to .env"
+  echo "Open the .env file and enter values to match your local environment"
+  cp .env.dist .env
+fi
+
 source .env
 
 print_usage_instruction() {
   echo "ERROR!"
-  echo ".env file not detected."
-  echo "The local test environment needs a .env file to setup properly."
-	echo "Copy the .env.dist file from the root of the plugin to a new file named .env"
-	echo "Then fill in the values to match your local environment."
+  echo "Values in the .env file are missing or incorrect."
+  echo "Open the .env file at the root of this plugin and enter values to match your local environment settings"
 	exit 1
 }
 
