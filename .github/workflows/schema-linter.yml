@@ -34,7 +34,7 @@ jobs:
       - name: Setup MySQL
         run: |
             sudo systemctl start mysql.service
-            echo 'CREATE DATABASE `wptests`;' | mysql -u root -p root
+            echo 'CREATE DATABASE `wptests`;' | mysql -u root -proot
 
       - name: Setup WordPress
         run: |
