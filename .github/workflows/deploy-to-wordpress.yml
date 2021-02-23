@@ -1,12 +1,10 @@
 name: Deploy to WordPress.org
 on:
-  workflow_dispatch:
-  push:
-    tags:
-    - "*"
+  release:
+    types: [ published ]
 jobs:
   tag:
-    name: New tag
+    name: New release
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -19,7 +17,7 @@ jobs:
         tools: composer
     - name: Install dependencies
       run: |
-        composer install --no-dev
+        composer install --no-dev --optimize-autoloader
     - name: WordPress Plugin Deploy
       uses: 10up/action-wordpress-plugin-deploy@master
       with:
@@ -43,7 +41,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ github.event.repository.name }}.zip
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{github.workspace}}/${{ github.event.repository.name }}.zip
         asset_name: ${{ github.event.repository.name }}.zip
         asset_content_type: application/zip
