@@ -1758,7 +1758,72 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
 
+	}
 
+	/**
+	 * Tests to make sure the page set as the privacy page shows as the privacy page
+	 * 
+	 * @throws Exception
+	 */
+	public function testIsPrivacyPage() {
+
+		/**
+		 * Set up test
+		 */
+		$notPrivacyPageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test is not Privacy Page'
+		]);
+
+		$privacyPageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test is Privacy Page'
+		]);
+
+		update_option( 'wp_page_for_privacy_policy', $privacyPageId );
+
+		$query = '
+		query Page( $pageId: Int ) {
+		  pageBy( pageId: $pageId ) {
+		    id
+		    title
+		    isPrivacyPage
+		  }
+ 		}
+		';
+
+		/**
+		 * Make sure page not set as privacy page returns false
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $notPrivacyPageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertFalse( $actual['data']['pageBy']['isPrivacyPage'] );
+
+		/**
+		 * Make sure page set as privacy page returns true
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $privacyPageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['pageBy']['isPrivacyPage'] );
+		
 	}
 
 	/**
