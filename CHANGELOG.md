@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- Update Deploy to WordPress.org Github Workflow to be triggered after release instead of triggered at tagging. This allows the release asset to be uploaded.
+
 ## 1.1.8
 
 ### Bugfixes / Chores

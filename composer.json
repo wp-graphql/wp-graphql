@@ -85,5 +85,15 @@
       "php ./vendor/bin/phpcbf src"
     ],
     "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
+  },
+  "archive": {
+    "exclude": [
+      "*.yml",
+      "!vendor/",
+      "plugin-build/",
+      "!src/Admin/GraphiQL/app/",
+      "node_modules/",
+      "!.wordpress-org/"
+    ]
   }
 }

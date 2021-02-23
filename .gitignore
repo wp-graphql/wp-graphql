@@ -5,7 +5,8 @@
 vendor
 !/tests
 /tests/*.suite.yml
-build/
+plugin-build
+!src/Admin/GraphiQL/app/build
 coverage/*
 schema.graphql
 phpunit.xml
