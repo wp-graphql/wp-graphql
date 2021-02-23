@@ -34,7 +34,7 @@ jobs:
       - name: Set up MySQL
         run: |
           sudo /etc/init.d/mysql start
-          mysql -e 'CREATE DATABASE wptests;' -uroot -ppassword
+          mysql -e 'CREATE DATABASE wptests;' -uroot -proot
       - name: Setup WordPress
         run: |
           composer run install-test-env
