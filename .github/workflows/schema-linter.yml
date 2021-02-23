@@ -14,25 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint WPGraphQL Schema
     services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_USER: root
-          MYSQL_PASSWORD: password
-          MYSQL_DATABASE: wptests
-          MYSQL_ROOT_PASSWORD: password
-        ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - name: Verify MySQL connection
-        env:
-          PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
-            sleep 1
-          done
       - name: Checkout
         uses: actions/checkout@v2
 
