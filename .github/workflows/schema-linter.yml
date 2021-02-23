@@ -50,6 +50,10 @@ jobs:
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
 
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE wptests;' -uroot -ppassword
       - name: Setup WordPress
         run: |
           composer run install-test-env
