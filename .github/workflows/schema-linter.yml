@@ -38,7 +38,7 @@ jobs:
 
       - name: Setup WordPress
         run: |
-          bin/install-test-env.sh wptests root root 127.0.0.1 latest true
+          bin/install-test-env.sh wptests root root 127.0.0.1 latest
 
       - name: Generate the Static Schema
         # 💡 Neutralize for now
