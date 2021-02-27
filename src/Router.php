@@ -172,7 +172,9 @@ class Router {
 				$host = wp_unslash( $_SERVER['HTTP_HOST'] );
 				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
 
-				if ( ! is_string( $host ) || ! is_string( $uri ) ) {
+				if ( ! is_string( $host ) ) {
+					return false;
+				} elseif ( ! is_string( $uri ) ) {
 					return false;
 				}
 

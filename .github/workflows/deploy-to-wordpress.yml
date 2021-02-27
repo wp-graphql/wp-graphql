@@ -1,49 +1,46 @@
 name: Deploy to WordPress.org
 on:
-  workflow_dispatch:
-  push:
-    tags:
-    - "*"
+  release:
+    types: [ published ]
 jobs:
   tag:
-    name: New tag
+    name: New release
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 7.4
-        extensions: mbstring, intl
-        tools: composer
-    - name: Install dependencies
-      run: |
-        composer install --no-dev
-    - name: WordPress Plugin Deploy
-      uses: 10up/action-wordpress-plugin-deploy@master
-      with:
-        generate-zip: true
-      env:
-        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        SLUG: wp-graphql
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ github.event.repository.name }}.zip
-        asset_name: ${{ github.event.repository.name }}.zip
-        asset_content_type: application/zip
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          extensions: mbstring, intl
+          tools: composer
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-deploy@master
+        with:
+          generate-zip: true
+        env:
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wp-graphql
+      - name: Create Artifact
+        run: |
+          mkdir plugin-build
+          composer archive -vvv --format=zip --file="plugin-build/wp-graphql"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wp-graphql
+          path: plugin-build/wp-graphql.zip
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: plugin-build/wp-graphql.zip
+          asset_name: wp-graphql.zip
+          asset_content_type: application/zip
