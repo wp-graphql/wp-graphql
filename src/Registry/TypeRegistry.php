@@ -342,9 +342,10 @@ class TypeRegistry {
 
 		$registered_page_templates = wp_get_theme()->get_post_templates();
 
+		$page_templates['default'] = 'DefaultTemplate';
+
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
 
-			$page_templates['default'] = 'DefaultTemplate';
 			foreach ( $registered_page_templates as $post_type_templates ) {
 				// Post templates are returned as an array of arrays. PHPStan believes they're returned as
 				// an array of strings and believes this will always evaluate to false.
@@ -372,6 +373,7 @@ class TypeRegistry {
 					$name = 'Template_' . $name;
 				}
 				$template_type_name = $name;
+
 				register_graphql_object_type(
 					$template_type_name,
 					[
