@@ -1762,7 +1762,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Tests to make sure the page set as the privacy page shows as the privacy page
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public function testIsPrivacyPage() {
@@ -1823,7 +1823,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['pageBy']['isPrivacyPage'] );
-		
+
 	}
 
 	/**
@@ -2189,6 +2189,52 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
+
+	}
+
+	public function testQueryPostWithTemplate() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
+
+		$permalink = get_permalink( $post_id );
+
+		$query = '
+		query path($path: String!) {
+			nodeByUri(uri: $path) {
+				id
+				__typename
+				... on ContentType {
+					graphqlSingleName
+				}
+				... on ContentNode {
+					databaseId
+					template {
+						templateName
+						__typename
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'path' => $permalink
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( 'DefaultTemplate', $actual['data']['nodeByUri']['template']['__typename'] );
+		$this->assertSame( 'Default', $actual['data']['nodeByUri']['template']['templateName'] );
 
 	}
 
