@@ -1,21 +1,24 @@
 # Changelog
 
+## Upcoming
+
+- Update Deploy to WordPress.org Github Workflow to be triggered after release instead of triggered at tagging. This allows the release asset to be uploaded.
+
 ## 1.1.8
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - Fix release asset url in Github action.
 
-
 ## 1.1.7
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - Fix release upload url in Github action.
 
 ## 1.1.6
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - ([#1723](https://github.com/wp-graphql/wp-graphql/pull/1723)) Fix CI Schema Linter action. Thanks @szepeviktor!
 - ([#1722](https://github.com/wp-graphql/wp-graphql/pull/1722)) Update PR Template message. Thanks @szepeviktor!

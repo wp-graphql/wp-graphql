@@ -22,7 +22,7 @@
     }
   ],
   "require": {
-    "php": "^7",
+    "php": ">=7.1.0",
     "webonyx/graphql-php": "14.4.0",
     "ivome/graphql-relay-php": "0.5.0"
   },
@@ -85,5 +85,15 @@
       "php ./vendor/bin/phpcbf src"
     ],
     "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
+  },
+  "archive": {
+    "exclude": [
+      "*.yml",
+      "!vendor/",
+      "plugin-build/",
+      "!src/Admin/GraphiQL/app/",
+      "node_modules/",
+      "!.wordpress-org/"
+    ]
   }
 }

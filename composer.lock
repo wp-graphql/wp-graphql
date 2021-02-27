@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17f0921d8eeb791ecd49b6a3a609f511",
+    "content-hash": "b38e53437b5b232a0ac8b07cc5f8f054",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -233,16 +233,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.17",
+            "version": "4.1.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "c153b1ab289b3e3109e685379aa8847c54ac2b68"
+                "reference": "f47547bac347dfb5ea5351ff91148cbcc08e6818"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/c153b1ab289b3e3109e685379aa8847c54ac2b68",
-                "reference": "c153b1ab289b3e3109e685379aa8847c54ac2b68",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/f47547bac347dfb5ea5351ff91148cbcc08e6818",
+                "reference": "f47547bac347dfb5ea5351ff91148cbcc08e6818",
                 "shasum": ""
             },
             "require": {
@@ -316,7 +316,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.17"
+                "source": "https://github.com/Codeception/Codeception/tree/4.1.18"
             },
             "funding": [
                 {
@@ -324,7 +324,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2021-02-01T07:30:47+00:00"
+            "time": "2021-02-23T17:11:42+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -2191,16 +2191,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v8.28.1",
+            "version": "v8.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "7153004582fb4ab8809a9e491960e250e12a4e7b"
+                "reference": "3313bb9066ad60d91a3407b3ef02c114e2ecf8eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/7153004582fb4ab8809a9e491960e250e12a4e7b",
-                "reference": "7153004582fb4ab8809a9e491960e250e12a4e7b",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/3313bb9066ad60d91a3407b3ef02c114e2ecf8eb",
+                "reference": "3313bb9066ad60d91a3407b3ef02c114e2ecf8eb",
                 "shasum": ""
             },
             "require": {
@@ -2241,11 +2241,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-02-15T15:07:11+00:00"
+            "time": "2021-02-21T16:09:39+00:00"
         },
         {
             "name": "illuminate/contracts",
-            "version": "v8.28.1",
+            "version": "v8.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -2293,7 +2293,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v8.28.1",
+            "version": "v8.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -2339,16 +2339,16 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v8.28.1",
+            "version": "v8.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "b2f3711b8790de772703e003deb04d5766092b20"
+                "reference": "b745df9ef3120d173368fdf56eecc1fc40a9f90c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/b2f3711b8790de772703e003deb04d5766092b20",
-                "reference": "b2f3711b8790de772703e003deb04d5766092b20",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/b745df9ef3120d173368fdf56eecc1fc40a9f90c",
+                "reference": "b745df9ef3120d173368fdf56eecc1fc40a9f90c",
                 "shasum": ""
             },
             "require": {
@@ -2403,7 +2403,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-02-15T15:06:32+00:00"
+            "time": "2021-02-21T15:57:40+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -3049,16 +3049,16 @@
         },
         {
             "name": "phar-io/version",
-            "version": "3.0.4",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phar-io/version.git",
-                "reference": "e4782611070e50613683d2b9a57730e9a3ba5451"
+                "reference": "bae7c545bef187884426f042434e561ab1ddb182"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phar-io/version/zipball/e4782611070e50613683d2b9a57730e9a3ba5451",
-                "reference": "e4782611070e50613683d2b9a57730e9a3ba5451",
+                "url": "https://api.github.com/repos/phar-io/version/zipball/bae7c545bef187884426f042434e561ab1ddb182",
+                "reference": "bae7c545bef187884426f042434e561ab1ddb182",
                 "shasum": ""
             },
             "require": {
@@ -3094,9 +3094,9 @@
             "description": "Library for handling version information and constraints",
             "support": {
                 "issues": "https://github.com/phar-io/version/issues",
-                "source": "https://github.com/phar-io/version/tree/3.0.4"
+                "source": "https://github.com/phar-io/version/tree/3.1.0"
             },
-            "time": "2020-12-13T23:18:30+00:00"
+            "time": "2021-02-23T14:00:09+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
@@ -3657,16 +3657,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.76",
+            "version": "0.12.78",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "7aaaf9a759a29795e8f46d48041af1c1f1b23d38"
+                "reference": "eecce8d2ee3cac6769f37b4cb1998b2715f82984"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/7aaaf9a759a29795e8f46d48041af1c1f1b23d38",
-                "reference": "7aaaf9a759a29795e8f46d48041af1c1f1b23d38",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/eecce8d2ee3cac6769f37b4cb1998b2715f82984",
+                "reference": "eecce8d2ee3cac6769f37b4cb1998b2715f82984",
                 "shasum": ""
             },
             "require": {
@@ -3697,7 +3697,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.76"
+                "source": "https://github.com/phpstan/phpstan/tree/0.12.78"
             },
             "funding": [
                 {
@@ -3713,7 +3713,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-13T11:47:44+00:00"
+            "time": "2021-02-20T13:24:36+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -7695,16 +7695,16 @@
         },
         {
             "name": "szepeviktor/phpstan-wordpress",
-            "version": "v0.7.2",
+            "version": "v0.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/szepeviktor/phpstan-wordpress.git",
-                "reference": "191eafa7283497645de920d262133cf17de5353f"
+                "reference": "07349418f182cbe72a92b2e34ca98f0c0aace566"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/191eafa7283497645de920d262133cf17de5353f",
-                "reference": "191eafa7283497645de920d262133cf17de5353f",
+                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/07349418f182cbe72a92b2e34ca98f0c0aace566",
+                "reference": "07349418f182cbe72a92b2e34ca98f0c0aace566",
                 "shasum": ""
             },
             "require": {
@@ -7747,7 +7747,7 @@
             ],
             "support": {
                 "issues": "https://github.com/szepeviktor/phpstan-wordpress/issues",
-                "source": "https://github.com/szepeviktor/phpstan-wordpress/tree/v0.7.2"
+                "source": "https://github.com/szepeviktor/phpstan-wordpress/tree/v0.7.3"
             },
             "funding": [
                 {
@@ -7755,7 +7755,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-01-03T13:45:42+00:00"
+            "time": "2021-02-17T21:38:11+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -10251,7 +10251,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7"
+        "php": ">=7.1.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"
