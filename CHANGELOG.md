@@ -1,8 +1,14 @@
 # Changelog
 
-## Upcoming
+## 1.2.0
 
-- Update Deploy to WordPress.org Github Workflow to be triggered after release instead of triggered at tagging. This allows the release asset to be uploaded.
+### New
+
+- ([#1732](https://github.com/wp-graphql/wp-graphql/pull/1732)) Add `isPrivacyPage` to the Schema for the Page type. Thanks @Marco-Daniel!
+
+### Bugfixes / Chores
+
+- ([#1734](https://github.com/wp-graphql/wp-graphql/pull/1734)) Remove Composer dependencies from being versioned in Github. Update Github workflows to install dependencies for deploying to WordPress.org and uploading release assets on Github.
 
 ## 1.1.8
 
