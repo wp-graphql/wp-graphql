@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.1.9
+## 1.2.0
+
+### New
+
+- ([#1732](https://github.com/wp-graphql/wp-graphql/pull/1732)) Add `isPrivacyPage` to the Schema for the Page type. Thanks @Marco-Daniel!
 
 ### Bugfixes / Chores
 
@@ -11,7 +15,6 @@
 ### Bugfixes / Chores
 
 - Fix release asset url in Github action.
-
 
 ## 1.1.7
 

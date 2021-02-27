@@ -296,6 +296,11 @@ class PostObject {
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is set to the blog posts page.', 'wp-graphql' ),
 			];
+
+			$fields['isPrivacyPage'] = [
+				'type'        => [ 'non_null' => 'Bool' ],
+				'description' => __( 'Whether this page is set to the privacy page.', 'wp-graphql' ),
+			];
 		}
 
 		if ( 'post' === $post_type_object->name ) {

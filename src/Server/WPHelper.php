@@ -28,7 +28,7 @@ class WPHelper extends Helper {
 		// don't need to do this for POST variables because graphql-php reads the
 		// HTTP body directly.
 		$parsed_body_params = $this->parse_params( $bodyParams );
-		// @phpstan-ignore-next-line
+
 		$parsed_query_params = $this->parse_extensions( wp_unslash( $queryParams ) );
 
 		$request_context = [
