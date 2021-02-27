@@ -1,21 +1,27 @@
 # Changelog
 
+## 1.1.9
+
+### Bugfixes / Chores
+
+- ([#1734](https://github.com/wp-graphql/wp-graphql/pull/1734)) Remove Composer dependencies from being versioned in Github. Update Github workflows to install dependencies for deploying to WordPress.org and uploading release assets on Github.
+
 ## 1.1.8
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - Fix release asset url in Github action.
 
 
 ## 1.1.7
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - Fix release upload url in Github action.
 
 ## 1.1.6
 
-## Bugfixes / Chores
+### Bugfixes / Chores
 
 - ([#1723](https://github.com/wp-graphql/wp-graphql/pull/1723)) Fix CI Schema Linter action. Thanks @szepeviktor!
 - ([#1722](https://github.com/wp-graphql/wp-graphql/pull/1722)) Update PR Template message. Thanks @szepeviktor!
