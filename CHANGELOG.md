@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+### Bugfixes / Chores
+
+- Fixes Github workflow to deploy to WordPress.org
+
 ## 1.2.1
 
 ### Bugfixes / Chores
