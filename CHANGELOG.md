@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.4
+
+### Bugfixes / Chores
+
+- More work to fix Github -> SVN deploys. 🤦‍♂️
+
 ## 1.2.3
 
 ### Bugfixes / Chores
