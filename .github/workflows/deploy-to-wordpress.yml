@@ -19,9 +19,7 @@ jobs:
         run: |
           composer install --no-dev --optimize-autoloader
       - name: WordPress Plugin Deploy
-        uses: 10up/action-wordpress-plugin-deploy@master
-        with:
-          generate-zip: true
+        uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
@@ -44,3 +42,4 @@ jobs:
           asset_path: plugin-build/wp-graphql.zip
           asset_name: wp-graphql.zip
           asset_content_type: application/zip
+
