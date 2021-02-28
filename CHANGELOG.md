@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+
+### Bugfixes / Chores
+
+- Addresses bug (still) causing deploys to WordPress.org to fail and not include the vendor directory.
+
 ## 1.2.2
 
 ### Bugfixes / Chores
