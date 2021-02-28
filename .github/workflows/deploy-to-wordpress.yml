@@ -21,6 +21,7 @@ jobs:
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
