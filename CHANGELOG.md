@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+
+### Bugfixes / Chores
+
+- ([#1748](https://github.com/wp-graphql/wp-graphql/pull/1748)) Fixes issue where installing the plugin in Trellis using Composer was causing the plugin not to load properly.
+
 ## 1.2.4
 
 ### Bugfixes / Chores
