@@ -187,6 +187,11 @@ final class WPGraphQL {
 				add_action(
 					'admin_notices',
 					function () {
+
+						if ( ! current_user_can( 'manage_options' ) ) {
+							return;
+						}
+
 						echo sprintf(
 							'<div class="notice notice-error">' .
 							'<p>%s</p>' .
