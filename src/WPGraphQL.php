@@ -174,13 +174,29 @@ final class WPGraphQL {
 		 */
 		if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
 
-			if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
-				wp_die( __( 'WPGraphQL has been installed without dependencies. Try installing from WordPress.org or run "composer install" from the plugin directory to install dependencies', 'wp-graphql' ) );
+			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+				// Autoload Required Classes.
+				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
 			}
 
-			// Autoload Required Classes.
-			require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
+			// If GraphQL class doesn't exist, then dependencies cannot be
+			// detected. This likely means the user cloned the repo from Github
+			// but did not run `composer install`
+			if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
 
+				add_action(
+					'admin_notices',
+					function () {
+						echo sprintf(
+							'<div class="notice notice-error">' .
+							'<p>%s</p>' .
+							'</div>',
+							__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
+						);
+					}
+				);
+
+			}
 		}
 
 	}
@@ -212,13 +228,19 @@ final class WPGraphQL {
 
 		$tracker = new \WPGraphQL\Telemetry\Tracker( 'WPGraphQL' );
 		add_action( 'plugins_loaded', [ $tracker, 'init' ] );
-		add_action( 'graphql_activate', function() use ( $tracker ) {
-			$tracker->track_event( 'PLUGIN_ACTIVATE' );
-		} );
-		add_action( 'graphql_deactivate', function() use ( $tracker ) {
-			$tracker->track_event( 'PLUGIN_DEACTIVATE' );
-			$tracker->delete_timestamp();
-		} );
+		add_action(
+			'graphql_activate',
+			function() use ( $tracker ) {
+				$tracker->track_event( 'PLUGIN_ACTIVATE' );
+			}
+		);
+		add_action(
+			'graphql_deactivate',
+			function() use ( $tracker ) {
+				$tracker->track_event( 'PLUGIN_DEACTIVATE' );
+				$tracker->delete_timestamp();
+			}
+		);
 
 		/**
 		 * Init WPGraphQL after themes have been setup,
@@ -253,10 +275,15 @@ final class WPGraphQL {
 		/**
 		 * Hook in before fields resolve to check field permissions
 		 */
-		add_action( 'graphql_before_resolve_field', [
-			'\WPGraphQL\Utils\InstrumentSchema',
-			'check_field_permissions',
-		], 10, 8 );
+		add_action(
+			'graphql_before_resolve_field',
+			[
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'check_field_permissions',
+			],
+			10,
+			8
+		);
 
 		// Determine what to show in graphql
 		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
@@ -329,10 +356,15 @@ final class WPGraphQL {
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 		 */
-		add_filter( 'graphql_schema', [
-			'\WPGraphQL\Utils\InstrumentSchema',
-			'instrument_schema',
-		], 10, 1 );
+		add_filter(
+			'graphql_schema',
+			[
+				'\WPGraphQL\Utils\InstrumentSchema',
+				'instrument_schema',
+			],
+			10,
+			1
+		);
 
 		// Filter how metadata is retrieved during GraphQL requests
 		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
