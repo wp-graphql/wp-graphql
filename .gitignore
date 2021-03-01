@@ -9,6 +9,7 @@ plugin-build
 !src/Admin/GraphiQL/app/build
 coverage/*
 schema.graphql
+wp-graphql/
 phpunit.xml
 docker-output
 node_modules
