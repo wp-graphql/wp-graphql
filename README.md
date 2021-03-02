@@ -33,11 +33,10 @@ Follow the WPGraphQL Quick Start instructions to install and activate WPGraphQL
 
 ## Additional Documentation
 
-- [Plugin Usage & Extension Documentation](https://wpgraphql.com/docs/introduction)
-- [Project Overview](/documentation/Overview.md)
-- [Development Testing & code Coverage](/documentation/Testing.md)
-- [Using Docker](/documentation/UsingDocker.md)
-- [Automated Code Linting](/documentation/Linting.md)
+- [Project Overview](https://www.wpgraphql.com/docs/introduction)
+- [Plugin Usage & Extension Documentation](https://www.wpgraphql.com/docs/interacting-with-wpgraphql)
+- [Development Testing & code Coverage](https://www.wpgraphql.com/docs/testing/#testing-locally-with-codeception)
+- [Using Docker](https://www.wpgraphql.com/docs/testing/#testing-with-docker)
 
 ## Shout Outs
 
