@@ -72,7 +72,7 @@ final class WPGraphQL {
 		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof WPGraphQL ) ) {
 			self::$instance = new WPGraphQL();
 			self::$instance->setup_constants();
-			if (self::$instance->includes()) {
+			if ( self::$instance->includes() ) {
 				self::$instance->actions();
 				self::$instance->filters();
 			}
@@ -204,7 +204,6 @@ final class WPGraphQL {
 
 				return false;
 			}
-
 		}
 
 		return true;
