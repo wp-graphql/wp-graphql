@@ -290,7 +290,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'id' => $post_global_id,
 			],
 			$mediaItem['parent']['node']
-
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );
@@ -487,5 +486,88 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	    codecept_debug( $actual );
 
     }
+
+	/**
+	 * testPostQuery
+	 *
+	 * This tests creating a small size media item and retrieving bigger size image via a GraphQL query
+	 *
+	 * @since 1.2.5
+	 */
+	public function testMediaItemNotExistingSizeQuery() {
+
+		/**
+		 * Create an attachment with a post set as it's parent
+		 */
+		$attachment_id = $this->createPostObject( [
+			'post_type'   => 'attachment',
+			'post_content' => 'some description',
+			'post_mime_type' => 'image/jpeg',
+		] );
+
+		$meta_data = [
+			'width' => 300,
+			'height' => 300,
+			'file' => 'example.jpg',
+			'sizes' => [
+				'thumbnail' => [
+					'file' => 'example-thumbnail.jpg',
+					'width' => 150,
+					'height' => 150,
+					'mime-type' => 'image/jpeg',
+				],
+			],
+			'image_meta' => [
+				'aperture' => 0,
+				'credit' => '',
+				'camera' => '',
+				'caption' => '',
+				'created_timestamp' => 0,
+				'copyright' => '',
+				'focal_length' => 0,
+				'iso' => 0,
+				'shutter_speed' => 0,
+				'title' => '',
+				'orientation' => '1',
+				'keywords' => [],
+			],
+		];
+
+		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
+		update_post_meta( $attachment_id, '_wp_attached_file', 'example.jpg' );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			mediaItem(id: \"{$attachment_global_id}\") {
+				srcSet(size: MEDIUM)
+    			sizes(size: MEDIUM)
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
+		$mediaItem = $actual['data']['mediaItem'];
+
+		$this->assertNotEmpty( $mediaItem );
+
+		$this->assertStringContainsString( '/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
+
+		$this->assertNotNull( $mediaItem['sizes'] );
+		$this->assertEquals( '(max-width: 300px) 100vw, 300px', $mediaItem['sizes'] );
+	}
 
 }
