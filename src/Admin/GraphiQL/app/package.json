@@ -9,7 +9,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "react-scripts": "^1.1.4"
+    "react-scripts": "^4.0.0"
   },
   "dependencies": {
     "graphiql": "^0.13.2",
