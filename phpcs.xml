@@ -49,7 +49,7 @@
 
 	<!-- Tests for PHP version compatibility -->
 	<rule ref="PHPCompatibilityWP">
-		<config name="testVersion" value="7.0-"/>
+		<config name="testVersion" value="7.1-"/>
 	</rule>
 
 	<!-- Enforce short array syntax -->
