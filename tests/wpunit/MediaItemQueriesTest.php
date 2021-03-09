@@ -497,14 +497,9 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testMediaItemNotExistingSizeQuery() {
 
 		/**
-		 * Add a big image size to test
+		 * Upload a medium size attachment
 		 */
-		add_image_size( 'fullscreen', 2560, 0, false );
-
-		/**
-		 * Create an attachment with a post set as it's parent
-		 */
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png' );
 		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		/**
@@ -518,8 +513,8 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			mediaItem(id: \"{$attachment_global_id}\") {
-				srcSet(size: FULLSCREEN)
-    			sizes(size: FULLSCREEN)
+				srcSet(size: LARGE)
+    			sizes(size: LARGE)
 			}
 		}";
 
