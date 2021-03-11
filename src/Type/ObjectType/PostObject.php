@@ -25,10 +25,15 @@ class PostObject {
 
 		$single_name = $post_type_object->graphql_single_name;
 
-		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier', 'NodeWithTemplate' ];
+		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier' ];
 
 		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
+			$interfaces[] = 'NodeWithTemplate';
+
+			if ( 'attachment' !== $post_type_object->name ) {
+				$interfaces[] = 'Previewable';
+			}
 		}
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
@@ -67,7 +72,12 @@ class PostObject {
 			$interfaces[] = 'NodeWithPageAttributes';
 		}
 
-		if ( $post_type_object->hierarchical || in_array(
+		if ( $post_type_object->hierarchical ) {
+			$interfaces[] = 'HierarchicalContentNode';
+			$interfaces[] = 'HierarchicalNode';
+		}
+
+		if ( in_array(
 			$post_type_object->name,
 			[
 				'attachment',
@@ -75,7 +85,7 @@ class PostObject {
 			],
 			true
 		) ) {
-			$interfaces[] = 'HierarchicalContentNode';
+			$interfaces[] = 'HierarchicalNode';
 		}
 
 		if ( true === $post_type_object->show_in_nav_menus ) {
@@ -87,7 +97,7 @@ class PostObject {
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => $interfaces,
+				'interfaces'  => array_unique( $interfaces ),
 				'fields'      => self::get_post_object_fields( $post_type_object, $type_registry ),
 			]
 		);
@@ -161,14 +171,24 @@ class PostObject {
 								$size = $args['size'];
 							}
 
-							$url = wp_get_attachment_image_src( $source->ID, $size );
-							if ( ! is_array( $url ) || ! isset( $url[0] ) ) {
-								return null;
+							$image = wp_get_attachment_image_src( $source->ID, $size );
+							if ( $image ) {
+								list( $src, $width, $height ) = $image;
+								$sizes                        = wp_calculate_image_sizes(
+									[
+										absint( $width ),
+										absint( $height ),
+									],
+									$src,
+									null,
+									$source->ID
+								);
+
+								return ! empty( $sizes ) ? $sizes : null;
 							}
 
-							$sizes = wp_calculate_image_sizes( $size, $url[0], null, $source->ID );
+							return null;
 
-							return ! empty( $sizes ) ? $sizes : null;
 						},
 					],
 					'description'  => [

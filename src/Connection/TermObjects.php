@@ -230,7 +230,8 @@ class TermObjects {
 			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
 			'resolve'        => function( $root, $args, $context, $info ) use ( $tax_object ) {
-				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
+				$connection = new TermObjectConnectionResolver( $root, $args, $context, $info, $tax_object->name );
+				return $connection->get_connection();
 			},
 		];
 

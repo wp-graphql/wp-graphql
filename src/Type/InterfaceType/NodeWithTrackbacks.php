@@ -1,6 +1,8 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithTrackbacks {
@@ -11,12 +13,14 @@ class NodeWithTrackbacks {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithTrackbacks',
 			[
 				'description' => __( 'A node that can have trackbacks and pingbacks', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'ContentNode', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'toPing'     => [
 						'type'        => [ 'list_of' => 'String' ],

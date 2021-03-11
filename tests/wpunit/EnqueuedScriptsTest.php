@@ -482,8 +482,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
+		codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// codecept_debug( $actual );
+
 		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
 		$handles = wp_list_pluck( $scripts, 'handle' );
 		$sources = wp_list_pluck( $scripts, 'src' );

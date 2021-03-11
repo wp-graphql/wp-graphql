@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithContentEditor {
@@ -10,12 +11,14 @@ class NodeWithContentEditor {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithContentEditor',
 			[
 				'description' => __( 'A node that supports the content editor', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'ContentNode', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'content' => [
 						'type'        => 'String',

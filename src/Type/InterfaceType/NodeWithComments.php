@@ -1,6 +1,8 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithComments {
@@ -10,12 +12,14 @@ class NodeWithComments {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithComments',
 			[
 				'description' => __( 'A node that can have comments associated with it', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'ContentNode' ],
 				'fields'      => [
 					'commentCount'  => [
 						'type'        => 'Int',

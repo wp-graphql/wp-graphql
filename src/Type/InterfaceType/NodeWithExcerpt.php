@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithExcerpt {
@@ -11,12 +12,14 @@ class NodeWithExcerpt {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithExcerpt',
 			[
 				'description' => __( 'A node that can have an excerpt', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'ContentNode', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'excerpt' => [
 						'type'        => 'String',

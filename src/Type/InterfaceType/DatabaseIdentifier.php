@@ -1,6 +1,7 @@
 <?php
 
 namespace WPGraphQL\Type\InterfaceType;
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -16,18 +17,22 @@ class DatabaseIdentifier {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
-		register_graphql_interface_type( 'DatabaseIdentifier', [
-			'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
-			'fields'      => [
-				'databaseId' => [
-					'type'        => [ 'non_null' => 'Int' ],
-					'description' => __( 'The unique identifier stored in the database', 'wp-graphql' ),
+		register_graphql_interface_type(
+			'DatabaseIdentifier',
+			[
+				'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
+				'fields'      => [
+					'databaseId' => [
+						'type'        => [ 'non_null' => 'Int' ],
+						'description' => __( 'The unique identifier stored in the database', 'wp-graphql' ),
+					],
 				],
-			],
-		]);
+			]
+		);
 
 	}
 

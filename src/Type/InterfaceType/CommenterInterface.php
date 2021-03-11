@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Model\User;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -18,51 +19,44 @@ class CommenterInterface {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
-		register_graphql_interface_type( 'Commenter', [
-			'description' => __( 'The author of a comment', 'wp-graphql' ),
-			'resolveType' => function( $comment_author ) use ( $type_registry ) {
-				if ( $comment_author instanceof User ) {
-					$type = $type_registry->get_type( 'User' );
-				} else {
-					$type = $type_registry->get_type( 'CommentAuthor' );
-				}
+		register_graphql_interface_type(
+			'Commenter',
+			[
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'description' => __( 'The author of a comment', 'wp-graphql' ),
+				'resolveType' => function( $comment_author ) use ( $type_registry ) {
+					if ( $comment_author instanceof User ) {
+						$type = $type_registry->get_type( 'User' );
+					} else {
+						$type = $type_registry->get_type( 'CommentAuthor' );
+					}
 
-				return $type;
-			},
-			'fields'      => [
-				'id'           => [
-					'type'        => [
-						'non_null' => 'ID',
+					return $type;
+				},
+				'fields'      => [
+					'name'         => [
+						'type'        => 'String',
+						'description' => __( 'The name of the author of a comment.', 'wp-graphql' ),
 					],
-					'description' => __( 'The globally unique identifier for the comment author.', 'wp-graphql' ),
-				],
-				'databaseId'   => [
-					'type'        => [
-						'non_null' => 'Int',
+					'email'        => [
+						'type'        => 'String',
+						'description' => __( 'The email address of the author of a comment.', 'wp-graphql' ),
 					],
-					'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
+					'url'          => [
+						'type'        => 'String',
+						'description' => __( 'The url of the author of a comment.', 'wp-graphql' ),
+					],
+					'isRestricted' => [
+						'type'        => 'Boolean',
+						'description' => __( 'Whether the author information is considered restricted. (not fully public)', 'wp-graphql' ),
+					],
 				],
-				'name'         => [
-					'type'        => 'String',
-					'description' => __( 'The name of the author of a comment.', 'wp-graphql' ),
-				],
-				'email'        => [
-					'type'        => 'String',
-					'description' => __( 'The email address of the author of a comment.', 'wp-graphql' ),
-				],
-				'url'          => [
-					'type'        => 'String',
-					'description' => __( 'The url of the author of a comment.', 'wp-graphql' ),
-				],
-				'isRestricted' => [
-					'type'        => 'Boolean',
-					'description' => __( 'Whether the author information is considered restricted. (not fully public)', 'wp-graphql' ),
-				],
-			],
-		] );
+			]
+		);
 
 	}
 

@@ -7,22 +7,12 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Connection\Commenter;
+use InvalidArgumentException;
 use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\ContentTypes;
-use WPGraphQL\Connection\EnqueuedScripts;
-use WPGraphQL\Connection\EnqueuedStylesheets;
-use WPGraphQL\Connection\MediaItems;
-use WPGraphQL\Connection\MenuItemLinkableConnection;
 use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\Menus;
-use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
-use WPGraphQL\Connection\Themes;
-use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
@@ -55,11 +45,13 @@ use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
+use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
+use WPGraphQL\Type\InterfaceType\HierarchicalNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
 use WPGraphQL\Type\InterfaceType\MenuItemLinkable;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
@@ -73,13 +65,12 @@ use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
+use WPGraphQL\Type\InterfaceType\Previewable;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\EnqueuedScript;
 use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
-use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
-use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
 use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\MediaItemSizeEnum;
@@ -218,12 +209,14 @@ class TypeRegistry {
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
+		ConnectionInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type( $type_registry );
 		DatabaseIdentifier::register_type( $type_registry );
 		EnqueuedAsset::register_type( $type_registry );
-		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
+		HierarchicalNode::register_type( $type_registry );
+		HierarchicalTermNode::register_type( $type_registry );
 		MenuItemLinkable::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -235,6 +228,7 @@ class TypeRegistry {
 		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
+		Previewable::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
@@ -296,8 +290,6 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		ContentRevisionUnion::register_type( $this );
-		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
 
@@ -305,22 +297,11 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
-		Commenter::register_connections();
-		EnqueuedScripts::register_connections();
-		EnqueuedStylesheets::register_connections();
-		MediaItems::register_connections();
-		Menus::register_connections();
-		MenuItemLinkableConnection::register_connections();
 		MenuItems::register_connections();
-		Plugins::register_connections();
 		PostObjects::register_connections();
-		ContentTypes::register_connections();
-		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
-		Themes::register_connections();
 		Users::register_connections();
-		UserRoles::register_connections();
 
 		/**
 		 * Register core mutations
@@ -542,13 +523,17 @@ class TypeRegistry {
 			 * to expose the URL to the Schema for multisite sites
 			 */
 			if ( is_multisite() ) {
-				register_graphql_field( 'GeneralSettings', 'url', [
-					'type'        => 'String',
-					'description' => __( 'Site URL.', 'wp-graphql' ),
-					'resolve'     => function() {
-						return get_site_url();
-					},
-				] );
+				register_graphql_field(
+					'GeneralSettings',
+					'url',
+					[
+						'type'        => 'String',
+						'description' => __( 'Site URL.', 'wp-graphql' ),
+						'resolve'     => function() {
+							return get_site_url();
+						},
+					]
+				);
 			}
 
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
@@ -854,11 +839,14 @@ class TypeRegistry {
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
-			graphql_debug( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ), [
-				'type'       => 'INVALID_FIELD_TYPE',
-				'type_name'  => $type_name,
-				'field_name' => $field_name,
-			] );
+			graphql_debug(
+				sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ),
+				[
+					'type'       => 'INVALID_FIELD_TYPE',
+					'type_name'  => $type_name,
+					'field_name' => $field_name,
+				]
+			);
 			return null;
 		}
 
@@ -1047,21 +1035,21 @@ class TypeRegistry {
 	 * @param array $config The info about the connection being registered
 	 *
 	 * @return void
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 * @throws Exception
 	 */
-	public function register_connection( $config ) {
+	public function register_connection( array $config ) {
 
 		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+			throw new InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
+			throw new InvalidArgumentException( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'fromFieldName', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
+			throw new InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
 		}
 
 		$from_type          = $config['fromType'];
@@ -1077,7 +1065,7 @@ class TypeRegistry {
 		};
 		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
 		$where_args         = [];
-		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
+		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
 
 		/**
 		 * If there are any $connectionArgs,
@@ -1110,11 +1098,12 @@ class TypeRegistry {
 			$this->register_object_type(
 				$connection_name . 'Edge',
 				[
+					// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 					'fields'      => array_merge(
 						[
 							'node' => [
-								'type'        => $to_type,
+								'type'        => [ 'non_null' => $to_type ],
 								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 							],
 						],
@@ -1129,6 +1118,7 @@ class TypeRegistry {
 				$connection_name . 'Edge',
 				[
 					'description' => __( 'An edge in a connection', 'wp-graphql' ),
+					'interfaces'  => [ 'Edge' ],
 					'fields'      => array_merge(
 						[
 							'cursor' => [
@@ -1137,7 +1127,7 @@ class TypeRegistry {
 								'resolve'     => $resolve_cursor,
 							],
 							'node'   => [
-								'type'        => $to_type,
+								'type'        => [ 'non_null' => $to_type ],
 								'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
 								'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
 									if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
@@ -1158,22 +1148,24 @@ class TypeRegistry {
 				[
 					// Translators: the placeholders are the name of the Types the connection is between.
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
+					'interfaces'  => [ 'Connection' ],
 					'fields'      => array_merge(
 						[
 							'pageInfo' => [
 								// @todo: change to PageInfo when/if the Relay lib is deprecated
-								'type'        => 'WPPageInfo',
+								'type'        => [ 'non_null' => 'WPPageInfo' ],
 								'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 							],
 							'edges'    => [
 								'type'        => [
-									'list_of' => $connection_name . 'Edge',
+									'list_of' => [ 'non_null' => $connection_name . 'Edge' ],
 								],
+								// Translators: Placeholder is the name of the connection
 								'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $connection_name ),
 							],
 							'nodes'    => [
 								'type'        => [
-									'list_of' => $to_type,
+									'list_of' => [ 'non_null' => $to_type ],
 								],
 								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
@@ -1249,7 +1241,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws Exception
 	 */
-	public function register_mutation( $mutation_name, $config ) {
+	public function register_mutation( string $mutation_name, array $config ) {
 
 		$output_fields = [
 			'clientMutationId' => [

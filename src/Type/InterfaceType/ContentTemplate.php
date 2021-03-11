@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class ContentTemplate {
@@ -12,6 +13,7 @@ class ContentTemplate {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(

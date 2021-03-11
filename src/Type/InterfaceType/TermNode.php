@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
@@ -14,6 +16,7 @@ class TermNode {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
@@ -21,6 +24,24 @@ class TermNode {
 			'TermNode',
 			[
 				'description' => __( 'Terms are nodes within a Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
+				'connections' => [
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'enqueuedStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'resolveType' => function( $term ) use ( $type_registry ) {
 
 					/**
@@ -44,17 +65,6 @@ class TermNode {
 
 				},
 				'fields'      => [
-					'id'             => [
-						'type'        => [ 'non_null' => 'ID' ],
-						'description' => __( 'Unique identifier for the term', 'wp-graphql' ),
-					],
-					'databaseId'     => [
-						'type'        => [ 'non_null' => 'Int' ],
-						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
-						'resolve'     => function( Term $term, $args, $context, $info ) {
-							return absint( $term->term_id );
-						},
-					],
 					'count'          => [
 						'type'        => 'Int',
 						'description' => __( 'The number of objects connected to the object', 'wp-graphql' ),
@@ -86,10 +96,6 @@ class TermNode {
 					'link'           => [
 						'type'        => 'String',
 						'description' => __( 'The link to the term', 'wp-graphql' ),
-					],
-					'uri'            => [
-						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
 			]

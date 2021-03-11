@@ -1,10 +1,8 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithAuthor {
@@ -14,12 +12,14 @@ class NodeWithAuthor {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithAuthor',
 			[
 				'description' => __( 'A node that can have an author assigned to it', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'ContentNode' ],
 				'fields'      => [
 					'authorId'         => [
 						'type'        => 'ID',

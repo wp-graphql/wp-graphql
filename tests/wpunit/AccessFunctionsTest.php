@@ -316,4 +316,58 @@ class AccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'FakeType',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testRegisterConnectionFromNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'FakeType',
+			'toType' => 'Post',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
 }

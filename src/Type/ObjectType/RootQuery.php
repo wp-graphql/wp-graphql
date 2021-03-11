@@ -6,6 +6,13 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Connection\PostObjects;
+use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\MenuConnectionResolver;
+use WPGraphQL\Data\Connection\ThemeConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -25,6 +32,101 @@ class RootQuery {
 			'RootQuery',
 			[
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
+				'connections' => [
+					'contentTypes'          => [
+						'toType'  => 'ContentType',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'menus'                 => [
+						'toType'         => 'Menu',
+						'connectionArgs' => [
+							'id'       => [
+								'type'        => 'Int',
+								'description' => __( 'The ID of the object', 'wp-graphql' ),
+							],
+							'location' => [
+								'type'        => 'MenuLocationEnum',
+								'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
+							],
+							'slug'     => [
+								'type'        => 'String',
+								'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
+							],
+						],
+						'resolve'        => function( $source, $args, $context, $info ) {
+							$resolver = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
+
+							return $resolver->get_connection();
+						},
+					],
+					'plugins'               => [
+						'toType'  => 'Plugin',
+						'resolve' => function( $root, $args, $context, $info ) {
+							return DataSource::resolve_plugins_connection( $root, $args, $context, $info );
+						},
+					],
+					'revisions'             => [
+						'toType'         => 'ContentNode',
+						'queryClass'     => 'WP_Query',
+						'connectionArgs' => PostObjects::get_connection_args(),
+						'resolve'        => function( $root, $args, $context, $info ) {
+							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
+						},
+					],
+					'registeredScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function( $source, $args, $context, $info ) {
+
+							// The connection resolver expects the source to include
+							// enqueuedScriptsQueue
+							$source                       = new \stdClass();
+							$source->enqueuedScriptsQueue = [];
+							global $wp_scripts;
+							do_action( 'wp_enqueue_scripts' );
+							$source->enqueuedScriptsQueue = array_keys( $wp_scripts->registered );
+							$resolver                     = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'registeredStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function( $source, $args, $context, $info ) {
+
+							// The connection resolver expects the source to include
+							// enqueuedStylesheetsQueue
+							$source                           = new \stdClass();
+							$source->enqueuedStylesheetsQueue = [];
+							global $wp_styles;
+							do_action( 'wp_enqueue_scripts' );
+							$source->enqueuedStylesheetsQueue = array_keys( $wp_styles->registered );
+							$resolver                         = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'themes'                => [
+						'toType'  => 'Theme',
+						'resolve' => function( $root, $args, $context, $info ) {
+							$resolver = new ThemeConnectionResolver( $root, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'userRoles'             => [
+						'toType'        => 'UserRole',
+						'fromFieldName' => 'userRoles',
+						'resolve'       => function( $user, $args, $context, $info ) {
+							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'fields'      => [
 					'allSettings' => [
 						'type'        => 'Settings',
@@ -93,11 +195,14 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$revisions = wp_get_post_revisions( $post_id, [
-									'posts_per_page' => 1,
-									'fields'         => 'ids',
-									'check_enabled'  => false,
-								] );
+								$revisions = wp_get_post_revisions(
+									$post_id,
+									[
+										'posts_per_page' => 1,
+										'fields'         => 'ids',
+										'check_enabled'  => false,
+									]
+								);
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
@@ -220,13 +325,15 @@ class RootQuery {
 									$id = absint( $args['id'] );
 									break;
 								case 'name':
-									$menu = new \WP_Term_Query([
-										'taxonomy'         => 'nav_menu',
-										'fields'           => 'ids',
-										'name'             => $args['id'],
-										'include_children' => false,
-										'count'            => false,
-									]);
+									$menu = new \WP_Term_Query(
+										[
+											'taxonomy'         => 'nav_menu',
+											'fields'           => 'ids',
+											'name'             => $args['id'],
+											'include_children' => false,
+											'count'            => false,
+										]
+									);
 									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
 									break;
 								default:
@@ -288,6 +395,7 @@ class RootQuery {
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
+
 							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
@@ -321,13 +429,13 @@ class RootQuery {
 								case 'database_id':
 									$taxonomy = isset( $args['taxonomy'] ) ? $args['taxonomy'] : null;
 									if ( empty( $taxonomy ) && in_array(
-										$idType,
-										[
-											'name',
-											'slug',
-										],
-										true
-									) ) {
+											$idType,
+											[
+												'name',
+												'slug',
+											],
+											true
+										) ) {
 										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
 									if ( 'database_id' === $idType ) {
@@ -502,16 +610,22 @@ class RootQuery {
 							$post_id = null;
 							switch ( $idType ) {
 								case 'slug':
-									return $context->node_resolver->resolve_uri( $args['id'], [
-										'name'      => $args['id'],
-										'post_type' => $post_type_object->name,
-									] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'name'      => $args['id'],
+											'post_type' => $post_type_object->name,
+										]
+									);
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'], [
-										'post_type' => $post_type_object->name,
-										'archive'   => false,
-										'nodeType'  => 'Page',
-									] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'post_type' => $post_type_object->name,
+											'archive'   => false,
+											'nodeType'  => 'Page',
+										]
+									);
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
@@ -530,25 +644,38 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$revisions = wp_get_post_revisions( $post_id, [
-									'posts_per_page' => 1,
-									'fields'         => 'ids',
-									'check_enabled'  => false,
-								] );
+								$revisions = wp_get_post_revisions(
+									$post_id,
+									[
+										'posts_per_page' => 1,
+										'fields'         => 'ids',
+										'check_enabled'  => false,
+									]
+								);
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
-									return null;
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+								function( $post ) use ( $post_type_object ) {
+									if ( ! isset( $post->post_type ) || ! in_array(
+											$post->post_type,
+											[
+												'revision',
+												$post_type_object->name,
+											],
+											true
+										) ) {
+										return null;
+									}
+
+									return $post;
 								}
-								return $post;
-							});
+							);
 						},
 					]
 				);
 				$post_by_args = [
-					'id'  => [
+					'id'                                          => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -556,7 +683,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri' => [
+					'uri'                                         => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -593,23 +720,35 @@ class RootQuery {
 								$post_id = absint( $id );
 							} elseif ( ! empty( $args['uri'] ) ) {
 								$uri = esc_html( $args['uri'] );
+
 								return $context->node_resolver->resolve_uri( $uri );
 							} elseif ( ! empty( $args['slug'] ) ) {
 								$slug = esc_html( $args['slug'] );
+
 								return $context->node_resolver->resolve_uri( $slug );
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+								function( $post ) use ( $post_type_object ) {
 
-								if ( ! $post_type_object instanceof \WP_Post_Type ) {
-									return null;
-								}
+									if ( ! $post_type_object instanceof \WP_Post_Type ) {
+										return null;
+									}
 
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
-									return null;
+									if ( ! isset( $post->post_type ) || ! in_array(
+											$post->post_type,
+											[
+												'revision',
+												$post_type_object->name,
+											],
+											true
+										) ) {
+										return null;
+									}
+
+									return $post;
 								}
-								return $post;
-							});
+							);
 
 						},
 					]

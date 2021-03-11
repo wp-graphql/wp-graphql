@@ -1,10 +1,14 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
 use Exception;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
@@ -29,7 +33,46 @@ class ContentNode {
 		register_graphql_interface_type(
 			'ContentNode',
 			[
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
+				'connections' => [
+					'contentType'         => [
+						'toType'   => 'ContentType',
+						'resolve'  => function( Post $source, $args, $context, $info ) {
+
+							if ( $source->isRevision ) {
+								$parent    = get_post( $source->parentDatabaseId );
+								$post_type = isset( $parent->post_type ) ? $parent->post_type : null;
+							} else {
+								$post_type = isset( $source->post_type ) ? $source->post_type : null;
+							}
+
+							if ( empty( $post_type ) ) {
+								return null;
+							}
+
+							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
+						},
+						'oneToOne' => true,
+					],
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'enqueuedStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'resolveType' => function( Post $post ) use ( $type_registry ) {
 
 					/**
@@ -60,81 +103,57 @@ class ContentNode {
 
 				},
 				'fields'      => [
-					'id'                        => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
-						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
-					],
-					'template'                  => [
+					'template'     => [
 						'type'        => 'ContentTemplate',
 						'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
 					],
-					'databaseId'                => [
-						'type'        => [
-							'non_null' => 'Int',
-						],
-						'description' => __( 'The ID of the node in the database.', 'wp-graphql' ),
-					],
-					'date'                      => [
+					'date'         => [
 						'type'        => 'String',
 						'description' => __( 'Post publishing date.', 'wp-graphql' ),
 					],
-					'dateGmt'                   => [
+					'dateGmt'      => [
 						'type'        => 'String',
 						'description' => __( 'The publishing date set in GMT.', 'wp-graphql' ),
 					],
-					'enclosure'                 => [
+					'enclosure'    => [
 						'type'        => 'String',
 						'description' => __( 'The RSS enclosure for the object', 'wp-graphql' ),
 					],
-					'status'                    => [
+					'status'       => [
 						'type'        => 'String',
 						'description' => __( 'The current status of the object', 'wp-graphql' ),
 					],
-					'slug'                      => [
+					'slug'         => [
 						'type'        => 'String',
 						'description' => __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the "post_objects" table.', 'wp-graphql' ),
 					],
-					'modified'                  => [
+					'modified'     => [
 						'type'        => 'String',
 						'description' => __( 'The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time.', 'wp-graphql' ),
 					],
-					'modifiedGmt'               => [
+					'modifiedGmt'  => [
 						'type'        => 'String',
 						'description' => __( 'The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT.', 'wp-graphql' ),
 					],
-					'guid'                      => [
+					'guid'         => [
 						'type'        => 'String',
 						'description' => __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' ),
 					],
-					'desiredSlug'               => [
+					'desiredSlug'  => [
 						'type'        => 'String',
 						'description' => __( 'The desired slug of the post', 'wp-graphql' ),
 					],
-					'link'                      => [
+					'link'         => [
 						'type'        => 'String',
 						'description' => __( 'The permalink of the post', 'wp-graphql' ),
 					],
-					'uri'                       => [
+					'uri'          => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'URI path for the resource', 'wp-graphql' ),
 					],
-					'isRestricted'              => [
+					'isRestricted' => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
-					],
-					'isPreview'                 => [
-						'type'        => 'Boolean',
-						'description' => __( 'Whether the object is a node in the preview state', 'wp-graphql' ),
-					],
-					'previewRevisionDatabaseId' => [
-						'type'        => 'Int',
-						'description' => __( 'The database id of the preview node', 'wp-graphql' ),
-					],
-					'previewRevisionId'         => [
-						'type'        => 'ID',
-						'description' => __( 'Whether the object is a node in the preview state', 'wp-graphql' ),
 					],
 				],
 			]

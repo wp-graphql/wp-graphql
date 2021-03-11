@@ -1,10 +1,8 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
+use Exception;
+
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithTitle {
@@ -15,6 +13,7 @@ class NodeWithTitle {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
@@ -22,6 +21,7 @@ class NodeWithTitle {
 			'NodeWithTitle',
 			[
 				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
+				'interfaces'  => [ 'Node', 'ContentNode', 'DatabaseIdentifier' ],
 				'fields'      => [
 					'title' => [
 						'type'        => 'String',

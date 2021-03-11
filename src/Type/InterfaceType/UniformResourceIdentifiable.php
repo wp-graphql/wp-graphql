@@ -16,19 +16,17 @@ class UniformResourceIdentifiable {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'UniformResourceIdentifiable',
 			[
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
+				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'uri' => [
 						'type'        => 'String',
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-					],
-					'id'  => [
-						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],

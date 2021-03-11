@@ -14,11 +14,8 @@ class CommentAuthor {
 			'CommentAuthor',
 			[
 				'description' => __( 'A Comment Author object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'Commenter' ],
+				'interfaces'  => [ 'Node', 'Commenter', 'DatabaseIdentifier' ],
 				'fields'      => [
-					'id'           => [
-						'description' => __( 'The globally unique identifier for the comment author object', 'wp-graphql' ),
-					],
 					'name'         => [
 						'type'        => 'String',
 						'description' => __( 'The name for the comment author.', 'wp-graphql' ),

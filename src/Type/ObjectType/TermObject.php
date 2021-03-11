@@ -29,6 +29,7 @@ class TermObject {
 
 		if ( $taxonomy_object->hierarchical ) {
 			$interfaces[] = 'HierarchicalTermNode';
+			$interfaces[] = 'HierarchicalNode';
 		}
 
 		if ( true === $taxonomy_object->show_in_nav_menus ) {

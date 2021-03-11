@@ -121,7 +121,7 @@ class Comments {
 	 *
 	 * @return array
 	 */
-	public static function get_connection_config( $args = [] ) {
+	public static function get_connection_config( array $args = [] ) {
 		$defaults = [
 			'fromType'       => 'RootQuery',
 			'toType'         => 'Comment',
