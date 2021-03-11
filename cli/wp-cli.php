@@ -29,6 +29,10 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 */
 		$file_path = get_temp_dir() . 'schema.graphql';
 
+		if ( isset( $assoc_args['output_dir'] ) ) {
+			$file_path = trailingslashit( $assoc_args['output_dir'] ) . 'schema.graphql';
+		}
+
 		if ( ! defined( 'GRAPHQL_REQUEST') ) {
 			define( 'GRAPHQL_REQUEST', true );
 		}
