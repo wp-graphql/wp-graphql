@@ -310,7 +310,7 @@ function register_graphql_connection( array $config ) {
 		function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $config ) {
 			$type_registry->register_connection( $config );
 		},
-		10
+		50
 	);
 }
 
@@ -347,7 +347,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
 		function( \WPGraphQL\Registry\TypeRegistry $type_registry ) use ( $type_name, $field_name ) {
 			$type_registry->deregister_field( $type_name, $field_name );
 		},
-		10
+		5
 	);
 }
 
