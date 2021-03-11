@@ -42,6 +42,7 @@ class WPObjectType extends ObjectType {
 	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 *
+	 * @throws \Exception
 	 * @since 0.0.5
 	 */
 	public function __construct( $config, TypeRegistry $type_registry ) {
@@ -98,6 +99,21 @@ class WPObjectType extends ObjectType {
 
 			return $new_interfaces;
 		};
+
+		if ( ! empty( $config['connections'] ) && is_array( $config['connections'] ) ) {
+			foreach ( $config['connections'] as $field_name => $connection_config ) {
+
+				if ( ! is_array( $connection_config ) ) {
+					return;
+				}
+
+				$connection_config['fromType']      = $config['name'];
+				$connection_config['fromFieldName'] = $field_name;
+
+				register_graphql_connection( $connection_config );
+
+			}
+		}
 
 		/**
 		 * Setup the fields
