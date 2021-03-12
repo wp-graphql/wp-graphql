@@ -85,6 +85,7 @@ class CursorBuilder {
 		}
 
 		$this->fields[] = $escaped_field;
+
 	}
 
 	/**
@@ -128,7 +129,7 @@ class CursorBuilder {
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
-				$value = "'$value'";
+				$value = $value;
 			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
@@ -141,7 +142,8 @@ class CursorBuilder {
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );
 
-		return " {$key} {$compare}= {$value} AND ( {$key} {$compare} {$value} OR ( {$nest} ) ) ";
+		$sql = ' %1$s %2$s= "%3$s" AND ( %1$s %2$s "%3$s" OR ( %4$s ) ) ';
+		return sprintf( $sql, $key, $compare, $value, $nest );
 	}
 
 
