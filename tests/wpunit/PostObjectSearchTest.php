@@ -228,8 +228,8 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $this->created_post_ids[3], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[3], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][1]['node']['postId'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}

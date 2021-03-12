@@ -592,6 +592,9 @@ abstract class AbstractConnectionResolver {
 		$ids = $this->ids;
 		$ids = array_slice( $ids, 0, $this->query_amount, true );
 
+		// If pagination is going backwards, revers the array of IDs
+		$ids = ! empty( $this->args['before'] ) ? array_reverse( $ids ) : $ids;
+
 		if ( ! empty( $this->get_offset() ) ) {
 			// Determine if the offset is in the array
 			$key = array_search( $this->get_offset(), $ids, true );
