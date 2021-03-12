@@ -106,8 +106,6 @@ class CursorBuilder {
 	 */
 	public function to_sql( $fields = null ) {
 
-		global $wpdb;
-
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}
