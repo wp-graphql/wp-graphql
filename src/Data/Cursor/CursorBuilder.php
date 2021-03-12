@@ -105,6 +105,9 @@ class CursorBuilder {
 	 * @return string
 	 */
 	public function to_sql( $fields = null ) {
+
+		global $wpdb;
+
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}
@@ -129,7 +132,11 @@ class CursorBuilder {
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
-				$value = $value;
+				if ( "{$wpdb->posts}.post_title" === $key ) {
+					$value = '"' . wp_unslash( $value ) . '"';
+				} else {
+					$value = '"' . $value . '"';
+				}
 			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
@@ -142,7 +149,7 @@ class CursorBuilder {
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );
 
-		$sql = ' %1$s %2$s= "%3$s" AND ( %1$s %2$s "%3$s" OR ( %4$s ) ) ';
+		$sql = ' %1$s %2$s= %3$s AND ( %1$s %2$s %3$s OR ( %4$s ) ) ';
 		return sprintf( $sql, $key, $compare, $value, $nest );
 	}
 
