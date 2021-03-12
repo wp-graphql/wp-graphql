@@ -132,11 +132,7 @@ class CursorBuilder {
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
-				if ( "{$wpdb->posts}.post_title" === $key ) {
-					$value = '"' . wp_unslash( $value ) . '"';
-				} else {
-					$value = '"' . $value . '"';
-				}
+				$value = '"' . wp_unslash( $value ) . '"';
 			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
