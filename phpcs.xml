@@ -54,4 +54,6 @@
 
 	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- <rule ref="WordPress-VIP-Go"/> -->
 </ruleset>
