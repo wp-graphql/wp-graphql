@@ -6,6 +6,7 @@
 	<config name="ignore_warnings_on_exit" value="0" />
 	<arg name="colors" />
 	<arg value="p" />
+	<arg name="basepath" value="."/>
 	<arg name="extensions" value="php"/>
 
 	<!-- Run the lints in parallel so they run faster. This will separate the files into 20 chunks to be linted -->
