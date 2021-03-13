@@ -5,7 +5,7 @@
 	<config name="ignore_errors_on_exit" value="0" />
 	<config name="ignore_warnings_on_exit" value="0" />
 	<arg name="colors" />
-	<arg value="p" />
+	<arg value="sp" />
 	<arg name="basepath" value="."/>
 	<arg name="extensions" value="php"/>
 
