@@ -312,8 +312,19 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
+
+					$order = $orderby_input['order'];
+
+					if ( isset( $query_args['graphql_args']['before'] ) && ! empty( $query_args['graphql_args']['before'] ) ) {
+						if ( 'ASC' === $order ) {
+							$order = 'DESC';
+						} else {
+							$order = 'ASC';
+						}
+					}
+
 					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => isset( $orderby_input['order'] ) ? esc_sql( $orderby_input['order'] ) : 'DESC',
+						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
 					];
 				}
 			}
