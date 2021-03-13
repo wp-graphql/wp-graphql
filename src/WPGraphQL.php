@@ -72,9 +72,10 @@ final class WPGraphQL {
 		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof WPGraphQL ) ) {
 			self::$instance = new WPGraphQL();
 			self::$instance->setup_constants();
-			self::$instance->includes();
-			self::$instance->actions();
-			self::$instance->filters();
+			if ( self::$instance->includes() ) {
+				self::$instance->actions();
+				self::$instance->filters();
+			}
 		}
 
 		/**
@@ -159,7 +160,7 @@ final class WPGraphQL {
 	 * Uses composer's autoload
 	 *
 	 * @since  0.0.1
-	 * @return void
+	 * @return bool
 	 */
 	private function includes() {
 
@@ -201,8 +202,11 @@ final class WPGraphQL {
 					}
 				);
 
+				return false;
 			}
 		}
+
+		return true;
 
 	}
 

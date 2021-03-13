@@ -177,7 +177,7 @@ class TermObjects {
 				$post_type_object = get_post_type_object( $allowed_post_type );
 
 				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
-					return;
+					continue;
 				}
 
 				register_graphql_connection( [

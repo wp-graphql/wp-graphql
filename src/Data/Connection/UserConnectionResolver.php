@@ -52,6 +52,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['count_total'] = false;
 
 		/**
+		 * Pass the graphql $args to the WP_Query
+		 */
+		$query_args['graphql_args'] = $this->args;
+
+		/**
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
 		 * to filter the WP_User_Query to support cursor pagination
 		 */
@@ -109,8 +114,17 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
+					$order = $orderby_input['order'];
+					if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+						if ( 'ASC' === $order ) {
+							$order = 'DESC';
+						} else {
+							$order = 'ASC';
+						}
+					}
+
 					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
+						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
 					];
 				}
 			}

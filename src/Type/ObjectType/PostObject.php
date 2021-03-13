@@ -161,14 +161,14 @@ class PostObject {
 								$size = $args['size'];
 							}
 
-							$url = wp_get_attachment_image_src( $source->ID, $size );
-							if ( ! is_array( $url ) || ! isset( $url[0] ) ) {
-								return null;
+							$image = wp_get_attachment_image_src( $source->ID, $size );
+							if ( $image ) {
+								list( $src, $width, $height ) = $image;
+								$sizes                        = wp_calculate_image_sizes( [ absint( $width ), absint( $height ) ], $src, null, $source->ID );
+								return ! empty( $sizes ) ? $sizes : null;
 							}
 
-							$sizes = wp_calculate_image_sizes( $size, $url[0], null, $source->ID );
-
-							return ! empty( $sizes ) ? $sizes : null;
+							return null;
 						},
 					],
 					'description'  => [
