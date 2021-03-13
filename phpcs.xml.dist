@@ -2,10 +2,10 @@
 <ruleset name="WP">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<config name="ignore_errors_on_exit" value="0" />
-	<config name="ignore_warnings_on_exit" value="0" />
-	<arg name="colors" />
-	<arg value="sp" />
+	<config name="ignore_errors_on_exit" value="0"/>
+	<config name="ignore_warnings_on_exit" value="0"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
 	<arg name="basepath" value="."/>
 	<arg name="extensions" value="php"/>
 
@@ -36,13 +36,13 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
-		<exclude name="WordPress.NamingConventions.ValidVariableName" />
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
-		<exclude name="Generic.Commenting.DocComment.MissingShort" />
-		<exclude name="WordPress.Files.FileName" />
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<exclude name="WordPress.Files.FileName"/>
 
 		<!-- Should be re-enabled -->
 		<exclude name="Squiz.Commenting"/>
