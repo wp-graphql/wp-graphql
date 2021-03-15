@@ -192,7 +192,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$cursor_offset                        = $this->get_offset();
+		$cursor_offset = $this->get_offset();
+
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
@@ -269,20 +270,19 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				$ids = array_map( function( $id ) {
 					return absint( $id );
 				}, $ids );
+
+				if ( ! empty( $this->args['before'] ) ) {
+					$ids = array_reverse( $ids );
+				}
+
 				if ( ! empty( $this->get_offset() ) ) {
 					// Determine if the offset is in the array
 					$key = array_search( $this->get_offset(), $ids, true );
+
 					// If the offset is in the array
 					if ( false !== $key ) {
 						$key = absint( $key );
-						// Slice the array from the back
-						if ( ! empty( $this->args['before'] ) ) {
-							$ids = array_slice( $ids, 0, $key, true );
-							// Slice the array from the front
-						} else {
-							$key ++;
-							$ids = array_slice( $ids, $key, null, true );
-						}
+						$ids = array_slice( $ids, $key + 1, null, true );
 					}
 				}
 
