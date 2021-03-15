@@ -650,7 +650,7 @@ class PostObjects {
 					'description' => __( 'Tag Slug', 'wp-graphql' ),
 				];
 				$fields['tagId']      = [
-					'type'        => 'String',
+					'type'        => 'Int',
 					'description' => __( 'Use Tag ID', 'wp-graphql' ),
 				];
 				$fields['tagIn']      = [
