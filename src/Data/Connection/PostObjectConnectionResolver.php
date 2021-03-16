@@ -317,7 +317,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 					$order = $orderby_input['order'];
 
-					if ( isset( $query_args['graphql_args']['before'] ) && ! empty( $query_args['graphql_args']['before'] ) ) {
+					if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {

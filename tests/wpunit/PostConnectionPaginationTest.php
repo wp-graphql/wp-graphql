@@ -588,8 +588,6 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPaginateForwardAndBackwardWithPostInArgument() {
 
-		$search_string = 'uniqueString';
-
 		$post_ids = $this->created_post_ids;
 		shuffle( $post_ids );
 
@@ -708,6 +706,20 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 		// Assert the 2nd item is the 4th most recent post
 		$this->assertSame( $post_ids[3], $actual['data']['posts']['nodes'][1]['databaseId'] );
 
+		codecept_debug( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
+				'where'  => [
+					'in' => $post_ids,
+				],
+			],
+			'decoded' => base64_decode( $actual['data']['posts']['pageInfo']['startCursor'] )
+		]);
+
 		// Query the previous page
 		$actual = graphql( [
 			'query'     => $query,
@@ -747,14 +759,29 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 			]
 		] );
 
+		codecept_debug( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		codecept_debug( $actual );
+
 		// assert that querying the last items with no cursor returns the last 2 items
 		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// Assert it's the last item in the array. Since array keys start with 0, the last item is actually the count - 1
-		$this->assertSame( $post_ids[ count( $post_ids ) - 1 ], $actual['data']['posts']['nodes'][0]['databaseId'] );
+		$this->assertSame( $post_ids[ count( $post_ids ) - 2 ], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// Assert it's the 2nd to last item in the array. Since array keys start with 0, the 2nd to last item is actually the count - 2
-		$this->assertSame( $post_ids[ count( $post_ids ) - 2 ], $actual['data']['posts']['nodes'][1]['databaseId'] );
+		$this->assertSame( $post_ids[ count( $post_ids ) - 1 ], $actual['data']['posts']['nodes'][1]['databaseId'] );
 
 	}
 }

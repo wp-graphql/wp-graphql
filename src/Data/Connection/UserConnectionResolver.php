@@ -95,11 +95,17 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['fields'] = 'ID';
 
+		if ( ! empty( $query_args['search'] ) ) {
+			$query_args['search']  = '*' . $query_args['search'] . '*';
+			$query_args['orderby'] = 'user_login';
+			$query_args['order']   = ! empty( $last ) ? 'DESC' : 'ASC';
+		}
+
 		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
+
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
@@ -114,8 +120,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
+
 					$order = $orderby_input['order'];
-					if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+					if ( isset( $this->args['last'] ) && ! empty( $this->args['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {
