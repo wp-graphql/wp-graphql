@@ -263,7 +263,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
-
 		if ( empty( $this->args['where']['orderby'] ) ) {
 			if ( ! empty( $query_args['post__in'] ) ) {
 
@@ -284,7 +283,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 					// If the offset is in the array
 					if ( false !== $key ) {
-						$key = absint( $key );
+						$key     = absint( $key );
 						$post_in = array_slice( $post_in, $key + 1, null, true );
 					}
 				}
