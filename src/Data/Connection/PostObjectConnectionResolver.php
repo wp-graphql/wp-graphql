@@ -263,30 +263,33 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
+
 		if ( empty( $this->args['where']['orderby'] ) ) {
 			if ( ! empty( $query_args['post__in'] ) ) {
 
-				$ids = $query_args['post__in'];
-				$ids = array_map( function( $id ) {
+				$post_in = $query_args['post__in'];
+				// Make sure the IDs are integers
+				$post_in = array_map( function( $id ) {
 					return absint( $id );
-				}, $ids );
+				}, $post_in );
 
-				if ( ! empty( $this->args['before'] ) ) {
-					$ids = array_reverse( $ids );
+				// If we're coming backwards, let's reverse the IDs
+				if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
+					$post_in = array_reverse( $post_in );
 				}
 
 				if ( ! empty( $this->get_offset() ) ) {
 					// Determine if the offset is in the array
-					$key = array_search( $this->get_offset(), $ids, true );
+					$key = array_search( $this->get_offset(), $post_in, true );
 
 					// If the offset is in the array
 					if ( false !== $key ) {
 						$key = absint( $key );
-						$ids = array_slice( $ids, $key + 1, null, true );
+						$post_in = array_slice( $post_in, $key + 1, null, true );
 					}
 				}
 
-				$query_args['post__in'] = $ids;
+				$query_args['post__in'] = $post_in;
 				$query_args['orderby']  = 'post__in';
 				$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
 			}

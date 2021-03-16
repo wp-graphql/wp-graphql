@@ -875,8 +875,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
 		$query = '
-		query GetPostsByIds($post_ids: [ID] $after:String $before:String) {
-		  posts(where: {in: $post_ids} after:$after before:$before) {
+		query GetPostsByIds($post_ids: [ID] $first: Int, $after: String, $last: Int, $before: String) {
+		  posts(where: {in: $post_ids} first: $first, after: $after, last: $last, before: $before) {
 		    edges {
 		      cursor
 		      node {
@@ -925,17 +925,25 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( [ $post_4, $post_1 ], $actual_ids );
 
+		$cursor = $actual['data']['posts']['edges'][0]['cursor'];
+
+		codecept_debug( $cursor );
+		codecept_debug( base64_decode( $cursor ) );
+		codecept_debug( 'line 932...' );
+
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'before' => $cursor
+				'before' => $cursor,
+				'last' => 1,
 			]
 		]);
 
 		codecept_debug( [ 'variables' => [
 			'post_ids' => $post_ids,
-			'before' => $cursor
+			'before' => $cursor,
+			'last' => 1,
 		] ]);
 		codecept_debug( $actual );
 
@@ -945,7 +953,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$actual_ids[] = $edge['node']['databaseId'];
 		}
 
-		$this->assertSame( [ $post_3 ], $actual_ids );
+		$this->assertSame( [ $post_ids[1] ], $actual_ids );
 
 	}
 

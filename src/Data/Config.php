@@ -149,10 +149,11 @@ class Config {
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
 	 * @param string $orderby The ORDER BY clause of the query.
+	 * @param \WP_Query $wp_query The WP_Query instance executing
 	 *
 	 * @return string
 	 */
-	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
+	public function graphql_wp_query_cursor_pagination_stability( string $orderby, \WP_Query $wp_query ) {
 		if ( true === is_graphql_request() ) {
 
 			global $wpdb;
@@ -179,6 +180,7 @@ class Config {
 		 * it should be applied to the query
 		 */
 		if ( true === is_graphql_request() ) {
+
 			$post_cursor = new PostObjectCursor( $query );
 
 			return $where . $post_cursor->get_where();
