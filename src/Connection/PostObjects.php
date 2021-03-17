@@ -682,6 +682,20 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
+		} else {
+			/**
+			 * Handle cases when the connection is for many post types
+			 */
+
+			/**
+			 * Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypeEnum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
 		}
 
 		return array_merge( $fields, $args );
