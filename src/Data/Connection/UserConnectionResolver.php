@@ -134,7 +134,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
+
+					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+					$query_args['order'] = esc_sql( $order );
 				}
 			}
 		}
@@ -154,7 +156,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
-		if ( empty( $query_args['orderby'] ) ) {
+		if ( empty( $query_args['order'] ) ) {
 			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
 		}
 

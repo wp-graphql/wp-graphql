@@ -191,8 +191,8 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$query = '
-		query getUsers($first: Int, $after: String, $last: Int, $before: String) {
-		  users(first: $first, last: $last, before: $before, after: $after) {
+		query getUsers($first: Int, $after: String, $last: Int, $before: String $where:RootQueryToUserConnectionWhereArgs) {
+		  users(first: $first, last: $last, before: $before, after: $after where: $where) {
 		    pageInfo {
 		      endCursor
 		      startCursor
@@ -216,15 +216,18 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'before' => null,
 				'where' => [
 					'orderby' => [
-						'field' => 'LOGIN',
-						'order' => 'DESC',
+						[
+							'field' => 'LOGIN',
+							'order' => 'DESC',
+						]
 					],
 				],
 			],
 		] );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		codecept_debug( $actual );
 
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		// assert there are 2 items in the query
 		$this->assertCount( 2, $actual['data']['users']['nodes'] );
@@ -243,8 +246,18 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
 				'last'   => null,
 				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'LOGIN',
+							'order' => 'DESC',
+						]
+					],
+				],
 			]
 		] );
+
+		codecept_debug( [ $users, $actual, base64_decode($actual['data']['users']['pageInfo']['endCursor'] ) ] );
 
 		// assert there are 2 items in the query
 		$this->assertCount( 2, $actual['data']['users']['nodes'] );
@@ -263,6 +276,14 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
 				'last'   => null,
 				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'LOGIN',
+							'order' => 'DESC',
+						]
+					],
+				],
 			]
 		] );
 
@@ -283,6 +304,14 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => null,
 				'last'   => 2,
 				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'LOGIN',
+							'order' => 'DESC',
+						]
+					],
+				],
 			]
 		] );
 
@@ -303,6 +332,378 @@ class UserConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => null,
 				'last'   => 2,
 				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'LOGIN',
+							'order' => 'DESC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[0], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[1], $actual['data']['users']['nodes'][1]['databaseId'] );
+	}
+
+	public function testPaginateForwardAndBackwardOrderedByEmail() {
+
+		$user_query = new WP_User_Query([
+			'number' => 20,
+			'orderby' => 'email',
+			'order' => 'DESC',
+			'fields' => 'ids'
+		]);
+
+		$users = $user_query->get_results();
+
+		$users = array_map( function( $user ) {
+			return absint( $user );
+		}, $users );
+
+		codecept_debug( $users );
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query getUsers($first: Int, $after: String, $last: Int, $before: String $where:RootQueryToUserConnectionWhereArgs) {
+		  users(first: $first, last: $last, before: $before, after: $after where: $where) {
+		    pageInfo {
+		      endCursor
+		      startCursor
+		      hasPreviousPage
+		      hasNextPage
+		    }
+		    nodes {
+		      databaseId
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'DESC',
+						]
+					],
+				],
+			],
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the most recent post
+		$this->assertSame( $users[0], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 2nd most recent post
+		$this->assertSame( $users[1], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'DESC',
+						]
+					],
+				],
+			]
+		] );
+
+		codecept_debug( [ $users, $actual, base64_decode($actual['data']['users']['pageInfo']['endCursor'] ) ] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[2], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[3], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'DESC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 5th most recent user
+		$this->assertSame( $users[4], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 6th most recent user
+		$this->assertSame( $users[5], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'DESC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[2], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[3], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'DESC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[0], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[1], $actual['data']['users']['nodes'][1]['databaseId'] );
+	}
+
+	public function testPaginateForwardAndBackwardOrderedByEmailAscending() {
+
+		$user_query = new WP_User_Query([
+			'number' => 20,
+			'orderby' => 'email',
+			'order' => 'ASC',
+			'fields' => 'ids'
+		]);
+
+		$users = $user_query->get_results();
+
+		$users = array_map( function( $user ) {
+			return absint( $user );
+		}, $users );
+
+		codecept_debug( $users );
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query getUsers($first: Int, $after: String, $last: Int, $before: String $where:RootQueryToUserConnectionWhereArgs) {
+		  users(first: $first, last: $last, before: $before, after: $after where: $where) {
+		    pageInfo {
+		      endCursor
+		      startCursor
+		      hasPreviousPage
+		      hasNextPage
+		    }
+		    nodes {
+		      databaseId
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'ASC',
+						]
+					],
+				],
+			],
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the most recent post
+		$this->assertSame( $users[0], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 2nd most recent post
+		$this->assertSame( $users[1], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'ASC',
+						]
+					],
+				],
+			]
+		] );
+
+		codecept_debug( [ $users, $actual, base64_decode($actual['data']['users']['pageInfo']['endCursor'] ) ] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[2], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[3], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'ASC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 5th most recent user
+		$this->assertSame( $users[4], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 6th most recent user
+		$this->assertSame( $users[5], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'ASC',
+						]
+					],
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['users']['nodes'] );
+
+		// Assert the first item is the 3rd most recent user
+		$this->assertSame( $users[2], $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent user
+		$this->assertSame( $users[3], $actual['data']['users']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['users']['pageInfo']['startCursor'],
+				'where' => [
+					'orderby' => [
+						[
+							'field' => 'EMAIL',
+							'order' => 'ASC',
+						]
+					],
+				],
 			]
 		] );
 
