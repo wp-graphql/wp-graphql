@@ -67,7 +67,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
 		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
 
-
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
@@ -134,9 +133,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-					$query_args['order'] = esc_sql( $order );
+					$query_args['order']   = esc_sql( $order );
 				}
 			}
 		}

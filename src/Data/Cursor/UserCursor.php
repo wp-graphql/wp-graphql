@@ -180,7 +180,6 @@ class UserCursor {
 
 		}
 
-
 		/**
 		 * No custom comparing. Order by login
 		 */
