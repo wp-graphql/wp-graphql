@@ -467,6 +467,28 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * @return int|null
+	 */
+	public function get_after_offset(): ?int {
+		if ( isset( $this->args['after'] ) && ! empty( $this->args['after'] ) ) {
+			return ArrayConnection::cursorToOffset( $this->args['after'] );
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function get_before_offset(): ?int {
+		if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+			return ArrayConnection::cursorToOffset( $this->args['before'] );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get_offset
 	 *
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
@@ -687,6 +709,19 @@ abstract class AbstractConnectionResolver {
 					$edges[] = $edge;
 				}
 			}
+		}
+
+		// If first is set:
+		//  If first is less than 0:
+		//   Throw an error.
+		//  If edges has length greater than than first:
+		//   Slice edges to be of length first by removing edges from the end of edges.
+		if ( isset( $this->args['first'] ) && $this->args['first'] <= count( $edges ) ) {
+			$edges = array_slice( $edges, 0, absint( $this->args['first'] ) );
+		}
+
+		if ( isset( $this->args['last'] ) && $this->args['last'] <= count( $edges ) ) {
+			$edges = array_slice( $edges, ( count( $edges ) - absint( $this->args['last'] ) ), absint( $this->args['last'] ) );
 		}
 
 		return $edges;

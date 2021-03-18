@@ -197,6 +197,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+
 		/**
 		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
 		 * trigger due to the page parameter not being set in the query_vars, fixes #732
@@ -325,9 +328,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
-					];
+					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
 				}
 			}
 		}

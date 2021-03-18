@@ -64,6 +64,10 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+
+
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
@@ -130,9 +134,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
-					];
+					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
 				}
 			}
 		}
@@ -153,7 +155,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
 		if ( empty( $query_args['orderby'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
 		}
 
 		return $query_args;
@@ -190,8 +192,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param array $args The query "where" args
 	 *
-	 * @since  0.0.5
 	 * @return array
+	 * @since  0.0.5
 	 */
 	protected function sanitize_input_fields( array $args ) {
 
@@ -238,8 +240,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param AppContext  $context    The AppContext object
 		 * @param ResolveInfo $info       The ResolveInfo object
 		 *
-		 * @since 0.0.5
 		 * @return array
+		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 

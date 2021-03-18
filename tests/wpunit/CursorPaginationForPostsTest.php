@@ -1,6 +1,6 @@
 <?php
 
-class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
+class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -93,6 +93,10 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		return $results['data']['posts']['nodes'];
 	}
 
+	public function get_edges( $results ) {
+		return $results['data']['posts']['edges'];
+	}
+
 	public function testForwardPagination() {
 
 		$post_ids = $this->create_posts();
@@ -104,6 +108,9 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		      hasPreviousPage
 		      startCursor
 		      endCursor
+		    }
+		    edges {
+		      cursor
 		    }
 		    nodes {
 		      databaseId
@@ -130,7 +137,7 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
-		$this->assertEqualSets( $titles, array_slice( $alphabet, 0, 5 ) );
+		$this->assertSame( $titles, array_slice( $alphabet, 0, 5 ) );
 
 		// Page forward by 5
 		$actual = graphql([
@@ -151,8 +158,9 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
-		$this->assertEqualSets( $titles, array_slice( $alphabet, 5, 5 ) );
+		$this->assertSame( $titles, array_slice( $alphabet, 5, 5 ) );
 
+		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['posts']['pageInfo']['endCursor'] ) ]);
 
 		// Ask for the first 5 items, with a before cursor established
 		$actual = graphql([
@@ -173,16 +181,16 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
-		$this->assertEqualSets( $titles, array_slice( $alphabet, 0, 5 ) );
+		$this->assertSame( $titles, array_slice( $alphabet, 0, 5 ) );
 
-		// Ask for the first 5 items, with a before cursor established
+		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
 				'first' => 5,
-				'after' => $actual['data']['posts']['pageInfo']['startCursor'],
+				'after' => $this->get_edges( $actual )[1]['cursor'],
 				'last' => null,
-				'before' => $actual['data']['posts']['pageInfo']['endCursor']
+				'before' => $this->get_edges( $actual )[3]['cursor']
 			]
 		]);
 
@@ -194,7 +202,7 @@ class CursorPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
-		$this->assertEqualSets( $titles, array_slice( $alphabet, 0, 5 ) );
+		$this->assertSame( $titles, array_slice( $alphabet, 2, 1 ) );
 
 
 
