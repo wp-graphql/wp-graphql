@@ -133,11 +133,6 @@ final class WPGraphQL {
 			define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( $main_file_path ) );
 		}
 
-		// Plugin Folder URL.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( $main_file_path ) );
-		}
-
 		// Plugin Root File.
 		if ( ! defined( 'WPGRAPHQL_PLUGIN_FILE' ) ) {
 			define( 'WPGRAPHQL_PLUGIN_FILE', $main_file_path );
@@ -272,6 +267,10 @@ final class WPGraphQL {
 			}
 		);
 
+		// Initialize the plugin url constant
+		// see: https://developer.wordpress.org/reference/functions/plugins_url/#more-information
+		add_action( 'init', [ $this, 'setup_plugin_url' ] );
+
 		// Prevent WPGraphQL Insights from running
 		// @phpstan-ignore-next-line
 		remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
@@ -326,6 +325,18 @@ final class WPGraphQL {
 
 		if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
 			throw new \Exception( sprintf( __( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ), PHP_VERSION, GRAPHQL_MIN_PHP_VERSION ) );
+		}
+
+	}
+
+	/**
+	 * Sets up the plugin url
+	 */
+	public function setup_plugin_url() {
+
+		// Plugin Folder URL.
+		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
+			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( dirname( __DIR__ ) . '/wp-graphql.php' ) );
 		}
 
 	}
