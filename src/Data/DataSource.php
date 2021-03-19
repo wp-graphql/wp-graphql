@@ -543,13 +543,13 @@ class DataSource {
 					} else {
 						/** @var \WP_Post_Type $post_type_object */
 						$post_type_object = get_post_type_object( $node->post_type );
-						$type = $post_type_object->graphql_single_name;
+						$type             = $post_type_object->graphql_single_name;
 					}
 					break;
 				case $node instanceof Term:
 					/** @var \WP_Taxonomy $taxonomy_object */
 					$taxonomy_object = get_taxonomy( $node->taxonomyName );
-					$type = $taxonomy_object->graphql_single_name;
+					$type            = $taxonomy_object->graphql_single_name;
 					break;
 				case $node instanceof Comment:
 					$type = 'Comment';
