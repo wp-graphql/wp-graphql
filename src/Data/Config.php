@@ -80,7 +80,7 @@ class Config {
 		 */
 		add_filter(
 			'pre_user_query',
-			function ( $query ) {
+			function( $query ) {
 
 				if ( ! $query->get( 'suppress_filters' ) ) {
 					$query->set( 'suppress_filters', 0 );
@@ -93,19 +93,25 @@ class Config {
 					 *
 					 * Specifically for manipulating paging queries.
 					 **
-					*
-					* @param string $where The WHERE clause of the query.
-					* @param WP_User_Query $query The WP_User_Query instance (passed by reference).
-					*/
-					$query->query_where = apply_filters_ref_array( 'graphql_users_where', [ $query->query_where, &$query ] );
+					 *
+					 * @param string        $where The WHERE clause of the query.
+					 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+					 */
+					$query->query_where = apply_filters_ref_array( 'graphql_users_where', [
+						$query->query_where,
+						&$query,
+					] );
 
 					/**
 					 * Filters the ORDER BY clause of the query.
 					 *
-					 * @param string $orderby The ORDER BY clause of the query.
-					 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+					 * @param string        $orderby The ORDER BY clause of the query.
+					 * @param WP_User_Query $query   The WP_User_Query instance (passed by reference).
 					 */
-					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', [ $query->query_orderby, &$query ] );
+					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', [
+						$query->query_orderby,
+						&$query,
+					] );
 
 				}
 
@@ -148,11 +154,12 @@ class Config {
 	 * the meta values have same values multiple times. This filter adds a
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
-	 * @param string $orderby The ORDER BY clause of the query.
+	 * @param string    $orderby  The ORDER BY clause of the query.
+	 * @param \WP_Query $wp_query The WP_Query instance executing
 	 *
 	 * @return string
 	 */
-	public function graphql_wp_query_cursor_pagination_stability( $orderby ) {
+	public function graphql_wp_query_cursor_pagination_stability( string $orderby, \WP_Query $wp_query ) {
 		if ( true === is_graphql_request() ) {
 
 			global $wpdb;
@@ -179,23 +186,30 @@ class Config {
 		 * it should be applied to the query
 		 */
 		if ( true === is_graphql_request() ) {
-			$post_cursor = new PostObjectCursor( $query );
 
-			return $where . $post_cursor->get_where();
+			if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
+				$after_cursor = new PostObjectCursor( $query, 'after' );
+				$where        = $where . $after_cursor->get_where();
+			}
+
+			if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
+				$before_cursor = new PostObjectCursor( $query, 'before' );
+				$where         = $where . $before_cursor->get_where();
+			}
 		}
 
 		return $where;
 	}
 
-		/**
-		 * When users are ordered by a meta query the order might be random when
-		 * the meta values have same values multiple times. This filter adds a
-		 * secondary ordering by the post ID which forces stable order in such cases.
-		 *
-		 * @param string $orderby The ORDER BY clause of the query.
-		 *
-		 * @return string
-		 */
+	/**
+	 * When users are ordered by a meta query the order might be random when
+	 * the meta values have same values multiple times. This filter adds a
+	 * secondary ordering by the post ID which forces stable order in such cases.
+	 *
+	 * @param string $orderby The ORDER BY clause of the query.
+	 *
+	 * @return string
+	 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
 
 		if ( true === is_graphql_request() ) {
@@ -225,8 +239,16 @@ class Config {
 		 * it should be applied to the query
 		 */
 		if ( true === is_graphql_request() ) {
-			$user_cursor = new UserCursor( $query );
-			return $where . $user_cursor->get_where();
+
+			if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
+				$after_cursor = new UserCursor( $query, 'after' );
+				$where        = $where . $after_cursor->get_where();
+			}
+
+			if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
+				$before_cursor = new UserCursor( $query, 'before' );
+				$where         = $where . $before_cursor->get_where();
+			}
 		}
 
 		return $where;
@@ -288,7 +310,7 @@ class Config {
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
 	 * is a GraphQL Request and the query has a graphql_cursor_offset defined
 	 *
-	 * @param array             $pieces A compacted array of comment query clauses.
+	 * @param array            $pieces A compacted array of comment query clauses.
 	 * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
 	 *
 	 * @return array $pieces

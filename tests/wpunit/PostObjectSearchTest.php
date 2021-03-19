@@ -206,9 +206,19 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $this->created_post_ids );
 		codecept_debug( $actual );
 
+		$posts_search = new WP_Query( [
+			'post_type' => 'post',
+			's'    => 'test',
+			'fields' => 'ids',
+			'posts_per_page' => -1
+		] );
+
+		codecept_debug( 'test....' );
+		codecept_debug( $posts_search->posts );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( $posts_search->posts[ count( $posts_search->posts ) - 2 ], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $posts_search->posts[ count( $posts_search->posts ) - 1 ], $actual['data']['posts']['edges'][1]['node']['postId'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
@@ -228,8 +238,8 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $this->created_post_ids[3], $actual['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $this->created_post_ids[2], $actual['data']['posts']['edges'][1]['node']['postId'] );
+		$this->assertEquals( $posts_search->posts[ count( $posts_search->posts ) - 4 ], $actual['data']['posts']['edges'][0]['node']['postId'] );
+		$this->assertEquals( $posts_search->posts[ count( $posts_search->posts ) - 3 ], $actual['data']['posts']['edges'][1]['node']['postId'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}

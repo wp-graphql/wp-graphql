@@ -585,4 +585,203 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $posts_search->posts[1], $actual['data']['posts']['nodes'][1]['databaseId'] );
 
 	}
+
+	public function testPaginateForwardAndBackwardWithPostInArgument() {
+
+		$post_ids = $this->created_post_ids;
+		shuffle( $post_ids );
+
+		codecept_debug( $post_ids );
+
+		$query = '
+		query FirstTwoPosts($first: Int, $after: String, $last: Int, $before: String $where: RootQueryToPostConnectionWhereArgs ) {
+		  posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
+		    pageInfo {
+		      endCursor
+		      startCursor
+		      hasPreviousPage
+		      hasNextPage
+		    }
+		    nodes {
+		      databaseId
+		      id
+		      title
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			],
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert the first item is the most recent post
+		$this->assertSame( $post_ids[0], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 2nd most recent post
+		$this->assertSame( $post_ids[1], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['posts']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert the first item is the 3rd most recent post
+		$this->assertSame( $post_ids[2], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent post
+		$this->assertSame( $post_ids[3], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+		// Query the next page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => 2,
+				'after'  => $actual['data']['posts']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert the first item is the 5th most recent post
+		$this->assertSame( $post_ids[4], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 6th most recent post
+		$this->assertSame( $post_ids[5], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert the first item is the 3rd most recent post
+		$this->assertSame( $post_ids[2], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent post
+		$this->assertSame( $post_ids[3], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+		codecept_debug( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
+				'where'  => [
+					'in' => $post_ids,
+				],
+			],
+			'decoded' => base64_decode( $actual['data']['posts']['pageInfo']['startCursor'] )
+		]);
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		codecept_debug( $actual );
+
+		// assert there are 2 items in the query
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert the first item is the 3rd most recent post
+		$this->assertSame( $post_ids[0], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert the 2nd item is the 4th most recent post
+		$this->assertSame( $post_ids[1], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+		// Query the previous page
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		codecept_debug( [
+			'query'     => $query,
+			'variables' => [
+				'first'  => null,
+				'after'  => null,
+				'last'   => 2,
+				'before' => null,
+				'where'  => [
+					'in' => $post_ids,
+				],
+			]
+		] );
+
+		codecept_debug( $actual );
+
+		// assert that querying the last items with no cursor returns the last 2 items
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// Assert it's the last item in the array. Since array keys start with 0, the last item is actually the count - 1
+		$this->assertSame( $post_ids[ count( $post_ids ) - 2 ], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// Assert it's the 2nd to last item in the array. Since array keys start with 0, the 2nd to last item is actually the count - 2
+		$this->assertSame( $post_ids[ count( $post_ids ) - 1 ], $actual['data']['posts']['nodes'][1]['databaseId'] );
+
+	}
 }
