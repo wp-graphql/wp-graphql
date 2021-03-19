@@ -5,4 +5,5 @@
 
 define( 'WP_LANG_DIR', true );
 define( 'SAVEQUERIES', true );
+define( 'WPGRAPHQL_PLUGIN_URL', true );
 
