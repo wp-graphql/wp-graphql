@@ -477,6 +477,7 @@ final class WPGraphQL {
 		 */
 		array_map(
 			function( $post_type ) {
+				/** @var string $post_type */
 				$post_type_object = get_post_type_object( $post_type );
 
 				if ( ! $post_type_object instanceof WP_Post_Type ) {
