@@ -569,4 +569,55 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testExternalUriReturnsNull() {
+
+		$query = '
+		query NodeByUri( $uri: String! ) {
+		  nodeByUri( uri: $uri ) {
+		     uri
+		     __typename
+		     ...on DatabaseIdentifier {
+		       databaseId
+		     }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://external-uri.com/path-to-thing'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['nodeByUri'] );
+
+	}
+
+	public function testMediaWithExternalUriReturnsNull() {
+
+		$query = '
+		query Media( $uri: ID! ){
+		  mediaItem(id: $uri, idType: URI) {
+		    id
+		    title
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['mediaItem'] );
+
+	}
+
 }
