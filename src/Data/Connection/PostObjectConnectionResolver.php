@@ -192,9 +192,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$cursor_offset                        = $this->get_offset();
+		$cursor_offset = $this->get_offset();
+
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
 
 		/**
 		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
@@ -265,28 +269,29 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( empty( $this->args['where']['orderby'] ) ) {
 			if ( ! empty( $query_args['post__in'] ) ) {
 
-				$ids = $query_args['post__in'];
-				$ids = array_map( function( $id ) {
+				$post_in = $query_args['post__in'];
+				// Make sure the IDs are integers
+				$post_in = array_map( function( $id ) {
 					return absint( $id );
-				}, $ids );
+				}, $post_in );
+
+				// If we're coming backwards, let's reverse the IDs
+				if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
+					$post_in = array_reverse( $post_in );
+				}
+
 				if ( ! empty( $this->get_offset() ) ) {
 					// Determine if the offset is in the array
-					$key = array_search( $this->get_offset(), $ids, true );
+					$key = array_search( $this->get_offset(), $post_in, true );
+
 					// If the offset is in the array
 					if ( false !== $key ) {
-						$key = absint( $key );
-						// Slice the array from the back
-						if ( ! empty( $this->args['before'] ) ) {
-							$ids = array_slice( $ids, 0, $key, true );
-							// Slice the array from the front
-						} else {
-							$key ++;
-							$ids = array_slice( $ids, $key, null, true );
-						}
+						$key     = absint( $key );
+						$post_in = array_slice( $post_in, $key + 1, null, true );
 					}
 				}
 
-				$query_args['post__in'] = $ids;
+				$query_args['post__in'] = $post_in;
 				$query_args['orderby']  = 'post__in';
 				$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
 			}
@@ -315,7 +320,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 					$order = $orderby_input['order'];
 
-					if ( isset( $query_args['graphql_args']['before'] ) && ! empty( $query_args['graphql_args']['before'] ) ) {
+					if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {
@@ -323,9 +328,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
-					];
+					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
 				}
 			}
 		}

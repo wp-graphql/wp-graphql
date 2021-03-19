@@ -73,8 +73,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 		// )
 		$query = new WP_Query(
 			array(
-				'graphql_cursor_offset' => $posts[9]->ID,
-				'graphql_cursor_compare' => $operator,
+				'graphql_after_cursor' => $posts[9]->ID,
 				'order' => '<' === $operator ? 'DESC' : 'ASC',
 				'orderby' => 'date',
 				'posts_per_page' => 11,
@@ -91,6 +90,6 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $posts[ $index + 10 ]->ID, $post->ID );
 		}
 
-		add_filter( 'is_graphql_request', $is_graphql_request );
+		add_filter( 'is_graphql_request', function() use ( $is_graphql_request ) { return $is_graphql_request; }  );
 	}
 }
