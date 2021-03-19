@@ -618,6 +618,27 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( null, $actual['data']['mediaItem'] );
 
+		$query = '
+		query Media( $uri: ID! ){
+		  mediaItem(id: $uri, idType: SOURCE_URL) {
+		    id
+		    title
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['mediaItem'] );
+
 	}
 
 }
