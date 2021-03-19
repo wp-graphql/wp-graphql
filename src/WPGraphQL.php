@@ -331,6 +331,8 @@ final class WPGraphQL {
 
 	/**
 	 * Sets up the plugin url
+	 *
+	 * @return void
 	 */
 	public function setup_plugin_url() {
 
