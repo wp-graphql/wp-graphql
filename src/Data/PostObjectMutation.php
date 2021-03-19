@@ -255,6 +255,7 @@ class PostObjectMutation {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			/** @var string $taxonomy */
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 
 				/**

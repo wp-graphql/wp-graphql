@@ -1,5 +1,11 @@
 # Changelog
 
+## Upcoming
+
+### Bugfixes / Chores
+
+- Resolve backward pagination bug when using the post__in argument for post connection queries.
+
 ## 1.2.6
 
 ### Bugfixes / Chores

@@ -64,6 +64,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 *
@@ -95,11 +98,17 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['fields'] = 'ID';
 
+		if ( ! empty( $query_args['search'] ) ) {
+			$query_args['search']  = '*' . $query_args['search'] . '*';
+			$query_args['orderby'] = 'user_login';
+			$query_args['order']   = ! empty( $last ) ? 'DESC' : 'ASC';
+		}
+
 		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
+
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
@@ -114,8 +123,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
+
 					$order = $orderby_input['order'];
-					if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+					if ( isset( $this->args['last'] ) && ! empty( $this->args['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {
@@ -123,9 +133,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 						}
 					}
 
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $order ),
-					];
+					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+					$query_args['order']   = esc_sql( $order );
 				}
 			}
 		}
@@ -145,8 +154,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
-		if ( empty( $query_args['orderby'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+		if ( empty( $query_args['order'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
 		}
 
 		return $query_args;
@@ -183,8 +192,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param array $args The query "where" args
 	 *
-	 * @since  0.0.5
 	 * @return array
+	 * @since  0.0.5
 	 */
 	protected function sanitize_input_fields( array $args ) {
 
@@ -231,8 +240,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param AppContext  $context    The AppContext object
 		 * @param ResolveInfo $info       The ResolveInfo object
 		 *
-		 * @since 0.0.5
 		 * @return array
+		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 

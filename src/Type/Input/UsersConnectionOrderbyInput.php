@@ -17,12 +17,14 @@ class UsersConnectionOrderbyInput {
 				'description' => __( 'Options for ordering the connection', 'wp-graphql' ),
 				'fields'      => [
 					'field' => [
-						'type' => [
+						'description' => __( 'The field name used to sort the results.', 'wp-graphql' ),
+						'type'        => [
 							'non_null' => 'UsersConnectionOrderbyEnum',
 						],
 					],
 					'order' => [
-						'type' => 'OrderEnum',
+						'description' => __( 'The cardinality of the order of the connection', 'wp-graphql' ),
+						'type'        => 'OrderEnum',
 					],
 				],
 			]
