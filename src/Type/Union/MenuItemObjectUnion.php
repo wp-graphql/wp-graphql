@@ -33,6 +33,7 @@ class MenuItemObjectUnion {
 				'resolveType' => function( $object ) use ( $type_registry ) {
 					// Post object
 					if ( $object instanceof Post && isset( $object->post_type ) && ! empty( $object->post_type ) ) {
+						/** @var \WP_Post_Type $post_type_object */
 						$post_type_object = get_post_type_object( $object->post_type );
 
 						return $type_registry->get_type( $post_type_object->graphql_single_name );
@@ -40,9 +41,10 @@ class MenuItemObjectUnion {
 
 					// Taxonomy term
 					if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
-						$tax_object = get_taxonomy( $object->taxonomyName );
+						/** @var \WP_Taxonomy $taxonomy_object */
+						$taxonomy_object = get_taxonomy( $object->taxonomyName );
 
-						return $type_registry->get_type( $tax_object->graphql_single_name );
+						return $type_registry->get_type( $taxonomy_object->graphql_single_name );
 					}
 
 					return $object;

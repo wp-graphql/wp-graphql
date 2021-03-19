@@ -141,9 +141,11 @@ class PostObjectCreate {
 
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+			/** @var string $taxonomy */
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				// If the taxonomy is in the array of taxonomies registered to the post_type
 				if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
+					/** @var \WP_Taxonomy $tax_object */
 					$tax_object = get_taxonomy( $taxonomy );
 
 					$fields[ $tax_object->graphql_plural_name ] = [
