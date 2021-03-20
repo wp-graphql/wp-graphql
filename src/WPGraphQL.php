@@ -125,7 +125,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.3.0' );
+			define( 'WPGRAPHQL_VERSION', '1.3.1' );
 		}
 
 		// Plugin Folder Path.
@@ -389,10 +389,15 @@ final class WPGraphQL {
 		);
 
 		// Filter how metadata is retrieved during GraphQL requests
-		add_filter( 'get_post_metadata', [
-			'\WPGraphQL\Utils\Preview',
-			'filter_post_meta_for_previews',
-		], 10, 4 );
+		add_filter(
+			'get_post_metadata',
+			[
+				'\WPGraphQL\Utils\Preview',
+				'filter_post_meta_for_previews',
+			],
+			10,
+			4
+		);
 	}
 
 	/**
@@ -413,56 +418,66 @@ final class WPGraphQL {
 	 */
 	public static function show_in_graphql() {
 
-		add_filter( 'register_post_type_args', function( $args, $post_type ) {
+		add_filter(
+			'register_post_type_args',
+			function( $args, $post_type ) {
 
-			if ( 'attachment' === $post_type ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'mediaItem';
-				$args['graphql_plural_name'] = 'mediaItems';
-			}
+				if ( 'attachment' === $post_type ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'mediaItem';
+					$args['graphql_plural_name'] = 'mediaItems';
+				}
 
-			if ( 'page' === $post_type ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'page';
-				$args['graphql_plural_name'] = 'pages';
-			}
+				if ( 'page' === $post_type ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'page';
+					$args['graphql_plural_name'] = 'pages';
+				}
 
-			if ( 'post' === $post_type ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'post';
-				$args['graphql_plural_name'] = 'posts';
-			}
+				if ( 'post' === $post_type ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'post';
+					$args['graphql_plural_name'] = 'posts';
+				}
 
-			return $args;
+				return $args;
 
-		}, 10, 2 );
+			},
+			10,
+			2
+		);
 
-		add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {
+		add_filter(
+			'register_taxonomy_args',
+			function( $args, $taxonomy ) {
 
-			// Adds GraphQL support for categories.
-			if ( 'category' === $taxonomy ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'category';
-				$args['graphql_plural_name'] = 'categories';
-			}
+				// Adds GraphQL support for categories.
+				if ( 'category' === $taxonomy ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'category';
+					$args['graphql_plural_name'] = 'categories';
+				}
 
-			// Adds GraphQL support for tags.
-			if ( 'post_tag' === $taxonomy ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'tag';
-				$args['graphql_plural_name'] = 'tags';
-			}
+				// Adds GraphQL support for tags.
+				if ( 'post_tag' === $taxonomy ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'tag';
+					$args['graphql_plural_name'] = 'tags';
+				}
 
-			// Adds GraphQL support for post formats.
-			if ( 'post_format' === $taxonomy ) {
-				$args['show_in_graphql']     = true;
-				$args['graphql_single_name'] = 'postFormat';
-				$args['graphql_plural_name'] = 'postFormats';
-			}
+				// Adds GraphQL support for post formats.
+				if ( 'post_format' === $taxonomy ) {
+					$args['show_in_graphql']     = true;
+					$args['graphql_single_name'] = 'postFormat';
+					$args['graphql_plural_name'] = 'postFormats';
+				}
 
-			return $args;
+				return $args;
 
-		}, 10, 2 );
+			},
+			10,
+			2
+		);
 
 	}
 
@@ -477,6 +492,8 @@ final class WPGraphQL {
 	 * @since  0.0.4
 	 */
 	public static function get_allowed_post_types( $args = [] ) {
+
+		create_initial_post_types();
 
 		/**
 		 * Get all post_types
@@ -532,6 +549,8 @@ final class WPGraphQL {
 	 */
 	public static function get_allowed_taxonomies() {
 
+		create_initial_taxonomies();
+
 		/**
 		 * Get all taxonomies
 		 */
@@ -582,8 +601,6 @@ final class WPGraphQL {
 	public static function clear_schema() {
 		self::$type_registry = null;
 		self::$schema        = null;
-		create_initial_taxonomies();
-		create_initial_post_types();
 	}
 
 	/**
