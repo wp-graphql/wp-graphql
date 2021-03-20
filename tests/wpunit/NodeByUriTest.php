@@ -12,8 +12,6 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 
-		parent::setUp();
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		WPGraphQL::clear_schema();
 
 		register_post_type('custom_type', [
@@ -21,16 +19,15 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
 			'public' => true,
-			'rewrite' => true,
 		]);
 
 		register_taxonomy( 'custom_tax', 'custom_type', [
 			'show_in_graphql' => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
-			'public' => true,
-			'rewrite' => true,
 		]);
+
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -38,10 +35,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->tag = $this->factory()->term->create([
 			'taxonomy' => 'post_tag',
-			'name' => 'test'
 		]);
-
-//		wp_send_json( get_term_link( $this->tag ) );
 
 		$this->category = $this->factory()->term->create([
 			'taxonomy' => 'category',
@@ -68,11 +62,11 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->custom_type = $this->factory()->post->create( [
 			'post_type' => 'custom_type',
 			'post_status' => 'publish',
-			'post_title' => 'Test Custom Type',
+			'post_title' => 'Test Page',
 			'post_author' => $this->user
 		] );
 
-
+		parent::setUp();
 
 	}
 
@@ -90,6 +84,13 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
 		wp_delete_user( $this->user );
 
+	}
+
+	public function set_permalink_structure( $structure = '' ) {
+		global $wp_rewrite;
+		$wp_rewrite->init();
+		$wp_rewrite->set_permalink_structure( $structure );
+		$wp_rewrite->flush_rules( true );
 	}
 
 	/**
@@ -257,12 +258,12 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		codecept_debug( get_term_link( $this->category, 'category' ) );
+		codecept_debug( get_term_link( $this->category ) );
 
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
-				'uri' => get_term_link( $this->category, 'category' ),
+				'uri' => get_term_link( $this->category ),
 			],
 		]);
 
@@ -325,7 +326,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
-				'uri' => get_term_link( $this->custom_taxonomy, 'custom_tax' ),
+				'uri' => get_term_link( $this->custom_taxonomy ),
 			],
 		]);
 
