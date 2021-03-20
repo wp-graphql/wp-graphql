@@ -89,8 +89,8 @@ final class WPGraphQL {
 	 * The whole idea of the singleton design pattern is that there is a single object
 	 * therefore, we don't want the object to be cloned.
 	 *
-	 * @return void
 	 * @since  0.0.1
+	 * @return void
 	 */
 	public function __clone() {
 
@@ -102,8 +102,8 @@ final class WPGraphQL {
 	/**
 	 * Disable unserializing of the class.
 	 *
-	 * @return void
 	 * @since  0.0.1
+	 * @return void
 	 */
 	public function __wakeup() {
 
@@ -115,8 +115,8 @@ final class WPGraphQL {
 	/**
 	 * Setup plugin constants.
 	 *
-	 * @return void
 	 * @since  0.0.1
+	 * @return void
 	 */
 	private function setup_constants() {
 
@@ -125,7 +125,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.3.1' );
+			define( 'WPGRAPHQL_VERSION', '1.3.2' );
 		}
 
 		// Plugin Folder Path.
@@ -154,8 +154,8 @@ final class WPGraphQL {
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
-	 * @return bool
 	 * @since  0.0.1
+	 * @return bool
 	 */
 	private function includes() {
 
@@ -182,7 +182,7 @@ final class WPGraphQL {
 
 				add_action(
 					'admin_notices',
-					function() {
+					function () {
 
 						if ( ! current_user_can( 'manage_options' ) ) {
 							return;
@@ -224,8 +224,7 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution
-	 * cycle
+	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
 	 *
 	 * @return void
 	 */
@@ -318,8 +317,9 @@ final class WPGraphQL {
 	 * If the server is running a lower version than required, throw an exception and prevent
 	 * further execution.
 	 *
-	 * @return void
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function min_php_version_check() {
 
@@ -389,15 +389,8 @@ final class WPGraphQL {
 		);
 
 		// Filter how metadata is retrieved during GraphQL requests
-		add_filter(
-			'get_post_metadata',
-			[
-				'\WPGraphQL\Utils\Preview',
-				'filter_post_meta_for_previews',
-			],
-			10,
-			4
-		);
+		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
+
 	}
 
 	/**
@@ -413,72 +406,54 @@ final class WPGraphQL {
 	/**
 	 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
 	 *
-	 * @return void
 	 * @since  0.0.2
+	 * @return void
 	 */
 	public static function show_in_graphql() {
 
-		add_filter(
-			'register_post_type_args',
-			function( $args, $post_type ) {
+		global $wp_post_types, $wp_taxonomies;
 
-				if ( 'attachment' === $post_type ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'mediaItem';
-					$args['graphql_plural_name'] = 'mediaItems';
-				}
+		// Adds GraphQL support for attachments.
+		if ( isset( $wp_post_types['attachment'] ) ) {
+			$wp_post_types['attachment']->show_in_graphql     = true;
+			$wp_post_types['attachment']->graphql_single_name = 'mediaItem';
+			$wp_post_types['attachment']->graphql_plural_name = 'mediaItems';
+		}
 
-				if ( 'page' === $post_type ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'page';
-					$args['graphql_plural_name'] = 'pages';
-				}
+		// Adds GraphQL support for pages.
+		if ( isset( $wp_post_types['page'] ) ) {
+			$wp_post_types['page']->show_in_graphql     = true;
+			$wp_post_types['page']->graphql_single_name = 'page';
+			$wp_post_types['page']->graphql_plural_name = 'pages';
+		}
 
-				if ( 'post' === $post_type ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'post';
-					$args['graphql_plural_name'] = 'posts';
-				}
+		// Adds GraphQL support for posts.
+		if ( isset( $wp_post_types['post'] ) ) {
+			$wp_post_types['post']->show_in_graphql     = true;
+			$wp_post_types['post']->graphql_single_name = 'post';
+			$wp_post_types['post']->graphql_plural_name = 'posts';
+		}
 
-				return $args;
+		// Adds GraphQL support for categories.
+		if ( isset( $wp_taxonomies['category'] ) ) {
+			$wp_taxonomies['category']->show_in_graphql     = true;
+			$wp_taxonomies['category']->graphql_single_name = 'category';
+			$wp_taxonomies['category']->graphql_plural_name = 'categories';
+		}
 
-			},
-			10,
-			2
-		);
+		// Adds GraphQL support for tags.
+		if ( isset( $wp_taxonomies['post_tag'] ) ) {
+			$wp_taxonomies['post_tag']->show_in_graphql     = true;
+			$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
+			$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
+		}
 
-		add_filter(
-			'register_taxonomy_args',
-			function( $args, $taxonomy ) {
-
-				// Adds GraphQL support for categories.
-				if ( 'category' === $taxonomy ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'category';
-					$args['graphql_plural_name'] = 'categories';
-				}
-
-				// Adds GraphQL support for tags.
-				if ( 'post_tag' === $taxonomy ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'tag';
-					$args['graphql_plural_name'] = 'tags';
-				}
-
-				// Adds GraphQL support for post formats.
-				if ( 'post_format' === $taxonomy ) {
-					$args['show_in_graphql']     = true;
-					$args['graphql_single_name'] = 'postFormat';
-					$args['graphql_plural_name'] = 'postFormats';
-				}
-
-				return $args;
-
-			},
-			10,
-			2
-		);
-
+		// Adds GraphQL support for post formats.
+		if ( isset( $wp_taxonomies['post_format'] ) ) {
+			$wp_taxonomies['post_format']->show_in_graphql     = true;
+			$wp_taxonomies['post_format']->graphql_single_name = 'postFormat';
+			$wp_taxonomies['post_format']->graphql_plural_name = 'postFormats';
+		}
 	}
 
 	/**
@@ -492,8 +467,6 @@ final class WPGraphQL {
 	 * @since  0.0.4
 	 */
 	public static function get_allowed_post_types( $args = [] ) {
-
-		create_initial_post_types();
 
 		/**
 		 * Get all post_types
@@ -530,10 +503,11 @@ final class WPGraphQL {
 		 * to allow the post_types to be modified (for example if a certain post_type should
 		 * not be exposed to the GraphQL API)
 		 *
+		 * @since 0.0.2
+		 *
 		 * @param array $post_types Array of post types
 		 *
 		 * @return array
-		 * @since 0.0.2
 		 */
 		return apply_filters( 'graphql_post_entities_allowed_post_types', $post_types );
 
@@ -544,12 +518,10 @@ final class WPGraphQL {
 	 * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
 	 * the list of allowed_taxonomies to add/remove additional taxonomies
 	 *
-	 * @return array
 	 * @since  0.0.4
+	 * @return array
 	 */
 	public static function get_allowed_taxonomies() {
-
-		create_initial_taxonomies();
 
 		/**
 		 * Get all taxonomies
@@ -621,11 +593,11 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @param array      $schema                 The executable Schema that GraphQL executes against
-			 * @param AppContext $app_context            Object The AppContext object containing all of the
-			 *                                           information about the context we know at this point
-			 *
 			 * @since 0.0.5
+			 *
+			 * @param array                 $schema      The executable Schema that GraphQL executes against
+			 * @param AppContext $app_context Object The AppContext object containing all of the
+			 *                                           information about the context we know at this point
 			 */
 			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 		}
@@ -677,11 +649,11 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @param array      $type_registry            The TypeRegistry for the API
-			 * @param AppContext $app_context              Object The AppContext object containing all of the
-			 *                                             information about the context we know at this point
-			 *
 			 * @since 0.0.5
+			 *
+			 * @param array                 $type_registry The TypeRegistry for the API
+			 * @param AppContext $app_context   Object The AppContext object containing all of the
+			 *                                             information about the context we know at this point
 			 */
 			self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
 		}
