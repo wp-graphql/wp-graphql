@@ -103,7 +103,7 @@ class MediaItemCreate {
 		return [
 			'mediaItem' => [
 				'type'        => 'MediaItem',
-				'description' => 'The MediaItem object mutation type.',
+				'description' => __( 'The MediaItem object mutation type.', 'wp-graphql' ),
 				'resolve'     => function ( $payload, $args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;

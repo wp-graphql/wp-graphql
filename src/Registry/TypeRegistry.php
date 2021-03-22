@@ -1254,7 +1254,7 @@ class TypeRegistry {
 		$output_fields = [
 			'clientMutationId' => [
 				'type'        => 'String',
-				'description' => 'The ID for the mutation output field',
+				'description' => __( 'The ID for the mutation output field', 'wp-graphql' ),
 			],
 		];
 
@@ -1273,7 +1273,7 @@ class TypeRegistry {
 		$input_fields = [
 			'clientMutationId' => [
 				'type'        => 'String',
-				'description' => 'The ID for the mutation input field',
+				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 

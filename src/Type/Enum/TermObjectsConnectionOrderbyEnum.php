@@ -16,31 +16,31 @@ class TermObjectsConnectionOrderbyEnum {
 				'values'      => [
 					'NAME'        => [
 						'value'       => 'name',
-						'description' => 'Order the connection by name.',
+						'description' => __( 'Order the connection by name.', 'wp-graphql' ),
 					],
 					'SLUG'        => [
 						'value'       => 'slug',
-						'description' => 'Order the connection by slug.',
+						'description' => __( 'Order the connection by slug.', 'wp-graphql' ),
 					],
 					'TERM_GROUP'  => [
 						'value'       => 'term_group',
-						'description' => 'Order the connection by term group.',
+						'description' => __( 'Order the connection by term group.', 'wp-graphql' ),
 					],
 					'TERM_ID'     => [
 						'value'       => 'term_id',
-						'description' => 'Order the connection by term id.',
+						'description' => __( 'Order the connection by term id.', 'wp-graphql' ),
 					],
 					'TERM_ORDER'  => [
 						'value'       => 'term_order',
-						'description' => 'Order the connection by term order.',
+						'description' => __( 'Order the connection by term order.', 'wp-graphql' ),
 					],
 					'DESCRIPTION' => [
 						'value'       => 'description',
-						'description' => 'Order the connection by description.',
+						'description' => __( 'Order the connection by description.', 'wp-graphql' ),
 					],
 					'COUNT'       => [
 						'value'       => 'count',
-						'description' => 'Order the connection by item count.',
+						'description' => __( 'Order the connection by item count.', 'wp-graphql' ),
 					],
 				],
 			]

@@ -36,7 +36,7 @@ class ContentRevisionUnion {
 				'ContentRevisionUnion',
 				[
 					'typeNames'   => $type_names,
-					'description' => 'Union between the Post and Page types',
+					'description' => __( 'A union of Content Node Types that support revisions', 'wp-graphql' ),
 					'resolveType' => function( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';

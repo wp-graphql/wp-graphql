@@ -126,7 +126,7 @@ class UserCreate {
 		return [
 			'user' => [
 				'type'        => 'User',
-				'description' => 'The User object mutation type.',
+				'description' => __( 'The User object mutation type.', 'wp-graphql' ),
 				'resolve'     => function( $payload ) {
 
 					$user = get_user_by( 'ID', (int) $payload['id'] );

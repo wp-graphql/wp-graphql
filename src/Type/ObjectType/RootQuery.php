@@ -179,26 +179,27 @@ class RootQuery {
 					],
 					'node'        => [
 						'type'        => 'Node',
+						'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
 						'args'        => [
 							'id' => [
 								'type'        => 'ID',
 								'description' => __( 'The unique identifier of the node', 'wp-graphql' ),
 							],
 						],
-						'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
 						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $args['id'] ) ? DataSource::resolve_node( $args['id'], $context, $info ) : null;
 						},
 					],
 					'nodeByUri'   => [
-						'type'    => 'UniformResourceIdentifiable',
-						'args'    => [
+						'type'        => 'UniformResourceIdentifiable',
+						'description' => __( 'Fetches an object given its Unique Resource Identifier', 'wp-graphql' ),
+						'args'        => [
 							'uri' => [
 								'type'        => [ 'non_null' => 'String' ],
 								'description' => __( 'Unique Resource Identifier in the form of a path or permalink for a node. Ex: "/hello-world"', 'wp-graphql' ),
 							],
 						],
-						'resolve' => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
 							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
 						},
 					],
@@ -207,10 +208,10 @@ class RootQuery {
 						'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
 						'args'        => [
 							'id'     => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'The globally unique identifier of the menu.', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'The globally unique identifier of the menu.', 'wp-graphql' ),
 							],
 							'idType' => [
 								'type'        => 'MenuNodeIdTypeEnum',
@@ -255,10 +256,10 @@ class RootQuery {
 						'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
 						'args'        => [
 							'id'     => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'The globally unique identifier of the menu item.', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'The globally unique identifier of the menu item.', 'wp-graphql' ),
 							],
 							'idType' => [
 								'type'        => 'MenuItemNodeIdTypeEnum',
@@ -375,7 +376,7 @@ class RootQuery {
 								'type'        => [
 									'non_null' => 'ID',
 								],
-								'description' => __( 'xThe globally unique identifier of the theme.', 'wp-graphql' ),
+								'description' => __( 'The globally unique identifier of the theme.', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) {
