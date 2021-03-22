@@ -71,7 +71,7 @@ class CommentsConnectionOrderbyEnum {
 						'value'       => 'comment_post_ID',
 					],
 					'COMMENT_TYPE'         => [
-						'description' => __( 'Order by the The type of comment, such as \'comment\', \'pingback\', or \'trackback\'.', 'wp-graphql' ),
+						'description' => __( 'Order by the the type of comment, such as \'comment\', \'pingback\', or \'trackback\'.', 'wp-graphql' ),
 						'value'       => 'comment_type',
 					],
 					'USER_ID'              => [
