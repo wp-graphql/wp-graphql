@@ -16,10 +16,12 @@ class OrderEnum {
 				'description'  => __( 'The cardinality of the connection order', 'wp-graphql' ),
 				'values'       => [
 					'ASC'  => [
-						'value' => 'ASC',
+						'value'       => 'ASC',
+						'description' => __( 'Sort the query result set in an ascending order', 'wp-graphql' ),
 					],
 					'DESC' => [
-						'value' => 'DESC',
+						'value'       => 'DESC',
+						'description' => __( 'Sort the query result set in a descending order', 'wp-graphql' ),
 					],
 				],
 				'defaultValue' => 'DESC',

@@ -25,7 +25,7 @@ class MediaDetails {
 					],
 					'file'   => [
 						'type'        => 'String',
-						'description' => __( 'The height of the mediaItem', 'wp-graphql' ),
+						'description' => __( 'The filename of the mediaItem', 'wp-graphql' ),
 					],
 					'sizes'  => [
 						'type'        => [
@@ -45,8 +45,9 @@ class MediaDetails {
 						},
 					],
 					'meta'   => [
-						'type'    => 'MediaItemMeta',
-						'resolve' => function( $media_details, $args, $context, $info ) {
+						'type'        => 'MediaItemMeta',
+						'description' => __( 'Meta information associated with the mediaItem', 'wp-graphql' ),
+						'resolve'     => function( $media_details, $args, $context, $info ) {
 							return ! empty( $media_details['image_meta'] ) ? $media_details['image_meta'] : null;
 						},
 					],

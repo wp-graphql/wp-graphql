@@ -500,9 +500,10 @@ class TypeRegistry {
 											'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
 										],
 										'nodes'  => [
-											'type' => [
+											'type'        => [
 												'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
 											],
+											'description' => __( 'The input list of items to set.', 'wp-graphql' ),
 										],
 									],
 								]
