@@ -38,10 +38,10 @@ class RootQuery {
 						'description' => __( 'Returns a Comment', 'wp-graphql' ),
 						'args'        => [
 							'id' => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'Unique identifier for the comment node', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'Unique identifier for the comment node.', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
@@ -55,10 +55,10 @@ class RootQuery {
 						'description' => __( 'A node used to manage content', 'wp-graphql' ),
 						'args'        => [
 							'id'          => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'Unique identifier for the content node', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'Unique identifier for the content node.', 'wp-graphql' ),
 							],
 							'idType'      => [
 								'type'        => 'ContentNodeIdTypeEnum',
@@ -115,7 +115,7 @@ class RootQuery {
 						'args'        => [
 							'id'     => [
 								'type'        => [ 'non_null' => 'ID' ],
-								'description' => __( 'Unique Identifier for the Content Type node', 'wp-graphql' ),
+								'description' => __( 'Unique Identifier for the Content Type node.', 'wp-graphql' ),
 							],
 							'idType' => [
 								'type'        => 'ContentTypeIdTypeEnum',
@@ -149,7 +149,7 @@ class RootQuery {
 						'args'        => [
 							'id'     => [
 								'type'        => [ 'non_null' => 'ID' ],
-								'description' => __( 'Unique Identifier for the Taxonomy node', 'wp-graphql' ),
+								'description' => __( 'Unique Identifier for the Taxonomy node.', 'wp-graphql' ),
 							],
 							'idType' => [
 								'type'        => 'TaxonomyIdTypeEnum',
@@ -308,10 +308,10 @@ class RootQuery {
 						'description' => __( 'A node in a taxonomy used to group and relate content nodes', 'wp-graphql' ),
 						'args'        => [
 							'id'       => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'Unique identifier for the term node', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'Unique identifier for the term node.', 'wp-graphql' ),
 							],
 							'idType'   => [
 								'type'        => 'TermNodeIdTypeEnum',
@@ -372,10 +372,10 @@ class RootQuery {
 						'description' => __( 'A Theme object', 'wp-graphql' ),
 						'args'        => [
 							'id' => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'The globally unique identifier of the theme.', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'xThe globally unique identifier of the theme.', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => function( $source, array $args, $context, $info ) {
@@ -451,8 +451,7 @@ class RootQuery {
 						'args'        => [
 							'id' => [
 								'type'        => [
-									'non_null'    => 'ID',
-									'description' => __( 'The globally unique identifier of the user role.', 'wp-graphql' ),
+									'non_null' => 'ID',
 								],
 								'description' => __( 'The globally unique identifier of the user object.', 'wp-graphql' ),
 							],
@@ -501,10 +500,10 @@ class RootQuery {
 						'description' => sprintf( __( 'An object of the %1$s Type. %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_type_object->description ),
 						'args'        => [
 							'id'        => [
-								'type' => [
-									'non_null'    => 'ID',
-									'description' => __( 'The globally unique identifier of the user role.', 'wp-graphql' ),
+								'type'        => [
+									'non_null' => 'ID',
 								],
+								'description' => __( 'The globally unique identifier of the object.', 'wp-graphql' ),
 							],
 							'idType'    => [
 								'type'        => $post_type_object->graphql_single_name . 'IdType',
@@ -685,9 +684,10 @@ class RootQuery {
 						'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
 						'args'        => [
 							'id'     => [
-								'type' => [
+								'type'        => [
 									'non_null' => 'ID',
 								],
+								'description' => __( 'The globally unique identifier of the object.', 'wp-graphql' ),
 							],
 							'idType' => [
 								'type'        => $taxonomy_object->graphql_single_name . 'IdType',
