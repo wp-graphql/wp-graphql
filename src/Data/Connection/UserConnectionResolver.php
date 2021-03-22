@@ -98,6 +98,14 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['fields'] = 'ID';
 
+		/**
+		 * If the request is not authenticated, limit the query to users that have
+		 * published posts, as they're considered publicly facing users.
+		 */
+		if ( ! is_user_logged_in() ) {
+			$query_args['has_published_posts'] = true;
+		}
+
 		if ( ! empty( $query_args['search'] ) ) {
 			$query_args['search']  = '*' . $query_args['search'] . '*';
 			$query_args['orderby'] = 'user_login';
