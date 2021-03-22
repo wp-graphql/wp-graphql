@@ -86,7 +86,7 @@ class NodeResolver {
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
 
-		$error   = '404';
+		$error = '404';
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
 			$error                   = null;
@@ -262,7 +262,6 @@ class NodeResolver {
 				$this->wp->query_vars[ $t->query_var ] = str_replace( ' ', '+', $this->wp->query_vars[ $t->query_var ] );
 			}
 		}
-
 
 		// Limit publicly queried post_types to those that are publicly_queryable
 		if ( isset( $this->wp->query_vars['post_type'] ) ) {
