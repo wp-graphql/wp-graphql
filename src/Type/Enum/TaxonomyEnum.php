@@ -25,6 +25,7 @@ class TaxonomyEnum {
 				if ( ! isset( $values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] ) ) {
 					$values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] = [
 						'value' => $allowed_taxonomy,
+						'description' => sprintf( __( 'Taxonomy enum %s', 'wp-graphql' ), $allowed_taxonomy ),
 					];
 				}
 			}

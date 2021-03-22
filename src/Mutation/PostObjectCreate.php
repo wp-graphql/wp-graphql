@@ -168,6 +168,7 @@ class PostObjectCreate {
 		return [
 			$post_type_object->graphql_single_name => [
 				'type'    => $post_type_object->graphql_single_name,
+				'description' => 'The Post object mutation type.',
 				'resolve' => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {

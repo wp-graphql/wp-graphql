@@ -18,6 +18,7 @@ class TermObjectUnion {
 			[
 				'kind'        => 'union',
 				'typeNames'   => self::get_possible_types(),
+				'description' => 'Union between the Category, Tag and PostFormatPost types',
 				'resolveType' => function( $value ) use ( $type_registry ) {
 
 					$type = null;

@@ -126,6 +126,7 @@ class UserCreate {
 		return [
 			'user' => [
 				'type'    => 'User',
+				'description' => 'The User object mutation type.',
 				'resolve' => function( $payload ) {
 
 					$user = get_user_by( 'ID', (int) $payload['id'] );

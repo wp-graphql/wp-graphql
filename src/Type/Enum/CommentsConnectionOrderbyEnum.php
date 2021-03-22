@@ -43,11 +43,11 @@ class CommentsConnectionOrderbyEnum {
 						'value'       => 'comment_content',
 					],
 					'COMMENT_DATE'         => [
-						'descriotion' => 'Order by date/time timestamp of the comment.',
+						'description' => 'Order by date/time timestamp of the comment.',
 						'value'       => 'comment_date',
 					],
 					'COMMENT_DATE_GMT'     => [
-						'descriotion' => 'Order by GMT timezone date/time timestamp of the comment.',
+						'description' => 'Order by GMT timezone date/time timestamp of the comment.',
 						'value'       => 'comment_date_gmt',
 					],
 					'COMMENT_ID'           => [

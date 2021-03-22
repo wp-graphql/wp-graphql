@@ -35,6 +35,7 @@ class ContentRevisionUnion {
 				'ContentRevisionUnion',
 				[
 					'typeNames'   => $type_names,
+					'description' => 'Union between the Post and Page types',
 					'resolveType' => function( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';
