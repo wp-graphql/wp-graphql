@@ -1253,7 +1253,7 @@ class TypeRegistry {
 
 		$output_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
 				'description' => 'The ID for the mutation output field',
 			],
 		];
@@ -1272,7 +1272,7 @@ class TypeRegistry {
 
 		$input_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
 				'description' => 'The ID for the mutation input field',
 			],
 		];

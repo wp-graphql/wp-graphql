@@ -169,9 +169,9 @@ class PostObjectCreate {
 	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
 			$post_type_object->graphql_single_name => [
-				'type'    => $post_type_object->graphql_single_name,
+				'type'        => $post_type_object->graphql_single_name,
 				'description' => 'The Post object mutation type.',
-				'resolve' => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;

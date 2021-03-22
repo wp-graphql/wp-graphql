@@ -125,9 +125,9 @@ class UserCreate {
 	public static function get_output_fields() {
 		return [
 			'user' => [
-				'type'    => 'User',
+				'type'        => 'User',
 				'description' => 'The User object mutation type.',
-				'resolve' => function( $payload ) {
+				'resolve'     => function( $payload ) {
 
 					$user = get_user_by( 'ID', (int) $payload['id'] );
 
