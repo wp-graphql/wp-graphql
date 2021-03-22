@@ -2,10 +2,41 @@
 
 ## Upcoming
 
+## 1.3.2
+
+### Bugfix
+
+- Fixes ([#1802](https://github.com/wp-graphql/wp-graphql/issues/1802)) by reversing a change to how initial post types and taxonomies are setup.
+
+## 1.3.1
+
+### Bugfix
+
+- patches a bug where default post types and taxonomies disappeared from the Schema
+
+## 1.3.0
+
+### Noteable changes
+
+Between this release and the prior release ([v1.2.6](https://github.com/wp-graphql/wp-graphql/releases/tag/v1.2.6)) includes changes to pagination under the hood.
+
+While these releases correcting mistakes and buggy behavior, it's possible that workarounds have already been implemented either in the server or in client applications.
+
+For example, there was a bug with `start/end` cursors being reversed for backward pagination.
+
+If a client application were reversing the cursors to fix the issue, the reversal in the client will now _cause_ the issue.
+
+It's recommended to test your applications against this release, _specifically_ in regards to pagination.
+
 ### Bugfixes / Chores
 
-- Resolve backward pagination bug when using the post__in argument for post connection queries.
-
+- ([#1797](https://github.com/wp-graphql/wp-graphql/pull/1797)): Update test environment to allow custom permalink structures to be better tested. Moves the "show_in_graphql" setup of core post types and taxonomies into the `register_post_type_args` and `register_taxonomy_args` filters instead of modifying global filters directly.
+- ([#1794](https://github.com/wp-graphql/wp-graphql/pull/1794)): Cleanup to PHPStan config. Thanks @szepeviktor!
+- ([#1795](https://github.com/wp-graphql/wp-graphql/pull/1795)) and ([#1793](https://github.com/wp-graphql/wp-graphql/pull/1793)): Don't throw errors when external urls are provided as input for queries that try and resolve by uri
+- ([#1792](https://github.com/wp-graphql/wp-graphql/pull/1792)): Add missing descriptions to various fields in the Schema. Thanks @markkelnar!
+- ([#1791](https://github.com/wp-graphql/wp-graphql/pull/1791)): Update where `WP_GRAPHQL_URL` is defined to follow recommendation from WordPress.org.
+- ([#1784](https://github.com/wp-graphql/wp-graphql/pull/1784)): Fix `UsersConnectionSearchColumnEnum` to show the proper values that were accidentally replaced.
+- ([#1781](https://github.com/wp-graphql/wp-graphql/pull/1781)): Fixes various bugs related to pagination. Between this release and the v1.2.6 release the following bugs have been worked on in regards to pagination: ([#1780](https://github.com/wp-graphql/wp-graphql/pull/1780), [#1411](https://github.com/wp-graphql/wp-graphql/pull/1411), [#1552](https://github.com/wp-graphql/wp-graphql/pull/1552), [#1714](https://github.com/wp-graphql/wp-graphql/pull/1714), [#1440](https://github.com/wp-graphql/wp-graphql/pull/1440))
 ## 1.2.6
 
 ### Bugfixes / Chores

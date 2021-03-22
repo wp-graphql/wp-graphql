@@ -94,11 +94,14 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$revisions = wp_get_post_revisions( $post_id, [
-									'posts_per_page' => 1,
-									'fields'         => 'ids',
-									'check_enabled'  => false,
-								] );
+								$revisions = wp_get_post_revisions(
+									$post_id,
+									[
+										'posts_per_page' => 1,
+										'fields'         => 'ids',
+										'check_enabled'  => false,
+									]
+								);
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
@@ -223,13 +226,15 @@ class RootQuery {
 									$id = absint( $args['id'] );
 									break;
 								case 'name':
-									$menu = new \WP_Term_Query([
-										'taxonomy'         => 'nav_menu',
-										'fields'           => 'ids',
-										'name'             => $args['id'],
-										'include_children' => false,
-										'count'            => false,
-									]);
+									$menu = new \WP_Term_Query(
+										[
+											'taxonomy' => 'nav_menu',
+											'fields'   => 'ids',
+											'name'     => $args['id'],
+											'include_children' => false,
+											'count'    => false,
+										]
+									);
 									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
 									break;
 								default:
@@ -294,6 +299,7 @@ class RootQuery {
 						],
 						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
+
 							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
@@ -515,21 +521,31 @@ class RootQuery {
 							$post_id = null;
 							switch ( $idType ) {
 								case 'slug':
-									return $context->node_resolver->resolve_uri( $args['id'], [
-										'name'      => $args['id'],
-										'post_type' => $post_type_object->name,
-									] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'name'      => $args['id'],
+											'post_type' => $post_type_object->name,
+										]
+									);
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'], [
-										'post_type' => $post_type_object->name,
-										'archive'   => false,
-										'nodeType'  => 'Page',
-									] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'post_type' => $post_type_object->name,
+											'archive'   => false,
+											'nodeType'  => 'Page',
+										]
+									);
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
 								case 'source_url':
 									$url     = $args['id'];
+									$post_id = attachment_url_to_postid( $url );
+									if ( empty( $post_id ) ) {
+										return null;
+									}
 									$post_id = absint( attachment_url_to_postid( $url ) );
 									break;
 								case 'global_id':
@@ -543,20 +559,29 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$revisions = wp_get_post_revisions( $post_id, [
-									'posts_per_page' => 1,
-									'fields'         => 'ids',
-									'check_enabled'  => false,
-								] );
+								$revisions = wp_get_post_revisions(
+									$post_id,
+									[
+										'posts_per_page' => 1,
+										'fields'         => 'ids',
+										'check_enabled'  => false,
+									]
+								);
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
-									return null;
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+								function( $post ) use ( $post_type_object ) {
+									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
+										'revision',
+										$post_type_object->name,
+									], true ) ) {
+										return null;
+									}
+
+									return $post;
 								}
-								return $post;
-							});
+							);
 						},
 					]
 				);
@@ -606,23 +631,31 @@ class RootQuery {
 								$post_id = absint( $id );
 							} elseif ( ! empty( $args['uri'] ) ) {
 								$uri = esc_html( $args['uri'] );
+
 								return $context->node_resolver->resolve_uri( $uri );
 							} elseif ( ! empty( $args['slug'] ) ) {
 								$slug = esc_html( $args['slug'] );
+
 								return $context->node_resolver->resolve_uri( $slug );
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then( function( $post ) use ( $post_type_object ) {
+							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+								function( $post ) use ( $post_type_object ) {
 
-								if ( ! $post_type_object instanceof \WP_Post_Type ) {
-									return null;
-								}
+									if ( ! $post_type_object instanceof \WP_Post_Type ) {
+										return null;
+									}
 
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [ 'revision', $post_type_object->name ], true ) ) {
-									return null;
+									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
+										'revision',
+										$post_type_object->name,
+									], true ) ) {
+										return null;
+									}
+
+									return $post;
 								}
-								return $post;
-							});
+							);
 
 						},
 					]
@@ -641,6 +674,7 @@ class RootQuery {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
+				/** @var \WP_Taxonomy $taxonomy_object */
 				$taxonomy_object = get_taxonomy( $taxonomy );
 
 				register_graphql_field(

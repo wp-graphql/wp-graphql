@@ -125,7 +125,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.1.3' );
+			define( 'WPGRAPHQL_VERSION', '1.3.2' );
 		}
 
 		// Plugin Folder Path.
@@ -390,6 +390,7 @@ final class WPGraphQL {
 
 		// Filter how metadata is retrieved during GraphQL requests
 		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
+
 	}
 
 	/**
@@ -477,6 +478,7 @@ final class WPGraphQL {
 		 */
 		array_map(
 			function( $post_type ) {
+				/** @var string $post_type */
 				$post_type_object = get_post_type_object( $post_type );
 
 				if ( ! $post_type_object instanceof WP_Post_Type ) {

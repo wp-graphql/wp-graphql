@@ -536,14 +536,20 @@ class DataSource {
 						$parent_post = get_post( $node->parentDatabaseId );
 						if ( ! empty( $parent_post ) ) {
 							$parent_post_type = $parent_post->post_type;
-							$type             = get_post_type_object( $parent_post_type )->graphql_single_name;
+							/** @var \WP_Post_Type $post_type_object */
+							$post_type_object = get_post_type_object( $parent_post_type );
+							$type             = $post_type_object->graphql_single_name;
 						}
 					} else {
-						$type = get_post_type_object( $node->post_type )->graphql_single_name;
+						/** @var \WP_Post_Type $post_type_object */
+						$post_type_object = get_post_type_object( $node->post_type );
+						$type             = $post_type_object->graphql_single_name;
 					}
 					break;
 				case $node instanceof Term:
-					$type = get_taxonomy( $node->taxonomyName )->graphql_single_name;
+					/** @var \WP_Taxonomy $taxonomy_object */
+					$taxonomy_object = get_taxonomy( $node->taxonomyName );
+					$type            = $taxonomy_object->graphql_single_name;
 					break;
 				case $node instanceof Comment:
 					$type = 'Comment';

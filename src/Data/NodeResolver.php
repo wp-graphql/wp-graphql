@@ -60,7 +60,10 @@ class NodeResolver {
 				],
 				true
 			) ) {
-				throw new UserError( __( 'Cannot return a resource for an external URI', 'wp-graphql' ) );
+				graphql_debug( __( 'Cannot return a resource for an external URI', 'wp-graphql' ), [
+					'uri' => $uri,
+				] );
+				return null;
 			}
 		}
 
