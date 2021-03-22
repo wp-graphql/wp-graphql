@@ -27,7 +27,12 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_plural_name' => 'CustomTaxes',
 		]);
 
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		global $wp_rewrite;
+		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_taxonomies();
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules();
+		WPGraphQL::show_in_graphql();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -84,13 +89,6 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
 		wp_delete_user( $this->user );
 
-	}
-
-	public function set_permalink_structure( $structure = '' ) {
-		global $wp_rewrite;
-		$wp_rewrite->init();
-		$wp_rewrite->set_permalink_structure( $structure );
-		$wp_rewrite->flush_rules( true );
 	}
 
 	/**
