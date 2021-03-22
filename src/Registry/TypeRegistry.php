@@ -1208,8 +1208,8 @@ class TypeRegistry {
 					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
 				],
 				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
+					'type'        => 'Int',
+					'description' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
 				],
 				'after'  => [
 					'type'        => 'String',
