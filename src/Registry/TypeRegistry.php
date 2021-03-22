@@ -1208,8 +1208,8 @@ class TypeRegistry {
 					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
 				],
 				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
+					'type'        => 'Int',
+					'description' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
 				],
 				'after'  => [
 					'type'        => 'String',
@@ -1253,7 +1253,8 @@ class TypeRegistry {
 
 		$output_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
+				'description' => __( 'If a \'clientMutationId\' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 
@@ -1271,7 +1272,8 @@ class TypeRegistry {
 
 		$input_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
+				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 

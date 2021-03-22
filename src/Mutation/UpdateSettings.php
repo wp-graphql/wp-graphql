@@ -112,8 +112,9 @@ class UpdateSettings {
 				$setting_type = lcfirst( str_replace( ' ', '', ucwords( $setting_type, ' ' ) ) );
 
 				$output_fields[ $setting_type . 'Settings' ] = [
-					'type'    => $setting_type . 'Settings',
-					'resolve' => function () use ( $setting_type ) {
+					'type'        => $setting_type . 'Settings',
+					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type ),
+					'resolve'     => function () use ( $setting_type ) {
 						return $setting_type;
 					},
 				];
@@ -125,8 +126,9 @@ class UpdateSettings {
 		 * Get all of the settings, regardless of group
 		 */
 		$output_fields['allSettings'] = [
-			'type'    => 'Settings',
-			'resolve' => function () {
+			'type'        => 'Settings',
+			'description' => __( 'Update all settings.', 'wp-graphql' ),
+			'resolve'     => function () {
 				return true;
 			},
 		];

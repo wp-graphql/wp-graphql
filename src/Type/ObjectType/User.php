@@ -121,7 +121,8 @@ class User {
 								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
 							],
 							'rating'       => [
-								'type' => 'AvatarRatingEnum',
+								'type'        => 'AvatarRatingEnum',
+								'description' => __( 'The rating level of the avatar.', 'wp-graphql' ),
 							],
 
 						],

@@ -480,20 +480,22 @@ class PostObjects {
 			/**
 			 * Status parameters
 			 *
-			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Status_Parameters
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#status-parameters
 			 * @since 0.0.2
 			 */
 			'status'      => [
-				'type' => 'PostStatusEnum',
+				'type'        => 'PostStatusEnum',
+				'description' => __( 'Show posts with a specific status.', 'wp-graphql' ),
 			],
 
 			/**
 			 * List of post status parameters
 			 */
 			'stati'       => [
-				'type' => [
+				'type'        => [
 					'list_of' => 'PostStatusEnum',
 				],
+				'description' => __( 'Retrieve posts where post status is in an array.', 'wp-graphql' ),
 			],
 
 			/**
