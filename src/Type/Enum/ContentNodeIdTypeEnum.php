@@ -30,7 +30,7 @@ class ContentNodeIdTypeEnum {
 
 				$values = self::get_values();
 				if ( ! $post_type_object->hierarchical ) {
-					$values['slug'] = [
+					$values['SLUG'] = [
 						'name'        => 'SLUG',
 						'value'       => 'slug',
 						'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
@@ -38,7 +38,7 @@ class ContentNodeIdTypeEnum {
 				}
 
 				if ( 'attachment' === $post_type_object->name ) {
-					$values['source_url'] = [
+					$values['SOURCE_URL'] = [
 						'name'        => 'SOURCE_URL',
 						'value'       => 'source_url',
 						'description' => __( 'Identify a media item by its source url', 'wp-graphql' ),
