@@ -1547,6 +1547,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $graphql_query );
 
+		codecept_debug( $user );
+		codecept_debug( $actual );
+
 		$expected = [
 			'post' => [
 				'id' => $global_id,

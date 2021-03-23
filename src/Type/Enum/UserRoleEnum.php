@@ -23,7 +23,8 @@ class UserRoleEnum {
 				$formatted_role = WPEnumType::get_safe_name( $role['name'] );
 
 				$roles[ $formatted_role ] = [
-					'value' => $key,
+					'description' => __( 'User role with specific capabilities', 'wp-graphql' ),
+					'value'       => $key,
 				];
 			}
 		}

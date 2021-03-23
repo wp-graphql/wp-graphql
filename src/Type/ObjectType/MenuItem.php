@@ -78,10 +78,10 @@ class MenuItem {
 						'description' => __( 'Menu item order', 'wp-graphql' ),
 					],
 					'locations'        => [
-						'type' => [
-							'list_of'     => 'MenuLocationEnum',
-							'description' => __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' ),
+						'type'        => [
+							'list_of' => 'MenuLocationEnum',
 						],
+						'description' => __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' ),
 					],
 					'connectedObject'  => [
 						'type'              => 'MenuItemObjectUnion',
