@@ -32,7 +32,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			array( 1 )
+			array( 0 )
 		) );
 		$this->created_user_ids = [ 1 ];
 	}
@@ -1554,6 +1554,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testQueryUsersAsPublicUserShouldReturnOnlyPublishedAuthors() {
+
+		$this->delete_users();
 
 		$alphabet = range( 'A', 'Z' );
 		$published_users = [];
