@@ -149,16 +149,18 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 				'test' => [
 					'type' => 'String'
 				]
-			]
+			],
+			'description' => 'My Custom Type'
 		] );
 
 		add_action( 'graphql_register_types', function( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
-			$types = $type_registry->get_types();
-			codecept_debug( array_keys( $types ) );
-			$this->assertArrayHasKey( 'mycustomtype', $types );
-			$this->assertArrayHasKey( 'string', $types );
+			$type = $type_registry->get_type('mycustomtype');
+			$this->assertEquals( 'MyCustomType', $type->name );
+			$this->assertEquals( 'My Custom Type', $type->description );
 		} );
 
+		// Invoke the shema and type registry actions.
+		$schema = \WPGraphQL::get_schema();
 	}
 
 	/**
