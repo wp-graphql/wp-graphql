@@ -250,14 +250,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * explicitly set in the query, unset the $query_args['post_parent'] so the search
 		 * can search all posts, not just top level posts.
 		 */
-		if ( ! $this->source instanceof \WP_Post && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
+		if ( ! $this->source instanceof \WP_Post && isset( $query_args['s'] ) && ! isset( $input_fields['parent'] ) ) {
 			unset( $query_args['post_parent'] );
 		}
 
 		/**
 		 * If the query contains search default the results to
 		 */
-		if ( isset( $query_args['search'] ) && ! empty( $query_args['search'] ) ) {
+		if ( isset( $query_args['s'] ) && ! empty( $query_args['s'] ) ) {
 			/**
 			 * Don't order search results by title (causes funky issues with cursors)
 			 */
