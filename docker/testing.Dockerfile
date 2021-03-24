@@ -17,19 +17,22 @@ ENV USING_XDEBUG=${USE_XDEBUG}
 # Install php extensions
 RUN docker-php-ext-install pdo_mysql
 
-# Install PCOV and XDebug
+# Install PCOV and XDebug 3
 # This is needed for Codeception / PHPUnit to track code coverage
-RUN if [[ "$USING_XDEBUG" ]]; then \
-    apt-get install zip unzip -y && \
-    pecl install pcov && \
-    docker-php-ext-enable pcov && \
-    rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
-    echo "pcov.enabled=1" >> /usr/local/etc/php/php.ini ;\
-    yes | pecl install xdebug \
-    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini; \
-fi
+RUN if [ "$USING_XDEBUG" ]; then \
+        apt-get install zip unzip -y \
+        && pecl install pcov \
+        && docker-php-ext-enable pcov \
+        && echo "pcov.enabled=1" >> /usr/local/etc/php/php.ini \
+        && pecl install -f xdebug \
+        && docker-php-ext-enable xdebug \
+        && echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.mode=develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        ; \
+    fi
 
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1

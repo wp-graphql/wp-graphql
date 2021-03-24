@@ -19,9 +19,6 @@ services:
       ADMIN_EMAIL: admin@example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: password
-      INCLUDE_WPGRAPHIQL: 1
-      IMPORT_WC_PRODUCTS: 1
-      STRIPE_GATEWAY: 1
     ports:
       - '8091:80'
     networks:
@@ -54,7 +51,6 @@ services:
       DB_HOST: app_db
       WP_URL: 'http://localhost'
       WP_DOMAIN: 'localhost'
-      STRIPE_GATEWAY: 1
     networks:
       testing:
 
