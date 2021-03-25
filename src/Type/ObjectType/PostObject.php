@@ -174,21 +174,11 @@ class PostObject {
 							$image = wp_get_attachment_image_src( $source->ID, $size );
 							if ( $image ) {
 								list( $src, $width, $height ) = $image;
-								$sizes                        = wp_calculate_image_sizes(
-									[
-										absint( $width ),
-										absint( $height ),
-									],
-									$src,
-									null,
-									$source->ID
-								);
-
+								$sizes                        = wp_calculate_image_sizes( [ absint( $width ), absint( $height ) ], $src, null, $source->ID );
 								return ! empty( $sizes ) ? $sizes : null;
 							}
 
 							return null;
-
 						},
 					],
 					'description'  => [

@@ -38,11 +38,11 @@ class CursorBuilder {
 	 * will be the primary field and latter ones will be used if the primary
 	 * field has duplicate values
 	 *
-	 * @param string           $key           database column
-	 * @param mixed|string|int $value         value from the current cursor
-	 * @param string           $type          type cast
-	 * @param string           $order         custom order
-	 * @param PostObjectCursor $object_cursor The PostObjectCursor class
+	 * @param string                $key           database column
+	 * @param mixed|string|int      $value         value from the current cursor
+	 * @param string|null           $type          type cast
+	 * @param string|null           $order         custom order
+	 * @param PostObjectCursor|null $object_cursor The PostObjectCursor class
 	 *
 	 * @return void
 	 */
@@ -85,6 +85,7 @@ class CursorBuilder {
 		}
 
 		$this->fields[] = $escaped_field;
+
 	}
 
 	/**
@@ -104,6 +105,7 @@ class CursorBuilder {
 	 * @return string
 	 */
 	public function to_sql( $fields = null ) {
+
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}
@@ -128,7 +130,7 @@ class CursorBuilder {
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
 			if ( 'CHAR' === $cast ) {
-				$value = "'$value'";
+				$value = '"' . wp_unslash( $value ) . '"';
 			} elseif ( $cast ) {
 				$key   = "CAST( $key as $cast )";
 				$value = "CAST( '$value' as $cast )";
@@ -141,7 +143,9 @@ class CursorBuilder {
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );
 
-		return " {$key} {$compare}= {$value} AND ( {$key} {$compare} {$value} OR ( {$nest} ) ) ";
+		$sql = ' %1$s %2$s= %3$s AND ( %1$s %2$s %3$s OR ( %4$s ) ) ';
+
+		return sprintf( $sql, $key, $compare, $value, $nest );
 	}
 
 

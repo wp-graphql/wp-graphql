@@ -452,7 +452,7 @@ function register_graphql_settings_field( string $group, array $config ) {
  * @return void
  */
 function graphql_debug( $message, $config = [] ) {
-	$debug_backtrace = debug_backtrace();
+	$debug_backtrace     = debug_backtrace();
 	$config['backtrace'] = ! empty( $debug_backtrace )
 		? array_column(
 			array_filter( // Filter out steps without files

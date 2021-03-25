@@ -19,6 +19,7 @@ class PostObjectUnion {
 			[
 				'name'        => 'PostObjectUnion',
 				'typeNames'   => self::get_possible_types(),
+				'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
 				'resolveType' => function( $value ) use ( $type_registry ) {
 
 					$type = null;

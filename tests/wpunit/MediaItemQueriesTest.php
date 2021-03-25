@@ -290,7 +290,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'id' => $post_global_id,
 			],
 			$mediaItem['parent']['node']
-
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );
@@ -497,48 +496,11 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testMediaItemNotExistingSizeQuery() {
 
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
-
 		/**
-		 * Create an attachment with a post set as it's parent
+		 * Upload a medium size attachment
 		 */
-//		$attachment_id = $this->createPostObject( [
-//			'post_type'   => 'attachment',
-//			'post_content' => 'some description',
-//			'post_mime_type' => 'image/jpeg',
-//		] );
-//
-//		$meta_data = [
-//			'width' => 300,
-//			'height' => 300,
-//			'file' => 'example.jpg',
-//			'sizes' => [
-//				'thumbnail' => [
-//					'file' => 'example-thumbnail.jpg',
-//					'width' => 150,
-//					'height' => 150,
-//					'mime-type' => 'image/jpeg',
-//				],
-//			],
-//			'image_meta' => [
-//				'aperture' => 0,
-//				'credit' => '',
-//				'camera' => '',
-//				'caption' => '',
-//				'created_timestamp' => 0,
-//				'copyright' => '',
-//				'focal_length' => 0,
-//				'iso' => 0,
-//				'shutter_speed' => 0,
-//				'title' => '',
-//				'orientation' => '1',
-//				'keywords' => [],
-//			],
-//		];
-//
-//		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
-//		update_post_meta( $attachment_id, '_wp_attached_file', 'example.jpg' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -559,7 +521,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = graphql( [ 'query' => $query ] );
+		$actual = do_graphql_request( $query );
 
 		codecept_debug( $actual );
 
@@ -567,9 +529,15 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNotEmpty( $mediaItem );
 
+		$this->assertNotNull( $mediaItem['srcSet'] );
 		$this->assertNotNull( $mediaItem['sizes'] );
-		$this->assertEquals( '(max-width: 300px) 100vw, 300px', $mediaItem['sizes'] );
-	}
 
+		$img_atts = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$this->assertNotEmpty( $img_atts );
+
+		$width = $img_atts[1];
+		// compare with (max-width: 1024px) 100vw, 1024px
+		$this->assertEquals( sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $width ), $mediaItem['sizes'] );
+	}
 
 }

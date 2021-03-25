@@ -4,7 +4,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-
+		global $wp_rewrite;
+		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_taxonomies();
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules();
+		WPGraphQL::show_in_graphql();
 	}
 
 	public function tearDown(): void {
@@ -498,6 +503,123 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected_errors, $actual['errors'] );
+	}
+
+	public function testQueryChildCategoryByUri() {
+
+		$parent_id = $this->factory()->category->create([
+			'name' => 'parent'
+		]);
+
+		$child_id = $this->factory()->category->create([
+			'name' => 'child',
+			'parent' => $parent_id
+		]);
+
+		codecept_debug( get_term_link( $child_id, 'category' ) );
+
+		$query = '
+		query CategoryByUri($uri: String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    id
+		    ...on Category {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => get_term_link( $child_id ),
+			],
+		]);
+		codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 'Category', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertEquals( 'child', $actual['data']['nodeByUri']['name'] );
+
+
+	}
+
+	public function testCustomTaxonomyChildTermQueryByUri() {
+
+		register_taxonomy( 'news', 'post', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'NewsCategory',
+			'graphql_plural_name' => 'NewsCategories',
+			'rewrite' => true,
+		]);
+
+		flush_rewrite_rules();
+
+		WPGraphQL::clear_schema();
+
+		$parent_id = $this->factory()->term->create([
+			'taxonomy' => 'news',
+			'name' => 'parent',
+		]);
+
+		$child_id = $this->factory()->term->create([
+			'taxonomy' => 'news',
+			'name' => 'child',
+			'parent' => $parent_id,
+		]);
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'news',
+			'post_status' => 'publish',
+			'post_title' => 'Test News Post',
+		]);
+
+		wp_set_object_terms( $post_id, [ $child_id ], 'news' );
+
+		$link = get_term_link( $child_id, 'news' );
+
+		codecept_debug( $link );
+
+		$query = '
+		query getNewsTerm($uri_string:String! $uri_id: ID! ) {
+		  nodeByUri(uri: $uri_string) {
+		    id
+		    ...NewsCategory
+		  }
+		  newsCategory(id:$uri_id idType: URI ) {
+		    ...NewsCategory
+		  }
+		}
+		fragment NewsCategory on NewsCategory {
+		    id
+		    databaseId
+		    uri
+		    link
+		    name
+			posts {
+		      nodes {
+		        title
+		      }
+		    }
+		  }
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri_string' => $link,
+				'uri_id' => $link,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $link, $actual['data']['nodeByUri']['link'] );
+		$this->assertSame( $link, $actual['data']['newsCategory']['link'] );
+
 	}
 
 }

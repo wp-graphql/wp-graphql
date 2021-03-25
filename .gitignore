@@ -10,6 +10,7 @@ plugin-build
 coverage/*
 schema.graphql
 wp-graphql/
+phpcs.xml
 phpunit.xml
 docker-output
 node_modules

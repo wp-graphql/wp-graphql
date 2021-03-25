@@ -27,7 +27,12 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_plural_name' => 'CustomTaxes',
 		]);
 
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		global $wp_rewrite;
+		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_taxonomies();
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules();
+		WPGraphQL::show_in_graphql();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -84,13 +89,6 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
 		wp_delete_user( $this->user );
 
-	}
-
-	public function set_permalink_structure( $structure = '' ) {
-		global $wp_rewrite;
-		$wp_rewrite->init();
-		$wp_rewrite->set_permalink_structure( $structure );
-		$wp_rewrite->flush_rules( true );
 	}
 
 	/**
@@ -566,6 +564,78 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $parent_uri, $actual['data']['nodeByUri']['uri'], 'Makes sure the uri of the node matches the uri queried with' );
 		$this->assertSame( 'TestHierarchical', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
+
+	}
+
+	public function testExternalUriReturnsNull() {
+
+		$query = '
+		query NodeByUri( $uri: String! ) {
+		  nodeByUri( uri: $uri ) {
+		     uri
+		     __typename
+		     ...on DatabaseIdentifier {
+		       databaseId
+		     }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://external-uri.com/path-to-thing'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['nodeByUri'] );
+
+	}
+
+	public function testMediaWithExternalUriReturnsNull() {
+
+		$query = '
+		query Media( $uri: ID! ){
+		  mediaItem(id: $uri, idType: URI) {
+		    id
+		    title
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['mediaItem'] );
+
+		$query = '
+		query Media( $uri: ID! ){
+		  mediaItem(id: $uri, idType: SOURCE_URL) {
+		    id
+		    title
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( null, $actual['data']['mediaItem'] );
 
 	}
 

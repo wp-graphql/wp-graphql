@@ -202,8 +202,8 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['email'] );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes']  );
 
 	}
 
@@ -250,8 +250,8 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['email'] );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['roles']['nodes']  );
 
 	}
 
@@ -274,8 +274,8 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $actual['data']['users']['nodes'][1]['username'] );
 
 		// They should still have access to their own email & role
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['email'] );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['roles']['nodes']  );
 
 	}
 }

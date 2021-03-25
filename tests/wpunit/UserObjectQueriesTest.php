@@ -32,7 +32,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			array( 1 )
+			array( 0 )
 		) );
 		$this->created_user_ids = [ 1 ];
 	}
@@ -631,7 +631,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * The authenticated user should see their own user in the result
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+		$this->assertSame( 1, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -705,7 +705,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+		$this->assertSame( 2, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -713,7 +713,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_1 = [
 			'user_email'  => 'user1@email.com',
-			'user_login'  => 'user1',
+			'user_login'  => 'aaaa_subscriber',
 			'user_url'    => 'https://test1.com',
 			'first_name'  => 'User1',
 			'last_name'   => 'Test',
@@ -723,7 +723,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_2 = [
 			'user_email'  => 'user2@email.com',
-			'user_login'  => 'user2',
+			'user_login'  => 'aaaa_subscriber2',
 			'user_url'    => 'https://test2.com',
 			'first_name'  => 'User2',
 			'last_name'   => 'Test',
@@ -766,39 +766,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-		$expected = [
-			'users' => [
-				'edges' => [
-					[
-						'node' => [
-							'userId'       => $user_2_id,
-							'username'     => $user_2['user_login'],
-							'email'        => $user_2['user_email'],
-							'firstName'    => $user_2['first_name'],
-							'lastName'     => $user_2['last_name'],
-							'url'          => $user_2['user_url'],
-							'description'  => $user_2['description'],
-							'isRestricted' => false,
-						],
-					],
-					[
-						'node' => [
-							'userId'       => $user_1_id,
-							'username'     => null,
-							'email'        => null,
-							'firstName'    => $user_1['first_name'],
-							'lastName'     => $user_2['last_name'],
-							'url'          => null,
-							'description'  => $user_1['description'],
-							'isRestricted' => true,
-						],
-					],
-				],
-			],
-		];
+		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+
+		$this->assertEquals( 2, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -1578,6 +1550,158 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
 		$this->assertSame( $expected_user, $actual['data']['userByEmail'] );
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
+
+	}
+
+	public function testQueryUsersAsPublicUserShouldReturnOnlyPublishedAuthors() {
+
+		$this->delete_users();
+
+		$alphabet = range( 'A', 'Z' );
+		$published_users = [];
+		$unpublished_users = [];
+		foreach ( $alphabet as $letter ) {
+			$unpublished_users[] = $this->factory()->user->create([
+				'user_login' => 'unpublished_' . $letter,
+				'user_email' => $letter . '_unpublishded@example.com'
+			]);
+			$author_id = $this->factory()->user->create([
+				'user_login' => 'published_' . $letter,
+				'user_email' => $letter . '_published@example.com',
+				'role' => 'administrator'
+			]);
+
+			$published_users[] = $author_id;
+			$this->factory()->post->create([
+				'post_status' => 'publish',
+				'post_title' => $letter . '_Post',
+				'post_author' => $author_id,
+				'role' => 'administrator'
+			]);
+		}
+
+		$query = '
+		{
+		  users(first:100) {
+		    nodes {
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 26 users. One published user for each letter of the alphabet.
+		$this->assertEquals( 26, count( $ids ) );
+
+		foreach ($ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true  ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true  ) );
+		}
+
+		$query = '
+		{
+		  users(last:100) {
+		    nodes {
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 26 users. One published user for each letter of the alphabet.
+		$this->assertEquals( 26, count( $ids ) );
+		foreach ($ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true  ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true  ) );
+		}
+
+		$query = '
+		{
+		  users(last:10) {
+		    nodes {
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 10 users.
+		$this->assertEquals( 10, count( $ids ) );
+		foreach ($ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true  ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true  ) );
+		}
+
+		codecept_debug( $published_users );
+
+		// Query as an admin
+		wp_set_current_user( absint( $published_users[0] ) );
+
+		$query = '
+		{
+		  users(first:100) {
+		    nodes {
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
+		$this->assertEquals( 52, count( $ids ) );
+
+		$query = '
+		{
+		  users(last:100) {
+		    nodes {
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( $actual );
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
+		$this->assertEquals( 52, count( $ids ) );
+
+		$this->delete_users();
 
 	}
 

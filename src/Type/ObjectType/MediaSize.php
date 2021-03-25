@@ -21,19 +21,19 @@ class MediaSize {
 					],
 					'file'      => [
 						'type'        => 'String',
-						'description' => __( 'The file of the for the referenced size', 'wp-graphql' ),
+						'description' => __( 'The filename of the referenced size', 'wp-graphql' ),
 					],
 					'width'     => [
 						'type'        => 'String',
-						'description' => __( 'The width of the for the referenced size', 'wp-graphql' ),
+						'description' => __( 'The width of the referenced size', 'wp-graphql' ),
 					],
 					'height'    => [
 						'type'        => 'String',
-						'description' => __( 'The height of the for the referenced size', 'wp-graphql' ),
+						'description' => __( 'The height of the referenced size', 'wp-graphql' ),
 					],
 					'mimeType'  => [
 						'type'        => 'String',
-						'description' => __( 'The mime type of the resource', 'wp-graphql' ),
+						'description' => __( 'The mime type of the referenced size', 'wp-graphql' ),
 						'resolve'     => function( $image, $args, $context, $info ) {
 							return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
 						},
@@ -57,7 +57,7 @@ class MediaSize {
 					],
 					'sourceUrl' => [
 						'type'        => 'String',
-						'description' => __( 'The url of the for the referenced size', 'wp-graphql' ),
+						'description' => __( 'The url of the referenced size', 'wp-graphql' ),
 						'resolve'     => function( $image, $args, $context, $info ) {
 
 							$src_url = null;
