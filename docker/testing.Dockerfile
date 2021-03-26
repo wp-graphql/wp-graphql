@@ -11,26 +11,18 @@ LABEL author_uri=https://github.com/jasonbahl
 SHELL [ "/bin/bash", "-c" ]
 
 # Redeclare ARGs and set as environmental variables for reuse.
-ARG USE_XDEBUG
-ENV USING_XDEBUG=${USE_XDEBUG}
+ARG USE_CODE_COVERAGE
 
 # Install php extensions
 RUN docker-php-ext-install pdo_mysql
 
-# Install PCOV and XDebug 3
+# Install PCOV
 # This is needed for Codeception / PHPUnit to track code coverage
-RUN if [ "$USING_XDEBUG" ]; then \
+RUN if [ "$USE_CODE_COVERAGE" ]; then \
         apt-get install zip unzip -y \
         && pecl install pcov \
         && docker-php-ext-enable pcov \
         && echo "pcov.enabled=1" >> /usr/local/etc/php/php.ini \
-        && pecl install -f xdebug \
-        && docker-php-ext-enable xdebug \
-        && echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-        && echo "xdebug.mode=develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-        && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-        && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-        && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
         ; \
     fi
 

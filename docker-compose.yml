@@ -19,6 +19,7 @@ services:
       ADMIN_EMAIL: admin@example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: password
+      USING_XDEBUG: $USING_XDEBUG
     ports:
       - '8091:80'
     networks:
@@ -47,10 +48,10 @@ services:
       - './codeception.dist.yml:/var/www/html/wp-content/plugins/wp-graphql/codeception.yml'
     env_file: .env.dist
     environment:
-      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
       DB_HOST: app_db
       WP_URL: 'http://localhost'
       WP_DOMAIN: 'localhost'
+      USING_XDEBUG: $USING_XDEBUG
     networks:
       testing:
 

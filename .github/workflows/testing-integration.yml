@@ -54,13 +54,13 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
-          USE_XDEBUG: ${{ matrix.coverage }}
+          USE_CODE_COVERAGE: ${{ matrix.coverage }}
         run: composer build-test
 
       - name: Run Tests w/ Docker.
         env:
           COVERAGE: ${{ matrix.coverage }}
-          USE_XDEBUG: ${{ matrix.coverage }}
+          USE_CODE_COVERAGE: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           LOWEST: ${{ matrix.lowest }}

@@ -42,7 +42,7 @@ case "$subcommand" in
 
                 docker build -f docker/testing.Dockerfile \
                     -t wpgraphql-testing:latest \
-                    --build-arg USE_XDEBUG=${USE_XDEBUG-} \
+                    --build-arg USE_CODE_COVERAGE=${USE_CODE_COVERAGE-} \
                     .
                     ;;
                 \? ) print_usage_instructions;;
