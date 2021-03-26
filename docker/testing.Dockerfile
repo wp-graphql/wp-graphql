@@ -10,14 +10,12 @@ LABEL author_uri=https://github.com/jasonbahl
 
 SHELL [ "/bin/bash", "-c" ]
 
-# Redeclare ARGs and set as environmental variables for reuse.
-ARG USE_CODE_COVERAGE
-
 # Install php extensions
 RUN docker-php-ext-install pdo_mysql
 
 # Install PCOV
 # This is needed for Codeception / PHPUnit to track code coverage
+ARG USE_CODE_COVERAGE=0
 RUN if [ "$USE_CODE_COVERAGE" ]; then \
         apt-get install zip unzip -y \
         && pecl install pcov \
