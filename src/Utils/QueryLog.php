@@ -73,8 +73,8 @@ class QueryLog {
 			$can_see = false;
 		} else {
 
-			// If "all" is the selected role, anyone can see the logs
-			if ( 'all' === $this->query_log_user_role ) {
+			// If "any" is the selected role, anyone can see the logs
+			if ( 'any' === $this->query_log_user_role ) {
 				$can_see = true;
 			} else {
 				// Get the current users roles
