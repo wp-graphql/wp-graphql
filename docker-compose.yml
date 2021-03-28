@@ -51,7 +51,6 @@ services:
       DB_HOST: app_db
       WP_URL: 'http://localhost'
       WP_DOMAIN: 'localhost'
-      USING_XDEBUG: $USING_XDEBUG
     networks:
       testing:
 

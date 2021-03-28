@@ -73,10 +73,13 @@ COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-source --no-interaction
 
 # Install pcov/clobber if PHP7.1+
 if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
-    echo "Installing pcov/clobber"
-    COMPOSER_MEMORY_LIMIT=-1 composer require --dev pcov/clobber
+    echo "Using pcov/clobber for codecoverage"
+    docker-php-ext-enable pcov
+    echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
+    echo "pcov.directory = /var/www/html/wp-content/plugins/wp-graphql" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
+    COMPOSER_MEMORY_LIMIT=-1 composer require pcov/clobber --dev
     vendor/bin/pcov clobber
-elif [[ -n "$COVERAGE" ]]; then
+elif [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
     echo "Using XDebug for codecoverage"
 fi
 
@@ -104,6 +107,7 @@ if [ -f "${TESTS_OUTPUT}/coverage.xml" ] && [[ -n "$COVERAGE" ]]; then
         echo 'Removing pcov/clobber.'
         vendor/bin/pcov unclobber
         COMPOSER_MEMORY_LIMIT=-1 composer remove --dev pcov/clobber
+        rm /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     fi
 
 fi
