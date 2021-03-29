@@ -259,4 +259,55 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testQueryTermsWithOrderbyAndOrder() {
+
+		$category_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'high count'
+		]);
+
+		for ( $x = 0; $x <= 10; $x++) {
+			$post_id = $this->factory()->post->create([
+				'post_type' => 'post',
+				'post_status' => 'publish',
+			]);
+
+			wp_set_object_terms( $post_id, [ $category_id ], 'category' );
+		}
+
+		$query = '
+		query GetCategoriesWithCustomOrder( $order:OrderEnum ){
+		  categories( where: { orderby: COUNT order: $order } ) {
+		    nodes {
+		      id
+		      databaseId
+		      name
+		      count
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'order' => 'DESC'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $category_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'order' => 'ASC'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $category_id !== $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+	}
+
 }
