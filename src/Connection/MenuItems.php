@@ -78,8 +78,6 @@ class MenuItems {
 							],
 						] );
 
-
-
 						return $resolver->get_connection();
 					},
 				]

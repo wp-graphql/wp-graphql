@@ -80,7 +80,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['count'] = false;
 
-
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
@@ -134,7 +133,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 					$query_args['order'] = 'ASC';
 				}
 			}
-
 		}
 
 		/**

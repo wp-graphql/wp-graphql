@@ -55,6 +55,12 @@ class TermObjectCursor {
 	 */
 	public $compare;
 
+	/**
+	 * TermObjectCursor constructor.
+	 *
+	 * @param array  $args The query args used for the WP_Term_Query
+	 * @param string $cursor Whether to generate the before or after cursor. Default "after"
+	 */
 	public function __construct( array $args, $cursor = '' ) {
 
 		global $wpdb;
@@ -67,8 +73,8 @@ class TermObjectCursor {
 		 */
 		$offset              = $this->get_query_arg( 'graphql_' . $cursor . '_cursor' );
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
-		$compare       = ! empty( $this->get_query_arg( 'graphql_cursor_compare' ) ) ? $this->get_query_arg( 'graphql_cursor_compare' ) : '>';
-		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+		$compare             = ! empty( $this->get_query_arg( 'graphql_cursor_compare' ) ) ? $this->get_query_arg( 'graphql_cursor_compare' ) : '>';
+		$this->compare       = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 		if ( 'before' === $cursor ) {
 			$this->compare = '>';
@@ -122,7 +128,7 @@ class TermObjectCursor {
 
 		}
 
-		$this->builder->add_field( "t.term_id", $this->cursor_offset, 'ID' );
+		$this->builder->add_field( 't.term_id', $this->cursor_offset, 'ID' );
 
 		return $this->to_sql();
 	}
@@ -144,6 +150,10 @@ class TermObjectCursor {
 	}
 
 	/**
+	 * Build and return the SQL statement to add to the Query
+	 *
+	 * @param array|null $fields The fields from the CursorBuilder to convert to SQL
+	 *
 	 * @return string|null
 	 */
 	public function to_sql( $fields = null ) {
@@ -172,7 +182,7 @@ class TermObjectCursor {
 		 */
 		if ( ! empty( $value ) ) {
 
-			if ( $this->compare === '>' ) {
+			if ( '>' === $this->compare ) {
 				$order = 'DESC';
 			} else {
 				$order = 'ASC';

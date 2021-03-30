@@ -180,9 +180,6 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_term_id );
 		$this->assertNotEmpty( $results );
 
-
-
-
 		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
 		$this->assertEquals( $second_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );

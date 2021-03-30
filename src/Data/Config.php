@@ -271,7 +271,7 @@ class Config {
 
 		if ( true === is_graphql_request() ) {
 
-			if ( isset( $args['number'] ) && absint( $args['number']) ) {
+			if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
 				$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
 			}
 
@@ -288,56 +288,6 @@ class Config {
 		}
 
 		return $pieces;
-
-//		if ( true === is_graphql_request() && ! empty( $args['graphql_cursor_offset'] ) ) {
-//
-//			$cursor_offset = $args['graphql_cursor_offset'];
-//
-//			/**
-//			 * Ensure the cursor_offset is a positive integer
-//			 */
-//			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
-//
-//				$compare = ! empty( $args['graphql_cursor_compare'] ) ? $args['graphql_cursor_compare'] : '>';
-//				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-//
-//				$order_by      = ! empty( $args['orderby'] ) ? $args['orderby'] : 'comment_date';
-//				$order         = ! empty( $args['order'] ) ? $args['order'] : 'ASC';
-//
-//				$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-//
-//				if ( isset( $args['graphql_after_cursor'] ) && ! empty( $args['graphql_after_cursor'] ) ) {
-//
-//				}
-//
-//				if ( isset( $args['graphql_before_cursor']) && ! empty( $args['graphql_before_cursor'] ) ) {
-//					$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-//				}
-//
-//				// Get the $cursor_post
-//				$cursor_term = get_term( $cursor_offset );
-//
-//				if ( ! empty( $cursor_term ) && ! empty( $cursor_term->name ) ) {
-//
-//					if ( in_array( $order_by, [ 'count', 'description' ], true ) ) {
-//						// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-//						$pieces['where'] .= $wpdb->prepare( " AND tt.{$order_by} {$order_compare} %s", $cursor_term->{$order_by} );
-//					} else {
-//						// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-//						$pieces['where'] .= $wpdb->prepare( " AND t.{$order_by} {$order_compare} %s", $cursor_term->{$order_by} );
-//					}
-//
-//				} else {
-//					// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
-//					$pieces['where'] .= $wpdb->prepare( ' AND t.term_id %1$s %2$d', $compare, $cursor_offset );
-//				}
-//
-//
-//
-//			}
-//		}
-//
-//		return $pieces;
 
 	}
 

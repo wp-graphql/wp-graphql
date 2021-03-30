@@ -78,10 +78,10 @@ class TermObjects {
 									self::get_connection_config(
 										$tax_object,
 										[
-											'fromType'      => $post_type_object->graphql_single_name,
-											'toType'        => $tax_object->graphql_single_name,
+											'fromType' => $post_type_object->graphql_single_name,
+											'toType'   => $tax_object->graphql_single_name,
 											'fromFieldName' => $tax_object->graphql_plural_name,
-											'resolve'       => function( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+											'resolve'  => function( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 												$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
