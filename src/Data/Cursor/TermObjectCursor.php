@@ -65,10 +65,8 @@ class TermObjectCursor {
 		/**
 		 * Get the cursor offset if any
 		 */
-		$offset              = $this->get_query_arg( 'graphql_cursor_offset' );
 		$offset              = $this->get_query_arg( 'graphql_' . $cursor . '_cursor' );
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
-
 		$compare       = ! empty( $this->get_query_arg( 'graphql_cursor_compare' ) ) ? $this->get_query_arg( 'graphql_cursor_compare' ) : '>';
 		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
@@ -148,8 +146,8 @@ class TermObjectCursor {
 	/**
 	 * @return string|null
 	 */
-	public function to_sql() {
-		$sql = $this->builder->to_sql();
+	public function to_sql( $fields = null ) {
+		$sql = $this->builder->to_sql( $fields );
 		if ( empty( $sql ) ) {
 			return null;
 		}
@@ -174,7 +172,13 @@ class TermObjectCursor {
 		 */
 		if ( ! empty( $value ) ) {
 
-			$this->builder->add_field( "t.{$by}", $value, null, $order );
+			if ( $this->compare === '>' ) {
+				$order = 'DESC';
+			} else {
+				$order = 'ASC';
+			}
+
+			$this->builder->add_field( "{$by}", $value, null, $order );
 
 			return;
 		}

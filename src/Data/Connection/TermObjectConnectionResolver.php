@@ -127,7 +127,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( ! empty( $query_args['order'] ) ) {
 
-			if ( ! empty( $last ) || ! empty( $query_args['before'] ) ) {
+			if ( ! empty( $last ) ) {
 				if ( 'ASC' === $query_args['order'] ) {
 					$query_args['order'] = 'DESC';
 				} else {
