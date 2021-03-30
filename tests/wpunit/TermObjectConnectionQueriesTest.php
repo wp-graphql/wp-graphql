@@ -147,7 +147,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $first_term_id, $results['data']['categories']['nodes'][0]['categoryId'] );
 		$this->assertEquals( false, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasNextPage'] );
-		$this->forwardPagination( $expected_cursor );
+		$this->forwardPagination( $results['data']['categories']['pageInfo']['endCursor'] );
 
 	}
 
@@ -159,6 +159,8 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results = $this->categoriesQuery( $variables );
+
+		codecept_debug(  $results );
 
 		$offset = 1;
 		$query  = new WP_Term_Query(
@@ -177,6 +179,10 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$second_term_id  = $terms[ $offset ]->term_id;
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_term_id );
 		$this->assertNotEmpty( $results );
+
+
+
+
 		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
 		$this->assertEquals( $second_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
