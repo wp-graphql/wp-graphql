@@ -16,7 +16,7 @@ RUN docker-php-ext-install pdo_mysql
 # Install PCOV
 # This is needed for Codeception / PHPUnit to track code coverage
 RUN apt-get install zip unzip -y \
-    && pecl install pcov \
+    && pecl install pcov
 
 ENV COVERAGE=0
 
