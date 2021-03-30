@@ -138,6 +138,53 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 		$this->assertSame( array_slice( $alphabet, 0, 5 ), $names );
 
 
+		$after_cursor = $this->get_edges( $actual )[1]['cursor'];
+		$before_cursor = $this->get_edges( $actual )[3]['cursor'];
+
+		// Ask for the first 5 items, but within the bounds of a before and after cursor
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 5,
+				'after' => $after_cursor,
+				'last' => null,
+				'before' => $before_cursor
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$nodes = $this->get_nodes( $actual );
+		$names = wp_list_pluck( $nodes, 'name' );
+
+		$alphabet = range( 'A', 'Z' );
+		$this->assertSame( $names, array_slice( $alphabet, 2, 1 ) );
+
+		// Ask for the first 5 items, but within the bounds of a before and after cursor
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => null,
+				'after' => $after_cursor,
+				'last' => 5,
+				'before' => $before_cursor
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$nodes = $this->get_nodes( $actual );
+		$names = wp_list_pluck( $nodes, 'name' );
+
+		$alphabet = range( 'A', 'Z' );
+		$this->assertSame( $names, array_slice( $alphabet, 2, 1 ) );
+
+		$this->delete_terms( $category_ids );
+
 	}
 
 }
