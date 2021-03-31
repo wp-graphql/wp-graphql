@@ -62,11 +62,11 @@ jobs:
           USING_XDEBUG: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-        run: composer run-test ; ls -l tests/_output/
+        run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
         if: ${{ matrix.coverage == 1 }}
         env:
           COVERALLS_RUN_LOCALLY: 1
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ls -l tests/_output/ ; vendor/bin/php-coveralls -v
+        run: vendor/bin/php-coveralls -v
