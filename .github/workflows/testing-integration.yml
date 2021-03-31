@@ -69,4 +69,4 @@ jobs:
         env:
           COVERALLS_RUN_LOCALLY: 1
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: vendor/bin/php-coveralls -v
+        run: ls -l tests/_output/ ; vendor/bin/php-coveralls -v
