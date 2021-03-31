@@ -1,6 +1,5 @@
 <?php
-
-class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
+class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -11,69 +10,52 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Creates several users for use in cursor query tests
+	 * Creates several terms
+	 *
+	 * @param string $taxonomy
 	 *
 	 * @return array
 	 */
-	public function create_users() {
+	public function create_terms( $taxonomy = 'category' ) {
 
 		$alphabet = range( 'A', 'Z' );
 
-		// Create posts
-		$created_users = [];
+		// Create terms
+		$created_terms = [];
 		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
-			// Set the date 1 minute apart for each post
-			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
-			$created_users[ $i ] = $this->factory()->user->create(
+			$created_terms[ $i ] = $this->factory()->term->create(
 				[
-					'user_login'   => $alphabet[ ($i ) ],
-					'user_nicename'   => $alphabet[ ($i ) ],
-					'user_url' => 'http://'.$alphabet[ ($i ) ].'.com',
-					'user_email'  => $alphabet[ ($i ) ] . '@example.com',
-					'display_name' => $alphabet[ ($i ) ],
-					'nickname' => $alphabet[ ($i ) ],
-					'first_name' => $alphabet[ ($i ) ],
-					'last_name' => $alphabet[ ($i ) ],
+					'taxonomy'   => $taxonomy,
+					'name'   => $alphabet[ ($i ) ],
 					'description' => $alphabet[ ($i ) ],
-					'role' => 'administrator',
 				]
 			);
 		}
 
-		return $created_users;
+		return $created_terms;
 
 	}
 
-	public function delete_users( $user_ids ) {
-		foreach( $user_ids as $user_id ) {
-			wp_delete_user( $user_id );
+	public function delete_terms( $term_ids ) {
+		foreach( $term_ids as $term_id ) {
+			wp_delete_term( $term_id, 'category' );
 		}
 	}
 
 	public function get_nodes( $results ) {
-		return $results['data']['users']['nodes'];
+		return $results['data']['categories']['nodes'];
 	}
 
 	public function get_edges( $results ) {
-		return $results['data']['users']['edges'];
-	}
-
-	public function delete_all_users() {
-		global $wpdb;
-		$wpdb->query( "DELETE FROM {$wpdb->prefix}users" );
+		return $results['data']['categories']['edges'];
 	}
 
 	public function testForwardPagination() {
 
-		$this->delete_all_users();
-		$user_ids = $this->create_users();
-
-		// Set the current user to an admin
-		wp_set_current_user( $user_ids[0] );
-
+		$category_ids = $this->create_terms( 'category' );
 		$query = '
-		query TestForwardPaginationForPosts( $first: Int $after: String $last:Int $before: String ) {
-		  users( first:$first last:$last after:$after before:$before) {
+		query TestForwardPaginationForCategories( $first: Int $after: String $last:Int $before: String ) {
+		  categories( first:$first last:$last after:$after before:$before) {
 		    pageInfo {
 		      hasNextPage
 		      hasPreviousPage
@@ -86,7 +68,7 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		    nodes {
 		      databaseId
 		      name
-		      email
+		      description
 		    }
 		  }
 		}
@@ -116,7 +98,7 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 			'query' => $query,
 			'variables' => [
 				'first' => 5,
-				'after' => $actual['data']['users']['pageInfo']['endCursor'],
+				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
 				'last' => null,
 				'before' => null
 			]
@@ -132,7 +114,7 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $names, array_slice( $alphabet, 5, 5 ) );
 
-		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['users']['pageInfo']['endCursor'] ) ]);
+		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['categories']['pageInfo']['endCursor'] ) ]);
 
 		// Ask for the first 5 items, with a before cursor established
 		$actual = graphql([
@@ -141,7 +123,7 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 				'first' => 5,
 				'after' => null,
 				'last' => null,
-				'before' => $actual['data']['users']['pageInfo']['endCursor']
+				'before' => $actual['data']['categories']['pageInfo']['endCursor']
 			]
 		]);
 
@@ -153,16 +135,20 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		$names = wp_list_pluck( $nodes, 'name' );
 
 		$alphabet = range( 'A', 'Z' );
-		$this->assertSame( $names, array_slice( $alphabet, 0, 5 ) );
+		$this->assertSame( array_slice( $alphabet, 0, 5 ), $names );
+
+
+		$after_cursor = $this->get_edges( $actual )[1]['cursor'];
+		$before_cursor = $this->get_edges( $actual )[3]['cursor'];
 
 		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
 				'first' => 5,
-				'after' => $this->get_edges( $actual )[1]['cursor'],
+				'after' => $after_cursor,
 				'last' => null,
-				'before' => $this->get_edges( $actual )[3]['cursor']
+				'before' => $before_cursor
 			]
 		]);
 
@@ -176,7 +162,29 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $names, array_slice( $alphabet, 2, 1 ) );
 
-		$this->delete_all_users( $user_ids );
+		// Ask for the first 5 items, but within the bounds of a before and after cursor
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => null,
+				'after' => $after_cursor,
+				'last' => 5,
+				'before' => $before_cursor
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$nodes = $this->get_nodes( $actual );
+		$names = wp_list_pluck( $nodes, 'name' );
+
+		$alphabet = range( 'A', 'Z' );
+		$this->assertSame( $names, array_slice( $alphabet, 2, 1 ) );
+
+		$this->delete_terms( $category_ids );
 
 	}
+
 }
