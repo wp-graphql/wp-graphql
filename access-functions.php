@@ -295,6 +295,28 @@ function register_graphql_fields( string $type_name, array $fields ) {
 	);
 }
 
+
+/**
+ * Renames GraphQL fields.
+ *
+ * @param string $typename        Object typename.
+ * @param string $field_name      Field be renamed.
+ * @param string $new_field_name  New field name.
+ *
+ * @return void
+ */
+function replace_graphql_field_name( string $typename, string $field_name, string $new_field_name ) {
+	add_filter(
+		"graphql_{$typename}_fields",
+		function( $fields ) use ( $field_name, $new_field_name ) {
+			$fields[ $new_field_name ] = $fields[ $field_name ];
+			unset( $fields[ $field_name ] );
+
+			return $fields;
+		}
+	);
+}
+
 /**
  * Given a config array for a connection, this registers a connection by creating all appropriate
  * fields and types for the connection
