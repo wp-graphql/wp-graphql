@@ -13,12 +13,14 @@ use GraphQL\Type\Definition\EnumType;
 class WPEnumType extends EnumType {
 
 	/**
-	 * WPInputObjectType constructor.
+	 * WPEnumType constructor.
 	 *
 	 * @param array $config
 	 */
 	public function __construct( $config ) {
-		$config['name']   = ucfirst( $config['name'] );
+		$name           = ucfirst( $config['name'] );
+		$config['name'] = apply_filters( 'graphql_typename', $name, $config, $this );
+
 		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
 		parent::__construct( $config );
 	}
