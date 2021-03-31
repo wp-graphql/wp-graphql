@@ -76,7 +76,7 @@ if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" 
     echo "pcov.directory = /var/www/html/wp-content/plugins/wp-graphql" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     COMPOSER_MEMORY_LIMIT=-1 composer require pcov/clobber --dev
     vendor/bin/pcov clobber
-elif [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
+elif [[ -n "$COVERAGE" ]] && [[ -n "$USING_XDEBUG" ]]; then
     echo "Using XDebug for codecoverage"
 fi
 
