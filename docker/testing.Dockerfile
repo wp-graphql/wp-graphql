@@ -1,5 +1,5 @@
 ############################################################################
-# Container for running Codeception tests on a WooGraphQL Docker instance. #
+# Container for running Codeception tests on a WPGraphQL Docker instance. #
 ############################################################################
 
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.

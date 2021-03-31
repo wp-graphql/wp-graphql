@@ -62,7 +62,6 @@ jobs:
           USING_XDEBUG: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          LOWEST: ${{ matrix.lowest }}
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
