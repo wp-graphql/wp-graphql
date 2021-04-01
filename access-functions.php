@@ -297,6 +297,28 @@ function register_graphql_fields( string $type_name, array $fields ) {
 	);
 }
 
+
+/**
+ * Renames a GraphQL field.
+ *
+ * @param string $type_name       Name of the Type to rename a field on.
+ * @param string $field_name      Field name to be renamed.
+ * @param string $new_field_name  New field name.
+ *
+ * @return void
+ */
+function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
+	add_filter(
+		"graphql_{$type_name}_fields",
+		function( $fields ) use ( $field_name, $new_field_name ) {
+			$fields[ $new_field_name ] = $fields[ $field_name ];
+			unset( $fields[ $field_name ] );
+
+			return $fields;
+		}
+	);
+}
+
 /**
  * Renames a GraphQL Type in the Schema.
  *

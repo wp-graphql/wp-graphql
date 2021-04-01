@@ -59,42 +59,32 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		] );
 
-		$actual = graphql( [
-			'query' => '
-    		{
-			  __type(name: "TestScalar") {
-			    kind
-			  }
+		$query    = '{
+			__type(name: "TestScalar") {
+			  	kind
 			}
-    		'
-		] );
+		}';
+		$response = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'SCALAR', $response['data']['__type']['kind'] );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'SCALAR', $actual['data']['__type']['kind'] );
-
-		$actual = graphql( [
-			'query' => '
-    		{
-			  __schema {
-			    queryType {
-			      fields {
-			        name
-			        type {
-			          name
-			          kind
-			        }
-			      }
-			    }
-			  }
+		$query     = '{
+			__schema {
+				queryType {
+					fields {
+						name
+						type {
+							name
+							kind
+						}
+					}
+				}
 			}
-    		'
-		] );
+		}';
+		$response = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
-
-		$fields = $actual['data']['__schema']['queryType']['fields'];
+		$fields = $response['data']['__schema']['queryType']['fields'];
 
 		$test_scalar = array_filter( $fields, function( $field ) {
 			return $field['type']['name'] === 'TestScalar' && $field['type']['kind'] === 'SCALAR' ? $field : null;
@@ -102,17 +92,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotEmpty( $test_scalar );
 
-		$actual = graphql( [
-			'query' => '
-    		{
-			  testScalar
-			}
-    		'
-		] );
+		$query    = '{ testScalar }';
+		$response = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
-
-		$this->assertEquals( $test_value, $actual['data']['testScalar'] );
+		$this->assertEquals( $test_value, $response['data']['testScalar'] );
 
 	}
 
@@ -128,25 +111,20 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'type' => 'String',
 		]);
 
-		$actual = graphql([
-			'query' => '
-			{
-			  posts(first:1) {
-			    nodes {
-			      id
-			    }
-			  }
+		$query    = '{
+			posts(first:1) {
+				nodes {
+					id
+				}
 			}
-			'
-		]);
+		}';
+		$response = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
-
-		$this->assertArrayHasKey( 'debug', $actual['extensions'] );
+		$this->assertArrayHasKey( 'debug', $response['extensions'] );
 
 		$has_debug_message = null;
 
-		foreach ( $actual['extensions']['debug'] as $debug_message ) {
+		foreach ( $response['extensions']['debug'] as $debug_message ) {
 			if (
 				'123TestField' === $debug_message['field_name'] &&
 				'RootQuery' === $debug_message['type_name'] &&
@@ -201,14 +179,12 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			} 
 		}';
 
-		$actual = graphql( [
-			'query' => $query,
-		] );
+		$response = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Get an array of names from the inputFields
 		 */
-		$names = array_column( $actual['data']['__type']['inputFields'], 'name' );
+		$names = array_column( $response['data']['__type']['inputFields'], 'name' );
 
 		/**
 		 * Assert that `testTest` exists in the $names (the field was properly registered)
@@ -244,9 +220,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([ 'query' => $query ]);
-
-		codecept_debug( $actual );
+		$response = $this->graphql( compact( 'query') );
 
 		/**
 		 * Map the names of the inputFields to be an array so we can properly
@@ -254,14 +228,14 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$field_names = array_map( function( $field ) {
 			return $field['name'];
-		}, $actual['data']['__type']['inputFields'] );
+		}, $response['data']['__type']['inputFields'] );
 
 		codecept_debug( $field_names );
 
 		/**
 		 * Assert that there is no `testInputField` on the Type already
 		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertNotContains( 'testInputField', $field_names );
 	}
 
@@ -298,9 +272,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			return $fields;
 		}, 10, 4 );
 
-		$actual = graphql([ 'query' => $query ]);
-
-		codecept_debug( $actual );
+		$response = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Map the names of the inputFields to be an array so we can properly
@@ -308,13 +280,29 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$field_names = array_map( function( $field ) {
 			return $field['name'];
-		}, $actual['data']['__type']['inputFields'] );
+		}, $response['data']['__type']['inputFields'] );
 
 		codecept_debug( $field_names );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertContains( 'testInputField', $field_names );
 
+	}
+
+	public function testRenameGraphQLFieldName() {
+
+		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
+
+		$query = '{ __type(name: "RootQuery") { fields { name } } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertQuerySuccessful(
+			$response,
+			array(
+				$this->not()->expectedNode( '__type.fields', array( 'name' => 'user' ) ),
+				$this->expectedNode( '__type.fields', array( 'name' => 'wpUser' ) )
+			)
+		);
 	}
 
 	public function testRenameGraphQLType() {
