@@ -304,9 +304,8 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			)
 		);
 	}
-}
 
-public function testRenameGraphQLType() {
+	public function testRenameGraphQLType() {
 
 		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
