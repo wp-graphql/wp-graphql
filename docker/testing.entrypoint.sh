@@ -9,7 +9,12 @@ run_tests() {
         local debug="--debug"
     fi
 
-    local suites=${1:-" "}
+    local suites=$1
+    if [[ -z "$suites" ]]; then
+        echo "No test suites specified. Must specify variable SUITES."
+        exit 1
+    fi
+
     for suite in $suites ; do
         echo "Running Test Suite $suite"
         vendor/bin/codecept run -c codeception.dist.yml ${suite} ${coverage:-} ${debug:-} --no-exit
