@@ -19,7 +19,7 @@ services:
       ADMIN_EMAIL: admin@example.com
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: password
-      USING_XDEBUG: $USING_XDEBUG
+      USING_XDEBUG: ${USING_XDEBUG:-}
     ports:
       - '8091:80'
     networks:
@@ -51,7 +51,7 @@ services:
       DB_HOST: app_db
       WP_URL: 'http://localhost'
       WP_DOMAIN: 'localhost'
-      SUITES: $SUITES
+      SUITES: ${SUITES:-}
     networks:
       testing:
 
