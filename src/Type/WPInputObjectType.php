@@ -16,6 +16,18 @@ use WPGraphQL\Registry\TypeRegistry;
 class WPInputObjectType extends InputObjectType {
 
 	/**
+	 * WPInputObjectType constructor.
+	 *
+	 * @param array        $config
+	 */
+	public function __construct( array $config ) {
+		$name           = $config['name'];
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
+
+		parent::__construct( $config );
+	}
+
+	/**
 	 * Prepare_fields
 	 *
 	 * This function sorts the fields and applies a filter to allow for easily
