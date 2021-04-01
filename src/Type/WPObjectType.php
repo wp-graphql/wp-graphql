@@ -63,7 +63,7 @@ class WPObjectType extends ObjectType {
 		 * Set the Types to start with capitals
 		 */
 		$name           = ucfirst( $config['name'] );
-		$config['name'] = apply_filters( 'graphql_typename', $name, $config, $this );
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		$interfaces = isset( $config['interfaces'] ) ? $config['interfaces'] : [];
 

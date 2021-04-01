@@ -318,12 +318,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRenameGraphQLType() {
-        rename_graphql_type( 'User', 'WPUser' );
+
+		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
 		rename_graphql_type( 'PostObjectUnion', 'CPTUnion' );
 		rename_graphql_type( 'ContentNode', 'PostNode' );
 
-		$query = '{ __schema { types { name } } }';
+		$query    = '{ __schema { types { name } } }';
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertQuerySuccessful(
@@ -338,6 +339,55 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				$this->expectedNode( '__schema.types', array( 'name' => 'CPTUnion' ) ),
 				$this->expectedNode( '__schema.types', array( 'name' => 'PostNode' ) )
 			)
+		);
+
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testRenamedGraphQLTypeCanBeReferencedInFieldRegistration() {
+
+		// Rename the User type
+		rename_graphql_type( 'User', 'RenamedUser' );
+
+		// Register a field referencing the "User" Type (this should still work)
+		register_graphql_field( 'RootQuery', 'testUserField', [
+			'type' => 'User',
+		] );
+
+		// Register a field referencing the "RenamedUser" Type (this should also work)
+		register_graphql_field( 'RootQuery', 'testWpUserField', [
+			'type' => 'RenamedUser',
+		] );
+
+		// Query for the RootQuery type
+		$query = '
+		{
+		  __type( name:"RootQuery" ) {
+		    fields {
+		      name
+		      type {
+		        name
+		      }
+		    }
+		  }
+		}
+		';
+
+		$response = graphql([
+			'query' => $query,
+		]);
+
+		// Both fields registered using the Original Type name and the Replaced Type Name
+		// should be respected
+		// should now be fields of the Type "RenamedUser"
+		$this->assertQuerySuccessful(
+			$response,
+			[
+				$this->expectedNode( '__type.fields', [ 'name' => 'testUserField', 'type' => [ 'name' => 'RenamedUser' ] ] ),
+				$this->expectedNode( '__type.fields', [ 'name' => 'testWpUserField', 'type' => [ 'name' => 'RenamedUser' ] ] ),
+			]
 		);
     }
 }

@@ -22,7 +22,7 @@ class WPInputObjectType extends InputObjectType {
 	 */
 	public function __construct( array $config ) {
 		$name           = $config['name'];
-		$config['name'] = apply_filters( 'graphql_typename', $name, $config, $this );
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		parent::__construct( $config );
 	}
