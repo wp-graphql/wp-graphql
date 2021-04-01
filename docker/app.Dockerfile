@@ -52,6 +52,24 @@ RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
 # Set up Apache
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
+# Custom PHP settings
+RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini \
+    ;
+
+# Install XDebug 3
+RUN echo "Installing XDebug 3 (in disabled state)" \
+    && pecl install xdebug \
+    && mkdir -p /usr/local/etc/php/conf.d/disabled \
+    && echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    && echo "xdebug.mode=develop,debug,coverage" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    ;
+
+# Set xdebug configuration off by default. See the entrypoint.sh.
+ENV USING_XDEBUG=0
+
 # Set up entrypoint
 WORKDIR    /var/www/html
 COPY       docker/app.entrypoint.sh /usr/local/bin/app-entrypoint.sh

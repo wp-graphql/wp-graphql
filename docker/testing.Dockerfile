@@ -1,5 +1,5 @@
 ############################################################################
-# Container for running Codeception tests on a WooGraphQL Docker instance. #
+# Container for running Codeception tests on a WPGraphQL Docker instance. #
 ############################################################################
 
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
@@ -10,26 +10,16 @@ LABEL author_uri=https://github.com/jasonbahl
 
 SHELL [ "/bin/bash", "-c" ]
 
-# Redeclare ARGs and set as environmental variables for reuse.
-ARG USE_XDEBUG
-ENV USING_XDEBUG=${USE_XDEBUG}
-
 # Install php extensions
 RUN docker-php-ext-install pdo_mysql
 
-# Install PCOV and XDebug
+# Install PCOV
 # This is needed for Codeception / PHPUnit to track code coverage
-RUN if [[ "$USING_XDEBUG" ]]; then \
-    apt-get install zip unzip -y && \
-    pecl install pcov && \
-    docker-php-ext-enable pcov && \
-    rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
-    echo "pcov.enabled=1" >> /usr/local/etc/php/php.ini ;\
-    yes | pecl install xdebug \
-    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini; \
-fi
+RUN apt-get install zip unzip -y \
+    && pecl install pcov
+
+ENV COVERAGE=0
+ENV SUITES=${SUITES:-}
 
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
