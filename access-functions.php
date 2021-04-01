@@ -297,17 +297,17 @@ function register_graphql_fields( string $type_name, array $fields ) {
 
 
 /**
- * Renames GraphQL fields.
+ * Renames a GraphQL field.
  *
- * @param string $typename        Object typename.
- * @param string $field_name      Field be renamed.
+ * @param string $type_name       Name of the Type to rename a field on.
+ * @param string $field_name      Field name to be renamed.
  * @param string $new_field_name  New field name.
  *
  * @return void
  */
-function replace_graphql_field_name( string $typename, string $field_name, string $new_field_name ) {
+function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
 	add_filter(
-		"graphql_{$typename}_fields",
+		"graphql_{$type_name}_fields",
 		function( $fields ) use ( $field_name, $new_field_name ) {
 			$fields[ $new_field_name ] = $fields[ $field_name ];
 			unset( $fields[ $field_name ] );

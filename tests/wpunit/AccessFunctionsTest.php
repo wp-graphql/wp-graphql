@@ -289,8 +289,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
-	public function testReplaceGraphQLFieldName() {
-		replace_graphql_field_name( 'RootQuery', 'user', 'wpUser' );
+	public function testRenameGraphQLFieldName() {
+
+		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
 
 		$query = '{ __type(name: "RootQuery") { fields { name } } }';
 		$response = $this->graphql( compact( 'query' ) );
