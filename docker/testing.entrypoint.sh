@@ -2,7 +2,6 @@
 
 # Processes parameters and runs Codeception.
 run_tests() {
-    echo "Running Tests"
     if [[ -n "$COVERAGE" ]]; then
         local coverage="--coverage --coverage-xml"
     fi
@@ -10,9 +9,14 @@ run_tests() {
         local debug="--debug"
     fi
 
-    local suites=${1:-" ;"}
-    IFS=';' read -ra target_suites <<< "$suites"
-    for suite in "${target_suites[@]}"; do
+    local suites=$1
+    if [[ -z "$suites" ]]; then
+        echo "No test suites specified. Must specify variable SUITES."
+        exit 1
+    fi
+
+    for suite in $suites ; do
+        echo "Running Test Suite $suite"
         vendor/bin/codecept run -c codeception.dist.yml ${suite} ${coverage:-} ${debug:-} --no-exit
     done
 }
@@ -63,13 +67,11 @@ if [ ! -f "$PROJECT_DIR/c3.php" ]; then
     curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > "$PROJECT_DIR/c3.php"
 fi
 
-if [[ -n "$LOWEST" ]]; then
-    PREFER_LOWEST="--prefer-source"
-fi
-
 # Install dependencies
-COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-source ${PREFER_LOWEST}
-COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-source --no-interaction
+echo "Running composer update"
+COMPOSER_MEMORY_LIMIT=-1 composer update
+echo "Running composer install"
+COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction
 
 # Install pcov/clobber if PHP7.1+
 if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
@@ -79,7 +81,7 @@ if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" 
     echo "pcov.directory = /var/www/html/wp-content/plugins/wp-graphql" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     COMPOSER_MEMORY_LIMIT=-1 composer require pcov/clobber --dev
     vendor/bin/pcov clobber
-elif [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
+elif [[ -n "$COVERAGE" ]] && [[ -n "$USING_XDEBUG" ]]; then
     echo "Using XDebug for codecoverage"
 fi
 
@@ -88,7 +90,7 @@ echo "Setting Codeception output directory permissions"
 chmod 777 ${TESTS_OUTPUT}
 
 # Run tests
-run_tests ${SUITES}
+run_tests "${SUITES}"
 
 # Remove c3.php
 if [ -f "$PROJECT_DIR/c3.php" ] && [ "$SKIP_TESTS_CLEANUP" != "1" ]; then
@@ -136,5 +138,4 @@ if [ -f "${TESTS_OUTPUT}/failed" ]; then
     exit 1
 else
     echo "Woohoo! It's working!"
-    exit 0
 fi

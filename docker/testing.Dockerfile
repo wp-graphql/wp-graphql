@@ -1,5 +1,5 @@
 ############################################################################
-# Container for running Codeception tests on a WooGraphQL Docker instance. #
+# Container for running Codeception tests on a WPGraphQL Docker instance. #
 ############################################################################
 
 # Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
@@ -19,6 +19,7 @@ RUN apt-get install zip unzip -y \
     && pecl install pcov
 
 ENV COVERAGE=0
+ENV SUITES=${SUITES:-}
 
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1

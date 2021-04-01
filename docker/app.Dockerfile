@@ -52,6 +52,10 @@ RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
 # Set up Apache
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
+# Custom PHP settings
+RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini \
+    ;
+
 # Install XDebug 3
 RUN echo "Installing XDebug 3 (in disabled state)" \
     && pecl install xdebug \
