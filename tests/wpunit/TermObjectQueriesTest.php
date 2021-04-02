@@ -18,16 +18,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function createTermObject( $args = [] ) {
-		/**
-		 * Create the term
-		 */
-		$term_id = $this->factory()->term->create( $args );
-
-		/**
-		 * Return the $id of the term_object that was created
-		 */
-		return $term_id;
-
+		return $this->factory()->term->create( $args );
 	}
 
 	public function testTermObjectConnectionQuery() {
