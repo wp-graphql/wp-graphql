@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.4
+
+### New Features
+
+- Adds a new `rename_graphql_field` function that allows the name of a field in the schema to be changed.
+- Adds a new `rename_graphql_type` method to that allows for the name of a Type in the Schema to be changed. 
+
+### Bugfixes / Chores
+
+
+
 ## 1.3.3
 
 ### Bugfixes / Chores
