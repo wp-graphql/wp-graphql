@@ -312,8 +312,8 @@ class Tracing {
 		if ( ! $this->tracing_enabled ) {
 			$can_see = false;
 		} else {
-			// If "all" is the selected role, anyone can see the logs
-			if ( 'all' === $this->tracing_user_role ) {
+			// If "any" is the selected role, anyone can see the logs
+			if ( 'any' === $this->tracing_user_role ) {
 				$can_see = true;
 			} else {
 				// Get the current users roles

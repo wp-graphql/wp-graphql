@@ -16,7 +16,7 @@ coverage:
   remote: false
   c3_url: '%WP_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
   include:
-    - src/*
+    - src/*.php
   exclude:
     - wp-graphql.php
     - vendor/*

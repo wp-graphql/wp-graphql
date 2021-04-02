@@ -50,7 +50,6 @@ class MenuItems {
 						$resolver->set_query_arg( 'nav_menu', $menu_item->menuId );
 						$resolver->set_query_arg( 'meta_key', '_menu_item_menu_item_parent' );
 						$resolver->set_query_arg( 'meta_value', (int) $menu_item->databaseId );
-
 						return $resolver->get_connection();
 
 					},
@@ -74,7 +73,7 @@ class MenuItems {
 								'taxonomy'         => 'nav_menu',
 								'field'            => 'term_id',
 								'terms'            => (int) $menu->menuId,
-								'include_children' => false,
+								'include_children' => true,
 								'operator'         => 'IN',
 							],
 						] );

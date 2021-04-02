@@ -36,7 +36,8 @@ class WPUnionType extends UnionType {
 		/**
 		 * Set the Types to start with capitals
 		 */
-		$config['name'] = ucfirst( $config['name'] );
+		$name           = ucfirst( $config['name'] );
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		$config['types'] = function() use ( $config ) {
 			$prepared_types = [];

@@ -259,6 +259,10 @@ class TermObjects {
 					'type'        => 'TermObjectsConnectionOrderbyEnum',
 					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
 				],
+				'order'               => [
+					'type'        => 'OrderEnum',
+					'description' => __( 'Direction the connection should be ordered in', 'wp-graphql' ),
+				],
 				'hideEmpty'           => [
 					'type'        => 'Boolean',
 					'description' => __( 'Whether to hide terms not assigned to any posts. Accepts true or false. Default false', 'wp-graphql' ),

@@ -207,10 +207,6 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 
 
-
-
-
-
 		$this->delete_posts( $post_ids );
 
 	}
