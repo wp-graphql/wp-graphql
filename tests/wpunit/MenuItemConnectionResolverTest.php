@@ -32,5 +32,6 @@ class MenuItemConnectionResolverTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 		$this->assertEmpty( $actual['data']['menuItems']['nodes'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 	}
 }
