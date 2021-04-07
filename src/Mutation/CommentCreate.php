@@ -146,6 +146,10 @@ class CommentCreate {
 				throw new UserError( esc_html__( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
 			}
 
+			if ( '1' === get_option( 'require_name_email' ) && ( empty( $input['author'] ) || empty( $input['authorEmail'] ) ) ) {
+				throw new UserError( __( "This site requires you to provide a name and email address leave a comment", 'wp-graphql' ) );
+			} 
+
 			/**
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
