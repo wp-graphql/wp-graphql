@@ -570,6 +570,7 @@ class TypeRegistry {
 					$group_name . 'Settings',
 					[
 						'type'    => ucfirst( $group_name ) . 'Settings',
+						'description' => sprintf( __( 'Fields of the \'%s\' settings group', 'wp-graphql' ),  $group_name),
 						'resolve' => function() use ( $setting_type ) {
 							return $setting_type;
 						},
