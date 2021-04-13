@@ -52,3 +52,4 @@ jobs:
           wp graphql generate-static-schema
           cd /tmp/wordpress/wp-content/plugins/wp-graphql/
           graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","PostObjectUnion","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
+          graphql-schema-linter /tmp/schema.graphql || true
