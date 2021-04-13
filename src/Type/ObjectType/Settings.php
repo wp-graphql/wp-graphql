@@ -79,8 +79,7 @@ class Settings {
 					 */
 					$fields[ $field_key ] = [
 						'type'        => $setting_field['type'],
-						'description' => $setting_field['description'],
-
+						'description' => sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
 						'resolve'     => function( $root, $args, $context, $info ) use ( $setting_field, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability

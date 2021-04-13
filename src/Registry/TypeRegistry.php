@@ -131,6 +131,7 @@ use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TypeRegistry
@@ -570,7 +571,7 @@ class TypeRegistry {
 					$group_name . 'Settings',
 					[
 						'type'        => ucfirst( $group_name ) . 'Settings',
-						'description' => sprintf( __( "Fields of the '%s' settings group", 'wp-graphql' ), $group_name ),
+						'description' => sprintf( __( "Fields of the '%s' settings group", 'wp-graphql' ), ucfirst( $group_name ) . 'Settings' ),
 						'resolve'     => function() use ( $setting_type ) {
 							return $setting_type;
 						},
@@ -953,6 +954,8 @@ class TypeRegistry {
 			'graphql_' . $type_name . '_fields',
 			function( $fields ) use ( $type_name, $field_name, $config ) {
 
+				$field_name = Utils::format_field_name( $field_name );
+
 				if ( preg_match( '/^\d/', $field_name ) ) {
 					graphql_debug(
 						sprintf( __( 'The field \'%1$s\' on Type \'%2$s\' is invalid. Field names cannot start with a number.', 'wp-graphql' ), $field_name, $type_name ),
@@ -1088,7 +1091,7 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 
-			$this->register_input_type(
+			register_graphql_input_type(
 				$connection_name . 'WhereArgs',
 				[
 					// Translators: Placeholder is the name of the connection
@@ -1109,7 +1112,7 @@ class TypeRegistry {
 
 		if ( true === $one_to_one ) {
 
-			$this->register_object_type(
+			register_graphql_object_type(
 				$connection_name . 'Edge',
 				[
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
@@ -1127,7 +1130,7 @@ class TypeRegistry {
 
 		} else {
 
-			$this->register_object_type(
+			register_graphql_object_type(
 				$connection_name . 'Edge',
 				[
 					'description' => __( 'An edge in a connection', 'wp-graphql' ),
@@ -1155,7 +1158,7 @@ class TypeRegistry {
 				]
 			);
 
-			$this->register_object_type(
+			register_graphql_object_type(
 				$connection_name,
 				[
 					// Translators: the placeholders are the name of the Types the connection is between.
@@ -1224,7 +1227,7 @@ class TypeRegistry {
 			];
 		}
 
-		$this->register_field(
+		register_graphql_field(
 			$from_type,
 			$from_field_name,
 			[
