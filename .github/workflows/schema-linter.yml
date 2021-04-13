@@ -44,11 +44,10 @@ jobs:
         run: |
           composer run install-test-env
 
-      - name: Generate the Static Schema
-        # 💡 Neutralize for now
+      - name: Generate and Lint static schema
         run: |
           cd /tmp/wordpress/
           # Output: /tmp/schema.graphql
           wp graphql generate-static-schema
           cd /tmp/wordpress/wp-content/plugins/wp-graphql/
-          graphql-schema-linter /tmp/schema.graphql || true
+          graphql-schema-linter --except=relay-connection-types-spec --ignore '{"relay-page-info-spec":["Relay"],"defined-types-are-used":["MenuItemsWhereArgs","PostObjectUnion","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
