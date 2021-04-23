@@ -14,6 +14,7 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
+use WPGraphQL\Type\WPEnumType;
 
 /**
  * Class PostObjects
@@ -674,6 +675,16 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
+		} else if ( isset( $post_type_object ) && $post_type_object instanceof WP_Taxonomy ) {
+			/**
+			 * Taxonomy-specific Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypesOf' . $post_type_object->graphql_single_name . 'Enum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
 		} else {
 			/**
 			 * Handle cases when the connection is for many post types
