@@ -160,7 +160,7 @@ Or you can specify one specific test like so:
 
 The tests should start running and you should see something similar to the following:
 
-![Screenshot of Codeception tests running in the terminal](./testing-codeception-screenshot.png)
+![Screenshot of Codeception tests running in the terminal.](./testing-codeception-screenshot.png)
 
 ## Testing with Docker
 
