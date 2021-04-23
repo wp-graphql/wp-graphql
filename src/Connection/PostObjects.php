@@ -91,15 +91,7 @@ class PostObjects {
 				'toType'         => 'ContentNode',
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'contentNodes',
-				'connectionArgs' => self::get_connection_args(
-					[
-						'contentTypes' => [
-							'type'        => [ 'list_of' => 'ContentTypeEnum' ],
-							'description' => __( 'The Types of content to filter', 'wp-graphql' ),
-						],
-					],
-					null
-				),
+				'connectionArgs' => self::get_connection_args(),
 				'resolve'        => function( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
 
