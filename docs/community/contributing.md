@@ -12,37 +12,55 @@ In order to continue, you should follow steps to setup Docker running on your ma
 The `app` docker image starts a running WordPress site with the local wp-graphql directory installed and activated. Local changes to the source code is immediately reflects in the app.
 
 First step, clone the source for wp-graphql from github.
-<pre class="wp-block-code"><code>git clone git@github.com:wp-graphql/wp-graphql.git</code></pre>
+
+```shell
+git clone git@github.com:wp-graphql/wp-graphql.git
+```
 
 Build the plugin and dependencies:
-<pre class="wp-block-code"><code>composer install</code></pre>
 
-Or if you don&#8217;t have composer installed or prefer building it in a docker instance:
-<pre class="wp-block-code"><code>docker run -v $PWD:/app composer --ignore-platform-reqs install</code></pre>
+```shell
+composer install
+```
+
+Or if you don't have composer installed or prefer building it in a docker instance:
+
+```shell
+docker run -v $PWD:/app composer --ignore-platform-reqs install
+```
 
 Build the app and testing docker images:
-<pre class="wp-block-code"><code>composer build-app
-composer build-test</code></pre>
+
+```shell
+composer build-app
+composer build-test
+```
 
 In one terminal window, start the WordPress app:
-<pre class="wp-block-code"><code>composer run-app</code></pre>
 
-In your web browser, open the site, <a href="http://localhost:8091" target=_blank>http://localhost:8091</a>.  And the WP admin at <a href="http://localhost:8091/wp-admin" target=_blank>http://localhost:8091/wp-admin</a>. Username is 'admin'. Password is 'password'.
+```shell
+composer run-app
+```
+
+In your web browser, open the site, [http://localhost:8091](http://localhost:8091).  And the WP admin at [http://localhost:8091/wp-admin](http://localhost:8091/wp-admin). Username is 'admin'. Password is 'password'.
 
 ### Using XDebug
 
 #### Local WordPress Site With XDebug
 
 Use the environment variable USING_XDEBUG to start the docker image and WordPress with xdebug configured to use port 9003 to communicated with your IDE.
-<pre class="wp-block-code"><code>
+
+```shell
 export USING_XDEBUG=1
-composer run-app</code></pre>
+composer run-app
+```
 
 You should see output in the terminal like the following examples that indicate xdebug is indeed enabled and running in the app:
-<pre class="wp-block-code"><code>
+
+```shell
 app_1      | Enabling XDebug 3
 app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9003 (through xdebug.client_host/xdebug.client_port) :-(
-</code></pre>
+```
 
 Start your IDE, like VSCode. Enable xdebug and set breakpoints. Load pages in your browsers and you should experience the IDE pausing the page load and showing the breakpoint.
 
@@ -52,8 +70,10 @@ See the testing page on running the unit test suite.  These instructions show ho
 
 Use the environment variable USING_XDEBUG to run tests with xdebug configured to use port 9003 to communicated with your IDE.
 
-<pre class="wp-block-code"><code>export USING_XDEBUG=1
-composer run-tests</code></pre>
+```shell
+export USING_XDEBUG=1
+composer run-tests
+```
 
 Use the environment variable SUITES to specify individual test files for quicker runs.
 
@@ -62,7 +82,8 @@ Use the environment variable SUITES to specify individual test files for quicker
 Create or add the following configuration to your .vscode/launch.json in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
 If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
-<pre class="wp-block-code"><code>{
+```json
+{
     "version": "0.2.0",
     "configurations": [
         {
@@ -82,4 +103,5 @@ If you have WordPress core files in a directory for local development, you can a
             }
         }
     ]
-}</code></pre>
+}
+```
