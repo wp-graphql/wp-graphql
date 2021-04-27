@@ -114,7 +114,7 @@ class Request {
 	 *
 	 * @throws Exception
 	 */
-	public function __construct( array $data = array() ) {
+	public function __construct( array $data = [] ) {
 
 		/**
 		 * Whether it's a GraphQL Request (http or internal)
@@ -248,7 +248,7 @@ class Request {
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
-			array_walk( $this->params, array( $this, 'do_action' ) );
+			array_walk( $this->params, [ $this, 'do_action' ] );
 		} else {
 			$this->do_action( $this->params );
 		}
@@ -381,7 +381,7 @@ class Request {
 		 * after_execute_actions, otherwise apply them to the current response
 		 */
 		if ( is_array( $this->params ) && is_array( $response ) ) {
-			$filtered_response = array_map( array( $this, 'after_execute_actions' ), $response );
+			$filtered_response = array_map( [ $this, 'after_execute_actions' ], $response );
 		} else {
 			$filtered_response = $this->after_execute_actions( $response, null );
 		}
@@ -461,7 +461,7 @@ class Request {
 			if ( is_array( $response ) ) {
 				$response['extensions']['debug'] = $this->debug_log->get_logs();
 			} else {
-				$response->extensions = array( 'debug' => $this->debug_log->get_logs() );
+				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
 			}
 		}
 
@@ -549,6 +549,9 @@ class Request {
 		$restrict_endpoint = null;
 
 		/**
+		 * Allows overriding the default graphql_restrict_endpoint behavior. Returning anything other
+		 * than null will skip the default restrict checks.
+		 *
 		 * @param null            $restrict_endpoint null
 		 * @param string          $query             The GraphQL query
 		 * @param string          $operation         The name of the operation
@@ -594,7 +597,7 @@ class Request {
 
 		$helper = new WPHelper();
 
-		$this->params = $helper->parseRequestParams( 'POST', $this->data, array() );
+		$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
 
 		/**
 		 * Initialize the GraphQL Request
@@ -621,9 +624,9 @@ class Request {
 		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
 		 */
 		if ( empty( $response ) || ! is_array( $response ) ) {
-			$response = array(
+			$response = [
 				'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
-			);
+			];
 		}
 
 		/**
