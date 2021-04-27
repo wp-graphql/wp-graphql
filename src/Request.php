@@ -4,11 +4,14 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\UserError;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\Rules\DisableIntrospection;
+use ParagonIE\Sodium\Core\Curve25519\Ge\P1p1;
 use WP_Post;
 use WP_Query;
 use WPGraphQL\Server\WPHelper;
@@ -27,7 +30,7 @@ class Request {
 	/**
 	 * App context for this request.
 	 *
-	 * @var \WPGraphQL\AppContext
+	 * @var AppContext
 	 */
 	public $app_context;
 
@@ -111,7 +114,7 @@ class Request {
 	 *
 	 * @throws Exception
 	 */
-	public function __construct( array $data = [] ) {
+	public function __construct( array $data = array() ) {
 
 		/**
 		 * Whether it's a GraphQL Request (http or internal)
@@ -245,7 +248,7 @@ class Request {
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
-			array_walk( $this->params, [ $this, 'do_action' ] );
+			array_walk( $this->params, array( $this, 'do_action' ) );
 		} else {
 			$this->do_action( $this->params );
 		}
@@ -378,7 +381,7 @@ class Request {
 		 * after_execute_actions, otherwise apply them to the current response
 		 */
 		if ( is_array( $this->params ) && is_array( $response ) ) {
-			$filtered_response = array_map( [ $this, 'after_execute_actions' ], $response );
+			$filtered_response = array_map( array( $this, 'after_execute_actions' ), $response );
 		} else {
 			$filtered_response = $this->after_execute_actions( $response, null );
 		}
@@ -458,7 +461,7 @@ class Request {
 			if ( is_array( $response ) ) {
 				$response['extensions']['debug'] = $this->debug_log->get_logs();
 			} else {
-				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
+				$response->extensions = array( 'debug' => $this->debug_log->get_logs() );
 			}
 		}
 
@@ -516,7 +519,11 @@ class Request {
 	 *
 	 * @return void
 	 */
-	private function do_action( $params ) {
+	private function do_action( OperationParams $params ) {
+
+		// Determines whether the request should be restricted
+		$this->restrict_request( $params );
+
 		/**
 		 * Run an action for each request.
 		 *
@@ -529,6 +536,55 @@ class Request {
 	}
 
 	/**
+	 * Checks to see if the request should be restricted
+	 *
+	 * @param OperationParams $params OperationParams for the request.
+	 *
+	 * @return mixed|void
+	 *
+	 * @throws UserError
+	 */
+	public function restrict_request( OperationParams $params ) {
+
+		$restrict_endpoint = null;
+
+		/**
+		 * @param null            $restrict_endpoint null
+		 * @param string          $query             The GraphQL query
+		 * @param string          $operation         The name of the operation
+		 * @param array           $variables         Variables to be passed to your GraphQL request
+		 * @param OperationParams $params            The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+		 */
+		$restrict_endpoint = apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint, $params->query, $params->operation, $params->variables, $params );
+
+		if ( null !== $restrict_endpoint ) {
+			return $restrict_endpoint;
+		}
+
+		// Check to see if the endpoint should be restricted to logged in users
+		$restrict_endpoint = get_graphql_setting( 'restrict_endpoint_to_logged_in_users' );
+
+		if ( false === is_graphql_http_request() ) {
+			return;
+		}
+
+		if ( empty( $restrict_endpoint ) ) {
+			return;
+		}
+
+		if ( 'on' !== $restrict_endpoint ) {
+			return;
+		}
+
+		if ( null !== wp_get_current_user() && 0 !== wp_get_current_user()->ID ) {
+			return;
+		}
+
+		throw new UserError( __( 'This site has disabled non-authenticated GraphQL requests', 'wp-graphql' ) );
+
+	}
+
+	/**
 	 * Execute an internal request (graphql() function call).
 	 *
 	 * @return array
@@ -538,7 +594,7 @@ class Request {
 
 		$helper = new WPHelper();
 
-		$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
+		$this->params = $helper->parseRequestParams( 'POST', $this->data, array() );
 
 		/**
 		 * Initialize the GraphQL Request
@@ -565,9 +621,9 @@ class Request {
 		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
 		 */
 		if ( empty( $response ) || ! is_array( $response ) ) {
-			$response = [
+			$response = array(
 				'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
-			];
+			);
 		}
 
 		/**

@@ -115,6 +115,13 @@ class Settings {
 				'default' => 'off',
 			],
 			[
+				'name'    => 'restrict_endpoint_to_logged_in_users',
+				'label'   => __( 'Restrict Endpoint to Authenticated Users', 'wp-graphql' ),
+				'desc'    => __( 'Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'off',
+			],
+			[
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
