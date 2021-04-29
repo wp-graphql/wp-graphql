@@ -122,6 +122,13 @@ class Settings {
 				'default' => 'off',
 			],
 			[
+				'name'    => 'batch_queries_enabled',
+				'label'   => __( 'Enable Batch Queries', 'wp-graphql' ),
+				'desc'    => __( 'WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'on',
+			],
+			[
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),

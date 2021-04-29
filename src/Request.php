@@ -636,6 +636,32 @@ class Request {
 	}
 
 	/**
+	 * Determines if batch queries are enabled for the server.
+	 *
+	 * Default is to have batch queries enabled.
+	 *
+	 * @return bool
+	 */
+	private function is_batch_queries_enabled() {
+
+		$batch_queries_enabled = true;
+
+		$batch_queries_setting = get_graphql_setting( 'enable_batch_queries', 'on' );
+		if ( 'off' === $batch_queries_setting ) {
+			$batch_queries_enabled = false;
+		}
+
+		/**
+		 * Filter whether batch queries are supported or not
+		 *
+		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
+		 * @param OperationParams $params Request operation params
+		 */
+		return (bool) apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+
+	}
+
+	/**
 	 * Create the GraphQL server that will process the request.
 	 *
 	 * @return StandardServer
@@ -650,7 +676,7 @@ class Request {
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
 			->setValidationRules( $this->validation_rules )
-			->setQueryBatching( true );
+			->setQueryBatching( $this->is_batch_queries_enabled() );
 
 		if ( ! empty( $this->root_value ) ) {
 			$config->setFieldResolver( $this->root_value );
