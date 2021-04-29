@@ -646,7 +646,7 @@ class Request {
 
 		$batch_queries_enabled = true;
 
-		$batch_queries_setting = get_graphql_setting( 'enable_batch_queries', 'on' );
+		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
 		if ( 'off' === $batch_queries_setting ) {
 			$batch_queries_enabled = false;
 		}
@@ -657,7 +657,7 @@ class Request {
 		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
 		 * @param OperationParams $params Request operation params
 		 */
-		return (bool) apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
 
 	}
 

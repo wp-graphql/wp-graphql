@@ -4,7 +4,7 @@ $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Test batch queries return errors when batching is disabled' );
 
 $options = [
-	'enable_batch_queries' => 'off'
+	'batch_queries_enabled' => 'off'
 ];
 
 $I->haveOptionInDatabase( 'graphql_general_settings', $options );
@@ -27,7 +27,7 @@ $I->seeResponseIsJson();
 $response       = $I->grabResponse();
 $response_array = json_decode( $response, true );
 
-$I->assertSame( 'off', $settings['enable_batch_queries'] );
+$I->assertSame( 'off', $settings['batch_queries_enabled'] );
 
 $I->assertArrayHasKey( 'errors', $response_array[0], 'Batch Queries are NOT enabled and the first query should have errors' );
 $I->assertArrayNotHasKey( 'data', $response_array[0], 'Batch Queries are NOT enabled and the first query should not have data' );

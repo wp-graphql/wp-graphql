@@ -9,7 +9,7 @@ $I->wantTo( 'Test batch queries' );
 sleep( 2 );
 
 $options = [
-	'enable_batch_queries' => 'on'
+	'batch_queries_enabled' => 'on'
 ];
 
 $I->haveOptionInDatabase( 'graphql_general_settings', $options );
