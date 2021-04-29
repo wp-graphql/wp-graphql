@@ -11,6 +11,7 @@ use GraphQL\Server\StandardServer;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
 use WP_Post;
 use WP_Query;
+use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
@@ -181,6 +182,7 @@ class Request {
 
 		$validation_rules[] = new RequireAuthentication();
 		$validation_rules[] = new DisableIntrospection();
+		$validation_rules[] = new QueryDepth();
 
 		/**
 		 * Return the validation rules to use in the request

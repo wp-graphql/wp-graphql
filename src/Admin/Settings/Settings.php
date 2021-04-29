@@ -129,6 +129,20 @@ class Settings {
 				'default' => 'on',
 			],
 			[
+				'name'    => 'query_depth_enabled',
+				'label'   => __( 'Enable Query Depth Limiting', 'wp-graphql' ),
+				'desc'    => __( 'Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'off',
+			],
+			[
+				'name'    => 'query_depth_max',
+				'label'   => __( 'Max Depth to allow for GraphQL Queries', 'wp-graphql' ),
+				'desc'    => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value.', 'wp-graphql' ),
+				'type'    => 'number',
+				'default' => 10,
+			],
+			[
 				'name'    => 'graphiql_enabled',
 				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
