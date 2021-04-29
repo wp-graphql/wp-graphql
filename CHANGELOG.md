@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.5
+
+### Chores / Bugfixes
+
+- ([#1846](https://github.com/wp-graphql/wp-graphql/pull/1846)): Fixes bug where sites with no menu locations can throw a php error in the MenuItemConnectionResolver. Thanks @markkelnar!
+
 ## 1.3.4
 
 ### New Features
