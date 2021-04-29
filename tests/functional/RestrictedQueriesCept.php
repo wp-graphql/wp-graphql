@@ -32,7 +32,7 @@ $I->sendPOST( 'http://localhost/graphql', json_encode( [
 	}'
 ] ) );
 
-$I->seeResponseCodeIsBetween( 500, 599 );
+$I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $response       = $I->grabResponse();
 $response_array = json_decode( $response, true );
