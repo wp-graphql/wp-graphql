@@ -331,6 +331,10 @@ class Router {
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
 		];
+		
+		if ( true === WPGraphQL::debug() ) {
+		  $headers['X-hacker'] = __( 'If you\'re reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!', 'wp-graphql' )
+		}
 
 		/**
 		 * Send nocache headers on authenticated requests.
