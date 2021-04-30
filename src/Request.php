@@ -4,13 +4,17 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\UserError;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\Rules\DisableIntrospection;
+use ParagonIE\Sodium\Core\Curve25519\Ge\P1p1;
 use WP_Post;
 use WP_Query;
+use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
 
@@ -27,7 +31,7 @@ class Request {
 	/**
 	 * App context for this request.
 	 *
-	 * @var \WPGraphQL\AppContext
+	 * @var AppContext
 	 */
 	public $app_context;
 
@@ -177,6 +181,8 @@ class Request {
 	protected function get_validation_rules() {
 
 		$validation_rules = GraphQL::getStandardValidationRules();
+
+		$validation_rules[] = new RequireAuthentication();
 
 		// If there is no current user and public introspection is not enabled, add the disabled rule to the validation rules
 		if ( ! get_current_user_id() && ! \WPGraphQL::debug() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
@@ -516,7 +522,8 @@ class Request {
 	 *
 	 * @return void
 	 */
-	private function do_action( $params ) {
+	private function do_action( OperationParams $params ) {
+
 		/**
 		 * Run an action for each request.
 		 *
@@ -629,6 +636,32 @@ class Request {
 	}
 
 	/**
+	 * Determines if batch queries are enabled for the server.
+	 *
+	 * Default is to have batch queries enabled.
+	 *
+	 * @return bool
+	 */
+	private function is_batch_queries_enabled() {
+
+		$batch_queries_enabled = true;
+
+		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
+		if ( 'off' === $batch_queries_setting ) {
+			$batch_queries_enabled = false;
+		}
+
+		/**
+		 * Filter whether batch queries are supported or not
+		 *
+		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
+		 * @param OperationParams $params Request operation params
+		 */
+		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+
+	}
+
+	/**
 	 * Create the GraphQL server that will process the request.
 	 *
 	 * @return StandardServer
@@ -643,7 +676,7 @@ class Request {
 			->setSchema( $this->schema )
 			->setContext( $this->app_context )
 			->setValidationRules( $this->validation_rules )
-			->setQueryBatching( true );
+			->setQueryBatching( $this->is_batch_queries_enabled() );
 
 		if ( ! empty( $this->root_value ) ) {
 			$config->setFieldResolver( $this->root_value );
