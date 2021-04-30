@@ -4,16 +4,14 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\UserError;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
-use GraphQL\Type\Introspection;
-use GraphQL\Validator\Rules\DisableIntrospection;
-use ParagonIE\Sodium\Core\Curve25519\Ge\P1p1;
+use WPGraphQL\Server\ValidationRules\DisableIntrospection;
 use WP_Post;
 use WP_Query;
+use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
@@ -183,14 +181,8 @@ class Request {
 		$validation_rules = GraphQL::getStandardValidationRules();
 
 		$validation_rules[] = new RequireAuthentication();
-
-		// If there is no current user and public introspection is not enabled, add the disabled rule to the validation rules
-		if ( ! get_current_user_id() && ! \WPGraphQL::debug() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
-
-			$disable_introspection = new DisableIntrospection();
-			$validation_rules[]    = $disable_introspection;
-
-		}
+		$validation_rules[] = new DisableIntrospection();
+		$validation_rules[] = new QueryDepth();
 
 		/**
 		 * Return the validation rules to use in the request

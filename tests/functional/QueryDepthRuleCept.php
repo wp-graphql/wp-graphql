@@ -1,10 +1,11 @@
 <?php
 
 $I = new FunctionalTester( $scenario );
-$I->wantTo( 'Test restricting the API prevents unauthorized queries' );
+$I->wantTo( 'Test query depth rules' );
 
 $options = [
-	'restrict_endpoint_to_logged_in_users' => 'on'
+	'query_depth_enabled' => 'off',
+	'query_depth_max' => 10
 ];
 
 $I->haveOptionInDatabase( 'graphql_general_settings', $options  );
@@ -18,18 +19,33 @@ $I->havePostInDatabase( [
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
+$query = '
 	{
 		posts{
 			edges {
 				node {
 					id
 					title
+					author {
+					  node {
+					    id
+					    name
+					    posts {
+					      nodes {
+					        id
+					        title
+					      }
+					    }
+					  }
+					}
 				}
 			}
 		}
-	}'
+	}
+';
+
+$I->sendPOST( 'http://localhost/graphql', json_encode( [
+	'query' => $query
 ] ) );
 
 $I->seeResponseCodeIs( 200 );
@@ -37,17 +53,15 @@ $I->seeResponseIsJson();
 $response       = $I->grabResponse();
 $response_array = json_decode( $response, true );
 
-codecept_debug( $response_array );
-
 /**
  * Make sure response is properly returning data as expected
  */
-$I->assertArrayHasKey( 'errors', $response_array, 'The API is restricted and should return an error' );
-
-$I->assertArrayNotHasKey( 'data', $response_array, 'The API is restricted and should not return data' );
+$I->assertArrayNotHasKey( 'errors', $response_array, 'Query depth is disabled and the query should execute without error' );
+$I->assertArrayHasKey( 'data', $response_array, 'Query depth is disabled and the query should work fine' );
 
 $options = [
-	'restrict_endpoint_to_logged_in_users' => 'off'
+	'query_depth_enabled' => 'on',
+	'query_depth_max' => 2
 ];
 
 $I->haveOptionInDatabase( 'graphql_general_settings', $options  );
@@ -55,17 +69,7 @@ $I->haveOptionInDatabase( 'graphql_general_settings', $options  );
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
-	{
-		posts{
-			edges {
-				node {
-					id
-					title
-				}
-			}
-		}
-	}'
+	'query' => $query
 ] ) );
 
 $I->seeResponseCodeIs( 200 );
@@ -78,4 +82,5 @@ codecept_debug( $response_array );
 /**
  * Make sure response is properly returning data as expected
  */
-$I->assertArrayNotHasKey( 'errors', $response_array, 'The API is NOT restricted and should NOT return an error' );
+$I->assertArrayHasKey( 'errors', $response_array, 'Query depth is limited to 2 levels, so the query should reject with an error' );
+$I->assertArrayNotHasKey( 'data', $response_array, 'Query depth is limited to 2 levels, so the query should not return data' );
