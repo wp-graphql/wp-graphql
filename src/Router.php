@@ -278,7 +278,6 @@ class Router {
 	 *
 	 * @return void
 	 * @since  0.0.5
-	 *
 	 */
 	public static function send_header( $key, $value ) {
 
@@ -342,7 +341,6 @@ class Router {
 		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
 		 *
 		 * @since 0.0.5
-		 *
 		 */
 		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
 		if ( $send_no_cache_headers ) {
