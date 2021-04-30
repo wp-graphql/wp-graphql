@@ -639,7 +639,7 @@ class Post extends Model {
 					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
 				},
 				'modified'                  => function() {
-					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;
+					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? Utils::prepare_date_response( $this->data->post_modified ) : null;
 				},
 				'modifiedGmt'               => function() {
 					return ! empty( $this->data->post_modified_gmt ) ? Utils::prepare_date_response( $this->data->post_modified_gmt ) : null;
