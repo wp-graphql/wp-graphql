@@ -267,4 +267,44 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testRegisterCustomConnection() {
+
+		add_action( 'graphql_register_types', function() {
+			register_graphql_type( 'TestCustomType', [
+				'fields' => [
+					'test' => [
+						'type' => 'String'
+					]
+				]
+			]);
+
+			register_graphql_connection([
+				'fromType' => 'RootQuery',
+				'toType' => 'TestCustomType',
+				'fromFieldName' => 'customTestConnection',
+				'resolve' => function() {
+					return null;
+				}
+			]);
+
+		});
+
+		$query = '
+		{
+		  customTestConnection {
+		    nodes {
+		      test
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
 }
