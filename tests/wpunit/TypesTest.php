@@ -267,6 +267,14 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * This test ensures that connections registered at `graphql_register_types` action are
+	 * respected in the Schema.
+	 *
+	 * @throws Exception
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1882
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1883
+	 */
 	public function testRegisterCustomConnection() {
 
 		add_action( 'graphql_register_types', function() {
