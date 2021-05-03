@@ -1091,7 +1091,7 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $connection_args ) ) {
 
-			register_graphql_input_type(
+			$this->register_input_type(
 				$connection_name . 'WhereArgs',
 				[
 					// Translators: Placeholder is the name of the connection
@@ -1112,7 +1112,7 @@ class TypeRegistry {
 
 		if ( true === $one_to_one ) {
 
-			register_graphql_object_type(
+			$this->register_object_type(
 				$connection_name . 'Edge',
 				[
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
@@ -1130,7 +1130,7 @@ class TypeRegistry {
 
 		} else {
 
-			register_graphql_object_type(
+			$this->register_object_type(
 				$connection_name . 'Edge',
 				[
 					'description' => __( 'An edge in a connection', 'wp-graphql' ),
@@ -1158,7 +1158,7 @@ class TypeRegistry {
 				]
 			);
 
-			register_graphql_object_type(
+			$this->register_object_type(
 				$connection_name,
 				[
 					// Translators: the placeholders are the name of the Types the connection is between.
@@ -1227,7 +1227,7 @@ class TypeRegistry {
 			];
 		}
 
-		register_graphql_field(
+		$this->register_field(
 			$from_type,
 			$from_field_name,
 			[

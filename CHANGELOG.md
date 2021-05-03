@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.7
+
+### Chores / Bugfixes
+
+- ([#1885](https://github.com/wp-graphql/wp-graphql/pull/1885)): Fixes regression to `register_graphql_connection` that was breaking custom connections registered by 3rd party plugins. 
+
 ## 1.3.6
 
 ### Chores / Bugfixes
