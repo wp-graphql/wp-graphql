@@ -4,6 +4,8 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
+use GraphQL\Error\UserError;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
@@ -216,6 +218,7 @@ class Request {
 	 * Apply filters and do actions before GraphQL execution
 	 *
 	 * @return void
+	 * @throws Error
 	 */
 	private function before_execute() {
 
@@ -243,6 +246,9 @@ class Request {
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
+			if ( ! $this->is_batch_queries_enabled() ) {
+				throw new Error( __( 'Batch Queries are not supported', 'wp-graphql' ) );
+			}
 			array_walk( $this->params, [ $this, 'do_action' ] );
 		} else {
 			$this->do_action( $this->params );
