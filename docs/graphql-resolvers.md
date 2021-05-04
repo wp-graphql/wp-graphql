@@ -3,7 +3,7 @@ uri: "/docs/graphql-resolvers/"
 title: "GraphQL Resolvers"
 ---
 
-On this page you will find information about what GraphQL resolvers are and how they work. This page will be most useful for developers that are [already familiar with GraphQL](https://www.wpgraphql.com/docs/intro-to-graphql/).
+On this page you will find information about what GraphQL resolvers are and how they work. This page will be most useful for developers that are [already familiar with GraphQL](/docs/intro-to-graphql/).
 
 > Resolvers exist in *any* GraphQL implementation, not just WPGraphQL, but how they are implemented and the API for working with them varies from language to language, which is why you find this page under the WPGraphQL Concepts section.
 

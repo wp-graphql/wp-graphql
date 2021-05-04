@@ -69,7 +69,7 @@ add_action( 'graphql_register_types', function( ) {
 
 This adds a `myTestField` root query field with a String input argument named `testArg`.
 
-The function `graphql_debug( $args, [ 'type' =&gt; 'ARGS_BREAKPOINT' ] );` was added to the resolver, and in the debug log we can see the value of the arguments in the log.
+The function `graphql_debug( $args, [ 'type' => 'ARGS_BREAKPOINT' ] );` was added to the resolver, and in the debug log we can see the value of the arguments in the log.
 
 ![Screenshot showing the output of graphql_debug()](./debugging-output-graphql-debug.png)
 
@@ -224,11 +224,10 @@ Now, if we look at the trace data, we can see:
 
 The entire request duration is now `10059434` microseconds ( `10.059434` seconds).
 
-Something is clearly wrong! This request used to take well under 1 second, and now it's taking more than 10 seconds!&nbsp;😱
+Something is clearly wrong! This request used to take well under 1 second, and now it's taking more than 10 seconds! 😱
 
 If we scroll down we will see that the duration of each title field is looking quite long:
 
-```json
 ```json
 ...
 {
@@ -281,7 +280,7 @@ Each SQL Query that is executed for the request, including Queries used to boots
 
 ![Screenshot of the GraphQL Query Logs](./debugging-graphql-query-logs.png)
 
-## Unexpected token &lt; in JSON at position 0
+## Unexpected token < in JSON at position 0
 
 If you execute a Query in GraphiQL and get the following response: 
 
