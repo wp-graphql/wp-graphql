@@ -159,7 +159,7 @@ The same query for the `hello` field would now return the following:
 
 > **NOTE:** We used `strtolower()` to convert the type name to lowercase because behind the scenes WPGraphQL converts type names to lowercase strings, so it's always safest to check type names using all lowercase characters.
 
-[Learn more about the graphql\_pre\_resolve\_field filter](https://www.wpgraphql.com/filters/graphql_pre_resolve_field/).
+[Learn more about the graphql\_pre\_resolve\_field filter](/filters/graphql_pre_resolve_field/).
 
 ### graphql_resolve_field filter
 
@@ -199,7 +199,7 @@ Would return the following, with our prefix before the existing results of the q
 }
 ```
 
-[Learn more about the graphql\_resolve\_field filter](https://www.wpgraphql.com/filters/graphql_resolve_field/).
+[Learn more about the graphql\_resolve\_field filter](/filters/graphql_resolve_field/).
 
 ### Completely Replacing the Field Resolve Function
 
