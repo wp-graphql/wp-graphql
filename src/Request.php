@@ -4,6 +4,7 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
@@ -180,9 +181,9 @@ class Request {
 
 		$validation_rules = GraphQL::getStandardValidationRules();
 
-		$validation_rules[] = new RequireAuthentication();
-		$validation_rules[] = new DisableIntrospection();
-		$validation_rules[] = new QueryDepth();
+		$validation_rules['require_authentication'] = new RequireAuthentication();
+		$validation_rules['disable_introspection']  = new DisableIntrospection();
+		$validation_rules['query_depth']            = new QueryDepth();
 
 		/**
 		 * Return the validation rules to use in the request
@@ -216,6 +217,7 @@ class Request {
 	 * Apply filters and do actions before GraphQL execution
 	 *
 	 * @return void
+	 * @throws Error
 	 */
 	private function before_execute() {
 
@@ -243,7 +245,33 @@ class Request {
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
+
+			// If the request is a batch request, but batch requests are disabled,
+			// bail early
+			if ( ! $this->is_batch_queries_enabled() ) {
+				throw new Error( __( 'Batch Queries are not supported', 'wp-graphql' ) );
+			}
+
+			$batch_limit = get_graphql_setting( 'batch_limit', 10 );
+			$batch_limit = absint( $batch_limit ) ? absint( $batch_limit ) : 10;
+
+			// If batch requests are enabled, but a limit is set and the request exceeds the limit
+			// fail now
+			if ( $batch_limit < count( $this->params ) ) {
+				// translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
+				throw new Error( sprintf( __( 'Batch requests are limited to %1$d operations. This request contained %2$d', 'wp-graphql' ), absint( $batch_limit ), count( $this->params ) ) );
+			}
+
+			/**
+			 * Execute batch queries
+			 *
+			 * @param OperationParams[] $params The operation params of the batch request
+			 */
+			do_action( 'graphql_execute_batch_queries', $this->params );
+
+			// Process the batched requests
 			array_walk( $this->params, [ $this, 'do_action' ] );
+
 		} else {
 			$this->do_action( $this->params );
 		}
@@ -456,7 +484,7 @@ class Request {
 			if ( is_array( $response ) ) {
 				$response['extensions']['debug'] = $this->debug_log->get_logs();
 			} else {
-				$response->extensions = [ 'debug' => $this->debug_log->get_logs() ];
+				$response->extensions['debug'] = $this->debug_log->get_logs();
 			}
 		}
 

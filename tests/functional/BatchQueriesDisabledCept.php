@@ -22,7 +22,7 @@ $I->sendPost( 'http://localhost/graphql', json_encode([
 	]
 ]));
 
-$I->seeResponseCodeIs( 200 );
+$I->seeResponseCodeIs( 500 );
 $I->seeResponseIsJson();
 $response       = $I->grabResponse();
 $response_array = json_decode( $response, true );
