@@ -21,7 +21,7 @@ WPGraphQL Registers the following Scalars for use throughout the Schema.
 - **Integer**
 - **String**
 
-While WPGraphQL doesn't currently ship with any Custom Scalar types, there is an API to [register custom Scalar types](https://www.wpgraphql.com/functions/register_graphql_scalar/).
+While WPGraphQL doesn't currently ship with any Custom Scalar types, there is an API to [register custom Scalar types](/functions/register_graphql_scalar/).
 
 ## Interfaces
 
