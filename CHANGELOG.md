@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.8
+
+### Chores / Bugfixes
+
+- ([#1897](https://github.com/wp-graphql/wp-graphql/pull/1897)): Fails batch requests when disabled earlier.
+- ([#1893](https://github.com/wp-graphql/wp-graphql/pull/1893)): Moves more documentation into markdown. Thanks @markkelnar!
+
+### New Features
+
+- ([#1897](https://github.com/wp-graphql/wp-graphql/pull/1897)): Adds new setting to set a max number of batch operations to allow per Batch request.
+
 ## 1.3.7
 
 ### Chores / Bugfixes

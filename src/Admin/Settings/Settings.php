@@ -129,6 +129,13 @@ class Settings {
 				'default' => 'on',
 			],
 			[
+				'name'    => 'batch_limit',
+				'label'   => __( 'Batch Query Limit', 'wp-graphql' ),
+				'desc'    => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
+				'type'    => 'number',
+				'default' => 10,
+			],
+			[
 				'name'    => 'query_depth_enabled',
 				'label'   => __( 'Enable Query Depth Limiting', 'wp-graphql' ),
 				'desc'    => __( 'Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting.', 'wp-graphql' ),
