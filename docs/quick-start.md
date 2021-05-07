@@ -85,7 +85,9 @@ Click the "Docs" button at the top right of the Graph*i*QL IDE.
 
 This will expand a "Documentation Explorer" that can be used to see what Types and Fields are available in the WPGraphQL Schema.
 
-Let's search the Schema for something WordPress is known for: "Posts"<br><br>In the "Search Schema" field, enter the word "posts". You should see results similar to the below screen recording.
+Let's search the Schema for something WordPress is known for: "Posts"
+
+In the "Search Schema" field, enter the word "posts". You should see results similar to the below screen recording.
 
 ![Screen recording showing a search for "posts" in GraphiQL Docs Explorer](./quick-graphiql-search-posts.gif)
 
