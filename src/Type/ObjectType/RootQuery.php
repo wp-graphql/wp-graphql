@@ -266,8 +266,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a menu item by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, AppContext $context) {
-
+						'resolve'     => function( $source, array $args, AppContext $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							switch ( $id_type ) {

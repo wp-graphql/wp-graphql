@@ -305,10 +305,10 @@ class NodeResolver {
 		/**
 		 * When this filter return anything other than null, it will be used as a resolved node
 		 * and the execution will be skipped.
-		 * 
-		 * This is to be used in extensions to resolve their own nodes which might not use 
+		 *
+		 * This is to be used in extensions to resolve their own nodes which might not use
 		 * WordPress permalink structure.
-		 * 
+		 *
 		 * @param null $node The node, defaults to nothing.
 		 * @param string $uri The uri being searched.
 		 * @param AppContext $content The app context.
