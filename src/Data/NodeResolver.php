@@ -302,7 +302,23 @@ class NodeResolver {
 
 		do_action_ref_array( 'parse_request', [ &$this ] );
 
-		$node = null;
+		/**
+		 * When this filter return anything other than null, it will be used as a resolved node
+		 * and the execution will be skipped.
+		 * 
+		 * This is to be used in extensions to resolve their own nodes which might not use 
+		 * WordPress permalink structure.
+		 * 
+		 * @param null $node The node, defaults to nothing.
+		 * @param string $uri The uri being searched.
+		 * @param AppContext $content The app context.
+		 * @param WP $wo WP object.
+		 */
+		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp );
+
+		if ( ! empty( $node ) && ! is_null( $node ) ) {
+			return $node;
+		}
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
@@ -418,7 +434,5 @@ class NodeResolver {
 		}
 
 		return $node;
-
 	}
-
 }

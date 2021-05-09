@@ -10,7 +10,6 @@ class PostObjectUnion {
 	 * Registers the Type
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -41,7 +40,7 @@ class PostObjectUnion {
 	 *
 	 * @return array
 	 */
-	public static function get_possible_types() {
+	public static function get_possible_types(): array {
 		$possible_types     = [];
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
@@ -58,5 +57,4 @@ class PostObjectUnion {
 
 		return $possible_types;
 	}
-
 }

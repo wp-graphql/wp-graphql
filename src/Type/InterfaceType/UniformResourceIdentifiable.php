@@ -16,7 +16,6 @@ class UniformResourceIdentifiable {
 	 * Registers the UniformResourceIdentifiable Interface to the Schema.
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -57,8 +56,14 @@ class UniformResourceIdentifiable {
 							$type = null;
 					}
 
-					return $type;
-
+					/**
+					 * Filter the UniformResourceIdentifiable node type.
+					 *
+					 * @param null|string $type The type definition the node should resolve to.
+					 * @param object $node The $node that is being resolved.
+					 * @param TypeRegistry $type_registry The type registry.
+					 */
+					return apply_filters( 'graphql_resolve_uniform_resource_identifiable_node_type', $type, $node, $type_registry );
 				},
 			]
 		);
