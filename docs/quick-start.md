@@ -120,4 +120,4 @@ Now that you have WPGraphQL installed and activated and have written your first 
 
 - [Intro to GraphQL](/docs/intro-to-graphql/)
 - [Intro to WordPress](/docs/intro-to-wordpress/)
-- [Build your first WPGraphQL Extension](http://build)
+- [Build your first WPGraphQL Extension](/docs/build-your-first-wpgraphql-extension/)
