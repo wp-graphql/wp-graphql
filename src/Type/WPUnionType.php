@@ -82,17 +82,17 @@ class WPUnionType extends UnionType {
 		 * Filter the config of WPUnionType
 		 *
 		 * @param array       $config        Array of configuration options passed to the WPUnionType when instantiating a new type
-		 * @param WPUnionType $wp_union_type The instance of the WPObjectType class
+		 * @param WPUnionType $wp_union_type The instance of the WPUnionType class
 		 *
 		 * @since 0.0.30
 		 */
 		$config = apply_filters( 'graphql_wp_union_type_config', $config, $this );
 
 		/**
-		 * Run an action when the WPObjectType is instantiating
+		 * Run an action when the WPUnionType is instantiating
 		 *
 		 * @param array       $config        Array of configuration options passed to the WPUnionType when instantiating a new type
-		 * @param WPUnionType $wp_union_type The instance of the WPObjectType class
+		 * @param WPUnionType $wp_union_type The instance of the WPUnionType class
 		 */
 		do_action( 'graphql_wp_union_type', $config, $this );
 
