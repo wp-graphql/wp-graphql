@@ -18,7 +18,7 @@ WPGraphQL ships with GraphiQL allowing you to search your GraphQL Schema and tes
 **Below is a non-comprehensive list of helpful tools to interact with your WPGraphQL API:**
 
 - [WPGraphiQL](https://github.com/wp-graphql/wp-graphiql) – GraphQL IDE right in your WordPress dashboard
-- [GraphQL Playground](https://github.com/graphcool/graphql-playground) – GraphQL IDE that supports multi-column schema docs, tabs, query history, configuration of HTTP headers and GraphQL Subscriptions.
+- [GraphQL Playground](https://github.com/graphql/graphql-playground) – GraphQL IDE that supports multi-column schema docs, tabs, query history, configuration of HTTP headers and GraphQL Subscriptions.
 - [GraphiQL.app](https://github.com/skevy/graphiql-app) – A light, Electron-based wrapper around GraphiQL
 - [GraphQL Network](https://github.com/Ghirro/graphql-network) – A chrome dev-tools extension for debugging GraphQL network requests.
 - [GraphQL IDE](https://github.com/redound/graphql-ide) – An extensive IDE for exploring GraphQL API’s
