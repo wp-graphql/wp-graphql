@@ -220,8 +220,8 @@ class TypeRegistry {
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
-		ContentTemplate::register_type( $type_registry );
-		DatabaseIdentifier::register_type( $type_registry );
+		ContentTemplate::register_type();
+		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
