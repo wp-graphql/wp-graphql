@@ -40,7 +40,7 @@ class PostObjectUnion {
 	 *
 	 * @return array
 	 */
-	public static function get_possible_types(): array {
+	public static function get_possible_types() {
 		$possible_types     = [];
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
