@@ -486,9 +486,9 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 * 
-			 * @param array               Formatted errors object.
-			 * @param Exception           Thrown error.
-			 * @param \WPGraphQL\Request  WPGraphQL Request object.
+			 * @param array              $errors   Formatted errors object.
+			 * @param Exception          $error    Thrown error.
+			 * @param \WPGraphQL\Request $request  WPGraphQL Request object.
 			 */
 			$response['errors']     = apply_filters(
 				'graphql_http_request_response_errors',
