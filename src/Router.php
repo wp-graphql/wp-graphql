@@ -482,12 +482,25 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, $request->get_debug_flag() ) ];
+			
+			/**
+			 * Filter thrown GraphQL errors
+			 * 
+			 * @param array               Formatted errors object.
+			 * @param Exception           Thrown error.
+			 * @param \WPGraphQL\Request  WPGraphQL Request object.
+			 */
+			$response['errors']     = apply_filters(
+				'graphql_http_request_response_errors',
+				[ FormattedError::createFromException( $error, $request->get_debug_flag() ) ],
+				$error,
+				$request
+			);
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but
 		// now that we are delegating to Request, just send the response for both.
-		$result = $response;
+		$result = $response
 
 		if ( false === headers_sent() ) {
 			self::prepare_headers( $response, $result, $query, $operation_name, $variables );
