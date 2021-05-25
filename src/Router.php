@@ -500,7 +500,7 @@ class Router {
 
 		// Previously there was a small distinction between the response and the result, but
 		// now that we are delegating to Request, just send the response for both.
-		$result = $response
+		$result = $response;
 
 		if ( false === headers_sent() ) {
 			self::prepare_headers( $response, $result, $query, $operation_name, $variables );
