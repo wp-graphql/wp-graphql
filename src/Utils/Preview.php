@@ -5,17 +5,18 @@ namespace WPGraphQL\Utils;
 class Preview {
 
 	/**
-	 * This filters the post meta for previews. Since WordPress core does not save meta for revisions
-	 * this resolves calls to get_post_meta() using the meta of the revisions parent (the published version of the post).
+	 * This filters the post meta for previews. Since WordPress core does not save meta for
+	 * revisions this resolves calls to get_post_meta() using the meta of the revisions parent (the
+	 * published version of the post).
 	 *
-	 * For plugins (such as ACF) that do store meta on revisions, the filter "graphql_resolve_revision_meta_from_parent"
-	 * can be used to opt-out of this default behavior and instead return meta from the revision
-	 * object instead of the parent.
+	 * For plugins (such as ACF) that do store meta on revisions, the filter
+	 * "graphql_resolve_revision_meta_from_parent" can be used to opt-out of this default behavior
+	 * and instead return meta from the revision object instead of the parent.
 	 *
-	 * @param mixed             $default_value The default value of the meta
-	 * @param int               $object_id     The ID of the object the meta is for
-	 * @param mixed|string|null $meta_key      The meta key
-	 * @param bool              $single        Whether the meta is a single value
+	 * @param mixed       $default_value The default value of the meta
+	 * @param int         $object_id     The ID of the object the meta is for
+	 * @param string|null $meta_key      The meta key
+	 * @param bool        $single        Whether the meta is a single value
 	 *
 	 * @return mixed
 	 */
@@ -24,6 +25,7 @@ class Preview {
 		if ( ! is_graphql_request() ) {
 			return $default_value;
 		}
+
 
 		/**
 		 * Filters whether to resolve revision metadata from the parent node
@@ -48,7 +50,9 @@ class Preview {
 
 		if ( 'revision' === $post->post_type ) {
 			$parent = get_post( $post->post_parent );
+			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
 			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
+
 		}
 
 		return $default_value;
