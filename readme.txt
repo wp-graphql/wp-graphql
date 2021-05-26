@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.6
 Requires PHP: 7.1
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,21 @@ Gatsby and WP Engine both believe that a strong GraphQL API for WordPress is a b
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.3.9 =
+
+**Chores / Bugfixes**
+
+- ([#1902](https://github.com/wp-graphql/wp-graphql/pull/1902)): Moves more documentation into markdown. Thanks @markkelnar!
+- ([#1917](https://github.com/wp-graphql/wp-graphql/pull/1917)): Updates docblock on WPObjectType. Thanks @markkelnar!
+- ([#1926](https://github.com/wp-graphql/wp-graphql/pull/1926)): Removes Telemetry.
+- ([#1928](https://github.com/wp-graphql/wp-graphql/pull/1928)): Fixes bug (#1864) that was causing errors when get_post_meta() was used with a null meta key.
+- ([#1929](https://github.com/wp-graphql/wp-graphql/pull/1929)): Adds Github Workflow to upload schema.graphql as release asset.
+
+**New Features**
+
+- ([#1924](https://github.com/wp-graphql/wp-graphql/pull/1924)): Adds new `graphql_http_request_response_errors` filter. Thanks @kidunot89!
+- ([#1908](https://github.com/wp-graphql/wp-graphql/pull/1908)): Adds new `graphql_pre_resolve_uri` filter, allowing 3rd parties to filter the behavior of the nodeByUri resolver. Thanks @renatonascalves!
 
 = 1.3.8 =
 

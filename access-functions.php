@@ -332,9 +332,9 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
 	add_filter(
 		'graphql_type_name',
 		function( $name ) use ( $type_name, $new_type_name ) {
-            if ( $name === $type_name ) {
-                return $new_type_name;
-            }
+			if ( $name === $type_name ) {
+				return $new_type_name;
+			}
 			return $name;
 		}
 	);

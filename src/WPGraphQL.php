@@ -125,7 +125,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.3.8' );
+			define( 'WPGRAPHQL_VERSION', '1.3.9' );
 		}
 
 		// Plugin Folder Path.
@@ -229,22 +229,6 @@ final class WPGraphQL {
 	 * @return void
 	 */
 	private function actions() {
-
-		$tracker = new \WPGraphQL\Telemetry\Tracker( 'WPGraphQL' );
-		add_action( 'plugins_loaded', [ $tracker, 'init' ] );
-		add_action(
-			'graphql_activate',
-			function() use ( $tracker ) {
-				$tracker->track_event( 'PLUGIN_ACTIVATE' );
-			}
-		);
-		add_action(
-			'graphql_deactivate',
-			function() use ( $tracker ) {
-				$tracker->track_event( 'PLUGIN_DEACTIVATE' );
-				$tracker->delete_timestamp();
-			}
-		);
 
 		/**
 		 * Init WPGraphQL after themes have been setup,

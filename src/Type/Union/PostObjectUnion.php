@@ -10,7 +10,6 @@ class PostObjectUnion {
 	 * Registers the Type
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -58,5 +57,4 @@ class PostObjectUnion {
 
 		return $possible_types;
 	}
-
 }

@@ -1,0 +1,49 @@
+name: Schema Linter
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: Generate and Upload WPGraphQL Schema Artifact
+    services:
+      mariadb:
+        image: mariadb
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        # Ensure docker waits for mariadb to start
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP w/ Composer & WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
+          coverage: none
+          tools: composer, wp-cli
+
+      - name: Setup WordPress
+        run: |
+          composer run install-test-env
+
+      - name: Generate the Static Schema
+        run: |
+          cd /tmp/wordpress/
+          # Output: /tmp/schema.graphql
+          wp graphql generate-static-schema
+      - name: Upload schema as release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: /tmp/schema.graphql
+          asset_name: schema.graphql
+          asset_content_type: text/plain

@@ -199,7 +199,7 @@ class RootQuery {
 								'description' => __( 'Unique Resource Identifier in the form of a path or permalink for a node. Ex: "/hello-world"', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $root, $args, AppContext $context ) {
 							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
 						},
 					],
@@ -218,7 +218,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a menu by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context ) {
 
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
@@ -266,8 +266,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a menu item by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
+						'resolve'     => function( $source, array $args, AppContext $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							switch ( $id_type ) {
@@ -298,7 +297,7 @@ class RootQuery {
 								'description' => __( 'The globally unique identifier of the plugin.', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, AppContext $context, $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
 
 							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
@@ -323,7 +322,7 @@ class RootQuery {
 								'description' => __( 'The taxonomy of the tern node. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $root, $args, AppContext $context ) {
 
 							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$term_id = null;
@@ -379,7 +378,7 @@ class RootQuery {
 								'description' => __( 'The globally unique identifier of the theme.', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
 
 							return DataSource::resolve_theme( $id_components['id'] );
@@ -400,7 +399,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a user by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args, $context ) {
 
 							$idType = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
@@ -457,7 +456,7 @@ class RootQuery {
 								'description' => __( 'The globally unique identifier of the user object.', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, $context, $info ) {
+						'resolve'     => function( $source, array $args ) {
 
 							$id_components = Relay::fromGlobalId( $args['id'] );
 
@@ -468,7 +467,7 @@ class RootQuery {
 					'viewer'      => [
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
-						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => function( $source, array $args, AppContext $context ) {
 							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 						},
 					],
@@ -515,7 +514,7 @@ class RootQuery {
 								'description' => __( 'Whether to return the node as a preview instance', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+						'resolve'     => function( $source, array $args, AppContext $context ) use ( $post_type_object ) {
 
 							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 							$post_id = null;
@@ -617,7 +616,7 @@ class RootQuery {
 						'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
 						'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 						'args'              => $post_by_args,
-						'resolve'           => function( $source, array $args, $context, $info ) use ( $post_type_object ) {
+						'resolve'           => function( $source, array $args, $context ) use ( $post_type_object ) {
 							$post_object = null;
 							$post_id     = 0;
 							if ( ! empty( $args['id'] ) ) {

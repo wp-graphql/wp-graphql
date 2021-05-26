@@ -156,6 +156,43 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testGetPostMetaWithNullMetaKeyDoesNotBreakPreviews() {
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
+			'id' => $this->post,
+		] ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+		add_filter( 'wp_revisions_to_keep', function() {
+			return 0;
+		} );
+
+		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
+			'id' => $this->post,
+		] ]);
+
+		// Tests #1864
+		// Getting the post meta with a null key should not fail requests.
+		// Previously this would cause errors
+		get_post_meta( $this->post, null, true );
+
+		codecept_debug( $actual );
+
+		add_filter( 'wp_revisions_to_keep', function( $default ) {
+			return $default;
+		} );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+	}
+
 	public function testPreviewAuthorMatchesPublishedAuthor() {
 
 		wp_set_current_user( $this->admin );
