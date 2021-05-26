@@ -12,14 +12,14 @@ class Preview {
 	 * can be used to opt-out of this default behavior and instead return meta from the revision
 	 * object instead of the parent.
 	 *
-	 * @param mixed $default_value The default value of the meta
-	 * @param int $object_id The ID of the object the meta is for
-	 * @param string $meta_key The meta key
-	 * @param bool $single Whether the meta is a single value
+	 * @param mixed             $default_value The default value of the meta
+	 * @param int               $object_id     The ID of the object the meta is for
+	 * @param mixed|string|null $meta_key      The meta key
+	 * @param bool              $single        Whether the meta is a single value
 	 *
 	 * @return mixed
 	 */
-	public static function filter_post_meta_for_previews( $default_value, int $object_id, string $meta_key, bool $single ) {
+	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, bool $single ) {
 
 		if ( ! is_graphql_request() ) {
 			return $default_value;
