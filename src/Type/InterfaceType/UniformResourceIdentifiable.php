@@ -16,7 +16,6 @@ class UniformResourceIdentifiable {
 	 * Registers the UniformResourceIdentifiable Interface to the Schema.
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -58,7 +57,6 @@ class UniformResourceIdentifiable {
 					}
 
 					return $type;
-
 				},
 			]
 		);
