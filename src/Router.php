@@ -482,7 +482,20 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, $request->get_debug_flag() ) ];
+
+			/**
+			 * Filter thrown GraphQL errors
+			 *
+			 * @param array              $errors   Formatted errors object.
+			 * @param Exception          $error    Thrown error.
+			 * @param \WPGraphQL\Request $request  WPGraphQL Request object.
+			 */
+			$response['errors'] = apply_filters(
+				'graphql_http_request_response_errors',
+				[ FormattedError::createFromException( $error, $request->get_debug_flag() ) ],
+				$error,
+				$request
+			);
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but
