@@ -26,7 +26,6 @@ class Preview {
 			return $default_value;
 		}
 
-
 		/**
 		 * Filters whether to resolve revision metadata from the parent node
 		 * by default.
@@ -49,7 +48,7 @@ class Preview {
 		}
 
 		if ( 'revision' === $post->post_type ) {
-			$parent = get_post( $post->post_parent );
+			$parent   = get_post( $post->post_parent );
 			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
 			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
 
