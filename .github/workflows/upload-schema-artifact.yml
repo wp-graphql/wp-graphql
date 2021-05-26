@@ -1,18 +1,13 @@
 name: Schema Linter
 
 on:
-  push:
-    branches:
-      - develop
-      - master
-  pull_request:
-    branches:
-      - develop
+  release:
+    types: [ published ]
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    name: Lint WPGraphQL Schema
+    name: Generate and Upload WPGraphQL Schema Artifact
     services:
       mariadb:
         image: mariadb
@@ -34,12 +29,6 @@ jobs:
           coverage: none
           tools: composer, wp-cli
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-
-      - name: Setup GraphQL Schema Linter
-        run: npm install -g graphql-schema-linter
-
       - name: Setup WordPress
         run: |
           composer run install-test-env
@@ -49,11 +38,12 @@ jobs:
           cd /tmp/wordpress/
           # Output: /tmp/schema.graphql
           wp graphql generate-static-schema
-
-      - name: Lint the Static Schema
-        run: |
-          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","PostObjectUnion","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
-
-      - name: Display ignored linting errors
-        run: |
-          graphql-schema-linter /tmp/schema.graphql || true
+      - name: Upload schema as release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: /tmp/schema.graphql
+          asset_name: schema.graphql
+          asset_content_type: text/plain
