@@ -249,16 +249,18 @@ class PostObjects {
 				}
 
 				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+					/** @var string $taxonomy */
 					foreach ( $allowed_taxonomies as $taxonomy ) {
 						// If the taxonomy is in the array of taxonomies registered to the post_type
 						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-							$tax_object = get_taxonomy( $taxonomy );
+							/** @var \WP_Taxonomy $taxonomy_object */
+							$taxonomy_object = get_taxonomy( $taxonomy );
 
 							register_graphql_connection(
 								self::get_connection_config(
 									$post_type_object,
 									[
-										'fromType' => $tax_object->graphql_single_name,
+										'fromType' => $taxonomy_object->graphql_single_name,
 										'resolve'  => function( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 											$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
 											$resolver->set_query_arg( 'tax_query', [
@@ -478,20 +480,22 @@ class PostObjects {
 			/**
 			 * Status parameters
 			 *
-			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Status_Parameters
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#status-parameters
 			 * @since 0.0.2
 			 */
 			'status'      => [
-				'type' => 'PostStatusEnum',
+				'type'        => 'PostStatusEnum',
+				'description' => __( 'Show posts with a specific status.', 'wp-graphql' ),
 			],
 
 			/**
 			 * List of post status parameters
 			 */
 			'stati'       => [
-				'type' => [
+				'type'        => [
 					'list_of' => 'PostStatusEnum',
 				],
+				'description' => __( 'Retrieve posts where post status is in an array.', 'wp-graphql' ),
 			],
 
 			/**

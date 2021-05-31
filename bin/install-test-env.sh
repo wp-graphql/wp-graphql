@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
+if [[ ! -f ".env" ]]; then
+  echo "No .env file was detected. .env.dist has been copied to .env"
+  echo "Open the .env file and enter values to match your local environment"
+  cp .env.dist .env
+fi
+
 source .env
 
 print_usage_instruction() {
-	echo "Ensure that .env file exist in project root directory exists."
-	echo "And run the following 'composer install-wp-tests' in the project root directory"
+  echo "ERROR!"
+  echo "Values in the .env file are missing or incorrect."
+  echo "Open the .env file at the root of this plugin and enter values to match your local environment settings"
 	exit 1
 }
 
@@ -142,11 +149,12 @@ install_db() {
 configure_wordpress() {
     cd $WP_CORE_DIR
     wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
-    wp core install --url=wp.test --title="WPGatsby Tests" --admin_user=admin --admin_password=password --admin_email=admin@wp.test
+    wp core install --url=wp.test --title="WPGraphQL Tests" --admin_user=admin --admin_password=password --admin_email=admin@wp.test
     wp rewrite structure '/%year%/%monthnum%/%postname%/'
 }
 
 setup_plugin() {
+
 	# Add this repo as a plugin to the repo
 	if [ ! -d $WP_CORE_DIR/wp-content/plugins/wp-graphql ]; then
 		ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
@@ -155,9 +163,13 @@ setup_plugin() {
 		ls
 	fi
 
+	cd $PLUGIN_DIR
+
+	composer install
+
 	cd $WP_CORE_DIR
 
-    wp plugin list
+  wp plugin list
 
 	# activate the plugin
 	wp plugin activate wp-graphql
@@ -167,6 +179,7 @@ setup_plugin() {
 
 	# Export the db for codeception to use
 	wp db export $PLUGIN_DIR/tests/_data/dump.sql
+
 }
 
 install_wp

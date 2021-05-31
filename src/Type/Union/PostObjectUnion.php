@@ -10,7 +10,6 @@ class PostObjectUnion {
 	 * Registers the Type
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -19,6 +18,7 @@ class PostObjectUnion {
 			[
 				'name'        => 'PostObjectUnion',
 				'typeNames'   => self::get_possible_types(),
+				'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
 				'resolveType' => function( $value ) use ( $type_registry ) {
 
 					$type = null;
@@ -57,5 +57,4 @@ class PostObjectUnion {
 
 		return $possible_types;
 	}
-
 }

@@ -55,29 +55,45 @@ class PostObjectCursor {
 	public $query_vars = [];
 
 	/**
+	 * @var string|null
+	 */
+	public $cursor;
+
+	/**
+	 * @var string
+	 */
+	public $compare;
+
+	/**
 	 * PostCursor constructor.
 	 *
-	 * @param WP_Query $query The WP_Query instance
+	 * @param WP_Query    $query  The WP_Query instance
+	 * @param string|null $cursor Whether to generate the before or after cursor. Default "after"
 	 */
-	public function __construct( $query ) {
+	public function __construct( WP_Query $query, $cursor = '' ) {
 		global $wpdb;
 		$this->wpdb       = $wpdb;
 		$this->query      = $query;
 		$this->query_vars = $this->query->query_vars;
+		$this->cursor     = $cursor;
 
 		/**
 		 * Get the cursor offset if any
 		 */
 		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$this->cursor_offset = ! empty( $offset ) ? $offset : 0;
+		$offset              = isset( $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ) ? $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] : $offset;
+		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
-		/**
-		 * Get the direction for the query builder
-		 */
-		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
+		$compare       = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
+		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
-		$this->builder = new CursorBuilder( $compare );
+		if ( 'before' === $cursor ) {
+			$this->compare = '>';
+		} elseif ( 'after' === $cursor ) {
+			$this->compare = '<';
+		}
+
+		$this->builder = new CursorBuilder( $this->compare );
 
 	}
 
@@ -118,9 +134,11 @@ class PostObjectCursor {
 		}
 
 		$sql = $this->builder->to_sql();
+
 		if ( empty( $sql ) ) {
 			return null;
 		}
+
 		return ' AND ' . $sql;
 	}
 
@@ -223,6 +241,7 @@ class PostObjectCursor {
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
+
 			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 
 			return;

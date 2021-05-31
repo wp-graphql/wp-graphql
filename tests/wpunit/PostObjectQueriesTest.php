@@ -255,7 +255,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'slug'          => 'test-title',
 				'toPing'        => null,
 				'pinged'        => null,
-				'modified'      => get_post( $post_id )->post_modified,
+				'modified'      => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
 				'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 				'title'         => apply_filters( 'the_title', 'Test Title' ),
 				'guid'          => get_post( $post_id )->guid,
@@ -1547,6 +1547,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $graphql_query );
 
+		codecept_debug( $user );
+		codecept_debug( $actual );
+
 		$expected = [
 			'post' => [
 				'id' => $global_id,
@@ -1758,6 +1761,71 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
 
+	}
+
+	/**
+	 * Tests to make sure the page set as the privacy page shows as the privacy page
+	 *
+	 * @throws Exception
+	 */
+	public function testIsPrivacyPage() {
+
+		/**
+		 * Set up test
+		 */
+		$notPrivacyPageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test is not Privacy Page'
+		]);
+
+		$privacyPageId = $this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_type' => 'page',
+			'post_title' => 'Test is Privacy Page'
+		]);
+
+		update_option( 'wp_page_for_privacy_policy', $privacyPageId );
+
+		$query = '
+		query Page( $pageId: Int ) {
+		  pageBy( pageId: $pageId ) {
+		    id
+		    title
+		    isPrivacyPage
+		  }
+ 		}
+		';
+
+		/**
+		 * Make sure page not set as privacy page returns false
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $notPrivacyPageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertFalse( $actual['data']['pageBy']['isPrivacyPage'] );
+
+		/**
+		 * Make sure page set as privacy page returns true
+		 */
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'pageId' => $privacyPageId,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['pageBy']['isPrivacyPage'] );
 
 	}
 
@@ -2124,6 +2192,52 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
+
+	}
+
+	public function testQueryPostWithTemplate() {
+
+		/**
+		 * Create a post
+		 */
+		$post_id = $this->createPostObject( [
+			'post_type' => 'post',
+		] );
+
+		$permalink = get_permalink( $post_id );
+
+		$query = '
+		query path($path: String!) {
+			nodeByUri(uri: $path) {
+				id
+				__typename
+				... on ContentType {
+					graphqlSingleName
+				}
+				... on ContentNode {
+					databaseId
+					template {
+						templateName
+						__typename
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'path' => $permalink
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( 'DefaultTemplate', $actual['data']['nodeByUri']['template']['__typename'] );
+		$this->assertSame( 'Default', $actual['data']['nodeByUri']['template']['templateName'] );
 
 	}
 

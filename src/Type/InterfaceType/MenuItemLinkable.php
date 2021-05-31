@@ -5,7 +5,7 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\Object\User;
+use WPGraphQL\Type\ObjectType\User;
 
 class MenuItemLinkable {
 
@@ -40,10 +40,14 @@ class MenuItemLinkable {
 
 				switch ( true ) {
 					case $node instanceof Post:
-						$type = $type_registry->get_type( get_post_type_object( $node->post_type )->graphql_single_name );
+						/** @var \WP_Post_Type $post_type_object */
+						$post_type_object = get_post_type_object( $node->post_type );
+						$type             = $type_registry->get_type( $post_type_object->graphql_single_name );
 						break;
 					case $node instanceof Term:
-						$type = $type_registry->get_type( get_taxonomy( $node->taxonomyName )->graphql_single_name );
+						/** @var \WP_Taxonomy $taxonomy_object */
+						$taxonomy_object = get_taxonomy( $node->taxonomyName );
+						$type            = $type_registry->get_type( $taxonomy_object->graphql_single_name );
 						break;
 					default:
 						$type = null;

@@ -225,6 +225,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				    node {
 						...on CommentAuthor {
 						  id
+						  databaseId
 						  name
 						  email
 						  url
@@ -239,6 +240,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
+		codecept_debug( $comment_id );
 		codecept_debug( $actual );
 
 		/**
@@ -251,6 +253,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'author'   => [
 					'node' => [
 						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'databaseId' => absint( $comment_id ),
 						'name'  => get_comment_author( $comment_id ),
 						'email' => null, // Email is restricted to users with moderate_comments capability
 						'url'   => get_comment_author_url( $comment_id ),
@@ -281,6 +284,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'author'   => [
 					'node' => [
 						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'databaseId' => absint( $comment_id ),
 						'name'  => get_comment_author( $comment_id ),
 						'email' => get_comment_author_email( $comment_id ),
 						'url'   => get_comment_author_url( $comment_id ),

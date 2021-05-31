@@ -55,23 +55,36 @@ class UserCursor {
 	public $query_vars = [];
 
 	/**
+	 * @var string|null
+	 */
+	public $cursor;
+
+	/**
+	 * @var string
+	 */
+	public $compare;
+
+	/**
 	 * UserCursor constructor.
 	 *
-	 * @param WP_User_Query $query The WP_User_Query instance
+	 * @param WP_User_Query $query  The WP_User_Query instance
+	 * @param string|null   $cursor Whether to generate the before or after cursor
 	 *
 	 * @return void
 	 */
-	public function __construct( WP_User_Query $query ) {
+	public function __construct( WP_User_Query $query, $cursor = '' ) {
 		global $wpdb;
 		$this->wpdb       = $wpdb;
 		$this->query      = $query;
 		$this->query_vars = $this->query->query_vars;
+		$this->cursor     = $cursor;
 
 		/**
 		 * Get the cursor offset if any
 		 */
 		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$this->cursor_offset = ! empty( $offset ) ? $offset : 0;
+		$offset              = isset( $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ) ? $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] : $offset;
+		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
 		/**
 		 * Get the direction for the query builder
@@ -79,7 +92,15 @@ class UserCursor {
 		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
 		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
-		$this->builder = new CursorBuilder( $compare );
+		$this->compare = $compare;
+
+		if ( 'before' === $this->cursor ) {
+			$this->compare = '<';
+		} elseif ( 'after' === $this->cursor ) {
+			$this->compare = '>';
+		}
+
+		$this->builder = new CursorBuilder( $this->compare );
 
 	}
 
@@ -150,7 +171,7 @@ class UserCursor {
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
-		} elseif ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} elseif ( ! empty( $orderby ) && is_string( $orderby ) && 'login' !== $orderby ) {
 
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
@@ -166,7 +187,7 @@ class UserCursor {
 			$this->compare_with_login();
 		}
 
-		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID' );
+		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID', $order );
 
 		return $this->to_sql();
 	}

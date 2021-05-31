@@ -18,9 +18,12 @@ class WPScalar extends CustomScalarType {
 	 * @param TypeRegistry $type_registry
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-		$config = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
-		parent::__construct( $config );
 
+		$name           = $config['name'];
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
+		$config         = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
+
+		parent::__construct( $config );
 	}
 
 }

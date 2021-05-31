@@ -3,11 +3,9 @@
 namespace WPGraphQL\Data;
 
 use Exception;
-use GraphQL\Error\UserError;
 use WP;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
-use WPGraphQL\Model\PostType;
 
 class NodeResolver {
 
@@ -47,6 +45,24 @@ class NodeResolver {
 	 */
 	public function resolve_uri( string $uri, $extra_query_vars = '' ) {
 
+		/**
+		 * When this filter return anything other than null, it will be used as a resolved node
+		 * and the execution will be skipped.
+		 *
+		 * This is to be used in extensions to resolve their own nodes which might not use
+		 * WordPress permalink structure.
+		 *
+		 * @param null $node The node, defaults to nothing.
+		 * @param string $uri The uri being searched.
+		 * @param AppContext $content The app context.
+		 * @param WP $wp WP object.
+		 */
+		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp );
+
+		if ( ! empty( $node ) ) {
+			return $node;
+		}
+
 		global $wp_rewrite;
 
 		$parsed_url = wp_parse_url( $uri );
@@ -60,7 +76,10 @@ class NodeResolver {
 				],
 				true
 			) ) {
-				throw new UserError( __( 'Cannot return a resource for an external URI', 'wp-graphql' ) );
+				graphql_debug( __( 'Cannot return a resource for an external URI', 'wp-graphql' ), [
+					'uri' => $uri,
+				] );
+				return null;
 			}
 		}
 
@@ -84,7 +103,8 @@ class NodeResolver {
 
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
-		$error   = '404';
+
+		$error = '404';
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
 			$error                   = null;
@@ -208,10 +228,13 @@ class NodeResolver {
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
-		foreach ( get_post_types( [ 'show_in_graphql' => true ], 'objects' ) as $post_type => $t ) {
+		$post_type_objects = get_post_types( [ 'show_in_graphql' => true ], 'objects' );
 
-			if ( isset( $t->show_in_graphql ) && true === $t->show_in_graphql && $t->query_var ) {
-				$post_type_query_vars[ $t->query_var ] = $post_type;
+		if ( ! empty( $post_type_objects ) ) {
+			foreach ( $post_type_objects as $post_type_object ) {
+				if ( isset( $post_type_object->show_in_graphql ) && true === $post_type_object->show_in_graphql && $post_type_object->query_var ) {
+					$post_type_query_vars[ $post_type_object->query_var ] = $post_type_object->name;
+				}
 			}
 		}
 
@@ -297,8 +320,6 @@ class NodeResolver {
 
 		do_action_ref_array( 'parse_request', [ &$this ] );
 
-		$node = null;
-
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
 
@@ -363,7 +384,9 @@ class NodeResolver {
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
 
 			if ( isset( $post->ID ) && (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
-				if ( ! empty( $this->context->config['source_type'] ) && $this->context->config['source_type'] === 'UniformResourceIdentifiable' ) {
+				$source_type = wp_cache_get( 'source_type', 'wp-graphql' );
+
+				if ( $source_type === 'UniformResourceIdentifiable' ) {
 					$this->context->config['source_type'] = null;
 					return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 				} else {
@@ -371,14 +394,17 @@ class NodeResolver {
 				}
 			}
 
-			return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+			return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
 		} elseif ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
 
 			return isset( $user->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $user->ID ) : null;
 		} elseif ( isset( $this->wp->query_vars['category_name'] ) ) {
-			$node = get_term_by( 'slug', $this->wp->query_vars['category_name'], 'category' );
-
+			$term = get_category_by_path( $this->wp->query_vars['category_name'] );
+			if ( ! $term instanceof \WP_Term ) {
+				return null;
+			}
+			$node = get_term_by( 'id', $term->term_id, 'category' );
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 
 		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
@@ -411,7 +437,5 @@ class NodeResolver {
 		}
 
 		return $node;
-
 	}
-
 }

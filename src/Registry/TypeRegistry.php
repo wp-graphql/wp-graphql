@@ -75,8 +75,8 @@ use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
-use WPGraphQL\Type\Object\EnqueuedScript;
-use WPGraphQL\Type\Object\EnqueuedStylesheet;
+use WPGraphQL\Type\ObjectType\EnqueuedScript;
+use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
@@ -102,28 +102,28 @@ use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
-use WPGraphQL\Type\Object\Avatar;
-use WPGraphQL\Type\Object\Comment;
-use WPGraphQL\Type\Object\CommentAuthor;
-use WPGraphQL\Type\Object\MediaDetails;
-use WPGraphQL\Type\Object\MediaItemMeta;
-use WPGraphQL\Type\Object\MediaSize;
-use WPGraphQL\Type\Object\Menu;
-use WPGraphQL\Type\Object\MenuItem;
-use WPGraphQL\Type\Object\PageInfo;
-use WPGraphQL\Type\Object\Plugin;
-use WPGraphQL\Type\Object\PostObject;
-use WPGraphQL\Type\Object\ContentType;
-use WPGraphQL\Type\Object\PostTypeLabelDetails;
-use WPGraphQL\Type\Object\RootMutation;
-use WPGraphQL\Type\Object\RootQuery;
-use WPGraphQL\Type\Object\SettingGroup;
-use WPGraphQL\Type\Object\Taxonomy;
-use WPGraphQL\Type\Object\TermObject;
-use WPGraphQL\Type\Object\Theme;
-use WPGraphQL\Type\Object\User;
-use WPGraphQL\Type\Object\UserRole;
-use WPGraphQL\Type\Object\Settings;
+use WPGraphQL\Type\ObjectType\Avatar;
+use WPGraphQL\Type\ObjectType\Comment;
+use WPGraphQL\Type\ObjectType\CommentAuthor;
+use WPGraphQL\Type\ObjectType\MediaDetails;
+use WPGraphQL\Type\ObjectType\MediaItemMeta;
+use WPGraphQL\Type\ObjectType\MediaSize;
+use WPGraphQL\Type\ObjectType\Menu;
+use WPGraphQL\Type\ObjectType\MenuItem;
+use WPGraphQL\Type\ObjectType\PageInfo;
+use WPGraphQL\Type\ObjectType\Plugin;
+use WPGraphQL\Type\ObjectType\PostObject;
+use WPGraphQL\Type\ObjectType\ContentType;
+use WPGraphQL\Type\ObjectType\PostTypeLabelDetails;
+use WPGraphQL\Type\ObjectType\RootMutation;
+use WPGraphQL\Type\ObjectType\RootQuery;
+use WPGraphQL\Type\ObjectType\SettingGroup;
+use WPGraphQL\Type\ObjectType\Taxonomy;
+use WPGraphQL\Type\ObjectType\TermObject;
+use WPGraphQL\Type\ObjectType\Theme;
+use WPGraphQL\Type\ObjectType\User;
+use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\ObjectType\Settings;
 use WPGraphQL\Type\Union\TermObjectUnion;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
@@ -131,6 +131,7 @@ use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TypeRegistry
@@ -219,8 +220,8 @@ class TypeRegistry {
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
-		ContentTemplate::register_type( $type_registry );
-		DatabaseIdentifier::register_type( $type_registry );
+		ContentTemplate::register_type();
+		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
@@ -342,9 +343,10 @@ class TypeRegistry {
 
 		$registered_page_templates = wp_get_theme()->get_post_templates();
 
+		$page_templates['default'] = 'DefaultTemplate';
+
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
 
-			$page_templates['default'] = 'DefaultTemplate';
 			foreach ( $registered_page_templates as $post_type_templates ) {
 				// Post templates are returned as an array of arrays. PHPStan believes they're returned as
 				// an array of strings and believes this will always evaluate to false.
@@ -372,6 +374,7 @@ class TypeRegistry {
 					$name = 'Template_' . $name;
 				}
 				$template_type_name = $name;
+
 				register_graphql_object_type(
 					$template_type_name,
 					[
@@ -498,9 +501,10 @@ class TypeRegistry {
 											'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
 										],
 										'nodes'  => [
-											'type' => [
+											'type'        => [
 												'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
 											],
+											'description' => __( 'The input list of items to set.', 'wp-graphql' ),
 										],
 									],
 								]
@@ -566,8 +570,9 @@ class TypeRegistry {
 					'RootQuery',
 					$group_name . 'Settings',
 					[
-						'type'    => ucfirst( $group_name ) . 'Settings',
-						'resolve' => function() use ( $setting_type ) {
+						'type'        => ucfirst( $group_name ) . 'Settings',
+						'description' => sprintf( __( "Fields of the '%s' settings group", 'wp-graphql' ), ucfirst( $group_name ) . 'Settings' ),
+						'resolve'     => function() use ( $setting_type ) {
 							return $setting_type;
 						},
 					]
@@ -949,6 +954,8 @@ class TypeRegistry {
 			'graphql_' . $type_name . '_fields',
 			function( $fields ) use ( $type_name, $field_name, $config ) {
 
+				$field_name = Utils::format_field_name( $field_name );
+
 				if ( preg_match( '/^\d/', $field_name ) ) {
 					graphql_debug(
 						sprintf( __( 'The field \'%1$s\' on Type \'%2$s\' is invalid. Field names cannot start with a number.', 'wp-graphql' ), $field_name, $type_name ),
@@ -1206,8 +1213,8 @@ class TypeRegistry {
 					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
 				],
 				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
+					'type'        => 'Int',
+					'description' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
 				],
 				'after'  => [
 					'type'        => 'String',
@@ -1251,7 +1258,8 @@ class TypeRegistry {
 
 		$output_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
+				'description' => __( 'If a \'clientMutationId\' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 
@@ -1269,7 +1277,8 @@ class TypeRegistry {
 
 		$input_fields = [
 			'clientMutationId' => [
-				'type' => 'String',
+				'type'        => 'String',
+				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 

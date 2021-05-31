@@ -33,15 +33,14 @@ Follow the WPGraphQL Quick Start instructions to install and activate WPGraphQL
 
 ## Additional Documentation
 
-- [Plugin Usage & Extension Documentation](https://wpgraphql.com/docs/introduction)
-- [Project Overview](/documentation/Overview.md)
-- [Development Testing & code Coverage](/documentation/Testing.md)
-- [Using Docker](/documentation/UsingDocker.md)
-- [Automated Code Linting](/documentation/Linting.md)
+- [Project Overview](https://www.wpgraphql.com/docs/introduction)
+- [Plugin Usage & Extension Documentation](https://www.wpgraphql.com/docs/interacting-with-wpgraphql)
+- [Development Testing & code Coverage](https://www.wpgraphql.com/docs/testing/#testing-locally-with-codeception)
+- [Using Docker](https://www.wpgraphql.com/docs/testing/#testing-with-docker)
 
 ## Shout Outs
 
-- Special thanks to [Gatsby](http://gatsbyjs.com) for allocating development resources to push the project forward.
+- Special thanks to [Gatsby](http://gatsbyjs.com) and [WPEngine](https://wpengine.com) for allocating development resources to push the project forward!
 - This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
 - The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes use 
 of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
@@ -56,7 +55,7 @@ into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.c
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute. [[Contribute](.github/CONTRIBUTING.md)].
 <a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
 
 

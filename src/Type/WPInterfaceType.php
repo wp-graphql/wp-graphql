@@ -24,6 +24,8 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->type_registry = $type_registry;
 
+		$name             = ucfirst( $config['name'] );
+		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = function() use ( $config ) {
 			$fields = $this->prepare_fields( $config['fields'], $config['name'] );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
@@ -51,7 +53,7 @@ class WPInterfaceType extends InterfaceType {
 		 * Filter the config of WPInterfaceType
 		 *
 		 * @param array           $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
-		 * @param WPInterfaceType $wp_interface_type   The instance of the WPObjectType class
+		 * @param WPInterfaceType $wp_interface_type   The instance of the WPInterfaceType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 

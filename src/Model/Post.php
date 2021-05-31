@@ -39,6 +39,7 @@ use WPGraphQL\Utils\Utils;
  * @property string  $slug
  * @property array   $template
  * @property boolean $isFrontPage
+ * @property boolean $isPrivacyPage
  * @property boolean $isPostsPage
  * @property boolean $isPreview
  * @property boolean $isRevision
@@ -154,6 +155,7 @@ class Post extends Model {
 			'uri',
 			'isPostsPage',
 			'isFrontPage',
+			'isPrivacyPage',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
@@ -606,6 +608,16 @@ class Post extends Model {
 
 					return false;
 				},
+				'isPrivacyPage'             => function() {
+					if ( 'page' !== $this->data->post_type ) {
+						return false;
+					}
+					if ( absint( get_option( 'wp_page_for_privacy_policy', 0 ) ) === $this->data->ID ) {
+						return true;
+					}
+
+					return false;
+				},
 				'isPostsPage'               => function() {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
@@ -627,7 +639,7 @@ class Post extends Model {
 					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
 				},
 				'modified'                  => function() {
-					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? $this->data->post_modified : null;
+					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? Utils::prepare_date_response( $this->data->post_modified ) : null;
 				},
 				'modifiedGmt'               => function() {
 					return ! empty( $this->data->post_modified_gmt ) ? Utils::prepare_date_response( $this->data->post_modified_gmt ) : null;

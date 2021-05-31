@@ -19,14 +19,16 @@ class MenuLocationEnum {
 		if ( ! empty( $locations ) && is_array( $locations ) ) {
 			foreach ( $locations as $location ) {
 				$values[ WPEnumType::get_safe_name( $location ) ] = [
-					'value' => $location,
+					'value'       => $location,
+					'description' => sprintf( __( 'Put the menu in the %s location', 'wp-graphql' ), $location ),
 				];
 			}
 		}
 
 		if ( empty( $values ) ) {
 			$values['EMPTY'] = [
-				'value' => 'Empty menu location',
+				'value'       => 'Empty menu location',
+				'description' => __( 'Empty menu location', 'wp-graphql' ),
 			];
 		}
 

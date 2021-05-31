@@ -24,6 +24,7 @@ class ContentRevisionUnion {
 
 			$type_names = array_map(
 				function( $post_type ) {
+					/** @var \WP_Post_Type $post_type_object */
 					$post_type_object = get_post_type_object( $post_type );
 
 					return $post_type_object->graphql_single_name;
@@ -35,6 +36,7 @@ class ContentRevisionUnion {
 				'ContentRevisionUnion',
 				[
 					'typeNames'   => $type_names,
+					'description' => __( 'A union of Content Node Types that support revisions', 'wp-graphql' ),
 					'resolveType' => function( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';

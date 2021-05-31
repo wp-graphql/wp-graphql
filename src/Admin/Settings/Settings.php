@@ -108,11 +108,39 @@ class Settings {
 
 		$this->settings_api->register_fields( 'graphql_general_settings', [
 			[
-				'name'    => 'telemetry_enabled',
-				'label'   => __( 'Data Sharing Opt-In', 'wp-graphql' ),
-				'desc'    => __( 'Help us improve WPGraphQL by allowing tracking of usage. Tracking data allows us to better understand how WPGraphQL is used so we can better prioritize features & integrations with popular WordPress plugins, and can allow us to notify site owners if we detect a security issue. All data are treated in accordance with Gatsby\'s Privacy Policy. <a href="https://www.gatsbyjs.com/privacy-policy" target="_blank">Learn more</a>.', 'wp-graphql' ),
+				'name'    => 'restrict_endpoint_to_logged_in_users',
+				'label'   => __( 'Restrict Endpoint to Authenticated Users', 'wp-graphql' ),
+				'desc'    => __( 'Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error.', 'wp-graphql' ),
 				'type'    => 'checkbox',
 				'default' => 'off',
+			],
+			[
+				'name'    => 'batch_queries_enabled',
+				'label'   => __( 'Enable Batch Queries', 'wp-graphql' ),
+				'desc'    => __( 'WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'on',
+			],
+			[
+				'name'    => 'batch_limit',
+				'label'   => __( 'Batch Query Limit', 'wp-graphql' ),
+				'desc'    => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
+				'type'    => 'number',
+				'default' => 10,
+			],
+			[
+				'name'    => 'query_depth_enabled',
+				'label'   => __( 'Enable Query Depth Limiting', 'wp-graphql' ),
+				'desc'    => __( 'Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting.', 'wp-graphql' ),
+				'type'    => 'checkbox',
+				'default' => 'off',
+			],
+			[
+				'name'    => 'query_depth_max',
+				'label'   => __( 'Max Depth to allow for GraphQL Queries', 'wp-graphql' ),
+				'desc'    => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value.', 'wp-graphql' ),
+				'type'    => 'number',
+				'default' => 10,
 			],
 			[
 				'name'    => 'graphiql_enabled',

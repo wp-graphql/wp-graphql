@@ -13,12 +13,13 @@ use GraphQL\Type\Definition\EnumType;
 class WPEnumType extends EnumType {
 
 	/**
-	 * WPInputObjectType constructor.
+	 * WPEnumType constructor.
 	 *
 	 * @param array $config
 	 */
 	public function __construct( $config ) {
-		$config['name']   = ucfirst( $config['name'] );
+		$name             = ucfirst( $config['name'] );
+		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
 		parent::__construct( $config );
 	}
@@ -57,11 +58,23 @@ class WPEnumType extends EnumType {
 	 * @since 0.0.5
 	 */
 	private static function prepare_values( $values, $type_name ) {
+		/**
+		 * Filter all object fields, passing the $typename as a param
+		 *
+		 * This is useful when several different types need to be easily filtered at once. . .for example,
+		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
+		 *
+		 * @param array $values
+		 */
+		$values = apply_filters( 'graphql_enum_values', $values );
 
 		/**
 		 * Pass the values through a filter
 		 *
 		 * Filter for lcfirst( $type_name ) was added for backward compatibility
+		 *
+		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
+		 * more specific overrides
 		 *
 		 * @param array $values
 		 *

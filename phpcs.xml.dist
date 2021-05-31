@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset name="WP">
+	<description>Coding standards for the WPGraphQL plugin</description>
+
+	<config name="ignore_errors_on_exit" value="0"/>
+	<config name="ignore_warnings_on_exit" value="0"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="extensions" value="php"/>
+
+	<!-- Run the lints in parallel so they run faster. This will separate the files into 20 chunks to be linted -->
+	<arg name="parallel" value="20"/>
+
+	<!-- Includes -->
+	<file>./access-functions.php</file>
+	<file>./wp-graphql.php</file>
+	<file>./src</file>
+
+	<!-- Rules -->
+	<rule ref="WordPress-Core">
+		<!-- Definitely should not be added back -->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
+
+		<!-- Should probably not be added back -->
+		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
+
+
+		<!-- Should maybe Add Back Later -->
+		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+	</rule>
+
+	<!-- Tests for inline documentation of code -->
+	<rule ref="WordPress-Docs">
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<exclude name="WordPress.Files.FileName"/>
+
+		<!-- Should be re-enabled -->
+		<exclude name="Squiz.Commenting"/>
+	</rule>
+
+	<!-- Tests for PHP version compatibility -->
+	<rule ref="PHPCompatibilityWP">
+		<config name="testVersion" value="7.1-"/>
+	</rule>
+
+	<!-- Enforce short array syntax -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- <rule ref="WordPress-VIP-Go"/> -->
+</ruleset>

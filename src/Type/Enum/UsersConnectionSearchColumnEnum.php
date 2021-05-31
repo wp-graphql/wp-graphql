@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\Enum;
 
-use WPGraphQL\Type\WPEnumType;
-
 class UsersConnectionSearchColumnEnum {
 
 	/**
@@ -12,30 +10,33 @@ class UsersConnectionSearchColumnEnum {
 	 * @return void
 	 */
 	public static function register_type() {
-		global $wp_roles;
-		$all_roles      = $wp_roles->roles;
-		$editable_roles = apply_filters( 'editable_roles', $all_roles );
-		$roles          = [];
-
-		if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
-			foreach ( $editable_roles as $key => $role ) {
-
-				$formatted_role = WPEnumType::get_safe_name( $role['name'] );
-
-				$roles[ $formatted_role ] = [
-					'value' => $key,
-				];
-			}
-		}
-
-		if ( ! empty( $roles ) && is_array( $roles ) ) {
-			register_graphql_enum_type(
-				'UsersConnectionSearchColumnEnum',
-				[
-					'description' => __( 'Names of available user roles', 'wp-graphql' ),
-					'values'      => $roles,
-				]
-			);
-		}
+		register_graphql_enum_type(
+			'UsersConnectionSearchColumnEnum',
+			[
+				'description' => __( 'Column used for searching for users.', 'wp-graphql' ),
+				'values'      => [
+					'ID'       => [
+						'value'       => 'ID',
+						'description' => __( 'The globally unique ID.', 'wp-graphql' ),
+					],
+					'LOGIN'    => [
+						'value'       => 'login',
+						'description' => __( 'The username the User uses to login with.', 'wp-graphql' ),
+					],
+					'NICENAME' => [
+						'value'       => 'nicename',
+						'description' => __( 'A URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' ),
+					],
+					'EMAIL'    => [
+						'value'       => 'email',
+						'description' => __( 'The user\'s email address.', 'wp-graphql' ),
+					],
+					'URL'      => [
+						'value'       => 'url',
+						'description' => __( 'The URL of the user\s website.', 'wp-graphql' ),
+					],
+				],
+			]
+		);
 	}
 }

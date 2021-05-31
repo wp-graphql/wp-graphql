@@ -72,6 +72,7 @@ class TermObjects {
 					if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 						foreach ( $allowed_post_types as $post_type ) {
 							if ( in_array( $post_type, $tax_object->object_type, true ) ) {
+								/** @var \WP_Post_Type $post_type_object */
 								$post_type_object = get_post_type_object( $post_type );
 								register_graphql_connection(
 									self::get_connection_config(
@@ -174,10 +175,11 @@ class TermObjects {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $allowed_post_type ) {
 
+				/** @var \WP_Post_Type $post_type_object */
 				$post_type_object = get_post_type_object( $allowed_post_type );
 
 				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
-					return;
+					continue;
 				}
 
 				register_graphql_connection( [
@@ -256,6 +258,10 @@ class TermObjects {
 				'orderby'             => [
 					'type'        => 'TermObjectsConnectionOrderbyEnum',
 					'description' => __( 'Field(s) to order terms by. Defaults to \'name\'.', 'wp-graphql' ),
+				],
+				'order'               => [
+					'type'        => 'OrderEnum',
+					'description' => __( 'Direction the connection should be ordered in', 'wp-graphql' ),
 				],
 				'hideEmpty'           => [
 					'type'        => 'Boolean',

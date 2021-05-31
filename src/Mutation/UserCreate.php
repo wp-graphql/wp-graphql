@@ -125,8 +125,9 @@ class UserCreate {
 	public static function get_output_fields() {
 		return [
 			'user' => [
-				'type'    => 'User',
-				'resolve' => function( $payload ) {
+				'type'        => 'User',
+				'description' => __( 'The User object mutation type.', 'wp-graphql' ),
+				'resolve'     => function( $payload ) {
 
 					$user = get_user_by( 'ID', (int) $payload['id'] );
 
