@@ -3,15 +3,10 @@
 namespace WPGraphQL\Type\InterfaceType;
 
 use Exception;
-use GraphQL\Deferred;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
 class ContentNode {
@@ -42,9 +37,9 @@ class ContentNode {
 
 							if ( $source->isRevision ) {
 								$parent    = get_post( $source->parentDatabaseId );
-								$post_type = isset( $parent->post_type ) ? $parent->post_type : null;
+								$post_type = $parent->post_type ?? null;
 							} else {
-								$post_type = isset( $source->post_type ) ? $source->post_type : null;
+								$post_type = $source->post_type ?? null;
 							}
 
 							if ( empty( $post_type ) ) {
@@ -84,7 +79,7 @@ class ContentNode {
 					 * $post->post_type attribute.
 					 */
 					$type      = null;
-					$post_type = isset( $post->post_type ) ? $post->post_type : null;
+					$post_type = $post->post_type ?? null;
 
 					if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
 						$parent = get_post( $post->parentDatabaseId );

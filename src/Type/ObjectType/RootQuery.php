@@ -331,11 +331,11 @@ class RootQuery {
 								case 'name':
 									$menu = new \WP_Term_Query(
 										[
-											'taxonomy'         => 'nav_menu',
-											'fields'           => 'ids',
-											'name'             => $args['id'],
+											'taxonomy' => 'nav_menu',
+											'fields'   => 'ids',
+											'name'     => $args['id'],
 											'include_children' => false,
-											'count'            => false,
+											'count'    => false,
 										]
 									);
 									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
@@ -435,13 +435,13 @@ class RootQuery {
 								case 'database_id':
 									$taxonomy = isset( $args['taxonomy'] ) ? $args['taxonomy'] : null;
 									if ( empty( $taxonomy ) && in_array(
-											$idType,
-											[
-												'name',
-												'slug',
-											],
-											true
-										) ) {
+										$idType,
+										[
+											'name',
+											'slug',
+										],
+										true
+									) ) {
 										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
 									if ( 'database_id' === $idType ) {
@@ -674,13 +674,13 @@ class RootQuery {
 							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 								function( $post ) use ( $post_type_object ) {
 									if ( ! isset( $post->post_type ) || ! in_array(
-											$post->post_type,
-											[
-												'revision',
-												$post_type_object->name,
-											],
-											true
-										) ) {
+										$post->post_type,
+										[
+											'revision',
+											$post_type_object->name,
+										],
+										true
+									) ) {
 										return null;
 									}
 
@@ -691,7 +691,7 @@ class RootQuery {
 					]
 				);
 				$post_by_args = [
-					'id'                                          => [
+					'id'  => [
 						'type'        => 'ID',
 						'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -699,7 +699,7 @@ class RootQuery {
 						'type'        => 'Int',
 						'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
-					'uri'                                         => [
+					'uri' => [
 						'type'        => 'String',
 						'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 					],
@@ -752,13 +752,13 @@ class RootQuery {
 									}
 
 									if ( ! isset( $post->post_type ) || ! in_array(
-											$post->post_type,
-											[
-												'revision',
-												$post_type_object->name,
-											],
-											true
-										) ) {
+										$post->post_type,
+										[
+											'revision',
+											$post_type_object->name,
+										],
+										true
+									) ) {
 										return null;
 									}
 

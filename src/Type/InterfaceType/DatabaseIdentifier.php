@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
+
 /**
  * Class DatabaseIdentifier
  *
@@ -27,7 +29,7 @@ class DatabaseIdentifier {
 						'description' => __( 'The unique identifier stored in the database', 'wp-graphql' ),
 					],
 				],
-			],
-		]);
+			]
+		);
 	}
 }

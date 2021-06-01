@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
+
 class ContentTemplate {
 
 	/**
@@ -22,7 +24,7 @@ class ContentTemplate {
 					],
 				],
 				'resolveType' => function( $value ) {
-					return isset( $value['__typename'] ) ? $value['__typename'] : 'DefaultTemplate';
+					return $value['__typename'] ?? 'DefaultTemplate';
 				},
 			]
 		);
