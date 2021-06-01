@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$USING_XDEBUG" == "1"  ]; then
+    echo "Enabling XDebug 3"
+    mv /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/
+fi
+
 # Run WordPress docker entrypoint.
 . docker-entrypoint.sh 'apache2'
 

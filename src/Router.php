@@ -46,8 +46,8 @@ class Router {
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
 		 *
-		 * @since 0.0.1
 		 * @return string
+		 * @since 0.0.1
 		 */
 		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
 		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
@@ -84,9 +84,9 @@ class Router {
 	/**
 	 * Adds rewrite rule for the route endpoint
 	 *
-	 * @uses   add_rewrite_rule()
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
+	 * @uses   add_rewrite_rule()
 	 */
 	public static function add_rewrite_rule() {
 
@@ -116,8 +116,8 @@ class Router {
 	 *
 	 * @param array $query_vars The array of whitelisted query variables.
 	 *
-	 * @since  0.0.1
 	 * @return array
+	 * @since  0.0.1
 	 */
 	public static function add_query_var( $query_vars ) {
 
@@ -231,10 +231,10 @@ class Router {
 	 * JSON response instead of responding with a template from the standard WordPress Template
 	 * Loading process
 	 *
-	 * @since  0.0.1
 	 * @return void
 	 * @throws \Exception Throws exception.
 	 * @throws \Throwable Throws exception.
+	 * @since  0.0.1
 	 */
 	public static function resolve_http_request() {
 
@@ -273,12 +273,11 @@ class Router {
 	/**
 	 * Sends an HTTP header.
 	 *
-	 * @since  0.0.5
-	 *
 	 * @param string $key   Header key.
 	 * @param string $value Header value.
 	 *
 	 * @return void
+	 * @since  0.0.5
 	 */
 	public static function send_header( $key, $value ) {
 
@@ -330,15 +329,18 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
-			'X-hacker'                     => __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ),
 		];
+
+		if ( true === \WPGraphQL::debug() ) {
+			$headers['X-hacker'] = __( 'If you\'re reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!', 'wp-graphql' );
+		}
 
 		/**
 		 * Send nocache headers on authenticated requests.
 		 *
-		 * @since 0.0.5
-		 *
 		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
+		 *
+		 * @since 0.0.5
 		 */
 		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
 		if ( $send_no_cache_headers ) {
@@ -356,8 +358,8 @@ class Router {
 	/**
 	 * Set the response headers
 	 *
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
 	 */
 	public static function set_headers() {
 
@@ -396,12 +398,13 @@ class Router {
 	/**
 	 * Retrieves the raw request entity (body).
 	 *
-	 * @since  0.0.5
-	 * @global string php://input Raw post data.
 	 * @return string Raw request data.
+	 * @global string php://input Raw post data.
+	 * @since  0.0.5
 	 */
 	public static function get_raw_data() {
 		$input = file_get_contents( 'php://input' );
+
 		return ! empty( $input ) ? $input : '';
 	}
 
@@ -409,11 +412,11 @@ class Router {
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
-	 * @since  0.0.1
-	 * @global WP_User $current_user The currently authenticated user.
 	 * @return mixed
 	 * @throws \Exception Throws Exception.
 	 * @throws \Throwable Throws Exception.
+	 * @global WP_User $current_user The currently authenticated user.
+	 * @since  0.0.1
 	 */
 	public static function process_http_request() {
 		/* @var WP_User|null $current_user */
@@ -479,7 +482,20 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, $request->get_debug_flag() ) ];
+
+			/**
+			 * Filter thrown GraphQL errors
+			 *
+			 * @param array              $errors   Formatted errors object.
+			 * @param Exception          $error    Thrown error.
+			 * @param \WPGraphQL\Request $request  WPGraphQL Request object.
+			 */
+			$response['errors'] = apply_filters(
+				'graphql_http_request_response_errors',
+				[ FormattedError::createFromException( $error, $request->get_debug_flag() ) ],
+				$error,
+				$request
+			);
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but
@@ -516,12 +532,14 @@ class Router {
 	/**
 	 * Prepare headers for response
 	 *
-	 * @param mixed|array|ExecutionResult    $response        The response of the GraphQL Request.
-	 * @param mixed|array|ExecutionResult    $graphql_results The results of the GraphQL execution.
-	 * @param string   $query           The GraphQL query.
-	 * @param string   $operation_name  The operation name of the GraphQL Request.
-	 * @param mixed|array|null    $variables       The variables applied to the GraphQL Request.
-	 * @param mixed|WP_User|null $user            The current user object.
+	 * @param mixed|array|ExecutionResult $response        The response of the GraphQL Request.
+	 * @param mixed|array|ExecutionResult $graphql_results The results of the GraphQL execution.
+	 * @param string                      $query           The GraphQL query.
+	 * @param string                      $operation_name  The operation name of the GraphQL
+	 *                                                     Request.
+	 * @param mixed|array|null            $variables       The variables applied to the GraphQL
+	 *                                                     Request.
+	 * @param mixed|WP_User|null          $user            The current user object.
 	 *
 	 * @return void
 	 */
@@ -530,12 +548,12 @@ class Router {
 		/**
 		 * Filter the $status_code before setting the headers
 		 *
-		 * @param int      $status_code     The status code to apply to the headers
-		 * @param array    $response        The response of the GraphQL Request
-		 * @param array    $graphql_results The results of the GraphQL execution
-		 * @param string   $query           The GraphQL query
-		 * @param string   $operation_name  The operation name of the GraphQL Request
-		 * @param array    $variables       The variables applied to the GraphQL Request
+		 * @param int     $status_code     The status code to apply to the headers
+		 * @param array   $response        The response of the GraphQL Request
+		 * @param array   $graphql_results The results of the GraphQL execution
+		 * @param string  $query           The GraphQL query
+		 * @param string  $operation_name  The operation name of the GraphQL Request
+		 * @param array   $variables       The variables applied to the GraphQL Request
 		 * @param WP_User $user            The current user object
 		 */
 		self::$http_status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $query, $operation_name, $variables, $user );

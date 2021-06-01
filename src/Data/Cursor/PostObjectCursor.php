@@ -241,6 +241,7 @@ class PostObjectCursor {
 		 * Compare by the post field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
+
 			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 
 			return;

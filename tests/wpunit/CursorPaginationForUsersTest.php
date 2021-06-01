@@ -44,9 +44,9 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function delete_users( $post_ids ) {
-		foreach( $post_ids as $post_id ) {
-			wp_delete_user( $post_id );
+	public function delete_users( $user_ids ) {
+		foreach( $user_ids as $user_id ) {
+			wp_delete_user( $user_id );
 		}
 	}
 

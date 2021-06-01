@@ -67,12 +67,18 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->get_query_amount() ) + 1;
+		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
 
 		/**
 		 * Orderby Name by default
 		 */
 		$query_args['orderby'] = 'name';
+		$query_args['order']   = 'ASC';
+
+		/**
+		 * Don't calculate the total rows, it's not needed and can be expensive
+		 */
+		$query_args['count'] = false;
 
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
@@ -96,17 +102,13 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
-		 */
-		if ( empty( $query_args['order'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
-		}
-
-		/**
 		 * Set the graphql_cursor_offset
 		 */
 		$query_args['graphql_cursor_offset']  = $this->get_offset();
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -118,6 +120,20 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * object from the cache or a follow-up request for the full object if it's not cached.
 		 */
 		$query_args['fields'] = 'ids';
+
+		/**
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( ! empty( $query_args['order'] ) ) {
+
+			if ( ! empty( $last ) ) {
+				if ( 'ASC' === $query_args['order'] ) {
+					$query_args['order'] = 'DESC';
+				} else {
+					$query_args['order'] = 'ASC';
+				}
+			}
+		}
 
 		/**
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from

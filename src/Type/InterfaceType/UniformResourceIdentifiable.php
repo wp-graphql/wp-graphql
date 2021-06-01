@@ -16,7 +16,6 @@ class UniformResourceIdentifiable {
 	 * Registers the UniformResourceIdentifiable Interface to the Schema.
 	 *
 	 * @param TypeRegistry $type_registry
-	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -56,7 +55,6 @@ class UniformResourceIdentifiable {
 					}
 
 					return $type;
-
 				},
 			]
 		);
