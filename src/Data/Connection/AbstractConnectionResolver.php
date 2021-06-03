@@ -60,7 +60,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Whether the connection resolver should execute
 	 *
-	 * @var bool|callable
+	 * @var bool
 	 */
 	protected $should_execute = true;
 
