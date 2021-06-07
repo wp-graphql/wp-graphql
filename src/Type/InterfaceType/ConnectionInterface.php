@@ -50,7 +50,7 @@ class ConnectionInterface {
 					'type'        => [ 'non_null' => 'Node' ],
 					'description' => __( 'The connected node', 'wp-graphql' ),
 				],
-			]
+			],
 		] );
 
 	}

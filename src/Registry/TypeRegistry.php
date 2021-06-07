@@ -1103,7 +1103,7 @@ class TypeRegistry {
 			$this->register_object_type(
 				$connection_name . 'Edge',
 				[
-					'interfaces' => [ 'SingleNodeConnectionEdge' ],
+					'interfaces'  => [ 'SingleNodeConnectionEdge' ],
 					// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
 					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
 					'fields'      => array_merge(
