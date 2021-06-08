@@ -315,7 +315,7 @@ query GetPersonById($id:Int!) {
 
 Here, we've added `($id:Int!)` to the operation name, declaring the variable `$id` and telling GraphQL that the input will be a required `Integer` value.
 
-Then, we replaced `id: 123` with `id: $id`, which tells the query to use the `$id variable when fulfillin`g the request for the `person` field.
+Then, we replaced `id: 123` with `id: $id`, which tells the query to use the `$id` variable when fulfilling the request for the `person` field.
 
 Below is an example of using variables with the `graphql()` function provided by WPGraphQL:
 
