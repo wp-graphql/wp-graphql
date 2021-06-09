@@ -51,7 +51,9 @@ class WPInterfaceType extends InterfaceType {
 
 			foreach ( $interfaces as $interface ) {
 				if ( is_string( $interface ) ) {
-					$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
+					if ( $interface_type = $this->type_registry->get_type( $interface ) ) {
+						$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
+					}
 					continue;
 				}
 				if ( $interface instanceof WPInterfaceType ) {

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -90,7 +91,9 @@ class WPObjectType extends ObjectType {
 
 			foreach ( $interfaces as $interface ) {
 				if ( is_string( $interface ) ) {
-					$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
+					if ( $interface_type = $this->type_registry->get_type( $interface ) ) {
+						$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
+					}
 					continue;
 				}
 				if ( $interface instanceof WPInterfaceType ) {

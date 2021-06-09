@@ -44,16 +44,23 @@ use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\CommentConnectionInterface;
+use WPGraphQL\Type\InterfaceType\CommenterConnectionInterface;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
 use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
+use WPGraphQL\Type\InterfaceType\ContentNodeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\ContentTypeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
+use WPGraphQL\Type\InterfaceType\MenuConnectionInterface;
+use WPGraphQL\Type\InterfaceType\MenuItemConnectionInterface;
 use WPGraphQL\Type\InterfaceType\MenuItemLinkable;
+use WPGraphQL\Type\InterfaceType\MenuItemLinkableConnectionInterface;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
 use WPGraphQL\Type\InterfaceType\NodeWithContentEditor;
@@ -66,8 +73,11 @@ use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\Previewable;
+use WPGraphQL\Type\InterfaceType\TaxonomyConnectionInterface;
 use WPGraphQL\Type\InterfaceType\TermNode;
+use WPGraphQL\Type\InterfaceType\TermNodeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
+use WPGraphQL\Type\InterfaceType\UserConnectionInterface;
 use WPGraphQL\Type\ObjectType\EnqueuedScript;
 use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -116,6 +126,7 @@ use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
 use WPGraphQL\Type\ObjectType\Settings;
 use WPGraphQL\Type\Union\TermObjectUnion;
+use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
@@ -209,15 +220,22 @@ class TypeRegistry {
 
 		// Register Interfaces.
 		Node::register_type();
+		CommentConnectionInterface::register_type( $type_registry );
 		CommenterInterface::register_type( $type_registry );
+		CommenterConnectionInterface::register_type( $type_registry );
 		ConnectionInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
+		ContentNodeConnectionInterface::register_type( $type_registry );
 		ContentTemplate::register_type();
+		ContentTypeConnectionInterface::register_type( $type_registry );
 		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
 		HierarchicalNode::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
+		MenuConnectionInterface::register_type( $type_registry );
+		MenuItemConnectionInterface::register_type( $type_registry );
+		MenuItemLinkableConnectionInterface::register_type( $type_registry );
 		MenuItemLinkable::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -230,8 +248,11 @@ class TypeRegistry {
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
 		Previewable::register_type( $type_registry );
+		TaxonomyConnectionInterface::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
+		TermNodeConnectionInterface::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
+		UserConnectionInterface::register_type( $type_registry );
 
 		// register types
 		RootQuery::register_type();
@@ -1045,196 +1066,8 @@ class TypeRegistry {
 	 */
 	public function register_connection( array $config ) {
 
-		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
-		}
-
-		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgumentException( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
-		}
-
-		if ( ! array_key_exists( 'fromFieldName', $config ) ) {
-			throw new InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
-		}
-
-		$from_type          = $config['fromType'];
-		$to_type            = $config['toType'];
-		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
-			return null;
-		};
-		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
-		$where_args         = [];
-		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
-
-		/**
-		 * If there are any $connectionArgs,
-		 * register their inputType and configure them as $where_args to be added to the connection
-		 * field as arguments
-		 */
-		if ( ! empty( $connection_args ) ) {
-
-			$this->register_input_type(
-				$connection_name . 'WhereArgs',
-				[
-					// Translators: Placeholder is the name of the connection
-					'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
-					'fields'      => $connection_args,
-					'queryClass'  => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
-				]
-			);
-
-			$where_args = [
-				'where' => [
-					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type'        => $connection_name . 'WhereArgs',
-				],
-			];
-
-		}
-
-		if ( true === $one_to_one ) {
-
-			$this->register_object_type(
-				$connection_name . 'Edge',
-				[
-					'interfaces'  => [ 'SingleNodeConnectionEdge' ],
-					// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
-					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-					'fields'      => array_merge(
-						[
-							'node' => [
-								'type'        => [ 'non_null' => $to_type ],
-								'description' => __( 'The node of the connection, without the edges', 'wp-graphql' ),
-							],
-						],
-						$edge_fields
-					),
-				]
-			);
-
-		} else {
-
-			$this->register_object_type(
-				$connection_name . 'Edge',
-				[
-					'description' => __( 'An edge in a connection', 'wp-graphql' ),
-					'interfaces'  => [ 'Edge' ],
-					'fields'      => array_merge(
-						[
-							'cursor' => [
-								'type'        => 'String',
-								'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-								'resolve'     => $resolve_cursor,
-							],
-							'node'   => [
-								'type'        => [ 'non_null' => $to_type ],
-								'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-								'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
-									if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
-										return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
-									} else {
-										return $source['node'];
-									}
-								},
-							],
-						],
-						$edge_fields
-					),
-				]
-			);
-
-			$this->register_object_type(
-				$connection_name,
-				[
-					// Translators: the placeholders are the name of the Types the connection is between.
-					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-					'interfaces'  => [ 'Connection' ],
-					'fields'      => array_merge(
-						[
-							'pageInfo' => [
-								// @todo: change to PageInfo when/if the Relay lib is deprecated
-								'type'        => [ 'non_null' => 'WPPageInfo' ],
-								'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-							],
-							'edges'    => [
-								'type'        => [
-									'list_of' => [ 'non_null' => $connection_name . 'Edge' ],
-								],
-								// Translators: Placeholder is the name of the connection
-								'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $connection_name ),
-							],
-							'nodes'    => [
-								'type'        => [
-									'list_of' => [ 'non_null' => $to_type ],
-								],
-								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
-									$nodes = [];
-									if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-										if ( is_callable( $resolve_node ) ) {
-											foreach ( $source['nodes'] as $node ) {
-												$nodes[] = $resolve_node( $node, $args, $context, $info );
-											}
-										} else {
-											return $source['nodes'];
-										}
-									}
-
-									return $nodes;
-								},
-							],
-						],
-						$connection_fields
-					),
-				]
-			);
-
-		}
-
-		if ( true === $one_to_one ) {
-			$pagination_args = [];
-		} else {
-			$pagination_args = [
-				'first'  => [
-					'type'        => 'Int',
-					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
-				],
-				'last'   => [
-					'type'        => 'Int',
-					'description' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
-				],
-				'after'  => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-				'before' => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-			];
-		}
-
-		$this->register_field(
-			$from_type,
-			$from_field_name,
-			[
-				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
-				'args'        => array_merge( $pagination_args, $where_args ),
-				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection ) {
-					/**
-					 * Return the results
-					 */
-					return call_user_func( $resolve_connection, $root, $args, $context, $info );
-				},
-			]
-		);
+		$connection = new WPConnectionType( $config, $this );
+		$connection->register_connection();
 
 	}
 

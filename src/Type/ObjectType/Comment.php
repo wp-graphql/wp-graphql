@@ -25,10 +25,11 @@ class Comment {
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'connections' => [
 					'author' => [
-						'toType'      => 'Commenter',
-						'description' => __( 'The author of the comment', 'wp-graphql' ),
-						'oneToOne'    => true,
-						'resolve'     => function( $comment, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'               => 'Commenter',
+						'connectionInterfaces' => [ 'CommenterConnection' ],
+						'description'          => __( 'The author of the comment', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function( $comment, $args, AppContext $context, ResolveInfo $info ) {
 
 							/**
 							 * If the comment has a user associated, use it to populate the author, otherwise return

@@ -32,11 +32,11 @@ class ConnectionInterface {
 				'description' => __( 'A plural connection from one Node Type in the Graph to another Node Type, with support for relational data via "edges".', 'wp-graphql' ),
 				'fields'      => [
 					'edges' => [
-						'type'        => [ 'list_of' => [ 'non_null' => 'Edge' ] ],
+						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => 'Edge' ] ] ],
 						'description' => __( 'A list of edges (relational context) between connected nodes', 'wp-graphql' ),
 					],
 					'nodes' => [
-						'type'        => [ 'list_of' => [ 'non_null' => 'Node' ] ],
+						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => 'Node' ] ] ],
 						'description' => __( 'A list of connected nodes', 'wp-graphql' ),
 					],
 				],
@@ -44,6 +44,7 @@ class ConnectionInterface {
 		);
 
 		register_graphql_interface_type( 'SingleNodeConnectionEdge', [
+			'interfaces'  => [ 'Edge' ],
 			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
 			'fields'      => [
 				'node' => [

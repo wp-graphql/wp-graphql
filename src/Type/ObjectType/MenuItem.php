@@ -23,10 +23,15 @@ class MenuItem {
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'connections' => [
 					'connectedNode' => [
-						'toType'      => 'MenuItemLinkable',
-						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
-						'oneToOne'    => true,
-						'resolve'     => function( \WPGraphQL\Model\MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'               => 'MenuItemLinkable',
+						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
+						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function( \WPGraphQL\Model\MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+
+							if ( ! isset( $menu_item->databaseId ) ) {
+								return null;
+							}
 
 							$object_id   = intval( get_post_meta( $menu_item->databaseId, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->databaseId, '_menu_item_type', true );

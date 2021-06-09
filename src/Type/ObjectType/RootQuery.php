@@ -34,16 +34,18 @@ class RootQuery {
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
 				'connections' => [
 					'contentTypes'          => [
-						'toType'  => 'ContentType',
-						'resolve' => function( $source, $args, $context, $info ) {
+						'toType'               => 'ContentType',
+						'connectionInterfaces' => [ 'ContentTypeConnection' ],
+						'resolve'              => function( $source, $args, $context, $info ) {
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},
 					],
 					'menus'                 => [
-						'toType'         => 'Menu',
-						'connectionArgs' => [
+						'toType'               => 'Menu',
+						'connectionInterfaces' => [ 'MenuConnection' ],
+						'connectionArgs'       => [
 							'id'       => [
 								'type'        => 'Int',
 								'description' => __( 'The ID of the object', 'wp-graphql' ),
@@ -57,7 +59,7 @@ class RootQuery {
 								'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 							],
 						],
-						'resolve'        => function( $source, $args, $context, $info ) {
+						'resolve'              => function( $source, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
 
 							return $resolver->get_connection();

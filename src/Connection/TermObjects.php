@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
@@ -22,6 +23,7 @@ class TermObjects {
 	 * Register connections to TermObjects
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 
@@ -30,11 +32,12 @@ class TermObjects {
 
 		register_graphql_connection(
 			[
-				'fromType'       => 'RootQuery',
-				'toType'         => 'TermNode',
-				'queryClass'     => 'WP_Term_Query',
-				'fromFieldName'  => 'terms',
-				'connectionArgs' => self::get_connection_args(
+				'fromType'             => 'RootQuery',
+				'toType'               => 'TermNode',
+				'connectionInterfaces' => [ 'TermNodeConnection' ],
+				'queryClass'           => 'WP_Term_Query',
+				'fromFieldName'        => 'terms',
+				'connectionArgs'       => self::get_connection_args(
 					[
 						'taxonomies' => [
 							'type'        => [ 'list_of' => 'TaxonomyEnum' ],
@@ -42,12 +45,10 @@ class TermObjects {
 						],
 					]
 				),
-				'resolve'        => function( $source, $args, $context, $info ) {
+				'resolve'              => function( $source, $args, $context, $info ) {
 					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
-					$connection = $resolver->get_connection();
-
-					return $connection;
+					return $resolver->get_connection();
 				},
 			]
 		);
@@ -81,6 +82,7 @@ class TermObjects {
 											'fromType' => $post_type_object->graphql_single_name,
 											'toType'   => $tax_object->graphql_single_name,
 											'fromFieldName' => $tax_object->graphql_plural_name,
+											'connectionInterfaces' => [ 'TermNodeConnection' ],
 											'resolve'  => function( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 												$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
@@ -183,11 +185,12 @@ class TermObjects {
 				}
 
 				register_graphql_connection( [
-					'fromType'       => $post_type_object->graphql_single_name,
-					'toType'         => 'TermNode',
-					'fromFieldName'  => 'terms',
-					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => self::get_connection_args(
+					'fromType'             => $post_type_object->graphql_single_name,
+					'toType'               => 'TermNode',
+					'connectionInterfaces' => [ 'TermNodeConnection' ],
+					'fromFieldName'        => 'terms',
+					'queryClass'           => 'WP_Term_Query',
+					'connectionArgs'       => self::get_connection_args(
 						[
 							'taxonomies' => [
 								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
@@ -195,7 +198,7 @@ class TermObjects {
 							],
 						]
 					),
-					'resolve'        => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'              => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 						if ( empty( $terms ) || is_wp_error( $terms ) ) {
@@ -226,12 +229,13 @@ class TermObjects {
 	public static function get_connection_config( $tax_object, $args = [] ) {
 
 		$defaults = [
-			'fromType'       => 'RootQuery',
-			'queryClass'     => 'WP_Term_Query',
-			'toType'         => $tax_object->graphql_single_name,
-			'fromFieldName'  => $tax_object->graphql_plural_name,
-			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function( $root, $args, $context, $info ) use ( $tax_object ) {
+			'fromType'             => 'RootQuery',
+			'queryClass'           => 'WP_Term_Query',
+			'toType'               => $tax_object->graphql_single_name,
+			'fromFieldName'        => $tax_object->graphql_plural_name,
+			'connectionArgs'       => self::get_connection_args(),
+			'connectionInterfaces' => [ 'TermNodeConnection' ],
+			'resolve'              => function( $root, $args, $context, $info ) use ( $tax_object ) {
 				$connection = new TermObjectConnectionResolver( $root, $args, $context, $info, $tax_object->name );
 				return $connection->get_connection();
 			},

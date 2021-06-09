@@ -22,9 +22,10 @@ class Taxonomy {
 				'interfaces'  => [ 'Node' ],
 				'connections' => [
 					'connectedContentTypes' => [
-						'toType'      => 'ContentType',
-						'description' => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
-						'resolve'     => function( \WPGraphQL\Model\Taxonomy $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'               => 'ContentType',
+						'connectionInterfaces' => [ 'ContentTypeConnection' ],
+						'description'          => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
+						'resolve'              => function( \WPGraphQL\Model\Taxonomy $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 
 							$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 							$resolver             = new ContentTypeConnectionResolver( $taxonomy, $args, $context, $info );

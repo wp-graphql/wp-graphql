@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WPGraphQL\Type\ObjectType;
 
 use WPGraphQL\Connection\PostObjects;
@@ -50,11 +49,12 @@ class User {
 						},
 					],
 					'revisions'           => [
-						'toType'         => 'ContentNode',
-						'queryClass'     => 'WP_Query',
-						'description'    => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
-						'connectionArgs' => PostObjects::get_connection_args(),
-						'resolve'        => function( $root, $args, $context, $info ) {
+						'toType'               => 'ContentNode',
+						'connectionInterfaces' => [ 'ContentNodeConnection' ],
+						'queryClass'           => 'WP_Query',
+						'description'          => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
+						'connectionArgs'       => PostObjects::get_connection_args(),
+						'resolve'              => function( $root, $args, $context, $info ) {
 							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 						},
 					],
