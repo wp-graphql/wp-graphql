@@ -17,10 +17,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'RootQuery',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'taxonomies',
-				'resolve'       => function( $source, $args, $context, $info ) {
+				'fromType'             => 'RootQuery',
+				'toType'               => 'Taxonomy',
+				'fromFieldName'        => 'taxonomies',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
+				'resolve'              => function( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -33,11 +34,12 @@ class Taxonomies {
 			foreach ( $taxonomies as $taxonomy ) {
 				register_graphql_connection(
 					[
-						'fromType'      => $taxonomy->graphql_single_name,
-						'toType'        => 'Taxonomy',
-						'fromFieldName' => 'taxonomy',
-						'oneToOne'      => true,
-						'resolve'       => function( Term $source, $args, $context, $info ) {
+						'fromType'             => $taxonomy->graphql_single_name,
+						'toType'               => 'Taxonomy',
+						'connectionInterfaces' => [ 'TaxonomyConnection' ],
+						'fromFieldName'        => 'taxonomy',
+						'oneToOne'             => true,
+						'resolve'              => function( Term $source, $args, $context, $info ) {
 							if ( empty( $source->taxonomyName ) ) {
 								return null;
 							}
@@ -52,15 +54,16 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'ContentType',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function( PostType $source, $args, $context, $info ) {
+				'fromType'             => 'ContentType',
+				'toType'               => 'Taxonomy',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
+				'fromFieldName'        => 'connectedTaxonomies',
+				'resolve'              => function( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-					$resolver->setQueryArg( 'in', $source->taxonomies );
+					$resolver->set_query_arg( 'in', $source->taxonomies );
 					return $resolver->get_connection();
 				},
 			]
