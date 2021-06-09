@@ -5,7 +5,6 @@ use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQL\Type\Definition\Type;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -14,6 +13,13 @@ use WPGraphQL\Registry\TypeRegistry;
  * @package WPGraphQL\Type
  */
 class WPConnectionType {
+
+	/**
+	 * Configuration for how auth should be handled on the connection field
+	 *
+	 * @var array
+	 */
+	protected $auth;
 
 	/**
 	 * The config for the connection
@@ -43,6 +49,7 @@ class WPConnectionType {
 
 	/**
 	 * The name of the connection
+	 *
 	 * @var mixed|string
 	 */
 	protected $connection_name;
@@ -56,18 +63,21 @@ class WPConnectionType {
 
 	/**
 	 * The name of the field the connection will be exposed as
+	 *
 	 * @var string
 	 */
 	protected $from_field_name;
 
 	/**
 	 * The name of the GraphQL Type the connection stems from
+	 *
 	 * @var string
 	 */
 	protected $from_type;
 
 	/**
 	 * Whether the connection is a one-to-one connection (default is false)
+	 *
 	 * @var bool
 	 */
 	protected $one_to_one;
@@ -102,12 +112,14 @@ class WPConnectionType {
 
 	/**
 	 * The name of the GraphQL Type the connection connects to
+	 *
 	 * @var string
 	 */
 	protected $to_type;
 
 	/**
 	 * The WPGraphQL TypeRegistry
+	 *
 	 * @var TypeRegistry
 	 */
 	protected $type_registry;
@@ -134,6 +146,7 @@ class WPConnectionType {
 		$this->from_type             = $config['fromType'];
 		$this->to_type               = $config['toType'];
 		$this->from_field_name       = $config['fromFieldName'];
+		$this->auth                  = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
 		$this->connection_fields     = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
 		$this->connection_args       = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
 		$this->edge_fields           = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
@@ -146,6 +159,7 @@ class WPConnectionType {
 		$this->where_args            = [];
 		$this->one_to_one            = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
 		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
+		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
 	}
 
@@ -182,7 +196,8 @@ class WPConnectionType {
 	 *
 	 * @return string
 	 */
-	public function get_connection_name( $from_type, $to_type, $from_field_name ) {
+	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ) {
+
 		// Create connection name using $from_type + To + $to_type + Connection.
 		$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
 
@@ -193,6 +208,7 @@ class WPConnectionType {
 		}
 
 		return $connection_name;
+
 	}
 
 	/**
@@ -221,7 +237,7 @@ class WPConnectionType {
 				// Translators: Placeholder is the name of the connection
 				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $this->connection_name ),
 				'fields'      => $this->connection_args,
-				'queryClass'  => ! empty( $this->config['queryClass'] ) ? $this->config['queryClass'] : null,
+				'queryClass'  => $this->query_class,
 			]
 		);
 
@@ -435,6 +451,7 @@ class WPConnectionType {
 			[
 				'type'        => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
 				'args'        => array_merge( $this->get_pagination_args(), $this->where_args ),
+				'auth'        => $this->auth,
 				'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
 				'resolve'     => function( $root, $args, $context, $info ) {
 
@@ -442,10 +459,11 @@ class WPConnectionType {
 						return null;
 					}
 
-					$resolve_connection = $this->resolve_connection;
+					$context->connection_query_class = $this->query_class;
+					$resolve_connection              = $this->resolve_connection;
 
 					/**
-					 * Return the results
+					 * Return the results of the connection resolver
 					 */
 					return $resolve_connection( $root, $args, $context, $info );
 				},
