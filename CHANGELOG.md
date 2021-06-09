@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.10
+
+### Chores / Bugfixes
+
+- ([#1940](https://github.com/wp-graphql/wp-graphql/pull/1940)): Adds Breaking Change inspector to run on new Pull Requests. Thanks @markkelnar!
+- ([#1937](https://github.com/wp-graphql/wp-graphql/pull/1937)): Fixed typo in documentation. Thanks @LeonardoDB!
+- ([#1923](https://github.com/wp-graphql/wp-graphql/issues/1923)): Fixed bug where User Model didn't support the databaseId field
+
+## New Features
+
+- ([#1938](https://github.com/wp-graphql/wp-graphql/pull/1938)): Adds new functionality to the `register_graphql_connection()` API. Thanks @kidunot89!
+
+
 ## 1.3.9
 
 ### Chores / Bugfixes
