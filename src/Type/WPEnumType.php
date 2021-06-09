@@ -17,7 +17,7 @@ class WPEnumType extends EnumType {
 	 *
 	 * @param array $config
 	 */
-	public function __construct( $config ) {
+	public function __construct( array $config ) {
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['values'] = self::prepare_values( $config['values'], $config['name'] );

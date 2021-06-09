@@ -1,9 +1,11 @@
 <?php
 namespace WPGraphQL\Type;
 
+use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -39,31 +41,82 @@ class WPConnectionType {
 	 */
 	protected $connection_interfaces;
 
+	/**
+	 * The name of the connection
+	 * @var mixed|string
+	 */
 	protected $connection_name;
 
 	/**
+	 * The fields to expose on the edge of the connection
+	 *
 	 * @var array
 	 */
 	protected $edge_fields;
 
+	/**
+	 * The name of the field the connection will be exposed as
+	 * @var string
+	 */
 	protected $from_field_name;
 
+	/**
+	 * The name of the GraphQL Type the connection stems from
+	 * @var string
+	 */
 	protected $from_type;
 
+	/**
+	 * Whether the connection is a one-to-one connection (default is false)
+	 * @var bool
+	 */
 	protected $one_to_one;
 
+	/**
+	 * The Query Class that is used to resolve the connection.
+	 *
+	 * @var string
+	 */
 	protected $query_class;
 
+	/**
+	 * The resolver function to resolve the connection
+	 *
+	 * @var callable|Closure
+	 */
 	protected $resolve_connection;
 
+	/**
+	 * @var mixed|null
+	 */
 	protected $resolve_cursor;
 
+	/**
+	 * A callback to resolve the node of the connection.
+	 *
+	 * @deprecated
+	 *
+	 * @var callable
+	 */
 	protected $resolve_node;
 
+	/**
+	 * The name of the GraphQL Type the connection connects to
+	 * @var string
+	 */
 	protected $to_type;
 
+	/**
+	 * The WPGraphQL TypeRegistry
+	 * @var TypeRegistry
+	 */
 	protected $type_registry;
 
+	/**
+	 * The where args for the connection
+	 *
+	 * @var array
+	 */
 	protected $where_args;
 
 	/**
@@ -81,9 +134,9 @@ class WPConnectionType {
 		$this->from_type             = $config['fromType'];
 		$this->to_type               = $config['toType'];
 		$this->from_field_name       = $config['fromFieldName'];
-		$this->connection_fields     = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$this->connection_args       = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$this->edge_fields           = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$this->connection_fields     = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$this->connection_args       = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$this->edge_fields           = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
 		$this->resolve_node          = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
 		$this->resolve_cursor        = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
 		$this->resolve_connection    = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
@@ -100,6 +153,8 @@ class WPConnectionType {
 	 * Validates that essential key/value pairs are passed to the connection config.
 	 *
 	 * @param array $config
+	 *
+	 * @return void
 	 */
 	protected function validate_config( array $config ) {
 
@@ -108,11 +163,11 @@ class WPConnectionType {
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
+			throw new InvalidArgument( __( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
 		}
 
-		if ( ! array_key_exists( 'fromFieldName', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
+		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
+			throw new InvalidArgument( __( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 
 	}
@@ -181,6 +236,8 @@ class WPConnectionType {
 
 	/**
 	 * Registers the Connection Edge type to the Schema
+	 *
+	 * @return void
 	 *
 	 * @throws Exception
 	 */
@@ -260,6 +317,8 @@ class WPConnectionType {
 
 	/**
 	 * Registers the Connection Type to the Schema
+	 *
+	 * @return void
 	 *
 	 * @throws Exception
 	 */
@@ -365,6 +424,8 @@ class WPConnectionType {
 
 	/**
 	 * Registers the connection in the Graph
+	 *
+	 * @return void
 	 */
 	public function register_connection_field() {
 
@@ -374,7 +435,7 @@ class WPConnectionType {
 			[
 				'type'        => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
 				'args'        => array_merge( $this->get_pagination_args(), $this->where_args ),
-				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
 				'resolve'     => function( $root, $args, $context, $info ) {
 
 					if ( ! isset( $this->resolve_connection ) || ! is_callable( $this->resolve_connection ) ) {
@@ -395,6 +456,8 @@ class WPConnectionType {
 
 	/**
 	 * Registers the connection Types and field to the Schema
+	 *
+	 * @return void
 	 *
 	 * @throws Exception
 	 */

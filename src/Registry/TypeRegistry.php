@@ -207,6 +207,7 @@ class TypeRegistry {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
