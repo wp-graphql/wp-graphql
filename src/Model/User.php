@@ -12,6 +12,7 @@ use WPGraphQL;
  * Class User - Models the data for the User object type
  *
  * @property string $id
+ * @property int    $databaseId
  * @property array  $capabilities
  * @property string $capKey
  * @property array  $roles
@@ -76,6 +77,7 @@ class User extends Model {
 			'isRestricted',
 			'id',
 			'userId',
+			'databaseId',
 			'name',
 			'firstName',
 			'lastName',
@@ -172,6 +174,9 @@ class User extends Model {
 			$this->fields = [
 				'id'                       => function() {
 					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
+				},
+				'databaseId'               => function() {
+					return $this->userId;
 				},
 				'capabilities'             => function() {
 					if ( ! empty( $this->data->allcaps ) ) {
