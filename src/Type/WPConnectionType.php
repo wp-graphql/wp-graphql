@@ -352,13 +352,14 @@ class WPConnectionType {
 			$this->connection_name,
 			[
 				// Translators: the placeholders are the name of the Types the connection is between.
-				'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
-				'interfaces'  => $interfaces,
-				'fields'      => array_merge(
+				'description'       => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'interfaces'        => $interfaces,
+				'connection_config' => $this->config,
+				'fields'            => array_merge(
 					[
 						'pageInfo' => [
 							// @todo: change to PageInfo when/if the Relay lib is deprecated
-							'type'        => [ 'non_null' => 'WPPageInfo' ],
+							'type'        => [ 'non_null' => 'PageInfo' ],
 							'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 						],
 						'edges'    => [

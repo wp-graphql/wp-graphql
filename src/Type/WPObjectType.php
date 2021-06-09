@@ -82,11 +82,11 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Convert Interfaces from Strings to Types
 		 */
-		$config['interfaces'] = function() use ( $interfaces ) {
+		$config['interfaces'] = function() use ( $config, $interfaces ) {
 			$new_interfaces = [];
 			if ( ! is_array( $interfaces ) ) {
-				// TODO Throw an error.
-				return $new_interfaces;
+				graphql_debug( sprintf( __( 'Interfaces registered to the %s Type were registered incorrectly', 'wp-graphql' ), $config['name'] ) );
+				return [];
 			}
 
 			foreach ( $interfaces as $interface ) {

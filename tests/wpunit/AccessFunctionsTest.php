@@ -361,6 +361,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRenameGraphQLType() {
 
+		// Register a Union so we can test renaming it
+		register_graphql_union_type( 'PostObjectUnion', [
+			'typeNames'   => [ 'Post', 'Page' ],
+			'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
+		]);
+
+
 		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
 		rename_graphql_type( 'PostObjectUnion', 'CPTUnion' );

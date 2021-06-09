@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
@@ -12,6 +13,7 @@ class Taxonomies {
 	 * Registers connections to the Taxonomy type
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 

@@ -19,7 +19,7 @@ class PageInfo {
 		 * back to PageInfo – which would be another breaking change at that time
 		 */
 		register_graphql_object_type(
-			'WPPageInfo',
+			'PageInfo',
 			[
 				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				'fields'      => [
