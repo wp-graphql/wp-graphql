@@ -21,9 +21,13 @@ trait WPInterfaceTrait {
 	 *
 	 * @return array
 	 */
-	protected function get_implemented_interfaces( array $interfaces ) {
+	protected function get_implemented_interfaces( array $interfaces ): array{
 
 		$new_interfaces = [];
+
+		if ( empty( $interfaces ) ) {
+			return $new_interfaces;
+		}
 
 		foreach ( $interfaces as $interface ) {
 			if ( is_string( $interface ) ) {
