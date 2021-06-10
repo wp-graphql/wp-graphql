@@ -71,7 +71,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 					}
 				],
 				'testString' => [
-					'resolve' => function() use ( $test ) {
+					'resolve' => function( ) use ( $test ) {
 						return $test['testString'];
 					}
 				]
@@ -80,8 +80,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		register_graphql_field( 'RootQuery', 'tester', [
 			'type' => 'MyTestType',
-			'resolve' => function() {
-				return true;
+			'resolve' => function() use ( $test ) {
+				return $test;
 			}
 		] );
 
