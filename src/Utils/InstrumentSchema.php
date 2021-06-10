@@ -245,11 +245,6 @@ class InstrumentSchema {
 		$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
 
 		/**
-		 * Filter the $auth_error
-		 */
-		$auth_error = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
-
-		/**
 		 * Check to see if
 		 */
 		if ( $field instanceof FieldDefinition && (
@@ -258,12 +253,11 @@ class InstrumentSchema {
 		) {
 
 			/**
-			 * If the schema for the field is configured to "isPrivate" or has "auth" configured,
-			 * make sure the user is authenticated before resolving the field
+			 * Retrieve permissions error message.
 			 */
-			if ( empty( get_current_user_id() ) ) {
-				throw new UserError( $auth_error );
-			}
+			$auth_error = is_array( $field->config['auth'] ) && ! empty( $field->config['auth']['errorMessage'] )
+				? $field->config['auth']['errorMessage']
+				: apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
 
 			/**
 			 * If the user is authenticated, and the field has a custom auth callback configured
@@ -271,7 +265,22 @@ class InstrumentSchema {
 			 */
 			if ( ! empty( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
 
-				return call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
+				$authorized = call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
+
+				// If callback returns explicit false throw.
+				if ( false === $authorized ) {
+					throw new UserError( $auth_error );
+				}
+
+				return $authorized;
+			}
+
+			/**
+			 * If the schema for the field is configured to "isPrivate" or has "auth" configured,
+			 * make sure the user is authenticated before resolving the field
+			 */
+			if ( empty( get_current_user_id() ) ) {
+				throw new UserError( $auth_error );
 			}
 
 			/**
