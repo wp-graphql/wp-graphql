@@ -1,6 +1,8 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Type\Definition\InterfaceType;
+
 /**
  * Trait WPInterfaceTrait
  *
@@ -25,7 +27,8 @@ trait WPInterfaceTrait {
 
 		foreach ( $interfaces as $interface ) {
 			if ( is_string( $interface ) ) {
-				if ( $interface_type = $this->type_registry->get_type( $interface ) ) {
+				$interface_type = $this->type_registry->get_type( $interface );
+				if ( $interface_type instanceof InterfaceType ) {
 
 					$interface_interfaces = $interface_type->getInterfaces();
 
@@ -39,7 +42,7 @@ trait WPInterfaceTrait {
 				}
 				continue;
 			}
-			if ( $interface instanceof WPInterfaceType ) {
+			if ( $interface instanceof InterfaceType ) {
 				$new_interfaces[ get_class( $interface ) ] = $interface;
 			}
 		}

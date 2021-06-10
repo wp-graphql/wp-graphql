@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
@@ -23,7 +24,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
