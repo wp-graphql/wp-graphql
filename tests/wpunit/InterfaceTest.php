@@ -111,4 +111,217 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testInterfaceCanImplementInterface() {
+
+		register_graphql_interface_type( 'TestInterfaceOne', [
+			'fields' => [
+				'one' => [
+					'type' => 'String'
+				]
+			]
+		]);
+
+		register_graphql_interface_type( 'TestInterfaceTwo', [
+			'interfaces' => [ 'TestInterfaceOne' ],
+			'fields' => [
+				'two' => [
+					'type' => 'String',
+				],
+			]
+		]);
+
+		register_graphql_interface_type( 'TestInterfaceThree', [
+			'interfaces' => [ 'TestInterfaceTwo' ],
+			'fields' => [
+				'three' => [
+					'type' => 'String',
+				],
+			]
+		]);
+
+		$query = '
+		query GetType($name:String!){
+		  __type(name: $name) {
+		    kind
+		    name
+		    interfaces {
+		      name
+		    }
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TestInterfaceTwo',
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'TestInterfaceTwo', $actual['data']['__type']['name'] );
+
+		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+
+		codecept_debug( $interfaces );
+
+		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TestInterfaceThree',
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'TestInterfaceThree', $actual['data']['__type']['name'] );
+
+		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+
+		codecept_debug( $interfaces );
+
+		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
+		$this->assertTrue( in_array( 'TestInterfaceTwo', $interfaces ) );
+
+		$fields =  wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $fields );
+
+		$this->assertTrue( in_array( 'one', $fields ) );
+		$this->assertTrue( in_array( 'two', $fields ) );
+		$this->assertTrue( in_array( 'three', $fields ) );
+
+
+	}
+
+	/**
+	 * This test registers InterfaceTwo, which implements InterfaceOne, then registers an ObjectType which
+	 * implements InterfaceTwo, then asserts that the object type implements both InterfaceOne and InterfaceTwo in the Schema
+	 *
+	 * 🤯
+	 * @throws Exception
+	 */
+	public function testObjectImplementingInterfaceWhichImplementsAnotherInterfaceHasBothInterfacesImplemented🤯() {
+
+		register_graphql_interface_type( 'TestInterfaceOne', [
+			'fields' => [
+				'one' => [
+					'type' => 'String'
+				]
+			]
+		]);
+
+		register_graphql_interface_type( 'TestInterfaceTwo', [
+			'interfaces' => [ 'TestInterfaceOne' ],
+			'fields' => [
+				'two' => [
+					'type' => 'String',
+				],
+			]
+		]);
+
+		register_graphql_object_type( 'TestTypeWithInterfaces', [
+			'interfaces' => [ 'TestInterfaceTwo' ],
+			'fields' => [
+				'three' => [
+					'type' => 'String',
+				],
+			],
+		]);
+
+		$query = '
+		query GetType($name:String!){
+		  __type(name: $name) {
+		    kind
+		    name
+		    interfaces {
+		      name
+		    }
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TestTypeWithInterfaces',
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'TestTypeWithInterfaces', $actual['data']['__type']['name'] );
+
+		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+
+		codecept_debug( $interfaces );
+
+		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
+		$this->assertTrue( in_array( 'TestInterfaceTwo', $interfaces ) );
+
+		$fields =  wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $fields );
+
+		$this->assertTrue( in_array( 'one', $fields ) );
+		$this->assertTrue( in_array( 'two', $fields ) );
+		$this->assertTrue( in_array( 'three', $fields ) );
+	}
+
+	public function testObjectTypeThatImplementsNodeInterfaceHasIdField() {
+
+		register_graphql_object_type( 'TestNodType', [
+			'interfaces' => [ 'Node' ],
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				]
+			]
+		]);
+
+		$query = '
+		query GetType($name:String!){
+		  __type(name: $name) {
+		    kind
+		    name
+		    interfaces {
+		      name
+		    }
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TestNodType',
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'TestNodType', $actual['data']['__type']['name'] );
+
+		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+
+		codecept_debug( $interfaces );
+
+		$this->assertTrue( in_array( 'Node', $interfaces ) );
+
+		$fields =  wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $fields );
+
+		$this->assertTrue( in_array( 'id', $fields ) );
+		$this->assertTrue( in_array( 'test', $fields ) );
+	}
+
 }
