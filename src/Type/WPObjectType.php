@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -18,6 +19,8 @@ use WPGraphQL\Type\InterfaceType\Node;
  * @since   0.0.5
  */
 class WPObjectType extends ObjectType {
+
+	use WPInterfaceTrait;
 
 	/**
 	 * Holds the node_interface definition allowing WPObjectTypes
@@ -42,6 +45,7 @@ class WPObjectType extends ObjectType {
 	 * @param array        $config
 	 * @param TypeRegistry $type_registry
 	 *
+	 * @throws \Exception
 	 * @since 0.0.5
 	 */
 	public function __construct( $config, TypeRegistry $type_registry ) {
@@ -81,23 +85,11 @@ class WPObjectType extends ObjectType {
 		 * Convert Interfaces from Strings to Types
 		 */
 		$config['interfaces'] = function() use ( $interfaces ) {
-			$new_interfaces = [];
-			if ( ! is_array( $interfaces ) ) {
-				// TODO Throw an error.
-				return $new_interfaces;
+			if ( ! is_array( $interfaces ) || empty( $interfaces ) ) {
+				return [];
 			}
 
-			foreach ( $interfaces as $interface ) {
-				if ( is_string( $interface ) ) {
-					$new_interfaces[ $interface ] = $this->type_registry->get_type( $interface );
-					continue;
-				}
-				if ( $interface instanceof WPInterfaceType ) {
-					$new_interfaces[ get_class( $interface ) ] = $interface;
-				}
-			}
-
-			return $new_interfaces;
+			return $this->get_implemented_interfaces( $interfaces );
 		};
 
 		/**
@@ -126,6 +118,8 @@ class WPObjectType extends ObjectType {
 					);
 				}
 
+				$interface_fields = [];
+
 				foreach ( $config['interfaceNames'] as $interface_name ) {
 					$interface_type = null;
 					if ( is_string( $interface_name ) ) {
@@ -133,16 +127,14 @@ class WPObjectType extends ObjectType {
 					} elseif ( $interface_name instanceof WPInterfaceType ) {
 						$interface_type = $interface_name;
 					}
-					$interface_fields = [];
 					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
 						$interface_config_fields = $interface_type->getFields();
 						foreach ( $interface_config_fields as $interface_field ) {
 							$interface_fields[ $interface_field->name ] = $interface_field->config;
 						}
 					}
-
-					$fields = array_replace_recursive( $interface_fields, $fields );
 				}
+				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );

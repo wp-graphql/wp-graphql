@@ -117,7 +117,7 @@ class ContentNode {
 						'description' => __( 'The permalink of the post', 'wp-graphql' ),
 					],
 					'uri'                       => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => 'String',
 						'description' => __( 'URI path for the resource', 'wp-graphql' ),
 					],
 					'isRestricted'              => [
