@@ -39,9 +39,6 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 				// share fields and a default resolver can be implemented at the Interface level
 				'interfaceOnlyField' => [
 					'type' => 'String',
-					'resolve' => function() use ( $test ) {
-						return $test['interfaceOnlyField'];
-					}
 				],
 				'testString' => [
 					'type' => 'String',
