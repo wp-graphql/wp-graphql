@@ -25,6 +25,8 @@ trait WPInterfaceTrait {
 
 		$new_interfaces = [];
 
+		return $new_interfaces;
+
 		if ( empty( $interfaces ) ) {
 			return $new_interfaces;
 		}
