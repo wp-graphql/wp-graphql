@@ -266,7 +266,7 @@ class InstrumentSchema {
 			}
 
 			/**
-			 * If the user is authenticated, and the field has a custom auth callback configured,
+			 * If the user is authenticated, and the field has a custom auth callback configured
 			 * execute the callback before continuing resolution
 			 */
 			if ( ! empty( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
