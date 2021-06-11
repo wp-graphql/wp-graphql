@@ -239,11 +239,8 @@ class InstrumentSchema {
 	 */
 	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
 
-		if ( ! $field instanceof FieldDefinition ) {
-			return true;
-		}
 
-		if ( ! isset( $field->config['isPrivate'] ) || false === $field->config['isPrivate'] ) {
+		if ( ! $field instanceof FieldDefinition ) {
 			return true;
 		}
 
@@ -260,7 +257,7 @@ class InstrumentSchema {
 		/**
 		 * Retrieve permissions error message.
 		 */
-		$auth_error = is_array( $field->config['auth'] ) && ! empty( $field->config['auth']['errorMessage'] )
+		$auth_error = isset( $field->config['auth']['errorMessage'] ) && ! empty( $field->config['auth']['errorMessage'] )
 			? $field->config['auth']['errorMessage']
 			: $default_auth_error_message;
 
@@ -280,6 +277,11 @@ class InstrumentSchema {
 			return $authorized;
 		}
 
+		// If the field is set to private
+		if ( ! isset( $field->config['isPrivate'] ) || false === $field->config['isPrivate'] ) {
+			return false;
+		}
+
 		/**
 		 * If the schema for the field is configured to "isPrivate" or has "auth" configured,
 		 * make sure the user is authenticated before resolving the field
@@ -292,7 +294,7 @@ class InstrumentSchema {
 		 * If the user is authenticated and the field has "allowedCaps" configured,
 		 * ensure the user has at least one of the allowedCaps before resolving
 		 */
-		if ( ! empty( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
+		if ( isset( $field->config['auth']['allowedCaps'] ) && is_array( $field->config['auth']['allowedCaps'] ) ) {
 			$caps = ! empty( wp_get_current_user()->allcaps ) ? wp_get_current_user()->allcaps : [];
 			if ( empty( array_intersect( array_keys( $caps ), array_values( $field->config['auth']['allowedCaps'] ) ) ) ) {
 				throw new UserError( $auth_error );
@@ -303,7 +305,7 @@ class InstrumentSchema {
 		 * If the user is authenticated and the field has "allowedRoles" configured,
 		 * ensure the user has at least one of the allowedRoles before resolving
 		 */
-		if ( ! empty( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
+		if ( isset( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
 			$roles         = ! empty( wp_get_current_user()->roles ) ? wp_get_current_user()->roles : [];
 			$allowed_roles = array_values( $field->config['auth']['allowedRoles'] );
 			if ( empty( array_intersect( array_values( $roles ), array_values( $allowed_roles ) ) ) ) {

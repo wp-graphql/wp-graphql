@@ -1072,9 +1072,9 @@ class TypeRegistry {
 		$from_type          = $config['fromType'];
 		$to_type            = $config['toType'];
 		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$connection_fields  = isset( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$connection_args    = isset( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$edge_fields        = isset( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
 		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
 		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
 		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
@@ -1083,8 +1083,8 @@ class TypeRegistry {
 		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
 		$where_args         = [];
 		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
-		$queryClass         = ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
-		$auth               = ! empty( $config['auth'] ) ? $config['auth'] : null;
+		$queryClass         = isset( $config['queryClass'] ) ? $config['queryClass'] : null;
+		$auth               = isset( $config['auth'] ) ? $config['auth'] : null;
 
 		/**
 		 * If there are any $connectionArgs,
