@@ -239,7 +239,6 @@ class InstrumentSchema {
 	 */
 	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
 
-
 		if ( ! $field instanceof FieldDefinition ) {
 			return true;
 		}
@@ -277,16 +276,11 @@ class InstrumentSchema {
 			return $authorized;
 		}
 
-		// If the field is set to private
-		if ( ! isset( $field->config['isPrivate'] ) || false === $field->config['isPrivate'] ) {
-			return false;
-		}
-
 		/**
 		 * If the schema for the field is configured to "isPrivate" or has "auth" configured,
 		 * make sure the user is authenticated before resolving the field
 		 */
-		if ( empty( get_current_user_id() ) ) {
+		if ( isset( $field->config['isPrivate'] ) && true === $field->config['isPrivate'] && empty( get_current_user_id() ) ) {
 			throw new UserError( $auth_error );
 		}
 

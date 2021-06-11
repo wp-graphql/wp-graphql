@@ -347,7 +347,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'TestCustomType',
 				'auth'          => [
-					'errorMessage' => 'Blocked on the type-level!!!',
+					'errorMessage' => 'Blocked on the field-level!!!',
 					'allowedCaps'  => [ 'administrator' ],
 				],
 				'fromFieldName' => 'failingAuthConnection',
@@ -413,9 +413,12 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$response  = $this->graphql( compact( 'query' ) );
+
+		codecept_debug( $response );
+
 		$expected = [
 			$this->expectedErrorPath( 'failingAuthConnection' ),
-			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
 			$this->expectedObject( 'failingAuthConnection', 'NULL' ),
 		];
 
