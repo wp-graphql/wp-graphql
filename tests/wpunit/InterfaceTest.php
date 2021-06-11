@@ -116,7 +116,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		register_graphql_interface_type( 'TestInterfaceOne', [
 			'fields' => [
 				'one' => [
-					'type' => 'String'
+					'type' => 'String',
+					'description' => 'one'
 				]
 			]
 		]);
@@ -126,6 +127,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'fields' => [
 				'two' => [
 					'type' => 'String',
+					'description' => 'two'
 				],
 			]
 		]);
@@ -135,6 +137,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'fields' => [
 				'three' => [
 					'type' => 'String',
+					'description' => 'three'
 				],
 			]
 		]);
@@ -209,7 +212,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		register_graphql_interface_type( 'TestInterfaceOne', [
 			'fields' => [
 				'one' => [
-					'type' => 'String'
+					'type' => 'String',
+					'description' => 'one'
 				]
 			]
 		]);
@@ -219,6 +223,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'fields' => [
 				'two' => [
 					'type' => 'String',
+					'description' => 'two'
 				],
 			]
 		]);
@@ -228,6 +233,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'fields' => [
 				'three' => [
 					'type' => 'String',
+					'description' => 'three'
 				],
 			],
 		]);
@@ -279,7 +285,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'interfaces' => [ 'Node' ],
 			'fields' => [
 				'test' => [
-					'type' => 'String'
+					'type' => 'String',
+					'description' => 'test'
 				]
 			]
 		]);
