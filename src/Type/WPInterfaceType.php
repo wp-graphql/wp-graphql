@@ -69,7 +69,6 @@ class WPInterfaceType extends InterfaceType {
 						}
 					}
 				}
-
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'] );
