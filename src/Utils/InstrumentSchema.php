@@ -71,6 +71,8 @@ class InstrumentSchema {
 	 */
 	protected static function wrap_fields( $fields, $type_name ) {
 
+		return $fields;
+
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 
 			foreach ( $fields as $field_key => $field ) {
@@ -78,7 +80,7 @@ class InstrumentSchema {
 				if ( ! $field instanceof FieldDefinition ) {
 					return $field;
 				}
-				
+
 				/**
 				 * Filter the field definition
 				 *
