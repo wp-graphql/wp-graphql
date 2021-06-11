@@ -159,38 +159,80 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		]);
 
+		register_graphql_object_type( 'TestTypeWithInterfaces', [
+			'interfaces' => [ 'TestInterfaceThree' ],
+			'fields' => [
+				'four' => [
+					'type' => 'String',
+				],
+			],
+		]);
+
+		register_graphql_field( 'RootQuery', 'testTypeWithInterfaces', [
+			'type' => 'TestTypeWithInterfaces',
+			'resolve' => function() {
+				return [
+					'one' => 'one value',
+					'two' => 'two value',
+					'three' => 'three value',
+					'four' => 'four value',
+				];
+			}
+		] );
+
+
 		$this->testSchema();
 
 		$query = '
-		query GetType($name:String!){
-		  __type(name: $name) {
-		    kind
-		    name
-		    interfaces {
-		      name
-		    }
-		    fields {
-		      name
-		    }
+		{
+		  testTypeWithInterfaces {
+		    ...One
+		    ...Two
+		    ...Three
+		    four
 		  }
+		}
+		
+		fragment One on TestInterfaceOne {
+		  one
+		}
+		
+		fragment Two on TestInterfaceTwo {
+		  one
+		  two
+		}
+		
+		fragment Three on TestInterfaceThree {
+		  one
+		  two
+		  three
 		}
 		';
 
 		$actual = graphql([
 			'query' => $query,
-			'variables' => [
-				'name' => 'TestInterfaceTwo',
-			]
 		]);
 
+		codecept_debug( $actual );
+
+		$expected = [
+			'testTypeWithInterfaces' => [
+				'one' => 'one value',
+				'two' => 'two value',
+				'three' => 'three value',
+				'four' => 'four value'
+			]
+		];
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 'TestInterfaceTwo', $actual['data']['__type']['name'] );
-
-		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
-
-		codecept_debug( $interfaces );
-
-		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
+		$this->assertSame( $expected, $actual['data'] );
+//		$this->assertSame( 'TestInterfaceTwo', $actual['data']['__type']['name'] );
+//
+//		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+//
+//		codecept_debug( $interfaces );
+//
+//		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
 //
 //		$actual = graphql([
 //			'query' => $query,
@@ -219,13 +261,13 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 
 	}
-//
-//	/**
-//	 * This test registers InterfaceTwo, which implements InterfaceOne, then registers an ObjectType which
-//	 * implements InterfaceTwo, then asserts that the object type implements both InterfaceOne and InterfaceTwo in the Schema
-//	 *
-//	 * @throws Exception
-//	 */
+
+	/**
+	 * This test registers InterfaceTwo, which implements InterfaceOne, then registers an ObjectType which
+	 * implements InterfaceTwo, then asserts that the object type implements both InterfaceOne and InterfaceTwo in the Schema
+	 *
+	 * @throws Exception
+	 */
 //	public function testObjectImplementingInterfaceWhichImplementsAnotherInterfaceHasBothInterfacesImplemented() {
 //
 //		register_graphql_interface_type( 'TestInterfaceOne', [

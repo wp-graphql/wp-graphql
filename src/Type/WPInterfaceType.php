@@ -77,29 +77,31 @@ class WPInterfaceType extends InterfaceType {
 					);
 				}
 
-				$interface_fields = [];
-
 				foreach ( $config['interfaceNames'] as $interface_name ) {
 					$interface_type = null;
 					if ( is_string( $interface_name ) ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
-					} elseif ( $interface_name instanceof WPInterfaceType ) {
-						$interface_type = $interface_name;
 					}
 
-					if ( ! empty( $interface_type ) && $interface_type instanceof WPInterfaceType ) {
+					if ( ! $interface_type instanceof WPInterfaceType ) {
+						continue;
+					}
 
-						$interface_config_fields = $interface_type->getFields();
+					$interface_config_fields = $interface_type->getFields();
 
-						if ( ! empty( $interface_config_fields ) ) {
-							foreach ( $interface_config_fields as $interface_field ) {
-								$interface_fields[ $interface_field->name ] = $interface_field->config;
-							}
+					if ( empty( $interface_config_fields ) ) {
+						continue;
+					}
+
+					foreach ( $interface_config_fields as $interface_field ) {
+						if ( ! isset( $interface_field->name ) ) {
+							continue;
 						}
+						$fields[ $interface_field->name ] = $interface_field->config;
 					}
+
 				}
 
-				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'] );
