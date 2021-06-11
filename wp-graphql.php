@@ -59,3 +59,64 @@ graphql_init();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once 'cli/wp-cli.php';
 }
+//
+//add_action( 'graphql_register_types', function() {
+////	return;
+//	register_graphql_interface_type( 'TestInterfaceOne', [
+//		'fields' => [
+//			'one' => [
+//				'type' => 'String'
+//			]
+//		]
+//	]);
+//
+//	register_graphql_interface_type( 'TestInterfaceTwo', [
+//		'interfaces' => [ 'TestInterfaceOne' ],
+//		'fields' => [
+//			'one' => [
+//				'type' => 'String'
+//			],
+//			'two' => [
+//				'type' => 'String',
+//			],
+//		]
+//	]);
+//
+//	register_graphql_interface_type( 'TestInterfaceThree', [
+//		'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne' ],
+//		'fields' => [
+//			'one' => [
+//				'type' => 'String'
+//			],
+//			'two' => [
+//				'type' => 'String',
+//			],
+//			'three' => [
+//				'type' => 'String',
+//			],
+//		]
+//	]);
+//
+//
+//	register_graphql_object_type( 'TestTypeWithInterfaces', [
+//		'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne', 'TestInterfaceThree' ],
+//		'fields' => [
+//			'four' => [
+//				'type' => 'String',
+//			],
+//		],
+//	]);
+//
+//	register_graphql_field( 'RootQuery', 'testTypeWithInterfaces', [
+//		'type' => 'TestTypeWithInterfaces',
+//		'resolve' => function() {
+//			return [
+//				'one' => 'one value',
+//				'two' => 'two value',
+//				'three' => 'three value',
+//				'four' => 'four value',
+//			];
+//		}
+//	] );
+//
+//} );
