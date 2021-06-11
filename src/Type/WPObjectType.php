@@ -76,16 +76,15 @@ class WPObjectType extends ObjectType {
 		 */
 		$config['fields'] = function() use ( $config ) {
 
-			$fields = $config['fields'];
+			$fields           = $config['fields'];
 			$interface_fields = [];
-
 
 			/**
 			 * Get the fields of interfaces and ensure they exist as fields of this type.
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $this->getInterfaces() ) &&  is_array( $this->getInterfaces() ) ) {
+			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
 				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
 
@@ -111,8 +110,6 @@ class WPObjectType extends ObjectType {
 						$fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}
-
-
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
