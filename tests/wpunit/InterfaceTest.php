@@ -80,8 +80,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		register_graphql_field( 'RootQuery', 'tester', [
 			'type'    => 'MyTestType',
-			'resolve' => function() {
-				return true;
+			'resolve' => function() use ( $test ) {
+				return $test;
 			}
 		] );
 
@@ -150,7 +150,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_interface_type( 'TestInterfaceThree', [
-			'interfaces' => [ 'TestInterfaceTwo' ],
+			'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne' ],
 			'fields' => [
 				'three' => [
 					'type' => 'String',
@@ -160,7 +160,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_object_type( 'TestTypeWithInterfaces', [
-			'interfaces' => [ 'TestInterfaceThree' ],
+			'interfaces' => [ 'TestInterfaceThree', 'TestInterfaceTwo', 'TestInterfaceOne' ],
 			'fields' => [
 				'four' => [
 					'type' => 'String',
