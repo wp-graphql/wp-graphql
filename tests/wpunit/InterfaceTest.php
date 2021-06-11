@@ -187,7 +187,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 
-		$this->testSchema();
+//		$this->testSchema();
 
 		$query = '
 		{
@@ -321,7 +321,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_object_type( 'TestTypeWithInterfaces', [
-			'interfaces' => [ 'TestInterfaceTwo' ],
+			'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne' ],
 			'fields' => [
 				'three' => [
 					'type' => 'String',
