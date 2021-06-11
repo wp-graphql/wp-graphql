@@ -40,11 +40,6 @@ class InstrumentSchema {
 			foreach ( $types as $type_name => $type_object ) {
 				if ( $type_object instanceof ObjectType ) {
 					$fields                            = $type_object->getFields();
-
-					if ( is_callable( $fields ) ) {
-						$fields = call_user_func( $fields );
-					}
-
 					$new_fields                        = self::wrap_fields( $fields, $type_name );
 					$new_type_object                   = $type_object;
 					$new_type_object->name             = ucfirst( esc_html( $type_object->name ) );
@@ -80,12 +75,10 @@ class InstrumentSchema {
 
 			foreach ( $fields as $field_key => $field ) {
 
-				if ( ! $field instanceof  FieldDefinition ) {
+				if ( ! $field instanceof FieldDefinition ) {
 					return $field;
 				}
-
-
-
+				
 				/**
 				 * Filter the field definition
 				 *
