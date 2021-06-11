@@ -30,30 +30,6 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->type_registry = $type_registry;
 
-		$interfaces = isset( $config['interfaces'] ) ? $config['interfaces'] : [];
-
-		/**
-		 * Filters the interfaces applied to an object type
-		 *
-		 * @param array        $interfaces     List of interfaces applied to the Object Type
-		 * @param array        $config         The config for the Object Type
-		 * @param WPObjectType $wp_object_type The WPObjectType instance
-		 */
-		$interfaces               = apply_filters( 'graphql_interface_type_interfaces', $interfaces, $config, $this );
-		$config['interfaceNames'] = $interfaces;
-
-		/**
-		 * Convert Interfaces from Strings to Types
-		 */
-		$config['interfaces'] = function() use ( $interfaces ) {
-
-			if ( ! is_array( $interfaces ) || empty( $interfaces ) ) {
-				return [];
-			}
-
-			return $this->get_implemented_interfaces( $interfaces );
-		};
-
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = function() use ( $config ) {
@@ -65,22 +41,11 @@ class WPInterfaceType extends InterfaceType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $config['interfaceNames'] ) ) {
-				// Throw if "interfaceNames" invalid.
-				if ( ! is_array( $config['interfaceNames'] ) ) {
-					throw new UserError(
-						sprintf(
-						/* translators: %s: type name */
-							__( 'Invalid value provided as "interfaceNames" on %s.', 'wp-graphql' ),
-							$config['name']
-						)
-					);
-				}
+			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
-				foreach ( $config['interfaceNames'] as $interface_name ) {
-					$interface_type = null;
+				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
 
-					if ( is_string( $interface_name ) ) {
+					if ( is_string( $interface_name ) && ! $interface_type instanceof InterfaceType ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
 					}
 
@@ -98,9 +63,11 @@ class WPInterfaceType extends InterfaceType {
 						if ( ! isset( $interface_field->name ) || isset( $fields[ $interface_field->name ] ) ) {
 							continue;
 						}
-						$fields[ $interface_field->name ] = $interface_field->config;
-					}
 
+						if ( ! isset( $fields[ $interface_field->name ] ) && isset( $interface_field->config ) && is_array( $interface_field->config ) ) {
+							$fields[ $interface_field->name ] = $interface_field->config;
+						}
+					}
 				}
 
 			}
@@ -136,6 +103,15 @@ class WPInterfaceType extends InterfaceType {
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 
 		parent::__construct( $config );
+	}
+
+	public function getInterfaces(): array {
+
+		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
+			return [];
+		}
+
+		return $this->get_implemented_interfaces( $this->config['interfaces'] );
 	}
 
 	/**
