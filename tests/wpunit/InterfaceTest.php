@@ -231,12 +231,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GetType($name:String!){
 		  __type(name: $name) {
-		    kind
 		    name
 		    interfaces {
-		      name
-		    }
-		    fields {
 		      name
 		    }
 		  }
@@ -255,11 +251,11 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'TestInterfaceTwo', $actual['data']['__type']['name'] );
 //
-//		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
-//
-//		codecept_debug( $interfaces );
-//
-//		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
+		$interfaces =  wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
+
+		codecept_debug( $interfaces );
+
+		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
 //
 //		$actual = graphql([
 //			'query' => $query,
