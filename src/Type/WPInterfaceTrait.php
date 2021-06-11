@@ -29,6 +29,7 @@ trait WPInterfaceTrait {
 			if ( ! is_string( $interface ) ) {
 				continue;
 			}
+
 			$interface_type = $this->type_registry->get_type( $interface );
 			if ( ! $interface_type instanceof InterfaceType ) {
 				continue;

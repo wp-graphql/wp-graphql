@@ -79,22 +79,23 @@ class WPInterfaceType extends InterfaceType {
 
 				foreach ( $config['interfaceNames'] as $interface_name ) {
 					$interface_type = null;
+
 					if ( is_string( $interface_name ) ) {
 						$interface_type = $this->type_registry->get_type( $interface_name );
 					}
 
-					if ( ! $interface_type instanceof WPInterfaceType ) {
+					if ( ! $interface_type instanceof InterfaceType ) {
 						continue;
 					}
 
 					$interface_config_fields = $interface_type->getFields();
 
-					if ( empty( $interface_config_fields ) ) {
+					if ( empty( $interface_config_fields ) || ! is_array( $interface_config_fields ) ) {
 						continue;
 					}
 
 					foreach ( $interface_config_fields as $interface_field ) {
-						if ( ! isset( $interface_field->name ) ) {
+						if ( ! isset( $interface_field->name ) || isset( $fields[ $interface_field->name ] ) ) {
 							continue;
 						}
 						$fields[ $interface_field->name ] = $interface_field->config;
