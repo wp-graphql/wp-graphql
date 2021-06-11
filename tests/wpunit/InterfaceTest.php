@@ -202,10 +202,9 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 	 * This test registers InterfaceTwo, which implements InterfaceOne, then registers an ObjectType which
 	 * implements InterfaceTwo, then asserts that the object type implements both InterfaceOne and InterfaceTwo in the Schema
 	 *
-	 * 🤯
 	 * @throws Exception
 	 */
-	public function testObjectImplementingInterfaceWhichImplementsAnotherInterfaceHasBothInterfacesImplemented🤯() {
+	public function testObjectImplementingInterfaceWhichImplementsAnotherInterfaceHasBothInterfacesImplemented() {
 
 		register_graphql_interface_type( 'TestInterfaceOne', [
 			'fields' => [

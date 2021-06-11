@@ -26,24 +26,27 @@ trait WPInterfaceTrait {
 		$new_interfaces = [];
 
 		foreach ( $interfaces as $interface ) {
-			if ( is_string( $interface ) ) {
-				$interface_type = $this->type_registry->get_type( $interface );
-				if ( $interface_type instanceof InterfaceType ) {
-
-					$interface_interfaces = $interface_type->getInterfaces();
-
-					if ( ! empty( $interface_interfaces ) ) {
-						foreach ( $interface_interfaces as $interface_interface_name => $interface_interface ) {
-							$new_interfaces[ $interface_interface_name ] = $interface_interface;
-						}
-					}
-
-					$new_interfaces[ $interface ] = $interface_type;
-				}
+			if ( ! is_string( $interface ) ) {
 				continue;
 			}
-			if ( $interface instanceof InterfaceType ) {
-				$new_interfaces[ get_class( $interface ) ] = $interface;
+			$interface_type = $this->type_registry->get_type( $interface );
+			if ( ! $interface_type instanceof InterfaceType ) {
+				continue;
+			}
+
+			$new_interfaces[ $interface ] = $interface_type;
+			$interface_interfaces         = $interface_type->getInterfaces();
+
+			if ( ! is_array( $interface_interfaces ) || empty( $interface_interfaces ) ) {
+				continue;
+			}
+
+			foreach ( $interface_interfaces as $interface_interface_name => $interface_interface ) {
+				if ( ! $interface_interface instanceof InterfaceType ) {
+					continue;
+				}
+
+				$new_interfaces[ $interface_interface_name ] = $interface_interface;
 			}
 		}
 
