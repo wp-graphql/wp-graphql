@@ -86,10 +86,10 @@ class WPObjectType extends ObjectType {
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
-				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
+				foreach ( $this->getInterfaces() as $interface_type ) {
 
-					if ( is_string( $interface_name ) && ! $interface_type instanceof InterfaceType ) {
-						$interface_type = $this->type_registry->get_type( $interface_name );
+					if ( ! $interface_type instanceof InterfaceType ) {
+						$interface_type = $this->type_registry->get_type( $interface_type );
 					}
 
 					if ( ! $interface_type instanceof InterfaceType ) {
@@ -129,6 +129,11 @@ class WPObjectType extends ObjectType {
 		parent::__construct( $config );
 	}
 
+	/**
+	 * Get the interfaces implemented by the ObjectType
+	 *
+	 * @return array
+	 */
 	public function getInterfaces(): array {
 
 		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
