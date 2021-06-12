@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -31,14 +32,14 @@ class InstrumentSchema {
 	 *
 	 * @return WPSchema
 	 */
-	public static function instrument_schema( WPSchema $schema ) {
+	public static function instrument_schema( WPSchema $schema ): WPSchema {
 
 		$new_types = [];
 		$types     = $schema->getTypeMap();
 
 		if ( ! empty( $types ) && is_array( $types ) ) {
 			foreach ( $types as $type_name => $type_object ) {
-				if ( $type_object instanceof ObjectType ) {
+				if ( $type_object instanceof ObjectType || $type_object instanceof InterfaceType ) {
 					$fields                            = $type_object->getFields();
 					$new_fields                        = self::wrap_fields( $fields, $type_name );
 					$new_type_object                   = $type_object;
@@ -51,7 +52,7 @@ class InstrumentSchema {
 		}
 
 		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config->types = $new_types;
+			$schema->config->types = array_merge( $types, $new_types );
 		}
 
 		return $schema;
@@ -69,151 +70,150 @@ class InstrumentSchema {
 	 *
 	 * @return mixed
 	 */
-	protected static function wrap_fields( $fields, $type_name ) {
+	protected static function wrap_fields( array $fields, string $type_name ) {
 
-		return $fields;
+		if ( empty( $fields ) || ! is_array( $fields ) ) {
+			return $fields;
+		}
 
-		if ( ! empty( $fields ) && is_array( $fields ) ) {
+		foreach ( $fields as $field_key => $field ) {
 
-			foreach ( $fields as $field_key => $field ) {
+			/**
+			 * Filter the field definition
+			 *
+			 * @param FieldDefinition $field     The field definition
+			 * @param string                                   $type_name The name of the Type the field belongs to
+			 */
+			$field = apply_filters( 'graphql_field_definition', $field, $type_name );
 
-				if ( ! $field instanceof FieldDefinition ) {
-					return $field;
+			if ( ! $field instanceof FieldDefinition ) {
+				return $field;
+			}
+
+			/**
+			 * Get the fields resolve function
+			 *
+			 * @since 0.0.1
+			 */
+			$field_resolver = is_callable( $field->resolveFn ) ? $field->resolveFn : null;
+
+			/**
+			 * Sanitize the description and deprecation reason
+			 */
+			$field->description       = ! empty( $field->description ) && is_string( $field->description ) ? esc_html( $field->description ) : '';
+			$field->deprecationReason = ! empty( $field->deprecationReason ) && is_string( $field->description ) ? esc_html( $field->deprecationReason ) : null;
+
+			/**
+			 * Replace the existing field resolve method with a new function that captures data about
+			 * the resolver to be stored in the resolver_report
+			 *
+			 * @param mixed       $source  The source passed down the Resolve Tree
+			 * @param array       $args    The args for the field
+			 * @param AppContext  $context The AppContext passed down the ResolveTree
+			 * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
+			 *
+			 * @return mixed
+			 * @throws Exception
+			 * @since 0.0.1
+			 */
+			$field->resolveFn = static function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+
+				/**
+				 * Setup the global post to the current post (if a post)
+				 * This ensures that functions like get_the_content() work correctly
+				 * so graphql queries can be used in the loop without issues.
+				 */
+				if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
+					self::$cached_post = $source;
+					$GLOBALS['post']   = $source;
+					setup_postdata( $source );
 				}
 
 				/**
-				 * Filter the field definition
+				 * Fire an action BEFORE the field resolves
 				 *
-				 * @param \GraphQL\Type\Definition\FieldDefinition $field     The field definition
-				 * @param string                                   $type_name The name of the Type the field belongs to
+				 * @param mixed           $source         The source passed down the Resolve Tree
+				 * @param array           $args           The args for the field
+				 * @param AppContext      $context        The AppContext passed down the ResolveTree
+				 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param callable        $field_resolver The Resolve function for the field
+				 * @param string          $type_name      The name of the type the fields belong to
+				 * @param string          $field_key      The name of the field
+				 * @param FieldDefinition $field          The Field Definition for the resolving field
 				 */
-				$field = apply_filters( 'graphql_field_definition', $field, $type_name );
+				do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
 				/**
-				 * Get the fields resolve function
-				 *
-				 * @since 0.0.1
+				 * Create unique custom "nil" value which is different from the build-in PHP null, false etc.
+				 * When this custom "nil" is returned we can know that the filter did not try to preresolve
+				 * the field because it does not equal with anything but itself.
 				 */
-				$field_resolver = ! empty( $field->resolveFn ) ? $field->resolveFn : null;
+				$nil = new \stdClass();
 
 				/**
-				 * Sanitize the description and deprecation reason
+				 * When this filter return anything other than the $nil it will be used as the resolved value
+				 * and the execution of the actual resolved is skipped. This filter can be used to implement
+				 * field level caches or for efficiently hiding data by returning null.
+				 *
+				 * @param mixed           $nil            Unique nil value
+				 * @param mixed           $source         The source passed down the Resolve Tree
+				 * @param array           $args           The args for the field
+				 * @param AppContext      $context        The AppContext passed down the ResolveTree
+				 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param string          $type_name      The name of the type the fields belong to
+				 * @param string          $field_key      The name of the field
+				 * @param FieldDefinition $field          The Field Definition for the resolving field
+				 * @param mixed           $field_resolver The default field resolver
 				 */
-				$field->description       = ! empty( $field->description ) && is_string( $field->description ) ? esc_html( $field->description ) : '';
-				$field->deprecationReason = ! empty( $field->deprecationReason ) && is_string( $field->description ) ? esc_html( $field->deprecationReason ) : null;
+				$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
 				/**
-				 * Replace the existing field resolve method with a new function that captures data about
-				 * the resolver to be stored in the resolver_report
-				 *
-				 * @param mixed       $source  The source passed down the Resolve Tree
-				 * @param array       $args    The args for the field
-				 * @param AppContext  $context The AppContext passed down the ResolveTree
-				 * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
-				 *
-				 * @return mixed
-				 * @throws Exception
-				 * @since 0.0.1
+				 * Check if the field pre-resolved
 				 */
-				$field->resolveFn = function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
-
+				if ( $nil === $result ) {
 					/**
-					 * Setup the global post to the current post (if a post)
-					 * This ensures that functions like get_the_content() work correctly
-					 * so graphql queries can be used in the loop without issues.
+					 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
+					 * otherwise use the $field_resolver
 					 */
-					if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
-						self::$cached_post = $source;
-						$GLOBALS['post']   = $source;
-						setup_postdata( $source );
+					if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
+						$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
+					} else {
+						$result = $field_resolver( $source, $args, $context, $info );
 					}
+				}
 
-					/**
-					 * Fire an action BEFORE the field resolves
-					 *
-					 * @param mixed           $source         The source passed down the Resolve Tree
-					 * @param array           $args           The args for the field
-					 * @param AppContext      $context        The AppContext passed down the ResolveTree
-					 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-					 * @param callable        $field_resolver The Resolve function for the field
-					 * @param string          $type_name      The name of the type the fields belong to
-					 * @param string          $field_key      The name of the field
-					 * @param FieldDefinition $field          The Field Definition for the resolving field
-					 */
-					do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
+				/**
+				 * Fire an action before the field resolves
+				 *
+				 * @param mixed           $result         The result of the field resolution
+				 * @param mixed           $source         The source passed down the Resolve Tree
+				 * @param array           $args           The args for the field
+				 * @param AppContext      $context        The AppContext passed down the ResolveTree
+				 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param string          $type_name      The name of the type the fields belong to
+				 * @param string          $field_key      The name of the field
+				 * @param FieldDefinition $field          The Field Definition for the resolving field
+				 * @param mixed           $field_resolver The default field resolver
+				 */
+				$result = apply_filters( 'graphql_resolve_field', $result, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
-					/**
-					 * Create unique custom "nil" value which is different from the build-in PHP null, false etc.
-					 * When this custom "nil" is returned we can know that the filter did not try to preresolve
-					 * the field because it does not equal with anything but itself.
-					 */
-					$nil = new \stdClass();
+				/**
+				 * Fire an action AFTER the field resolves
+				 *
+				 * @param mixed           $source    The source passed down the Resolve Tree
+				 * @param array           $args      The args for the field
+				 * @param AppContext      $context   The AppContext passed down the ResolveTree
+				 * @param ResolveInfo     $info      The ResolveInfo passed down the ResolveTree
+				 * @param string          $type_name The name of the type the fields belong to
+				 * @param string          $field_key The name of the field
+				 * @param FieldDefinition $field     The Field Definition for the resolving field
+				 * @param mixed           $result    The result of the field resolver
+				 */
+				do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
 
-					/**
-					 * When this filter return anything other than the $nil it will be used as the resolved value
-					 * and the execution of the actual resolved is skipped. This filter can be used to implement
-					 * field level caches or for efficiently hiding data by returning null.
-					 *
-					 * @param mixed           $nil            Unique nil value
-					 * @param mixed           $source         The source passed down the Resolve Tree
-					 * @param array           $args           The args for the field
-					 * @param AppContext      $context        The AppContext passed down the ResolveTree
-					 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-					 * @param string          $type_name      The name of the type the fields belong to
-					 * @param string          $field_key      The name of the field
-					 * @param FieldDefinition $field          The Field Definition for the resolving field
-					 * @param mixed           $field_resolver The default field resolver
-					 */
-					$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
+				return $result;
 
-					/**
-					 * Check if the field preresolved
-					 */
-					if ( $nil === $result ) {
-						/**
-						 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
-						 * otherwise use the $field_resolver
-						 */
-						if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
-							$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
-						} else {
-							$result = call_user_func( $field_resolver, $source, $args, $context, $info );
-						}
-					}
-
-					/**
-					 * Fire an action before the field resolves
-					 *
-					 * @param mixed           $result         The result of the field resolution
-					 * @param mixed           $source         The source passed down the Resolve Tree
-					 * @param array           $args           The args for the field
-					 * @param AppContext      $context        The AppContext passed down the ResolveTree
-					 * @param ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-					 * @param string          $type_name      The name of the type the fields belong to
-					 * @param string          $field_key      The name of the field
-					 * @param FieldDefinition $field          The Field Definition for the resolving field
-					 * @param mixed           $field_resolver The default field resolver
-					 */
-					$result = apply_filters( 'graphql_resolve_field', $result, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
-
-					/**
-					 * Fire an action AFTER the field resolves
-					 *
-					 * @param mixed           $source    The source passed down the Resolve Tree
-					 * @param array           $args      The args for the field
-					 * @param AppContext      $context   The AppContext passed down the ResolveTree
-					 * @param ResolveInfo     $info      The ResolveInfo passed down the ResolveTree
-					 * @param string          $type_name The name of the type the fields belong to
-					 * @param string          $field_key The name of the field
-					 * @param FieldDefinition $field     The Field Definition for the resolving field
-					 * @param mixed           $result    The result of the field resolver
-					 */
-					do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
-
-					return $result;
-
-				};
-			}
+			};
 		}
 
 		/**
