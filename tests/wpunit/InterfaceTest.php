@@ -112,7 +112,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	// Validate schema.
-	public function testSchema() {
+	public function testSchemaIsValid() {
 		try {
 			$request = new \WPGraphQL\Request();
 			$request->schema->assertValid();
@@ -186,8 +186,9 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			}
 		] );
 
-
-//		$this->testSchema();
+		// Test that the schema is valid with
+		// the Interfaces registered to implement each other
+		$this->testSchemaIsValid();
 
 		$query = '
 		{
