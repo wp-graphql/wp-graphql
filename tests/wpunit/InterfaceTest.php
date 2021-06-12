@@ -141,9 +141,6 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		register_graphql_interface_type( 'TestInterfaceTwo', [
 			'interfaces' => [ 'TestInterfaceOne' ],
 			'fields' => [
-				'one' => [
-					'type' => 'String'
-				],
 				'two' => [
 					'type' => 'String',
 				],
@@ -151,14 +148,8 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_interface_type( 'TestInterfaceThree', [
-			'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne' ],
+			'interfaces' => [ 'TestInterfaceTwo' ],
 			'fields' => [
-				'one' => [
-					'type' => 'String'
-				],
-				'two' => [
-					'type' => 'String',
-				],
 				'three' => [
 					'type' => 'String',
 				],
@@ -166,7 +157,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_object_type( 'TestTypeWithInterfaces', [
-			'interfaces' => [ 'TestInterfaceThree', 'TestInterfaceTwo', 'TestInterfaceOne' ],
+			'interfaces' => [ 'TestInterfaceThree' ],
 			'fields' => [
 				'four' => [
 					'type' => 'String',
@@ -322,7 +313,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		register_graphql_object_type( 'TestTypeWithInterfaces', [
-			'interfaces' => [ 'TestInterfaceTwo', 'TestInterfaceOne' ],
+			'interfaces' => [ 'TestInterfaceTwo' ],
 			'fields' => [
 				'three' => [
 					'type' => 'String',

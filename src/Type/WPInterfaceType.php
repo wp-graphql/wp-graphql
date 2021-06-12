@@ -35,6 +35,42 @@ class WPInterfaceType extends InterfaceType {
 		$config['fields'] = function() use ( $config ) {
 
 			$fields = $config['fields'];
+
+			/**
+			 * Get the fields of interfaces and ensure they exist as fields of this type.
+			 *
+			 * Types are still responsible for ensuring the fields resolve properly.
+			 */
+			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
+
+				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
+
+					if ( is_string( $interface_name ) && ! $interface_type instanceof InterfaceType ) {
+						$interface_type = $this->type_registry->get_type( $interface_name );
+					}
+
+					if ( ! $interface_type instanceof InterfaceType ) {
+						continue;
+					}
+
+					$interface_config_fields = $interface_type->getFields();
+
+					if ( empty( $interface_config_fields ) || ! is_array( $interface_config_fields ) ) {
+						continue;
+					}
+
+					foreach ( $interface_config_fields as $interface_field ) {
+						if ( ! isset( $interface_field->name ) || isset( $fields[ $interface_field->name ] ) ) {
+							continue;
+						}
+
+						if ( ! isset( $fields[ $interface_field->name ] ) && isset( $interface_field->config ) && is_array( $interface_field->config ) ) {
+							$fields[ $interface_field->name ] = $interface_field->config;
+						}
+					}
+				}
+			}
+
 			$fields = $this->prepare_fields( $fields, $config['name'] );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
 
@@ -68,6 +104,11 @@ class WPInterfaceType extends InterfaceType {
 		parent::__construct( $config );
 	}
 
+	/**
+	 * Get interfaces implemented by this Interface
+	 *
+	 * @return array
+	 */
 	public function getInterfaces(): array {
 
 		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
