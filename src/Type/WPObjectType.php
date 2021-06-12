@@ -76,8 +76,7 @@ class WPObjectType extends ObjectType {
 		 */
 		$config['fields'] = function() use ( $config ) {
 
-			$fields           = $config['fields'];
-			$interface_fields = [];
+			$fields = $config['fields'];
 
 			/**
 			 * Get the fields of interfaces and ensure they exist as fields of this type.
