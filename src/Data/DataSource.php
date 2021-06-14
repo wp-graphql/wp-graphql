@@ -383,7 +383,12 @@ class DataSource {
 	 * @return string $group
 	 */
 	public static function format_group_name( string $group ) {
-		$group = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $group ) );
+		$replaced_group = preg_replace( '[^a-zA-Z0-9 -]', ' ', $group );
+
+		if ( ! empty( $replaced_group ) ) {
+			$group = $replaced_group;
+		}
+
 		$group = lcfirst( str_replace( '_', ' ', ucwords( $group, '_' ) ) );
 		$group = lcfirst( str_replace( '-', ' ', ucwords( $group, '_' ) ) );
 		$group = lcfirst( str_replace( ' ', '', ucwords( $group, ' ' ) ) );
@@ -433,11 +438,11 @@ class DataSource {
 
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key'] = $key;
+					$setting['key']                              = $key;
 					$allowed_settings_by_group[ $group ][ $key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key'] = $key;
+				$setting['key']                              = $key;
 				$allowed_settings_by_group[ $group ][ $key ] = $setting;
 			}
 		};
