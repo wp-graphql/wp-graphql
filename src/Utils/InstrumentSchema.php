@@ -266,7 +266,7 @@ class InstrumentSchema {
 			if ( ! empty( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
 
 				$authorized = call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
-				
+
 				// If callback returns explicit false throw.
 				if ( false === $authorized ) {
 					throw new UserError( $auth_error );
