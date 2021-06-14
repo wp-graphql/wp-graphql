@@ -47,6 +47,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 		}
 			}
 		';
+
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertEmpty( $this->lodashGet( $response, 'errors' ) );
@@ -346,7 +347,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'TestCustomType',
 				'auth'          => [
-					'errorMessage' => 'Blocked on the type-level!!!',
+					'errorMessage' => 'Blocked on the field-level!!!',
 					'allowedCaps'  => [ 'administrator' ],
 				],
 				'fromFieldName' => 'failingAuthConnection',
@@ -371,6 +372,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Expect query to fail on type level due to missing "first" arg.
 		 */
 		$response  = $this->graphql( compact( 'query' ) );
+
+		codecept_debug( $response );
+
 		$expected = [
 			$this->expectedErrorPath( 'secretConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
@@ -384,6 +388,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$variables = [ 'first' => 1 ];
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $response );
+
 		$expected = [
 			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'Blah' ] ),
 			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'blah' ] ),
@@ -391,7 +398,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 
 		$this->assertQuerySuccessful( $response, $expected );
-		
+
 		/**
 		 * Expect query to fail on both type/field-level.
 		 */
@@ -406,9 +413,12 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$response  = $this->graphql( compact( 'query' ) );
+
+		codecept_debug( $response );
+
 		$expected = [
 			$this->expectedErrorPath( 'failingAuthConnection' ),
-			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
 			$this->expectedObject( 'failingAuthConnection', 'NULL' ),
 		];
 
