@@ -1075,6 +1075,8 @@ class TypeRegistry {
 		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
 		$where_args         = [];
 		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
+		$queryClass         = ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
+		$auth               = ! empty( $config['auth'] ) ? $config['auth'] : null;
 
 		/**
 		 * If there are any $connectionArgs,
@@ -1225,8 +1227,12 @@ class TypeRegistry {
 			[
 				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
 				'args'        => array_merge( $pagination_args, $where_args ),
+				'auth'        => $auth,
 				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection ) {
+				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $queryClass ) {
+					// Set queryClass on AppContext for use in connection resolver.
+					$context->queryClass = $queryClass;
+
 					/**
 					 * Return the results
 					 */
