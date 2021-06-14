@@ -555,15 +555,7 @@ class TypeRegistry {
 
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
-				$replaced_group_name = preg_replace( '[^a-zA-Z0-9 -]', '_', $group_name );
-
-				if ( ! empty( $replaced_group_name ) ) {
-					$group_name = lcfirst( $replaced_group_name );
-				}
-
-				$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
+				$group_name = DataSource::format_group_name( $group_name );
 				SettingGroup::register_settings_group( $group_name, $group_name );
 
 				register_graphql_field(
