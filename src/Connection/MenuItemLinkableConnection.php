@@ -22,7 +22,7 @@ class MenuItemLinkableConnection {
 			'description'   => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
 			'fromFieldName' => 'connectedNode',
 			'oneToOne'      => true,
-			'resolve'       => function( MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'       => function ( MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 
 				$object_id   = intval( get_post_meta( $menu_item->databaseId, '_menu_item_object_id', true ) );
 				$object_type = get_post_meta( $menu_item->databaseId, '_menu_item_type', true );

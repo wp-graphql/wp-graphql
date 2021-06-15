@@ -275,7 +275,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 				$post_in = $query_args['post__in'];
 				// Make sure the IDs are integers
-				$post_in = array_map( function( $id ) {
+				$post_in = array_map( function ( $id ) {
 					return absint( $id );
 				}, $post_in );
 
@@ -502,7 +502,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$allowed_statuses = array_filter(
 			array_map(
-				function( $status ) use ( $post_type_objects ) {
+				function ( $status ) use ( $post_type_objects ) {
 					foreach ( $post_type_objects as $post_type_object ) {
 						if ( 'publish' === $status ) {
 							return $status;

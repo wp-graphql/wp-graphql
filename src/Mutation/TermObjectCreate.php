@@ -92,7 +92,7 @@ class TermObjectCreate {
 				'type'        => $taxonomy->graphql_single_name,
 				// translators: Placeholder is the name of the taxonomy
 				'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					$id = isset( $payload['termId'] ) ? absint( $payload['termId'] ) : null;
 
 					return $context->get_loader( 'term' )->load_deferred( $id );
@@ -111,7 +111,7 @@ class TermObjectCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
-		return function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 
 			/**
 			 * Ensure the user can edit_terms

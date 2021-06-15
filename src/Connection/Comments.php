@@ -36,7 +36,7 @@ class Comments {
 		 */
 		register_graphql_connection( self::get_connection_config( [
 			'fromType' => 'User',
-			'resolve'  => function( User $user, $args, $context, $info ) {
+			'resolve'  => function ( User $user, $args, $context, $info ) {
 				$resolver = new CommentConnectionResolver( $user, $args, $context, $info );
 
 				return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
@@ -50,7 +50,7 @@ class Comments {
 			'fromFieldName'      => 'parent',
 			'connectionTypeName' => 'CommentToParentCommentConnection',
 			'oneToOne'           => true,
-			'resolve'            => function( Comment $comment, $args, $context, $info ) {
+			'resolve'            => function ( Comment $comment, $args, $context, $info ) {
 				$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
 				return ! empty( $comment->comment_parent_id ) ? $resolver->one_to_one()->set_query_arg( 'comment__in', [ $comment->comment_parent_id ] )->get_connection() : null;
@@ -65,7 +65,7 @@ class Comments {
 				[
 					'fromType'      => 'Comment',
 					'fromFieldName' => 'replies',
-					'resolve'       => function( Comment $comment, $args, $context, $info ) {
+					'resolve'       => function ( Comment $comment, $args, $context, $info ) {
 						$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
 						return $resolver->set_query_arg( 'parent', absint( $comment->commentId ) )->get_connection();
@@ -93,7 +93,7 @@ class Comments {
 								'fromType'      => $post_type_object->graphql_single_name,
 								'toType'        => 'Comment',
 								'fromFieldName' => 'comments',
-								'resolve'       => function( Post $post, $args, $context, $info ) {
+								'resolve'       => function ( Post $post, $args, $context, $info ) {
 
 									if ( $post->isRevision ) {
 										$id = $post->parentDatabaseId;
@@ -127,7 +127,7 @@ class Comments {
 			'toType'         => 'Comment',
 			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function( $root, $args, $context, $info ) {
+			'resolve'        => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];

@@ -39,7 +39,7 @@ class SchemaRegistry {
 		$schema_config             = new SchemaConfig();
 		$schema_config->query      = $this->type_registry->get_type( 'RootQuery' );
 		$schema_config->mutation   = $this->type_registry->get_type( 'RootMutation' );
-		$schema_config->typeLoader = function( $type ) {
+		$schema_config->typeLoader = function ( $type ) {
 			return $this->type_registry->get_type( $type );
 		};
 		$schema_config->types      = $this->type_registry->get_types();

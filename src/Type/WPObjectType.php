@@ -74,7 +74,7 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @return array|mixed
 		 */
-		$config['fields'] = function() use ( $config ) {
+		$config['fields'] = function () use ( $config ) {
 
 			$fields = $config['fields'];
 

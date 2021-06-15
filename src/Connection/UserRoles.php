@@ -31,7 +31,7 @@ class UserRoles {
 					'fromType'      => 'RootQuery',
 					'toType'        => 'UserRole',
 					'fromFieldName' => 'userRoles',
-					'resolve'       => function( $user, $args, $context, $info ) {
+					'resolve'       => function ( $user, $args, $context, $info ) {
 						$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 						return $resolver->get_connection();
 					},
@@ -48,7 +48,7 @@ class UserRoles {
 					'fromType'      => 'User',
 					'toType'        => 'UserRole',
 					'fromFieldName' => 'roles',
-					'resolve'       => function( User $user, $args, $context, $info ) {
+					'resolve'       => function ( User $user, $args, $context, $info ) {
 						$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 						// Only get roles matching the slugs of the roles belonging to the user
 

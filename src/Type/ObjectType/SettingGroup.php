@@ -68,7 +68,7 @@ class SettingGroup {
 					$fields[ $field_key ] = [
 						'type'        => $setting_field['type'],
 						'description' => isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
-						'resolve'     => function( $root, array $args, $context, $info ) use ( $setting_field ) {
+						'resolve'     => function ( $root, array $args, $context, $info ) use ( $setting_field ) {
 
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability

@@ -25,12 +25,12 @@ class EnqueuedScript {
 					'type'    => [
 						'non_null' => 'ID',
 					],
-					'resolve' => function( $asset ) {
+					'resolve' => function ( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 					},
 				],
 				'src' => [
-					'resolve' => function( \_WP_Dependency $script ) {
+					'resolve' => function ( \_WP_Dependency $script ) {
 						return isset( $script->src ) && is_string( $script->src ) ? $script->src : null;
 					},
 				],

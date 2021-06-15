@@ -21,7 +21,7 @@ class TermNode {
 			'TermNode',
 			[
 				'description' => __( 'Terms are nodes within a Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
-				'resolveType' => function( $term ) use ( $type_registry ) {
+				'resolveType' => function ( $term ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
@@ -51,7 +51,7 @@ class TermNode {
 					'databaseId'     => [
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
-						'resolve'     => function( Term $term, $args, $context, $info ) {
+						'resolve'     => function ( Term $term, $args, $context, $info ) {
 							return absint( $term->term_id );
 						},
 					],
