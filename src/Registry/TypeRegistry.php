@@ -555,15 +555,7 @@ class TypeRegistry {
 
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
-				$replaced_group_name = preg_replace( '[^a-zA-Z0-9 -]', '_', $group_name );
-
-				if ( ! empty( $replaced_group_name ) ) {
-					$group_name = lcfirst( $replaced_group_name );
-				}
-
-				$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
+				$group_name = DataSource::format_group_name( $group_name );
 				SettingGroup::register_settings_group( $group_name, $group_name );
 
 				register_graphql_field(
@@ -1072,17 +1064,19 @@ class TypeRegistry {
 		$from_type          = $config['fromType'];
 		$to_type            = $config['toType'];
 		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$connection_fields  = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$connection_args    = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$edge_fields        = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
 		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
 		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
+		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : static function() {
 			return null;
 		};
 		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type, $from_field_name );
 		$where_args         = [];
-		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
+		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
+		$queryClass         = $config['queryClass'] ?? null;
+		$auth               = $config['auth'] ?? null;
 
 		/**
 		 * If there are any $connectionArgs,
@@ -1233,8 +1227,12 @@ class TypeRegistry {
 			[
 				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
 				'args'        => array_merge( $pagination_args, $where_args ),
+				'auth'        => $auth,
 				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection ) {
+				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $queryClass ) {
+					// Set queryClass on AppContext for use in connection resolver.
+					$context->queryClass = $queryClass;
+
 					/**
 					 * Return the results
 					 */

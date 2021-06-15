@@ -35,12 +35,8 @@ jobs:
           name: wp-graphql
           path: plugin-build/wp-graphql.zip
       - name: Upload release asset
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugin-build/wp-graphql.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: plugin-build/wp-graphql.zip
-          asset_name: wp-graphql.zip
-          asset_content_type: application/zip
-

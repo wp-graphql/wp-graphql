@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+### Chores / Bugfixes
+
+- ([#1953](https://github.com/wp-graphql/wp-graphql/pull/1953)): Fixes bug with Settings groups with underscores not showing in the Schema properly. Thanks @markkelnar!
+
+### New Features
+
+- ([#1951](https://github.com/wp-graphql/wp-graphql/pull/1951)): Updates GraphQL-PHP to v14.8.0 (from 14.4.0) and Introduces the ability for Interfaces to implement other Interfaces!
+
 ## 1.3.10
 
 ### Chores / Bugfixes

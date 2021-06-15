@@ -13,6 +13,7 @@ use WP_Term;
  *
  * @property string $id
  * @property int    $term_id
+ * @property int    $databaseId
  * @property int    $count
  * @property string $description
  * @property string $name
@@ -136,6 +137,9 @@ class Term extends Model {
 					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
 				},
 				'term_id'                  => function() {
+					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
+				},
+				'databaseId'               => function() {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
 				'count'                    => function() {
