@@ -7,6 +7,8 @@ use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\WPInterfaceType;
+use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\WPSchema;
 
 /**
@@ -374,6 +376,28 @@ final class WPGraphQL {
 
 		// Filter how metadata is retrieved during GraphQL requests
 		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
+
+		/**
+		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
+		 * to support both ObjectTypes and InterfaceTypes
+		 *
+		 * @deprecated
+		 */
+		add_filter( 'graphql_type_interfaces', function( $interfaces, $config, $type ) {
+
+			if ( $type instanceof \WPGraphQL\Type\WPObjectType ) {
+				/**
+				 * Filters the interfaces applied to an object type
+				 *
+				 * @param array        $interfaces     List of interfaces applied to the Object Type
+				 * @param array        $config         The config for the Object Type
+				 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
+				 */
+				return apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $type );
+			}
+			return $interfaces;
+
+		}, 10, 3 );
 
 	}
 

@@ -140,13 +140,15 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 
 			// Filter the GraphQL Object Type Interface to apply the interface
 			add_filter(
-				'graphql_object_type_interfaces',
+				'graphql_type_interfaces',
 				function( $interfaces, $config ) use ( $type_name, $interface_names ) {
 
 					$interfaces = is_array( $interfaces ) ? $interfaces : [];
 
 					if ( strtolower( $type_name ) === strtolower( $config['name'] ) ) {
 						$interfaces = array_unique( array_merge( $interfaces, $interface_names ) );
+
+
 					}
 
 					return $interfaces;
