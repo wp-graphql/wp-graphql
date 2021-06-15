@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.6
 Requires PHP: 7.1
-Stable tag: 1.3.10
+Stable tag: 1.4.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,17 @@ Gatsby and WP Engine both believe that a strong GraphQL API for WordPress is a b
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.4.0 =
+
+**Chores / Bugfixes**
+
+- ([#1953](https://github.com/wp-graphql/wp-graphql/pull/1953)): Fixes bug with Settings groups with underscores not showing in the Schema properly. Thanks @markkelnar!
+
+**New Features**
+
+- ([#1951](https://github.com/wp-graphql/wp-graphql/pull/1951)): Introduces the ability for Interfaces to implement other Interfaces!
+
 
 = 1.3.10 =
 
