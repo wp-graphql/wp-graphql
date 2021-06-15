@@ -1,17 +1,17 @@
 <?php
 
-class TypesTest extends \Codeception\TestCase\WPTestCase {
+class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		// before
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::setUp();
 		// your set up methods here
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		// then
 		parent::tearDown();
 	}
@@ -23,8 +23,6 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws Exception
 	 */
 	public function testRegisterDuplicateFieldShouldShowDebugMessage() {
-
-		WPGraphQL::clear_schema();
 
 		register_graphql_type( 'ExampleType', [
 			'fields' => [
@@ -42,24 +40,19 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			'description' => 'Duplicate field, should throw exception'
 		] );
 
-		$actual = graphql( [
-			'query' => '
-			{
-			 example {
-			   example
-			 }
+		$query = '
+			query {
+		 		example {
+		   			example
+		 		}
 			}
-			'
-		] );
+		';
 
-		WPGraphQL::clear_schema();
+		$response = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( ! empty( $actual['extensions']['debug'] ) );
-
-
+		$this->assertEmpty( $this->lodashGet( $response, 'errors' ) );
+		$this->assertQuerySuccessful( $response, [] );
+		$this->assertNotEmpty( $this->lodashGet( $response, 'extensions.debug' ) );
 	}
 
 	/**
@@ -74,13 +67,22 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 			'description' => 'Field without type, should throw exception'
 		] );
 
-		$actual = graphql( [
-			'query' => '{posts { nodes { id } } }'
-		] );
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
 
-		$messages = wp_list_pluck( $actual['extensions']['debug'], 'message' );
+		$response = $this->graphql( compact( 'query' ) );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertQuerySuccessful( $response, [] );
+
+		$messages = wp_list_pluck( $response['extensions']['debug'], 'message' );
 		$this->assertTrue( in_array( 'The registered field \'newFieldWithoutTypeDefined\' does not have a Type defined. Make sure to define a type for all fields.', $messages, true ) );
 
 	}
@@ -231,40 +233,35 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 		 * Allow for the user to be queried
 		 */
 		wp_set_current_user( $user_id );
-		$user_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+		$user_id = $this->toRelayId( 'user', $user_id );
 
 		$query = '
-		query GET_USER( $id: ID! ) {
-		  user(id:$id) {
-		      id
-		      testNonNullString
-		      testListOfStringTwo
-		      testListOfString
-		      testNonNullStringTwo
-		      testListOfNonNullString
-		      testNonNullListOfString
-		  }
-		}
+			query GET_USER( $id: ID! ) {
+				user( id: $id ) {
+					id
+					testNonNullString
+					testListOfStringTwo
+					testListOfString
+					testNonNullStringTwo
+					testListOfNonNullString
+					testNonNullListOfString
+				}
+			}
 		';
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $user_id
-			]
-		] );
+		$variables = [ 'id' => $user_id ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedObject( 'user.testNonNullString', 'string' ),
+			$this->expectedObject( 'user.testNonNullStringTwo', 'string' ),
+			$this->expectedObject( 'user.testListOfStringTwo', [ 'string' ] ),
+			$this->expectedObject( 'user.testListOfNonNullString', [ 'string' ] ),
+			$this->expectedObject( 'user.testNonNullListOfString', [ 'string' ] ),
+			$this->expectedObject( 'user.testListOfString', [ 'string' ] ),
+		];
 
-		codecept_debug( $actual );
-
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'string', $actual['data']['user']['testNonNullString'] );
-		$this->assertEquals( 'string', $actual['data']['user']['testNonNullStringTwo'] );
-		$this->assertEquals( [ 'string' ], $actual['data']['user']['testListOfStringTwo'] );
-		$this->assertEquals( [ 'string' ], $actual['data']['user']['testListOfNonNullString'] );
-		$this->assertEquals( [ 'string' ], $actual['data']['user']['testNonNullListOfString'] );
-		$this->assertEquals( [ 'string' ], $actual['data']['user']['testListOfString'] );
-
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertQuerySuccessful( $response, $expected );
 	}
 
 	/**
@@ -294,25 +291,151 @@ class TypesTest extends \Codeception\TestCase\WPTestCase {
 					return null;
 				}
 			]);
+		});
+
+		$query = '
+			query {
+				customTestConnection {
+					nodes {
+						test
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertQuerySuccessful( $response, [] );
+	}
+
+	public function testRegisterCustomConnectionWithAuth() {
+		add_action( 'graphql_register_types', function() {
+			register_graphql_type( 'TestCustomType', [
+				'fields' => [
+					'test' => [
+						'type' => 'String',
+						'auth' => [
+							'errorMessage' => 'Blocked on the field-level!!!',
+							'callback'     => function( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+								return ! empty( $source );
+							}
+						],
+						'resolve' => function( $source ) {
+							return $source;
+						}
+					]
+				]
+			]);
+
+			register_graphql_connection([
+				'fromType'      => 'RootQuery',
+				'toType'        => 'TestCustomType',
+				'auth'          => [
+					'errorMessage' => 'Blocked on the type-level!!!',
+					'callback'     => function( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+						return ! empty( $args['first'] );
+					}
+				],
+				'fromFieldName' => 'secretConnection',
+				'resolve'       => function() {
+					return [ 'nodes' => [ 'Blah', 'blah', 'blu' ] ];
+				}
+			]);
+
+			register_graphql_connection([
+				'fromType'      => 'RootQuery',
+				'toType'        => 'TestCustomType',
+				'auth'          => [
+					'errorMessage' => 'Blocked on the field-level!!!',
+					'allowedCaps'  => [ 'administrator' ],
+				],
+				'fromFieldName' => 'failingAuthConnection',
+				'resolve'       => function() {
+					return [ 'nodes' => [ null, false, 0 ] ];
+				}
+			]);
 
 		});
 
 		$query = '
-		{
-		  customTestConnection {
-		    nodes {
-		      test
-		    }
-		  }
-		}
+			query($first: Int) {
+				secretConnection(first: $first) {
+					nodes {
+						test
+					}
+				}
+			}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		/**
+		 * Expect query to fail on type level due to missing "first" arg.
+		 */
+		$response  = $this->graphql( compact( 'query' ) );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		codecept_debug( $response );
 
+		$expected = [
+			$this->expectedErrorPath( 'secretConnection' ),
+			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedObject( 'secretConnection', 'NULL' ),
+		];
+
+		$this->assertQueryError( $response, $expected );
+
+		/**
+		 * Expect query to succeed.
+		 */
+		$variables = [ 'first' => 1 ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $response );
+
+		$expected = [
+			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'Blah' ] ),
+			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'blah' ] ),
+			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'blu' ] ),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Expect query to fail on both type/field-level.
+		 */
+		$query = '
+			query {
+				failingAuthConnection {
+					nodes {
+						test
+					}
+				}
+			}
+		';
+
+		$response  = $this->graphql( compact( 'query' ) );
+
+		codecept_debug( $response );
+
+		$expected = [
+			$this->expectedErrorPath( 'failingAuthConnection' ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedObject( 'failingAuthConnection', 'NULL' ),
+		];
+
+		$this->assertQueryError( $response, $expected );
+
+		\wp_set_current_user( 1 );
+		$response  = $this->graphql( compact( 'query' ) );
+		$expected = [
+			$this->expectedNode( 'failingAuthConnection.nodes', 'NULL', 0 ),
+			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedObject( 'failingAuthConnection.nodes.1.test', 'NULL' ),
+			$this->expectedErrorPath( 'failingAuthConnection.nodes.2.test' ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedObject( 'failingAuthConnection.nodes.2.test', 'NULL' ),
+		];
+
+		$this->assertQueryError( $response, $expected );
 	}
-
 }

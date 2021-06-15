@@ -36,6 +36,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
@@ -57,3 +59,24 @@ jobs:
       - name: Display ignored linting errors
         run: |
           graphql-schema-linter /tmp/schema.graphql || true
+
+      - name: Get Latest tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+
+      - name: Test Schema for breaking changes
+        run: |
+          echo "Previous tagged schema ${{ steps.get-latest-tag.outputs.tag }}"
+
+      - name: Get Previous Released Schema
+        run: curl 'https://github.com/wp-graphql/wp-graphql/releases/download/${{ steps.get-latest-tag.outputs.tag }}/schema.graphql' -L  --output /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql
+
+      # https://github.com/marketplace/actions/graphql-inspector
+      - name: Install Schema Inspector
+        run: |
+          npm install @graphql-inspector/config @graphql-inspector/cli graphql
+
+      - name: Run Schema Inspector
+        run: |
+          # This schema and previous release schema
+          node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql

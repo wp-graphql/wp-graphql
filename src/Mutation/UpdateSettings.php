@@ -100,16 +100,7 @@ class UpdateSettings {
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
 
-				$replaced_group = preg_replace( '[^a-zA-Z0-9 -]', ' ', $group );
-
-				if ( ! empty( $replaced_group ) ) {
-					$group = $replaced_group;
-				}
-
-				$setting_type = lcfirst( $group );
-				$setting_type = lcfirst( str_replace( '_', ' ', ucwords( $setting_type, '_' ) ) );
-				$setting_type = lcfirst( str_replace( '-', ' ', ucwords( $setting_type, '_' ) ) );
-				$setting_type = lcfirst( str_replace( ' ', '', ucwords( $setting_type, ' ' ) ) );
+				$setting_type = DataSource::format_group_name( $group );
 
 				$output_fields[ $setting_type . 'Settings' ] = [
 					'type'        => $setting_type . 'Settings',

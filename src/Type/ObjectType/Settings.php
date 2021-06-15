@@ -59,10 +59,7 @@ class Settings {
 					$field_key = $key;
 				}
 
-				$group = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $setting_field['group'] ) );
-				$group = lcfirst( str_replace( '_', ' ', ucwords( $group, '_' ) ) );
-				$group = lcfirst( str_replace( '-', ' ', ucwords( $group, '_' ) ) );
-				$group = lcfirst( str_replace( ' ', '', ucwords( $group, ' ' ) ) );
+				$group = DataSource::format_group_name( $setting_field['group'] );
 
 				$field_key = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $field_key ) );
 				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
