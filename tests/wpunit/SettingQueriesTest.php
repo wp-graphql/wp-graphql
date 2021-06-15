@@ -16,10 +16,13 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->editor = $this->factory->user->create( [
 			'role' => 'editor',
 		] );
+
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
 		parent::tearDown();
+		WPGraphQL::clear_schema();
 	}
 
 	/**
@@ -316,6 +319,60 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings();
 		$this->assertArrayNotHasKey( 'points', $actual );
 
+	}
+
+	/**
+	 * Method for testing custom Settings
+	 *
+	 * @return void
+	 */
+	public function testRegisteredSettingInCamelcaseQuery() {
+		wp_set_current_user( $this->admin );
+
+		register_setting( 'fooBar', 'biz', array(
+			'type'         => 'string',
+			'description'  => __( 'Test register setting in camelcase.' ),
+			'show_in_graphql' => true,
+			'default' => 1.1,
+		) );
+
+		$query  = "
+			{
+				fooBarSettings {
+				    biz
+				}
+			}
+		";
+		$actual = do_graphql_request( $query );
+		$this->assertArrayHasKey( 'fooBarSettings', $actual['data'] );
+		$this->assertEquals( '1.1', $actual['data']['fooBarSettings']['biz'] );
+	}
+
+	/**
+	 * Method for testing custom Settings containing underscores
+	 *
+	 * @return void
+	 */
+	public function testRegisteredSettingWithUnderscoresQuery() {
+		wp_set_current_user( $this->admin );
+
+		register_setting( 'zoo_bar', 'biz', array(
+			'type'         => 'string',
+			'description'  => __( 'Test register setting with underscore.' ),
+			'show_in_graphql' => true,
+			'default' => 2.2,
+		) );
+
+		$query  = "
+			{
+				zooBarSettings {
+				    biz
+				}
+			}
+		";
+		$actual = do_graphql_request( $query );
+		$this->assertArrayHasKey( 'zooBarSettings', $actual['data'] );
+		$this->assertEquals( '2.2', $actual['data']['zooBarSettings']['biz'] );
 	}
 
 }

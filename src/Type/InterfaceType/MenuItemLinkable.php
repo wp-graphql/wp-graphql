@@ -22,7 +22,7 @@ class MenuItemLinkable {
 			'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
 			'fields'      => [
 				'uri'        => [
-					'type'        => [ 'non_null' => 'String' ],
+					'type'        => 'String',
 					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 				],
 				'id'         => [
