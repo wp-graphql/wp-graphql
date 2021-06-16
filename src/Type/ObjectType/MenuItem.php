@@ -87,7 +87,7 @@ class MenuItem {
 						'type'              => 'MenuItemObjectUnion',
 						'deprecationReason' => __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' ),
 						'description'       => __( 'The object connected to this menu item.', 'wp-graphql' ),
-						'resolve'           => function( $menu_item, array $args, AppContext $context, $info ) {
+						'resolve'           => function ( $menu_item, array $args, AppContext $context, $info ) {
 
 							$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );

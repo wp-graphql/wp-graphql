@@ -48,7 +48,7 @@ class Users {
 				'lockTimestamp' => [
 					'type'        => 'String',
 					'description' => __( 'The timestamp for when the node was last edited', 'wp-graphql' ),
-					'resolve'     => function( $edge, $args, $context, $info ) {
+					'resolve'     => function ( $edge, $args, $context, $info ) {
 						if ( isset( $edge['source'] ) && ( $edge['source'] instanceof Post ) ) {
 							$edit_lock = $edge['source']->editLock;
 							$time      = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
@@ -61,7 +61,7 @@ class Users {
 			'fromFieldName'      => 'editingLockedBy',
 			'description'        => __( 'If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
 			'oneToOne'           => true,
-			'resolve'            => function( Post $source, $args, $context, $info ) {
+			'resolve'            => function ( Post $source, $args, $context, $info ) {
 
 				if ( ! isset( $source->editLock[1] ) || ! absint( $source->editLock[1] ) ) {
 					return $source->editLock;
@@ -82,7 +82,7 @@ class Users {
 			'connectionTypeName' => 'ContentNodeToEditLastConnection',
 			'description'        => __( 'The user that most recently edited the node', 'wp-graphql' ),
 			'oneToOne'           => true,
-			'resolve'            => function( Post $source, $args, $context, $info ) {
+			'resolve'            => function ( Post $source, $args, $context, $info ) {
 
 				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
 				$resolver->set_query_arg( 'include', [ $source->editLastId ] );
@@ -96,7 +96,7 @@ class Users {
 			'toType'        => 'User',
 			'fromFieldName' => 'author',
 			'oneToOne'      => true,
-			'resolve'       => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'       => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
 				$resolver = new UserConnectionResolver( $post, $args, $context, $info );
 				$resolver->set_query_arg( 'include', [ $post->authorDatabaseId ] );

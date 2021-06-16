@@ -32,7 +32,7 @@ class WPInterfaceType extends InterfaceType {
 
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = function() use ( $config ) {
+		$config['fields'] = function () use ( $config ) {
 
 			$fields = $config['fields'];
 
@@ -77,7 +77,7 @@ class WPInterfaceType extends InterfaceType {
 			return $fields;
 		};
 
-		$config['resolveType'] = function( $object ) use ( $config ) {
+		$config['resolveType'] = function ( $object ) use ( $config ) {
 			$type = null;
 			if ( is_callable( $config['resolveType'] ) ) {
 				$type = call_user_func( $config['resolveType'], $object );

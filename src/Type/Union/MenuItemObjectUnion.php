@@ -30,7 +30,7 @@ class MenuItemObjectUnion {
 			[
 				'typeNames'   => self::get_possible_types(),
 				'description' => __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ),
-				'resolveType' => function( $object ) use ( $type_registry ) {
+				'resolveType' => function ( $object ) use ( $type_registry ) {
 					// Post object
 					if ( $object instanceof Post && isset( $object->post_type ) && ! empty( $object->post_type ) ) {
 						/** @var \WP_Post_Type $post_type_object */

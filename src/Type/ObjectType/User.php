@@ -30,7 +30,7 @@ class User {
 					'databaseId'        => [
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
-						'resolve'     => function( \WPGraphQL\Model\User $user ) {
+						'resolve'     => function ( \WPGraphQL\Model\User $user ) {
 							return absint( $user->userId );
 						},
 					],
@@ -126,7 +126,7 @@ class User {
 							],
 
 						],
-						'resolve'     => function( $user, $args, $context, $info ) {
+						'resolve'     => function ( $user, $args, $context, $info ) {
 
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {

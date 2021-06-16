@@ -239,7 +239,7 @@ final class WPGraphQL {
 		 */
 		add_action(
 			'after_setup_theme',
-			function() {
+			function () {
 
 				new \WPGraphQL\Data\Config();
 				new \WPGraphQL\Router();
@@ -485,7 +485,7 @@ final class WPGraphQL {
 		 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 		 */
 		array_map(
-			function( $post_type ) {
+			function ( $post_type ) {
 				/** @var string $post_type */
 				$post_type_object = get_post_type_object( $post_type );
 
@@ -544,7 +544,7 @@ final class WPGraphQL {
 		 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 		 */
 		array_map(
-			function( $taxonomy ) {
+			function ( $taxonomy ) {
 
 				$tax_object = get_taxonomy( $taxonomy );
 

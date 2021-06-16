@@ -20,7 +20,7 @@ class Taxonomies {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'taxonomies',
-				'resolve'       => function( $source, $args, $context, $info ) {
+				'resolve'       => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -37,7 +37,7 @@ class Taxonomies {
 						'toType'        => 'Taxonomy',
 						'fromFieldName' => 'taxonomy',
 						'oneToOne'      => true,
-						'resolve'       => function( Term $source, $args, $context, $info ) {
+						'resolve'       => function ( Term $source, $args, $context, $info ) {
 							if ( empty( $source->taxonomyName ) ) {
 								return null;
 							}
@@ -55,7 +55,7 @@ class Taxonomies {
 				'fromType'      => 'ContentType',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function( PostType $source, $args, $context, $info ) {
+				'resolve'       => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}
