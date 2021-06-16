@@ -638,12 +638,16 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 			'taxonomy' => 'category'
 		]);
 
+		$link = get_term_link( $cat->term_id );
+		$term_uri = str_ireplace( home_url(), '', $link );
+
 		$expected = [
 			'__typename' => 'Category',
 			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
 			'name' => $cat->name,
 			'slug' => $cat->slug,
 			'categoryId' => $cat->term_id,
+			'uri' => $term_uri,
 		];
 
 		$query = '
@@ -656,6 +660,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		    ...on Category {
 		        categoryId
 		    }
+		    uri
 		  }
 		}
 		';
@@ -673,5 +678,6 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $expected, $actual['data']['termNode'] );
 
 	}
+
 
 }

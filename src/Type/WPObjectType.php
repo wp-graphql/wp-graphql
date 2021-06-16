@@ -85,6 +85,8 @@ class WPObjectType extends ObjectType {
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
+				$interface_fields = [];
+
 				foreach ( $this->getInterfaces() as $interface_type ) {
 
 					if ( ! $interface_type instanceof InterfaceType ) {
@@ -106,9 +108,13 @@ class WPObjectType extends ObjectType {
 							continue;
 						}
 
-						$fields[ $interface_field_name ] = $interface_field->config;
+						$interface_fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}
+			}
+
+			if ( ! empty( $interface_fields ) ) {
+				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
