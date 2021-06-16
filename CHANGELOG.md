@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2
+
+### Chores / Bugfixes
+
+- ([#1963](https://github.com/wp-graphql/wp-graphql/pull/1963)): Fixes a regression in v1.4.0 where the `uri` field on Terms was returning `null`. The issue was actually wider than that as resolvers on Object Types that implement interfaces weren't being fully respected. 
+- ([#1956](https://github.com/wp-graphql/wp-graphql/pull/1956)): Adds `SpaceAfterFunction` Code Sniffer rule and adjusts the codebase to respect the rule. Thanks @markkelnar!
+
 ## 1.4.1
 
 ### Chores / Bugfixes 
