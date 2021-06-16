@@ -134,12 +134,7 @@ class WPObjectType extends ObjectType {
 	 * @return array
 	 */
 	public function getInterfaces(): array {
-
-		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
-			return parent::getInterfaces();
-		}
-
-		return $this->get_implemented_interfaces( $this->config['interfaces'] );
+		return $this->get_implemented_interfaces();
 	}
 
 	/**
