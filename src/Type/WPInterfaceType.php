@@ -43,10 +43,12 @@ class WPInterfaceType extends InterfaceType {
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
-				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
+				$interface_fields = [];
 
-					if ( is_string( $interface_name ) && ! $interface_type instanceof InterfaceType ) {
-						$interface_type = $this->type_registry->get_type( $interface_name );
+				foreach ( $this->getInterfaces() as $interface_type ) {
+
+					if ( ! $interface_type instanceof InterfaceType ) {
+						$interface_type = $this->type_registry->get_type( $interface_type );
 					}
 
 					if ( ! $interface_type instanceof InterfaceType ) {
@@ -59,16 +61,18 @@ class WPInterfaceType extends InterfaceType {
 						continue;
 					}
 
-					foreach ( $interface_config_fields as $interface_field ) {
-						if ( ! isset( $interface_field->name ) || isset( $fields[ $interface_field->name ] ) ) {
+					foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
+						if ( ! isset( $interface_field->config ) ) {
 							continue;
 						}
 
-						if ( ! isset( $fields[ $interface_field->name ] ) && isset( $interface_field->config ) && is_array( $interface_field->config ) ) {
-							$fields[ $interface_field->name ] = $interface_field->config;
-						}
+						$interface_fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}
+			}
+
+			if ( ! empty( $interface_fields ) ) {
+				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'] );
