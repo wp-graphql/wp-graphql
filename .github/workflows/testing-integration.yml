@@ -64,7 +64,6 @@ jobs:
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           SUITES: wpunit
-          COMPOSER_MEMORY_LIMIT: "-1"
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
