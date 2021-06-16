@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1
+
+### Chores / Bugfixes 
+
+- ([#1958](https://github.com/wp-graphql/wp-graphql/pull/1958)): Fixes a regression in 1.4.0 where `register_graphql_interfaces_to_types` was broken. 
+
 ## 1.4.0
 
 ### Chores / Bugfixes
