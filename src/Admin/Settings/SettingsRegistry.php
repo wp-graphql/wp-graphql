@@ -169,7 +169,7 @@ class SettingsRegistry {
 
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
-				$callback        = function() use ( $section ) {
+				$callback        = function () use ( $section ) {
 					echo wp_kses( str_replace( '"', '\"', $section['desc'] ), Utils::get_allowed_wp_kses_html() );
 				};
 			} elseif ( isset( $section['callback'] ) ) {

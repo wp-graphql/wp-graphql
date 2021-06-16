@@ -65,7 +65,7 @@ class PostObjectDelete {
 			'deletedId'                            => [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['postObject'];
 
 					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
@@ -74,7 +74,7 @@ class PostObjectDelete {
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['postObject'];
 
 					return ! empty( $deleted ) ? $deleted : null;
@@ -92,7 +92,7 @@ class PostObjectDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Post_Type $post_type_object, string $mutation_name ) {
-		return function( $input ) use ( $post_type_object ) {
+		return function ( $input ) use ( $post_type_object ) {
 
 			/**
 			 * Get the ID from the global ID

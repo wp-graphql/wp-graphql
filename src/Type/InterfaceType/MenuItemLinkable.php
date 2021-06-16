@@ -36,7 +36,7 @@ class MenuItemLinkable {
 					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 				],
 			],
-			'resolveType' => function( $node ) use ( $type_registry ) {
+			'resolveType' => function ( $node ) use ( $type_registry ) {
 
 				switch ( true ) {
 					case $node instanceof Post:

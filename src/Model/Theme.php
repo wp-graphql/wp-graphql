@@ -71,40 +71,40 @@ class Theme extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id'          => function() {
+				'id'          => function () {
 					$stylesheet = $this->data->get_stylesheet();
 					return ( ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
 				},
-				'slug'        => function() {
+				'slug'        => function () {
 					$stylesheet = $this->data->get_stylesheet();
 					return ! empty( $stylesheet ) ? $stylesheet : null;
 				},
-				'name'        => function() {
+				'name'        => function () {
 					$name = $this->data->get( 'Name' );
 					return ! empty( $name ) ? $name : null;
 				},
-				'screenshot'  => function() {
+				'screenshot'  => function () {
 					$screenshot = $this->data->get_screenshot();
 					return ! empty( $screenshot ) ? $screenshot : null;
 				},
-				'themeUri'    => function() {
+				'themeUri'    => function () {
 					$theme_uri = $this->data->get( 'ThemeURI' );
 					return ! empty( $theme_uri ) ? $theme_uri : null;
 				},
-				'description' => function() {
+				'description' => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'author'      => function() {
+				'author'      => function () {
 					return ! empty( $this->data->author ) ? $this->data->author : null;
 				},
-				'authorUri'   => function() {
+				'authorUri'   => function () {
 					$author_uri = $this->data->get( 'AuthorURI' );
 					return ! empty( $author_uri ) ? $author_uri : null;
 				},
-				'tags'        => function() {
+				'tags'        => function () {
 					return ! empty( $this->data->tags ) ? $this->data->tags : null;
 				},
-				'version'     => function() {
+				'version'     => function () {
 					return ! empty( $this->data->version ) ? $this->data->version : null;
 				},
 			];

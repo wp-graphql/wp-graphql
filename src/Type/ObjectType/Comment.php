@@ -50,7 +50,7 @@ class Comment {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( \WPGraphQL\Model\Comment $comment, $args ) {
+						'resolve'     => function ( \WPGraphQL\Model\Comment $comment, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								return isset( $comment->contentRaw ) ? $comment->contentRaw : null;
 							} else {

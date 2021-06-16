@@ -103,16 +103,16 @@ class MenuItem extends Model {
 		if ( empty( $fields ) ) {
 
 			$this->fields = [
-				'id'               => function() {
+				'id'               => function () {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
 				},
-				'parentId'         => function() {
+				'parentId'         => function () {
 					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'post', $this->data->menu_item_parent ) : null;
 				},
-				'parentDatabaseId' => function() {
+				'parentDatabaseId' => function () {
 					return $this->data->menu_item_parent;
 				},
-				'cssClasses'       => function() {
+				'cssClasses'       => function () {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
 					if ( ! isset( $this->data->classes ) || ! is_array( $this->data->classes ) || empty( $this->data->classes ) || empty( $this->data->classes[0] ) ) {
@@ -121,34 +121,34 @@ class MenuItem extends Model {
 
 					return $this->data->classes;
 				},
-				'description'      => function() {
+				'description'      => function () {
 					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
 				},
-				'label'            => function() {
+				'label'            => function () {
 					return ( ! empty( $this->data->title ) ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
 				},
-				'linkRelationship' => function() {
+				'linkRelationship' => function () {
 					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;
 				},
-				'menuItemId'       => function() {
+				'menuItemId'       => function () {
 					return absint( $this->data->ID );
 				},
-				'databaseId'       => function() {
+				'databaseId'       => function () {
 					return absint( $this->data->ID );
 				},
-				'objectId'         => function() {
+				'objectId'         => function () {
 					return ( absint( $this->data->object_id ) );
 				},
-				'target'           => function() {
+				'target'           => function () {
 					return ! empty( $this->data->target ) ? $this->data->target : null;
 				},
-				'title'            => function() {
+				'title'            => function () {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
-				'url'              => function() {
+				'url'              => function () {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
-				'path'             => function() {
+				'path'             => function () {
 
 					$url = $this->url;
 
@@ -166,13 +166,13 @@ class MenuItem extends Model {
 					return $url;
 
 				},
-				'order'            => function() {
+				'order'            => function () {
 					return $this->data->menu_order;
 				},
-				'menuId'           => function() {
+				'menuId'           => function () {
 					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
 				},
-				'menuDatabaseId'   => function() {
+				'menuDatabaseId'   => function () {
 
 					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
 					if ( is_wp_error( $menus ) ) {
@@ -181,7 +181,7 @@ class MenuItem extends Model {
 
 					return isset( $menus[0] ) && isset( $menus[0]->term_id ) ? $menus[0]->term_id : null;
 				},
-				'locations'        => function() {
+				'locations'        => function () {
 
 					if ( empty( $this->menuDatabaseId ) ) {
 						return null;

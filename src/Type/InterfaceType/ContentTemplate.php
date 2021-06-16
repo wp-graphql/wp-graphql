@@ -20,7 +20,7 @@ class ContentTemplate {
 						'description' => __( 'The name of the template', 'wp-graphql' ),
 					],
 				],
-				'resolveType' => function( $value ) {
+				'resolveType' => function ( $value ) {
 					return isset( $value['__typename'] ) ? $value['__typename'] : 'DefaultTemplate';
 				},
 			]

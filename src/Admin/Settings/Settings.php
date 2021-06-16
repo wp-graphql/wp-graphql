@@ -94,7 +94,7 @@ class Settings {
 				'value'             => ! empty( $custom_endpoint ) ? $custom_endpoint : null,
 				'default'           => ! empty( $custom_endpoint ) ? $custom_endpoint : 'graphql',
 				'disabled'          => ! empty( $custom_endpoint ) ? true : false,
-				'sanitize_callback' => function( $value ) {
+				'sanitize_callback' => function ( $value ) {
 					if ( empty( $value ) ) {
 						add_settings_error( 'graphql_endpoint', 'required', __( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ), 'error' );
 

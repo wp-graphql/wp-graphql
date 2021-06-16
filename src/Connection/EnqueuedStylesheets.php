@@ -21,7 +21,7 @@ class EnqueuedStylesheets {
 			'fromType'      => 'ContentNode',
 			'toType'        => 'EnqueuedStylesheet',
 			'fromFieldName' => 'enqueuedStylesheets',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},
@@ -31,7 +31,7 @@ class EnqueuedStylesheets {
 			'fromType'      => 'TermNode',
 			'toType'        => 'EnqueuedStylesheet',
 			'fromFieldName' => 'enqueuedStylesheets',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},
@@ -41,7 +41,7 @@ class EnqueuedStylesheets {
 			'fromType'      => 'RootQuery',
 			'toType'        => 'EnqueuedStylesheet',
 			'fromFieldName' => 'registeredStylesheets',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 
 				// The connection resolver expects the source to include
 				// enqueuedStylesheetsQueue
@@ -59,7 +59,7 @@ class EnqueuedStylesheets {
 			'fromType'      => 'User',
 			'toType'        => 'EnqueuedStylesheet',
 			'fromFieldName' => 'enqueuedStylesheets',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},

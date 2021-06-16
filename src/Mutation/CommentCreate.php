@@ -83,7 +83,7 @@ class CommentCreate {
 			'comment' => [
 				'type'        => 'Comment',
 				'description' => __( 'The comment that was created', 'wp-graphql' ),
-				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					if ( ! isset( $payload['id'] ) || ! absint( $payload['id'] ) ) {
 						return null;
 					}
@@ -117,7 +117,7 @@ class CommentCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input, AppContext $context, ResolveInfo $info ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) {
 
 			/**
 			 * Throw an exception if there's no input
