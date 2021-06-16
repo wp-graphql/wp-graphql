@@ -25,12 +25,12 @@ class EnqueuedStylesheet {
 					'type'    => [
 						'non_null' => 'ID',
 					],
-					'resolve' => function( $asset ) {
+					'resolve' => function ( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
 					},
 				],
 				'src' => [
-					'resolve' => function( \_WP_Dependency $stylesheet ) {
+					'resolve' => function ( \_WP_Dependency $stylesheet ) {
 						return isset( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
 					},
 				],

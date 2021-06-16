@@ -46,12 +46,12 @@ class TermObject {
 						'type'              => 'Int',
 						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 						'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-						'resolve'           => function( Term $term, $args, $context, $info ) {
+						'resolve'           => function ( Term $term, $args, $context, $info ) {
 							return absint( $term->term_id );
 						},
 					],
 					'uri'               => [
-						'resolve' => function( $term, $args, $context, $info ) {
+						'resolve' => function ( $term, $args, $context, $info ) {
 							return ! empty( $term->link ) ? str_ireplace( home_url(), '', $term->link ) : '';
 						},
 					],

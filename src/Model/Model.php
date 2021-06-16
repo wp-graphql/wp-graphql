@@ -348,7 +348,7 @@ abstract class Model {
 		$self        = $this;
 		foreach ( $this->fields as $key => $data ) {
 
-			$clean_array[ $key ] = function() use ( $key, $data, $self ) {
+			$clean_array[ $key ] = function () use ( $key, $data, $self ) {
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
 
@@ -449,13 +449,13 @@ abstract class Model {
 		/**
 		 * @TODO: potentially abstract this out into a more central spot
 		 */
-		$this->fields['isPublic']     = function() {
+		$this->fields['isPublic']     = function () {
 			return 'public' === $this->get_visibility();
 		};
-		$this->fields['isRestricted'] = function() {
+		$this->fields['isRestricted'] = function () {
 			return 'restricted' === $this->get_visibility();
 		};
-		$this->fields['isPrivate']    = function() {
+		$this->fields['isPrivate']    = function () {
 			return 'private' === $this->get_visibility();
 		};
 

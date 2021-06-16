@@ -58,7 +58,7 @@ class UserDelete {
 			'deletedId' => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['userObject'];
 					return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
 				},
@@ -66,7 +66,7 @@ class UserDelete {
 			'user'      => [
 				'type'        => 'User',
 				'description' => __( 'The deleted user object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => function ( $payload ) {
 					return new User( $payload['userObject'] );
 				},
 			],
@@ -79,7 +79,7 @@ class UserDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input ) {
+		return function ( $input ) {
 			/**
 			 * Get the ID from the global ID
 			 */

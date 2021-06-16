@@ -24,7 +24,7 @@ class ContentTypes {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'ContentType',
 				'fromFieldName' => 'contentTypes',
-				'resolve'       => function( $source, $args, $context, $info ) {
+				'resolve'       => function ( $source, $args, $context, $info ) {
 					$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -36,7 +36,7 @@ class ContentTypes {
 				'fromType'      => 'ContentNode',
 				'toType'        => 'ContentType',
 				'fromFieldName' => 'contentType',
-				'resolve'       => function( Post $source, $args, $context, $info ) {
+				'resolve'       => function ( Post $source, $args, $context, $info ) {
 
 					if ( $source->isRevision ) {
 						$parent    = get_post( $source->parentDatabaseId );
@@ -61,7 +61,7 @@ class ContentTypes {
 			'toType'        => 'ContentType',
 			'description'   => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
 			'fromFieldName' => 'connectedContentTypes',
-			'resolve'       => function( Taxonomy $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'       => function ( Taxonomy $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 
 				$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 				$resolver             = new ContentTypeConnectionResolver( $taxonomy, $args, $context, $info );

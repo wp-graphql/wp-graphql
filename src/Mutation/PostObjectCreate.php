@@ -171,7 +171,7 @@ class PostObjectCreate {
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The Post object mutation type.', 'wp-graphql' ),
-				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
@@ -192,7 +192,7 @@ class PostObjectCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
-		return function( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 
 			/**
 			 * Throw an exception if there's no input

@@ -23,7 +23,7 @@ class ContentRevisionUnion {
 		if ( ! empty( $post_types_with_revision_support ) && is_array( $post_types_with_revision_support ) ) {
 
 			$type_names = array_map(
-				function( $post_type ) {
+				function ( $post_type ) {
 					/** @var \WP_Post_Type $post_type_object */
 					$post_type_object = get_post_type_object( $post_type );
 
@@ -37,7 +37,7 @@ class ContentRevisionUnion {
 				[
 					'typeNames'   => $type_names,
 					'description' => __( 'A union of Content Node Types that support revisions', 'wp-graphql' ),
-					'resolveType' => function( Post $object ) use ( $type_registry ) {
+					'resolveType' => function ( Post $object ) use ( $type_registry ) {
 
 						$type   = 'Post';
 						$parent = get_post( (int) $object->parentDatabaseId );

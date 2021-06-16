@@ -112,7 +112,7 @@ class PostObject {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->captionRaw;
@@ -135,7 +135,7 @@ class PostObject {
 							],
 						],
 						'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => function ( $source, $args ) {
 							$size = 'medium';
 							if ( ! empty( $args['size'] ) ) {
 								$size = $args['size'];
@@ -155,7 +155,7 @@ class PostObject {
 							],
 						],
 						'description' => __( 'The sizes attribute value for an image.', 'wp-graphql' ),
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => function ( $source, $args ) {
 							$size = 'medium';
 							if ( ! empty( $args['size'] ) ) {
 								$size = $args['size'];
@@ -180,7 +180,7 @@ class PostObject {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->descriptionRaw;
@@ -207,7 +207,7 @@ class PostObject {
 								'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $image, $args, $context, $info ) {
+						'resolve'     => function ( $image, $args, $context, $info ) {
 							// @codingStandardsIgnoreLine.
 							$size = null;
 							if ( isset( $args['size'] ) ) {
@@ -226,7 +226,7 @@ class PostObject {
 								'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $image, $args, $context, $info ) {
+						'resolve'     => function ( $image, $args, $context, $info ) {
 
 							// @codingStandardsIgnoreLine.
 							$size = null;
@@ -280,7 +280,7 @@ class PostObject {
 				],
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => function( Post $post, $args, $context, $info ) {
+				'resolve'           => function ( Post $post, $args, $context, $info ) {
 					return absint( $post->ID );
 				},
 			],

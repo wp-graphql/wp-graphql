@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+
+- See previous release. This was a version bump to fix a missed deploy.
+
 ## 1.4.2
 
 ### Chores / Bugfixes

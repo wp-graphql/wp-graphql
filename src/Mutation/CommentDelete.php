@@ -57,7 +57,7 @@ class CommentDelete {
 			'deletedId' => [
 				'type'        => 'Id',
 				'description' => __( 'The deleted comment ID', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => function ( $payload ) {
 					$deleted = (object) $payload['commentObject'];
 
 					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', $deleted->comment_ID ) : null;
@@ -66,7 +66,7 @@ class CommentDelete {
 			'comment'   => [
 				'type'        => 'Comment',
 				'description' => __( 'The deleted comment object', 'wp-graphql' ),
-				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					return $payload['commentObject'] ? $payload['commentObject'] : null;
 				},
 			],
@@ -79,7 +79,7 @@ class CommentDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input ) {
+		return function ( $input ) {
 			/**
 			 * Get the ID from the global ID
 			 */

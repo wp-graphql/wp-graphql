@@ -865,7 +865,7 @@ abstract class AbstractConnectionResolver {
 		 * returning the connection.
 		 */
 		return new Deferred(
-			function() {
+			function () {
 
 				if ( ! empty( $this->ids ) ) {
 					$this->loader->load_many( $this->ids );

@@ -109,7 +109,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 */
 		add_filter(
 			'split_the_query',
-			function( $split, \WP_Query $query ) {
+			function ( $split, \WP_Query $query ) {
 				if ( false === $query->get( 'split_the_query' ) ) {
 					return false;
 				}
