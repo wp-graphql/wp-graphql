@@ -32,7 +32,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		]);
 
-/*
 		register_graphql_interface_type( 'TestInterface', [
 			'fields' => [
 				'b' => [
@@ -41,6 +40,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			],
 		]);
 
+/*
 		register_graphql_interfaces_to_types( [ 'TestInterface' ], [ 'TestType' ] );
 */
 
