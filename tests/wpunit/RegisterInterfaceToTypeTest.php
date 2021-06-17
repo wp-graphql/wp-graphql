@@ -41,6 +41,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		]);
 
 		register_graphql_interfaces_to_types( [ 'TestInterface' ], [ 'TestType' ] );
+*/
 
 		$type_name = 'TestType';
 
@@ -73,7 +74,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			$this->expectedNode( '__type.fields', [ 'name' => 'a' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] )
 		] );
-*/
 
 	}
 
@@ -138,7 +138,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		]);
 
-/*
 		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
@@ -162,7 +161,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] )
 		] );
-*/
 
 	}
 
