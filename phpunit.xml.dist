@@ -20,7 +20,6 @@
 	<testsuites>
 		<testsuite name="WPGraphQL Test Suite">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
-			<exclude>./tests/wpunit/RegisterInterfaceToTypeTest.php</exclude>
 		</testsuite>
 	</testsuites>
 	<logging>
