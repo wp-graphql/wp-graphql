@@ -520,7 +520,7 @@ final class WPGraphQL {
 		 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 		 */
 		array_map(
-			function( $taxonomy ) {
+			function ( $taxonomy ) {
 
 				$tax_object = get_taxonomy( $taxonomy );
 

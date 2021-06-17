@@ -116,7 +116,7 @@ class InstrumentSchema {
 			 * @throws Exception
 			 * @since 0.0.1
 			 */
-			$field->resolveFn = static function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+			$field->resolveFn = static function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
 				/**
 				 * Setup the global post to the current post (if a post)
