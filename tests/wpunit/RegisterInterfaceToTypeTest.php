@@ -85,7 +85,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 	 */
 	public function testRegisterInterfaceToInterfaceAddsInterfacesToTypes() {
 
-/*
 		register_graphql_object_type( 'TestType', [
 			'fields' => [
 				'a' => [
@@ -161,7 +160,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] )
 		] );
-*/
 
 	}
 
