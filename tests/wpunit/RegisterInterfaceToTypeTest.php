@@ -130,6 +130,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		}
 		';
 
+/*
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
@@ -160,6 +161,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] )
 		] );
+*/
 
 	}
 
