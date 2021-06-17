@@ -130,7 +130,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		}
 		';
 
-/*
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
@@ -138,6 +137,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		]);
 
+/*
 		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
