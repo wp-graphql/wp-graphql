@@ -80,7 +80,7 @@ class TermObjectUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, $mutation_name ) {
-		return function( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 			/**
 			 * Get the ID parts
 			 */

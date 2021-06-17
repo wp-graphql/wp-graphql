@@ -42,7 +42,7 @@ class TermObjects {
 						],
 					]
 				),
-				'resolve'        => function( $source, $args, $context, $info ) {
+				'resolve'        => function ( $source, $args, $context, $info ) {
 					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
 					$connection = $resolver->get_connection();
@@ -81,7 +81,7 @@ class TermObjects {
 											'fromType' => $post_type_object->graphql_single_name,
 											'toType'   => $tax_object->graphql_single_name,
 											'fromFieldName' => $tax_object->graphql_plural_name,
-											'resolve'  => function( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+											'resolve'  => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 												$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
@@ -110,7 +110,7 @@ class TermObjects {
 								[
 									'fromType'      => $tax_object->graphql_single_name,
 									'fromFieldName' => 'children',
-									'resolve'       => function( Term $term, $args, AppContext $context, $info ) {
+									'resolve'       => function ( Term $term, $args, AppContext $context, $info ) {
 										$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
 										$resolver->set_query_arg( 'parent', $term->term_id );
 
@@ -127,7 +127,7 @@ class TermObjects {
 							'fromFieldName'      => 'parent',
 							'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 							'oneToOne'           => true,
-							'resolve'            => function( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 								if ( ! isset( $term->parentDatabaseId ) || empty( $term->parentDatabaseId ) ) {
 									return null;
@@ -147,7 +147,7 @@ class TermObjects {
 							'fromFieldName'      => 'ancestors',
 							'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 							'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
-							'resolve'            => function( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 								if ( ! $tax_object instanceof \WP_Taxonomy ) {
 									return null;
@@ -195,7 +195,7 @@ class TermObjects {
 							],
 						]
 					),
-					'resolve'        => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 						if ( empty( $terms ) || is_wp_error( $terms ) ) {
@@ -231,7 +231,7 @@ class TermObjects {
 			'toType'         => $tax_object->graphql_single_name,
 			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function( $root, $args, $context, $info ) use ( $tax_object ) {
+			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
 			},
 		];

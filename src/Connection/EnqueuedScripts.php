@@ -21,7 +21,7 @@ class EnqueuedScripts {
 			'fromType'      => 'ContentNode',
 			'toType'        => 'EnqueuedScript',
 			'fromFieldName' => 'enqueuedScripts',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},
@@ -31,7 +31,7 @@ class EnqueuedScripts {
 			'fromType'      => 'TermNode',
 			'toType'        => 'EnqueuedScript',
 			'fromFieldName' => 'enqueuedScripts',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},
@@ -41,7 +41,7 @@ class EnqueuedScripts {
 			'fromType'      => 'RootQuery',
 			'toType'        => 'EnqueuedScript',
 			'fromFieldName' => 'registeredScripts',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 
 				// The connection resolver expects the source to include
 				// enqueuedScriptsQueue
@@ -59,7 +59,7 @@ class EnqueuedScripts {
 			'fromType'      => 'User',
 			'toType'        => 'EnqueuedScript',
 			'fromFieldName' => 'enqueuedScripts',
-			'resolve'       => function( $source, $args, $context, $info ) {
+			'resolve'       => function ( $source, $args, $context, $info ) {
 				$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 				return $resolver->get_connection();
 			},

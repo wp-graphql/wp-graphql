@@ -25,7 +25,7 @@ class MediaItems {
 			'toType'        => 'MediaItem',
 			'fromFieldName' => 'featuredImage',
 			'oneToOne'      => true,
-			'resolve'       => function( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'       => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
 				if ( empty( $post->featuredImageDatabaseId ) ) {
 					return null;

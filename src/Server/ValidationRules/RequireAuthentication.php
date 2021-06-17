@@ -78,7 +78,7 @@ class RequireAuthentication extends QuerySecurityRule {
 		return $this->invokeIfNeeded(
 			$context,
 			[
-				NodeKind::FIELD => static function( FieldNode $node ) use ( $context, $allowed_root_fields ) {
+				NodeKind::FIELD => static function ( FieldNode $node ) use ( $context, $allowed_root_fields ) {
 
 					$parent_type = $context->getParentType();
 

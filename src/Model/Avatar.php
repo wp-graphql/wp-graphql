@@ -49,34 +49,34 @@ class Avatar extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'size'         => function() {
+				'size'         => function () {
 					return ! empty( $this->data['size'] ) ? absint( $this->data['size'] ) : null;
 				},
-				'height'       => function() {
+				'height'       => function () {
 					return ! empty( $this->data['height'] ) ? absint( $this->data['height'] ) : null;
 				},
-				'width'        => function() {
+				'width'        => function () {
 					return ! empty( $this->data['width'] ) ? absint( $this->data['width'] ) : null;
 				},
-				'default'      => function() {
+				'default'      => function () {
 					return ! empty( $this->data['default'] ) ? $this->data['default'] : null;
 				},
-				'forceDefault' => function() {
+				'forceDefault' => function () {
 					return ( ! empty( $this->data['force_default'] ) && true === $this->data['force_default'] ) ? true : false;
 				},
-				'rating'       => function() {
+				'rating'       => function () {
 					return ! empty( $this->data['rating'] ) ? $this->data['rating'] : null;
 				},
-				'scheme'       => function() {
+				'scheme'       => function () {
 					return ! empty( $this->data['scheme'] ) ? $this->data['scheme'] : null;
 				},
-				'extraAttr'    => function() {
+				'extraAttr'    => function () {
 					return ! empty( $this->data['extra_attr'] ) ? $this->data['extra_attr'] : null;
 				},
-				'foundAvatar'  => function() {
+				'foundAvatar'  => function () {
 					return ! empty( $this->data['found_avatar'] && true === $this->data['found_avatar'] ) ? true : false;
 				},
-				'url'          => function() {
+				'url'          => function () {
 					return ! empty( $this->data['url'] ) ? $this->data['url'] : null;
 				},
 			];

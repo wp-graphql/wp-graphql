@@ -1,9 +1,27 @@
 # Changelog
 
+## 1.4.3
+
+- See previous release. This was a version bump to fix a missed deploy.
+
+## 1.4.2
+
+### Chores / Bugfixes
+
+- ([#1963](https://github.com/wp-graphql/wp-graphql/pull/1963)): Fixes a regression in v1.4.0 where the `uri` field on Terms was returning `null`. The issue was actually wider than that as resolvers on Object Types that implement interfaces weren't being fully respected. 
+- ([#1956](https://github.com/wp-graphql/wp-graphql/pull/1956)): Adds `SpaceAfterFunction` Code Sniffer rule and adjusts the codebase to respect the rule. Thanks @markkelnar!
+
+## 1.4.1
+
+### Chores / Bugfixes 
+
+- ([#1958](https://github.com/wp-graphql/wp-graphql/pull/1958)): Fixes a regression in 1.4.0 where `register_graphql_interfaces_to_types` was broken. 
+
 ## 1.4.0
 
 ### Chores / Bugfixes
 
+- ([#1951](https://github.com/wp-graphql/wp-graphql/pull/1951)): Fixes bug with the `uri` field. Some Types in the Schema had the `uri` field as nullable field and some as a non-null field. This fixes it and makes the field consistently nullable as some Nodes with a URI might have a `null` value if the node is private.
 - ([#1953](https://github.com/wp-graphql/wp-graphql/pull/1953)): Fixes bug with Settings groups with underscores not showing in the Schema properly. Thanks @markkelnar!
 
 ### New Features
