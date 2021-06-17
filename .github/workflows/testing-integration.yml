@@ -64,7 +64,7 @@ jobs:
           USING_XDEBUG: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: tests/wpunit/RegisterInterfaceToTypeTest.php
+          SUITES: wpunit
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
