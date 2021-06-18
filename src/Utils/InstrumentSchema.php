@@ -85,7 +85,6 @@ class InstrumentSchema {
 			 * @since 0.0.1
 			 */
 			$field_resolver = is_callable( $field->resolveFn ) ? $field->resolveFn : null;
-			$field_resolver = null;
 
 			/**
 			 * Sanitize the description and deprecation reason
