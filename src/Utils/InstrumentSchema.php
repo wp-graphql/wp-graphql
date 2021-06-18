@@ -28,7 +28,7 @@ class InstrumentSchema {
 
 		$types = $schema->getTypeMap();
 
-		$schema->config->types = array_map( static function ( $type_object ) {
+		$schema->config->types = array_map( function ( $type_object ) {
 
 			if ( ! method_exists( $type_object, 'getFields' ) ) {
 				return $type_object;
