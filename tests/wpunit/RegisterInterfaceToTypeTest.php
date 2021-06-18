@@ -40,9 +40,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			],
 		]);
 
-/*
 		register_graphql_interfaces_to_types( [ 'TestInterface' ], [ 'TestType' ] );
-*/
 
 		$type_name = 'TestType';
 
