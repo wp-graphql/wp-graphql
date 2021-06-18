@@ -83,7 +83,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 	 * @throws Exception
 	 */
 	public function testRegisterInterfaceToInterfaceAddsInterfacesToTypes() {
-/*
+
 		register_graphql_object_type( 'TestType', [
 			'fields' => [
 				'a' => [
@@ -111,7 +111,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		register_graphql_interfaces_to_types( [ 'TestInterfaceTwo' ], [ 'TestInterface' ] );
 		register_graphql_interfaces_to_types( [ 'TestInterfaceTwo', 'TestInterface' ], [ 'TestType' ] );
-*/
 
 		$type_name = 'TestType';
 
