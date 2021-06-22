@@ -17,3 +17,4 @@ codeception.yml
 php-coveralls.phar
 .log
 c3.php
+.env

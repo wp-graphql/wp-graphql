@@ -32,7 +32,13 @@ TAG=${TAG-latest}
 WP_VERSION=${WP_VERSION-5.6}
 PHP_VERSION=${PHP_VERSION-7.4}
 
-BUILD_NO_CACHE=
+BUILD_NO_CACHE=${BUILD_NO_CACHE-}
+
+if [[ ! -f ".env" ]]; then
+  echo "No .env file was detected. .env.dist has been copied to .env"
+  echo "Open the .env file and enter values to match your local environment"
+  cp .env.dist .env
+fi
 
 subcommand=$1; shift
 case "$subcommand" in

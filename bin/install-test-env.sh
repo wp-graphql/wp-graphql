@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+if [[ ! -f ".env" ]]; then
+  echo "No .env file was detected. .env.dist has been copied to .env"
+  echo "Open the .env file and enter values to match your local environment"
+  cp .env.dist .env
+fi
+
 source .env
 
 print_usage_instruction() {
