@@ -11,6 +11,7 @@ services:
     env_file:
       - .env
     environment:
+      WP_URL: http://localhost:8091
       USING_XDEBUG: ${USING_XDEBUG:-}
     ports:
       - '8091:80'
