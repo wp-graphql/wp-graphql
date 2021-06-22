@@ -19,28 +19,34 @@ if [ -z "$1" ]; then
 	print_usage_instructions
 fi
 
+BUILD_NO_CACHE=
+
 env_file=".env.dist";
 
 subcommand=$1; shift
 case "$subcommand" in
     "build" )
-        while getopts ":at" opt; do
+        while getopts ":cat" opt; do
             case ${opt} in
+                c )
+                    echo "Build without cache"
+                    BUILD_NO_CACHE=--no-cache
+                    ;;
                 a )
-                docker build -f docker/app.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
                     -t wpgraphql-app:latest \
                     --build-arg WP_VERSION=${WP_VERSION-5.4} \
                     --build-arg PHP_VERSION=${PHP_VERSION-7.4} \
                     .
                     ;;
                 t )
-                docker build -f docker/app.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
                     -t wpgraphql-app:latest \
                     --build-arg WP_VERSION=${WP_VERSION-5.4} \
                     --build-arg PHP_VERSION=${PHP_VERSION-7.4} \
                     .
 
-                docker build -f docker/testing.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/testing.Dockerfile \
                     -t wpgraphql-testing:latest \
                     .
                     ;;

@@ -28,7 +28,7 @@ class InstrumentSchema {
 
 		$types = $schema->getTypeMap();
 
-		$schema->config->types = array_map( static function( $type_object ) {
+		$schema->config->types = array_map( function ( $type_object ) {
 
 			if ( ! method_exists( $type_object, 'getFields' ) ) {
 				return $type_object;
@@ -105,7 +105,7 @@ class InstrumentSchema {
 			 * @throws Exception
 			 * @since 0.0.1
 			 */
-			$field->resolveFn = static function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+			$field->resolveFn = function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
 				/**
 				 * Fire an action BEFORE the field resolves

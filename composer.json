@@ -80,10 +80,10 @@
       "php ./vendor/bin/phpcs -i"
     ],
     "check-cs": [
-      "php ./vendor/bin/phpcs src"
+      "php ./vendor/bin/phpcs"
     ],
     "fix-cs": [
-      "php ./vendor/bin/phpcbf src"
+      "php ./vendor/bin/phpcbf"
     ],
     "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   },

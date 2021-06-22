@@ -383,7 +383,7 @@ final class WPGraphQL {
 		 *
 		 * @deprecated
 		 */
-		add_filter( 'graphql_type_interfaces', function( $interfaces, $config, $type ) {
+		add_filter( 'graphql_type_interfaces', function ( $interfaces, $config, $type ) {
 
 			if ( $type instanceof \WPGraphQL\Type\WPObjectType ) {
 				/**
