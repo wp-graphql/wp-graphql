@@ -9,17 +9,28 @@ set -eu
 # flag for what you need.
 ##
 print_usage_instructions() {
-	echo "Usage: composer build-and-run -- [-a|-t]";
-	echo "       -a  Spin up a WordPress installation.";
-	echo "       -t  Run the automated tests.";
-	exit 1
+    echo "Usage: composer build-and-run -- [-a|-t]";
+    echo "       -a  Spin up a WordPress installation.";
+    echo "       -t  Run the automated tests.";
+    echo "Example use:";
+    echo "  composer build-app";
+    echo "  composer run-app";
+    echo "";
+    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4 composer build-app";
+    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4 composer run-app";
+    echo "";
+    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4  bin/run-docker.sh build -a";
+    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4  bin/run-docker.sh run -a";
+    exit 1
 }
 
-if [ -z "$1" ]; then
-	print_usage_instructions
+if [ $# -eq 0 ]; then
+    print_usage_instructions
 fi
 
-env_file=".env.dist";
+TAG=${TAG-latest}
+WP_VERSION=${WP_VERSION-5.6}
+PHP_VERSION=${PHP_VERSION-7.4}
 
 subcommand=$1; shift
 case "$subcommand" in
@@ -28,20 +39,22 @@ case "$subcommand" in
             case ${opt} in
                 a )
                 docker build -f docker/app.Dockerfile \
-                    -t wpgraphql-app:latest \
-                    --build-arg WP_VERSION=${WP_VERSION-5.4} \
-                    --build-arg PHP_VERSION=${PHP_VERSION-7.4} \
+                    -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
+                    --build-arg WP_VERSION=${WP_VERSION} \
+                    --build-arg PHP_VERSION=${PHP_VERSION} \
                     .
                     ;;
                 t )
                 docker build -f docker/app.Dockerfile \
-                    -t wpgraphql-app:latest \
-                    --build-arg WP_VERSION=${WP_VERSION-5.4} \
-                    --build-arg PHP_VERSION=${PHP_VERSION-7.4} \
+                    -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
+                    --build-arg WP_VERSION=${WP_VERSION} \
+                    --build-arg PHP_VERSION=${PHP_VERSION} \
                     .
 
                 docker build -f docker/testing.Dockerfile \
-                    -t wpgraphql-testing:latest \
+                    -t wp-graphql-testing:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
+                    --build-arg WP_VERSION=${WP_VERSION} \
+                    --build-arg PHP_VERSION=${PHP_VERSION} \
                     .
                     ;;
                 \? ) print_usage_instructions;;
@@ -53,18 +66,18 @@ case "$subcommand" in
     "run" )
         while getopts "e:at" opt; do
             case ${opt} in
-				e )
-				env_file=${OPTARG};
-				if [ ! -f $env_file ]; then
-					echo "No file found at $env_file"
-				fi
-				;;
-                a ) docker-compose up --scale testing=0;;
+                a )
+                docker compose up --scale testing=0
+                    -e WP_VERSION=${WP_VERSION} \
+                    -e PHP_VERSION=${PHP_VERSION} \
+                    ;;
                 t )
-                docker-compose run --rm \
+                docker compose run --rm \
                     -e COVERAGE=${COVERAGE-} \
                     -e USING_XDEBUG=${USING_XDEBUG-} \
                     -e DEBUG=${DEBUG-} \
+                    -e WP_VERSION=${WP_VERSION} \
+                    -e PHP_VERSION=${PHP_VERSION} \
                     testing --scale app=0
                     ;;
                 \? ) print_usage_instructions;;

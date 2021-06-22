@@ -2,11 +2,18 @@
 # Pre-configured WordPress Installation w/ WPGraphQL, WPGatsby #
 # For testing only, use in production not recommended. #
 ###############################################################################
+
+# Use build args to get the right wordpress + php image
 ARG WP_VERSION
 ARG PHP_VERSION
 
 FROM wordpress:${WP_VERSION}-php${PHP_VERSION}-apache
 
+# Needed to specify the build args again after the FROM command.
+ARG WP_VERSION
+ARG PHP_VERSION
+
+# Save the build args for use by the runtime environment
 ENV WP_VERSION=${WP_VERSION}
 ENV PHP_VERSION=${PHP_VERSION}
 

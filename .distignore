@@ -20,7 +20,6 @@
 .distignore
 .dockerignore
 .env
-.env.dist
 .gitattributes
 .gitignore
 .github_changelog_generator

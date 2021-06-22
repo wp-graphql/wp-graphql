@@ -19,7 +19,6 @@
 .coveralls.yml export-ignore
 .dockerignore export-ignore
 .env export-ignore
-.env.dist export-ignore
 .gitattributes export-ignore
 .github_changelog_generator export-ignore
 /c3.php export-ignore

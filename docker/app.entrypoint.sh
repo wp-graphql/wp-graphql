@@ -39,7 +39,10 @@ if ! $( wp core is-installed --allow-root ); then
 		--allow-root
 fi
 
-# Install and activate WPGatsby
+echo "Running WordPress version: $(wp core version --allow-root)"
+
+# Install and activate wp-graphql
+wp plugin install wp-graphql --allow-root
 wp plugin activate wp-graphql --allow-root
 
 # Set pretty permalinks.
