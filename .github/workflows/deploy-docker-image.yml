@@ -34,6 +34,6 @@ jobs:
           push: true
           tags: ghcr.io/markkelnar/wp-graphql:latest-wp5.6-php7.4
           file: docker/app.Dockerfile
-          build-args:
-            PHP_VERSION: 7.4
-            WP_VERSION: 5.6
+          build-args: |
+            PHP_VERSION=7.4
+            WP_VERSION=5.6
