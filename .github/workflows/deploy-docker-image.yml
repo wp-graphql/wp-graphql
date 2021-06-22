@@ -29,8 +29,8 @@ jobs:
 
       - name: Build Docker Image
         env:
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
+          PHP_VERSION: 7.4
+          WP_VERSION: 5.6
         run: composer build-app
 
       - name: Build and push Docker image
