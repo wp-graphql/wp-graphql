@@ -140,8 +140,8 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 
 			// Filter the GraphQL Object Type Interface to apply the interface
 			add_filter(
-				'graphql_object_type_interfaces',
-				function( $interfaces, $config ) use ( $type_name, $interface_names ) {
+				'graphql_type_interfaces',
+				function ( $interfaces, $config ) use ( $type_name, $interface_names ) {
 
 					$interfaces = is_array( $interfaces ) ? $interfaces : [];
 
@@ -171,7 +171,7 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 function register_graphql_type( string $type_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
 			$type_registry->register_type( $type_name, $config );
 		},
 		10
@@ -190,7 +190,7 @@ function register_graphql_type( string $type_name, array $config ) {
 function register_graphql_interface_type( string $type_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
 			$type_registry->register_interface_type( $type_name, $config );
 		},
 		10
@@ -237,7 +237,7 @@ function register_graphql_union_type( string $type_name, array $config ) {
 
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
 			$config['kind'] = 'union';
 			$type_registry->register_type( $type_name, $config );
 		},
@@ -271,7 +271,7 @@ function register_graphql_enum_type( string $type_name, array $config ) {
 function register_graphql_field( string $type_name, string $field_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $field_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $field_name, $config ) {
 			$type_registry->register_field( $type_name, $field_name, $config );
 		},
 		10
@@ -290,7 +290,7 @@ function register_graphql_field( string $type_name, string $field_name, array $c
 function register_graphql_fields( string $type_name, array $fields ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $fields ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $fields ) {
 			$type_registry->register_fields( $type_name, $fields );
 		},
 		10
@@ -310,7 +310,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
 function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
 	add_filter(
 		"graphql_{$type_name}_fields",
-		function( $fields ) use ( $field_name, $new_field_name ) {
+		function ( $fields ) use ( $field_name, $new_field_name ) {
 			$fields[ $new_field_name ] = $fields[ $field_name ];
 			unset( $fields[ $field_name ] );
 
@@ -331,7 +331,7 @@ function rename_graphql_field( string $type_name, string $field_name, string $ne
 function rename_graphql_type( string $type_name, string $new_type_name ) {
 	add_filter(
 		'graphql_type_name',
-		function( $name ) use ( $type_name, $new_type_name ) {
+		function ( $name ) use ( $type_name, $new_type_name ) {
 			if ( $name === $type_name ) {
 				return $new_type_name;
 			}
@@ -344,7 +344,7 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
 	// referenced as the type when registering fields.
 	add_action(
 		'graphql_register_types_late',
-		function( TypeRegistry $type_registry ) use ( $type_name, $new_type_name ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $new_type_name ) {
 			$type = $type_registry->get_type( $type_name );
 			if ( ! $type instanceof Type ) {
 				return;
@@ -366,7 +366,7 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
 function register_graphql_connection( array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $config ) {
+		function ( TypeRegistry $type_registry ) use ( $config ) {
 			$type_registry->register_connection( $config );
 		},
 		10
@@ -385,7 +385,7 @@ function register_graphql_connection( array $config ) {
 function register_graphql_scalar( string $type_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
 			$type_registry->register_scalar( $type_name, $config );
 		},
 		10
@@ -403,7 +403,7 @@ function register_graphql_scalar( string $type_name, array $config ) {
 function deregister_graphql_field( string $type_name, string $field_name ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $type_name, $field_name ) {
+		function ( TypeRegistry $type_registry ) use ( $type_name, $field_name ) {
 			$type_registry->deregister_field( $type_name, $field_name );
 		},
 		10
@@ -423,7 +423,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
 function register_graphql_mutation( string $mutation_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
-		function( TypeRegistry $type_registry ) use ( $mutation_name, $config ) {
+		function ( TypeRegistry $type_registry ) use ( $mutation_name, $config ) {
 			$type_registry->register_mutation( $mutation_name, $config );
 		},
 		10
@@ -475,7 +475,7 @@ function is_graphql_http_request() {
 function register_graphql_settings_section( string $slug, array $config ) {
 	add_action(
 		'graphql_init_settings',
-		function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $slug, $config ) {
+		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $slug, $config ) {
 			$registry->register_section( $slug, $config );
 		}
 	);
@@ -492,7 +492,7 @@ function register_graphql_settings_section( string $slug, array $config ) {
 function register_graphql_settings_field( string $group, array $config ) {
 	add_action(
 		'graphql_init_settings',
-		function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
+		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
 			$registry->register_field( $group, $config );
 		}
 	);
@@ -516,7 +516,7 @@ function graphql_debug( $message, $config = [] ) {
 		? array_column(
 			array_filter( // Filter out steps without files
 				$debug_backtrace,
-				function( $step ) {
+				function ( $step ) {
 					return ! empty( $step['file'] );
 				}
 			),
@@ -526,7 +526,7 @@ function graphql_debug( $message, $config = [] ) {
 
 	add_action(
 		'graphql_get_debug_log',
-		function( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
+		function ( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
 			return $debug_log->add_log_entry( $message, $config );
 		}
 	);
@@ -558,7 +558,7 @@ function is_valid_graphql_name( string $type_name ) {
 function register_graphql_settings_fields( string $group, array $fields ) {
 	add_action(
 		'graphql_init_settings',
-		function( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
+		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
 			$registry->register_fields( $group, $fields );
 		}
 	);

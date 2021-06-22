@@ -74,7 +74,7 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @return array|mixed
 		 */
-		$config['fields'] = function() use ( $config ) {
+		$config['fields'] = function () use ( $config ) {
 
 			$fields = $config['fields'];
 
@@ -84,6 +84,8 @@ class WPObjectType extends ObjectType {
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
+
+				$interface_fields = [];
 
 				foreach ( $this->getInterfaces() as $interface_type ) {
 
@@ -106,9 +108,13 @@ class WPObjectType extends ObjectType {
 							continue;
 						}
 
-						$fields[ $interface_field_name ] = $interface_field->config;
+						$interface_fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}
+			}
+
+			if ( ! empty( $interface_fields ) ) {
+				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
@@ -134,12 +140,7 @@ class WPObjectType extends ObjectType {
 	 * @return array
 	 */
 	public function getInterfaces(): array {
-
-		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
-			return parent::getInterfaces();
-		}
-
-		return $this->get_implemented_interfaces( $this->config['interfaces'] );
+		return $this->get_implemented_interfaces();
 	}
 
 	/**

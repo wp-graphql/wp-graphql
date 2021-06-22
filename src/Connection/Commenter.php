@@ -25,7 +25,7 @@ class Commenter {
 			'description'   => __( 'The author of the comment', 'wp-graphql' ),
 			'fromFieldName' => 'author',
 			'oneToOne'      => true,
-			'resolve'       => function( $comment, $args, AppContext $context, ResolveInfo $info ) {
+			'resolve'       => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
 
 				/**
 				 * If the comment has a user associated, use it to populate the author, otherwise return

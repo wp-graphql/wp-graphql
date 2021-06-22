@@ -32,7 +32,7 @@ class WPInterfaceType extends InterfaceType {
 
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = function() use ( $config ) {
+		$config['fields'] = function () use ( $config ) {
 
 			$fields = $config['fields'];
 
@@ -43,10 +43,12 @@ class WPInterfaceType extends InterfaceType {
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 
-				foreach ( $this->getInterfaces() as $interface_name => $interface_type ) {
+				$interface_fields = [];
 
-					if ( is_string( $interface_name ) && ! $interface_type instanceof InterfaceType ) {
-						$interface_type = $this->type_registry->get_type( $interface_name );
+				foreach ( $this->getInterfaces() as $interface_type ) {
+
+					if ( ! $interface_type instanceof InterfaceType ) {
+						$interface_type = $this->type_registry->get_type( $interface_type );
 					}
 
 					if ( ! $interface_type instanceof InterfaceType ) {
@@ -59,16 +61,18 @@ class WPInterfaceType extends InterfaceType {
 						continue;
 					}
 
-					foreach ( $interface_config_fields as $interface_field ) {
-						if ( ! isset( $interface_field->name ) || isset( $fields[ $interface_field->name ] ) ) {
+					foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
+						if ( ! isset( $interface_field->config ) ) {
 							continue;
 						}
 
-						if ( ! isset( $fields[ $interface_field->name ] ) && isset( $interface_field->config ) && is_array( $interface_field->config ) ) {
-							$fields[ $interface_field->name ] = $interface_field->config;
-						}
+						$interface_fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}
+			}
+
+			if ( ! empty( $interface_fields ) ) {
+				$fields = array_replace_recursive( $interface_fields, $fields );
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'] );
@@ -77,7 +81,7 @@ class WPInterfaceType extends InterfaceType {
 			return $fields;
 		};
 
-		$config['resolveType'] = function( $object ) use ( $config ) {
+		$config['resolveType'] = function ( $object ) use ( $config ) {
 			$type = null;
 			if ( is_callable( $config['resolveType'] ) ) {
 				$type = call_user_func( $config['resolveType'], $object );
@@ -110,12 +114,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @return array
 	 */
 	public function getInterfaces(): array {
-
-		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
-			return [];
-		}
-
-		return $this->get_implemented_interfaces( $this->config['interfaces'] );
+		return $this->get_implemented_interfaces();
 	}
 
 	/**

@@ -59,7 +59,7 @@ class Menus {
 			'description'   => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
 			'fromFieldName' => 'menu',
 			'oneToOne'      => true,
-			'resolve'       => function( MenuItem $menu_item, $args, $context, $info ) {
+			'resolve'       => function ( MenuItem $menu_item, $args, $context, $info ) {
 				$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
 				$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
 				return $resolver->one_to_one()->get_connection();

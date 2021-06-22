@@ -76,7 +76,7 @@ abstract class AbstractDataLoader {
 		$this->buffer( [ $database_id ] );
 
 		return new Deferred(
-			function() use ( $database_id ) {
+			function () use ( $database_id ) {
 				return $this->load( $database_id );
 			}
 		);

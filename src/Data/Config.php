@@ -81,7 +81,7 @@ class Config {
 		 */
 		add_filter(
 			'pre_user_query',
-			function( $query ) {
+			function ( $query ) {
 
 				if ( ! $query->get( 'suppress_filters' ) ) {
 					$query->set( 'suppress_filters', 0 );

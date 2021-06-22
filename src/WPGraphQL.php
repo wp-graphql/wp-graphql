@@ -7,6 +7,8 @@ use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\WPInterfaceType;
+use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\WPSchema;
 
 /**
@@ -125,7 +127,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.4.0' );
+			define( 'WPGRAPHQL_VERSION', '1.4.3' );
 		}
 
 		// Plugin Folder Path.
@@ -237,7 +239,7 @@ final class WPGraphQL {
 		 */
 		add_action(
 			'after_setup_theme',
-			function() {
+			function () {
 
 				new \WPGraphQL\Data\Config();
 				new \WPGraphQL\Router();
@@ -375,6 +377,28 @@ final class WPGraphQL {
 		// Filter how metadata is retrieved during GraphQL requests
 		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
 
+		/**
+		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
+		 * to support both ObjectTypes and InterfaceTypes
+		 *
+		 * @deprecated
+		 */
+		add_filter( 'graphql_type_interfaces', function ( $interfaces, $config, $type ) {
+
+			if ( $type instanceof \WPGraphQL\Type\WPObjectType ) {
+				/**
+				 * Filters the interfaces applied to an object type
+				 *
+				 * @param array        $interfaces     List of interfaces applied to the Object Type
+				 * @param array        $config         The config for the Object Type
+				 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
+				 */
+				return apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $type );
+			}
+			return $interfaces;
+
+		}, 10, 3 );
+
 	}
 
 	/**
@@ -461,7 +485,7 @@ final class WPGraphQL {
 		 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 		 */
 		array_map(
-			function( $post_type ) {
+			function ( $post_type ) {
 				/** @var string $post_type */
 				$post_type_object = get_post_type_object( $post_type );
 
@@ -520,7 +544,7 @@ final class WPGraphQL {
 		 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 		 */
 		array_map(
-			function( $taxonomy ) {
+			function ( $taxonomy ) {
 
 				$tax_object = get_taxonomy( $taxonomy );
 

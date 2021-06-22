@@ -420,10 +420,10 @@ class Post extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'ID'                        => function() {
+				'ID'                        => function () {
 					return $this->data->ID;
 				},
-				'post_author'               => function() {
+				'post_author'               => function () {
 					if ( $this->isPreview ) {
 						$parent_post = get_post( $this->parentDatabaseId );
 						if ( empty( $parent_post ) ) {
@@ -435,16 +435,16 @@ class Post extends Model {
 
 					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
 				},
-				'id'                        => function() {
+				'id'                        => function () {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
 				},
-				'databaseId'                => function() {
+				'databaseId'                => function () {
 					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
 				},
-				'post_type'                 => function() {
+				'post_type'                 => function () {
 					return isset( $this->data->post_type ) ? $this->data->post_type : null;
 				},
-				'authorId'                  => function() {
+				'authorId'                  => function () {
 
 					if ( true === $this->isPreview ) {
 						$parent_post = get_post( $this->data->post_parent );
@@ -459,7 +459,7 @@ class Post extends Model {
 
 					return Relay::toGlobalId( 'user', (string) $id );
 				},
-				'authorDatabaseId'          => function() {
+				'authorDatabaseId'          => function () {
 					if ( true === $this->isPreview ) {
 						$parent_post = get_post( $this->data->post_parent );
 						if ( empty( $parent_post ) ) {
@@ -472,68 +472,68 @@ class Post extends Model {
 					return isset( $this->data->post_author ) ? $this->data->post_author : null;
 
 				},
-				'date'                      => function() {
+				'date'                      => function () {
 					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Utils::prepare_date_response( $this->data->post_date_gmt, $this->data->post_date ) : null;
 				},
-				'dateGmt'                   => function() {
+				'dateGmt'                   => function () {
 					return ! empty( $this->data->post_date_gmt ) ? Utils::prepare_date_response( $this->data->post_date_gmt ) : null;
 				},
-				'contentRendered'           => function() {
+				'contentRendered'           => function () {
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
 					return ! empty( $content ) ? $this->html_entity_decode( apply_filters( 'the_content', $content ), 'contentRendered', false ) : null;
 				},
-				'pageTemplate'              => function() {
+				'pageTemplate'              => function () {
 					$slug = get_page_template_slug( $this->data->ID );
 
 					return ! empty( $slug ) ? $slug : null;
 				},
 				'contentRaw'                => [
-					'callback'   => function() {
+					'callback'   => function () {
 						return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
-				'titleRendered'             => function() {
+				'titleRendered'             => function () {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
 					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 
 					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered', true );
 				},
 				'titleRaw'                  => [
-					'callback'   => function() {
+					'callback'   => function () {
 						return ! empty( $this->data->post_title ) ? $this->data->post_title : null;
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
-				'excerptRendered'           => function() {
+				'excerptRendered'           => function () {
 					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
 					return $this->html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered' );
 				},
 				'excerptRaw'                => [
-					'callback'   => function() {
+					'callback'   => function () {
 						return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
-				'post_status'               => function() {
+				'post_status'               => function () {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'status'                    => function() {
+				'status'                    => function () {
 					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
-				'commentStatus'             => function() {
+				'commentStatus'             => function () {
 					return ! empty( $this->data->comment_status ) ? $this->data->comment_status : null;
 				},
-				'pingStatus'                => function() {
+				'pingStatus'                => function () {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
 				},
-				'slug'                      => function() {
+				'slug'                      => function () {
 					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
 				},
-				'template'                  => function() {
+				'template'                  => function () {
 
 					$registered_templates = wp_get_theme()->get_post_templates();
 
@@ -598,7 +598,7 @@ class Post extends Model {
 
 					return $template;
 				},
-				'isFrontPage'               => function() {
+				'isFrontPage'               => function () {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {
 						return false;
 					}
@@ -608,7 +608,7 @@ class Post extends Model {
 
 					return false;
 				},
-				'isPrivacyPage'             => function() {
+				'isPrivacyPage'             => function () {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}
@@ -618,7 +618,7 @@ class Post extends Model {
 
 					return false;
 				},
-				'isPostsPage'               => function() {
+				'isPostsPage'               => function () {
 					if ( 'page' !== $this->data->post_type ) {
 						return false;
 					}
@@ -628,34 +628,34 @@ class Post extends Model {
 
 					return false;
 				},
-				'toPing'                    => function() {
+				'toPing'                    => function () {
 					$to_ping = get_to_ping( $this->databaseId );
 
 					return ! empty( $to_ping ) ? implode( ',', (array) $to_ping ) : null;
 				},
-				'pinged'                    => function() {
+				'pinged'                    => function () {
 					$punged = get_pung( $this->databaseId );
 
 					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
 				},
-				'modified'                  => function() {
+				'modified'                  => function () {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? Utils::prepare_date_response( $this->data->post_modified ) : null;
 				},
-				'modifiedGmt'               => function() {
+				'modifiedGmt'               => function () {
 					return ! empty( $this->data->post_modified_gmt ) ? Utils::prepare_date_response( $this->data->post_modified_gmt ) : null;
 				},
-				'parentId'                  => function() {
+				'parentId'                  => function () {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( 'post', (string) $this->data->post_parent ) : null;
 				},
-				'parentDatabaseId'          => function() {
+				'parentDatabaseId'          => function () {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
 				},
-				'editLastId'                => function() {
+				'editLastId'                => function () {
 					$edit_last = get_post_meta( $this->data->ID, '_edit_last', true );
 
 					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
-				'editLock'                  => function() {
+				'editLock'                  => function () {
 
 					require_once ABSPATH . 'wp-admin/includes/post.php';
 					if ( ! wp_check_post_lock( $this->data->ID ) ) {
@@ -667,18 +667,18 @@ class Post extends Model {
 
 					return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 				},
-				'enclosure'                 => function() {
+				'enclosure'                 => function () {
 					$enclosure = get_post_meta( $this->data->ID, 'enclosure', true );
 
 					return ! empty( $enclosure ) ? $enclosure : null;
 				},
-				'guid'                      => function() {
+				'guid'                      => function () {
 					return ! empty( $this->data->guid ) ? $this->data->guid : null;
 				},
-				'menuOrder'                 => function() {
+				'menuOrder'                 => function () {
 					return ! empty( $this->data->menu_order ) ? absint( $this->data->menu_order ) : null;
 				},
-				'link'                      => function() {
+				'link'                      => function () {
 					$link = get_permalink( $this->data->ID );
 
 					if ( $this->isPreview ) {
@@ -689,7 +689,7 @@ class Post extends Model {
 
 					return ! empty( $link ) ? $link : null;
 				},
-				'uri'                       => function() {
+				'uri'                       => function () {
 					$uri = $this->link;
 
 					if ( true === $this->isFrontPage ) {
@@ -698,13 +698,13 @@ class Post extends Model {
 
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
-				'commentCount'              => function() {
+				'commentCount'              => function () {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
 				},
-				'featuredImageId'           => function() {
+				'featuredImageId'           => function () {
 					return ! empty( $this->featuredImageDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->featuredImageDatabaseId ) : null;
 				},
-				'featuredImageDatabaseId'   => function() {
+				'featuredImageDatabaseId'   => function () {
 
 					if ( $this->isRevision ) {
 						$id = $this->parentDatabaseId;
@@ -717,12 +717,12 @@ class Post extends Model {
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
 				'password'                  => [
-					'callback'   => function() {
+					'callback'   => function () {
 						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
 				],
-				'enqueuedScriptsQueue'      => function() {
+				'enqueuedScriptsQueue'      => function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_scripts->queue;
@@ -731,7 +731,7 @@ class Post extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue'  => function() {
+				'enqueuedStylesheetsQueue'  => function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;
@@ -740,11 +740,11 @@ class Post extends Model {
 
 					return $queue;
 				},
-				'isRevision'                => function() {
+				'isRevision'                => function () {
 					return 'revision' === $this->data->post_type;
 				},
 				'previewRevisionDatabaseId' => [
-					'callback'   => function() {
+					'callback'   => function () {
 						$revisions = wp_get_post_revisions(
 							$this->data->ID,
 							[
@@ -758,10 +758,10 @@ class Post extends Model {
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
-				'previewRevisionId'         => function() {
+				'previewRevisionId'         => function () {
 					return ! empty( $this->previewRevisionDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->previewRevisionDatabaseId ) : null;
 				},
-				'isPreview'                 => function() {
+				'isPreview'                 => function () {
 					if ( $this->isRevision ) {
 						$revisions = wp_get_post_revisions(
 							$this->parentDatabaseId,
@@ -779,48 +779,48 @@ class Post extends Model {
 
 					return false;
 				},
-				'isSticky'                  => function() {
+				'isSticky'                  => function () {
 					return is_sticky( $this->databaseId );
 				},
 			];
 
 			if ( 'attachment' === $this->data->post_type ) {
 				$attachment_fields = [
-					'captionRendered'     => function() {
+					'captionRendered'     => function () {
 						$caption = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $this->data->post_excerpt, $this->data ) );
 
 						return ! empty( $caption ) ? $caption : null;
 					},
 					'captionRaw'          => [
-						'callback'   => function() {
+						'callback'   => function () {
 							return ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
 						},
 						'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 					],
-					'altText'             => function() {
+					'altText'             => function () {
 						return get_post_meta( $this->data->ID, '_wp_attachment_image_alt', true );
 					},
-					'descriptionRendered' => function() {
+					'descriptionRendered' => function () {
 						return ! empty( $this->data->post_content ) ? apply_filters( 'the_content', $this->data->post_content ) : null;
 					},
 					'descriptionRaw'      => [
-						'callback'   => function() {
+						'callback'   => function () {
 							return ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 						},
 						'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 					],
-					'mediaType'           => function() {
+					'mediaType'           => function () {
 						return wp_attachment_is_image( $this->data->ID ) ? 'image' : 'file';
 					},
-					'mediaItemUrl'        => function() {
+					'mediaItemUrl'        => function () {
 						return wp_get_attachment_url( $this->data->ID );
 					},
-					'sourceUrl'           => function() {
+					'sourceUrl'           => function () {
 						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
 
 						return ! empty( $source_url ) && isset( $source_url[0] ) ? $source_url[0] : null;
 					},
-					'sourceUrlsBySize'    => function() {
+					'sourceUrlsBySize'    => function () {
 						$sizes = get_intermediate_image_sizes();
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
@@ -832,10 +832,10 @@ class Post extends Model {
 
 						return $urls;
 					},
-					'mimeType'            => function() {
+					'mimeType'            => function () {
 						return ! empty( $this->data->post_mime_type ) ? $this->data->post_mime_type : null;
 					},
-					'mediaDetails'        => function() {
+					'mediaDetails'        => function () {
 						$media_details = wp_get_attachment_metadata( $this->data->ID );
 						if ( ! empty( $media_details ) ) {
 							$media_details['ID'] = $this->data->ID;
@@ -855,7 +855,7 @@ class Post extends Model {
 			 */
 			if ( isset( $this->post_type_object ) && isset( $this->post_type_object->graphql_single_name ) ) {
 				$type_id                  = $this->post_type_object->graphql_single_name . 'Id';
-				$this->fields[ $type_id ] = function() {
+				$this->fields[ $type_id ] = function () {
 					return absint( $this->data->ID );
 				};
 			};

@@ -20,40 +20,29 @@ use WPGraphQL\WPSchema;
 class InstrumentSchema {
 
 	/**
-	 * Cache post for the resolvers so we can call the setup_postdata only when the actual
-	 * source post changes
-	 *
-	 * @var mixed The WP_Post object, or null
-	 */
-	private static $cached_post = null;
-
-	/**
 	 * @param WPSchema $schema Instance of the Schema.
 	 *
 	 * @return WPSchema
 	 */
 	public static function instrument_schema( WPSchema $schema ): WPSchema {
 
-		$new_types = [];
-		$types     = $schema->getTypeMap();
+		$types = $schema->getTypeMap();
 
-		if ( ! empty( $types ) && is_array( $types ) ) {
-			foreach ( $types as $type_name => $type_object ) {
-				if ( $type_object instanceof ObjectType || $type_object instanceof InterfaceType ) {
-					$fields                            = $type_object->getFields();
-					$new_fields                        = self::wrap_fields( $fields, $type_name );
-					$new_type_object                   = $type_object;
-					$new_type_object->name             = ucfirst( esc_html( $type_object->name ) );
-					$new_type_object->description      = ! empty( $type_object->description ) ? esc_html( $type_object->description ) : '';
-					$new_type_object->config['fields'] = $new_fields;
-					$new_types[ $type_name ]           = $new_type_object;
-				}
+		$schema->config->types = array_map( function ( $type_object ) {
+
+			if ( ! method_exists( $type_object, 'getFields' ) ) {
+				return $type_object;
 			}
-		}
 
-		if ( ! empty( $new_types ) && is_array( $new_types ) ) {
-			$schema->config->types = array_merge( $types, $new_types );
-		}
+			$fields                        = $type_object->getFields();
+			$fields                        = ! empty( $fields ) ? self::wrap_fields( $fields, $type_object->name ) : [];
+			$type_object->name             = ucfirst( esc_html( $type_object->name ) );
+			$type_object->description      = ! empty( $type_object->description ) ? esc_html( $type_object->description ) : '';
+			$type_object->config['fields'] = $fields;
+
+			return $type_object;
+
+		}, $types );
 
 		return $schema;
 
@@ -116,18 +105,7 @@ class InstrumentSchema {
 			 * @throws Exception
 			 * @since 0.0.1
 			 */
-			$field->resolveFn = static function( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
-
-				/**
-				 * Setup the global post to the current post (if a post)
-				 * This ensures that functions like get_the_content() work correctly
-				 * so graphql queries can be used in the loop without issues.
-				 */
-				if ( is_a( $source, 'WP_Post' ) && self::$cached_post !== $source ) {
-					self::$cached_post = $source;
-					$GLOBALS['post']   = $source;
-					setup_postdata( $source );
-				}
+			$field->resolveFn = function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
 				/**
 				 * Fire an action BEFORE the field resolves
