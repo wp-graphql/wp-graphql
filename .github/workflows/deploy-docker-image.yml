@@ -32,7 +32,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/markkelnar/wp-graphql:latest-wp5.6-php7.4
+          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp5.6-php7.4
           file: docker/app.Dockerfile
           build-args: |
             PHP_VERSION=7.4
