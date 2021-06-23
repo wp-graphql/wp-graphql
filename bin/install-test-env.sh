@@ -9,9 +9,8 @@ fi
 source .env
 
 print_usage_instruction() {
-  echo "ERROR!"
-  echo "Values in the .env file are missing or incorrect."
-  echo "Open the .env file at the root of this plugin and enter values to match your local environment settings"
+	echo "Ensure that .env file exist in project root directory exists."
+	echo "And run the following 'composer build-test' in the project root directory"
 	exit 1
 }
 
@@ -169,7 +168,7 @@ setup_plugin() {
 
 	cd $WP_CORE_DIR
 
-  wp plugin list
+	wp plugin list
 
 	# activate the plugin
 	wp plugin activate wp-graphql

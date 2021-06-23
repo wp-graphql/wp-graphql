@@ -1,0 +1,41 @@
+name: Deploy Docker Image
+
+# Note: testing image push process. On merge to develop branch, push the image.
+# TODO: Deploy when release is tagged. Add release version to image name.
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php: [ '7.3', '7.4' ]
+        wordpress: [ '5.6', '5.5.3', '5.4.2' ]
+      fail-fast: false
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2.5.0
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+          file: docker/app.Dockerfile
+          build-args: |
+            PHP_VERSION=${{ matrix.php }}
+            WP_VERSION=${{ matrix.wordpress }}

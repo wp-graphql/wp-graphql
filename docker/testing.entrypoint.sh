@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "WordPress: ${WP_VERSION} PHP: ${PHP_VERSION}"
+
 # Processes parameters and runs Codeception.
 run_tests() {
     if [[ -n "$COVERAGE" ]]; then
