@@ -1,5 +1,8 @@
 name: Deploy Docker Image
 
+# Note: testing image push process. On merge to develop branch push image.
+# TODO: Add matrix for versions of WP and PHP.
+# TODO: Add wp-graphql version to image name.
 on:
   push:
     branches:
@@ -32,7 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp5.6-php7.4
+          tags: ghcr.io/markkelnar/wp-graphql:latest-wp5.6-php7.4
           file: docker/app.Dockerfile
           build-args: |
             PHP_VERSION=7.4
