@@ -39,7 +39,7 @@ if ! $( wp core is-installed --allow-root ); then
 		--allow-root
 fi
 
-echo "Running WordPress version: $(wp core version --allow-root)"
+echo "Running WordPress version: $(wp core version --allow-root) at $(wp option get home --allow-root)"
 
 # Activate wp-graphql
 wp plugin activate wp-graphql --allow-root
