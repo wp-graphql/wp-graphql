@@ -1,7 +1,6 @@
 name: Deploy Docker Image
 
 # Note: testing image push process. On merge to develop branch, push the image.
-# TODO: Add matrix for versions of WP and PHP.
 # TODO: Deploy when release is tagged. Add release version to image name.
 on:
   push:
@@ -13,7 +12,12 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+    strategy:
+      matrix:
+        php: [ '7.3', '7.4' ]
+        wordpress: [ '5.6', '5.5.3', '5.4.2' ]
+      fail-fast: false
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -30,8 +34,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp5.6-php7.4
+          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
           file: docker/app.Dockerfile
           build-args: |
-            PHP_VERSION=7.4
-            WP_VERSION=5.6
+            PHP_VERSION=${{ matrix.php }}
+            WP_VERSION=${{ matrix.wordpress }}
