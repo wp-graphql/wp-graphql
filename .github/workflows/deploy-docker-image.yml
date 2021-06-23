@@ -1,11 +1,10 @@
 name: Deploy Docker Image
 
-# Note: testing image push process. On merge to develop branch, push the image.
-# TODO: Deploy when release is tagged. Add release version to image name.
+# On release/tag, use "v#.#.#' tag version number. Also push 'latest' image.
 on:
   push:
-    branches:
-      - develop
+    tags:
+      - 'v*'
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -22,6 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      # Use magic to get the tag number from /ref/heads/v0.1.2 in GITHUB_REF
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
@@ -34,7 +38,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+          tags: |
+            ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+            ghcr.io/wp-graphql/wp-graphql:${{ steps.vars.outputs.tag }}-wp${{ matrix.wordpress }}-php${{ matrix.php }}
           file: docker/app.Dockerfile
           build-args: |
             PHP_VERSION=${{ matrix.php }}
