@@ -41,8 +41,7 @@ fi
 
 echo "Running WordPress version: $(wp core version --allow-root)"
 
-# Install and activate wp-graphql
-wp plugin install wp-graphql --allow-root
+# Activate wp-graphql
 wp plugin activate wp-graphql --allow-root
 
 # Set pretty permalinks.
