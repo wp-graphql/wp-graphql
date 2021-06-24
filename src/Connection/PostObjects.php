@@ -515,7 +515,9 @@ class PostObjects {
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
 			'mimeType'    => [
-				'type'        => 'MimeTypeEnum',
+				'type'        => [
+					'list_of' => 'MimeTypeEnum'
+				],
 				'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
 			],
 		];
