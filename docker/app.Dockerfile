@@ -80,6 +80,7 @@ ENV USING_XDEBUG=0
 
 # Set up entrypoint
 WORKDIR    /var/www/html
+COPY       docker/app.setup.sh /usr/local/bin/app-setup.sh
 COPY       docker/app.entrypoint.sh /usr/local/bin/app-entrypoint.sh
 RUN        chmod 755 /usr/local/bin/app-entrypoint.sh
 ENTRYPOINT ["app-entrypoint.sh"]
