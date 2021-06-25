@@ -362,12 +362,18 @@ class PostObjects {
 			unset( $connection_args['stati'] );
 		}
 
+		$from_field_name = lcfirst( $graphql_object->graphql_plural_name );
+
+		if ( $graphql_object->graphql_single_name === $graphql_object->graphql_plural_name ) {
+			$from_field_name = 'all' . ucfirst( $graphql_object->graphql_single_name );
+		}
+
 		return array_merge(
 			[
 				'fromType'       => 'RootQuery',
 				'toType'         => $graphql_object->graphql_single_name,
 				'queryClass'     => 'WP_Query',
-				'fromFieldName'  => lcfirst( $graphql_object->graphql_plural_name ),
+				'fromFieldName'  => $from_field_name,
 				'connectionArgs' => $connection_args,
 				'resolve'        => function ( $root, $args, $context, $info ) use ( $graphql_object ) {
 					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, $graphql_object->name );

@@ -17,7 +17,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		// then
 		parent::tearDown();
 		unregister_post_type( 'test_aaa' );
-		unregister_taxonomy( 'test_tax_aaa' );
+		unregister_taxonomy( 'aircraft' );
 		WPGraphQL::clear_schema();
 	}
 
@@ -42,23 +42,20 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		}
 	}
 
-	public function testPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralNameThrowsException() {
+	public function testPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralNameHasConnections() {
 
 		WPGraphQL::clear_schema();
 
 		register_post_type( 'test_aaa', [
 			'show_in_graphql' => true,
-			'graphql_single_name' => 'testName',
-			'graphql_plural_name' => 'testName',
+			'graphql_single_name' => 'deer',
+			'graphql_plural_name' => 'deer',
 		] );
-
-
-		$this->expectException( '\GraphQL\Error\InvariantViolation' );
 
 		$actual = graphql([
 			'query' => '
 			{
-			  __type(name: "RootQuery") {
+			  __type(name: "RootQueryToDeerConnection") {
 			    name
 			  }
 			  __schema {
@@ -72,29 +69,26 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		WPGraphQL::clear_schema();
 
 	}
 
-	public function testTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralNameThrowsException() {
+	public function testTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralNameHasConnections() {
 
 		WPGraphQL::clear_schema();
 
-		register_taxonomy( 'test_tax_aaa', 'post', [
+		register_taxonomy( 'aircraft', 'post', [
 			'show_in_graphql' => true,
-			'graphql_single_name' => 'testTaxName',
-			'graphql_plural_name' => 'testTaxName',
+			'graphql_single_name' => 'aircraft',
+			'graphql_plural_name' => 'aircraft',
 		] );
-
-
-		$this->expectException( '\GraphQL\Error\InvariantViolation' );
 
 		$actual = graphql([
 			'query' => '
 			{
-			  __type(name: "RootQuery") {
+			  __type(name: "RootQueryToAircraftConnection") {
 			    name
 			  }
 			  __schema {
@@ -108,7 +102,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		WPGraphQL::clear_schema();
 

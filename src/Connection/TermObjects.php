@@ -224,12 +224,17 @@ class TermObjects {
 	 * @return array
 	 */
 	public static function get_connection_config( $tax_object, $args = [] ) {
+		$from_field_name = $tax_object->graphql_plural_name;
+
+		if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
+			$from_field_name = 'all' . ucfirst( $tax_object->graphql_single_name );
+		}
 
 		$defaults = [
 			'fromType'       => 'RootQuery',
 			'queryClass'     => 'WP_Term_Query',
 			'toType'         => $tax_object->graphql_single_name,
-			'fromFieldName'  => $tax_object->graphql_plural_name,
+			'fromFieldName'  => $from_field_name,
 			'connectionArgs' => self::get_connection_args(),
 			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );

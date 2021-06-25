@@ -407,16 +407,6 @@ class TypeRegistry {
 					return;
 				}
 
-				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
-					throw new \GraphQL\Error\InvariantViolation(
-						sprintf(
-						/* translators: %s will replaced with the registered type */
-							__( 'The %s post_type cannot declare the same value for "graphql_single_name" and "graphql_plural_name".', 'wp-graphql' ),
-							$post_type_object->name
-						)
-					);
-				}
-
 				PostObject::register_post_object_types( $post_type_object, $type_registry );
 
 				/**
@@ -450,16 +440,6 @@ class TypeRegistry {
 								/* translators: %s will replaced with the registered type */
 									__( 'The %s taxonomy cannot be found.', 'wp-graphql' ),
 									$taxonomy
-								)
-							);
-						}
-
-						if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
-							throw new \GraphQL\Error\InvariantViolation(
-								sprintf(
-								/* translators: %s will replaced with the registered type */
-									__( 'The %s taxonomy cannot declare the same value for "graphql_single_name" and "graphql_plural_name".', 'wp-graphql' ),
-									$tax_object->name
 								)
 							);
 						}
