@@ -52,6 +52,7 @@ ENV WORDPRESS_DB_PASSWORD=${DB_PASSWORD}
 ENV WORDPRESS_DB_NAME=${DB_NAME}
 ENV PLUGINS_DIR="${WP_ROOT_FOLDER}/wp-content/plugins"
 ENV PROJECT_DIR="${PLUGINS_DIR}/wp-graphql"
+ENV DATA_DUMP_DIR="${PROJECT_DIR}/tests/_data"
 
 # Remove exec statement from base entrypoint script.
 RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
