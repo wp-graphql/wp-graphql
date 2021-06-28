@@ -47,6 +47,7 @@ cd ${WP_ROOT_FOLDER}
 
 # Run app entrypoint script.
 . app-setup.sh
+. app-post-setup.sh
 
 write_htaccess
 
