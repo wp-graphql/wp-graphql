@@ -16,8 +16,6 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		// then
 		parent::tearDown();
-		unregister_post_type( 'test_aaa' );
-		unregister_taxonomy( 'aircraft' );
 		WPGraphQL::clear_schema();
 	}
 
