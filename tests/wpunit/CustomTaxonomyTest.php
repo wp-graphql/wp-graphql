@@ -99,4 +99,55 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testQueryCustomTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
+		register_taxonomy(
+			'aircraft',
+			[ 'bootstrap_cpt' ],
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'aircraft',
+				'graphql_plural_name' => 'aircraft',
+				'hierarchical'        => true,
+			]
+		);
+
+		$term_id = $this->factory()->term->create( [
+			'taxonomy' => 'aircraft',
+			'name'     => 'Boeing 767'
+		] );
+
+		$query = '
+		query GET_CUSTOM_TAX_TERMS( $id: ID! ) {
+		  aircraft( id: $id idType: DATABASE_ID ) {
+		    aircraftId
+		  }
+		  allAircraft {
+			nodes {
+			  aircraftId
+			}
+			edges {
+			  node {
+				aircraftId
+			  }
+			}
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'id' => $term_id
+			]
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( $term_id, $actual['data']['aircraft']['aircraftId'] );
+		$this->assertEquals( $term_id, $actual['data']['allAircraft']['nodes'][0]['aircraftId'] );
+		$this->assertEquals( $term_id, $actual['data']['allAircraft']['edges'][0]['node']['aircraftId'] );
+	}
+
 }
