@@ -61,10 +61,21 @@ class TermObjects {
 
 				if ( $tax_object instanceof \WP_Taxonomy ) {
 
+					$root_query_from_field_name = $tax_object->graphql_plural_name;
+
+					// Prevent field name conflicts with the singular TermObject type.
+					if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
+						$root_query_from_field_name = 'all' . ucfirst( $tax_object->graphql_single_name );
+					}
+
 					/**
 					 * Registers the RootQuery connection for each allowed taxonomy's TermObjects
 					 */
-					register_graphql_connection( self::get_connection_config( $tax_object ) );
+					register_graphql_connection(
+						self::get_connection_config( $tax_object, [
+							'fromFieldName' => $root_query_from_field_name
+						] )
+					);
 
 					/**
 					 * Registers the connections between each allowed PostObjectType and it's TermObjects
@@ -224,17 +235,12 @@ class TermObjects {
 	 * @return array
 	 */
 	public static function get_connection_config( $tax_object, $args = [] ) {
-		$from_field_name = $tax_object->graphql_plural_name;
-
-		if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
-			$from_field_name = 'all' . ucfirst( $tax_object->graphql_single_name );
-		}
 
 		$defaults = [
 			'fromType'       => 'RootQuery',
 			'queryClass'     => 'WP_Term_Query',
 			'toType'         => $tax_object->graphql_single_name,
-			'fromFieldName'  => $from_field_name,
+			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
 			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
