@@ -72,9 +72,12 @@ class TermObjects {
 					 * Registers the RootQuery connection for each allowed taxonomy's TermObjects
 					 */
 					register_graphql_connection(
-						self::get_connection_config( $tax_object, [
-							'fromFieldName' => $root_query_from_field_name
-						] )
+						self::get_connection_config(
+							$tax_object,
+							[
+								'fromFieldName' => $root_query_from_field_name,
+							]
+						)
 					);
 
 					/**
