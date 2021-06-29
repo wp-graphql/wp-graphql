@@ -119,15 +119,15 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_TAX_TERMS( $id: ID! ) {
 		  aircraft( id: $id idType: DATABASE_ID ) {
-		    aircraftId
+			databaseId
 		  }
 		  allAircraft {
 			nodes {
-			  aircraftId
+			  databaseId
 			}
 			edges {
 			  node {
-				aircraftId
+				databaseId
 			  }
 			}
 		  }
@@ -145,9 +145,9 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->assertEquals( $term_id, $actual['data']['aircraft']['aircraftId'] );
-		$this->assertEquals( $term_id, $actual['data']['allAircraft']['nodes'][0]['aircraftId'] );
-		$this->assertEquals( $term_id, $actual['data']['allAircraft']['edges'][0]['node']['aircraftId'] );
+		$this->assertEquals( $term_id, $actual['data']['aircraft']['databaseId'] );
+		$this->assertEquals( $term_id, $actual['data']['allAircraft']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $term_id, $actual['data']['allAircraft']['edges'][0]['node']['databaseId'] );
 	}
 
 }

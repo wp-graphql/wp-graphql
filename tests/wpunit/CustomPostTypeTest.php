@@ -269,11 +269,11 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		  }
 		  allTestCpt {
 		    nodes {
-		      testCptId
+			  databaseId
 		    }
 		    edges {
 		      node {
-		        testCptId
+		        databaseId
 		      }
 		    }
 		  }
@@ -293,8 +293,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( 'TestCpt', $actual['data']['testCpt']['__typename'] );
 		$this->assertEquals( $post_id, $actual['data']['testCpt']['databaseId'] );
-		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['nodes'][0]['testCptId'] );
-		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['edges'][0]['node']['testCptId'] );
+		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['edges'][0]['node']['databaseId'] );
 	}
 
 }
