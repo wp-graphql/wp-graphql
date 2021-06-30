@@ -79,7 +79,7 @@ case "$subcommand" in
         while getopts "e:at" opt; do
             case ${opt} in
                 a )
-                docker-compose up --scale testing=0 \
+                docker compose up app \
                     -e WP_VERSION=${WP_VERSION} \
                     -e PHP_VERSION=${PHP_VERSION} \
                     ;;
