@@ -66,7 +66,7 @@ class MenuItem {
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
 					],
 					'path'             => [
-						'type'        => [ 'non_null' => 'String' ],
+						'type'        => 'String',
 						'description' => __( 'Path for the resource. Relative path for internal resources. Absolute path for external resources.', 'wp-graphql' ),
 					],
 					'isRestricted'     => [
