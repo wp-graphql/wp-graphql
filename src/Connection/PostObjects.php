@@ -91,16 +91,8 @@ class PostObjects {
 				'toType'         => 'ContentNode',
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'contentNodes',
-				'connectionArgs' => self::get_connection_args(
-					[
-						'contentTypes' => [
-							'type'        => [ 'list_of' => 'ContentTypeEnum' ],
-							'description' => __( 'The Types of content to filter', 'wp-graphql' ),
-						],
-					],
-					null
-				),
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'connectionArgs' => self::get_connection_args(),
+				'resolve'        => function( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
 
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
@@ -696,6 +688,30 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
+		} else if ( isset( $post_type_object ) && $post_type_object instanceof WP_Taxonomy ) {
+			/**
+			 * Taxonomy-specific Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypesOf' . \WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) . 'Enum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
+		} else {
+			/**
+			 * Handle cases when the connection is for many post types
+			 */
+
+			/**
+			 * Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypeEnum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
 		}
 
 		return array_merge( $fields, $args );
