@@ -46,7 +46,8 @@ echo "Moving to WordPress root directory."
 cd ${WP_ROOT_FOLDER}
 
 # Run app entrypoint script.
-. app-entrypoint.sh
+. app-setup.sh
+. app-post-setup.sh
 
 write_htaccess
 

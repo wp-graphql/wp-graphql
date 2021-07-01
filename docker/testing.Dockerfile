@@ -36,9 +36,6 @@ ENV PATH "$PATH:~/.composer/vendor/bin"
 # Configure php
 RUN echo "date.timezone = UTC" >> /usr/local/etc/php/php.ini
 
-# Remove exec statement from base entrypoint script.
-RUN sed -i '$d' /usr/local/bin/app-entrypoint.sh
-
 # Set up entrypoint
 WORKDIR    /var/www/html/wp-content/plugins/wp-graphql
 COPY       docker/testing.entrypoint.sh /usr/local/bin/testing-entrypoint.sh
