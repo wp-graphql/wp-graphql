@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Type\WPEnumType;
+use WPGraphQL\Utils\Utils;
 
 class ContentTypeEnum {
 
@@ -74,9 +75,9 @@ class ContentTypeEnum {
 				}
 
 				register_graphql_enum_type(
-					'ContentTypesOf' . $taxonomy_object->graphql_single_name . 'Enum',
+					'ContentTypesOf' . Utils::format_type_name( $taxonomy_object->graphql_single_name ) . 'Enum',
 					[
-						'description' => __( 'Allowed Content Types of the ' . $taxonomy_object->graphql_single_name . ' taxonomy.', 'wp-graphql' ),
+						'description' => __( 'Allowed Content Types of the ' . Utils::format_type_name( $taxonomy_object->graphql_single_name ) . ' taxonomy.', 'wp-graphql' ),
 						'values'      => $taxonomy_values,
 					]
 				);

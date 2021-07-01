@@ -14,7 +14,6 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
-use WPGraphQL\Type\WPEnumType;
 
 /**
  * Class PostObjects
@@ -682,7 +681,7 @@ class PostObjects {
 			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
 			 */
 			$args['contentTypes'] = [
-				'type'        => [ 'list_of' => 'ContentTypesOf' . $post_type_object->graphql_single_name . 'Enum' ],
+				'type'        => [ 'list_of' => 'ContentTypesOf' . \WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) . 'Enum' ],
 				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
 			];
 		} else {
