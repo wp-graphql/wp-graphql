@@ -387,7 +387,7 @@ class PostObjects {
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
 	 * @param array         $args             The args to modify the defaults
-	 * @param WP_Post_Type $post_type_object The post type the connection is going to
+	 * @param mixed|WP_Post_Type|WP_Taxonomy $post_type_object The post type the connection is going to
 	 *
 	 * @return array
 	 */
@@ -688,7 +688,7 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
-		} elseif ( isset( $post_type_object ) && $post_type_object instanceof WP_Taxonomy ) {
+		} elseif ( $post_type_object instanceof WP_Taxonomy ) {
 			/**
 			 * Taxonomy-specific Content Type $args
 			 *
