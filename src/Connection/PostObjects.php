@@ -195,7 +195,21 @@ class PostObjects {
 				 * Registers the RootQuery connection for each post_type
 				 */
 				if ( 'revision' !== $post_type ) {
-					register_graphql_connection( self::get_connection_config( $post_type_object ) );
+					$root_query_from_field_name = lcfirst( $post_type_object->graphql_plural_name );
+
+					// Prevent field name conflicts with the singular PostObject type.
+					if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
+						$root_query_from_field_name = 'all' . ucfirst( $post_type_object->graphql_single_name );
+					}
+
+					register_graphql_connection(
+						self::get_connection_config(
+							$post_type_object,
+							[
+								'fromFieldName' => $root_query_from_field_name,
+							]
+						)
+					);
 				}
 
 				if ( ! in_array( $post_type, [ 'attachment', 'revision' ], true ) ) {
