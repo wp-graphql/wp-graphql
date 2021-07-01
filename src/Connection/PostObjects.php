@@ -92,7 +92,7 @@ class PostObjects {
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'contentNodes',
 				'connectionArgs' => self::get_connection_args(),
-				'resolve'        => function( $source, $args, $context, $info ) {
+				'resolve'        => function ( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
 
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
@@ -688,7 +688,7 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
-		} else if ( isset( $post_type_object ) && $post_type_object instanceof WP_Taxonomy ) {
+		} elseif ( isset( $post_type_object ) && $post_type_object instanceof WP_Taxonomy ) {
 			/**
 			 * Taxonomy-specific Content Type $args
 			 *
