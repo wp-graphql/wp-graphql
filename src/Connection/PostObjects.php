@@ -91,15 +91,7 @@ class PostObjects {
 				'toType'         => 'ContentNode',
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'contentNodes',
-				'connectionArgs' => self::get_connection_args(
-					[
-						'contentTypes' => [
-							'type'        => [ 'list_of' => 'ContentTypeEnum' ],
-							'description' => __( 'The Types of content to filter', 'wp-graphql' ),
-						],
-					],
-					null
-				),
+				'connectionArgs' => self::get_connection_args(),
 				'resolve'        => function ( $source, $args, $context, $info ) {
 					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
 
@@ -195,7 +187,21 @@ class PostObjects {
 				 * Registers the RootQuery connection for each post_type
 				 */
 				if ( 'revision' !== $post_type ) {
-					register_graphql_connection( self::get_connection_config( $post_type_object ) );
+					$root_query_from_field_name = lcfirst( $post_type_object->graphql_plural_name );
+
+					// Prevent field name conflicts with the singular PostObject type.
+					if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
+						$root_query_from_field_name = 'all' . ucfirst( $post_type_object->graphql_single_name );
+					}
+
+					register_graphql_connection(
+						self::get_connection_config(
+							$post_type_object,
+							[
+								'fromFieldName' => $root_query_from_field_name,
+							]
+						)
+					);
 				}
 
 				if ( ! in_array( $post_type, [ 'attachment', 'revision' ], true ) ) {
@@ -381,7 +387,7 @@ class PostObjects {
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
 	 * @param array         $args             The args to modify the defaults
-	 * @param WP_Post_Type $post_type_object The post type the connection is going to
+	 * @param mixed|WP_Post_Type|WP_Taxonomy $post_type_object The post type the connection is going to
 	 *
 	 * @return array
 	 */
@@ -682,6 +688,30 @@ class PostObjects {
 					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
 				];
 			}
+		} elseif ( $post_type_object instanceof WP_Taxonomy ) {
+			/**
+			 * Taxonomy-specific Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypesOf' . \WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) . 'Enum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
+		} else {
+			/**
+			 * Handle cases when the connection is for many post types
+			 */
+
+			/**
+			 * Content Type $args
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#post-type-parameters
+			 */
+			$args['contentTypes'] = [
+				'type'        => [ 'list_of' => 'ContentTypeEnum' ],
+				'description' => __( 'The Types of content to filter', 'wp-graphql' ),
+			];
 		}
 
 		return array_merge( $fields, $args );

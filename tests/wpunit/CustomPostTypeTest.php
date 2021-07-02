@@ -241,4 +241,60 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testQueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
+		register_post_type(
+			'test_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'testCpt',
+				'graphql_plural_name' => 'testCpt',
+				'hierarchical'        => true,
+				'public'              => true,
+				'taxonomies'          => [ 'category' ],
+			]
+		);
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'test_cpt',
+			'post_status' => 'publish',
+			'post_title' => 'Test',
+			'post_author' => $this->admin
+		]);
+
+		$query = '
+		query GET_CUSTOM_POSTS( $id: ID! ) {
+		  testCpt( id: $id idType: DATABASE_ID ) {
+			__typename
+			databaseId
+		  }
+		  allTestCpt {
+		    nodes {
+			  databaseId
+		    }
+		    edges {
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $post_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 'TestCpt', $actual['data']['testCpt']['__typename'] );
+		$this->assertEquals( $post_id, $actual['data']['testCpt']['databaseId'] );
+		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['edges'][0]['node']['databaseId'] );
+	}
+
 }

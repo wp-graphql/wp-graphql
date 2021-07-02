@@ -1,0 +1,47 @@
+name: Deploy Docker Image
+
+# On release/tag, use "v#.#.#' tag version number. Also push 'latest' image.
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php: [ '7.3', '7.4' ]
+        wordpress: [ '5.6', '5.5.3', '5.4.2' ]
+      fail-fast: false
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Use magic to get the tag number from /ref/heads/v0.1.2 in GITHUB_REF
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2.5.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+            ghcr.io/wp-graphql/wp-graphql:${{ steps.vars.outputs.tag }}-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+          file: docker/app.Dockerfile
+          build-args: |
+            PHP_VERSION=${{ matrix.php }}
+            WP_VERSION=${{ matrix.wordpress }}

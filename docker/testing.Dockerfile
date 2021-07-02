@@ -2,8 +2,10 @@
 # Container for running Codeception tests on a WPGraphQL Docker instance. #
 ############################################################################
 
-# Using the 'DESIRED_' prefix to avoid confusion with environment variables of the same name.
-FROM wpgraphql-app:latest
+ARG WP_VERSION
+ARG PHP_VERSION
+
+FROM wp-graphql:latest-wp${WP_VERSION}-php${PHP_VERSION}
 
 LABEL author=jasonbahl
 LABEL author_uri=https://github.com/jasonbahl
@@ -31,13 +33,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Add composer global binaries to PATH
 ENV PATH "$PATH:~/.composer/vendor/bin"
 
-
-
 # Configure php
 RUN echo "date.timezone = UTC" >> /usr/local/etc/php/php.ini
-
-# Remove exec statement from base entrypoint script.
-RUN sed -i '$d' /usr/local/bin/app-entrypoint.sh
 
 # Set up entrypoint
 WORKDIR    /var/www/html/wp-content/plugins/wp-graphql

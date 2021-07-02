@@ -4,21 +4,14 @@ services:
   app:
     depends_on:
       - app_db
-    image: wpgraphql-app:latest
+    image: wp-graphql:latest-wp${WP_VERSION-5.6}-php${PHP_VERSION-7.4}
     volumes:
       - '.:/var/www/html/wp-content/plugins/wp-graphql'
       - './.log/app:/var/log/apache2'
+    env_file:
+      - .env
     environment:
-      WP_URL: 'http://localhost:8091'
-      WP_DOMAIN: 'localhost:8091'
-      DB_HOST: app_db
-      DB_NAME: wordpress
-      DB_USER: wordpress
-      DB_PASSWORD: wordpress
-      WP_DOMAIN: localhost
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: password
+      WP_URL: http://localhost:8091
       USING_XDEBUG: ${USING_XDEBUG:-}
     ports:
       - '8091:80'
@@ -41,16 +34,14 @@ services:
   testing:
     depends_on:
       - app_db
-    image: wpgraphql-testing:latest
+    image: wp-graphql-testing:latest-wp${WP_VERSION-5.6}-php${PHP_VERSION-7.4}
     volumes:
       - '.:/var/www/html/wp-content/plugins/wp-graphql'
       - './.log/testing:/var/log/apache2'
       - './codeception.dist.yml:/var/www/html/wp-content/plugins/wp-graphql/codeception.yml'
-    env_file: .env.dist
+    env_file:
+      - .env
     environment:
-      DB_HOST: app_db
-      WP_URL: 'http://localhost'
-      WP_DOMAIN: 'localhost'
       SUITES: ${SUITES:-}
     networks:
       testing:

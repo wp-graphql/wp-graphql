@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "WordPress: ${WP_VERSION} PHP: ${PHP_VERSION}"
+
 # Processes parameters and runs Codeception.
 run_tests() {
     if [[ -n "$COVERAGE" ]]; then
@@ -44,7 +46,8 @@ echo "Moving to WordPress root directory."
 cd ${WP_ROOT_FOLDER}
 
 # Run app entrypoint script.
-. app-entrypoint.sh
+. app-setup.sh
+. app-post-setup.sh
 
 write_htaccess
 
@@ -134,7 +137,7 @@ fi
 
 # Check results and exit accordingly.
 if [ -f "${TESTS_OUTPUT}/failed" ]; then
-    echo "Uh oh, some went wrong."
+    echo "Uh oh, something went wrong."
     exit 1
 else
     echo "Woohoo! It's working!"
