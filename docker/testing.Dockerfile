@@ -37,7 +37,7 @@ ENV PATH "$PATH:~/.composer/vendor/bin"
 RUN echo "date.timezone = UTC" >> /usr/local/etc/php/php.ini
 
 # Set up entrypoint
-WORKDIR    /var/www/html/wp-content/plugins/wp-graphql
+WORKDIR    /var/www/html
 COPY       docker/testing.entrypoint.sh /usr/local/bin/testing-entrypoint.sh
 RUN        chmod 755 /usr/local/bin/testing-entrypoint.sh
 ENTRYPOINT ["testing-entrypoint.sh"]
