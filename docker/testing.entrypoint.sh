@@ -42,8 +42,15 @@ RewriteRule . /index.php [L]
 
 # Move to WordPress root folder
 workdir="$PWD"
-echo "Moving to WordPress root directory."
+echo "Moving to WordPress root directory ${WP_ROOT_FOLDER}."
 cd ${WP_ROOT_FOLDER}
+
+# Because we are starting apache independetly of the docker image,
+# we set WORDPRESS environment variables so apache see them and used in the wp-config.php
+echo "export WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}" >> /etc/apache2/envvars
+echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars
+echo "export WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}" >> /etc/apache2/envvars
+echo "export WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}" >> /etc/apache2/envvars
 
 # Run app entrypoint script.
 . app-setup.sh
@@ -53,7 +60,7 @@ write_htaccess
 
 # Return to PWD.
 echo "Moving back to project working directory."
-cd ${workdir}
+cd ${WP_ROOT_FOLDER}/wp-content/plugins/wp-graphql
 
 # Ensure Apache is running
 service apache2 start
