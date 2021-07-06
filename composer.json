@@ -22,9 +22,9 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
-    "webonyx/graphql-php": "14.8.0",
-    "ivome/graphql-relay-php": "0.5.0"
+    "php": "^7.1 || ^8.0",
+    "webonyx/graphql-php": "14.9.0",
+    "ivome/graphql-relay-php": "0.6.0"
   },
   "require-dev": {
     "lucatume/wp-browser": "^2.4",
@@ -43,8 +43,8 @@
     "phpstan/phpstan": "^0.12.64",
     "szepeviktor/phpstan-wordpress": "^0.7.1",
     "codeception/module-rest": "^1.2",
-    "wp-graphql/wp-graphql-testcase": "^1.1",
-    "phpunit/phpunit": "^7.5",
+    "wp-graphql/wp-graphql-testcase": "~2.1",
+    "phpunit/phpunit": "^8.5",
     "simpod/php-coveralls-mirror": "^3.0",
     "phpstan/extension-installer": "^1.1"
   },

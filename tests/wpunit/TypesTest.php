@@ -50,8 +50,12 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$response = $this->graphql( compact( 'query' ) );
 
+		codecept_debug( $response );
+
 		$this->assertEmpty( $this->lodashGet( $response, 'errors' ) );
-		$this->assertQuerySuccessful( $response, [] );
+		$this->assertQuerySuccessful( $response, [
+			$this->expectedField( 'example.example', self::IS_NULL )
+		] );
 		$this->assertNotEmpty( $this->lodashGet( $response, 'extensions.debug' ) );
 	}
 
@@ -80,7 +84,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertQuerySuccessful( $response, [] );
+		$this->assertQuerySuccessful( $response, [
+			$this->expectedField( 'posts.nodes.id', self::NOT_NULL )
+		] );
 
 		$messages = wp_list_pluck( $response['extensions']['debug'], 'message' );
 		$this->assertTrue( in_array( 'The registered field \'newFieldWithoutTypeDefined\' does not have a Type defined. Make sure to define a type for all fields.', $messages, true ) );
@@ -252,12 +258,12 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$variables = [ 'id' => $user_id ];
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
-			$this->expectedObject( 'user.testNonNullString', 'string' ),
-			$this->expectedObject( 'user.testNonNullStringTwo', 'string' ),
-			$this->expectedObject( 'user.testListOfStringTwo', [ 'string' ] ),
-			$this->expectedObject( 'user.testListOfNonNullString', [ 'string' ] ),
-			$this->expectedObject( 'user.testNonNullListOfString', [ 'string' ] ),
-			$this->expectedObject( 'user.testListOfString', [ 'string' ] ),
+			$this->expectedField( 'user.testNonNullString', 'string' ),
+			$this->expectedField( 'user.testNonNullStringTwo', 'string' ),
+			$this->expectedField( 'user.testListOfStringTwo', [ 'string' ] ),
+			$this->expectedField( 'user.testListOfNonNullString', [ 'string' ] ),
+			$this->expectedField( 'user.testNonNullListOfString', [ 'string' ] ),
+			$this->expectedField( 'user.testListOfString', [ 'string' ] ),
 		];
 
 		$this->assertArrayNotHasKey( 'errors', $response );
@@ -306,7 +312,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertQuerySuccessful( $response, [] );
+		$this->assertQuerySuccessful( $response, [
+			$this->expectedField( 'customTestConnection.nodes', self::IS_NULL )
+		] );
 	}
 
 	public function testRegisterCustomConnectionWithAuth() {
@@ -378,7 +386,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$expected = [
 			$this->expectedErrorPath( 'secretConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedObject( 'secretConnection', 'NULL' ),
+			$this->expectedField( 'secretConnection', self::IS_NULL ),
 		];
 
 		$this->assertQueryError( $response, $expected );
@@ -419,7 +427,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$expected = [
 			$this->expectedErrorPath( 'failingAuthConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedObject( 'failingAuthConnection', 'NULL' ),
+			$this->expectedField( 'failingAuthConnection', self::IS_NULL ),
 		];
 
 		$this->assertQueryError( $response, $expected );
@@ -427,13 +435,13 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		\wp_set_current_user( 1 );
 		$response  = $this->graphql( compact( 'query' ) );
 		$expected = [
-			$this->expectedNode( 'failingAuthConnection.nodes', 'NULL', 0 ),
+			$this->expectedField( 'failingAuthConnection.nodes.0', self::NOT_NULL ),
 			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedObject( 'failingAuthConnection.nodes.1.test', 'NULL' ),
+			$this->expectedField( 'failingAuthConnection.nodes.1.test', self::IS_NULL ),
 			$this->expectedErrorPath( 'failingAuthConnection.nodes.2.test' ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedObject( 'failingAuthConnection.nodes.2.test', 'NULL' ),
+			$this->expectedField( 'failingAuthConnection.nodes.2.test', self::IS_NULL ),
 		];
 
 		$this->assertQueryError( $response, $expected );
