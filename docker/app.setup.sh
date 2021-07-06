@@ -8,9 +8,6 @@ fi
 # Run WordPress docker entrypoint.
 . docker-entrypoint.sh 'apache2'
 
-echo "Delete the wp-config.php"
-rm -rf wp-config.php
-
 set +u
 
 # Ensure mysql is loaded
