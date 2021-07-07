@@ -2,8 +2,7 @@
 
 namespace WPGraphQL\Utils;
 
-class Preview
-{
+class Preview {
 
 	/**
 	 * This filters the post meta for previews. Since WordPress core does not save meta for
@@ -21,9 +20,9 @@ class Preview
 	 *
 	 * @return mixed
 	 */
-	public static function filter_post_meta_for_previews($default_value, int $object_id, ?string $meta_key, ?bool $single)
-	{
-		if (!is_graphql_request()) {
+    public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, ?bool $single ) {
+			
+		if ( ! is_graphql_request() ) {
 			return $default_value;
 		}
 
@@ -36,24 +35,27 @@ class Preview
 		 * @param string $meta_key  The key for the meta to resolve
 		 * @param bool   $single    Whether a single value should be returned
 		 */
-		$resolve_revision_meta_from_parent = apply_filters('graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single);
+		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
 
-		if (false === $resolve_revision_meta_from_parent) {
+		if ( false === $resolve_revision_meta_from_parent ) {
 			return $default_value;
 		}
 
-		$post = get_post($object_id);
+		$post = get_post( $object_id );
 
-		if (!$post instanceof \WP_Post) {
+		if ( ! $post instanceof \WP_Post ) {
 			return $default_value;
 		}
 
-		if ('revision' === $post->post_type) {
-			$parent   = get_post($post->post_parent);
-			$meta_key = !empty($meta_key) ? $meta_key : '';
-			return isset($parent->ID) && absint($parent->ID) ? get_post_meta($parent->ID, $meta_key, $single) : $default_value;
+		if ( 'revision' === $post->post_type ) {
+			$parent   = get_post( $post->post_parent );
+			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
+			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
+
 		}
 
 		return $default_value;
+
 	}
+
 }
