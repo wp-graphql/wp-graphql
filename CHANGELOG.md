@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.2
+
+### Chores / Bugfixes
+
+- ([#1992](https://github.com/wp-graphql/wp-graphql/pull/1992)): Fixes bug that caused conflict with the AmpWP plugin.
+
+
 ## 1.5.1
 
 ### Chores / Bugfixes
