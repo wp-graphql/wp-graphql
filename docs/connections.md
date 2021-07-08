@@ -26,7 +26,7 @@ To summarize:
 
 ### Relay Specification
 
-WPGraphQL follows the [Relay Specification](https://relay.dev/docs/en/graphql-server-specification) for GraphQL Schema Design.
+WPGraphQL follows the [Relay Specification](https://relay.dev/docs/guides/graphql-server-specification/) for GraphQL Schema Design.
 
 You can read more about the official Relay Spec on their site. Below you can learn about some of the reasons WPGraphQL is designed following the Relay Spec.
 
