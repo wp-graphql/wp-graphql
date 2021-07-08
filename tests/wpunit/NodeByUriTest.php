@@ -103,6 +103,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 				...on Post {
 				  postId
 				}
+				isContentNode
+				isTermNode
 			}
 		}
 		';
@@ -121,6 +123,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'Errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->post, $actual['data']['nodeByUri']['postId'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
 
 		$this->set_permalink_structure( '' );
 
@@ -150,6 +154,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 				...on Page {
 				  pageId
 				}
+				isTermNode
+				isContentNode
 			}
 		}
 		';
@@ -166,6 +172,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'Errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
 
 		$this->set_permalink_structure( '' );
 
@@ -252,6 +260,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 				...on Category {
 				  categoryId
 				}
+				isTermNode
+				isContentNode
 			}
 		}
 		';
@@ -270,6 +280,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'Errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'category' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->category, $actual['data']['nodeByUri']['categoryId'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 
 
 	}
@@ -286,6 +298,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 				...on Tag {
 				  tagId
 				}
+				isTermNode
+				isContentNode
 			}
 		}
 		';
@@ -302,6 +316,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'Errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'post_tag' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->tag, $actual['data']['nodeByUri']['tagId'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 
 	}
 

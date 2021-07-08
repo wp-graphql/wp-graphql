@@ -29,6 +29,7 @@ class ContentNode {
 		register_graphql_interface_type(
 			'ContentNode',
 			[
+				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
 				'resolveType' => function ( Post $post ) use ( $type_registry ) {
 
@@ -60,12 +61,6 @@ class ContentNode {
 
 				},
 				'fields'      => [
-					'id'                        => [
-						'type'        => [
-							'non_null' => 'ID',
-						],
-						'description' => __( 'The globally unique identifier of the node.', 'wp-graphql' ),
-					],
 					'template'                  => [
 						'type'        => 'ContentTemplate',
 						'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
@@ -115,10 +110,6 @@ class ContentNode {
 					'link'                      => [
 						'type'        => 'String',
 						'description' => __( 'The permalink of the post', 'wp-graphql' ),
-					],
-					'uri'                       => [
-						'type'        => 'String',
-						'description' => __( 'URI path for the resource', 'wp-graphql' ),
 					],
 					'isRestricted'              => [
 						'type'        => 'Boolean',

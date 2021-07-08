@@ -24,13 +24,27 @@ class UniformResourceIdentifiable {
 			[
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
 				'fields'      => [
-					'uri' => [
+					'uri'           => [
 						'type'        => 'String',
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
-					'id'  => [
+					'id'            => [
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
+					],
+					'isContentNode' => [
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => __( 'Whether the node is a Content Node', 'wp-graphql' ),
+						'resolve'     => function ( $node ) {
+							return $node instanceof Post;
+						},
+					],
+					'isTermNode'    => [
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => __( 'Whether the node is a Term', 'wp-graphql' ),
+						'resolve'     => function ( $node ) {
+							return $node instanceof Term;
+						},
 					],
 				],
 				'resolveType' => function ( $node ) use ( $type_registry ) {
