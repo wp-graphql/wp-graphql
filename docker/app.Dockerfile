@@ -46,10 +46,6 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 
 # Set project environmental variables
 ENV WP_ROOT_FOLDER="/var/www/html"
-ENV WORDPRESS_DB_HOST=${DB_HOST}
-ENV WORDPRESS_DB_USER=${DB_USER}
-ENV WORDPRESS_DB_PASSWORD=${DB_PASSWORD}
-ENV WORDPRESS_DB_NAME=${DB_NAME}
 ENV PLUGINS_DIR="${WP_ROOT_FOLDER}/wp-content/plugins"
 ENV PROJECT_DIR="${PLUGINS_DIR}/wp-graphql"
 ENV DATA_DUMP_DIR="${PROJECT_DIR}/tests/_data"
