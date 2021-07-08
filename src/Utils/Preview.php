@@ -3,7 +3,7 @@
 namespace WPGraphQL\Utils;
 
 class Preview {
-
+	
 	/**
 	 * This filters the post meta for previews. Since WordPress core does not save meta for
 	 * revisions this resolves calls to get_post_meta() using the meta of the revisions parent (the
@@ -20,7 +20,7 @@ class Preview {
 	 *
 	 * @return mixed
 	 */
-	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, bool $single ) {
+	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, bool $single = false ) {
 
 		if ( ! is_graphql_request() ) {
 			return $default_value;
