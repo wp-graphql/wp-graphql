@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.1
+
+## Chores / Bugfixes
+
+- ([#1987](https://github.com/wp-graphql/wp-graphql/pull/1987)): Fixes Relay Spec link in documentation Thanks @ramyareye!
+- ([#1988](https://github.com/wp-graphql/wp-graphql/pull/1988)): Fixes docblock and paramater Type in preview filter callback. Thanks @zolon4!
+- ([#1986](https://github.com/wp-graphql/wp-graphql/pull/1986)): Update WP environment variables for tesing with PHP8. Thanks @markkelnar!
+
+## New Features
+
+- ([#1984](https://github.com/wp-graphql/wp-graphql/pull/1984)): Support using WPGraphQL with PHP 8! 
+- ([#1990](https://github.com/wp-graphql/wp-graphql/pull/1990)): Adds `isTermNode` and `isContentNode` to the `UniformResourceIdentifiable` Interface
+
 ## 1.5.0
 
 ## Chores / Bugfixes
