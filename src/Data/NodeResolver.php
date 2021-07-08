@@ -47,6 +47,14 @@ class NodeResolver {
 				return null;
 			}
 		}
+
+		if ( isset( $this->wp->query_vars['uri'] ) ) {
+			$permalink = get_permalink( $post );
+			if ( parse_url( $permalink, PHP_URL_PATH ) !== $this->wp->query_vars['uri'] ) {
+				return null;
+			}
+		}
+
 		return $post;
 	}
 

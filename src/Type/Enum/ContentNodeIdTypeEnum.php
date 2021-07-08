@@ -45,10 +45,6 @@ class ContentNodeIdTypeEnum {
 					];
 				}
 
-				if ( ! $post_type_object->public ) {
-					unset( $values['URI'] );
-				}
-
 				/**
 				 * Register a unique Enum per Post Type. This allows for granular control
 				 * over filtering and customizing the values available per Post Type.
