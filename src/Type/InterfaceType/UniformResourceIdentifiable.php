@@ -33,14 +33,16 @@ class UniformResourceIdentifiable {
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 					'isContentNode' => [
-						'type'    => [ 'non_null' => 'Boolean' ],
-						'resolve' => function ( $node ) {
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => __( 'Whether the node is a Content Node', 'wp-graphql' ),
+						'resolve'     => function ( $node ) {
 							return $node instanceof Post;
 						},
 					],
 					'isTermNode'    => [
-						'type'    => [ 'non_null' => 'Boolean' ],
-						'resolve' => function ( $node ) {
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => __( 'Whether the node is a Term', 'wp-graphql' ),
+						'resolve'     => function ( $node ) {
 							return $node instanceof Term;
 						},
 					],
