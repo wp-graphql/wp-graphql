@@ -16,7 +16,7 @@ class Preview {
 	 * @param mixed       $default_value The default value of the meta
 	 * @param int         $object_id     The ID of the object the meta is for
 	 * @param string|null $meta_key      The meta key
-	 * @param bool   $single        Whether the meta is a single value
+	 * @param bool        $single        Whether the meta is a single value
 	 *
 	 * @return mixed
 	 */
