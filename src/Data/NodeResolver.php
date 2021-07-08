@@ -33,6 +33,24 @@ class NodeResolver {
 	}
 
 	/**
+	 * Given a Post object, validates it before returning it.
+	 * @param \WP_Post $post
+	 *
+	 * @return \WP_Post|null
+	 */
+	public function validate_post( \WP_Post $post ) {
+
+//		wp_send_json( [ $post, $this->wp ]);
+
+		if ( isset( $this->wp->query_vars['post_type'] ) ) {
+			if ( $post->post_type !== $this->wp->query_vars['post_type'] ) {
+				return null;
+			}
+		}
+		return $post;
+	}
+
+	/**
 	 * Given the URI of a resource, this method attempts to resolve it and return the
 	 * appropriate related object
 	 *
@@ -318,7 +336,10 @@ class NodeResolver {
 
 		unset( $this->wp->query_vars['graphql'] );
 
-		do_action_ref_array( 'parse_request', [ &$this ] );
+		do_action_ref_array( 'parse_request', [ $this->wp ] );
+
+//		wp_send_json( $this->wp->query_vars );
+
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
@@ -367,6 +388,7 @@ class NodeResolver {
 			}
 			// @phpstan-ignore-next-line
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+			$post = $post instanceof \WP_Post ? $this->validate_post( $post ) : null;
 
 			return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
@@ -381,11 +403,17 @@ class NodeResolver {
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
 
-			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
+			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : get_post_types( [ 'show_in_graphql' => true ] );
+
+			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type );
 
 			if ( ! $post instanceof \WP_Post ) {
 				return null;
 			}
+
+			$post = $this->validate_post( $post );
+
+//			wp_send_json( $post );
 
 			if ( get_option( 'page_for_posts', 0 ) === $post->ID ) {
 				return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
@@ -417,6 +445,16 @@ class NodeResolver {
 				$page_on_front = get_option( 'page_on_front', 0 );
 				$post          = get_post( absint( $page_on_front ) );
 				return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+			}
+
+			if ( isset( $this->wp->query_vars['page'], $this->wp->query_vars['uri'] ) ) {
+				$post_type = $this->wp->query_vars['post_type'];
+
+				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type );
+
+
+				$post = isset( $post->ID ) ? $this->validate_post( $post ) : null;
+				return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 			}
 
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
