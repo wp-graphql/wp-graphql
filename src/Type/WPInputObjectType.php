@@ -40,7 +40,7 @@ class WPInputObjectType extends InputObjectType {
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( array $fields, string $type_name, $config = [], TypeRegistry $type_registry ) {
+	public static function prepare_fields( array $fields, string $type_name, array $config, TypeRegistry $type_registry ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
