@@ -96,6 +96,8 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 **Chores / Bugfixes**
 
 - ([#1992](https://github.com/wp-graphql/wp-graphql/pull/1992)): Fixes bug that caused conflict with the AmpWP plugin.
+- ([#1994](https://github.com/wp-graphql/wp-graphql/pull/1994)): Fixes bug where querying a node by uri could return a node of a different post type.
+- ([#1997](https://github.com/wp-graphql/wp-graphql/pull/1997)): Fixes bug where Enums could be generated with no values when a taxonomy was set to show in GraphQL but it's associated post_type(s) are not shown in graphql.
 
 
 = 1.5.1 =
