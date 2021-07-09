@@ -224,8 +224,8 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 
         $query = '
-        query GET_PAGE_BY_URI( $slug: ID! ) {
-           page(id: $slug, idType: URI) {
+        query GET_PAGE_BY_URI( $uri: ID! ) {
+           page(id: $uri, idType: URI) {
                 databaseId
                 title
            }
@@ -234,13 +234,14 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
         codecept_debug( get_post( $this->custom_type ) );
 
-        $faqPage = get_post($this->page);
+        $faqPage = get_post( $this->page );
+        $permalink = get_permalink( $faqPage );
 
 
         $actual = graphql([
             'query' => $query,
             'variables' => [
-                'slug' => $faqPage->post_name,
+                'uri' => $permalink,
             ],
         ]);
 

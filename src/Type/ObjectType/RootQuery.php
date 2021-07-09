@@ -629,13 +629,26 @@ class RootQuery {
 								$id      = $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ];
 								$post_id = absint( $id );
 							} elseif ( ! empty( $args['uri'] ) ) {
-								$uri = esc_html( $args['uri'] );
 
-								return $context->node_resolver->resolve_uri( $uri );
+								return $context->node_resolver->resolve_uri(
+									$args['uri'],
+									[
+										'post_type' => $post_type_object->name,
+										'archive'   => false,
+										'nodeType'  => 'Page',
+									]
+								);
 							} elseif ( ! empty( $args['slug'] ) ) {
 								$slug = esc_html( $args['slug'] );
 
-								return $context->node_resolver->resolve_uri( $slug );
+								return $context->node_resolver->resolve_uri(
+									$slug,
+									[
+										'name'      => $slug,
+										'post_type' => $post_type_object->name,
+									]
+								);
+
 							}
 
 							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(

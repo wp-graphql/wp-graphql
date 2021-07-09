@@ -10,6 +10,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before
+		WPGraphQL::clear_schema();
 		parent::setUp();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		$this->current_time     = strtotime( '- 1 day' );
@@ -67,11 +68,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			return ! empty( $output ) ? $output : '';
 		} );
 
+
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
 
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}
@@ -925,6 +928,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$path      = get_page_uri( $post_id );
+		codecept_debug( $path );
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
@@ -964,6 +968,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -1849,6 +1855,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$title = get_post( $post_id )->post_title;
 		$permalink = get_permalink( $post_id );
 
+		codecept_debug( $uri );
+
 		$expected = [
 			'id' => $global_id,
 			'postId' => $post_id,
@@ -2238,6 +2246,103 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( 'DefaultTemplate', $actual['data']['nodeByUri']['template']['__typename'] );
 		$this->assertSame( 'Default', $actual['data']['nodeByUri']['template']['templateName'] );
+
+	}
+
+	public function testQueryPostByPageSlugReturnsNull() {
+
+		$slug = 'test-page-slug';
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_name' => $slug,
+		]);
+
+		$query = '
+		query PostAndPageByUri($uri:ID!){
+		  page(id:$uri idType:URI) {
+		    __typename
+		    databaseId
+		  }
+		  post(id:$uri idType:URI) {
+		    __typename
+		    databaseId
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query'=> $query,
+			'variables' => [
+				'uri' => $slug,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'] );
+		$this->assertSame( $post_id, $actual['data']['page']['databaseId'] );
+
+	}
+
+	public function testQueryCustomPostTypeByPageUriReturnsNull() {
+
+		register_post_type('block', [
+			'exclude_from_search' => true,
+			'graphql_single_name' => 'block',
+			'graphql_plural_name' => 'blocks',
+			'labels'              => [
+				'edit_item'     => 'Edit Block',
+				'name'          => 'Blocks',
+				'new_item'      => 'New Block',
+				'singular_name' => 'Block',
+			],
+			'has_archive'         => true,
+			'menu_icon'           => 'dashicons-screenoptions',
+			'menu_position'       => 20,
+			'public'              => false,
+			'show_ui'             => true,
+			'show_in_graphql'     => true,
+			'show_in_menu'        => true,
+			'show_in_nav_menus'   => false,
+			'supports'            => [ 'custom-fields', 'revisions', 'title' ],
+		]);
+
+		$slug = 'test-page-slug';
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_name' => $slug,
+		]);
+
+		$query = '
+		query BlockAndPageByUri($uri:ID!){
+		  page(id:$uri idType:URI) {
+		    __typename
+		    databaseId
+		  }
+		  block(id:$uri idType:URI) {
+		    __typename
+		    databaseId
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query'=> $query,
+			'variables' => [
+				'uri' => $slug,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['block'] );
+		$this->assertSame( $post_id, $actual['data']['page']['databaseId'] );
 
 	}
 
