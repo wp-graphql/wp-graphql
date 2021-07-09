@@ -42,19 +42,20 @@ class NodeResolver {
 	 */
 	public function validate_post( WP_Post $post ) {
 
-		if ( isset( $this->wp->query_vars['post_type'] ) ) {
-			if ( $post->post_type !== $this->wp->query_vars['post_type'] ) {
-				return null;
-			}
+		if ( isset( $this->wp->query_vars['post_type'] ) && ( $post->post_type !== $this->wp->query_vars['post_type'] ) ) {
+			return null;
 		}
 
-		if ( isset( $this->wp->query_vars['uri'] ) ) {
-			$permalink    = get_permalink( $post );
-			$trimmed_path = rtrim( ltrim( parse_url( $permalink, PHP_URL_PATH ), '/' ), '/' );
-			$uri_path     = rtrim( ltrim( $this->wp->query_vars['uri'], '/' ), '/' );
-			if ( $trimmed_path !== $uri_path ) {
-				return null;
-			}
+		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
+			return $post;
+		}
+
+		$permalink    = get_permalink( $post );
+		$parsed_path  = $permalink ? parse_url( $permalink, PHP_URL_PATH ) : null;
+		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
+		$uri_path     = rtrim( ltrim( $this->wp->query_vars['uri'], '/' ), '/' );
+		if ( $trimmed_path !== $uri_path ) {
+			return null;
 		}
 
 		return $post;
