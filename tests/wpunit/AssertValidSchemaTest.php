@@ -15,8 +15,9 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		// your tear down methods here
 
 		// then
+		\WPGraphQL::clear_schema();
 		parent::tearDown();
-		WPGraphQL::clear_schema();
+
 	}
 
 	public function testValidSchema() {
@@ -127,6 +128,85 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	public function testContentTypesOfTaxonomy() {
+
+		register_post_type( 'test_content_type', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'TestContentType',
+			'graphql_plural_name' => 'TestContentTypes',
+			'public' => true,
+			'label' => 'Test Content Type, Yo'
+		] );
+
+		register_post_type( 'not_in_graphql', [
+			'public' => true,
+		] );
+
+		register_taxonomy( 'test_taxonomy', [ 'test_content_type', 'not_in_graphql' ], [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'TestTaxonomy',
+			'graphql_plural_name' => 'TestTaxonomies',
+			'public' => true,
+			'label' => 'Test Taxonomy, Yo'
+		]);
+
+		register_post_type( 'not_in_graphql', [
+			'public' => true,
+			'label' => 'Not in GraphQL Test'
+		] );
+
+		register_taxonomy( 'test_taxonomy_two', [ 'not_in_graphql' ], [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'TestTaxonomyTwo',
+			'graphql_plural_name' => 'TestTaxonomieTwos',
+			'public' => true,
+			'label' => 'Test Taxonomy Two, Yo'
+		]);
+
+		$query = '
+		query GetEnum($name:String!){
+		  __type(name: $name) {
+		    name
+		    kind
+		    enumValues {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'name' => "ContentTypesOfTestTaxonomyEnum"
+		];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+		// We registered a Taxonomy that is associated with 2 post types. One that is shown in GraphQL, and one that is not
+		// So we Introspect the taxonomy and assert that the enum is created with the association to the post type that
+		// is shown in GraphQL but excludes the other post type
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( 1 === count( $actual['data']['__type']['enumValues'] ) );
+		$this->assertSame( \WPGraphQL\Type\WPEnumType::get_safe_name( 'test_content_type' ), $actual['data']['__type']['enumValues'][0]['name'] );
+
+		$variables = [
+			'name' => "ContentTypesOfTestTaxonomyTwoEnum"
+		];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+		// We registered another taxonomy that is only associated with a post type that is not shown in graphql,
+		// so we introspect to test that a "ContentTypesOfTestTaxonomyTwoEnum" isn't actually
+		// registered to the Schema
+		$this->assertNull( $actual['data']['__type'] );
 
 	}
 
