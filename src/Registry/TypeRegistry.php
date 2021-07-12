@@ -857,17 +857,18 @@ class TypeRegistry {
 			return null;
 		}
 
-		if ( is_string( $field_config['type'] ) ) {
+		/**
+		 * If type is not already a callable, create one to preserve lazy-loading.
+		 */
+		if ( ! is_callable( $field_config['type'] ) ) {
+			$field_config['type'] = function () use ( $field_config ) {
+				if ( is_string( $field_config['type'] ) ) {
+					return $this->get_type( $field_config['type'] );
+				}
 
-			$type = $this->get_type( $field_config['type'] );
-			if ( ! empty( $type ) ) {
-				$field_config['type'] = $type;
-			} else {
-				return null;
-			}
+				return $this->setup_type_modifiers( $field_config['type'] );
+			};
 		}
-
-		$field_config['type'] = $this->setup_type_modifiers( $field_config['type'] );
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
@@ -888,25 +889,18 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function setup_type_modifiers( $type ) {
-
 		if ( ! is_array( $type ) ) {
 			return $type;
 		}
-		if ( isset( $type['non_null'] ) ) {
-			if ( is_array( $type['non_null'] ) ) {
-				$non_null_type = $this->setup_type_modifiers( $type['non_null'] );
-			} elseif ( is_string( $type['non_null'] ) ) {
-				$non_null_type = $this->get_type( $type['non_null'] );
-			}
-			$type = isset( $non_null_type ) ? Type::nonNull( $non_null_type ) : Type::nonNull( Type::string() );
-		} elseif ( isset( $type['list_of'] ) ) {
-			if ( is_array( $type['list_of'] ) ) {
-				$list_of_type = $this->setup_type_modifiers( $type['list_of'] );
-			} elseif ( is_string( $type['list_of'] ) ) {
-				$list_of_type = $this->get_type( $type['list_of'] );
-			}
 
-			$type = isset( $list_of_type ) ? Type::listOf( $list_of_type ) : Type::listOf( Type::string() );
+		if ( isset( $type['non_null'] ) ) {
+			return $this->non_null(
+				$this->setup_type_modifiers( $type['non_null'] )
+			);
+		} elseif ( isset( $type['list_of'] ) ) {
+			return $this->list_of(
+				$this->setup_type_modifiers( $type['list_of'] )
+			);
 		}
 
 		return $type;
