@@ -710,6 +710,10 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function prepare_type( string $type_name, $config ) {
+		/**
+		 * Uncomment to help trace eagerly (not lazy) loaded types.
+		 */
+		// graphql_debug( "prepare_type: {$type_name}", [ 'type' => $type_name ] );
 
 		if ( ! is_array( $config ) ) {
 			return $config;
