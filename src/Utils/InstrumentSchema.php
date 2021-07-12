@@ -49,12 +49,12 @@ class InstrumentSchema {
 	 * @param array  $fields    The fields configured for a Type
 	 * @param string $type_name The Type name
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	protected static function wrap_fields( array $fields, string $type_name ): array {
+	protected static function wrap_fields( array $fields, string $type_name ) {
 
 		if ( empty( $fields ) || ! is_array( $fields ) ) {
-			return [];
+			return $fields;
 		}
 
 		foreach ( $fields as $field_key => $field ) {
