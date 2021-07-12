@@ -1336,6 +1336,10 @@ class TypeRegistry {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
 
+			if ( is_null( $type_def ) ) {
+				return Type::listOf( Type::string() );
+			}
+
 			return Type::listOf( $type_def );
 		}
 
