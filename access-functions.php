@@ -513,16 +513,22 @@ function register_graphql_settings_field( string $group, array $config ) {
 function graphql_debug( $message, $config = [] ) {
 	$debug_backtrace     = debug_backtrace();
 	$config['backtrace'] = ! empty( $debug_backtrace )
-		? array_column(
-			array_filter( // Filter out steps without files
-				$debug_backtrace,
-				function ( $step ) {
-					return ! empty( $step['file'] );
-				}
-			),
-			'file'
+		?
+		array_values(
+			array_map(
+				function ( $trace ) {
+					return sprintf( '%s:%d', $trace['file'], $trace['line'] );
+				},
+				array_filter( // Filter out steps without files
+					$debug_backtrace,
+					function ( $step ) {
+						return ! empty( $step['file'] );
+					}
+				)
+			)
 		)
-		: [];
+		:
+		[];
 
 	add_action(
 		'graphql_get_debug_log',
