@@ -1016,7 +1016,7 @@ class TypeRegistry {
 
 		// If connection type already exists with that connection name. Set connection name using
 		// $from_field_name + To + $to_type + Connection.
-		if ( ! empty( $this->get_type( $connection_name ) ) ) {
+		if ( isset( $this->type_loaders[ $connection_name ] ) ) {
 			$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $from_field_name ) . 'Connection';
 		}
 
