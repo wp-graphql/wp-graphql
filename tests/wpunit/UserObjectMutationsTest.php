@@ -14,6 +14,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
+		WPGraphQL::clear_schema();
+
 		// Allow new users to be created for multisite tests
 		update_option( 'add_new_users', true );
 		add_filter( 'map_meta_cap', [ $this, 'filter_multisite_edit_user_capabilities' ], 1, 4 );
@@ -44,7 +46,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}
