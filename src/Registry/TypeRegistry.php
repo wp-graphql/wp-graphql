@@ -149,11 +149,20 @@ class TypeRegistry {
 	 */
 	protected $types;
 
+
+	/**
+	 * The loaders needed to register types
+	 *
+	 * @var array
+	 */
+	protected $type_loaders;
+
 	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
-		$this->types = [];
+		$this->types        = [];
+		$this->type_loaders = [];
 	}
 
 	/**
@@ -593,7 +602,7 @@ class TypeRegistry {
 	 *
 	 * @throws Exception
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
 
@@ -608,7 +617,7 @@ class TypeRegistry {
 					'type_name' => $type_name,
 				]
 			);
-			return null;
+			return;
 		};
 
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
@@ -619,16 +628,12 @@ class TypeRegistry {
 					'type_name' => $type_name,
 				]
 			);
-			return $this->types[ $this->format_key( $type_name ) ];
+			return;
 		}
 
-		$prepared_type = $this->prepare_type( $type_name, $config );
-
-		if ( ! empty( $prepared_type ) ) {
-			$this->types[ $this->format_key( $type_name ) ] = $prepared_type;
-		}
-
-		return $this->types[ $this->format_key( $type_name ) ];
+		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
+			return $this->prepare_type( $type_name, $config );
+		};
 	}
 
 	/**
@@ -769,7 +774,18 @@ class TypeRegistry {
 	 * @return mixed|null
 	 */
 	public function get_type( string $type_name ) {
-		return isset( $this->types[ $this->format_key( $type_name ) ] ) ? ( $this->types[ $this->format_key( $type_name ) ] ) : null;
+		$key = $this->format_key( $type_name );
+
+		if ( isset( $this->type_loaders[ $key ] ) ) {
+			$this->types[ $key ] = call_user_func( $this->type_loaders[ $key ] );
+			unset( $this->type_loaders[ $key ] );
+		}
+
+		if ( isset( $this->types[ $key ] ) ) {
+			return $this->types[ $key ];
+		}
+
+		return null;
 	}
 
 	/**
