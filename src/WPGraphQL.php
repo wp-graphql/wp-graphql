@@ -365,7 +365,7 @@ final class WPGraphQL {
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 		 */
 		add_filter(
-			'graphql_schema',
+			'DISABLED_graphql_schema',
 			[
 				'\WPGraphQL\Utils\InstrumentSchema',
 				'instrument_schema',
