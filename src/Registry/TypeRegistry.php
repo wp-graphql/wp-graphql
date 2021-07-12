@@ -736,16 +736,7 @@ class TypeRegistry {
 					$prepared_type = new WPEnumType( $config );
 					break;
 				case 'input':
-					if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-						$config['fields'] = function () use ( $config ) {
-							$fields = WPInputObjectType::prepare_fields( $config['fields'], $config['name'], $config, $this );
-							$fields = $this->prepare_fields( $fields, $config['name'] );
-
-							return $fields;
-						};
-					}
-
-					$prepared_type = new WPInputObjectType( $config );
+					$prepared_type = new WPInputObjectType( $config, $this );
 					break;
 				case 'scalar':
 					$prepared_type = new WPScalar( $config, $this );
