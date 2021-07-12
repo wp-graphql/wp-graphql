@@ -210,4 +210,55 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testSchemaSupportsLazyLoadingTypes() {
+		add_filter( 'graphql_wp_object_type_config', function ( $config ) {
+			if ( 'TestLazyType' === $config['name'] ) {
+				// Should not be called since this type does not need to be loaded.
+				$this->assertTrue( false );
+			}
+
+			return $config;
+		}, 10, 1 );
+
+		add_filter( 'graphql_object_fields', function ( $fields, $type_name ) {
+			if ( 'TestLazyType' === $type_name ) {
+				// Should not be called since this type does not need to be loaded.
+				$this->assertTrue( false );
+			}
+
+			return $fields;
+		}, 10, 2 );
+
+		register_graphql_type(
+			'TestLazyType',
+			[
+				'fields' => function () {
+					// Should not be called since this type does not need to be loaded.
+					$this->assertTrue( false );
+
+					return [];
+				},
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'example',
+			[ 'type' => 'TestLazyType' ]
+		);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  __type(name: "RootQuery") {
+			    name
+			  }
+			}
+			',
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+	}
 }
