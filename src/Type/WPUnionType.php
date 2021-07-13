@@ -29,7 +29,7 @@ class WPUnionType extends UnionType {
 	 *
 	 * @since 0.0.30
 	 */
-	public function __construct( $config = [], TypeRegistry $type_registry ) {
+	public function __construct( array $config, TypeRegistry $type_registry ) {
 
 		$this->type_registry = $type_registry;
 

@@ -69,19 +69,22 @@ class ContentTypeEnum {
 					}
 
 					$taxonomy_values[ WPEnumType::get_safe_name( $taxonomy_object_type ) ] = [
+						'name'        => WPEnumType::get_safe_name( $taxonomy_object_type ),
 						'value'       => $taxonomy_object_type,
 						'description' => __( 'The Type of Content object', 'wp-graphql' ),
 					];
 				}
 
-				register_graphql_enum_type(
-					'ContentTypesOf' . Utils::format_type_name( $taxonomy_object->graphql_single_name ) . 'Enum',
-					[
-						'description' => sprintf( __( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ), Utils::format_type_name( $taxonomy_object->graphql_single_name ) ),
-						'values'      => $taxonomy_values,
-					]
-				);
+				if ( ! empty( $taxonomy_values ) ) {
 
+					register_graphql_enum_type(
+						'ContentTypesOf' . Utils::format_type_name( $taxonomy_object->graphql_single_name ) . 'Enum',
+						[
+							'description' => sprintf( __( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ), Utils::format_type_name( $taxonomy_object->graphql_single_name ) ),
+							'values'      => $taxonomy_values,
+						]
+					);
+				}
 			}
 		}
 

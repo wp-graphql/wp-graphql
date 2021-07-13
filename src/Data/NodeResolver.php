@@ -4,6 +4,7 @@ namespace WPGraphQL\Data;
 
 use Exception;
 use WP;
+use WP_Post;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
 
@@ -30,6 +31,34 @@ class NodeResolver {
 		global $wp;
 		$this->wp      = $wp;
 		$this->context = $context;
+	}
+
+	/**
+	 * Given a Post object, validates it before returning it.
+	 *
+	 * @param WP_Post $post
+	 *
+	 * @return WP_Post|null
+	 */
+	public function validate_post( WP_Post $post ) {
+
+		if ( isset( $this->wp->query_vars['post_type'] ) && ( $post->post_type !== $this->wp->query_vars['post_type'] ) ) {
+			return null;
+		}
+
+		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
+			return $post;
+		}
+
+		$permalink    = get_permalink( $post );
+		$parsed_path  = $permalink ? parse_url( $permalink, PHP_URL_PATH ) : null;
+		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
+		$uri_path     = rtrim( ltrim( $this->wp->query_vars['uri'], '/' ), '/' );
+		if ( $trimmed_path !== $uri_path ) {
+			return null;
+		}
+
+		return $post;
 	}
 
 	/**
@@ -318,7 +347,7 @@ class NodeResolver {
 
 		unset( $this->wp->query_vars['graphql'] );
 
-		do_action_ref_array( 'parse_request', [ &$this ] );
+		do_action_ref_array( 'parse_request', [ $this->wp ] );
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
@@ -365,8 +394,12 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
+
 			// @phpstan-ignore-next-line
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+
+			unset( $this->wp->query_vars['uri'] );
+			$post = $post instanceof WP_Post ? $this->validate_post( $post ) : null;
 
 			return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 
@@ -381,9 +414,19 @@ class NodeResolver {
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
 		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
 
-			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', get_post_types( [ 'show_in_graphql' => true ] ) );
+			unset( $this->wp->query_vars['uri'] );
 
-			if ( ! $post instanceof \WP_Post ) {
+			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : get_post_types( [ 'show_in_graphql' => true ] );
+
+			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type );
+
+			if ( ! $post instanceof WP_Post ) {
+				return null;
+			}
+
+			$post = $this->validate_post( $post );
+
+			if ( ! $post ) {
 				return null;
 			}
 
@@ -417,6 +460,15 @@ class NodeResolver {
 				$page_on_front = get_option( 'page_on_front', 0 );
 				$post          = get_post( absint( $page_on_front ) );
 				return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+			}
+
+			if ( isset( $this->wp->query_vars['page'], $this->wp->query_vars['uri'] ) ) {
+				$post_type = $this->wp->query_vars['post_type'];
+
+				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type );
+
+				$post = isset( $post->ID ) ? $this->validate_post( $post ) : null;
+				return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 			}
 
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
