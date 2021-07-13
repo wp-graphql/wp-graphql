@@ -768,7 +768,7 @@ class TypeRegistry {
 		$key = $this->format_key( $type_name );
 
 		if ( isset( $this->type_loaders[ $key ] ) ) {
-			$type = call_user_func( $this->type_loaders[ $key ] );
+			$type                = call_user_func( $this->type_loaders[ $key ] );
 			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
 		}
