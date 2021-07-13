@@ -767,19 +767,17 @@ class TypeRegistry {
 	public function get_type( string $type_name ) {
 		$key = $this->format_key( $type_name );
 
-		$type = null;
-
 		if ( isset( $this->type_loaders[ $key ] ) ) {
-			$this->types[ $key ] = call_user_func( $this->type_loaders[ $key ] );
+			$type = call_user_func( $this->type_loaders[ $key ] );
+			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
 		}
 
 		if ( isset( $this->types[ $key ] ) ) {
-			$type = $this->types[ $key ];
+			return $this->types[ $key ];
 		}
 
-		return ! empty( $type ) ? apply_filters( 'graphql_get_type', $type, $type_name ) : $type;
-
+		return null;
 	}
 
 	/**
