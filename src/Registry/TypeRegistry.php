@@ -158,11 +158,22 @@ class TypeRegistry {
 	protected $type_loaders;
 
 	/**
+	 * Stores a list of Types that need to be eagerly loaded instead of lazy loaded.
+	 *
+	 * Types that exist in the Schema but are only part of a Union/Interface ResolveType but not
+	 * referenced directly need to be eagerly loaded.
+	 *
+	 * @var array
+	 */
+	protected $eager_type_map;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
-		$this->types        = [];
-		$this->type_loaders = [];
+		$this->types          = [];
+		$this->type_loaders   = [];
+		$this->eager_type_map = [];
 	}
 
 	/**
@@ -174,6 +185,27 @@ class TypeRegistry {
 	 */
 	protected function format_key( $key ) {
 		return strtolower( $key );
+	}
+
+	/**
+	 * Returns the eager type map, an array of Type definitions for Types that
+	 * are not directly referenced in the schema.
+	 *
+	 * Types can add "eagerlyLoadType => true" when being registered to be included
+	 * in the eager_type_map.
+	 *
+	 * @return array
+	 */
+	protected function get_eager_type_map() {
+
+		if ( ! empty( $this->eager_type_map ) ) {
+			return array_map( function ( $type_name ) {
+				return $this->get_type( $type_name );
+			}, $this->eager_type_map );
+
+		}
+
+		return [];
 	}
 
 	/**
@@ -387,16 +419,17 @@ class TypeRegistry {
 				register_graphql_object_type(
 					$template_type_name,
 					[
-						'interfaces'  => [ 'ContentTemplate' ],
+						'interfaces'      => [ 'ContentTemplate' ],
 						// Translators: Placeholder is the name of the GraphQL Type in the Schema
-						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
-						'fields'      => [
+						'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
+						'fields'          => [
 							'templateName' => [
 								'resolve' => function ( $template ) {
 									return isset( $template['templateName'] ) ? $template['templateName'] : null;
 								},
 							],
 						],
+						'eagerlyLoadType' => 'DefaultTemplate' === $template_type_name,
 					]
 				);
 
@@ -618,7 +651,7 @@ class TypeRegistry {
 				]
 			);
 			return;
-		};
+		}
 
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
@@ -634,6 +667,10 @@ class TypeRegistry {
 		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
 			return $this->prepare_type( $type_name, $config );
 		};
+
+		if ( is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
+			$this->eager_type_map[ $this->format_key( $type_name ) ] = $this->format_key( $type_name );
+		}
 	}
 
 	/**
@@ -786,7 +823,13 @@ class TypeRegistry {
 	 * @return array
 	 */
 	public function get_types() {
-		return $this->types;
+
+		// The full map of types is merged with eager types to support the
+		// rename_graphql_type API.
+		//
+		// All of the types are closures, but eager Types are the full
+		// Type definitions up front
+		return array_merge( $this->types, $this->get_eager_type_map() );
 	}
 
 	/**
