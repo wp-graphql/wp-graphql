@@ -348,6 +348,12 @@ class WPConnectionType {
 			}
 		}
 
+		// If it's a "one to one" connection, we can skip the "Connection" type being registered
+		// as the field returns a connection edge instead
+		if ( $this->one_to_one ) {
+			return;
+		}
+
 		$this->type_registry->register_object_type(
 			$this->connection_name,
 			[
