@@ -9,7 +9,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
 use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\EnqueuedStylesheets;
 use WPGraphQL\Connection\MediaItems;
 use WPGraphQL\Connection\MenuItemLinkableConnection;
 use WPGraphQL\Connection\MenuItems;
@@ -305,7 +304,6 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
-		EnqueuedStylesheets::register_connections();
 		MediaItems::register_connections();
 		Menus::register_connections();
 		MenuItemLinkableConnection::register_connections();
