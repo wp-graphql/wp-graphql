@@ -313,14 +313,13 @@ class WPConnectionType {
 						],
 						'node'   => [
 							'type'        => $this->to_type,
-							'description' => __( 'The item at the end of the edge', 'wp-graphql' )
+							'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
 						],
 					],
 					$this->edge_fields
 				),
 			]
 		);
-
 
 	}
 
@@ -333,7 +332,7 @@ class WPConnectionType {
 	 */
 	protected function register_connection_type() {
 
-		$interfaces = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
+		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
 		$interfaces[] = [ 'Connection' ];
 
 		$this->type_registry->register_object_type(
@@ -343,26 +342,37 @@ class WPConnectionType {
 				'description'       => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
 				'interfaces'        => $interfaces,
 				'connection_config' => $this->config,
-				'fields'            => array_merge(
-					[
-						'pageInfo' => [
-							// @todo: change to PageInfo when/if the Relay lib is deprecated
-							'type'        => 'WPPageInfo',
-							'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-						],
-						'edges'    => [
-							'type'        => [ 'list_of' => $this->connection_name . 'Edge' ],
-							// Translators: Placeholder is the name of the connection
-							'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $this->connection_name ),
-						],
-						'nodes'    => [
-							'type'        => [ 'list_of' => $this->to_type ],
-							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-						],
-					],
-					$this->connection_fields
-				),
+				'fields'            => $this->get_connection_fields(),
 			]
+		);
+
+	}
+
+	/**
+	 * Returns fields to be used on the connection
+	 *
+	 * @return array
+	 */
+	protected function get_connection_fields() {
+
+		return array_merge(
+			[
+				'pageInfo' => [
+					// @todo: change to PageInfo when/if the Relay lib is deprecated
+					'type'        => 'WPPageInfo',
+					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				],
+				'edges'    => [
+					'type'        => [ 'list_of' => $this->connection_name . 'Edge' ],
+					// Translators: Placeholder is the name of the connection
+					'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $this->connection_name ),
+				],
+				'nodes'    => [
+					'type'        => [ 'list_of' => $this->to_type ],
+					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
+				],
+			],
+			$this->connection_fields
 		);
 
 	}
