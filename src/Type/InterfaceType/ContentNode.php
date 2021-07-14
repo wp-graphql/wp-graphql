@@ -6,6 +6,7 @@ use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
@@ -53,6 +54,14 @@ class ContentNode {
 							return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
 						},
 						'oneToOne' => true,
+					],
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
 					],
 				],
 				'resolveType' => function ( Post $post ) use ( $type_registry ) {

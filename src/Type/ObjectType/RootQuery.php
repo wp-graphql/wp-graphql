@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -32,6 +33,22 @@ class RootQuery {
 						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'resolve'              => function ( $source, $args, $context, $info ) {
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'registeredScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function( $source, $args, $context, $info ) {
+
+							// The connection resolver expects the source to include
+							// enqueuedScriptsQueue
+							$source                       = new \stdClass();
+							$source->enqueuedScriptsQueue = [];
+							global $wp_scripts;
+							do_action( 'wp_enqueue_scripts' );
+							$source->enqueuedScriptsQueue = array_keys( $wp_scripts->registered );
+							$resolver                     = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},
