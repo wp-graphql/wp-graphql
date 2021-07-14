@@ -31,31 +31,6 @@ class ContentTypes {
 			]
 		);
 
-		register_graphql_connection(
-			[
-				'fromType'      => 'ContentNode',
-				'toType'        => 'ContentType',
-				'fromFieldName' => 'contentType',
-				'resolve'       => function ( Post $source, $args, $context, $info ) {
-
-					if ( $source->isRevision ) {
-						$parent    = get_post( $source->parentDatabaseId );
-						$post_type = isset( $parent->post_type ) ? $parent->post_type : null;
-					} else {
-						$post_type = isset( $source->post_type ) ? $source->post_type : null;
-					}
-
-					if ( empty( $post_type ) ) {
-						return null;
-					}
-
-					$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
-					return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
-				},
-				'oneToOne'      => true,
-			]
-		);
-
 		register_graphql_connection([
 			'fromType'      => 'Taxonomy',
 			'toType'        => 'ContentType',
