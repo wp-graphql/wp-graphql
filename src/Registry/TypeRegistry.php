@@ -8,7 +8,6 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
-use WPGraphQL\Connection\Commenter;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\EnqueuedScripts;
 use WPGraphQL\Connection\EnqueuedStylesheets;
@@ -307,7 +306,6 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
-		Commenter::register_connections();
 		EnqueuedScripts::register_connections();
 		EnqueuedStylesheets::register_connections();
 		MediaItems::register_connections();
