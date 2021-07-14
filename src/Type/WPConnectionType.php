@@ -102,15 +102,6 @@ class WPConnectionType {
 	protected $resolve_cursor;
 
 	/**
-	 * A callback to resolve the node of the connection.
-	 *
-	 * @deprecated
-	 *
-	 * @var callable
-	 */
-	protected $resolve_node;
-
-	/**
 	 * The name of the GraphQL Type the connection connects to
 	 *
 	 * @var string
@@ -150,7 +141,6 @@ class WPConnectionType {
 		$this->connection_fields     = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
 		$this->connection_args       = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
 		$this->edge_fields           = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$this->resolve_node          = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
 		$this->resolve_cursor        = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
 		$this->resolve_connection    = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
@@ -184,6 +174,22 @@ class WPConnectionType {
 			throw new InvalidArgument( __( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 
+	}
+
+	/**
+	 * Get edge interfaces
+	 *
+	 * @param array $interfaces
+	 *
+	 * @return array
+	 */
+	protected function get_edge_interfaces( array $interfaces ) {
+		if ( ! empty( $this->connection_interfaces ) ) {
+			foreach ( $this->connection_interfaces as $connection_interface ) {
+				$interfaces[] = $connection_interface . 'Edge';
+			}
+		}
+		return $interfaces;
 	}
 
 	/**
@@ -251,6 +257,37 @@ class WPConnectionType {
 	}
 
 	/**
+	 * Registers the One to One Connection Edge type to the Schema
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected function register_one_to_one_connection_edge_type() {
+
+		$interfaces = [ 'SingleNodeConnectionEdge', 'Edge' ];
+		$interfaces = $this->get_edge_interfaces( $interfaces );
+
+		$this->type_registry->register_object_type(
+			$this->connection_name . 'Edge',
+			[
+				'interfaces'  => $interfaces,
+				// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
+				'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'fields'      => array_merge(
+					[
+						'node' => [
+							'type'        => $this->to_type,
+							'description' => __( 'The node of the connection, without the edges', 'wp-graphql' ),
+						],
+					],
+					$this->edge_fields
+				),
+			]
+		);
+	}
+
+	/**
 	 * Registers the Connection Edge type to the Schema
 	 *
 	 * @return void
@@ -259,75 +296,31 @@ class WPConnectionType {
 	 */
 	protected function register_connection_edge_type() {
 
-		if ( true === $this->one_to_one ) {
+		$interfaces = [ 'Edge' ];
+		$this->get_edge_interfaces( $interfaces );
 
-			$interfaces = [ 'SingleNodeConnectionEdge', 'Edge' ];
-
-			if ( ! empty( $this->connection_interfaces ) ) {
-				foreach ( $this->connection_interfaces as $connection_interface ) {
-					$interfaces[] = $connection_interface . 'Edge';
-				}
-			}
-
-			$this->type_registry->register_object_type(
-				$this->connection_name . 'Edge',
-				[
-					'interfaces'  => $interfaces,
-					// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
-					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
-					'fields'      => array_merge(
-						[
-							'node' => [
-								'type'        => $this->to_type,
-								'description' => __( 'The node of the connection, without the edges', 'wp-graphql' ),
-							],
+		$this->type_registry->register_object_type(
+			$this->connection_name . 'Edge',
+			[
+				'description' => __( 'An edge in a connection', 'wp-graphql' ),
+				'interfaces'  => $interfaces,
+				'fields'      => array_merge(
+					[
+						'cursor' => [
+							'type'        => 'String',
+							'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
+							'resolve'     => $this->resolve_cursor,
 						],
-						$this->edge_fields
-					),
-				]
-			);
-
-		} else {
-
-			$interfaces = [ 'Edge' ];
-
-			if ( ! empty( $this->connection_interfaces ) ) {
-				foreach ( $this->connection_interfaces as $connection_interface ) {
-					$interfaces[] = $connection_interface . 'Edge';
-				}
-			}
-
-			$this->type_registry->register_object_type(
-				$this->connection_name . 'Edge',
-				[
-					'description' => __( 'An edge in a connection', 'wp-graphql' ),
-					'interfaces'  => $interfaces,
-					'fields'      => array_merge(
-						[
-							'cursor' => [
-								'type'        => 'String',
-								'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-								'resolve'     => $this->resolve_cursor,
-							],
-							'node'   => [
-								'type'        => $this->to_type,
-								'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-								'resolve'     => function ( $source, $args, $context, ResolveInfo $info ) {
-									if ( ! empty( $this->resolve_node ) && is_callable( $this->resolve_node ) ) {
-										$resolve_node = $this->resolve_node;
-										return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
-									} else {
-										return $source['node'];
-									}
-								},
-							],
+						'node'   => [
+							'type'        => $this->to_type,
+							'description' => __( 'The item at the end of the edge', 'wp-graphql' )
 						],
-						$this->edge_fields
-					),
-				]
-			);
+					],
+					$this->edge_fields
+				),
+			]
+		);
 
-		}
 
 	}
 
@@ -340,19 +333,8 @@ class WPConnectionType {
 	 */
 	protected function register_connection_type() {
 
-		$interfaces = [ 'Connection' ];
-
-		if ( ! empty( $this->connection_interfaces ) ) {
-			foreach ( $this->connection_interfaces as $connection_interface ) {
-				$interfaces[] = $connection_interface;
-			}
-		}
-
-		// If it's a "one to one" connection, we can skip the "Connection" type being registered
-		// as the field returns a connection edge instead
-		if ( $this->one_to_one ) {
-			return;
-		}
+		$interfaces = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
+		$interfaces[] = [ 'Connection' ];
 
 		$this->type_registry->register_object_type(
 			$this->connection_name,
@@ -376,21 +358,6 @@ class WPConnectionType {
 						'nodes'    => [
 							'type'        => [ 'list_of' => $this->to_type ],
 							'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							'resolve'     => function ( $source, $args, $context, $info ) {
-								$nodes = [];
-								if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-									if ( ! empty( $this->resolve_node ) && is_callable( $this->resolve_node ) ) {
-										$resolve_node = $this->resolve_node;
-										foreach ( $source['nodes'] as $node ) {
-											$nodes[] = $resolve_node( $node, $args, $context, $info );
-										}
-									} else {
-										return $source['nodes'];
-									}
-								}
-
-								return $nodes;
-							},
 						],
 					],
 					$this->connection_fields
@@ -481,8 +448,14 @@ class WPConnectionType {
 	public function register_connection() {
 
 		$this->register_connection_input();
-		$this->register_connection_edge_type();
-		$this->register_connection_type();
+
+		if ( true === $this->one_to_one ) {
+			$this->register_one_to_one_connection_edge_type();
+		} else {
+			$this->register_connection_edge_type();
+			$this->register_connection_type();
+		}
+
 		$this->register_connection_field();
 
 	}
