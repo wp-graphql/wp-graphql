@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
+use Exception;
 use GraphQL\Type\Definition\InterfaceType;
 
 /**
@@ -71,11 +72,14 @@ trait WPInterfaceTrait {
 	/**
 	 * Registers connections that were passed through the Type registration config
 	 *
-	 * @throws \Exception
+	 * @return void
+	 *
+	 * @throws Exception
 	 */
 	protected function register_connections_from_config() {
 
 		if ( ! empty( $this->config['connections'] ) && is_array( $this->config['connections'] ) ) {
+
 			foreach ( $this->config['connections'] as $field_name => $connection_config ) {
 
 				if ( ! is_array( $connection_config ) ) {

@@ -34,7 +34,7 @@ class ContentNode {
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
 				'connections' => [
-					'contentType' => [
+					'contentType'     => [
 						'toType'   => 'ContentType',
 						'resolve'  => function ( Post $source, $args, $context, $info ) {
 
@@ -55,9 +55,9 @@ class ContentNode {
 						},
 						'oneToOne' => true,
 					],
-					'enqueuedScripts'     => [
+					'enqueuedScripts' => [
 						'toType'  => 'EnqueuedScript',
-						'resolve' => function( $source, $args, $context, $info ) {
+						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();

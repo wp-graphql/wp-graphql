@@ -28,7 +28,7 @@ class RootQuery {
 			[
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
 				'connections' => [
-					'contentTypes' => [
+					'contentTypes'      => [
 						'toType'               => 'ContentType',
 						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'resolve'              => function ( $source, $args, $context, $info ) {
@@ -37,9 +37,9 @@ class RootQuery {
 							return $resolver->get_connection();
 						},
 					],
-					'registeredScripts'     => [
+					'registeredScripts' => [
 						'toType'  => 'EnqueuedScript',
-						'resolve' => function( $source, $args, $context, $info ) {
+						'resolve' => function ( $source, $args, $context, $info ) {
 
 							// The connection resolver expects the source to include
 							// enqueuedScriptsQueue
