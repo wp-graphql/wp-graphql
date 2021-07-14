@@ -34,8 +34,8 @@ class ContentNode {
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
 				'connections' => [
 					'contentType' => [
-						'toType' => 'ContentType',
-						'resolve'              => function( Post $source, $args, $context, $info ) {
+						'toType'   => 'ContentType',
+						'resolve'  => function ( Post $source, $args, $context, $info ) {
 
 							if ( $source->isRevision ) {
 								$parent    = get_post( $source->parentDatabaseId );
@@ -52,7 +52,7 @@ class ContentNode {
 
 							return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
 						},
-						'oneToOne'             => true,
+						'oneToOne' => true,
 					],
 				],
 				'resolveType' => function ( Post $post ) use ( $type_registry ) {

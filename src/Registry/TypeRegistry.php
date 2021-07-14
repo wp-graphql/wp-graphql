@@ -10,7 +10,6 @@ use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
 use WPGraphQL\Connection\Commenter;
 use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\ContentTypes;
 use WPGraphQL\Connection\EnqueuedScripts;
 use WPGraphQL\Connection\EnqueuedStylesheets;
 use WPGraphQL\Connection\MediaItems;
@@ -317,7 +316,6 @@ class TypeRegistry {
 		MenuItems::register_connections();
 		Plugins::register_connections();
 		PostObjects::register_connections();
-		ContentTypes::register_connections();
 		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();

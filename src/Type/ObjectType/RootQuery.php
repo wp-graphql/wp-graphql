@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -25,6 +26,17 @@ class RootQuery {
 			'RootQuery',
 			[
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
+				'connections' => [
+					'contentTypes' => [
+						'toType'               => 'ContentType',
+						'connectionInterfaces' => [ 'ContentTypeConnection' ],
+						'resolve'              => function ( $source, $args, $context, $info ) {
+							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'fields'      => [
 					'allSettings' => [
 						'type'        => 'Settings',
