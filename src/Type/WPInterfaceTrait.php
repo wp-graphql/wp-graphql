@@ -68,4 +68,28 @@ trait WPInterfaceTrait {
 
 	}
 
+	/**
+	 * Registers connections that were passed through the Type registration config
+	 *
+	 * @throws \Exception
+	 */
+	protected function register_connections_from_config() {
+
+		if ( ! empty( $this->config['connections'] ) && is_array( $this->config['connections'] ) ) {
+			foreach ( $this->config['connections'] as $field_name => $connection_config ) {
+
+				if ( ! is_array( $connection_config ) ) {
+					return;
+				}
+
+				$connection_config['fromType']      = $this->config['name'];
+				$connection_config['fromFieldName'] = $field_name;
+
+				register_graphql_connection( $connection_config );
+
+			}
+		}
+
+	}
+
 }
