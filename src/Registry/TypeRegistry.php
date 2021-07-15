@@ -10,7 +10,6 @@ use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\Taxonomies;
@@ -302,7 +301,6 @@ class TypeRegistry {
 		 */
 		Comments::register_connections();
 		MenuItems::register_connections();
-		Plugins::register_connections();
 		PostObjects::register_connections();
 		Revisions::register_connections( $this );
 		Taxonomies::register_connections();

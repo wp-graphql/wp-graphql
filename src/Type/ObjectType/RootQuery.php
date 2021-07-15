@@ -62,6 +62,12 @@ class RootQuery {
 							return $resolver->get_connection();
 						},
 					],
+					'plugins'               => [
+						'toType'  => 'Plugin',
+						'resolve' => function ( $root, $args, $context, $info ) {
+							return DataSource::resolve_plugins_connection( $root, $args, $context, $info );
+						},
+					],
 					'registeredScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => function ( $source, $args, $context, $info ) {
