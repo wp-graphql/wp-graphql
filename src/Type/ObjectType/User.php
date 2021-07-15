@@ -1,12 +1,12 @@
 <?php
 
-
 namespace WPGraphQL\Type\ObjectType;
 
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use \WPGraphQL\Model\User as UserModel;
 
 /**
  * Class User
@@ -46,7 +46,7 @@ class User {
 					'roles'               => [
 						'toType'        => 'UserRole',
 						'fromFieldName' => 'roles',
-						'resolve'       => function( \WPGraphQL\Model\User $user, $args, $context, $info ) {
+						'resolve'       => function ( UserModel $user, $args, $context, $info ) {
 							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 							// Only get roles matching the slugs of the roles belonging to the user
 

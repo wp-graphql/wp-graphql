@@ -8,7 +8,6 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
 
-
 /**
  * Class Users
  *
