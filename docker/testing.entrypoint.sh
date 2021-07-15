@@ -17,10 +17,9 @@ run_tests() {
         exit 1
     fi
 
-    for suite in $suites ; do
-        echo "Running Test Suite $suite"
-        vendor/bin/codecept run -c codeception.dist.yml ${suite} ${coverage:-} ${debug:-} --no-exit
-    done
+    # Suites is the comma separated list of suites/tests to run.
+    echo "Running Test Suite $suites"
+    vendor/bin/codecept run -c codeception.dist.yml ${debug:-} --no-exit -- "${suites}" 
 }
 
 # Exits with a status of 0 (true) if provided version number is higher than proceeding numbers.
