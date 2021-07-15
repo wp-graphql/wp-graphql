@@ -9,6 +9,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\MenuConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -34,6 +35,29 @@ class RootQuery {
 						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'resolve'              => function ( $source, $args, $context, $info ) {
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'menus'                 => [
+						'toType'               => 'Menu',
+						'connectionInterfaces' => [ 'MenuConnection' ],
+						'connectionArgs'       => [
+							'id'       => [
+								'type'        => 'Int',
+								'description' => __( 'The ID of the object', 'wp-graphql' ),
+							],
+							'location' => [
+								'type'        => 'MenuLocationEnum',
+								'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
+							],
+							'slug'     => [
+								'type'        => 'String',
+								'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
+							],
+						],
+						'resolve'              => function ( $source, $args, $context, $info ) {
+							$resolver = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
 
 							return $resolver->get_connection();
 						},
