@@ -26,7 +26,7 @@ class User {
 				'description' => __( 'A User object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
 				'connections' => [
-					'enqueuedScripts' => [
+					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
@@ -36,7 +36,7 @@ class User {
 					],
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => function( $source, $args, $context, $info ) {
+						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
