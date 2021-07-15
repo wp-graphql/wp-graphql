@@ -78,5 +78,6 @@ jobs:
 
       - name: Run Schema Inspector
         run: |
+          diff -u /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql
           # This schema and previous release schema
-          node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql
+          npx graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql
