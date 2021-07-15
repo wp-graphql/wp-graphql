@@ -50,7 +50,7 @@ class User {
 							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 							// Only get roles matching the slugs of the roles belonging to the user
 
-							if ( ! empty( $user->roles ) ) {
+							if ( isset( $user->roles ) && ! empty( $user->roles ) ) {
 								$resolver->set_query_arg( 'slugIn', $user->roles );
 							}
 
