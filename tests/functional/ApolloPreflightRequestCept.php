@@ -1,7 +1,9 @@
 <?php
 
-// Attempt to wait for WP Maintenance mode to finish
-sleep(5);
+// There's a funky issue where WordPress is trying to update during tests
+// and goes into maintenance mode and fails the tests.
+// This is an attempt to wait for it to pass.
+sleep( 5 );
 
 $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Send a preflight Options request like Apollo and check the response' );
