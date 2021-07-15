@@ -1,6 +1,6 @@
 <?php
 
-class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 
