@@ -59,35 +59,13 @@ jobs:
           WP_VERSION: ${{ matrix.wordpress }}
         run: composer build-test
 
-      - name: Run Acceptance Tests w/ Docker.
+      - name: Run Tests w/ Docker.
         env:
           COVERAGE: ${{ matrix.coverage }}
           USING_XDEBUG: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: acceptance
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-        run: composer run-test
-
-      - name: Run Functional Tests w/ Docker.
-        env:
-          COVERAGE: ${{ matrix.coverage }}
-          USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
-          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: functional
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-        run: composer run-test
-        
-      - name: Run WPUnit Tests w/ Docker.
-        env:
-          COVERAGE: ${{ matrix.coverage }}
-          USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
-          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: wpunit
+          SUITES: acceptance,functional,wpunit
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
         run: composer run-test
