@@ -55,7 +55,7 @@ class MenuItem {
 									break;
 							}
 
-							return $resolver !== null ? $resolver->one_to_one()->get_connection() : null;
+							return null !== $resolver ? $resolver->one_to_one()->get_connection() : null;
 
 						},
 					],
