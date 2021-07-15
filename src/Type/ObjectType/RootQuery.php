@@ -10,6 +10,8 @@ use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\Connection\MenuConnectionResolver;
+use WPGraphQL\Data\Connection\ThemeConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -96,6 +98,23 @@ class RootQuery {
 							do_action( 'wp_enqueue_scripts' );
 							$source->enqueuedStylesheetsQueue = array_keys( $wp_styles->registered );
 							$resolver                         = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'themes'                => [
+						'toType'  => 'Theme',
+						'resolve' => function ( $root, $args, $context, $info ) {
+							$resolver = new ThemeConnectionResolver( $root, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'userRoles'             => [
+						'toType'        => 'UserRole',
+						'fromFieldName' => 'userRoles',
+						'resolve'       => function ( $user, $args, $context, $info ) {
+							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},

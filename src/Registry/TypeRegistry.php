@@ -14,8 +14,6 @@ use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
-use WPGraphQL\Connection\Themes;
-use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
@@ -305,9 +303,7 @@ class TypeRegistry {
 		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
-		Themes::register_connections();
 		Users::register_connections();
-		UserRoles::register_connections();
 
 		/**
 		 * Register core mutations

@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\ObjectType;
 
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -38,6 +39,20 @@ class User {
 						'toType'  => 'EnqueuedStylesheet',
 						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'roles'               => [
+						'toType'        => 'UserRole',
+						'fromFieldName' => 'roles',
+						'resolve'       => function( \WPGraphQL\Model\User $user, $args, $context, $info ) {
+							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
+							// Only get roles matching the slugs of the roles belonging to the user
+
+							if ( ! empty( $user->roles ) ) {
+								$resolver->set_query_arg( 'slugIn', $user->roles );
+							}
 
 							return $resolver->get_connection();
 						},
