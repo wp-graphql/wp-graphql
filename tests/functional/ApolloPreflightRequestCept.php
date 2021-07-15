@@ -1,4 +1,8 @@
 <?php
+
+// Attempt to wait for WP Maintenance mode to finish
+sleep(5);
+
 $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Send a preflight Options request like Apollo and check the response' );
 
