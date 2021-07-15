@@ -26,7 +26,7 @@ run_tests() {
 
     # Suites is the comma separated list of suites/tests to run.
     echo "Running Test Suite $suites"
-    vendor/bin/codecept run -c codeception.dist.yml ${debug:-} --no-exit -- "${suites}"
+    vendor/bin/codecept run -c codeception.dist.yml "${suites}" ${coverage:-} ${debug:-} --no-exit
 }
 
 # Exits with a status of 0 (true) if provided version number is higher than proceeding numbers.
