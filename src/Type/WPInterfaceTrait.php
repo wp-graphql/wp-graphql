@@ -78,11 +78,13 @@ trait WPInterfaceTrait {
 	 */
 	protected function register_connections_from_config() {
 
-		if ( ! isset( $this->config['connections'] ) || ! is_array( $this->config['connections'] ) ) {
+		$connections = isset( $this->config['connections'] ) ?? null;
+
+		if ( null === $connections || ! is_array( $connections ) ) {
 			return;
 		}
 
-		foreach ( $this->config['connections'] as $field_name => $connection_config ) {
+		foreach ( $connections as $field_name => $connection_config ) {
 
 			if ( ! is_array( $connection_config ) ) {
 				continue;
