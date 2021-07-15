@@ -15,7 +15,7 @@ The Relay Specification came about as Facebook engineers used GraphQL in product
 
 ### Node &amp; Global ID
 
-Every object in WordPress is treated as an individual "[node](https://relay.dev/docs/en/graphql-server-specification.html#object-identification)" in GraphQL. Posts are nodes. Pages are nodes. Categories, tags, users, comments, menu items, etc are all considered "nodes".
+Every object in WordPress is treated as an individual "[node](https://relay.dev/docs/guides/graphql-server-specification/#object-identification)" in GraphQL. Posts are nodes. Pages are nodes. Categories, tags, users, comments, menu items, etc are all considered "nodes".
 
 And each "node" in the Graph can be identified by a unique ID.
 
@@ -73,7 +73,7 @@ Which would return data like so:
 
 ### Connections
 
-[Connections](https://relay.dev/docs/en/graphql-server-specification.html#connections) are a concept introduced by the Relay Specification for handling lists and relationships between Nodes.
+[Connections](https://relay.dev/docs/guides/graphql-server-specification/#connections) are a concept introduced by the Relay Specification for handling lists and relationships between Nodes.
 
 WPGraphQL makes heavy use of Connections to query lists of data and for querying relational data.
 
@@ -83,7 +83,7 @@ WPGraphQL makes heavy use of Connections to query lists of data and for querying
 
 GraphQL itself has no opinions on how Mutations are designed, but this freedom can also come at a cost. Without constraints, it's possible you might design a Mutation that would hardly be useful in real-life situations.
 
-The Relay Specification has opinions on how Mutations should be designed in a GraphQL Schema, and WPGraphQL follows the [guidelines set forth](https://relay.dev/docs/en/graphql-server-specification#mutations).
+The Relay Specification has opinions on how Mutations should be designed in a GraphQL Schema, and WPGraphQL follows the [guidelines set forth](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/).
 
 [Learn more about Mutations in WPGraphQL](/docs/wpgraphql-mutations/).
 
