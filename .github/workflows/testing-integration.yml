@@ -65,7 +65,7 @@ jobs:
           USING_XDEBUG: ${{ matrix.coverage }}
           DEBUG: ${{ matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: wpunit
+          SUITES: wpunit, functional, acceptance
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
         run: composer run-test
