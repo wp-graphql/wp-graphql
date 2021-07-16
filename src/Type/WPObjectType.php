@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
@@ -40,6 +39,11 @@ class WPObjectType extends ObjectType {
 	public $type_registry;
 
 	/**
+	 * @var array
+	 */
+	public $config;
+
+	/**
 	 * WPObjectType constructor.
 	 *
 	 * @param array        $config
@@ -62,6 +66,8 @@ class WPObjectType extends ObjectType {
 		 * @param WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
+
+		$this->config = $config;
 
 		/**
 		 * Set the Types to start with capitals
@@ -122,6 +128,8 @@ class WPObjectType extends ObjectType {
 
 			return $fields;
 		};
+
+		$this->register_connections_from_config();
 
 		/**
 		 * Run an action when the WPObjectType is instantiating
