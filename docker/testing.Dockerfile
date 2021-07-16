@@ -20,7 +20,7 @@ RUN docker-php-ext-install pdo_mysql
 RUN apt-get install zip unzip -y \
     && pecl install pcov
 
-ENV COVERAGE=0
+ENV COVERAGE=
 ENV SUITES=${SUITES:-}
 
 # Install composer

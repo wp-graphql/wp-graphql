@@ -17,10 +17,16 @@ run_tests() {
         exit 1
     fi
 
-    for suite in $suites ; do
-        echo "Running Test Suite $suite"
-        vendor/bin/codecept run -c codeception.dist.yml ${suite} ${coverage:-} ${debug:-} --no-exit
-    done
+    # If maintenance mode is active, de-activate it
+    if $( wp maintenance-mode is-active --allow-root ); then
+      echo "Deactivating maintenance mode"
+      wp maintenance-mode deactivate --allow-root
+    fi
+
+
+    # Suites is the comma separated list of suites/tests to run.
+    echo "Running Test Suite $suites"
+    vendor/bin/codecept run -c codeception.dist.yml "${suites}" ${coverage:-} ${debug:-} --no-exit
 }
 
 # Exits with a status of 0 (true) if provided version number is higher than proceeding numbers.
@@ -52,15 +58,15 @@ echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars
 echo "export WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}" >> /etc/apache2/envvars
 echo "export WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}" >> /etc/apache2/envvars
 
-# Run app entrypoint script.
+# Run app setup scripts.
 . app-setup.sh
 . app-post-setup.sh
 
 write_htaccess
 
 # Return to PWD.
-echo "Moving back to project working directory."
-cd ${WP_ROOT_FOLDER}/wp-content/plugins/wp-graphql
+echo "Moving back to project working directory ${PROJECT_DIR}"
+cd ${PROJECT_DIR}
 
 # Ensure Apache is running
 service apache2 start
@@ -88,7 +94,7 @@ if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" 
     echo "Using pcov/clobber for codecoverage"
     docker-php-ext-enable pcov
     echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
-    echo "pcov.directory = /var/www/html/wp-content/plugins/wp-graphql" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
+    echo "pcov.directory = ${PROJECT_DIR}" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
     COMPOSER_MEMORY_LIMIT=-1 composer require pcov/clobber --dev
     vendor/bin/pcov clobber
 elif [[ -n "$COVERAGE" ]] && [[ -n "$USING_XDEBUG" ]]; then

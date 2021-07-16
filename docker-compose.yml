@@ -19,7 +19,7 @@ services:
       local:
 
   app_db:
-    image: mysql:5.7
+    image: mariadb:10.2
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE:      wordpress
@@ -38,7 +38,6 @@ services:
     volumes:
       - '.:/var/www/html/wp-content/plugins/wp-graphql'
       - './.log/testing:/var/log/apache2'
-      - './codeception.dist.yml:/var/www/html/wp-content/plugins/wp-graphql/codeception.yml'
     env_file:
       - .env
     environment:

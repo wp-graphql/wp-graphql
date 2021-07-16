@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.7.2
 Requires PHP: 7.1
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,6 +90,20 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.5.3 =
+
+**Chores / Bugfixes**
+
+- ([#2001](https://github.com/wp-graphql/wp-graphql/pull/2001)): Updates Docker environment to use MariaDB instead of MySQL to play nice with those fancy M1 Macs. Thanks @chriszarate!
+- ([#2002](https://github.com/wp-graphql/wp-graphql/pull/2002)): Add PHP8 Docker image to deploy upon releases. Thanks @markkelnar!
+- ([#2006](https://github.com/wp-graphql/wp-graphql/pull/2006)): Update Docker to use $PROJECT_DIR variable instead of hardcoded value to allow composed docker images to run their own tests from their own project. Thanks @markkelnar!
+- ([#2007](https://github.com/wp-graphql/wp-graphql/pull/2007)): Update broken links to Relay spec. Thanks @ramyareye!
+
+**New Features**
+
+- ([#2009](https://github.com/wp-graphql/wp-graphql/pull/2009)): Adds new WPConnectionType class and refactors register_graphql_connection() to use the class. Functionality should be the same, but this sets the codebase up for some new connection APIs.
+
 
 = 1.5.2 =
 
