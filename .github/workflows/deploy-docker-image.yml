@@ -48,3 +48,16 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php }}
             WP_VERSION=${{ matrix.wordpress }}
+
+      - name: Build and push Docker testing image
+        uses: docker/build-push-action@v2.5.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/wp-graphql/wp-graphql-testing:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+            ghcr.io/wp-graphql/wp-graphql-testing:${{ steps.vars.outputs.tag }}-wp${{ matrix.wordpress }}-php${{ matrix.php }}
+          file: docker/testing.Dockerfile
+          build-args: |
+            PHP_VERSION=${{ matrix.php }}
+            WP_VERSION=${{ matrix.wordpress }}
