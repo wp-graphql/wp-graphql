@@ -29,6 +29,11 @@ class PostObject {
 
 		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
+			$interfaces[] = 'NodeWithTemplate';
+
+			if ( 'attachment' !== $post_type_object->name ) {
+				$interfaces[] = 'Previewable';
+			}
 		}
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
@@ -67,6 +72,11 @@ class PostObject {
 			$interfaces[] = 'NodeWithPageAttributes';
 		}
 
+		if ( $post_type_object->hierarchical ) {
+			$interfaces[] = 'HierarchicalContentNode';
+			$interfaces[] = 'HierarchicalNode';
+		}
+
 		if ( $post_type_object->hierarchical || in_array(
 			$post_type_object->name,
 			[
@@ -75,7 +85,7 @@ class PostObject {
 			],
 			true
 		) ) {
-			$interfaces[] = 'HierarchicalContentNode';
+			$interfaces[] = 'HierarchicalNode';
 		}
 
 		if ( true === $post_type_object->show_in_nav_menus ) {
@@ -87,7 +97,7 @@ class PostObject {
 			[
 				/* translators: post object singular name w/ description */
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-				'interfaces'  => $interfaces,
+				'interfaces'  => array_unique( $interfaces ),
 				'fields'      => self::get_post_object_fields( $post_type_object, $type_registry ),
 			]
 		);

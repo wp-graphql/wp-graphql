@@ -56,6 +56,7 @@ use WPGraphQL\Type\InterfaceType\ContentTypeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
+use WPGraphQL\Type\InterfaceType\HierarchicalNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
 use WPGraphQL\Type\InterfaceType\MenuItemLinkable;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
@@ -224,6 +225,7 @@ class TypeRegistry {
 		ContentTypeConnectionInterface::register_type( $type_registry );
 		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
+		HierarchicalNode::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
 		MenuItemLinkable::register_type( $type_registry );

@@ -21,6 +21,13 @@ class HierarchicalTermNode {
 
 		register_graphql_interface_type( 'HierarchicalTermNode', [
 			'description' => __( 'Term node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+			'interfaces'  => [
+				'Node',
+				'TermNode',
+				'DatabaseIdentifier',
+				'HierarchicalNode',
+				'UniformResourceIdentifiable',
+			],
 			'fields'      => [
 				'parentId'         => [
 					'type'        => 'ID',
