@@ -159,9 +159,10 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @throws Exception
 	 */
 	public function get_query() {
-		$query = new \WP_Term_Query( $this->query_args );
 
-		return $query;
+		$query_class = $this->context->connection_query_class ?? '\WP_Term_Query';
+
+		return new $query_class( $this->query_args );
 	}
 
 	/**

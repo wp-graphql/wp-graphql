@@ -2,15 +2,24 @@
 
 namespace WPGraphQL\Type\Union;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class PostObjectUnion
+ *
+ * @package WPGraphQL\Type\Union
+ * @deprecated use ContentNode interface instead
+ */
 class PostObjectUnion {
 
 	/**
 	 * Registers the Type
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_union_type(

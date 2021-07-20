@@ -17,11 +17,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'RootQuery',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'taxonomies',
+				'fromType'             => 'RootQuery',
+				'toType'               => 'Taxonomy',
+				'fromFieldName'        => 'taxonomies',
 				'connectionInterfaces' => [ 'TaxonomyConnection' ],
-				'resolve'       => function ( $source, $args, $context, $info ) {
+				'resolve'              => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -34,12 +34,12 @@ class Taxonomies {
 			foreach ( $taxonomies as $taxonomy ) {
 				register_graphql_connection(
 					[
-						'fromType'      => $taxonomy->graphql_single_name,
-						'toType'        => 'Taxonomy',
+						'fromType'             => $taxonomy->graphql_single_name,
+						'toType'               => 'Taxonomy',
 						'connectionInterfaces' => [ 'TaxonomyConnection' ],
-						'fromFieldName' => 'taxonomy',
-						'oneToOne'      => true,
-						'resolve'       => function ( Term $source, $args, $context, $info ) {
+						'fromFieldName'        => 'taxonomy',
+						'oneToOne'             => true,
+						'resolve'              => function ( Term $source, $args, $context, $info ) {
 							if ( empty( $source->taxonomyName ) ) {
 								return null;
 							}
@@ -54,11 +54,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'ContentType',
-				'toType'        => 'Taxonomy',
+				'fromType'             => 'ContentType',
+				'toType'               => 'Taxonomy',
 				'connectionInterfaces' => [ 'TaxonomyConnection' ],
-				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function ( PostType $source, $args, $context, $info ) {
+				'fromFieldName'        => 'connectedTaxonomies',
+				'resolve'              => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}

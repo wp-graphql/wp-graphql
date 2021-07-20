@@ -289,6 +289,60 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'FakeType',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testRegisterConnectionFromNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'FakeType',
+			'toType' => 'Post',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
 	public function testRenameGraphQLFieldName() {
 
 		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
@@ -306,6 +360,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRenameGraphQLType() {
+
+		register_graphql_union_type( 'PostObjectUnion', [
+			'typeNames'   => [ 'Post', 'Page' ],
+			'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
+		]);
 
 		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
