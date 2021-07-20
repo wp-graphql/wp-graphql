@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.5
+
+### Chores / Bugfixes
+
+- ([#2023](https://github.com/wp-graphql/wp-graphql/pull/2023)): Fixes issue with deploying Docker Testing Images. Thanks @markkelnar!
+- ([#2025](https://github.com/wp-graphql/wp-graphql/pull/2025)): Update test workflow to test against WordPress 5.8 (released today) and updates the readme.txt to reflect the plugin has been tested up to 5.8
+
 ## 1.5.4 
 
 ### Chores / Bugfixes
