@@ -20,6 +20,7 @@ class Taxonomies {
 				'fromType'      => 'RootQuery',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'taxonomies',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
 				'resolve'       => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
@@ -35,6 +36,7 @@ class Taxonomies {
 					[
 						'fromType'      => $taxonomy->graphql_single_name,
 						'toType'        => 'Taxonomy',
+						'connectionInterfaces' => [ 'TaxonomyConnection' ],
 						'fromFieldName' => 'taxonomy',
 						'oneToOne'      => true,
 						'resolve'       => function ( Term $source, $args, $context, $info ) {
@@ -54,6 +56,7 @@ class Taxonomies {
 			[
 				'fromType'      => 'ContentType',
 				'toType'        => 'Taxonomy',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
 				'fromFieldName' => 'connectedTaxonomies',
 				'resolve'       => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
