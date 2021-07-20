@@ -39,9 +39,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
-					'name' => 'Connection'
-				]
+				'name' => 'Connection'
 			] ),
 		] );
 
@@ -54,9 +52,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -69,9 +65,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -84,9 +78,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -99,9 +91,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -114,9 +104,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -129,9 +117,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -144,9 +130,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -159,9 +143,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -174,9 +156,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -189,9 +169,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -204,9 +182,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -219,9 +195,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -234,9 +208,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -249,9 +221,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -264,9 +234,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -279,9 +247,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 
@@ -294,9 +260,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -309,9 +273,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Connection'
-				]
 			] ),
 		] );
 
@@ -324,9 +286,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				[
 					'name' => 'Edge'
-				]
 			] ),
 		] );
 

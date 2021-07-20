@@ -45,6 +45,7 @@ use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\CommentConnectionInterface;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
 use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
@@ -210,6 +211,7 @@ class TypeRegistry {
 
 		// Register Interfaces.
 		Node::register_type();
+		CommentConnectionInterface::register_type( $type_registry );
 		CommenterInterface::register_type( $type_registry );
 		ConnectionInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
