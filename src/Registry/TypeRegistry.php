@@ -76,6 +76,7 @@ use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\Previewable;
 use WPGraphQL\Type\InterfaceType\TaxonomyConnectionInterface;
 use WPGraphQL\Type\InterfaceType\TermNode;
+use WPGraphQL\Type\InterfaceType\TermNodeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\EnqueuedScript;
 use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
@@ -250,6 +251,7 @@ class TypeRegistry {
 		Previewable::register_type( $type_registry );
 		TaxonomyConnectionInterface::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
+		TermNodeConnectionInterface::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
 		// register types
