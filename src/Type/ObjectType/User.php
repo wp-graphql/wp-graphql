@@ -1,9 +1,12 @@
 <?php
 
-
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use \WPGraphQL\Model\User as UserModel;
 
 /**
  * Class User
@@ -23,6 +26,38 @@ class User {
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
+				'connections' => [
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'enqueuedStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'roles'               => [
+						'toType'        => 'UserRole',
+						'fromFieldName' => 'roles',
+						'resolve'       => function ( UserModel $user, $args, $context, $info ) {
+							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
+							// Only get roles matching the slugs of the roles belonging to the user
+
+							if ( isset( $user->roles ) && ! empty( $user->roles ) ) {
+								$resolver->set_query_arg( 'slugIn', $user->roles );
+							}
+
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'fields'      => [
 					'id'                => [
 						'description' => __( 'The globally unique identifier for the user object.', 'wp-graphql' ),

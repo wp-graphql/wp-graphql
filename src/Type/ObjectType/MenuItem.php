@@ -4,6 +4,10 @@ namespace WPGraphQL\Type\ObjectType;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\MenuConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
+use WPGraphQL\Model\MenuItem as MenuItemModel;
 
 class MenuItem {
 
@@ -18,6 +22,55 @@ class MenuItem {
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'connections' => [
+					'connectedNode' => [
+						'toType'               => 'MenuItemLinkable',
+						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
+						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+
+							if ( ! isset( $menu_item->databaseId ) ) {
+								return null;
+							}
+
+							$object_id   = (int) get_post_meta( $menu_item->databaseId, '_menu_item_object_id', true );
+							$object_type = get_post_meta( $menu_item->databaseId, '_menu_item_type', true );
+
+							$resolver = null;
+							switch ( $object_type ) {
+								// Post object
+								case 'post_type':
+									$resolver = new PostObjectConnectionResolver( $menu_item, $args, $context, $info );
+									$resolver->set_query_arg( 'p', $object_id );
+									break;
+
+								// Taxonomy term
+								case 'taxonomy':
+									$resolver = new TermObjectConnectionResolver( $menu_item, $args, $context, $info );
+									$resolver->set_query_arg( 'include', $object_id );
+									break;
+								default:
+									$resolved_object = null;
+									break;
+							}
+
+							return null !== $resolver ? $resolver->one_to_one()->get_connection() : null;
+
+						},
+					],
+					'menu'          => [
+						'toType'      => 'Menu',
+						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
+						'oneToOne'    => true,
+						'resolve'     => function ( MenuItemModel $menu_item, $args, $context, $info ) {
+							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
+							$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
+
+							return $resolver->one_to_one()->get_connection();
+						},
+					],
+				],
 				'fields'      => [
 					'id'               => [
 						'description' => __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' ),
