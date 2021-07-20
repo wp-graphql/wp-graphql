@@ -59,6 +59,7 @@ use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
 use WPGraphQL\Type\InterfaceType\MenuConnectionInterface;
+use WPGraphQL\Type\InterfaceType\MenuItemConnectionInterface;
 use WPGraphQL\Type\InterfaceType\MenuItemLinkable;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
@@ -230,6 +231,7 @@ class TypeRegistry {
 		HierarchicalNode::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		MenuConnectionInterface::register_type( $type_registry );
+		MenuItemConnectionInterface::register_type( $type_registry );
 		MenuItemLinkable::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
