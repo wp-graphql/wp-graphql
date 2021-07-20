@@ -44,7 +44,7 @@ class User {
 							return $resolver->get_connection();
 						},
 					],
-					'revisions' => [
+					'revisions'           => [
 						'toType'               => 'ContentNode',
 						'connectionInterfaces' => [ 'ContentNodeConnection' ],
 						'queryClass'           => 'WP_Query',

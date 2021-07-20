@@ -103,13 +103,13 @@ class RootQuery {
 							return $resolver->get_connection();
 						},
 					],
-					'revisions' => [
+					'revisions'             => [
 						'toType'         => 'ContentNode',
 						'queryClass'     => 'WP_Query',
 						'connectionArgs' => PostObjects::get_connection_args(),
 						'resolve'        => function ( $root, $args, $context, $info ) {
 							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
-						}
+						},
 					],
 					'themes'                => [
 						'toType'  => 'Theme',
