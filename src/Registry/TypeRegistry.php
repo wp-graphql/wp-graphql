@@ -78,6 +78,7 @@ use WPGraphQL\Type\InterfaceType\TaxonomyConnectionInterface;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\TermNodeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
+use WPGraphQL\Type\InterfaceType\UserConnectionInterface;
 use WPGraphQL\Type\ObjectType\EnqueuedScript;
 use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -253,6 +254,7 @@ class TypeRegistry {
 		TermNode::register_type( $type_registry );
 		TermNodeConnectionInterface::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
+		UserConnectionInterface::register_type( $type_registry );
 
 		// register types
 		RootQuery::register_type();
