@@ -8,22 +8,12 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
-use WPGraphQL\Connection\Commenter;
 use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\ContentTypes;
-use WPGraphQL\Connection\EnqueuedScripts;
-use WPGraphQL\Connection\EnqueuedStylesheets;
-use WPGraphQL\Connection\MediaItems;
-use WPGraphQL\Connection\MenuItemLinkableConnection;
 use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\Menus;
-use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
-use WPGraphQL\Connection\Themes;
-use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
@@ -308,22 +298,12 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
-		Commenter::register_connections();
-		EnqueuedScripts::register_connections();
-		EnqueuedStylesheets::register_connections();
-		MediaItems::register_connections();
-		Menus::register_connections();
-		MenuItemLinkableConnection::register_connections();
 		MenuItems::register_connections();
-		Plugins::register_connections();
 		PostObjects::register_connections();
-		ContentTypes::register_connections();
 		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
-		Themes::register_connections();
 		Users::register_connections();
-		UserRoles::register_connections();
 
 		/**
 		 * Register core mutations

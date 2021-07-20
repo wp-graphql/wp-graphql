@@ -17,10 +17,16 @@ run_tests() {
         exit 1
     fi
 
-    for suite in $suites ; do
-        echo "Running Test Suite $suite"
-        vendor/bin/codecept run -c codeception.dist.yml ${suite} ${coverage:-} ${debug:-} --no-exit
-    done
+    # If maintenance mode is active, de-activate it
+    if $( wp maintenance-mode is-active --allow-root ); then
+      echo "Deactivating maintenance mode"
+      wp maintenance-mode deactivate --allow-root
+    fi
+
+
+    # Suites is the comma separated list of suites/tests to run.
+    echo "Running Test Suite $suites"
+    vendor/bin/codecept run -c codeception.dist.yml "${suites}" ${coverage:-} ${debug:-} --no-exit
 }
 
 # Exits with a status of 0 (true) if provided version number is higher than proceeding numbers.

@@ -1,5 +1,10 @@
 <?php
 
+// There's a funky issue where WordPress is trying to update during tests
+// and goes into maintenance mode and fails the tests.
+// This is an attempt to wait for it to pass.
+sleep( 2 );
+
 $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Test restricting the API prevents unauthorized queries' );
 
