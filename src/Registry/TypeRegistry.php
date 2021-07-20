@@ -52,6 +52,7 @@ use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentNodeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\ContentTypeConnectionInterface;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
@@ -220,6 +221,7 @@ class TypeRegistry {
 		ContentNode::register_type( $type_registry );
 		ContentNodeConnectionInterface::register_type( $type_registry );
 		ContentTemplate::register_type();
+		ContentTypeConnectionInterface::register_type( $type_registry );
 		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );

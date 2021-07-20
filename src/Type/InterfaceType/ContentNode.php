@@ -37,6 +37,7 @@ class ContentNode {
 				'connections' => [
 					'contentType'         => [
 						'toType'   => 'ContentType',
+						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'resolve'  => function ( Post $source, $args, $context, $info ) {
 
 							if ( $source->isRevision ) {
