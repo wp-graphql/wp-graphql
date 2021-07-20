@@ -185,45 +185,33 @@ class TermObjects {
 			}
 		}
 
-		// Register a connection from each post type that
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $allowed_post_type ) {
-
-				/** @var \WP_Post_Type $post_type_object */
-				$post_type_object = get_post_type_object( $allowed_post_type );
-
-				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
-					continue;
+		// Register a connection from ContentNodes to terms
+		register_graphql_connection( [
+			'fromType'       => 'ContentNode',
+			'toType'         => 'TermNode',
+			'fromFieldName'  => 'terms',
+			'queryClass'     => 'WP_Term_Query',
+			'connectionArgs' => self::get_connection_args(
+				[
+					'taxonomies' => [
+						'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+						'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+					],
+				]
+			),
+			'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+				$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+				if ( empty( $terms ) || is_wp_error( $terms ) ) {
+					return null;
 				}
+				$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+				$resolver->set_query_arg( 'include', $terms );
 
-				register_graphql_connection( [
-					'fromType'       => $post_type_object->graphql_single_name,
-					'toType'         => 'TermNode',
-					'fromFieldName'  => 'terms',
-					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => self::get_connection_args(
-						[
-							'taxonomies' => [
-								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
-								'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
-							],
-						]
-					),
-					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
-						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
-						if ( empty( $terms ) || is_wp_error( $terms ) ) {
-							return null;
-						}
-						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-						$resolver->set_query_arg( 'include', $terms );
+				return $resolver->get_connection();
 
-						return $resolver->get_connection();
-
-					},
-				] );
-			}
-		}
+			},
+		] );
 
 	}
 
