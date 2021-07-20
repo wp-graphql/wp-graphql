@@ -56,6 +56,7 @@ use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
+use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
@@ -78,7 +79,6 @@ use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\EnqueuedScript;
 use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
-use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
@@ -221,6 +221,7 @@ class TypeRegistry {
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
+		ConnectionInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();
@@ -299,7 +300,6 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		ContentRevisionUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
@@ -318,7 +318,6 @@ class TypeRegistry {
 		Plugins::register_connections();
 		PostObjects::register_connections();
 		ContentTypes::register_connections();
-		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
 		Themes::register_connections();

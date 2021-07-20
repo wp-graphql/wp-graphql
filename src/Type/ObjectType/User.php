@@ -3,6 +3,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Data\DataSource;
 
 /**
@@ -23,6 +24,18 @@ class User {
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
+				'connections' => [
+					'revisions' => [
+						'toType'               => 'ContentNode',
+						'connectionInterfaces' => [ 'ContentNodeConnection' ],
+						'queryClass'           => 'WP_Query',
+						'description'          => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
+						'connectionArgs'       => PostObjects::get_connection_args(),
+						'resolve'              => function ( $root, $args, $context, $info ) {
+							return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
+						},
+					],
+				],
 				'fields'      => [
 					'id'                => [
 						'description' => __( 'The globally unique identifier for the user object.', 'wp-graphql' ),
