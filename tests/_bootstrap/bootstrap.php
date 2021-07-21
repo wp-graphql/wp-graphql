@@ -2,8 +2,6 @@
 
 // Disable updates to prevent WP from going into maintenance mode while tests run
 define( 'WP_AUTO_UPDATE_CORE', false );
-add_filter( 'file_mod_allowed', '__return_false' );
-
 
 /**
  * This registers custom Post Type and Taxomomy for use in query tests to make sure
