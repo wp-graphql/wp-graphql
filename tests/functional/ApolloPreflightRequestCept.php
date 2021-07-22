@@ -1,4 +1,5 @@
 <?php
+
 $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Send a preflight Options request like Apollo and check the response' );
 

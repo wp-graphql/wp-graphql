@@ -5,6 +5,9 @@ use Exception;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
@@ -31,6 +34,44 @@ class ContentNode {
 			[
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
+				'connections' => [
+					'contentType'         => [
+						'toType'   => 'ContentType',
+						'resolve'  => function ( Post $source, $args, $context, $info ) {
+
+							if ( $source->isRevision ) {
+								$parent    = get_post( $source->parentDatabaseId );
+								$post_type = $parent->post_type ?? null;
+							} else {
+								$post_type = $source->post_type ?? null;
+							}
+
+							if ( empty( $post_type ) ) {
+								return null;
+							}
+
+							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
+						},
+						'oneToOne' => true,
+					],
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'enqueuedStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'resolveType' => function ( Post $post ) use ( $type_registry ) {
 
 					/**

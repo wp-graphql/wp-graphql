@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
+
 /**
  * Class Comment
  *
@@ -20,6 +23,32 @@ class Comment {
 			[
 				'description' => __( 'A Comment object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'connections' => [
+					'author' => [
+						'toType'               => 'Commenter',
+						'connectionInterfaces' => [ 'CommenterConnection' ],
+						'description'          => __( 'The author of the comment', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
+
+							/**
+							 * If the comment has a user associated, use it to populate the author, otherwise return
+							 * the $comment and the Union will use that to hydrate the CommentAuthor Type
+							 */
+							if ( ! empty( $comment->userId ) ) {
+								$node = $context->get_loader( 'user' )->load( absint( $comment->userId ) );
+							} else {
+								$node = ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
+							}
+
+							return [
+								'node'   => $node,
+								'source' => $comment,
+							];
+
+						},
+					],
+				],
 				'fields'      => [
 					'id'               => [
 						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),

@@ -369,7 +369,7 @@ function register_graphql_connection( array $config ) {
 		function ( TypeRegistry $type_registry ) use ( $config ) {
 			$type_registry->register_connection( $config );
 		},
-		10
+		20
 	);
 }
 
