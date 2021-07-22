@@ -1,11 +1,10 @@
 <?php
 
 // Disable updates to prevent WP from going into maintenance mode while tests run
-define( 'WP_AUTO_UPDATE_CORE', false );
-add_filter( 'enable_maintenance_mode', function() {
-	return false;
-} );
-
+add_filter( 'enable_maintenance_mode', '__return_false' );
+add_filter( 'wp_auto_update_core', '__return_false' );
+add_filter( 'auto_update_plugin', '__return_false' );
+add_filter( 'auto_update_theme', '__return_false' );
 /**
  * This registers custom Post Type and Taxomomy for use in query tests to make sure
  * APIs for Custom Taxonomies and Custom Post Types work as expected.
