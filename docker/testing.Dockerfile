@@ -4,8 +4,9 @@
 
 ARG WP_VERSION
 ARG PHP_VERSION
+ARG DOCKER_REGISTRY
 
-FROM wp-graphql:latest-wp${WP_VERSION}-php${PHP_VERSION}
+FROM ${DOCKER_REGISTRY:-}wp-graphql:latest-wp${WP_VERSION}-php${PHP_VERSION}
 
 LABEL author=jasonbahl
 LABEL author_uri=https://github.com/jasonbahl

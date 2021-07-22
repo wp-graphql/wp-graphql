@@ -61,3 +61,4 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php }}
             WP_VERSION=${{ matrix.wordpress }}
+            DOCKER_REGISTRY=ghcr.io/wp-graphql/
