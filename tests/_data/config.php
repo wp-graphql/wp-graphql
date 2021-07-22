@@ -6,3 +6,5 @@
  */
 define( 'GRAPHQL_DEBUG', true );
 define( 'WPGRAPHQL_AUTOLOAD', false );
+define( 'WP_AUTO_UPDATE_CORE', false );
+add_filter( 'enable_maintenance_mode', '__return_false' );

@@ -14,4 +14,3 @@ modules:
   config:
     WPDb:
       cleanup: false
-bootstrap: bootstrap.php
