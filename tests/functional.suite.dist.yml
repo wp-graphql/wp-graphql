@@ -14,5 +14,6 @@ modules:
   config:
     WPDb:
       cleanup: false
-    activatePlugins:
-      - wp-graphql/tests/_bootstrap/bootstrap.php
+    WPLoader:
+      activatePlugins:
+        - wp-graphql/tests/_bootstrap/bootstrap.php

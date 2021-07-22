@@ -1,6 +1,7 @@
 <?php
 
 // Disable updates to prevent WP from going into maintenance mode while tests run
+define( 'WP_AUTO_UPDATE_CORE', false );
 add_filter( 'enable_maintenance_mode', function() {
 	return false;
 } );
