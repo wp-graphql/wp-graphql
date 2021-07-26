@@ -46,14 +46,20 @@ class UserLoader extends AbstractDataLoader {
 	 * @return array
 	 */
 	public function get_public_users( array $keys ) {
-		$post_types = \WPGraphQL::get_allowed_post_types();
+
+		// Get public post types that are set to show in GraphQL
+		// as public users are determined by whether they've published
+		// content in one of these post types
+		$post_types = get_post_types( [
+			'public'          => true,
+			'show_in_graphql' => true,
+		], 'names', 'and' );
 
 		/**
 		 * Exclude revisions and attachments, since neither ever receive the
 		 * "publish" post status.
 		 */
-		unset( $post_types['revision'] );
-		unset( $post_types['attachment'] );
+		unset( $post_types['revision'], $post_types['attachment'] );
 
 		/**
 		 * Only retrieve public posts by the provided author IDs. Also,
@@ -63,6 +69,7 @@ class UserLoader extends AbstractDataLoader {
 		$author_id   = null;
 		$public_only = true;
 
+		// @phpstan-ignore-next-line
 		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
 		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
 
@@ -89,8 +96,8 @@ class UserLoader extends AbstractDataLoader {
 		 */
 		return array_reduce(
 			$results,
-			function ( $carry, $result ) {
-				$carry[ intval( $result->post_author ) ] = true;
+			static function ( $carry, $result ) {
+				$carry[ (int) $result->post_author ] = true;
 				return $carry;
 			},
 			[]
@@ -158,6 +165,7 @@ class UserLoader extends AbstractDataLoader {
 					/**
 					 * Set a property on the user that can be accessed by the User model.
 					 */
+					// @phpstan-ignore-next-line
 					$user->is_private = ! isset( $public_users[ $key ] );
 
 					$carry[ $key ] = $user;
