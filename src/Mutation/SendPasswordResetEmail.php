@@ -72,8 +72,8 @@ class SendPasswordResetEmail {
 					 * Return the ID of the user
 					 */
 					return [
-						'id' => $user_data->ID,
-						'user' => $context->get_loader( 'user' )->load_deferred( $user_data->ID )
+						'id'   => $user_data->ID,
+						'user' => $context->get_loader( 'user' )->load_deferred( $user_data->ID ),
 					];
 				},
 			]

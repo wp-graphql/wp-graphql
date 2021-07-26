@@ -180,8 +180,8 @@ class UserCreate {
 			 * Return the new user ID
 			 */
 			return [
-				'id' => $user_id,
-				'user' => $context->get_loader( 'user' )->load_deferred( $user_id )
+				'id'   => $user_id,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user_id ),
 			];
 		};
 	}
