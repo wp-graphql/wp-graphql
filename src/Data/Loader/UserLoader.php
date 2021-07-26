@@ -66,7 +66,7 @@ class UserLoader extends AbstractDataLoader {
 		 * get_posts_by_author_sql only accepts a single author ID, so we'll need to
 		 * add our own IN statement.
 		 */
-		$author_id  = null;
+		$author_id   = null;
 		$public_only = true;
 
 		// @phpstan-ignore-next-line
