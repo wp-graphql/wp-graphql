@@ -106,6 +106,7 @@ class ResetUserPassword {
 			 */
 			return [
 				'id' => $user->ID,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user->ID )
 			];
 		};
 	}

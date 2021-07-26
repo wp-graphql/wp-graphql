@@ -127,16 +127,6 @@ class UserCreate {
 			'user' => [
 				'type'        => 'User',
 				'description' => __( 'The User object mutation type.', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
-
-					$user = get_user_by( 'ID', (int) $payload['id'] );
-
-					if ( empty( $user ) ) {
-						return null;
-					}
-
-					return new User( $user );
-				},
 			],
 		];
 	}
@@ -191,6 +181,7 @@ class UserCreate {
 			 */
 			return [
 				'id' => $user_id,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user_id )
 			];
 		};
 	}
