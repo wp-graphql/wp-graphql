@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.6
+
+### Chores / Bugfixes
+
+
 ## 1.5.5
 
 ### Chores / Bugfixes
