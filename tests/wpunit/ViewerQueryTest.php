@@ -3,10 +3,12 @@
 class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
+		WPGraphQL::clear_schema();
 		parent::setUp();
 	}
 
 	public function tearDown(): void {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 

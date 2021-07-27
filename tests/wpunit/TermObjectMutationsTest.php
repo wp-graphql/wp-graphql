@@ -15,6 +15,8 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
     {
         parent::setUp();
 
+	    WPGraphQL::clear_schema();
+
 	    $this->category_name = 'Test Category';
 	    $this->tag_name = 'Test Tag';
 	    $this->description = 'Test Term Description';
@@ -33,7 +35,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
     public function tearDown(): void
     {
         // your tear down methods here
-
+	    WPGraphQL::clear_schema();
         // then
         parent::tearDown();
     }

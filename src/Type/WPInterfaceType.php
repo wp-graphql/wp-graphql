@@ -87,7 +87,7 @@ class WPInterfaceType extends InterfaceType {
 			return $fields;
 		};
 
-		$this->register_connections_from_config();
+		$this->register_connections_from_config( $this->type_registry );
 
 		$config['resolveType'] = function ( $object ) use ( $config ) {
 			$type = null;

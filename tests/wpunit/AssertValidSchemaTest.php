@@ -210,4 +210,146 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testSchemaSupportsLazyLoadingTypes() {
+		add_filter( 'graphql_get_type', function ( $type, $type_name ) {
+			if ( 'TestLazyType' === $type_name ) {
+				// Should not be called since this type does not need to be loaded.
+				$this->assertTrue( false );
+			}
+
+			return $type;
+		}, 10, 2 );
+
+		add_filter( 'graphql_wp_object_type_config', function ( $config ) {
+			if ( 'TestLazyType' === $config['name'] ) {
+				// Should not be called since this type does not need to be loaded.
+				$this->assertTrue( false );
+			}
+
+			return $config;
+		}, 10, 1 );
+
+		add_filter( 'graphql_object_fields', function ( $fields, $type_name ) {
+			if ( 'TestLazyType' === $type_name ) {
+				// Should not be called since this type does not need to be loaded.
+				$this->assertTrue( false );
+			}
+
+			return $fields;
+		}, 10, 2 );
+
+		register_graphql_type(
+			'TestLazyType',
+			[
+				'fields' => function () {
+					// Should not be called since this type does not need to be loaded.
+					$this->assertTrue( false );
+
+					return [];
+				},
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'example',
+			[ 'type' => 'TestLazyType' ]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'allExamples',
+			[
+				'type' => [
+					'list_of' => [
+						'non_null' => 'TestLazyType',
+					],
+				],
+			],
+		);
+
+		$actual = graphql([
+			'query' => '
+			{
+				__type(name: "RootQuery") {
+					name
+				}
+			}
+			',
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+	}
+
+	public function testSchemaCallsLazyLoadingTypesWhenNeeded() {
+		$filter_calls = [];
+
+		add_filter( 'graphql_get_type', function ( $type, $type_name ) use ( &$filter_calls ) {
+			if ( 'TestLazyType' === $type_name ) {
+				$filter_calls[] = 'graphql_get_type';
+			}
+
+			return $type;
+		}, 10, 2 );
+
+		add_filter( 'graphql_wp_object_type_config', function ( $config ) use ( &$filter_calls ) {
+			if ( 'TestLazyType' === $config['name'] ) {
+				$filter_calls[] = 'graphql_wp_object_type_config';
+			}
+
+			return $config;
+		}, 10, 1 );
+
+		add_filter( 'graphql_object_fields', function ( $fields, $type_name ) use ( &$filter_calls ) {
+			if ( 'TestLazyType' === $type_name ) {
+				$filter_calls[] = 'graphql_object_fields';
+			}
+
+			return $fields;
+		}, 10, 2 );
+
+		register_graphql_type(
+			'TestLazyType',
+			[
+				'fields' => [
+					'foo' => [
+						'type'    => 'String',
+					],
+				],
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'example',
+			[
+				'type' => 'TestLazyType',
+				'resolve' => function () {
+					return [
+						'foo' => 'bar',
+					];
+				},
+			]
+		);
+
+		$actual = graphql( [
+			'query' => '
+			{
+				example {
+					foo
+				}
+			}
+			',
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'bar', $actual['data']['example']['foo'] );
+
+		$expected_filter_calls = [ 'graphql_wp_object_type_config', 'graphql_object_fields', 'graphql_get_type' ];
+		$this->assertSame( $expected_filter_calls, $filter_calls );
+	}
 }
