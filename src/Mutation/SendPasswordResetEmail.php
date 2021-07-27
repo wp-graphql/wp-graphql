@@ -34,15 +34,6 @@ class SendPasswordResetEmail {
 					'user' => [
 						'type'        => 'User',
 						'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
-						'resolve'     => function ( $payload ) {
-							$user = get_user_by( 'ID', absint( $payload['id'] ) );
-
-							if ( empty( $user ) ) {
-								return null;
-							}
-
-							return new User( $user );
-						},
 					],
 				],
 				'mutateAndGetPayload' => function ( $input, AppContext $context, ResolveInfo $info ) {
@@ -81,7 +72,8 @@ class SendPasswordResetEmail {
 					 * Return the ID of the user
 					 */
 					return [
-						'id' => $user_data->ID,
+						'id'   => $user_data->ID,
+						'user' => $context->get_loader( 'user' )->load_deferred( $user_data->ID ),
 					];
 				},
 			]

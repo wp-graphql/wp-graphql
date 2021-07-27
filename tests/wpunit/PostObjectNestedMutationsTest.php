@@ -12,7 +12,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		// before
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 		$this->title              = 'some title';
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
@@ -33,6 +33,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 
 	public function tearDown(): void {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 

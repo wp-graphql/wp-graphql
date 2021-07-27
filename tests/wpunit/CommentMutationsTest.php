@@ -27,12 +27,14 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->subscriber = $this->factory()->user->create( [
 			'role' => 'subscriber',
 		] );
+
+		WPGraphQL::clear_schema();
 	}
 
 
 	public function tearDown(): void {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}

@@ -9,6 +9,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -22,6 +23,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 

@@ -27,6 +27,85 @@ class UserLoader extends AbstractDataLoader {
 	}
 
 	/**
+	 * The data loader always returns a user object if it exists, but we need to
+	 * separately determine whether the user should be considered private. The
+	 * WordPress frontend does not expose authors without published posts, so our
+	 * privacy model follows that same convention.
+	 *
+	 * Example return format for input "[ 1, 2 ]":
+	 *
+	 * [
+	 *   2 => true,  // User 2 is public (has published posts)
+	 * ]
+	 *
+	 * In this example, user 1 is not public (has no published posts) and is
+	 * omitted from the returned array.
+	 *
+	 * @param array $keys Array of author IDs (int).
+	 *
+	 * @return array
+	 */
+	public function get_public_users( array $keys ) {
+
+		// Get public post types that are set to show in GraphQL
+		// as public users are determined by whether they've published
+		// content in one of these post types
+		$post_types = get_post_types( [
+			'public'          => true,
+			'show_in_graphql' => true,
+		] );
+
+		/**
+		 * Exclude revisions and attachments, since neither ever receive the
+		 * "publish" post status.
+		 */
+		unset( $post_types['revision'], $post_types['attachment'] );
+
+		/**
+		 * Only retrieve public posts by the provided author IDs. Also,
+		 * get_posts_by_author_sql only accepts a single author ID, so we'll need to
+		 * add our own IN statement.
+		 */
+		$author_id   = null;
+		$public_only = true;
+
+		// @phpstan-ignore-next-line
+		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
+		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
+		$count = count( $keys );
+
+		global $wpdb;
+
+		$results = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$wpdb->prepare(
+				"SELECT DISTINCT `post_author` FROM $wpdb->posts $where AND `post_author` IN ( $ids ) LIMIT $count",
+				$keys
+			)
+		);
+
+		/**
+		 * Empty results or error.
+		 */
+		if ( ! is_array( $results ) ) {
+			return [];
+		}
+
+		/**
+		 * Reduce to an associative array that can be easily consumed.
+		 */
+		return array_reduce(
+			$results,
+			static function ( $carry, $result ) {
+				$carry[ (int) $result->post_author ] = true;
+				return $carry;
+			},
+			[]
+		);
+	}
+
+	/**
 	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
 	 * values
 	 *
@@ -52,13 +131,12 @@ class UserLoader extends AbstractDataLoader {
 		 * set of IDs, so we want to query as efficiently as possible with
 		 * as little overhead as possible. We don't want to return post counts,
 		 * we don't want to include sticky posts, and we want to limit the query
-		 * to the count of the keys provided. The query must also return results
-		 * in the same order the keys were provided in.
+		 * to the count of the keys provided. We don't care about the order since we
+		 * will reorder them ourselves to match the order of the provided keys.
 		 */
 		$args = [
 			'include'     => $keys,
 			'number'      => count( $keys ),
-			'orderby'     => 'include',
 			'count_total' => false,
 			'fields'      => 'all_with_meta',
 		];
@@ -70,20 +148,36 @@ class UserLoader extends AbstractDataLoader {
 		$query->get_results();
 
 		/**
-		 * Loop over the Users and return an array of loaded_users,
-		 * where the key is the ID and the value is the Post passed through
-		 * the model layer.
+		 * Determine which of the users are public (have published posts).
 		 */
-		foreach ( $keys as $key ) {
-			$user = get_user_by( 'id', $key );
-			if ( $user instanceof \WP_User ) {
-				$loaded_users[ $key ] = $user;
-			} elseif ( ! isset( $loaded_users[0] ) ) {
-				$loaded_users[0] = null;
-			}
-		}
-		return ! empty( $loaded_users ) ? $loaded_users : [];
+		$public_users = $this->get_public_users( $keys );
 
+		/**
+		 * Loop over the keys and reduce to an associative array, providing the
+		 * WP_User instance (if found) or null. This ensures that the returned array
+		 * has the same keys that were provided and in the same order.
+		 */
+		return array_reduce(
+			$keys,
+			function ( $carry, $key ) use ( $public_users ) {
+				$user = get_user_by( 'id', $key ); // Cached via previous WP_User_Query.
+
+				if ( $user instanceof \WP_User ) {
+					/**
+					 * Set a property on the user that can be accessed by the User model.
+					 */
+					// @phpstan-ignore-next-line
+					$user->is_private = ! isset( $public_users[ $key ] );
+
+					$carry[ $key ] = $user;
+				} else {
+					$carry[ $key ] = null;
+				}
+
+				return $carry;
+			},
+			[]
+		);
 	}
 
 }

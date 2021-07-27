@@ -144,23 +144,22 @@ class User extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
-		if ( ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
-
-			/**
-			 * @todo: We should handle this check in a Deferred resolver. Right now it queries once per user
-			 *      but we _could_ query once for _all_ users.
-			 *
-			 *      For now, we only query if the current user doesn't have list_users, instead of querying
-			 *      for ALL users. Slightly more efficient for authenticated users at least.
-			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), WPGraphQL::get_allowed_post_types(), true ) ) {
-				return true;
-			}
+		/**
+		 * If the user has permissions to list users.
+		 */
+		if ( current_user_can( $this->restricted_cap ) ) {
+			return false;
 		}
 
-		return false;
+		/**
+		 * If the owner of the content is the current user
+		 */
+		if ( true === $this->owner_matches_current_user() ) {
+			return false;
+		}
 
+		// @phpstan-ignore-next-line
+		return $this->data->is_private ?? true;
 	}
 
 	/**

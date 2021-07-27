@@ -13,9 +13,10 @@ class CommentAuthor {
 		register_graphql_object_type(
 			'CommentAuthor',
 			[
-				'description' => __( 'A Comment Author object', 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'Commenter' ],
-				'fields'      => [
+				'description'     => __( 'A Comment Author object', 'wp-graphql' ),
+				'interfaces'      => [ 'Node', 'Commenter' ],
+				'eagerlyLoadType' => true,
+				'fields'          => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier for the comment author object', 'wp-graphql' ),
 					],
