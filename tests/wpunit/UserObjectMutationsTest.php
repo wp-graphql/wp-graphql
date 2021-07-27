@@ -283,7 +283,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			  }
 			  username
 			  email
-			  userId
+			  databaseId
 			  id
 			}
 		  }
@@ -324,7 +324,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					],
 					'username'  => $user_login,
 					'email'     => $updated_email,
-					'userId'    => $user_id,
+					'databaseId'    => $user_id,
 					'id'        => $guid,
 				]
 			]
@@ -351,9 +351,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		mutation deleteUser($input:DeleteUserInput!) {
 		  deleteUser(input:$input){
 			clientMutationId
-			user{
+			user {
 			  username
-			  userId
+			  databaseId
 			  id
 			}
 		  }
@@ -374,7 +374,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 				'clientMutationId' => $this->client_mutation_id,
 				'user'             => [
 					'username' => $username,
-					'userId'   => $user_id,
+					'databaseId'   => $user_id,
 					'id'       => $guid,
 				]
 			]
@@ -408,7 +408,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			clientMutationId
 			user{
 			  username
-			  userId
+			  databaseId
 			  id
 			}
 		  }
@@ -827,7 +827,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			sendPasswordResetEmail( input: $input ) {
 				clientMutationId
 				user {
-					userId
+					databaseId
 				} 
 			}
 		}
@@ -893,7 +893,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'sendPasswordResetEmail' => [
 				'clientMutationId' => $this->client_mutation_id,
 				'user'             => [
-					'userId' => $user->ID,
+					'databaseId' => $user->ID,
 				]
 			]
 		];
