@@ -72,6 +72,7 @@ class UserLoader extends AbstractDataLoader {
 		// @phpstan-ignore-next-line
 		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
 		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
+		$count = count( $keys );
 
 		global $wpdb;
 
@@ -79,7 +80,7 @@ class UserLoader extends AbstractDataLoader {
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			$wpdb->prepare(
-				"SELECT DISTINCT `post_author` FROM $wpdb->posts $where AND `post_author` IN ( $ids )",
+				"SELECT DISTINCT `post_author` FROM $wpdb->posts $where AND `post_author` IN ( $ids ) LIMIT $count",
 				$keys
 			)
 		);
