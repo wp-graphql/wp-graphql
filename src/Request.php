@@ -242,6 +242,13 @@ class Request {
 		}
 
 		/**
+		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
+		 *
+		 * @param Request $request The instance of the Request being executed
+		 */
+		do_action( 'graphql_before_execute', $this );
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
