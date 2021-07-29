@@ -413,6 +413,14 @@ class Request {
 		}
 
 		/**
+		 * Run an action after GraphQL Execution
+		 *
+		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
+		 * @param Request $this              Instance of the Request being executed
+		 */
+		do_action( 'graphql_after_execute', $filtered_response, $this );
+
+		/**
 		 * Reset the global post after execution
 		 *
 		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
