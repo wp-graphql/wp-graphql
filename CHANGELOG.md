@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.8
+
+### Chores / Bugfixes
+
+- ([#2038](https://github.com/wp-graphql/wp-graphql/pull/2038)): Exclude documentation directory from code archived by composer and deployed to WordPress.org
+
 ## 1.5.7
 
 ### Chores / Bugfixes
