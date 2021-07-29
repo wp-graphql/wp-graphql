@@ -94,7 +94,9 @@
       "plugin-build/",
       "!src/Admin/GraphiQL/app/",
       "node_modules/",
-      "!.wordpress-org/"
+      "!.wordpress-org/",
+      "docs/",
+      "wp-graphql.zip"
     ]
   }
 }
