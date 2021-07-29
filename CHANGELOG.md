@@ -7,6 +7,12 @@
 - ([#2000](https://github.com/wp-graphql/wp-graphql/pull/2000)): This fixes issue where all Types of the Schema were loaded for each GraphQL request. Now only the types required to fulfill the request are loaded on each request. Thanks @chriszarate!
 - ([#2031](https://github.com/wp-graphql/wp-graphql/pull/2031)): This fixes a performance issue in the WPGraphQL model layer where determining whether a User is a published author was generating expensive MySQL queries on sites with a lot of users and a lot of content. Thanks @chriszarate!
 
+## 1.5.8
+
+### Chores / Bugfixes
+
+- ([#2038](https://github.com/wp-graphql/wp-graphql/pull/2038)): Exclude documentation directory from code archived by composer and deployed to WordPress.org
+
 ## 1.5.7
 
 ### Chores / Bugfixes
