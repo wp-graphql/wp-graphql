@@ -4,6 +4,7 @@ namespace WPGraphQL\Utils;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\WPSchema;
 
 /**
  * Class Tracing
@@ -132,10 +133,10 @@ class Tracing {
 	/**
 	 * Initialize tracing for an individual field
 	 *
-	 * @param mixed               $source         The source passed down the Resolve Tree
-	 * @param array               $args           The args for the field
-	 * @param AppContext          $context        The AppContext passed down the ResolveTree
-	 * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+	 * @param mixed       $source  The source passed down the Resolve Tree
+	 * @param array       $args    The args for the field
+	 * @param AppContext  $context The AppContext passed down the ResolveTree
+	 * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
 	 *
 	 * @return void
 	 */
@@ -262,14 +263,14 @@ class Tracing {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed|array|object $response       The response of the GraphQL Request
-	 * @param mixed              $schema         The WPGraphQL Schema
-	 * @param string             $operation_name The operation name being executed
-	 * @param string             $request        The GraphQL Request being made
+	 * @param array    $response       The response of the GraphQL Request
+	 * @param WPSchema $schema         The WPGraphQL Schema
+	 * @param string   $operation_name The operation name being executed
+	 * @param string   $request        The GraphQL Request being made
 	 *
 	 * @return mixed $response
 	 */
-	public function add_tracing_to_response_extensions( $response, $schema, string $operation_name, string $request ) {
+	public function add_tracing_to_response_extensions( array $response, WPSchema $schema, string $operation_name, string $request ) {
 
 		// Get the trace
 		$trace = $this->get_trace();
@@ -280,11 +281,8 @@ class Tracing {
 			return $response;
 		}
 
-		if ( is_array( $response ) ) {
+		if ( ! empty( $response ) ) {
 			$response['extensions']['tracing'] = $trace;
-		} elseif ( is_object( $response ) ) {
-			// @phpstan-ignore-next-line
-			$response->extensions['tracing'] = $trace;
 		}
 
 		return $response;
