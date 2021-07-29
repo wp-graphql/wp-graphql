@@ -2,11 +2,14 @@
 
 // Global. - namespace WPGraphQL;
 
+use WPGraphQL\Utils\Preview;
+use WPGraphQL\Utils\InstrumentSchema;
 use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Router;
 use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\WPSchema;
@@ -127,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.5.8' );
+			define( 'WPGRAPHQL_VERSION', '1.6.0' );
 		}
 
 		// Plugin Folder Path.
@@ -242,7 +245,7 @@ final class WPGraphQL {
 			function () {
 
 				new \WPGraphQL\Data\Config();
-				new \WPGraphQL\Router();
+				new Router();
 
 				/**
 				 * Fire off init action
@@ -349,7 +352,7 @@ final class WPGraphQL {
 	 */
 	public function maybe_flush_permalinks() {
 		$rules = get_option( 'rewrite_rules' );
-		if ( ! isset( $rules[ \WPGraphQL\Router::$route . '/?$' ] ) ) {
+		if ( ! isset( $rules[ Router::$route . '/?$' ] ) ) {
 			flush_rewrite_rules();
 		}
 	}
@@ -364,18 +367,17 @@ final class WPGraphQL {
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 		 */
-		add_filter(
-			'graphql_schema',
+		add_filter( 'graphql_get_type',
 			[
-				'\WPGraphQL\Utils\InstrumentSchema',
-				'instrument_schema',
+				InstrumentSchema::class,
+				'instrument_resolvers',
 			],
 			10,
-			1
+			2
 		);
 
 		// Filter how metadata is retrieved during GraphQL requests
-		add_filter( 'get_post_metadata', [ '\WPGraphQL\Utils\Preview', 'filter_post_meta_for_previews' ], 10, 4 );
+		add_filter( 'get_post_metadata', [ Preview::class, 'filter_post_meta_for_previews' ], 10, 4 );
 
 		/**
 		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
@@ -385,7 +387,7 @@ final class WPGraphQL {
 		 */
 		add_filter( 'graphql_type_interfaces', function ( $interfaces, $config, $type ) {
 
-			if ( $type instanceof \WPGraphQL\Type\WPObjectType ) {
+			if ( $type instanceof WPObjectType ) {
 				/**
 				 * Filters the interfaces applied to an object type
 				 *

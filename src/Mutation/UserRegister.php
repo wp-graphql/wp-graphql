@@ -50,8 +50,7 @@ class UserRegister {
 		/**
 		 * Make sure we don't allow input for role or roles
 		 */
-		unset( $input_fields['role'] );
-		unset( $input_fields['roles'] );
+		unset( $input_fields['role'], $input_fields['roles'] );
 
 		return $input_fields;
 
@@ -159,7 +158,8 @@ class UserRegister {
 			 * Return the new user ID
 			 */
 			return [
-				'id' => $user_id,
+				'id'   => $user_id,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user_id ),
 			];
 
 		};

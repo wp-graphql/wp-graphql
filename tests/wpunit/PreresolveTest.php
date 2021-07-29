@@ -2,6 +2,11 @@
 
 class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 
+	public function setUp(): void {
+		parent::setUp();
+		WPGraphQL::clear_schema();
+	}
+
 	public function tearDown(): void {
 		parent::tearDown();
 		WPGraphQL::clear_schema();

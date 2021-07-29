@@ -3,6 +3,7 @@ namespace WPGraphQL\Type;
 
 use Exception;
 use GraphQL\Type\Definition\InterfaceType;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Trait WPInterfaceTrait
@@ -72,11 +73,13 @@ trait WPInterfaceTrait {
 	/**
 	 * Registers connections that were passed through the Type registration config
 	 *
+	 * @param TypeRegistry $type_registry The WPGraphQL Type Registry
+	 *
 	 * @return void
 	 *
 	 * @throws Exception
 	 */
-	protected function register_connections_from_config() {
+	protected function register_connections_from_config( TypeRegistry $type_registry ) {
 
 		$connections = $this->config['connections'] ?? null;
 
@@ -92,8 +95,7 @@ trait WPInterfaceTrait {
 
 			$connection_config['fromType']      = $this->config['name'];
 			$connection_config['fromFieldName'] = $field_name;
-
-			register_graphql_connection( $connection_config );
+			$type_registry->register_connection( $connection_config );
 
 		}
 

@@ -17,12 +17,13 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
 		wp_set_current_user( 0 );
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}
