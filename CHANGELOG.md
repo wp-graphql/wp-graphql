@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.7
+
+### Chores / Bugfixes
+
+- Update to trigger a missed deploy to WordPress.org. no functional changes from v1.5.6
+
 ## 1.5.6
 
 ### Chores / Bugfixes
