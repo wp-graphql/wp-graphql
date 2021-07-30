@@ -37,7 +37,7 @@ class Request {
 	/**
 	 * Request data.
 	 *
-	 * @var array
+	 * @var mixed|array|OperationParams
 	 */
 	public $data;
 
@@ -59,7 +59,7 @@ class Request {
 	 * GraphQL operation parameters for this request. Can also be an array of
 	 * OperationParams.
 	 *
-	 * @var OperationParams|OperationParams[]
+	 * @var mixed|array|OperationParams|OperationParams[]
 	 */
 	public $params;
 
@@ -242,13 +242,6 @@ class Request {
 		}
 
 		/**
-		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
-		 *
-		 * @param Request $request The instance of the Request being executed
-		 */
-		do_action( 'graphql_before_execute', $this );
-
-		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
@@ -282,6 +275,14 @@ class Request {
 		} else {
 			$this->do_action( $this->params );
 		}
+
+		/**
+		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
+		 *
+		 * @param Request $request The instance of the Request being executed
+		 */
+		do_action( 'graphql_before_execute', $this );
+
 	}
 
 	/**
@@ -412,20 +413,12 @@ class Request {
 		 */
 		if ( is_array( $this->params ) && is_array( $response ) ) {
 			$filtered_response = [];
-			foreach ( $response as $key => $req_response ) {
-				$filtered_response[] = $this->after_execute_actions( $req_response, $key );
+			foreach ( $response as $key => $resp ) {
+				$filtered_response[] = $this->after_execute_actions( $resp, (int) $key );
 			}
 		} else {
 			$filtered_response = $this->after_execute_actions( $response, null );
 		}
-
-		/**
-		 * Run an action after GraphQL Execution
-		 *
-		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
-		 * @param Request $this              Instance of the Request being executed
-		 */
-		do_action( 'graphql_after_execute', $filtered_response, $this );
 
 		/**
 		 * Reset the global post after execution
@@ -450,6 +443,14 @@ class Request {
 		}
 
 		/**
+		 * Run an action after GraphQL Execution
+		 *
+		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
+		 * @param Request $this              Instance of the Request being executed
+		 */
+		do_action( 'graphql_after_execute', $filtered_response, $this );
+
+		/**
 		 * Return the filtered response
 		 */
 		return $filtered_response;
@@ -459,42 +460,40 @@ class Request {
 	/**
 	 * Apply filters and do actions after GraphQL execution
 	 *
-	 * @param array          $response The response for your GraphQL request
-	 * @param mixed|Int|null $key      The array key of the params for batch requests
+	 * @param mixed|array|object $response The response for your GraphQL request
+	 * @param mixed|Int|null     $key      The array key of the params for batch requests
 	 *
 	 * @return array
 	 */
-	private function after_execute_actions( array $response, $key = null ) {
+	private function after_execute_actions( $response, $key = null ) {
 
 		/**
 		 * Determine which params (batch or single request) to use when passing through to the actions
 		 */
-		$params    = null;
 		$query     = null;
 		$operation = null;
 		$variables = null;
 
-		if ( null === $key && $this->params instanceof OperationParams ) {
-			$params    = $this->params;
-			$operation = $params->operation ?? '';
-			$query     = $params->query ?? '';
-			$variables = $params->variables ?? null;
-		} elseif ( is_array( $this->params ) && isset( $this->params[ $key ] ) ) {
-			$params    = $this->params[ $key ] ?? null;
-			$operation = $params->operation ?? '';
-			$query     = $params->query ?? '';
-			$variables = $params->variables ?? null;
+		if ( $this->params instanceof OperationParams ) {
+			$operation = $this->params->operation ?? '';
+			$query     = $this->params->query ?? '';
+			$variables = $this->params->variables ?? null;
+		} elseif ( is_array( $this->params ) ) {
+
+			$operation = $this->params[ $key ]->operation ?? '';
+			$query     = $this->params[ $key ]->query ?? '';
+			$variables = $this->params[ $key ]->variables ?? null;
 		}
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param array      $response  The response your GraphQL request
-		 * @param WPSchema   $schema    The schema object for the root request
-		 * @param string     $operation The name of the operation
-		 * @param string     $query     The query that GraphQL executed
-		 * @param array|null $variables Variables to passed to your GraphQL query
-		 * @param Request    $this      Instance of the Request
+		 * @param mixed|array $response  The response your GraphQL request
+		 * @param WPSchema    $schema    The schema object for the root request
+		 * @param string      $operation The name of the operation
+		 * @param string      $query     The query that GraphQL executed
+		 * @param array|null  $variables Variables to passed to your GraphQL query
+		 * @param Request     $this      Instance of the Request
 		 *
 		 * @since 0.0.4
 		 */
@@ -504,7 +503,11 @@ class Request {
 		 * Add the debug log to the request
 		 */
 		if ( ! empty( $response ) ) {
-			$response['extensions']['debug'] = $this->debug_log->get_logs();
+			if ( is_array( $response ) ) {
+				$response['extensions']['debug'] = $this->debug_log->get_logs();
+			} else {
+				$response->extensions['debug'] = $this->debug_log->get_logs();
+			}
 		}
 
 		/**
@@ -575,17 +578,6 @@ class Request {
 	}
 
 	/**
-	 * Execute an HTTP request.
-	 *
-	 * @return array
-	 * @throws Exception
-	 * @deprecated Use execute instead
-	 */
-	public function execute_http() {
-		return $this->execute();
-	}
-
-	/**
 	 * Execute an internal request (graphql() function call).
 	 *
 	 * @return array
@@ -593,16 +585,74 @@ class Request {
 	 */
 	public function execute() {
 
+		$helper = new WPHelper();
+
+		if ( ! $this->data instanceof OperationParams ) {
+			$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
+		} else {
+			$this->params = $this->data;
+		}
+
+		if ( is_array( $this->params ) ) {
+			return array_map( function ( $data ) {
+				$this->data = $data;
+				return $this->execute();
+			}, $this->params );
+		} elseif ( $this->params instanceof OperationParams ) {
+
+			/**
+			 * Initialize the GraphQL Request
+			 */
+			$this->before_execute();
+
+			$result = \GraphQL\GraphQL::executeQuery(
+				$this->schema,
+				isset( $this->params->query ) ? $this->params->query : '',
+				$this->root_value,
+				$this->app_context,
+				isset( $this->params->variables ) ? $this->params->variables : null,
+				isset( $this->params->operation ) ? $this->params->operation : null,
+				$this->field_resolver,
+				$this->validation_rules
+			);
+
+			/**
+			 * Return the result of the request
+			 */
+			$response = $result->toArray( $this->get_debug_flag() );
+
+			/**
+			 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
+			 */
+			if ( empty( $response ) || ! is_array( $response ) ) {
+				$response = [
+					'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
+				];
+			}
+
+			/**
+			 * If the request is a batch request it will come back as an array
+			 */
+			return $this->after_execute( $response );
+
+		}
+
+		return [];
+	}
+
+	/**
+	 * Execute an HTTP request.
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function execute_http() {
+
 		/**
 		 * Parse HTTP request.
 		 */
-		$helper = new WPHelper();
-
-		if ( ! is_graphql_http_request() ) {
-			$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
-		} else {
-			$this->params = $helper->parseHttpRequest();
-		}
+		$helper       = new WPHelper();
+		$this->params = $helper->parseHttpRequest();
 
 		/**
 		 * Initialize the GraphQL Request
@@ -614,8 +664,6 @@ class Request {
 		 */
 		$server   = $this->get_server();
 		$response = $server->executeRequest( $this->params );
-		$encoded  = wp_json_encode( $response );
-		$response = ! empty( $encoded ) ? json_decode( $encoded, true ) : null;
 
 		return $this->after_execute( $response );
 	}
@@ -663,8 +711,8 @@ class Request {
 		/**
 		 * Filter whether batch queries are supported or not
 		 *
-		 * @param                 $batch_queries_enabled boolean Whether Batch Queries should be enabled
-		 * @param OperationParams $params                Request operation params
+		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
+		 * @param OperationParams $params Request operation params
 		 */
 		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
 
@@ -708,5 +756,6 @@ class Request {
 		do_action( 'graphql_server_config', $config, $this->params );
 
 		return new StandardServer( $config );
+
 	}
 }

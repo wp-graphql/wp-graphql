@@ -44,12 +44,15 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testFilterGraphqlRequestResultsForBatchQuery() {
 
-
 		add_filter( 'graphql_request_results', function( $response, $schema, $operation, $query, $variables, $request ) {
+
 			$this->filter_values[] = [
 				'query' => $query,
 				'variables' => $variables,
 			];
+
+			return $response;
+
 		}, 10, 6 );
 
 		$request = [
@@ -68,8 +71,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $this->filter_values );
 		codecept_debug( $request );
 
-		$this->assertSame( $this->filter_values, $request  );
-
+		$this->assertSame( $request, $this->filter_values );
 	}
 
 }
