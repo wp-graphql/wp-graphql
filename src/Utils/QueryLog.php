@@ -43,7 +43,7 @@ class QueryLog {
 		}
 
 		add_action( 'init', [ $this, 'init_save_queries' ] );
-		add_filter( 'graphql_request_results', [ $this, 'show_results' ], 10, 4 );
+		add_filter( 'graphql_request_results', [ $this, 'show_results' ], 10, 5 );
 	}
 
 	/**
@@ -100,14 +100,15 @@ class QueryLog {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param array    $response
+	 * @param mixed    $response
 	 * @param WPSchema $schema         The WPGraphQL Schema
 	 * @param string   $operation_name The operation name being executed
 	 * @param string   $request        The GraphQL Request being made
+	 * @param array    $variables      The variables sent with the request
 	 *
 	 * @return array
 	 */
-	public function show_results( array $response, WPSchema $schema, string $operation_name, string $request ) {
+	public function show_results( $response, $schema, $operation_name, $request, $variables ) {
 
 		$query_log = $this->get_query_log();
 
@@ -117,7 +118,12 @@ class QueryLog {
 		}
 
 		if ( ! empty( $response ) ) {
-			$response['extensions']['queryLog'] = $query_log;
+			if ( is_array( $response ) ) {
+				$response['extensions']['queryLog'] = $query_log;
+			} elseif ( is_object( $response ) ) {
+				// @phpstan-ignore-next-line
+				$response->extensions['queryLog'] = $query_log;
+			}
 		}
 
 		return $response;
