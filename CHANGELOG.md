@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.9
+
+### Chores / Bugfixes
+
+- ([#2043](https://github.com/wp-graphql/wp-graphql/pull/2043)): Fixes a regression with GraphQL Request Execution that was causing Gatsby and some other CI tools to fail builds.
+
 ## 1.5.8
 
 ### Chores / Bugfixes
@@ -21,7 +27,6 @@
 ### New Features
 
 - ([#2035](https://github.com/wp-graphql/wp-graphql/pull/2035)): (Yes, same PR as the bugfix above). Adds 2 new actions `graphql_before_execute` and `graphql_after_execute` to allow actions to run before/after the execution of entire Batch requests vs. the hooks that currently run _within_ each the execution of each operation within a request.
-
 
 ## 1.5.5
 
