@@ -378,4 +378,96 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
     }
+
+    public function testGraphqlFunctionWorksInResolvers() {
+
+	    register_graphql_field(
+		    'RootQuery',
+		    'graphqlInResolver',
+		    [
+			    'type'        => 'String',
+			    'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+			    'resolve'     => function() {
+				    $graphql = \graphql(
+					    [
+						    'query' => '{posts{nodes{id}}}',
+					    ]
+				    );
+
+				    $json_string = \wp_json_encode( $graphql['data'] );
+				    $md5         = md5( $json_string );
+
+				    return $md5;
+			    },
+		    ]
+	    );
+
+	    $query = '
+	   {
+	     graphqlInResolver
+	   }
+	   ';
+
+	    $actual = graphql([
+	    	'query' => $query
+	    ]);
+
+	    codecept_debug( $actual );
+
+	    $this->assertQuerySuccessful( $actual, [
+	    	$this->expectedField( 'graphqlInResolver', self::NOT_NULL )
+	    ]);
+
+    }
+
+	public function testGraphqlFunctionWorksInResolversForBatchQueries() {
+
+		register_graphql_field(
+			'RootQuery',
+			'graphqlInResolver',
+			[
+				'type'        => 'String',
+				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+				'resolve'     => function() {
+					$graphql = \graphql(
+						[
+							'query' => '{posts{nodes{id}}}',
+						]
+					);
+
+					$json_string = \wp_json_encode( $graphql['data'] );
+					$md5         = md5( $json_string );
+
+					return $md5;
+				},
+			]
+		);
+
+		$query = '
+	   {
+	     graphqlInResolver
+	   }
+	   ';
+
+		$actual = graphql([
+			[
+				'query' => $query
+			],
+			[
+				'query' => $query
+			]
+		]);
+
+		$this->assertTrue( is_array( $actual ) );
+
+		foreach ( $actual as $response ) {
+			$this->assertTrue( is_array( $response ) );
+			$this->assertQuerySuccessful( $response, [
+				$this->expectedField( 'graphqlInResolver', self::NOT_NULL )
+			]);
+		}
+
+		codecept_debug( $actual );
+
+	}
 }
