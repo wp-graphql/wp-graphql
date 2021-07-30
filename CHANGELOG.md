@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1
+
+### Chores / Bugfixes
+
+- ([#2043](https://github.com/wp-graphql/wp-graphql/pull/2043)): Fixes a regression with GraphQL Request Execution that was causing Gatsby and some other CI tools to fail builds.
+
 ## 1.6.0
 
 ### Chores / Bugfixes
