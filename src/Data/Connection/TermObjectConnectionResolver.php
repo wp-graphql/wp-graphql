@@ -127,7 +127,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Orderby meta values if they are present
 		 */
 		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = '';
+			$query_args['orderby'] = [];
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.

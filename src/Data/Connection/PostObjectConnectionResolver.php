@@ -305,7 +305,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Map the orderby inputArgs to the WP_Query
 		 */
 		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = '';
+			$query_args['orderby'] = [];
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
