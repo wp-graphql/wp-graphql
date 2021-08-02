@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
+use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
+use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
@@ -12,14 +15,35 @@ class TermNode {
 	 * Register the TermNode Interface
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
 		register_graphql_interface_type(
 			'TermNode',
 			[
+				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
+				'connections' => [
+					'enqueuedScripts'     => [
+						'toType'  => 'EnqueuedScript',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'enqueuedStylesheets' => [
+						'toType'  => 'EnqueuedStylesheet',
+						'resolve' => function ( $source, $args, $context, $info ) {
+							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+							return $resolver->get_connection();
+						},
+					],
+				],
 				'description' => __( 'Terms are nodes within a Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
-				'resolveType' => function( $term ) use ( $type_registry ) {
+				'resolveType' => function ( $term ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
@@ -42,14 +66,10 @@ class TermNode {
 
 				},
 				'fields'      => [
-					'id'             => [
-						'type'        => [ 'non_null' => 'ID' ],
-						'description' => __( 'Unique identifier for the term', 'wp-graphql' ),
-					],
 					'databaseId'     => [
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
-						'resolve'     => function( Term $term, $args, $context, $info ) {
+						'resolve'     => function ( Term $term, $args, $context, $info ) {
 							return absint( $term->term_id );
 						},
 					],
@@ -84,10 +104,6 @@ class TermNode {
 					'link'           => [
 						'type'        => 'String',
 						'description' => __( 'The link to the term', 'wp-graphql' ),
-					],
-					'uri'            => [
-						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
 					],
 				],
 			]

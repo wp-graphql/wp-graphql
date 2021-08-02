@@ -2,13 +2,18 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
+use WP_Post;
+use WP_Taxonomy;
+use WP_Term;
 
 /**
  * Class Term - Models data for Terms
  *
  * @property string $id
  * @property int    $term_id
+ * @property int    $databaseId
  * @property int    $count
  * @property string $description
  * @property string $name
@@ -28,35 +33,43 @@ class Term extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var \WP_Term $data
+	 * @var WP_Term $data
 	 */
 	protected $data;
 
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
-	 * @var null|\WP_Taxonomy $taxonomy_object
+	 * @var null|WP_Taxonomy $taxonomy_object
 	 */
 	protected $taxonomy_object;
 
+	/**
+	 * The global Post instance
+	 *
+	 * @var WP_Post
+	 */
 	protected $global_post;
 
 	/**
 	 * Term constructor.
 	 *
-	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
+	 * @param WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( \WP_Term $term ) {
+	public function __construct( WP_Term $term ) {
 		$this->data            = $term;
-		$this->taxonomy_object = get_taxonomy( $term->taxonomy );
+		$taxonomy              = get_taxonomy( $term->taxonomy );
+		$this->taxonomy_object = $taxonomy instanceof WP_Taxonomy ? $taxonomy : null;
 		parent::__construct();
 	}
 
 	/**
 	 * Setup the global state for the model to have proper context when resolving
+	 *
+	 * @return void
 	 */
 	public function setup() {
 
@@ -67,7 +80,7 @@ class Term extends Model {
 		 */
 		$this->global_post = $post;
 
-		if ( $this->data ) {
+		if ( ! empty( $this->data ) ) {
 
 			/**
 			 * Reset global post
@@ -79,13 +92,17 @@ class Term extends Model {
 			 * how to setup global state
 			 */
 			if ( 'category' === $this->data->taxonomy ) {
-				$wp_query->parse_query( [
-					'category_name' => $this->data->slug,
-				] );
+				$wp_query->parse_query(
+					[
+						'category_name' => $this->data->slug,
+					]
+				);
 			} elseif ( 'post_tag' === $this->data->taxonomy ) {
-				$wp_query->parse_query( [
-					'tag' => $this->data->slug,
-				] );
+				$wp_query->parse_query(
+					[
+						'tag' => $this->data->slug,
+					]
+				);
 			}
 
 			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
@@ -98,6 +115,8 @@ class Term extends Model {
 	/**
 	 * Reset global state after the model fields
 	 * have been generated
+	 *
+	 * @return void
 	 */
 	public function tear_down() {
 		$GLOBALS['post'] = $this->global_post;
@@ -114,45 +133,48 @@ class Term extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id'                       => function() {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', $this->data->term_id ) : null;
+				'id'                       => function () {
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
 				},
-				'term_id'                  => function() {
+				'term_id'                  => function () {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
-				'count'                    => function() {
+				'databaseId'               => function () {
+					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
+				},
+				'count'                    => function () {
 					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
-				'description'              => function() {
-					return ! empty( $this->data->description ) ? html_entity_decode( $this->data->description ) : null;
+				'description'              => function () {
+					return ! empty( $this->data->description ) ? $this->html_entity_decode( $this->data->description, 'description' ) : null;
 				},
-				'name'                     => function() {
-					return ! empty( $this->data->name ) ? html_entity_decode( $this->data->name ) : null;
+				'name'                     => function () {
+					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
 				},
-				'slug'                     => function() {
+				'slug'                     => function () {
 					return ! empty( $this->data->slug ) ? $this->data->slug : null;
 				},
-				'termGroupId'              => function() {
+				'termGroupId'              => function () {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
 				},
-				'termTaxonomyId'           => function() {
+				'termTaxonomyId'           => function () {
 					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
 				},
-				'taxonomyName'             => function() {
+				'taxonomyName'             => function () {
 					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
 				},
-				'link'                     => function() {
+				'link'                     => function () {
 					$link = get_term_link( $this->data->term_id );
 
 					return ( ! is_wp_error( $link ) ) ? $link : null;
 				},
-				'parentId'                 => function() {
-					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', $this->data->parent ) : null;
+				'parentId'                 => function () {
+					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', (string) $this->data->parent ) : null;
 				},
-				'parentDatabaseId'         => function() {
+				'parentDatabaseId'         => function () {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
-				'enqueuedScriptsQueue'     => function() {
+				'enqueuedScriptsQueue'     => function () {
 					global $wp_scripts;
 					$wp_scripts->reset();
 					do_action( 'wp_enqueue_scripts' );
@@ -162,7 +184,7 @@ class Term extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function() {
+				'enqueuedStylesheetsQueue' => function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;
@@ -171,17 +193,23 @@ class Term extends Model {
 
 					return $queue;
 				},
-				'uri'                      => function() {
+				'uri'                      => function () {
 					$link = get_term_link( $this->name );
-					return ! ( is_wp_error( $link ) ) ? trailingslashit( str_ireplace( home_url(), get_term_link( $this->name ) ) ) : null;
+
+					if ( is_wp_error( $link ) ) {
+						return null;
+					}
+
+					$stripped_link = str_ireplace( home_url(), '', $link );
+
+					return trailingslashit( $stripped_link );
 				},
 			];
 
 			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
 				$type_id                  = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->data->term_id );
-			};
-
+			}
 		}
 
 	}

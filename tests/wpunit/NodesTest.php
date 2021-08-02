@@ -72,15 +72,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Page',
-					'pageId'     => $page_id,
-				],
+			'node' => [
+				'__typename' => 'Page',
+				'pageId'     => $page_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -134,15 +132,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Page',
-					'pageId'     => $page_id,
-				],
+			'node' => [
+				'__typename' => 'Page',
+				'pageId'     => $page_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -176,15 +172,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Post',
-					'postId'     => $post_id,
-				],
+			'node' => [
+				'__typename' => 'Post',
+				'postId'     => $post_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -216,15 +210,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual        = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename'  => 'MediaItem',
-					'mediaItemId' => $attachment_id,
-				],
+			'node' => [
+				'__typename'  => 'MediaItem',
+				'mediaItemId' => $attachment_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -250,15 +242,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Plugin',
-					'path'       => $plugin_path,
-				],
+			'node' => [
+				'__typename' => 'Plugin',
+				'path'       => $plugin_path,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -268,8 +258,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testThemeNodeQuery() {
 
-		$theme_slug = 'twentyseventeen';
-		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $theme_slug );
+
+		$themes = wp_get_themes();
+		$active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
+		update_option( 'template', $active_theme );
+		update_option( 'stylesheet', $active_theme );
+
+		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $active_theme );
 		$query      = "
 		query { 
 			node(id: \"{$global_id}\") { 
@@ -282,16 +277,16 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 		$actual     = do_graphql_request( $query );
 
+		codecept_debug( $actual );
+
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Theme',
-					'slug'       => $theme_slug,
-				],
+			'node' => [
+				'__typename' => 'Theme',
+				'slug'       => $active_theme,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -354,20 +349,18 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'User',
-					'userId'     => $user_id,
-				],
+			'node' => [
+				'__typename' => 'User',
+				'userId'     => $user_id,
 			],
 		];
 
 		if ( true === $private ) {
-			$expected['data']['node'] = null;
+			$expected['node'] = null;
 		}
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	public function dataProviderUserNode() {
@@ -409,11 +402,19 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_id = $this->factory->user->create( $user_args );
 
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Post for commenting...',
+			'post_author' => $this->admin
+		]);
+
 		$comment_args = array(
 			'user_id'         => $user_id,
 			'comment_content' => 'GraphQL is really awesome, dude!',
+			'comment_post_ID' => $post_id
 		);
-		$comment_id   = $this->factory->comment->create( $comment_args );
+		$comment_id   = $this->factory()->comment->create( $comment_args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 		$query     = "
@@ -429,15 +430,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual    = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'Comment',
-					'commentId'  => $comment_id,
-				],
+			'node' => [
+				'__typename' => 'Comment',
+				'commentId'  => $comment_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -469,15 +468,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'__typename' => 'CommentAuthor',
-					'id' => $global_id,
-				]
+			'node' => [
+				'__typename' => 'CommentAuthor',
+				'id' => $global_id,
 			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -499,14 +496,12 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'name' => 'post',
-				],
+			'node' => [
+				'name' => 'post',
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -552,14 +547,12 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'node' => [
-					'name' => 'category',
-				],
+			'node' => [
+				'name' => 'category',
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

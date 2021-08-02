@@ -4,6 +4,16 @@ use WPGraphQL\Request;
 
 class RequestTest extends \Codeception\TestCase\WPTestCase {
 
+	public function setUp(): void {
+		parent::setUp();
+		WPGraphQL::clear_schema();
+	}
+
+	public function tearDown(): void {
+		WPGraphQL::clear_schema();
+		parent::tearDown();
+	}
+
 	/**
 	 * Create Request instance using example request data.
 	 *

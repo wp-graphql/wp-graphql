@@ -9,6 +9,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		WPGraphQL::clear_schema();
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -22,6 +23,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
+		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
 
@@ -281,16 +283,15 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( ( null === $mediaItem['status'] || is_string( $mediaItem['status'] ) ) );
 		$this->assertTrue( ( null === $mediaItem['title'] || is_string( $mediaItem['title'] ) ) );
 
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
-		$this->assertStringContainsString( 'http://wpgraphql.test/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example-full.jpg 1500w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example-thumbnail.jpg 150w', $mediaItem['srcSet'] );
+		$this->assertStringContainsString( '/wp-content/uploads/example.jpg 300w', $mediaItem['srcSet'] );
 
 		$this->assertEquals(
 			[
 				'id' => $post_global_id,
 			],
 			$mediaItem['parent']['node']
-
 		);
 
 		$this->assertNotEmpty( $mediaItem['description'] );
@@ -487,5 +488,58 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	    codecept_debug( $actual );
 
     }
+
+	/**
+	 * testPostQuery
+	 *
+	 * This tests creating a small size media item and retrieving bigger size image via a GraphQL query
+	 *
+	 * @since 1.2.5
+	 */
+	public function testMediaItemNotExistingSizeQuery() {
+
+		/**
+		 * Upload a medium size attachment
+		 */
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
+
+		/**
+		 * Create the query string to pass to the $query
+		 */
+		$query = "
+		query {
+			mediaItem(id: \"{$attachment_global_id}\") {
+				srcSet(size: LARGE)
+    			sizes(size: LARGE)
+			}
+		}";
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = do_graphql_request( $query );
+
+		codecept_debug( $actual );
+
+		$mediaItem = $actual['data']['mediaItem'];
+
+		$this->assertNotEmpty( $mediaItem );
+
+		$this->assertNotNull( $mediaItem['srcSet'] );
+		$this->assertNotNull( $mediaItem['sizes'] );
+
+		$img_atts = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$this->assertNotEmpty( $img_atts );
+
+		$width = $img_atts[1];
+		// compare with (max-width: 1024px) 100vw, 1024px
+		$this->assertEquals( sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $width ), $mediaItem['sizes'] );
+	}
 
 }

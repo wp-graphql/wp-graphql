@@ -2,27 +2,18 @@
 
 namespace WPGraphQL\Registry;
 
-use GraphQL\Error\InvariantViolation;
+use Exception;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Connection\Commenter;
+use InvalidArgumentException;
 use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\ContentTypes;
-use WPGraphQL\Connection\EnqueuedScripts;
-use WPGraphQL\Connection\EnqueuedStylesheets;
-use WPGraphQL\Connection\MediaItems;
-use WPGraphQL\Connection\MenuItemLinkableConnection;
 use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\Menus;
-use WPGraphQL\Connection\Plugins;
 use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Connection\Revisions;
 use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
-use WPGraphQL\Connection\Themes;
-use WPGraphQL\Connection\UserRoles;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
@@ -69,13 +60,14 @@ use WPGraphQL\Type\InterfaceType\NodeWithExcerpt;
 use WPGraphQL\Type\InterfaceType\NodeWithFeaturedImage;
 use WPGraphQL\Type\InterfaceType\NodeWithPageAttributes;
 use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
+use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
-use WPGraphQL\Type\Object\EnqueuedScript;
-use WPGraphQL\Type\Object\EnqueuedStylesheet;
+use WPGraphQL\Type\ObjectType\EnqueuedScript;
+use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
 use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
@@ -99,38 +91,39 @@ use WPGraphQL\Type\Enum\UserRoleEnum;
 use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
 use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
-use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Input\TermObjectsConnectionOrderbyInput;
-use WPGraphQL\Type\Object\Avatar;
-use WPGraphQL\Type\Object\Comment;
-use WPGraphQL\Type\Object\CommentAuthor;
-use WPGraphQL\Type\Object\MediaDetails;
-use WPGraphQL\Type\Object\MediaItemMeta;
-use WPGraphQL\Type\Object\MediaSize;
-use WPGraphQL\Type\Object\Menu;
-use WPGraphQL\Type\Object\MenuItem;
-use WPGraphQL\Type\Object\PageInfo;
-use WPGraphQL\Type\Object\Plugin;
-use WPGraphQL\Type\Object\PostObject;
-use WPGraphQL\Type\Object\ContentType;
-use WPGraphQL\Type\Object\PostTypeLabelDetails;
-use WPGraphQL\Type\Object\RootMutation;
-use WPGraphQL\Type\Object\RootQuery;
-use WPGraphQL\Type\Object\SettingGroup;
-use WPGraphQL\Type\Object\Taxonomy;
-use WPGraphQL\Type\Object\TermObject;
-use WPGraphQL\Type\Object\Theme;
-use WPGraphQL\Type\Object\User;
-use WPGraphQL\Type\Object\UserRole;
-use WPGraphQL\Type\Object\Settings;
+use WPGraphQL\Type\ObjectType\Avatar;
+use WPGraphQL\Type\ObjectType\Comment;
+use WPGraphQL\Type\ObjectType\CommentAuthor;
+use WPGraphQL\Type\ObjectType\MediaDetails;
+use WPGraphQL\Type\ObjectType\MediaItemMeta;
+use WPGraphQL\Type\ObjectType\MediaSize;
+use WPGraphQL\Type\ObjectType\Menu;
+use WPGraphQL\Type\ObjectType\MenuItem;
+use WPGraphQL\Type\ObjectType\PageInfo;
+use WPGraphQL\Type\ObjectType\Plugin;
+use WPGraphQL\Type\ObjectType\PostObject;
+use WPGraphQL\Type\ObjectType\ContentType;
+use WPGraphQL\Type\ObjectType\PostTypeLabelDetails;
+use WPGraphQL\Type\ObjectType\RootMutation;
+use WPGraphQL\Type\ObjectType\RootQuery;
+use WPGraphQL\Type\ObjectType\SettingGroup;
+use WPGraphQL\Type\ObjectType\Taxonomy;
+use WPGraphQL\Type\ObjectType\TermObject;
+use WPGraphQL\Type\ObjectType\Theme;
+use WPGraphQL\Type\ObjectType\User;
+use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\ObjectType\Settings;
 use WPGraphQL\Type\Union\TermObjectUnion;
+use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TypeRegistry
@@ -148,11 +141,31 @@ class TypeRegistry {
 	 */
 	protected $types;
 
+
+	/**
+	 * The loaders needed to register types
+	 *
+	 * @var array
+	 */
+	protected $type_loaders;
+
+	/**
+	 * Stores a list of Types that need to be eagerly loaded instead of lazy loaded.
+	 *
+	 * Types that exist in the Schema but are only part of a Union/Interface ResolveType but not
+	 * referenced directly need to be eagerly loaded.
+	 *
+	 * @var array
+	 */
+	protected $eager_type_map;
+
 	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
-		$this->types = [];
+		$this->types          = [];
+		$this->type_loaders   = [];
+		$this->eager_type_map = [];
 	}
 
 	/**
@@ -167,9 +180,32 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Returns the eager type map, an array of Type definitions for Types that
+	 * are not directly referenced in the schema.
+	 *
+	 * Types can add "eagerlyLoadType => true" when being registered to be included
+	 * in the eager_type_map.
+	 *
+	 * @return array
+	 */
+	protected function get_eager_type_map() {
+
+		if ( ! empty( $this->eager_type_map ) ) {
+			return array_map( function ( $type_name ) {
+				return $this->get_type( $type_name );
+			}, $this->eager_type_map );
+
+		}
+
+		return [];
+	}
+
+	/**
 	 * Initialize the TypeRegistry
 	 *
-	 * @throws \Exception
+	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -200,6 +236,8 @@ class TypeRegistry {
 	 * Initialize the Type Registry
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
@@ -207,24 +245,16 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
-		 */
-		do_action( 'graphql_register_initial_types', $type_registry );
-
-		/**
-		 * Fire an action as the type registry is initialized. This executes
-		 * before the `graphql_register_types` action to allow for earlier hooking
-		 *
 		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
-		do_action( 'graphql_register_types', $type_registry );
+		do_action( 'graphql_register_initial_types', $type_registry );
 
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
-		ContentTemplate::register_type( $type_registry );
-		DatabaseIdentifier::register_type( $type_registry );
+		ContentTemplate::register_type();
+		DatabaseIdentifier::register_type();
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
@@ -236,6 +266,7 @@ class TypeRegistry {
 		NodeWithFeaturedImage::register_type( $type_registry );
 		NodeWithRevisions::register_type( $type_registry );
 		NodeWithTitle::register_type( $type_registry );
+		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
@@ -295,7 +326,6 @@ class TypeRegistry {
 
 		DateInput::register_type();
 		DateQueryInput::register_type();
-		MenuItemsConnectionWhereArgs::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
 		TermObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
@@ -309,22 +339,12 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
-		Commenter::register_connections();
-		EnqueuedScripts::register_connections();
-		EnqueuedStylesheets::register_connections();
-		MediaItems::register_connections();
-		Menus::register_connections();
-		MenuItemLinkableConnection::register_connections();
 		MenuItems::register_connections();
-		Plugins::register_connections();
 		PostObjects::register_connections();
-		ContentTypes::register_connections();
 		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
-		Themes::register_connections();
 		Users::register_connections();
-		UserRoles::register_connections();
 
 		/**
 		 * Register core mutations
@@ -346,46 +366,56 @@ class TypeRegistry {
 
 		$registered_page_templates = wp_get_theme()->get_post_templates();
 
+		$page_templates['default'] = 'DefaultTemplate';
+
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
 
-			$page_templates['default'] = 'Default';
 			foreach ( $registered_page_templates as $post_type_templates ) {
-				foreach ( $post_type_templates as $file => $name ) {
-					$page_templates[ $file ] = $name;
+				// Post templates are returned as an array of arrays. PHPStan believes they're returned as
+				// an array of strings and believes this will always evaluate to false.
+				// We should ignore the phpstan check here.
+				// @phpstan-ignore-next-line
+				if ( ! empty( $post_type_templates ) && is_array( $post_type_templates ) ) {
+					foreach ( $post_type_templates as $file => $name ) {
+						$page_templates[ $file ] = $name;
+					}
 				}
 			}
 		}
 
 		if ( ! empty( $page_templates ) && is_array( $page_templates ) ) {
+
 			foreach ( $page_templates as $file => $name ) {
-				$name               = ucwords( $name );
-				$name               = preg_replace( '/[^\w]/', '', $name );
-				$template_type_name = $name . 'Template';
+				$name          = ucwords( $name );
+				$replaced_name = preg_replace( '/[^\w]/', '', $name );
+
+				if ( ! empty( $replaced_name ) ) {
+					$name = $replaced_name;
+				}
+
+				if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+					$name = 'Template_' . $name;
+				}
+				$template_type_name = $name;
+
 				register_graphql_object_type(
 					$template_type_name,
 					[
-						'interfaces'  => [ 'ContentTemplate' ],
+						'interfaces'      => [ 'ContentTemplate' ],
 						// Translators: Placeholder is the name of the GraphQL Type in the Schema
-						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
-						'fields'      => [
+						'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
+						'fields'          => [
 							'templateName' => [
-								'resolve' => function( $template ) use ( $page_templates ) {
+								'resolve' => function ( $template ) {
 									return isset( $template['templateName'] ) ? $template['templateName'] : null;
 								},
 							],
-							'templateFile' => [
-								'resolve' => function( $template ) use ( $file ) {
-									// The template file could expose implementation details. Default is reserved for non-http request queries
-									// or authenticated users. This way internal graphql queries can get it or authenticated users
-									return ( ! is_graphql_http_request() || is_user_logged_in() ) && isset( $file ) ? $file : null;
-								},
-							],
 						],
+						'eagerlyLoadType' => 'DefaultTemplate' === $template_type_name,
 					]
 				);
 
 			}
-
 		}
 
 		/**
@@ -394,7 +424,13 @@ class TypeRegistry {
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
+
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
+
 				PostObject::register_post_object_types( $post_type_object, $type_registry );
 
 				/**
@@ -415,6 +451,71 @@ class TypeRegistry {
 					PostObjectDelete::register_mutation( $post_type_object );
 
 				}
+
+				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
+					foreach ( $allowed_taxonomies as $taxonomy ) {
+
+						$tax_object = get_taxonomy( $taxonomy );
+
+						if ( ! $tax_object instanceof \WP_Taxonomy ) {
+							throw new \GraphQL\Error\InvariantViolation(
+								sprintf(
+								/* translators: %s will replaced with the registered type */
+									__( 'The %s taxonomy cannot be found.', 'wp-graphql' ),
+									$taxonomy
+								)
+							);
+						}
+
+						// If the taxonomy is in the array of taxonomies registered to the post_type
+						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
+							register_graphql_input_type(
+								$post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
+								[
+									'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
+									'fields'      => [
+										'id'          => [
+											'type'        => 'Id',
+											'description' => sprintf( __( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ), $tax_object->graphql_single_name, $post_type_object->graphql_single_name ),
+										],
+										'slug'        => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+										'description' => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+										'name'        => [
+											'type'        => 'String',
+											'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+										],
+									],
+								]
+							);
+
+							register_graphql_input_type(
+								ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
+								[
+									'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
+									'fields'      => [
+										'append' => [
+											'type'        => 'Boolean',
+											'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
+										],
+										'nodes'  => [
+											'type'        => [
+												'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
+											],
+											'description' => __( 'The input list of items to set.', 'wp-graphql' ),
+										],
+									],
+								]
+							);
+						}
+					}
+				}
 			}
 		}
 
@@ -425,10 +526,12 @@ class TypeRegistry {
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
-				TermObject::register_taxonomy_object_type( $taxonomy_object );
-				TermObjectCreate::register_mutation( $taxonomy_object );
-				TermObjectUpdate::register_mutation( $taxonomy_object );
-				TermObjectDelete::register_mutation( $taxonomy_object );
+				if ( $taxonomy_object instanceof \WP_Taxonomy ) {
+					TermObject::register_taxonomy_object_type( $taxonomy_object );
+					TermObjectCreate::register_mutation( $taxonomy_object );
+					TermObjectUpdate::register_mutation( $taxonomy_object );
+					TermObjectDelete::register_mutation( $taxonomy_object );
+				}
 			}
 		}
 
@@ -448,26 +551,24 @@ class TypeRegistry {
 				register_graphql_field( 'GeneralSettings', 'url', [
 					'type'        => 'String',
 					'description' => __( 'Site URL.', 'wp-graphql' ),
-					'resolve'     => function() {
+					'resolve'     => function () {
 						return get_site_url();
 					},
 				] );
 			}
 
-			foreach ( $allowed_setting_types as $group => $setting_type ) {
+			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
-				$group_name = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', '_', $group ) );
-				$group_name = lcfirst( str_replace( '_', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( '-', ' ', ucwords( $group_name, '_' ) ) );
-				$group_name = lcfirst( str_replace( ' ', '', ucwords( $group_name, ' ' ) ) );
-				SettingGroup::register_settings_group( $group_name, $group );
+				$group_name = DataSource::format_group_name( $group_name );
+				SettingGroup::register_settings_group( $group_name, $group_name );
 
 				register_graphql_field(
 					'RootQuery',
 					$group_name . 'Settings',
 					[
-						'type'    => ucfirst( $group_name ) . 'Settings',
-						'resolve' => function() use ( $setting_type ) {
+						'type'        => ucfirst( $group_name ) . 'Settings',
+						'description' => sprintf( __( "Fields of the '%s' settings group", 'wp-graphql' ), ucfirst( $group_name ) . 'Settings' ),
+						'resolve'     => function () use ( $setting_type ) {
 							return $setting_type;
 						},
 					]
@@ -477,9 +578,17 @@ class TypeRegistry {
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes
+		 * before the `graphql_register_types` action to allow for earlier hooking
+		 *
+		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 */
+		do_action( 'graphql_register_types', $type_registry );
+
+		/**
+		 * Fire an action as the type registry is initialized. This executes
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $this Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 
@@ -491,96 +600,144 @@ class TypeRegistry {
 	 * @param string $type_name The name of the Type to register
 	 * @param array  $config    The config for the scalar type to register
 	 *
-	 * @throws \Exception
+	 * @throws Exception
+	 *
+	 * @return void
 	 */
-	public function register_scalar( $type_name, $config ) {
+	public function register_scalar( string $type_name, array $config ) {
 		$config['kind'] = 'scalar';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add a Type to the Registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param mixed|array|Type $config The config for the type
 	 *
-	 * @return mixed
+	 * @throws Exception
+	 *
+	 * @return void
 	 */
-	public function register_type( $type_name, $config ) {
-		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
-			return $this->types[ $this->format_key( $type_name ) ];
-		}
-		$prepared_type = $this->prepare_type( $type_name, $config );
-		if ( ! empty( $prepared_type ) ) {
-			$this->types[ $this->format_key( $type_name ) ] = $prepared_type;
+	public function register_type( string $type_name, $config ) {
+
+		/**
+		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
+		 */
+		if ( ! is_valid_graphql_name( $type_name ) ) {
+			graphql_debug(
+				sprintf( __( 'The Type name \'%1$s\' is invalid and has not been added to the GraphQL Schema.', 'wp-graphql' ), $type_name ),
+				[
+					'type'      => 'INVALID_TYPE_NAME',
+					'type_name' => $type_name,
+				]
+			);
+			return;
 		}
 
-		return $this->types[ $this->format_key( $type_name ) ];
+		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
+			graphql_debug(
+				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
+				[
+					'type'      => 'DUPLICATE_TYPE',
+					'type_name' => $type_name,
+				]
+			);
+			return;
+		}
+
+		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
+			return $this->prepare_type( $type_name, $config );
+		};
+
+		if ( is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
+			$this->eager_type_map[ $this->format_key( $type_name ) ] = $this->format_key( $type_name );
+		}
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add an Object Type to the Registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param array $config The configuration of the type
+	 *
+	 * @throws Exception
+	 * @return void
 	 */
-	public function register_object_type( $type_name, $config ) {
+	public function register_object_type( string $type_name, array $config ) {
 		$config['kind'] = 'object';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add an Interface Type to the registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
+	 *
+	 * @throws Exception
+	 * @return void
 	 */
-	public function register_interface_type( $type_name, $config ) {
+	public function register_interface_type( string $type_name, array $config ) {
 		$config['kind'] = 'interface';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add an Enum Type to the registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
-	public function register_enum_type( $type_name, $config ) {
+	public function register_enum_type( string $type_name, array $config ) {
 		$config['kind'] = 'enum';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add an Input Type to the Registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
-	public function register_input_type( $type_name, $config ) {
+	public function register_input_type( string $type_name, array $config ) {
 		$config['kind'] = 'input';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * Add a Union Type to the Registry
 	 *
-	 * @throws \Exception
+	 * @param string $type_name The name of the type to register
+	 * @param array $config he configuration of the type
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
 	 */
-	public function register_union_type( $type_name, $config ) {
+	public function register_union_type( string $type_name, array $config ) {
 		$config['kind'] = 'union';
 		$this->register_type( $type_name, $config );
 	}
 
 	/**
-	 * @param $type_name
-	 * @param $config
+	 * @param string $type_name The name of the type to register
+	 * @param mixed|array|Type $config he configuration of the type
 	 *
-	 * @return array|WPObjectType
-	 * @throws \Exception
+	 * @return mixed|array|Type|null
+	 * @throws Exception
 	 */
-	public function prepare_type( $type_name, $config ) {
+	public function prepare_type( string $type_name, $config ) {
+		/**
+		 * Uncomment to help trace eagerly (not lazy) loaded types.
+		 */
+		// graphql_debug( "prepare_type: {$type_name}", [ 'type' => $type_name ] );
 
 		if ( ! is_array( $config ) ) {
 			return $config;
@@ -588,7 +745,7 @@ class TypeRegistry {
 
 		$prepared_type = null;
 
-		if ( is_array( $config ) ) {
+		if ( ! empty( $config ) ) {
 
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
@@ -598,16 +755,7 @@ class TypeRegistry {
 					$prepared_type = new WPEnumType( $config );
 					break;
 				case 'input':
-					if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-						$config['fields'] = function() use ( $config ) {
-							$fields = WPInputObjectType::prepare_fields( $config['fields'], $config['name'], $config, $this );
-							$fields = $this->prepare_fields( $fields, $config['name'] );
-
-							return $fields;
-						};
-					}
-
-					$prepared_type = new WPInputObjectType( $config );
+					$prepared_type = new WPInputObjectType( $config, $this );
 					break;
 				case 'scalar':
 					$prepared_type = new WPScalar( $config, $this );
@@ -628,12 +776,53 @@ class TypeRegistry {
 
 	}
 
-	public function get_type( $type_name ) {
-		return isset( $this->types[ $this->format_key( $type_name ) ] ) ? ( $this->types[ $this->format_key( $type_name ) ] ) : null;
+	/**
+	 * Given a type name, returns the type or null if not found
+	 *
+	 * @param string $type_name The name of the Type to get from the registry
+	 *
+	 * @return mixed|null
+	 */
+	public function get_type( string $type_name ) {
+		$key = $this->format_key( $type_name );
+
+		if ( isset( $this->type_loaders[ $key ] ) ) {
+			$type                = call_user_func( $this->type_loaders[ $key ] );
+			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
+			unset( $this->type_loaders[ $key ] );
+		}
+
+		if ( isset( $this->types[ $key ] ) ) {
+			return $this->types[ $key ];
+		}
+
+		return null;
 	}
 
+	/**
+	 * Given a type name, determines if the type is already present in the Type Loader
+	 *
+	 * @param string $type_name The name of the type to check the registry for
+	 *
+	 * @return bool
+	 */
+	public function has_type( string $type_name ) {
+		return isset( $this->type_loaders[ $type_name ] );
+	}
+
+	/**
+	 * Return the Types in the registry
+	 *
+	 * @return array
+	 */
 	public function get_types() {
-		return $this->types;
+
+		// The full map of types is merged with eager types to support the
+		// rename_graphql_type API.
+		//
+		// All of the types are closures, but eager Types are the full
+		// Type definitions up front
+		return array_merge( $this->types, $this->get_eager_type_map() );
 	}
 
 	/**
@@ -643,14 +832,14 @@ class TypeRegistry {
 	 * @param string $type_name Name of the Type to register the fields to
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function prepare_fields( $fields, $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $field_config ) {
-				if ( isset( $field_config['type'] ) ) {
+				if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
 					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
 					if ( ! empty( $prepared_field ) ) {
 						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
@@ -672,7 +861,7 @@ class TypeRegistry {
 	 * @param string $type_name    Name of the type to prepare the field for
 	 *
 	 * @return array|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
@@ -688,20 +877,26 @@ class TypeRegistry {
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
-			throw new InvariantViolation( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ) );
+			graphql_debug( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ), [
+				'type'       => 'INVALID_FIELD_TYPE',
+				'type_name'  => $type_name,
+				'field_name' => $field_name,
+			] );
+			return null;
 		}
 
-		if ( is_string( $field_config['type'] ) ) {
+		/**
+		 * If type is not already a callable, create one to preserve lazy-loading.
+		 */
+		if ( ! is_callable( $field_config['type'] ) ) {
+			$field_config['type'] = function () use ( $field_config ) {
+				if ( is_string( $field_config['type'] ) ) {
+					return $this->get_type( $field_config['type'] );
+				}
 
-			$type = $this->get_type( $field_config['type'] );
-			if ( ! empty( $type ) ) {
-				$field_config['type'] = $type;
-			} else {
-				return null;
-			}
+				return $this->setup_type_modifiers( $field_config['type'] );
+			};
 		}
-
-		$field_config['type'] = $this->setup_type_modifiers( $field_config['type'] );
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
@@ -716,31 +911,24 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param mixed string|array $type
+	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function setup_type_modifiers( $type ) {
-
 		if ( ! is_array( $type ) ) {
 			return $type;
 		}
-		if ( isset( $type['non_null'] ) ) {
-			if ( is_array( $type['non_null'] ) ) {
-				$non_null_type = $this->setup_type_modifiers( $type['non_null'] );
-			} elseif ( is_string( $type['non_null'] ) ) {
-				$non_null_type = $this->get_type( $type['non_null'] );
-			}
-			$type = isset( $non_null_type ) ? Type::nonNull( $non_null_type ) : Type::nonNull( Type::string() );
-		} elseif ( isset( $type['list_of'] ) ) {
-			if ( is_array( $type['list_of'] ) ) {
-				$list_of_type = $this->setup_type_modifiers( $type['list_of'] );
-			} elseif ( is_string( $type['list_of'] ) ) {
-				$list_of_type = $this->get_type( $type['list_of'] );
-			}
 
-			$type = isset( $list_of_type ) ? Type::listOf( $list_of_type ) : Type::listOf( Type::string() );
+		if ( isset( $type['non_null'] ) ) {
+			return $this->non_null(
+				$this->setup_type_modifiers( $type['non_null'] )
+			);
+		} elseif ( isset( $type['list_of'] ) ) {
+			return $this->list_of(
+				$this->setup_type_modifiers( $type['list_of'] )
+			);
 		}
 
 		return $type;
@@ -755,10 +943,10 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function register_fields( $type_name, $fields ) {
-		if ( isset( $type_name ) && is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
+	public function register_fields( string $type_name, array $fields = [] ) {
+		if ( is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
-				if ( isset( $field_name ) && is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
+				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
 					$this->register_field( $type_name, $field_name, $config );
 				}
 			}
@@ -774,17 +962,35 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function register_field( $type_name, $field_name, $config ) {
+	public function register_field( string $type_name, string $field_name, array $config ) {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function( $fields ) use ( $type_name, $field_name, $config ) {
+			function ( $fields ) use ( $type_name, $field_name, $config ) {
+
+				$field_name = Utils::format_field_name( $field_name );
+
+				if ( preg_match( '/^\d/', $field_name ) ) {
+					graphql_debug(
+						sprintf( __( 'The field \'%1$s\' on Type \'%2$s\' is invalid. Field names cannot start with a number.', 'wp-graphql' ), $field_name, $type_name ),
+						[
+							'type'       => 'INVALID_FIELD_NAME',
+							'field_name' => $field_name,
+							'type_name'  => $type_name,
+						]
+					);
+					return $fields;
+				};
 
 				if ( isset( $fields[ $field_name ] ) ) {
-					if ( true === GRAPHQL_DEBUG ) {
-						throw new InvariantViolation( sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.' ), $field_name, $type_name ) );
-					}
-
+					graphql_debug(
+						sprintf( __( 'You cannot register duplicate fields on the same Type. The field \'%1$s\' already exists on the type \'%2$s\'. Make sure to give the field a unique name.', 'wp-graphql' ), $field_name, $type_name ),
+						[
+							'type'       => 'DUPLICATE_FIELD',
+							'field_name' => $field_name,
+							'type_name'  => $type_name,
+						]
+					);
 					return $fields;
 				}
 
@@ -818,14 +1024,10 @@ class TypeRegistry {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function( $fields ) use ( $type_name, $field_name ) {
+			function ( $fields ) use ( $field_name ) {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					unset( $fields[ $field_name ] );
-				} else {
-					if ( true === GRAPHQL_DEBUG ) {
-						throw new InvariantViolation( sprintf( __( 'The field \'%1$s\' does not exist on the type \'%2$s\' and cannot be deregistered', 'wp-graphql' ), $field_name, $type_name ) );
-					}
 				}
 
 				return $fields;
@@ -836,214 +1038,18 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Utility method that formats the connection name given the name of the from Type and the to
-	 * Type
-	 *
-	 * @param string $from_type Name of the Type the connection is coming from
-	 * @param string $to_type   Name of the Type the connection is going to
-	 *
-	 * @return string
-	 */
-	protected function get_connection_name( $from_type, $to_type ) {
-		return ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
-	}
-
-	/**
 	 * Method to register a new connection in the Type registry
 	 *
 	 * @param array $config The info about the connection being registered
 	 *
 	 * @return void
-	 * @throws \InvalidArgumentException
-	 * @throws \Exception
+	 * @throws InvalidArgumentException
+	 * @throws Exception
 	 */
-	public function register_connection( $config ) {
+	public function register_connection( array $config ) {
 
-		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
-		}
-
-		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a toType defined', 'wp-graphql' ) );
-		}
-
-		if ( ! array_key_exists( 'fromFieldName', $config ) ) {
-			throw new \InvalidArgumentException( __( 'Connection config needs to have at least a fromFieldName defined', 'wp-graphql' ) );
-		}
-
-		$from_type          = $config['fromType'];
-		$to_type            = $config['toType'];
-		$from_field_name    = $config['fromFieldName'];
-		$connection_fields  = ! empty( $config['connectionFields'] ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$connection_args    = ! empty( $config['connectionArgs'] ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$edge_fields        = ! empty( $config['edgeFields'] ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$resolve_node       = array_key_exists( 'resolveNode', $config ) && is_callable( $config['resolve'] ) ? $config['resolveNode'] : null;
-		$resolve_cursor     = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$resolve_connection = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function() {
-			return null;
-		};
-		$connection_name    = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $from_type, $to_type );
-		$where_args         = [];
-		$one_to_one         = isset( $config['oneToOne'] ) && true === $config['oneToOne'] ? true : false;
-
-		/**
-		 * If there are any $connectionArgs,
-		 * register their inputType and configure them as $where_args to be added to the connection
-		 * field as arguments
-		 */
-		if ( ! empty( $connection_args ) ) {
-
-			$this->register_input_type(
-				$connection_name . 'WhereArgs',
-				[
-					// Translators: Placeholder is the name of the connection
-					'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $connection_name ),
-					'fields'      => $connection_args,
-					'queryClass'  => ! empty( $config['queryClass'] ) ? $config['queryClass'] : null,
-				]
-			);
-
-			$where_args = [
-				'where' => [
-					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type'        => $connection_name . 'WhereArgs',
-				],
-			];
-
-		}
-
-		if ( true === $one_to_one ) {
-
-			$this->register_object_type(
-				$connection_name . 'Edge',
-				[
-					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-					'fields'      => array_merge(
-						[
-							'node' => [
-								'type'        => $to_type,
-								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-							],
-						],
-						$edge_fields
-					),
-				]
-			);
-
-		} else {
-
-			$this->register_object_type(
-				$connection_name . 'Edge',
-				[
-					'description' => __( 'An edge in a connection', 'wp-graphql' ),
-					'fields'      => array_merge(
-						[
-							'cursor' => [
-								'type'        => 'String',
-								'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-								'resolve'     => $resolve_cursor,
-							],
-							'node'   => [
-								'type'        => $to_type,
-								'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
-								'resolve'     => function( $source, $args, $context, ResolveInfo $info ) use ( $resolve_node ) {
-									if ( ! empty( $resolve_node ) && is_callable( $resolve_node ) ) {
-										return ! empty( $source['node'] ) ? $resolve_node( $source['node'], $args, $context, $info ) : null;
-									} else {
-										return $source['node'];
-									}
-								},
-							],
-						],
-						$edge_fields
-					),
-				]
-			);
-
-			$this->register_object_type(
-				$connection_name,
-				[
-					// Translators: the placeholders are the name of the Types the connection is between.
-					'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-					'fields'      => array_merge(
-						[
-							'pageInfo' => [
-								// @todo: change to PageInfo when/if the Relay lib is deprecated
-								'type'        => 'WPPageInfo',
-								'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-							],
-							'edges'    => [
-								'type'        => [
-									'list_of' => $connection_name . 'Edge',
-								],
-								'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $connection_name ),
-							],
-							'nodes'    => [
-								'type'        => [
-									'list_of' => $to_type,
-								],
-								'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
-								'resolve'     => function( $source, $args, $context, $info ) use ( $resolve_node ) {
-									$nodes = [];
-									if ( ! empty( $source['nodes'] ) && is_array( $source['nodes'] ) ) {
-										if ( is_callable( $resolve_node ) ) {
-											foreach ( $source['nodes'] as $node ) {
-												$nodes[] = $resolve_node( $node, $args, $context, $info );
-											}
-										} else {
-											return $source['nodes'];
-										}
-									}
-
-									return $nodes;
-								},
-							],
-						],
-						$connection_fields
-					),
-				]
-			);
-
-		}
-
-		if ( true === $one_to_one ) {
-			$pagination_args = [];
-		} else {
-			$pagination_args = [
-				'first'  => [
-					'type'        => 'Int',
-					'description' => __( 'The number of items to return after the referenced "after" cursor', 'wp-graphql' ),
-				],
-				'last'   => [
-					'type'         => 'Int',
-					'description ' => __( 'The number of items to return before the referenced "before" cursor', 'wp-graphql' ),
-				],
-				'after'  => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "first" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-				'before' => [
-					'type'        => 'String',
-					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
-				],
-			];
-		}
-
-		$this->register_field(
-			$from_type,
-			$from_field_name,
-			[
-				'type'        => true === $one_to_one ? $connection_name . 'Edge' : $connection_name,
-				'args'        => array_merge( $pagination_args, $where_args ),
-				'description' => ! empty( $config['description'] ) ? $config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $from_type, $to_type ),
-				'resolve'     => function( $root, $args, $context, $info ) use ( $resolve_connection, $connection_name, $one_to_one ) {
-					/**
-					 * Return the results
-					 */
-					return call_user_func( $resolve_connection, $root, $args, $context, $info );
-				},
-			]
-		);
+		$connection = new WPConnectionType( $config, $this );
+		$connection->register_connection();
 
 	}
 
@@ -1054,15 +1060,14 @@ class TypeRegistry {
 	 * @param array  $config        Info about the mutation being registered
 	 *
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function register_mutation( $mutation_name, $config ) {
 
 		$output_fields = [
 			'clientMutationId' => [
-				'type' => [
-					'non_null' => 'String',
-				],
+				'type'        => 'String',
+				'description' => __( 'If a \'clientMutationId\' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 
@@ -1080,9 +1085,8 @@ class TypeRegistry {
 
 		$input_fields = [
 			'clientMutationId' => [
-				'type' => [
-					'non_null' => 'String',
-				],
+				'type'        => 'String',
+				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
 			],
 		];
 
@@ -1114,10 +1118,10 @@ class TypeRegistry {
 					],
 				],
 				'type'        => $mutation_name . 'Payload',
-				'resolve'     => function( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
+				'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
 					if ( ! is_callable( $mutateAndGetPayload ) ) {
 						// Translators: The placeholder is the name of the mutation
-						throw new \Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
+						throw new Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
 					}
 					$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
 					$payload['clientMutationId'] = $args['input']['clientMutationId'];
@@ -1132,7 +1136,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
-	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @param mixed $type The Type being wrapped
 	 *
 	 * @return NonNull
 	 */
@@ -1149,13 +1153,17 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
-	 * @param mixed string|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $type
+	 * @param mixed $type The Type being wrapped
 	 *
 	 * @return ListOfType
 	 */
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
+			if ( is_null( $type_def ) ) {
+				return Type::listOf( Type::string() );
+			}
 
 			return Type::listOf( $type_def );
 		}

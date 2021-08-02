@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -16,6 +17,9 @@ use WPGraphQL\Data\CommentMutation;
 class CommentUpdate {
 	/**
 	 * Registers the CommentUpdate mutation.
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -71,13 +75,17 @@ class CommentUpdate {
 			}
 
 			$id_parts     = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$comment_id   = absint( $id_parts['id'] );
-			$comment_args = get_comment( $comment_id, ARRAY_A );
+			$comment_id   = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? absint( $id_parts['id'] ) : null;
+			$comment_args = ! empty( $comment_id ) ? get_comment( $comment_id, ARRAY_A ) : null;
+
+			if ( empty( $comment_id ) || empty( $comment_args ) ) {
+				throw new UserError( __( 'The Comment could not be updated', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
-			$user_id = $comment_args['user_id'];
+			$user_id = isset( $comment_args['user_id'] ) ? $comment_args['user_id'] : null;
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
 			// Prevent comment deletions by default

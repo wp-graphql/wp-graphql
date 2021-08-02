@@ -4,19 +4,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 	public function setUp(): void {
 
-		/**
-		 * Manually Register a setting for testing
-		 *
-		 * This registers a setting as a number to see if it gets the correct type
-		 * associated with it and returned through WPGraphQL
-		 */
-		register_setting( 'Zool', 'points', array(
-			'type'         => 'number',
-			'description'  => __( 'Test how many points we have in Zool.' ),
-			'show_in_graphql' => true,
-			'default' => 4.5,
-		) );
-
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
@@ -27,10 +14,12 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 		parent::setUp();
 
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
 		parent::tearDown();
+		WPGraphQL::clear_schema();
 	}
 
 	/**

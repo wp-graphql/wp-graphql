@@ -3,6 +3,8 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Executor\ExecutionResult;
+use WP_User;
 
 /**
  * Class Router
@@ -44,10 +46,12 @@ class Router {
 		/**
 		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
 		 *
-		 * @since 0.0.1
 		 * @return string
+		 * @since 0.0.1
 		 */
-		self::$route = apply_filters( 'graphql_endpoint', 'graphql' );
+		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
+		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
+		self::$route       = $endpoint;
 
 		/**
 		 * Create the rewrite rule for the route
@@ -70,14 +74,19 @@ class Router {
 		 */
 		add_action( 'parse_request', [ $this, 'resolve_http_request' ], 10 );
 
+		/**
+		 * Adds support for application passwords
+		 */
+		add_filter( 'application_password_is_api_request', [ $this, 'is_api_request' ] );
+
 	}
 
 	/**
 	 * Adds rewrite rule for the route endpoint
 	 *
-	 * @uses   add_rewrite_rule()
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
+	 * @uses   add_rewrite_rule()
 	 */
 	public static function add_rewrite_rule() {
 
@@ -90,12 +99,25 @@ class Router {
 	}
 
 	/**
+	 * Determines whether the request is an API request to play nice with
+	 * application passwords and potential other WordPress core functionality
+	 * for APIs
+	 *
+	 * @param bool $is_api_request Whether the request is an API request
+	 *
+	 * @return bool
+	 */
+	public function is_api_request( $is_api_request ) {
+		return true === is_graphql_http_request() ? true : $is_api_request;
+	}
+
+	/**
 	 * Adds the query_var for the route
 	 *
 	 * @param array $query_vars The array of whitelisted query variables.
 	 *
-	 * @since  0.0.1
 	 * @return array
+	 * @since  0.0.1
 	 */
 	public static function add_query_var( $query_vars ) {
 
@@ -116,12 +138,62 @@ class Router {
 	 */
 	public static function is_graphql_http_request() {
 
+		/**
+		 * Filter whether the request is a GraphQL HTTP Request. Default is null, as the majority
+		 * of WordPress requests are NOT GraphQL requests (at least today that's true 😆).
+		 *
+		 * If this filter returns anything other than null, the function will return now and skip the
+		 * default checks.
+		 *
+		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 */
+		$pre_is_graphql_http_request = apply_filters( 'graphql_pre_is_graphql_http_request', null );
+
+		/**
+		 * If the filter has been applied, return now before executing default checks
+		 */
+		if ( null !== $pre_is_graphql_http_request ) {
+			return (bool) $pre_is_graphql_http_request;
+		}
+
 		// Default is false
 		$is_graphql_http_request = false;
 
 		// Support wp-graphiql style request to /index.php?graphql.
 		if ( isset( $_GET[ self::$route ] ) ) {
+
 			$is_graphql_http_request = true;
+
+		} else {
+
+			// Check the server to determine if the GraphQL endpoint is being requested
+			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
+
+				$host = wp_unslash( $_SERVER['HTTP_HOST'] );
+				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
+
+				if ( ! is_string( $host ) ) {
+					return false;
+				} elseif ( ! is_string( $uri ) ) {
+					return false;
+				}
+
+				$full_path = $host . $uri;
+				$site_url  = site_url( self::$route );
+
+				// Strip protocol.
+				$replaced_path = preg_replace( '#^(http(s)?://)#', '', $full_path );
+				if ( ! empty( $replaced_path ) ) {
+					$full_path = $replaced_path;
+				}
+				$replaced_url = preg_replace( '#^(http(s)?://)#', '', $site_url );
+				if ( ! empty( $replaced_url ) ) {
+					$site_url = $replaced_url;
+				}
+
+				$len                     = strlen( $site_url );
+				$is_graphql_http_request = ( substr( $full_path, 0, $len ) === $site_url );
+			}
 		}
 
 		/**
@@ -136,31 +208,8 @@ class Router {
 		 *
 		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
-		$is_graphql_http_request = apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
+		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 
-		/**
-		 * If true, return right away. This allows custom code to
-		 * define graphql requests if their definition doesn't match the standard
-		 * definition.
-		 */
-		if ( true === $is_graphql_http_request ) {
-			return $is_graphql_http_request;
-		}
-
-		// Check the server to determine if the GraphQL endpoint is being requested
-		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$haystack = wp_unslash( $_SERVER['HTTP_HOST'] )
-						. wp_unslash( $_SERVER['REQUEST_URI'] );
-			$needle   = site_url( self::$route );
-
-			// Strip protocol.
-			$haystack                = preg_replace( '#^(http(s)?://)#', '', $haystack );
-			$needle                  = preg_replace( '#^(http(s)?://)#', '', $needle );
-			$len                     = strlen( $needle );
-			$is_graphql_http_request = ( substr( $haystack, 0, $len ) === $needle );
-		}
-
-		return $is_graphql_http_request;
 	}
 
 	/**
@@ -182,10 +231,10 @@ class Router {
 	 * JSON response instead of responding with a template from the standard WordPress Template
 	 * Loading process
 	 *
-	 * @since  0.0.1
 	 * @return void
 	 * @throws \Exception Throws exception.
 	 * @throws \Throwable Throws exception.
+	 * @since  0.0.1
 	 */
 	public static function resolve_http_request() {
 
@@ -224,10 +273,11 @@ class Router {
 	/**
 	 * Sends an HTTP header.
 	 *
-	 * @since  0.0.5
-	 *
 	 * @param string $key   Header key.
 	 * @param string $value Header value.
+	 *
+	 * @return void
+	 * @since  0.0.5
 	 */
 	public static function send_header( $key, $value ) {
 
@@ -245,7 +295,7 @@ class Router {
 	/**
 	 * Sends an HTTP status code.
 	 *
-	 * @since  0.0.5
+	 * @return void
 	 */
 	protected static function set_status() {
 		status_header( self::$http_status_code );
@@ -279,15 +329,18 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
-			'X-hacker'                     => __( 'If you\'re reading this, you should visit github.com/wp-graphql and contribute!', 'wp-graphql' ),
 		];
+
+		if ( true === \WPGraphQL::debug() ) {
+			$headers['X-hacker'] = __( 'If you\'re reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!', 'wp-graphql' );
+		}
 
 		/**
 		 * Send nocache headers on authenticated requests.
 		 *
-		 * @since 0.0.5
-		 *
 		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
+		 *
+		 * @since 0.0.5
 		 */
 		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
 		if ( $send_no_cache_headers ) {
@@ -305,8 +358,8 @@ class Router {
 	/**
 	 * Set the response headers
 	 *
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
 	 */
 	public static function set_headers() {
 
@@ -345,26 +398,45 @@ class Router {
 	/**
 	 * Retrieves the raw request entity (body).
 	 *
-	 * @since  0.0.5
-	 * @global string php://input Raw post data.
 	 * @return string Raw request data.
+	 * @global string php://input Raw post data.
+	 * @since  0.0.5
 	 */
 	public static function get_raw_data() {
+		$input = file_get_contents( 'php://input' );
 
-		return file_get_contents( 'php://input' );
-
+		return ! empty( $input ) ? $input : '';
 	}
 
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
-	 * @since  0.0.1
 	 * @return mixed
 	 * @throws \Exception Throws Exception.
 	 * @throws \Throwable Throws Exception.
+	 * @global WP_User $current_user The currently authenticated user.
+	 * @since  0.0.1
 	 */
 	public static function process_http_request() {
+		/* @var WP_User|null $current_user */
+		global $current_user;
+
+		if ( $current_user instanceof WP_User && ! $current_user->exists() ) {
+			/*
+			 * If there is no current user authenticated via other means, clear
+			 * the cached lack of user, so that an authenticate check can set it
+			 * properly.
+			 *
+			 * This is done because for authentications such as Application
+			 * Passwords, we don't want it to be accepted unless the current HTTP
+			 * request is a GraphQL API request, which can't always be identified early
+			 * enough in evaluation.
+			 *
+			 * See serve_request in wp-includes/rest-api/class-wp-rest-server.php.
+			 */
+			$current_user = null;
+		}
 
 		/**
 		 * This action can be hooked to to enable various debug tools,
@@ -380,7 +452,7 @@ class Router {
 		 * @see: https://apollographql.slack.com/archives/C10HTKHPC/p1507649812000123
 		 * @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
 		 */
-		if ( 'OPTIONS' === $_SERVER['REQUEST_METHOD'] ) {
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'OPTIONS' === $_SERVER['REQUEST_METHOD'] ) {
 			self::$http_status_code = 200;
 			self::set_headers();
 			exit;
@@ -389,9 +461,10 @@ class Router {
 		$query          = '';
 		$operation_name = '';
 		$variables      = [];
+		$request        = new Request();
 
 		try {
-			$request  = new Request();
+
 			$response = $request->execute_http();
 
 			// Get the operation params from the request.
@@ -409,7 +482,20 @@ class Router {
 			 * @since 0.0.4
 			 */
 			self::$http_status_code = 500;
-			$response['errors']     = [ FormattedError::createFromException( $error, GRAPHQL_DEBUG ) ];
+
+			/**
+			 * Filter thrown GraphQL errors
+			 *
+			 * @param array              $errors   Formatted errors object.
+			 * @param Exception          $error    Thrown error.
+			 * @param \WPGraphQL\Request $request  WPGraphQL Request object.
+			 */
+			$response['errors'] = apply_filters(
+				'graphql_http_request_response_errors',
+				[ FormattedError::createFromException( $error, $request->get_debug_flag() ) ],
+				$error,
+				$request
+			);
 		} // End try().
 
 		// Previously there was a small distinction between the response and the result, but
@@ -430,10 +516,11 @@ class Router {
 		 * @param string $operation_name The name of the operation
 		 * @param string $query          The request that GraphQL executed
 		 * @param array  $variables      Variables to passed to your GraphQL query
+		 * @param mixed  $status_code    The status code for the response
 		 *
 		 * @since 0.0.5
 		 */
-		do_action( 'graphql_process_http_request_response', $response, $result, $operation_name, $query, $variables );
+		do_action( 'graphql_process_http_request_response', $response, $result, $operation_name, $query, $variables, self::$http_status_code );
 
 		/**
 		 * Send the response
@@ -445,25 +532,29 @@ class Router {
 	/**
 	 * Prepare headers for response
 	 *
-	 * @param array    $response        The response of the GraphQL Request.
-	 * @param array    $graphql_results The results of the GraphQL execution.
-	 * @param string   $query           The GraphQL query.
-	 * @param string   $operation_name  The operation name of the GraphQL Request.
-	 * @param array    $variables       The variables applied to the GraphQL Request.
-	 * @param \WP_User $user            The current user object.
+	 * @param mixed|array|ExecutionResult $response        The response of the GraphQL Request.
+	 * @param mixed|array|ExecutionResult $graphql_results The results of the GraphQL execution.
+	 * @param string                      $query           The GraphQL query.
+	 * @param string                      $operation_name  The operation name of the GraphQL
+	 *                                                     Request.
+	 * @param mixed|array|null            $variables       The variables applied to the GraphQL
+	 *                                                     Request.
+	 * @param mixed|WP_User|null          $user            The current user object.
+	 *
+	 * @return void
 	 */
-	protected static function prepare_headers( $response, $graphql_results, $query, $operation_name, $variables, $user = null ) {
+	protected static function prepare_headers( $response, $graphql_results, string $query, string $operation_name, $variables, $user = null ) {
 
 		/**
 		 * Filter the $status_code before setting the headers
 		 *
-		 * @param int      $status_code     The status code to apply to the headers
-		 * @param array    $response        The response of the GraphQL Request
-		 * @param array    $graphql_results The results of the GraphQL execution
-		 * @param string   $query           The GraphQL query
-		 * @param string   $operation_name  The operation name of the GraphQL Request
-		 * @param array    $variables       The variables applied to the GraphQL Request
-		 * @param \WP_User $user            The current user object
+		 * @param int     $status_code     The status code to apply to the headers
+		 * @param array   $response        The response of the GraphQL Request
+		 * @param array   $graphql_results The results of the GraphQL execution
+		 * @param string  $query           The GraphQL query
+		 * @param string  $operation_name  The operation name of the GraphQL Request
+		 * @param array   $variables       The variables applied to the GraphQL Request
+		 * @param WP_User $user            The current user object
 		 */
 		self::$http_status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $query, $operation_name, $variables, $user );
 

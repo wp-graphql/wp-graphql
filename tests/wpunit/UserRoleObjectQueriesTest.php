@@ -80,19 +80,18 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		";
 
 		$expected = [
-			'data' => [
-				'userRole' => [
-					'id' => $global_id,
-					'name' => $role_to_test,
-					'capabilities' => array_keys( $role_obj->capabilities, true, true ),
-				],
+			'userRole' => [
+				'id' => $global_id,
+				'name' => $role_to_test,
+				'capabilities' => array_keys( $role_obj->capabilities, true, true ),
 			],
 		];
 
 		$actual = graphql(['query' => $query]);
 		codecept_debug( $actual );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 

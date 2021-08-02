@@ -3,7 +3,13 @@
 namespace WPGraphQL\Type\InterfaceType;
 
 class ContentTemplate {
-	public static function register_type( $type_registry ) {
+
+	/**
+	 * Register the ContentTemplate Interface
+	 *
+	 * @return void
+	 */
+	public static function register_type() {
 		register_graphql_interface_type(
 			'ContentTemplate',
 			[
@@ -13,12 +19,8 @@ class ContentTemplate {
 						'type'        => 'String',
 						'description' => __( 'The name of the template', 'wp-graphql' ),
 					],
-					'templateFile' => [
-						'type' => 'String',
-						'description' => __( 'The file the template uses', 'wp-graphql' ),
-					],
 				],
-				'resolveType' => function( $value ) use ( $type_registry ) {
+				'resolveType' => function ( $value ) {
 					return isset( $value['__typename'] ) ? $value['__typename'] : 'DefaultTemplate';
 				},
 			]

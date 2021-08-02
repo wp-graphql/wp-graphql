@@ -26,6 +26,7 @@ class TermNodeIdTypeEnum {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
+				/** @var \WP_Taxonomy $taxonomy_object */
 				$taxonomy_object = get_taxonomy( $taxonomy );
 
 				register_graphql_enum_type(

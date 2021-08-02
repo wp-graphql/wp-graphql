@@ -13,12 +13,14 @@ class EnqueuedAsset {
 	 * Register the Enqueued Script Type
 	 *
 	 * @param TypeRegistry $type_registry The WPGraphQL Type Registry
+	 *
+	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
 		register_graphql_interface_type( 'EnqueuedAsset', [
 			'description' => __( 'Asset enqueued by the CMS', 'wp-graphql' ),
-			'resolveType' => function( $asset ) use ( $type_registry ) {
+			'resolveType' => function ( $asset ) use ( $type_registry ) {
 
 				/**
 				 * The resolveType callback is used at runtime to determine what Type an object
@@ -69,7 +71,7 @@ class EnqueuedAsset {
 				'extra'        => [
 					'type'        => 'String',
 					'description' => __( 'Extra information needed for the script', 'wp-graphql' ),
-					'resolve'     => function( $asset ) {
+					'resolve'     => function ( $asset ) {
 						return isset( $asset->extra['data'] ) ? $asset->extra['data'] : null;
 					},
 				],

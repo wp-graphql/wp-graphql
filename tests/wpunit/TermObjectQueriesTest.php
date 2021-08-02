@@ -4,7 +4,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-
+		global $wp_rewrite;
+		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_taxonomies();
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules();
+		WPGraphQL::show_in_graphql();
 	}
 
 	public function tearDown(): void {
@@ -13,16 +18,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function createTermObject( $args = [] ) {
-		/**
-		 * Create the term
-		 */
-		$term_id = $this->factory()->term->create( $args );
-
-		/**
-		 * Return the $id of the term_object that was created
-		 */
-		return $term_id;
-
+		return $this->factory()->term->create( $args );
 	}
 
 	public function testTermObjectConnectionQuery() {
@@ -207,30 +203,28 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'categoryId'     => $term_id,
-					'count'          => null,
-					'description'    => 'just a description',
-					'id'             => $global_id,
-					'link'           => get_term_link( $term_id ),
-					'name'           => 'A Category',
-					'posts'          => [
-						'edges' => [],
-					],
-					'slug'           => 'a-category',
-					'taxonomy'       => [
-						'node' => [
-							'name' => 'category',
-						],
-					],
-					'termGroupId'    => null,
-					'termTaxonomyId' => $term_id,
+			'category' => [
+				'categoryId'     => $term_id,
+				'count'          => null,
+				'description'    => 'just a description',
+				'id'             => $global_id,
+				'link'           => get_term_link( $term_id ),
+				'name'           => 'A Category',
+				'posts'          => [
+					'edges' => [],
 				],
+				'slug'           => 'a-category',
+				'taxonomy'       => [
+					'node' => [
+						'name' => 'category',
+					],
+				],
+				'termGroupId'    => null,
+				'termTaxonomyId' => $term_id,
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -305,14 +299,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-			'data' => [
-				'category' => [
-					'posts' => [
-						'edges' => [
-							[
-								'node' => [
-									'postId' => $post_id,
-								],
+			'category' => [
+				'posts' => [
+					'edges' => [
+						[
+							'node' => [
+								'postId' => $post_id,
 							],
 						],
 					],
@@ -320,7 +312,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
@@ -364,23 +356,21 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_parent_id,
-					'categoryId' => $parent_id,
-					'children'   => [
-						'nodes' => [
-							[
-								'id'         => $global_child_id,
-								'categoryId' => $child_id,
-							],
+			'category' => [
+				'id'         => $global_parent_id,
+				'categoryId' => $parent_id,
+				'children'   => [
+					'nodes' => [
+						[
+							'id'         => $global_child_id,
+							'categoryId' => $child_id,
 						],
 					],
 				],
-			],
+			]
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -429,29 +419,27 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$expected = [
-			'data' => [
-				'category' => [
-					'id'         => $global_child_id,
-					'categoryId' => $child_id,
-					'parent' => [
-						'node' => [
-							'id' => $global_parent_id,
-						]
-					],
-					'ancestors'  => [
-						'nodes' => [
-							[
-								'id'         => $global_parent_id,
-								'categoryId' => $parent_id,
-							],
-						]
-					],
+			'category' => [
+				'id'         => $global_child_id,
+				'categoryId' => $child_id,
+				'parent' => [
+					'node' => [
+						'id' => $global_parent_id,
+					]
+				],
+				'ancestors'  => [
+					'nodes' => [
+						[
+							'id'         => $global_parent_id,
+							'categoryId' => $parent_id,
+						],
+					]
 				],
 			],
 		];
 
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
@@ -487,30 +475,142 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected = [
-			'data'   => [
-				'category' => null,
-			],
-			'errors' => [
-				[
-					'message'   => 'The ID input is invalid',
-					'locations' => [
-						[
-							'line'   => 3,
-							'column' => 4,
-						],
+		$expected_errors = [
+			[
+				'message'   => 'The ID input is invalid',
+				'locations' => [
+					[
+						'line'   => 3,
+						'column' => 4,
 					],
-					'path'      => [
-						'category',
-					],
-					'extensions' => [
-						'category' => 'user'
-					],
+				],
+				'path'      => [
+					'category',
+				],
+				'extensions' => [
+					'category' => 'user'
 				],
 			],
 		];
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEquals( $expected_errors, $actual['errors'] );
+	}
+
+	public function testQueryChildCategoryByUri() {
+
+		$parent_id = $this->factory()->category->create([
+			'name' => 'parent'
+		]);
+
+		$child_id = $this->factory()->category->create([
+			'name' => 'child',
+			'parent' => $parent_id
+		]);
+
+		codecept_debug( get_term_link( $child_id, 'category' ) );
+
+		$query = '
+		query CategoryByUri($uri: String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    id
+		    ...on Category {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => get_term_link( $child_id ),
+			],
+		]);
+		codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 'Category', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertEquals( 'child', $actual['data']['nodeByUri']['name'] );
+
+
+	}
+
+	public function testCustomTaxonomyChildTermQueryByUri() {
+
+		register_taxonomy( 'news', 'post', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'NewsCategory',
+			'graphql_plural_name' => 'NewsCategories',
+			'rewrite' => true,
+		]);
+
+		flush_rewrite_rules();
+
+		WPGraphQL::clear_schema();
+
+		$parent_id = $this->factory()->term->create([
+			'taxonomy' => 'news',
+			'name' => 'parent',
+		]);
+
+		$child_id = $this->factory()->term->create([
+			'taxonomy' => 'news',
+			'name' => 'child',
+			'parent' => $parent_id,
+		]);
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'news',
+			'post_status' => 'publish',
+			'post_title' => 'Test News Post',
+		]);
+
+		wp_set_object_terms( $post_id, [ $child_id ], 'news' );
+
+		$link = get_term_link( $child_id, 'news' );
+
+		codecept_debug( $link );
+
+		$query = '
+		query getNewsTerm($uri_string:String! $uri_id: ID! ) {
+		  nodeByUri(uri: $uri_string) {
+		    id
+		    ...NewsCategory
+		  }
+		  newsCategory(id:$uri_id idType: URI ) {
+		    ...NewsCategory
+		  }
+		}
+		fragment NewsCategory on NewsCategory {
+		    id
+		    databaseId
+		    uri
+		    link
+		    name
+			posts {
+		      nodes {
+		        title
+		      }
+		    }
+		  }
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri_string' => $link,
+				'uri_id' => $link,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $link, $actual['data']['nodeByUri']['link'] );
+		$this->assertSame( $link, $actual['data']['newsCategory']['link'] );
+
 	}
 
 }

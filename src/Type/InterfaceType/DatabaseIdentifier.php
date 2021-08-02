@@ -1,7 +1,6 @@
 <?php
 
 namespace WPGraphQL\Type\InterfaceType;
-use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class DatabaseIdentifier
@@ -11,11 +10,11 @@ use WPGraphQL\Registry\TypeRegistry;
 class DatabaseIdentifier {
 
 	/**
-	 * Register the DatabaseIdentifier Interface
+	 * Register the DatabaseIdentifier Interface.
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @return void
 	 */
-	public static function register_type( TypeRegistry $type_registry ) {
+	public static function register_type() {
 
 		register_graphql_interface_type( 'DatabaseIdentifier', [
 			'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
@@ -26,7 +25,5 @@ class DatabaseIdentifier {
 				],
 			],
 		]);
-
 	}
-
 }

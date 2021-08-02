@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
@@ -19,6 +20,9 @@ class Comments {
 
 	/**
 	 * Register connections to Comments
+	 *
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_connections() {
 
@@ -32,7 +36,7 @@ class Comments {
 		 */
 		register_graphql_connection( self::get_connection_config( [
 			'fromType' => 'User',
-			'resolve'  => function( User $user, $args, $context, $info ) {
+			'resolve'  => function ( User $user, $args, $context, $info ) {
 				$resolver = new CommentConnectionResolver( $user, $args, $context, $info );
 
 				return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
@@ -46,7 +50,7 @@ class Comments {
 			'fromFieldName'      => 'parent',
 			'connectionTypeName' => 'CommentToParentCommentConnection',
 			'oneToOne'           => true,
-			'resolve'            => function( Comment $comment, $args, $context, $info ) {
+			'resolve'            => function ( Comment $comment, $args, $context, $info ) {
 				$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
 				return ! empty( $comment->comment_parent_id ) ? $resolver->one_to_one()->set_query_arg( 'comment__in', [ $comment->comment_parent_id ] )->get_connection() : null;
@@ -61,7 +65,7 @@ class Comments {
 				[
 					'fromType'      => 'Comment',
 					'fromFieldName' => 'replies',
-					'resolve'       => function( Comment $comment, $args, $context, $info ) {
+					'resolve'       => function ( Comment $comment, $args, $context, $info ) {
 						$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
 						return $resolver->set_query_arg( 'parent', absint( $comment->commentId ) )->get_connection();
@@ -77,6 +81,11 @@ class Comments {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $post_type ) {
 				$post_type_object = get_post_type_object( $post_type );
+
+				if ( empty( $post_type_object ) ) {
+					return;
+				}
+
 				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 					register_graphql_connection(
 						self::get_connection_config(
@@ -84,7 +93,7 @@ class Comments {
 								'fromType'      => $post_type_object->graphql_single_name,
 								'toType'        => 'Comment',
 								'fromFieldName' => 'comments',
-								'resolve'       => function( Post $post, $args, $context, $info ) {
+								'resolve'       => function ( Post $post, $args, $context, $info ) {
 
 									if ( $post->isRevision ) {
 										$id = $post->parentDatabaseId;
@@ -118,7 +127,7 @@ class Comments {
 			'toType'         => 'Comment',
 			'fromFieldName'  => 'comments',
 			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function( $root, $args, $context, $info ) {
+			'resolve'        => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];

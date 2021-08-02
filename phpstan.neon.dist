@@ -1,8 +1,13 @@
-includes:
-    - vendor/szepeviktor/phpstan-wordpress/extension.neon
 parameters:
-    level: max
-    autoload_files:
+    level: 8
+    inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
+    stubFiles:
+        # Simulate added properties
+        - phpstan/class-wp-post-type.stub
+        - phpstan/class-wp-taxonomy.stub
+    bootstrapFiles:
+        - phpstan/constants.php
         - wp-graphql.php
         - access-functions.php
     paths:
@@ -10,5 +15,5 @@ parameters:
         - access-functions.php
         - src/
     ignoreErrors:
-        # Uses func_get_args()
-        - '#^Function apply_filters(_ref_array)? invoked with ([3456789]|10) parameters, 2 required\.$#'
+        # Ignore any filters that are applied with more than 2 paramaters
+        - '#^Function apply_filters(_ref_array)? invoked with ([1-9]|1[0-2]) parameters, 2 required\.$#'

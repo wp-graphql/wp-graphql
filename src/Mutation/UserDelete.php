@@ -14,6 +14,8 @@ use WPGraphQL\Model\User;
 class UserDelete {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -56,16 +58,16 @@ class UserDelete {
 			'deletedId' => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
-					$deleted = (object) $payload['userObject'];
+				'resolve'     => function ( $payload ) {
+					$deleted = (object) $payload['user'];
 					return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
 				},
 			],
 			'user'      => [
 				'type'        => 'User',
 				'description' => __( 'The deleted user object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
-					return new User( $payload['userObject'] );
+				'resolve'     => function ( $payload ) {
+					return new User( $payload['user'] );
 				},
 			],
 		];
@@ -77,7 +79,7 @@ class UserDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input ) {
+		return static function ( $input ) {
 			/**
 			 * Get the ID from the global ID
 			 */
@@ -129,7 +131,7 @@ class UserDelete {
 			}
 
 			return [
-				'userObject' => $user_before_delete,
+				'user' => $user_before_delete,
 			];
 		};
 	}

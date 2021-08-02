@@ -14,6 +14,9 @@ class UpdateSettings {
 
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -55,7 +58,13 @@ class UpdateSettings {
 					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
 				}
 
-				$individual_setting_key = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $individual_setting_key ) );
+				$replaced_setting_key = preg_replace( '[^a-zA-Z0-9 -]', ' ', $individual_setting_key );
+
+				if ( ! empty( $replaced_setting_key ) ) {
+					$individual_setting_key = $replaced_setting_key;
+				}
+
+				$individual_setting_key = lcfirst( $individual_setting_key );
 				$individual_setting_key = lcfirst( str_replace( '_', ' ', ucwords( $individual_setting_key, '_' ) ) );
 				$individual_setting_key = lcfirst( str_replace( '-', ' ', ucwords( $individual_setting_key, '_' ) ) );
 				$individual_setting_key = lcfirst( str_replace( ' ', '', ucwords( $individual_setting_key, ' ' ) ) );
@@ -91,14 +100,12 @@ class UpdateSettings {
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
 
-				$setting_type = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $group ) );
-				$setting_type = lcfirst( str_replace( '_', ' ', ucwords( $setting_type, '_' ) ) );
-				$setting_type = lcfirst( str_replace( '-', ' ', ucwords( $setting_type, '_' ) ) );
-				$setting_type = lcfirst( str_replace( ' ', '', ucwords( $setting_type, ' ' ) ) );
+				$setting_type = DataSource::format_group_name( $group );
 
 				$output_fields[ $setting_type . 'Settings' ] = [
-					'type'    => $setting_type . 'Settings',
-					'resolve' => function () use ( $setting_type ) {
+					'type'        => $setting_type . 'Settings',
+					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type ),
+					'resolve'     => function () use ( $setting_type ) {
 						return $setting_type;
 					},
 				];
@@ -110,8 +117,9 @@ class UpdateSettings {
 		 * Get all of the settings, regardless of group
 		 */
 		$output_fields['allSettings'] = [
-			'type'    => 'Settings',
-			'resolve' => function () {
+			'type'        => 'Settings',
+			'description' => __( 'Update all settings.', 'wp-graphql' ),
+			'resolve'     => function () {
 				return true;
 			},
 		];
@@ -151,7 +159,7 @@ class UpdateSettings {
 				 * REST API name, if not use the option name.
 				 * Sanitize the field name to be camelcase
 				 */
-				if ( ! empty( $setting['show_in_rest']['name'] ) ) {
+				if ( isset( $setting['show_in_rest']['name'] ) && ! empty( $setting['show_in_rest']['name'] ) ) {
 					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
 				} else {
 					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );

@@ -5,6 +5,12 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class MimeTypeEnum {
+
+	/**
+	 * Register the MimeTypeEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		$values = [
 			'IMAGE_JPEG' => [
@@ -19,7 +25,8 @@ class MimeTypeEnum {
 			$values = [];
 			foreach ( $allowed_mime_types as $mime_type ) {
 				$values[ WPEnumType::get_safe_name( $mime_type ) ] = [
-					'value' => $mime_type,
+					'value'       => $mime_type,
+					'description' => sprintf( __( 'MimeType %s', 'wp-graphql' ), $mime_type ),
 				];
 			}
 		}

@@ -10,6 +10,8 @@ class Revisions {
 	 * Register connections to Revisions
 	 *
 	 * @param TypeRegistry $type_registry Instance of the TypeRegistry
+	 *
+	 * @return void
 	 */
 	public static function register_connections( TypeRegistry $type_registry ) {
 
@@ -23,7 +25,7 @@ class Revisions {
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'revisions',
 				'connectionArgs' => PostObjects::get_connection_args(),
-				'resolve'        => function( $root, $args, $context, $info ) {
+				'resolve'        => function ( $root, $args, $context, $info ) {
 					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 				},
 			]
@@ -37,7 +39,7 @@ class Revisions {
 				'fromFieldName'  => 'revisions',
 				'description'    => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
 				'connectionArgs' => PostObjects::get_connection_args(),
-				'resolve'        => function( $root, $args, $context, $info ) {
+				'resolve'        => function ( $root, $args, $context, $info ) {
 					return DataSource::resolve_post_objects_connection( $root, $args, $context, $info, 'revision' );
 				},
 			]

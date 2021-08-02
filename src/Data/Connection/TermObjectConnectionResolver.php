@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Connection;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
@@ -25,30 +26,32 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * TermObjectConnectionResolver constructor.
 	 *
-	 * @param $source
-	 * @param $args
-	 * @param $context
-	 * @param $info
-	 * @param $taxonomy
+	 * @param mixed       $source     source passed down from the resolve tree
+	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
+	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
+	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
+	 * @param mixed|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct( $source, $args, $context, $info, $taxonomy = null ) {
+	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
 		$this->taxonomy = $taxonomy;
 		parent::__construct( $source, $args, $context, $info );
 	}
 
 	/**
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query_args() {
 
 		/**
 		 * Set the taxonomy for the $args
 		 */
-		$all_taxonomies         = get_taxonomies( [ 'show_in_graphql' => true ] );
-		$query_args['taxonomy'] = ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies;
+		$all_taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+		$query_args     = [
+			'taxonomy' => ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies,
+		];
 
 		/**
 		 * Prepare for later use
@@ -64,12 +67,18 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->get_query_amount() ) + 1;
+		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
 
 		/**
 		 * Orderby Name by default
 		 */
 		$query_args['orderby'] = 'name';
+		$query_args['order']   = 'ASC';
+
+		/**
+		 * Don't calculate the total rows, it's not needed and can be expensive
+		 */
+		$query_args['count'] = false;
 
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
@@ -93,17 +102,13 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
-		 */
-		if ( empty( $query_args['order'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
-		}
-
-		/**
 		 * Set the graphql_cursor_offset
 		 */
 		$query_args['graphql_cursor_offset']  = $this->get_offset();
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
+		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -115,6 +120,20 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * object from the cache or a follow-up request for the full object if it's not cached.
 		 */
 		$query_args['fields'] = 'ids';
+
+		/**
+		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 */
+		if ( ! empty( $query_args['order'] ) ) {
+
+			if ( ! empty( $last ) ) {
+				if ( 'ASC' === $query_args['order'] ) {
+					$query_args['order'] = 'DESC';
+				} else {
+					$query_args['order'] = 'ASC';
+				}
+			}
+		}
 
 		/**
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
@@ -137,7 +156,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * Return an instance of WP_Term_Query with the args mapped to the query
 	 *
 	 * @return mixed|\WP_Term_Query
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_query() {
 		$query = new \WP_Term_Query( $this->query_args );

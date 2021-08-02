@@ -4,21 +4,29 @@ on:
   push:
     branches:
       - develop
-      - master
   pull_request:
     branches:
       - develop
-
+      - master
 jobs:
   run:
     runs-on: ubuntu-latest
     name: Lint WPGraphQL Schema
+    services:
+      mariadb:
+        image: mariadb
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        # Ensure docker waits for mariadb to start
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: kidunot89/setup-php@new-tool-wp-cli
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 7.3
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
@@ -27,15 +35,47 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter
 
       - name: Setup WordPress
-        run: bin/install-wp-tests.sh wpgraphql_test root root localhost latest
+        run: |
+          composer run install-test-env
+
       - name: Generate the Static Schema
         run: |
-          cd /tmp/wordpress
+          cd /tmp/wordpress/
+          # Output: /tmp/schema.graphql
           wp graphql generate-static-schema
-          cd /tmp/wordpress/wp-content/plugins/wp-graphql
-          graphql-schema-linter ./schema.graphql
+
+      - name: Lint the Static Schema
+        run: |
+          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","PostObjectUnion","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
+
+      - name: Display ignored linting errors
+        run: |
+          graphql-schema-linter /tmp/schema.graphql || true
+
+      - name: Get Latest tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+
+      - name: Test Schema for breaking changes
+        run: |
+          echo "Previous tagged schema ${{ steps.get-latest-tag.outputs.tag }}"
+
+      - name: Get Previous Released Schema
+        run: curl 'https://github.com/wp-graphql/wp-graphql/releases/download/${{ steps.get-latest-tag.outputs.tag }}/schema.graphql' -L  --output /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql
+
+      # https://github.com/marketplace/actions/graphql-inspector
+      - name: Install Schema Inspector
+        run: |
+          npm install @graphql-inspector/config @graphql-inspector/cli graphql
+
+      - name: Run Schema Inspector
+        run: |
+          # This schema and previous release schema
+          node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql

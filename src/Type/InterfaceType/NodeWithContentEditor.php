@@ -5,9 +5,13 @@ use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithContentEditor {
 	/**
-	 * @param TypeRegistry $type_registry Instance of the Type Registry
+	 * Registers the NodeWithContentEditor Type to the Schema
+	 *
+	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
-	public static function register_type( $type_registry ) {
+	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithContentEditor',
 			[
@@ -22,7 +26,7 @@ class NodeWithContentEditor {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->contentRaw;

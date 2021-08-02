@@ -1,11 +1,16 @@
 ![alt text](./img/logo.png "WPGraphQL Logo")
 
 # WPGraphQL
-GraphQL API for WordPress. This plugin brings the power of GraphQL to WordPress.
 
-- <a href="https://www.wpgraphql.com" target="_blank">Website</a>
-- <a href="https://docs.wpgraphql.com/" target="_blank">Usage Docs</a>
-- <a href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA" target="_blank">Join Slack</a>
+WPGraphQL is a free, open-source WordPress plugin that provides an extendable GraphQL schema and API for any WordPress site.
+
+Below are some links to help you get started with WPGraphQL
+
+- <a href="https://www.wpgraphql.com" target="_blank">WPGraphQL.com</a>
+- <a href="https://wpgraphql.com/docs/quick-start" target="_blank">Quick Start Guide</a>
+- <a href="https://wpgraphql.com/docs/intro-to-graphql" target="_blank">Intro to GraphQL</a>
+- <a href="https://wpgraphql.com/docs/intro-to-wordpress" target="_blank">Intro to WordPress</a>
+- <a href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA" target="_blank">Join the WPGraphQL community on Slack</a>
 
 -----
 [![Total Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/downloads)](https://packagist.org/packages/wp-graphql/wp-graphql)
@@ -23,28 +28,22 @@ GraphQL API for WordPress. This plugin brings the power of GraphQL to WordPress.
 
 ### Quick Install
 
-Download and install like any WordPress plugin.
-[Details here](https://docs.wpgraphql.com/getting-started/install-and-activate)
+Follow the WPGraphQL Quick Start instructions to install and activate WPGraphQL
+[Details here](https://wpgraphql.com/docs/quick-start/)
 
-## POSSIBLE BREAKING CHANGES
+## Additional Documentation
 
-Please note that as the plugin continues to take shape, there might be breaking changes at any point. Once the plugin reaches a stable 1.0.0 release, breaking changes should be minimized and communicated appropriately if they are required.
-
-## Documentation
-
-- [Plugin Usage & Extension Documentation](https://docs.wpgraphql.com)
-- [Documentation Website Content Files](https://github.com/wp-graphql/wp-graphql/tree/develop/docs/source)
-- [Project Overview](/documentation/Overview.md)
-- [Development Testing & code Coverage](/documentation/Testing.md)
-- [Using Docker](/documentation/UsingDocker.md)
-- [Automated Code Linting](/documentation/Linting.md)
+- [Project Overview](https://www.wpgraphql.com/docs/introduction)
+- [Plugin Usage & Extension Documentation](https://www.wpgraphql.com/docs/interacting-with-wpgraphql)
+- [Development Testing & code Coverage](https://www.wpgraphql.com/docs/testing/#testing-locally-with-codeception)
+- [Using Docker](https://www.wpgraphql.com/docs/testing/#testing-with-docker)
 
 ## Shout Outs
 
+- Special thanks to [Gatsby](http://gatsbyjs.com) and [WPEngine](https://wpengine.com) for allocating development resources to push the project forward!
 - This plugin brings the power of GraphQL (http://graphql.org/) to WordPress.
 - The plugin is built on top of the graphql-php library by Webonyx (https://github.com/webonyx/graphql-php) and makes use 
 of the graphql-relay-php library by Ivome (https://github.com/ivome/graphql-relay-php/)
-- Special thanks to Gatsby (http://gatsbyjs.com) for allocating development resources to push the project forward.
 - Some of the concepts and code are based on the WordPress Rest API. Much love to the folks (https://github.com/orgs/WP-API/people) 
 that put their blood, sweat and tears into the WP-API project, as it's been huge in moving WordPress forward as a 
 platform and helped inspire and direct the development of WPGraphQL.
@@ -56,7 +55,7 @@ into how to design GraphQL schemas, etc. Check them out: http://www.apollodata.c
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute. [[Contribute](.github/CONTRIBUTING.md)].
 <a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
 
 

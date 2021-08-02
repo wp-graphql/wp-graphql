@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - develop
-
+      - master
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -18,10 +18,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PHP
-        if: matrix.phpcs == 1
-        uses: shivammathur/setup-php@v1
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4.5
+          php-version: 7.4
           extensions: mbstring, intl
           tools: composer
 
@@ -29,20 +28,19 @@ jobs:
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      - name: Install dependencies
-        run: |
-          composer require \
-          squizlabs/php_codesniffer \
-          phpcompatibility/phpcompatibility-wp wp-coding-standards/wpcs \
-          dealerdirect/phpcodesniffer-composer-installer
-          composer install --no-dev
-
       - name: Cache dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer
 
-      - name: Run PHP CodeSniffer
-        run: vendor/bin/phpcs
+      - name: Install dependencies
+        run: |
+          composer require --dev \
+            phpcompatibility/phpcompatibility-wp \
+            wp-coding-standards/wpcs \
+            dealerdirect/phpcodesniffer-composer-installer
+
+      - name: Run PHP_CodeSniffer
+        run: composer run-script check-cs

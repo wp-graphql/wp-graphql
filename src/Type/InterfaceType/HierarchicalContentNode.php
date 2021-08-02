@@ -14,6 +14,8 @@ class HierarchicalContentNode {
 	 * Register the HierarchicalContentNode Interface Type
 	 *
 	 * @param TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(

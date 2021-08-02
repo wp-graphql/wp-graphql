@@ -40,6 +40,7 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers WPGraphQL::setup_constants()
 	 */
 	public function testSetupConstants() {
+		do_action( 'init' );
 		$this->assertTrue( defined( 'WPGRAPHQL_VERSION' ) );
 		$this->assertTrue( defined( 'WPGRAPHQL_PLUGIN_DIR' ) );
 		$this->assertTrue( defined( 'WPGRAPHQL_PLUGIN_URL' ) );
@@ -53,7 +54,7 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 
 		global $wp_filter;
 		graphql_init();
-		$this->assertTrue( isset( $wp_filter['graphql_schema']->callbacks ) );
+		$this->assertTrue( isset( $wp_filter['graphql_get_type']->callbacks ) );
 
 	}
 

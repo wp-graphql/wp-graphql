@@ -46,6 +46,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'revision',
 			'post_parent' => $this->post,
 			'post_author' => $this->editor,
+			'post_date' => date( "Y-m-d H:i:s", strtotime( 'now' ) ),
 		]);
 
 		WPGraphQL::clear_schema();
@@ -75,6 +76,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		        ...PostFields
 		      }
 		    }
+		  }
+		  preview:post( id: $id idType: DATABASE_ID asPreview: true ) {
+		    ...PostFields
 		  }
 		}
 		fragment PostFields on Post {
@@ -140,6 +144,43 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
 			'id' => $this->post,
 		] ]);
+
+		codecept_debug( $actual );
+
+		add_filter( 'wp_revisions_to_keep', function( $default ) {
+			return $default;
+		} );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+	}
+
+	public function testGetPostMetaWithNullMetaKeyDoesNotBreakPreviews() {
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
+			'id' => $this->post,
+		] ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+		add_filter( 'wp_revisions_to_keep', function() {
+			return 0;
+		} );
+
+		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
+			'id' => $this->post,
+		] ]);
+
+		// Tests #1864
+		// Getting the post meta with a null key should not fail requests.
+		// Previously this would cause errors
+		get_post_meta( $this->post, null, true );
 
 		codecept_debug( $actual );
 
@@ -339,8 +380,8 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		query GET_POST( $id:ID! ) {
 		 post(id:$id idType: DATABASE_ID) {
 		   databaseId
-		   publishedMetaKey
 		   revisedMetaKey
+		   publishedMetaKey
 		   title
 		   content 
 		   author {
@@ -382,6 +423,75 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $revised_meta_value, get_post_meta( $this->preview, $revised_meta_key, true ) );
 
 		WPGraphQL::clear_schema();
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1615#issuecomment-741817101
+	 */
+	public function testMultipleMetaFieldsResolveOnPreviewNodes() {
+
+		WPGraphQL::clear_schema();
+		$published_meta_key = 'publishedMetaKey';
+		$published_meta_value = 'published metaValue...';
+
+		// Store meta on the published post
+		update_post_meta( $this->post, $published_meta_key, $published_meta_value );
+		codecept_debug( get_post_meta( $this->post, $published_meta_key, $published_meta_value ) );
+
+		// Register field for the published meta
+		register_graphql_field( 'Post', $published_meta_key, [
+			'type' => 'String',
+			'resolve' => function( $post ) use ( $published_meta_key ) {
+				return get_post_meta( $post->ID, $published_meta_key, true );
+			}
+		] );
+
+		wp_set_current_user( $this->admin );
+
+		// Asking for the meta of a revision directly using the get_post_meta function should
+		// get the meta from the revision ID, which should be empty since we didn't set any
+		// value
+		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
+
+		$actual = graphql([
+			'query' => '
+				query GET_POST( $id:ID! ) {
+				 post(id:$id idType: DATABASE_ID) {
+				   databaseId
+				   enclosure
+				   publishedMetaKey
+				   title
+				   content 
+				   preview {
+				     node {
+				       databaseId
+				       enclosure
+				       publishedMetaKey
+				       title
+				       content 
+				     }
+				   }
+				 }
+				 preview:post(id:$id idType: DATABASE_ID asPreview:true) {
+				   publishedMetaKey
+				 }
+				}
+			',
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+	    $this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
+		$this->assertSame( $published_meta_value, $actual['data']['preview']['publishedMetaKey'] );
+
+		// Asking for the meta of a revision directly using the get_post_meta function should
+		// get the meta from the revision ID, which should be empty since we didn't set any
+		// value
+		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 
 	}
 

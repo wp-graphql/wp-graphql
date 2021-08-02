@@ -10,6 +10,8 @@ use WPGraphQL\Data\UserMutation;
 class UserRegister {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -48,8 +50,7 @@ class UserRegister {
 		/**
 		 * Make sure we don't allow input for role or roles
 		 */
-		unset( $input_fields['role'] );
-		unset( $input_fields['roles'] );
+		unset( $input_fields['role'], $input_fields['roles'] );
 
 		return $input_fields;
 
@@ -70,7 +71,7 @@ class UserRegister {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input, AppContext $context, ResolveInfo $info ) {
+		return function ( $input, AppContext $context, ResolveInfo $info ) {
 
 			if ( ! get_option( 'users_can_register' ) ) {
 				throw new UserError( __( 'User registration is currently not allowed.', 'wp-graphql' ) );
@@ -157,7 +158,8 @@ class UserRegister {
 			 * Return the new user ID
 			 */
 			return [
-				'id' => $user_id,
+				'id'   => $user_id,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user_id ),
 			];
 
 		};
