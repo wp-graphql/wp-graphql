@@ -75,6 +75,26 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['orderby'] = 'name';
 		$query_args['order']   = 'ASC';
 
+
+		/**
+		 * Orderby meta values if they are present
+		 */
+		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+			$query_args['orderby'] = [];
+			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				/**
+				 * These orderby options should not include the order parameter.
+				 */
+				if ('META_KEY' !== $orderby_input['field'] || ! isset( $orderby_input['metaKeyField'] )) {
+					
+					$query_args['meta_key'] = $orderby_input['metaKeyField'];
+					$query_args['orderby'] = 'meta_value';
+					$query_args['order'] = $orderby_input['order'];
+
+				}
+			}
+		}
+
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
 		 */

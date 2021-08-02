@@ -320,6 +320,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					true
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+				} elseif ('META_KEY' !== $orderby_input['field'] || ! isset( $orderby_input['metaKeyField'] )) {
+					/**
+				 	 * Orderby meta values if they are present.
+					 */
+					$query_args['meta_key'] = $orderby_input['metaKeyField'];
+					$query_args['orderby'] = 'meta_value';
+					$query_args['order'] = $orderby_input['order'];
+					
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
 
 					$order = $orderby_input['order'];
