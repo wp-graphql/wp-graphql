@@ -74,4 +74,57 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $request, $this->filter_values );
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2048
+	 */
+	public function testFilterConnectionQueryArgsForUserRoleQueriesDoesntReturnError() {
+
+		$admin = $this->factory()->user->create([
+			'role' => 'administrator'
+		]);
+
+		$this->factory()->user->create([
+			'role' => 'subscriber'
+		]);
+
+		$this->factory()->post->create([
+			'post_status' => 'publish',
+			'post_author' => $admin,
+			'post_title' => 'test'
+		]);
+
+		$query = '
+		{
+		  users {
+		    nodes {
+		      roles {
+		        nodes {
+		          displayName
+		          id
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		// Add a filter to the connection query args
+		// This should not throw an error because it's returning the $query_args untouched
+		add_filter( 'graphql_connection_query_args', 'my_custom_filter', 10, 2 );
+		function my_custom_filter( array $query_args, \WPGraphQL\Data\Connection\AbstractConnectionResolver $resolver ){
+			return $query_args;
+		}
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'users.nodes[0].roles', self::NOT_NULL )
+		]);
+
+	}
+
 }
