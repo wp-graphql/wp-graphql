@@ -3,6 +3,12 @@
 namespace WPGraphQL\Type\Input;
 
 class TermObjectsConnectionOrderbyInput {
+
+	/**
+	 * Register the TermObjectsConnectionOrderbyInput Input
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		register_graphql_input_type(
 			'TermObjectsConnectionOrderbyInput',
@@ -14,7 +20,7 @@ class TermObjectsConnectionOrderbyInput {
 							'non_null' => 'TermObjectsConnectionOrderbyEnum',
 						],
 						'description' => __( 'The field to order the connection by', 'wp-graphql' ),
-          ],
+					],
 					'order' => [
 						'type'        => [
 							'non_null' => 'OrderEnum',
@@ -28,5 +34,6 @@ class TermObjectsConnectionOrderbyInput {
 				],
 			]
 		);
+
 	}
 }
