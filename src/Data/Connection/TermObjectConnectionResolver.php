@@ -77,25 +77,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 
 		/**
-		 * Orderby meta values if they are present
-		 */
-		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
-			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
-				/**
-				 * These orderby options should not include the order parameter.
-				 */
-				if ('META_KEY' !== $orderby_input['field'] || ! isset( $orderby_input['metaKeyField'] )) {
-					
-					$query_args['meta_key'] = $orderby_input['metaKeyField'];
-					$query_args['orderby'] = 'meta_value';
-					$query_args['order'] = $orderby_input['order'];
-
-				}
-			}
-		}
-
-		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
 		 */
 		$query_args['count'] = false;
@@ -141,18 +122,31 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['fields'] = 'ids';
 
+
+		/**
+		 * Orderby meta values if they are present
+		 */
+		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+			$query_args['orderby'] = '';
+			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				/**
+				 * These orderby options should not include the order parameter.
+				 */
+				if ('META_KEY' === $orderby_input['field'] && isset( $orderby_input['metaKeyField'] )) {
+
+					$query_args['meta_key'] = $orderby_input['metaKeyField'];
+					$query_args['orderby'] = 'meta_value';
+					$query_args['order'] = $orderby_input['order'];
+
+				}
+			}
+		}
+		
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
-		if ( ! empty( $query_args['order'] ) ) {
-
-			if ( ! empty( $last ) ) {
-				if ( 'ASC' === $query_args['order'] ) {
-					$query_args['order'] = 'DESC';
-				} else {
-					$query_args['order'] = 'ASC';
-				}
-			}
+		if ( empty( $query_args['orderby'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**

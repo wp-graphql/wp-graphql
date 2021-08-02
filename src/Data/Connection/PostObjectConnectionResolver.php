@@ -305,7 +305,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Map the orderby inputArgs to the WP_Query
 		 */
 		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
+			$query_args['orderby'] = '';
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
@@ -320,13 +320,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					true
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} elseif ('META_KEY' !== $orderby_input['field'] || ! isset( $orderby_input['metaKeyField'] )) {
-					/**
-				 	 * Orderby meta values if they are present.
-					 */
-					$query_args['meta_key'] = $orderby_input['metaKeyField'];
-					$query_args['orderby'] = 'meta_value';
-					$query_args['order'] = $orderby_input['order'];
 					
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
 
@@ -341,6 +334,15 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					}
 
 					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
+				}
+
+				/**
+				 * Orderby meta values if they are present.
+				 */
+				if ('META_KEY' === $orderby_input['field'] && isset( $orderby_input['metaKeyField'] )) {
+					$query_args['meta_key'] = $orderby_input['metaKeyField'];
+					$query_args['orderby'] = 'meta_value';
+					$query_args['order'] = $orderby_input['order'];
 				}
 			}
 		}

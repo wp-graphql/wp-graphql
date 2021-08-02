@@ -21,7 +21,7 @@ class TermObjectsConnectionOrderbyInput {
 						],
 						'description' => __( 'Possible directions in which to order a list of items', 'wp-graphql' ),
 					],
-					'metaKeyField' = [
+					'metaKeyField' => [
 						'type'        => 'String',
 						'description' => __( 'Array of names to return term(s) for. Default empty.', 'wp-graphql' ),
 					],

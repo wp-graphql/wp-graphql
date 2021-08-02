@@ -42,6 +42,10 @@ class TermObjectsConnectionOrderbyEnum {
 						'value'       => 'count',
 						'description' => __( 'Order the connection by item count.', 'wp-graphql' ),
 					],
+					'META_KEY' => [
+						'value' => 'META_KEY',
+						'description' => __( 'Order posts by the meta value "order"', 'wp-graphql' ),
+					],
 				],
 			]
 		);
