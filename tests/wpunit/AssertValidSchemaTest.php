@@ -361,13 +361,13 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		register_graphql_field( 'RootQuery', 'header', [
 			'type' => 'Header',
-			'description' => __( 'This field is named after a PHP function to test that it does not cause conflicts', 'wp-graphql' ),
 			'resolve' => function() {
 				return 'it works!';
 			}
 		]);
 
 		register_graphql_object_type( 'Header', [
+			'description' => __( 'This Type is named after a PHP function to test that it does not cause conflicts', 'wp-graphql' ),
 			'fields' => [
 				'test' => [
 					'type' => 'String'
@@ -378,6 +378,40 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		{
 		  header {
+			test  
+		  }
+	    }
+		';
+
+		$actual = graphql( [ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	public function testRegisterTypeWithNameOfExistingWordpressFunctionDoesNotCauseErrors() {
+
+		register_graphql_field( 'RootQuery', 'wpSendJson', [
+			'type' => 'WP_Send_Json',
+			'resolve' => function() {
+				return 'it works!';
+			}
+		]);
+
+		register_graphql_object_type( 'WP_Send_Json', [
+			'description' => __( 'This type is named after a WordPress function to test that it does not cause conflicts', 'wp-graphql' ),
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				],
+			],
+		]);
+
+		$query = '
+		{
+		  wpSendJson {
 			test  
 		  }
 	    }
