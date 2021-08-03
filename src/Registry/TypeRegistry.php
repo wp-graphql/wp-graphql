@@ -898,7 +898,7 @@ class TypeRegistry {
 				if ( false !== strpos( $field_config['type'], 'graphql_type_' ) ) {
 					if ( $this->has_type( $field_config['type'] ) ) {
 
-						$field_config['type'] = function() use ( $field_config ) {
+						$field_config['type'] = function () use ( $field_config ) {
 							if ( is_string( $field_config['type'] ) ) {
 								return $this->get_type( $field_config['type'] );
 							}
@@ -906,7 +906,7 @@ class TypeRegistry {
 							return $this->setup_type_modifiers( $field_config['type'] );
 						};
 					} else {
-						$field_config['type'] = function() use ( $field_config ) {
+						$field_config['type'] = function () use ( $field_config ) {
 							if ( is_string( $field_config['type'] ) ) {
 								return $this->get_type( $field_config['type'] );
 							}
@@ -924,8 +924,6 @@ class TypeRegistry {
 					return $this->setup_type_modifiers( $field_config['type'] );
 				};
 			}
-
-
 		}
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
