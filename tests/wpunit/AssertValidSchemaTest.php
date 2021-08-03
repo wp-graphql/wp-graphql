@@ -411,10 +411,10 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  wpSendJson {
-			test  
-		  }
-	    }
+			wpSendJson {
+				test  
+			}
+		}
 		';
 
 		$actual = graphql( [ 'query' => $query ]);
