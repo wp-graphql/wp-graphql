@@ -608,6 +608,37 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Registers connections that were passed through the Type registration config
+	 *
+	 * @param array $config Type config
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected function register_connections_from_config( array $config ) {
+
+		$connections = $config['connections'] ?? null;
+
+		if ( null === $connections || ! is_array( $connections ) ) {
+			return;
+		}
+
+		foreach ( $connections as $field_name => $connection_config ) {
+
+			if ( ! is_array( $connection_config ) ) {
+				continue;
+			}
+
+			$connection_config['fromType']      = $config['name'];
+			$connection_config['fromFieldName'] = $field_name;
+			register_graphql_connection( $connection_config );
+
+		}
+
+	}
+
+	/**
 	 * Add a Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
@@ -618,6 +649,11 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
+
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
+		}
 
 		/**
 		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
