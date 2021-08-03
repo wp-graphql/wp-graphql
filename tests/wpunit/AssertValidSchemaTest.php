@@ -377,10 +377,10 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  header {
-			test  
-		  }
-	    }
+			header {
+				test  
+			}
+		}
 		';
 
 		$actual = graphql( [ 'query' => $query ]);
