@@ -175,11 +175,6 @@ class TypeRegistry {
 	 * @return string
 	 */
 	protected function format_key( string $key ) {
-
-		if ( false === strpos( $key, 'graphql_type_', 0 ) ) {
-			return strtolower( 'graphql_type_' . $key );
-		}
-
 		return strtolower( $key );
 	}
 
