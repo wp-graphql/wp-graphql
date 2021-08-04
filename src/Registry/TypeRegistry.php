@@ -174,7 +174,12 @@ class TypeRegistry {
 	 *
 	 * @return string
 	 */
-	protected function format_key( $key ) {
+	protected function format_key( string $key ) {
+
+		if ( false === strpos( $key, 'graphql_type_', 0 ) ) {
+			return strtolower( 'graphql_type_' . $key );
+		}
+
 		return strtolower( $key );
 	}
 
@@ -782,19 +787,16 @@ class TypeRegistry {
 	 * @return mixed|null
 	 */
 	public function get_type( string $type_name ) {
+
 		$key = $this->format_key( $type_name );
 
 		if ( isset( $this->type_loaders[ $key ] ) ) {
-			$type                = call_user_func( $this->type_loaders[ $key ] );
+			$type                = $this->type_loaders[ $key ]();
 			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
 		}
 
-		if ( isset( $this->types[ $key ] ) ) {
-			return $this->types[ $key ];
-		}
-
-		return null;
+		return $this->types[ $key ] ?? null;
 	}
 
 	/**
@@ -805,7 +807,7 @@ class TypeRegistry {
 	 * @return bool
 	 */
 	public function has_type( string $type_name ) {
-		return isset( $this->type_loaders[ $type_name ] );
+		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
 	}
 
 	/**
@@ -832,7 +834,7 @@ class TypeRegistry {
 	 * @return array
 	 * @throws Exception
 	 */
-	public function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
@@ -883,17 +885,45 @@ class TypeRegistry {
 			return null;
 		}
 
+		if ( is_string( $field_config['type'] ) ) {
+			$field_config['type'] = $this->format_key( $field_config['type'] );
+		}
+
 		/**
 		 * If type is not already a callable, create one to preserve lazy-loading.
 		 */
 		if ( ! is_callable( $field_config['type'] ) ) {
-			$field_config['type'] = function () use ( $field_config ) {
-				if ( is_string( $field_config['type'] ) ) {
-					return $this->get_type( $field_config['type'] );
-				}
 
-				return $this->setup_type_modifiers( $field_config['type'] );
-			};
+			if ( is_string( $field_config['type'] ) ) {
+				if ( false !== strpos( $field_config['type'], 'graphql_type_' ) ) {
+					if ( $this->has_type( $field_config['type'] ) ) {
+
+						$field_config['type'] = function () use ( $field_config ) {
+							if ( is_string( $field_config['type'] ) ) {
+								return $this->get_type( $field_config['type'] );
+							}
+
+							return $this->setup_type_modifiers( $field_config['type'] );
+						};
+					} else {
+						$field_config['type'] = function () use ( $field_config ) {
+							if ( is_string( $field_config['type'] ) ) {
+								return $this->get_type( $field_config['type'] );
+							}
+
+							return $this->setup_type_modifiers( $field_config['type'] );
+						};
+					}
+				}
+			} else {
+				$field_config['type'] = function () use ( $field_config ) {
+					if ( is_string( $field_config['type'] ) ) {
+						return $this->get_type( $field_config['type'] );
+					}
+
+					return $this->setup_type_modifiers( $field_config['type'] );
+				};
+			}
 		}
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {

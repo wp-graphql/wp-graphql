@@ -284,7 +284,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSchemaCallsLazyLoadingTypesWhenNeeded() {
-		$filter_calls = [];
+		$filter_calls = [ 'graphql_get_type' ];
 
 		add_filter( 'graphql_get_type', function ( $type, $type_name ) use ( &$filter_calls ) {
 			if ( 'TestLazyType' === $type_name ) {
@@ -350,6 +350,78 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'bar', $actual['data']['example']['foo'] );
 
 		$expected_filter_calls = [ 'graphql_wp_object_type_config', 'graphql_object_fields', 'graphql_get_type' ];
-		$this->assertSame( $expected_filter_calls, $filter_calls );
+		foreach ( $expected_filter_calls as $expected_filter_call ) {
+			$this->assertTrue( in_array( $expected_filter_call, $filter_calls, true ) );
+		}
+
+		$this->assertSame( count( $expected_filter_calls ), count( $filter_calls ) );
+	}
+
+	public function testRegisterTypeWithNameOfExistingPhpFunctionDoesNotCauseErrors() {
+
+		register_graphql_field( 'RootQuery', 'header', [
+			'type' => 'Header',
+			'resolve' => function() {
+				return 'it works!';
+			}
+		]);
+
+		register_graphql_object_type( 'Header', [
+			'description' => __( 'This Type is named after a PHP function to test that it does not cause conflicts', 'wp-graphql' ),
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				],
+			],
+		]);
+
+		$query = '
+		{
+			header {
+				test  
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	public function testRegisterTypeWithNameOfExistingWordpressFunctionDoesNotCauseErrors() {
+
+		register_graphql_field( 'RootQuery', 'wpSendJson', [
+			'type' => 'WP_Send_Json',
+			'resolve' => function() {
+				return 'it works!';
+			}
+		]);
+
+		register_graphql_object_type( 'WP_Send_Json', [
+			'description' => __( 'This type is named after a WordPress function to test that it does not cause conflicts', 'wp-graphql' ),
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				],
+			],
+		]);
+
+		$query = '
+		{
+			wpSendJson {
+				test  
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
 	}
 }
