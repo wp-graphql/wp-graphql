@@ -284,7 +284,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testSchemaCallsLazyLoadingTypesWhenNeeded() {
-		$filter_calls = [ 'graphql_get_type' ];
+		$filter_calls = [];
 
 		add_filter( 'graphql_get_type', function ( $type, $type_name ) use ( &$filter_calls ) {
 			if ( 'TestLazyType' === $type_name ) {
@@ -349,12 +349,14 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'bar', $actual['data']['example']['foo'] );
 
-		$expected_filter_calls = [ 'graphql_wp_object_type_config', 'graphql_object_fields', 'graphql_get_type' ];
-		foreach ( $expected_filter_calls as $expected_filter_call ) {
-			$this->assertTrue( in_array( $expected_filter_call, $filter_calls, true ) );
-		}
+		sort( $filter_calls );
+		$expected_filter_calls = [
+			'graphql_get_type',
+			'graphql_object_fields',
+			'graphql_wp_object_type_config',
+		];
 
-		$this->assertSame( count( $expected_filter_calls ), count( $filter_calls ) );
+		$this->assertSame( $expected_filter_calls, $filter_calls );
 	}
 
 	public function testRegisterTypeWithNameOfExistingPhpFunctionDoesNotCauseErrors() {

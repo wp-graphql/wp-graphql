@@ -885,45 +885,26 @@ class TypeRegistry {
 			return null;
 		}
 
+		/**
+		 * If the type is a string, create a callable wrapper to get the type from
+		 * type registry. This preserves lazy-loading and prevents a bug where a type
+		 * has the same name as a function in the global scope (e.g., `header()`) and
+		 * is called since it passes `is_callable`.
+		 */
 		if ( is_string( $field_config['type'] ) ) {
-			$field_config['type'] = $this->format_key( $field_config['type'] );
+			$field_config['type'] = function () use ( $field_config ) {
+				return $this->get_type( $field_config['type'] );
+			};
 		}
 
 		/**
-		 * If type is not already a callable, create one to preserve lazy-loading.
+		 * If the type is an array, it contains type modifiers (e.g., "non_null").
+		 * Create a callable wrapper to preserve lazy-loading.
 		 */
-		if ( ! is_callable( $field_config['type'] ) ) {
-
-			if ( is_string( $field_config['type'] ) ) {
-				if ( false !== strpos( $field_config['type'], 'graphql_type_' ) ) {
-					if ( $this->has_type( $field_config['type'] ) ) {
-
-						$field_config['type'] = function () use ( $field_config ) {
-							if ( is_string( $field_config['type'] ) ) {
-								return $this->get_type( $field_config['type'] );
-							}
-
-							return $this->setup_type_modifiers( $field_config['type'] );
-						};
-					} else {
-						$field_config['type'] = function () use ( $field_config ) {
-							if ( is_string( $field_config['type'] ) ) {
-								return $this->get_type( $field_config['type'] );
-							}
-
-							return $this->setup_type_modifiers( $field_config['type'] );
-						};
-					}
-				}
-			} else {
-				$field_config['type'] = function () use ( $field_config ) {
-					if ( is_string( $field_config['type'] ) ) {
-						return $this->get_type( $field_config['type'] );
-					}
-
-					return $this->setup_type_modifiers( $field_config['type'] );
-				};
-			}
+		if ( is_array( $field_config['type'] ) ) {
+			$field_config['type'] = function () use ( $field_config ) {
+				return $this->setup_type_modifiers( $field_config['type'] );
+			};
 		}
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
