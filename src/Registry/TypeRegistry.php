@@ -906,6 +906,9 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
+	 * not call before types are ready to be loaded.
+	 *
 	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
