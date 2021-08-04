@@ -233,7 +233,7 @@ class WPConnectionType {
 
 		$input_name = $this->connection_name . 'WhereArgs';
 
-		if ( $this->type_registry->get_type( $input_name ) ) {
+		if ( $this->type_registry->has_type( $input_name ) ) {
 			return;
 		}
 
