@@ -858,13 +858,6 @@ class TypeRegistry {
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
-		/**
-		 * If the Field is a Type definition and not a config
-		 */
-		if ( ! is_array( $field_config ) ) {
-			return $field_config;
-		}
-
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
 		}
