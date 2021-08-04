@@ -995,7 +995,7 @@ class TypeRegistry {
 				$field = $this->prepare_field( $field_name, $config, $type_name );
 
 				if ( ! empty( $field ) ) {
-					$fields[ $field_name ] = $this->prepare_field( $field_name, $config, $type_name );
+					$fields[ $field_name ] = $field;
 				}
 
 				return $fields;
