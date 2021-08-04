@@ -620,7 +620,7 @@ class TypeRegistry {
 
 		$connections = $config['connections'] ?? null;
 
-		if ( null === $connections || ! is_array( $connections ) ) {
+		if ( ! is_array( $connections ) ) {
 			return;
 		}
 
