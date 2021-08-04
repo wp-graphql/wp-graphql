@@ -174,7 +174,7 @@ class TypeRegistry {
 	 *
 	 * @return string
 	 */
-	protected function format_key( $key ) {
+	protected function format_key( string $key ) {
 		return strtolower( $key );
 	}
 
@@ -608,6 +608,37 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Registers connections that were passed through the Type registration config
+	 *
+	 * @param array $config Type config
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected function register_connections_from_config( array $config ) {
+
+		$connections = $config['connections'] ?? null;
+
+		if ( ! is_array( $connections ) ) {
+			return;
+		}
+
+		foreach ( $connections as $field_name => $connection_config ) {
+
+			if ( ! is_array( $connection_config ) ) {
+				continue;
+			}
+
+			$connection_config['fromType']      = $config['name'];
+			$connection_config['fromFieldName'] = $field_name;
+			register_graphql_connection( $connection_config );
+
+		}
+
+	}
+
+	/**
 	 * Add a Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
@@ -618,6 +649,11 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
+
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
+		}
 
 		/**
 		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
@@ -782,19 +818,16 @@ class TypeRegistry {
 	 * @return mixed|null
 	 */
 	public function get_type( string $type_name ) {
+
 		$key = $this->format_key( $type_name );
 
 		if ( isset( $this->type_loaders[ $key ] ) ) {
-			$type                = call_user_func( $this->type_loaders[ $key ] );
+			$type                = $this->type_loaders[ $key ]();
 			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
 		}
 
-		if ( isset( $this->types[ $key ] ) ) {
-			return $this->types[ $key ];
-		}
-
-		return null;
+		return $this->types[ $key ] ?? null;
 	}
 
 	/**
@@ -805,7 +838,7 @@ class TypeRegistry {
 	 * @return bool
 	 */
 	public function has_type( string $type_name ) {
-		return isset( $this->type_loaders[ $type_name ] );
+		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
 	}
 
 	/**
@@ -832,7 +865,7 @@ class TypeRegistry {
 	 * @return array
 	 * @throws Exception
 	 */
-	public function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
@@ -841,8 +874,6 @@ class TypeRegistry {
 					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
 					if ( ! empty( $prepared_field ) ) {
 						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
-					} else {
-						unset( $prepared_fields[ $this->format_key( $field_name ) ] );
 					}
 				}
 			}
@@ -863,13 +894,6 @@ class TypeRegistry {
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
-		/**
-		 * If the Field is a Type definition and not a config
-		 */
-		if ( ! is_array( $field_config ) ) {
-			return $field_config;
-		}
-
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
 		}
@@ -884,14 +908,23 @@ class TypeRegistry {
 		}
 
 		/**
-		 * If type is not already a callable, create one to preserve lazy-loading.
+		 * If the type is a string, create a callable wrapper to get the type from
+		 * type registry. This preserves lazy-loading and prevents a bug where a type
+		 * has the same name as a function in the global scope (e.g., `header()`) and
+		 * is called since it passes `is_callable`.
 		 */
-		if ( ! is_callable( $field_config['type'] ) ) {
+		if ( is_string( $field_config['type'] ) ) {
 			$field_config['type'] = function () use ( $field_config ) {
-				if ( is_string( $field_config['type'] ) ) {
-					return $this->get_type( $field_config['type'] );
-				}
+				return $this->get_type( $field_config['type'] );
+			};
+		}
 
+		/**
+		 * If the type is an array, it contains type modifiers (e.g., "non_null").
+		 * Create a callable wrapper to preserve lazy-loading.
+		 */
+		if ( is_array( $field_config['type'] ) ) {
+			$field_config['type'] = function () use ( $field_config ) {
 				return $this->setup_type_modifiers( $field_config['type'] );
 			};
 		}
@@ -909,6 +942,9 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
+	 * not call before types are ready to be loaded.
+	 *
 	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
@@ -998,7 +1034,7 @@ class TypeRegistry {
 				$field = $this->prepare_field( $field_name, $config, $type_name );
 
 				if ( ! empty( $field ) ) {
-					$fields[ $field_name ] = $this->prepare_field( $field_name, $config, $type_name );
+					$fields[ $field_name ] = $field;
 				}
 
 				return $fields;
