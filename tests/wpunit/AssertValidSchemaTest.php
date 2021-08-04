@@ -349,7 +349,133 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'bar', $actual['data']['example']['foo'] );
 
-		$expected_filter_calls = [ 'graphql_wp_object_type_config', 'graphql_object_fields', 'graphql_get_type' ];
+		sort( $filter_calls );
+		$expected_filter_calls = [
+			'graphql_get_type',
+			'graphql_object_fields',
+			'graphql_wp_object_type_config',
+		];
+
 		$this->assertSame( $expected_filter_calls, $filter_calls );
+	}
+
+	public function testRegisterTypeWithNameOfExistingPhpFunctionDoesNotCauseErrors() {
+
+		register_graphql_field( 'RootQuery', 'header', [
+			'type' => 'Header',
+			'resolve' => function() {
+				return 'it works!';
+			}
+		]);
+
+		register_graphql_object_type( 'Header', [
+			'description' => __( 'This Type is named after a PHP function to test that it does not cause conflicts', 'wp-graphql' ),
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				],
+			],
+		]);
+
+		$query = '
+		{
+			header {
+				test  
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	public function testRegisterTypeWithNameOfExistingWordpressFunctionDoesNotCauseErrors() {
+
+		register_graphql_field( 'RootQuery', 'wpSendJson', [
+			'type' => 'WP_Send_Json',
+			'resolve' => function() {
+				return 'it works!';
+			}
+		]);
+
+		register_graphql_object_type( 'WP_Send_Json', [
+			'description' => __( 'This type is named after a WordPress function to test that it does not cause conflicts', 'wp-graphql' ),
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				],
+			],
+		]);
+
+		$query = '
+		{
+			wpSendJson {
+				test  
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
+	/**
+	 * Many moons ago, fields could pass a Type definition instead of an array.
+	 *
+	 * This test ensures older plugins that extend WPGraphQL in this way still work
+	 *
+	 * @throws Exception
+	 */
+	public function testRegisteringFieldWithGraphQLTypeDefinitionAsTypeConfigDoesntThrowErrors() {
+
+		$type = new \GraphQL\Type\Definition\ObjectType([
+			'name' => 'Test',
+			'fields' => [
+				'test' => GraphQL\Type\Definition\Type::string(),
+			],
+		]);
+
+		// New way to register:
+		// register_graphql_object_type( 'Test', [
+		//  'fields' => [
+		//    'test' => [
+		//       'type' => 'String',
+		//    ],
+		//  ],
+		// ] );
+
+		register_graphql_field( 'RootQuery', 'test', [
+			'type' => $type,
+		]);
+
+		// New way to register
+		// register_graphql_field( 'RootQuery', 'test', [
+		//   'type' => 'Test'
+		// ]);
+
+		$query = '
+		{
+		  test {
+		    test
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
 	}
 }
