@@ -561,7 +561,7 @@ Above, we saw the `String` Scalar type, but GraphQL has a few built-in Scalar ty
 
 #### Custom Scalars
 
-Most GraphQL implementations ([including WPGraphQL](/functions/register_graphql_scalar/" data-type="functions" data-id="1730">) provide ways to register custom Scalar types.
+Most GraphQL implementations ([including WPGraphQL](/functions/register_graphql_scalar/" data-type="functions" data-id="1730">)) provide ways to register custom Scalar types.
 
 For example, you may want to register a `Date` Scalar that behaves similar to a String, but enforces different validation rules.
 
