@@ -20,7 +20,7 @@ class Preview {
 	 *
 	 * @return mixed
 	 */
-	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, ?bool $single = false ) {
+	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key = null, ?bool $single = false ) {
 
 		if ( ! is_graphql_request() ) {
 			return $default_value;
@@ -51,7 +51,7 @@ class Preview {
 			$parent   = get_post( $post->post_parent );
 			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
 
-			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
+			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, (bool) $single ) : $default_value;
 
 		}
 
