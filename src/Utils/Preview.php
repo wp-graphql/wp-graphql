@@ -16,11 +16,11 @@ class Preview {
 	 * @param mixed       $default_value The default value of the meta
 	 * @param int         $object_id     The ID of the object the meta is for
 	 * @param string|null $meta_key      The meta key
-	 * @param bool        $single        Whether the meta is a single value
+	 * @param bool|null   $single        Whether the meta is a single value
 	 *
 	 * @return mixed
 	 */
-	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key, bool $single = false ) {
+	public static function filter_post_meta_for_previews( $default_value, int $object_id, ?string $meta_key = null, ?bool $single = false ) {
 
 		if ( ! is_graphql_request() ) {
 			return $default_value;
@@ -50,7 +50,8 @@ class Preview {
 		if ( 'revision' === $post->post_type ) {
 			$parent   = get_post( $post->post_parent );
 			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
-			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, $single ) : $default_value;
+
+			return isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, (bool) $single ) : $default_value;
 
 		}
 
