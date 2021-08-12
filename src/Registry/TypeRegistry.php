@@ -409,7 +409,7 @@ class TypeRegistry {
 								},
 							],
 						],
-						'eagerlyLoadType' => 'DefaultTemplate' === $template_type_name,
+						'eagerlyLoadType' => true,
 					]
 				);
 
