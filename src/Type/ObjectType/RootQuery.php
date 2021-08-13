@@ -664,7 +664,7 @@ class RootQuery {
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
 							}
 
-							return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 								function ( $post ) use ( $post_type_object ) {
 									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
 										'revision',
@@ -675,7 +675,7 @@ class RootQuery {
 
 									return $post;
 								}
-							);
+							) : null;
 						},
 					]
 				);
