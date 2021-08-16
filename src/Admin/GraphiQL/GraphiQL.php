@@ -142,8 +142,8 @@ class GraphiQL {
 	public function load_app() {
 
 		$app_path     = WPGRAPHQL_PLUGIN_URL . 'src/Admin/GraphiQL/app/';
-		$build_path   = $app_path . 'build/';
-		$manifest_url = $build_path . 'asset-manifest.json';
+		$build_path = $app_path . 'build/';
+		$manifest_url = __DIR__ . '/app/build/asset-manifest.json';
 
 		$manifest = file_get_contents( $manifest_url );
 
