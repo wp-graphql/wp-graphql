@@ -203,12 +203,11 @@ class GraphiQL {
 
 		$asset_files = $files->entrypoints;
 
-		$js_files = array_filter( $asset_files, static function( $file ) {
+		$js_files = array_filter( $asset_files, static function ( $file ) {
 			return pathinfo( $file, PATHINFO_EXTENSION ) === 'js';
 		} );
 
-
-		$css_files = array_filter( $asset_files, static function( $file ) {
+		$css_files = array_filter( $asset_files, static function ( $file ) {
 			return pathinfo( $file, PATHINFO_EXTENSION ) === 'css';
 		} );
 
@@ -220,7 +219,7 @@ class GraphiQL {
 		foreach ( $js_files as $index => $js_file ) {
 			$handle = $index > 0 ? 'graphiql-' . $index : 'graphiql';
 			$src    = $build_path . $js_file;
-			wp_enqueue_script( $handle, $src, array(), '1', true );
+			wp_enqueue_script( $handle, $src, [], '1', true );
 		}
 
 	}
