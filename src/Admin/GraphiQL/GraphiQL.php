@@ -96,46 +96,6 @@ class GraphiQL {
 	}
 
 	/**
-	 * Gets the contents of the Create React App manifest file
-	 *
-	 * @return array
-	 */
-	public function get_app_manifest() {
-		$manifest = file_get_contents( dirname( __FILE__ ) . '/app/build/asset-manifest.json' );
-		$manifest = ! empty( $manifest ) ? (array) json_decode( $manifest ) : [];
-
-		return $manifest;
-	}
-
-	/**
-	 * Gets the path to the stylesheet compiled by Create React App
-	 *
-	 * @return string
-	 */
-	public function get_app_stylesheet() {
-		$manifest = $this->get_app_manifest();
-		if ( empty( $manifest['main.css'] ) ) {
-			return '';
-		}
-
-		return WPGRAPHQL_PLUGIN_URL . 'src/Admin/GraphiQL/app/build/' . $manifest['main.css'];
-	}
-
-	/**
-	 * Gets the path to the built javascript file compiled by Create React App
-	 *
-	 * @return string
-	 */
-	public function get_app_script() {
-		$manifest = $this->get_app_manifest();
-		if ( empty( $manifest['main.js'] ) ) {
-			return '';
-		}
-
-		return WPGRAPHQL_PLUGIN_URL . 'src/Admin/GraphiQL/app/build/' . $manifest['main.js'];
-	}
-
-	/**
 	 * Get the helpers JS
 	 *
 	 * @return string
