@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.4
+
+### Chores / Bugfixes
+
+- ([#2076](https://github.com/wp-graphql/wp-graphql/pull/2076)): Updates WPGraphiQL IDE to use latest react, GraphiQL and other dependencies. 
+
+### New Features
+
+- ([#2076](https://github.com/wp-graphql/wp-graphql/pull/2076)): WPGraphiQL IDE now resizes when the browser window is resized.
+
 ## 1.6.3
 
 ### Chores / Bugfixes
