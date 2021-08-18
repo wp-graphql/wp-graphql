@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.8
 Requires PHP: 7.1
-Stable tag: 1.6.3
+Stable tag: 1.6.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,6 +90,17 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.6.4
+
+**Chores / Bugfixes**
+
+- ([#2076](https://github.com/wp-graphql/wp-graphql/pull/2076)): Updates WPGraphiQL IDE to use latest react, GraphiQL and other dependencies.
+
+**New Features**
+
+- ([#2076](https://github.com/wp-graphql/wp-graphql/pull/2076)): WPGraphiQL IDE now resizes when the browser window is resized.
+
 
 = 1.6.3
 
