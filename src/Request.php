@@ -126,6 +126,11 @@ class Request {
 		}
 
 		/**
+		 * Filter "is_graphql_request" to return true
+		 */
+		\WPGraphQL::set_is_graphql_request( true );
+
+		/**
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
 		 * This is a great place for plugins to hook in and modify things that should only
 		 * occur in the context of a GraphQL Request. The base class hooks into this action to
@@ -220,11 +225,6 @@ class Request {
 	 * @throws Error
 	 */
 	private function before_execute() {
-
-		/**
-		 * Filter "is_graphql_request" to return true
-		 */
-		\WPGraphQL::set_is_graphql_request( true );
 
 		/**
 		 * Store the global post so it can be reset after GraphQL execution
