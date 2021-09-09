@@ -691,7 +691,7 @@ final class WPGraphQL {
 			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ); // phpcs:ignore
 		}
 
-		return $schema;
+		return false !== $schema ? $schema : null;
 	}
 
 	/**
