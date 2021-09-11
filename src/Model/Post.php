@@ -636,7 +636,7 @@ class Post extends Model {
 				'pinged'                    => function () {
 					$punged = get_pung( $this->databaseId );
 
-					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
+					return ! empty( implode( ',', (array) $punged ) ) ? $punged : null;
 				},
 				'modified'                  => function () {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? Utils::prepare_date_response( $this->data->post_modified ) : null;
