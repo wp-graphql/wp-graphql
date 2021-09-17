@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\InterfaceType;
 use Exception;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
@@ -26,6 +27,18 @@ class TermNode {
 			[
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'connections' => [
+					'taxonomy'         => [
+						'toType'   => 'Taxonomy',
+						'oneToOne' => true,
+						'resolve'  => function ( $source, $args, $context, $info ) {
+							if ( empty( $source->taxonomyName ) ) {
+								return null;
+							}
+							$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
+							$resolver->set_query_arg( 'name', $source->taxonomyName );
+							return $resolver->one_to_one()->get_connection();
+						},
+					],
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => function ( $source, $args, $context, $info ) {
