@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.6.4' );
+			define( 'WPGRAPHQL_VERSION', '1.6.5' );
 		}
 
 		// Plugin Folder Path.
@@ -691,7 +691,7 @@ final class WPGraphQL {
 			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ); // phpcs:ignore
 		}
 
-		return $schema;
+		return false !== $schema ? $schema : null;
 	}
 
 	/**
