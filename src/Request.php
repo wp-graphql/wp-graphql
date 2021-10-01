@@ -605,9 +605,9 @@ class Request {
 			 */
 			$this->before_execute();
 
-			$result = apply_filters( 'pre_graphql_execute_request', null, $this );
+			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
-			if ( null === $result ) {
+			if ( null === $response ) {
 				$result = \GraphQL\GraphQL::executeQuery(
 					$this->schema,
 					isset( $this->params->query ) ? $this->params->query : '',
