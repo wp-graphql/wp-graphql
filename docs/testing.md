@@ -238,7 +238,7 @@ export SUITES="tests/wpunit/BarTest.php tests/wpunit/FooTest.php" composer run-t
 
 **Notes:**
 
-- If you make a change that requires `composer install` to be rerun, run composter build-app again.
+- If you make a change that requires `composer install` to be rerun, run composer build-app again.
 - Leave the container shell by typing `exit`.
 - Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
     - Run this command: `docker system prune`

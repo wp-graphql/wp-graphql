@@ -131,7 +131,7 @@ Below is an example of querying a single post using the URI (the path to the pos
 
 Below is an example of querying a single post using the `slug` as the ID.
 
-> **NOTE:** Slugs are only unique identifiers for non-hierarchcial post-types. Hierarchical post types cannot query single nodes by slug as there can be many items with the same slug. Fore example, you could have `/company/about` and `/products/about` both as Pages with an `about` slug.
+> **NOTE:** Slugs are only unique identifiers for non-hierarchical post-types. Hierarchical post types cannot query single nodes by slug as there can be many items with the same slug. Fore example, you could have `/company/about` and `/products/about` both as Pages with an `about` slug.
 
 ```graphql
 {

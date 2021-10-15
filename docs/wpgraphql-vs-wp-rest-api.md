@@ -310,7 +310,7 @@ You can even [use WPGraphQL to fetch data in your PHP plugins and themes](/docs/
 
 WPGraphQL also enables multiple root resources to be fetched at the same time.
 
-Let's say you needed a list of Posts *and* a list of Categories. With the WP REST API you would need to hit 2 enpdoints: /posts and /categories.
+Let's say you needed a list of Posts *and* a list of Categories. With the WP REST API you would need to hit 2 endpoints: /posts and /categories.
 
 With WPGraphQL, you can ask for both resources in a single request:
 
