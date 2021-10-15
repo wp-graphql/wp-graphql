@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.8
 Requires PHP: 7.1
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,6 +90,23 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.6.6
+
+**New Features**
+
+- ([#2106](https://github.com/wp-graphql/wp-graphql/pull/2106)): Add new `pre_graphql_execute_request` filter to better support full query caching. Thanks @markkelnar!
+- ([#2123](https://github.com/wp-graphql/wp-graphql/pull/2123)): Add new `graphql_dataloader_get_cached` filter to better support persistent object caching in the Model Layer. Thanks @kidunot89!
+
+**Chores / Bugfixes**
+
+- ([#2094](https://github.com/wp-graphql/wp-graphql/pull/2094)): fix broken link in docs. Thanks @duffn!
+- ([#2108](https://github.com/wp-graphql/wp-graphql/pull/2108)): Update lucatume/wp-browser dependency. Thanks @markkelnar!
+- ([#2111](https://github.com/wp-graphql/wp-graphql/pull/2111)): Correct variable name passed to filter. Thanks @markkelnar!
+- ([#2112](https://github.com/wp-graphql/wp-graphql/pull/2112)): Doc typo corrections. Thanks @nexxai!
+- ([#2115](https://github.com/wp-graphql/wp-graphql/pull/2115)): Updates to GraphiQL npm dependencies. Thanks @alexghirelli!
+- ([#2124](https://github.com/wp-graphql/wp-graphql/pull/2124)): Updates `tmpl` npm dependency.
+
 
 = 1.6.5
 
