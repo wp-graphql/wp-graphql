@@ -163,7 +163,7 @@ abstract class AbstractDataLoader {
 			/**
 			 * For adding third-party caching support.
 			 * Use this filter to store the queried value in a cache.
-			 * 
+			 *
 			 * @param mixed  $value         Queried object.
 			 * @param mixed  $key           Object key.
 			 * @param string $loader_class  Loader classname. Use as a means of identified the loader.
@@ -286,10 +286,11 @@ abstract class AbstractDataLoader {
 		$keysToLoad = [];
 		foreach ( $this->buffer as $key => $unused ) {
 			if ( ! $this->get_cached( $key ) ) {
-				$keysToLoad []= $key;
+				$keysToLoad[] = $key;
 			}
 		}
-		$result     = [];
+
+		$result = [];
 		if ( ! empty( $keysToLoad ) ) {
 			try {
 				$loaded = $this->loadKeys( $keysToLoad );
@@ -309,7 +310,7 @@ abstract class AbstractDataLoader {
 				);
 			}
 			if ( $this->shouldCache ) {
-				foreach( $loaded as $key => $value ) {
+				foreach ( $loaded as $key => $value ) {
 					$this->set_cached( $key, $value );
 				}
 			}
@@ -419,13 +420,13 @@ abstract class AbstractDataLoader {
 	 */
 	protected function get_cached( $key ) {
 		$value = null;
-		if ( isset( $this->cached[ $key ] ) ){
+		if ( isset( $this->cached[ $key ] ) ) {
 			$value = $this->cached[ $key ];
 		}
 
 		/**
 		 * Use this filter to retrieving cached data objects from third-party caching system.
-		 * 
+		 *
 		 * @param mixed  $value         Value to be cached.
 		 * @param mixed  $key           Key identifying object.
 		 * @param string $loader_class  Loader class name.
@@ -457,7 +458,7 @@ abstract class AbstractDataLoader {
 	protected function set_cached( $key, $value ) {
 		/**
 		 * Use this filter to store entry in a third-party caching system.
-		 * 
+		 *
 		 * @param mixed  $value         Value to be cached.
 		 * @param mixed  $key           Key identifying object.
 		 * @param string $loader_class  Loader class name.
