@@ -605,21 +605,25 @@ class Request {
 			 */
 			$this->before_execute();
 
-			$result = \GraphQL\GraphQL::executeQuery(
-				$this->schema,
-				isset( $this->params->query ) ? $this->params->query : '',
-				$this->root_value,
-				$this->app_context,
-				isset( $this->params->variables ) ? $this->params->variables : null,
-				isset( $this->params->operation ) ? $this->params->operation : null,
-				$this->field_resolver,
-				$this->validation_rules
-			);
+			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
-			/**
-			 * Return the result of the request
-			 */
-			$response = $result->toArray( $this->get_debug_flag() );
+			if ( null === $response ) {
+				$result = \GraphQL\GraphQL::executeQuery(
+					$this->schema,
+					isset( $this->params->query ) ? $this->params->query : '',
+					$this->root_value,
+					$this->app_context,
+					isset( $this->params->variables ) ? $this->params->variables : null,
+					isset( $this->params->operation ) ? $this->params->operation : null,
+					$this->field_resolver,
+					$this->validation_rules
+				);
+
+				/**
+				 * Return the result of the request
+				 */
+				$response = $result->toArray( $this->get_debug_flag() );
+			}
 
 			/**
 			 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
@@ -662,8 +666,15 @@ class Request {
 		/**
 		 * Get the response.
 		 */
-		$server   = $this->get_server();
-		$response = $server->executeRequest( $this->params );
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+
+		/**
+		 * If no cached response, execute the query
+		 */
+		if ( null === $response ) {
+			$server   = $this->get_server();
+			$response = $server->executeRequest( $this->params );
+		}
 
 		return $this->after_execute( $response );
 	}

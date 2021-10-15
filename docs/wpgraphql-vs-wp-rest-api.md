@@ -11,7 +11,7 @@ RESTful APIs, including the WP REST API have no official specification. REST is 
 
 This means that as a developer interacting with an API, each REST API you interact with requires you to learn entire new paradigms, use different tooling, etc.
 
-GraphQL on the other hand, is a [specification](https://spec.graphql.org/June2018/) for building APIs that all behave the same. This means that interacting with the [Github GraphQL API](https://developer.github.com/v4/explorer/, [Yelp's GraphQL API](https://www.yelp.com/developers/graphql/guides/intro) or GraphQL for WordPress via WPGraphQL, or any other GraphQL API that follows the specification, things work the same.
+GraphQL on the other hand, is a [specification](https://spec.graphql.org/June2018/) for building APIs that all behave the same. This means that interacting with the [Github GraphQL API](https://developer.github.com/v4/explorer/), [Yelp's GraphQL API](https://www.yelp.com/developers/graphql/guides/intro) or GraphQL for WordPress via WPGraphQL, or any other GraphQL API that follows the specification, things work the same.
 
 ### Improved Tooling
 
@@ -310,7 +310,7 @@ You can even [use WPGraphQL to fetch data in your PHP plugins and themes](/docs/
 
 WPGraphQL also enables multiple root resources to be fetched at the same time.
 
-Let's say you needed a list of Posts *and* a list of Categories. With the WP REST API you would need to hit 2 enpdoints: /posts and /categories.
+Let's say you needed a list of Posts *and* a list of Categories. With the WP REST API you would need to hit 2 endpoints: /posts and /categories.
 
 With WPGraphQL, you can ask for both resources in a single request:
 
