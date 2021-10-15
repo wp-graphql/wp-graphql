@@ -439,6 +439,10 @@ abstract class AbstractDataLoader {
 			$this
 		);
 
+		if ( $value && ! isset( $this->cached[ $key ] ) ) {
+			$this->cached[ $key ] = $value;
+		}
+
 		return $value;
 	}
 
