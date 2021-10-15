@@ -84,7 +84,7 @@ The action `graphql_register_types` is fired by WPGraphQL when the GraphQL Schem
 
 Below is the function `add_custom_field_to_graphql_root_query`, which will execute as the Schema is being built.
 
-Here, we call another function "register_graphql_field", which accepts 3 paramaters:
+Here, we call another function "register_graphql_field", which accepts 3 parameters:
 
 - **Type Name**: The name of the existing GraphQL Type to register a field to
 - **Field Name**: The name the registered field should have
