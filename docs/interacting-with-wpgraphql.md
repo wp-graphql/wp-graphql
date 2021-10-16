@@ -50,7 +50,7 @@ One of the easiest ways to test a WPGraphQL server is to make a `fetch` request 
 You can open up Chrome Dev Tools and paste the following into your console to fetch data from WPGraphQL. (**Of course, change the URL to the API you want to fetch from.**)
 
 ```js
-fetch('https://www.wpgraphql.com/graphql', {
+fetch('https://content.wpgraphql.com/graphql', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
