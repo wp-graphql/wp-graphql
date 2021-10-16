@@ -57,7 +57,7 @@ for (var k in parameters) {
 
 let nonce = (window.wpGraphiQLSettings && window.wpGraphiQLSettings.nonce) ? window.wpGraphiQLSettings.nonce : null;
 let endpoint = (window.wpGraphiQLSettings && window.wpGraphiQLSettings.graphqlEndpoint) ? window.wpGraphiQLSettings.graphqlEndpoint : window.location.origin;
-
+let externalFragments = window.wpGraphiQLSettings && window.wpGraphiQLSettings.externalFragments ? window.wpGraphiQLSettings.externalFragments : ''
 
 function graphQLFetcher(graphQLParams) {
     return fetch(endpoint, {
@@ -337,6 +337,7 @@ class App extends React.Component {
                 <GraphiQL
                     ref={ref => (this._graphiql = ref)}
                     fetcher={graphQLFetcher}
+                    externalFragments={externalFragments}
                     schema={schema}
                     query={query}
                     onEditQuery={this._handleEditQuery}

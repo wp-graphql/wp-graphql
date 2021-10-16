@@ -120,6 +120,14 @@ class GraphiQL {
 			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
 
 			/**
+			 * Filter to allow theme and plugin authors to add external fragments for use in the GraphiQL IDE
+			 *
+			 * @param array        $fragments      An array of GraphQL fragment strings
+			 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
+			 */
+      $externalFragments = apply_filters( 'graphiql_external_fragments', [] );
+
+			/**
 			 * Create a nonce
 			 */
 			wp_localize_script(
@@ -128,6 +136,7 @@ class GraphiQL {
 				[
 					'nonce'           => wp_create_nonce( 'wp_rest' ),
 					'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
+					'externalFragments' => implode("\n", $externalFragments)
 				]
 			);
 
