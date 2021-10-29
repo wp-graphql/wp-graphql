@@ -117,7 +117,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		    ...ContentFields
 		  }
 		}
-		
+
 		fragment ContentFields on ContentNode {
 		  __typename
 		  id
@@ -351,5 +351,33 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testContentNodeFieldBySlug() {
 
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Post',
+			'post_author' => $this->admin
+		] );
+
+		$actual = graphql( [
+			'query'     => '
+				{
+					post(id: "test-post", idType: SLUG) {
+						__typename
+						postId
+					}
+			  	}
+			'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'Post', $actual['data']['post']['__typename'] );
+		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
+	}
 }
