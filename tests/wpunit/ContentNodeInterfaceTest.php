@@ -356,8 +356,18 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testContentNodeFieldBySlug() {
 
+		$args = array(
+			'public'              => false,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'book',
+			'graphql_plural_name' => 'books',
+			'label'               => 'Books',
+		);
+
+		register_post_type( 'book', $args );
+
 		$post_id = $this->factory()->post->create( [
-			'post_type'   => 'post',
+			'post_type'   => 'book',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Post',
 			'post_author' => $this->admin
@@ -366,9 +376,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query'     => '
 				{
-					post(id: "test-post", idType: SLUG) {
+					book(id: "test-post", idType: SLUG) {
 						__typename
-						postId
+						bookId
 					}
 			  	}
 			'
@@ -377,7 +387,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'Post', $actual['data']['post']['__typename'] );
-		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
+		$this->assertEquals( 'Book', $actual['data']['book']['__typename'] );
+		$this->assertEquals( $post_id, $actual['data']['book']['bookId'] );
 	}
 }
