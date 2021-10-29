@@ -328,7 +328,7 @@ class Post extends Model {
 		/**
 		 * Published content is public, not private
 		 */
-		if ( 'publish' === $this->data->post_status && $this->post_type_object->publicly_queryable ) {
+		if ( 'publish' === $this->data->post_status && $this->post_type_object && $this->post_type_object->publicly_queryable ) {
 			return false;
 		}
 
