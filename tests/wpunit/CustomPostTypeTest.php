@@ -135,6 +135,23 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
 
+		// make sure the query is from a logged in user
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $database_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		// A logged in user should be able to see the data as well!
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+
 	}
 
 	public function testQueryPublicPostTypeThatIsNotPublicyQueryable() {
@@ -185,6 +202,77 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		// Since the post_type is public we should see data, even if it's set to publicly_queryable=>false, as public=>true should trump publicly_queryable
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+
+	}
+
+	public function testQueryNonPublicPostTypeThatIsNotPublicyQueryable() {
+
+		register_post_type( 'non_public_cpt', [
+			'show_in_graphql'=> true,
+			'graphql_single_name' => 'notPublic',
+			'graphql_plural_name' => 'notPublics',
+			'public' => false,
+			'publicly_queryable' => false,
+		]);
+
+		$database_id = $this->factory()->post->create([
+			'post_type' => 'non_public_cpt',
+			'post_status' => 'publish',
+			'post_title' => 'Test'
+		]);
+
+		$query = '
+		query GET_CUSTOM_POSTS( $id: ID! ) {
+		  contentNode( id: $id, idType: DATABASE_ID ) {
+		    databaseId
+		  }
+		  notPublics {
+		    nodes {
+		      databaseId
+		    }
+		    edges {
+		      node {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+
+		// make sure the query is from a public user
+		wp_set_current_user( 0 );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $database_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		// Since the post_type is public=>false / publicly_queryable=>false, the content should be null for a public user
+		$this->assertEmpty($actual['data']['contentNode']);
+		$this->assertEmpty( $actual['data']['notPublics']['nodes']);
+		$this->assertEmpty( $actual['data']['notPublics']['edges']);
+
+		// Log the user in and do the request again
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $database_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		// The admin user should be able to see the content
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
