@@ -117,7 +117,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		    ...ContentFields
 		  }
 		}
-		
+
 		fragment ContentFields on ContentNode {
 		  __typename
 		  id
@@ -351,5 +351,89 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testContentNodeFieldBySlug() {
 
+		$post_types = array(
+			'book' => array(
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'book',
+				'graphql_plural_name' => 'books',
+				'label'               => 'Books',
+			),
+			'test' => array(
+				'public'              => false,
+				'publicly_queryable'  => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'test',
+				'graphql_plural_name' => 'tests',
+				'label'               => 'Tests',
+			),
+			'cat' => array(
+				'public'              => false,
+				'publicly_queryable'  => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'cat',
+				'graphql_plural_name' => 'cats',
+				'label'               => 'Cats',
+			),
+		);
+
+		foreach ( $post_types as $post_type => $args ) {
+			register_post_type( $post_type, $args );
+		}
+
+		$post_id_book = $this->factory()->post->create( [
+			'post_type'   => 'book',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Post',
+			'post_author' => $this->admin
+		] );
+
+		$post_id_test = $this->factory()->post->create( [
+			'post_type'   => 'test',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Test',
+			'post_author' => $this->admin
+		] );
+
+		$post_id_cat = $this->factory()->post->create( [
+			'post_type'   => 'cat',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Cat',
+			'post_author' => $this->admin
+		] );
+
+		$actual = graphql( [
+			'query'     => '
+				{
+					book(id: "test-post", idType: SLUG) {
+						__typename
+						bookId
+					},
+					test(id: "test-test", idType: SLUG) {
+						__typename
+						testId
+					},
+					cat(id: "test-cat", idType: SLUG) {
+						__typename
+						catId
+					}
+			  	}
+			'
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'Book', $actual['data']['book']['__typename'] );
+		$this->assertEquals( $post_id_book, $actual['data']['book']['bookId'] );
+		$this->assertEquals( 'Test', $actual['data']['test']['__typename'] );
+		$this->assertEquals( $post_id_test, $actual['data']['test']['testId'] );
+		$this->assertEquals( 'Cat', $actual['data']['cat']['__typename'] );
+		$this->assertEquals( $post_id_cat, $actual['data']['cat']['catId'] );
+	}
 }
