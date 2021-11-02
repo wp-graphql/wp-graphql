@@ -407,23 +407,25 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin
 		] );
 
+		$query = '
+			{
+				book(id: "test-post", idType: SLUG) {
+					__typename
+					bookId
+				},
+				test(id: "test-test", idType: SLUG) {
+					__typename
+					testId
+				},
+				cat(id: "test-cat", idType: SLUG) {
+					__typename
+					catId
+				}
+		    }
+		';
+
 		$actual = graphql( [
-			'query'     => '
-				{
-					book(id: "test-post", idType: SLUG) {
-						__typename
-						bookId
-					},
-					test(id: "test-test", idType: SLUG) {
-						__typename
-						testId
-					},
-					cat(id: "test-cat", idType: SLUG) {
-						__typename
-						catId
-					}
-			  	}
-			'
+			'query'     => $query
 		] );
 
 		codecept_debug( $actual );
@@ -435,5 +437,27 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $post_id_test, $actual['data']['test']['testId'] );
 		$this->assertEquals( 'Cat', $actual['data']['cat']['__typename'] );
 		$this->assertEquals( $post_id_cat, $actual['data']['cat']['catId'] );
+
+
+		// Set the user to a public user
+		wp_set_current_user( 0 );
+
+		$actual = graphql( [
+			'query'     => $query
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// The book and cat should be empty, because they're not publicly_queryable post types
+		// and this test is from a public user
+		$this->assertEmpty( $actual['data']['book'] );
+		$this->assertEmpty( $actual['data']['cat'] );
+
+		// The test should return data, because it's a publicly_queryable post type
+		$this->assertEquals( 'Test', $actual['data']['test']['__typename'] );
+		$this->assertEquals( $post_id_test, $actual['data']['test']['testId'] );
+
 	}
 }
