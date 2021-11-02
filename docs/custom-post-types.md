@@ -58,7 +58,7 @@ Custom Post Type UI is a popular WordPress plugin that enables users to register
 
 ## Public vs Private Data
 
-WPGraphQL respects WordPress access control policies. If a Post Type is registered as `public => true` then WPGraphQL will expose posts of that post type to public queries. If the post type is registered as `public => false` the posts of that post type will be exposed only to authenticated users.
+WPGraphQL respects WordPress access control policies. If a Post Type is registered as `publicly_queryable => true` then WPGraphQL will expose posts of that post type to public queries. If the post type is registered as `publicly_queryable => false` the posts of that post type will be exposed only to authenticated users who have the capability required to access it.
 
 ## Querying Custom Post Types
 

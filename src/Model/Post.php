@@ -328,7 +328,7 @@ class Post extends Model {
 		/**
 		 * Published content is public, not private
 		 */
-		if ( 'publish' === $this->data->post_status ) {
+		if ( 'publish' === $this->data->post_status && $this->post_type_object && ( true === $this->post_type_object->public || true === $this->post_type_object->publicly_queryable ) ) {
 			return false;
 		}
 
@@ -636,7 +636,7 @@ class Post extends Model {
 				'pinged'                    => function () {
 					$punged = get_pung( $this->databaseId );
 
-					return ! empty( $punged ) ? implode( ',', (array) $punged ) : null;
+					return ! empty( implode( ',', (array) $punged ) ) ? $punged : null;
 				},
 				'modified'                  => function () {
 					return ! empty( $this->data->post_modified ) && '0000-00-00 00:00:00' !== $this->data->post_modified ? Utils::prepare_date_response( $this->data->post_modified ) : null;
