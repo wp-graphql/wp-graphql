@@ -18,15 +18,17 @@ This is an example of registering a new "docs" post_type and enabling GraphQL Su
 ```php
 add_action( 'init', function() {
    register_post_type( 'docs', [
-      'show_ui' => true,
+      'show_ui' => true, # whether you want the post_type to show in the WP Admin UI. Doesn't affect WPGraphQL Schema.
       'labels'  => [
         //@see https://developer.wordpress.org/themes/functionality/internationalization/
-        'menu_name' => __( 'Docs', 'your-textdomain' ),
+        'menu_name' => __( 'Docs', 'your-textdomain' ), # The label for the WP Admin. Doesn't affect the WPGraphQL Schema.
       ],
-      'show_in_graphql' => true,
-      'hierarchical' => true,
-      'graphql_single_name' => 'document',
-      'graphql_plural_name' => 'documents',
+      'hierarchical' => true, # set to false if you don't want parent/child relationships for the entries
+      'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
+      'graphql_single_name' => 'document', 
+      'graphql_plural_name' => 'documents', # If not set, will default to `all${graphql_single_name}`, i.e. `allDocument`.
+      'public' => true, # set to false if entries of the post_type should not have public URIs per entry
+      'publicly_queryable' => true, # Set to false if entries should only be queryable in WPGraphQL by authenticated requests
    ] );
 } );
 ```
@@ -42,7 +44,7 @@ add_filter( 'register_post_type_args', function( $args, $post_type ) {
   if ( 'docs' === $post_type ) {
     $args['show_in_graphql'] = true;
     $args['graphql_single_name'] = 'document';
-    $args['graphql_plural_name'] = 'documents';
+    $args['graphql_plural_name'] = 'documents'; # Don't set, and it will default to `all${graphql_single_name}`, i.e. `allDocument`.
   }
 
   return $args;
@@ -56,7 +58,7 @@ Custom Post Type UI is a popular WordPress plugin that enables users to register
 
 ## Public vs Private Data
 
-WPGraphQL respects WordPress access control policies. If a Post Type is registered as `public => true` then WPGraphQL will expose posts of that post type to public queries. If the post type is registered as `public => false` the posts of that post type will be exposed only to authenticated users.
+WPGraphQL respects WordPress access control policies. If a Post Type is registered as `publicly_queryable => true` then WPGraphQL will expose posts of that post type to public queries. If the post type is registered as `publicly_queryable => false` the posts of that post type will be exposed only to authenticated users who have the capability required to access it.
 
 ## Querying Custom Post Types
 
