@@ -130,6 +130,14 @@ class WPConnectionType {
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
+		/**
+		 * Filter the config of WPConnectionType
+		 *
+		 * @param array        $config         Array of configuration options passed to the WPConnectionType when instantiating a new type
+		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 */
+		$config = apply_filters( 'graphql_wp_connection_type_config', $config, $this );
+
 		$this->validate_config( $config );
 
 		$this->config                = $config;
