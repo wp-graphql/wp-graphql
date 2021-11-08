@@ -127,4 +127,38 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testFilterWPConnectionTypeConfigDoesntReturnError() {
+		// Add a filter to the connection type config
+		// This should not throw an error because it's returning the $config untouched
+		add_filter( 
+			'graphql_wp_connection_type_config', function( $config, $wp_connection_type ) {
+				// Ensure the connection instance is passed correctly.
+				$this->assertInstanceOf( '\WPGraphQL\Type\WPConnectionType', $wp_connection_type );
+
+				return $config;
+			}
+			, 10,2);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+					title
+				}
+			}
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query
+		] );
+
+		codecept_debug( $actual );
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'posts.nodes[0].title', self::NOT_NULL)
+		]);
+	}
+
 }
