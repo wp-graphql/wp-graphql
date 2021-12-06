@@ -188,6 +188,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				termGroupId
 				termTaxonomyId
+				taxonomyName
 			}
 		}";
 
@@ -221,6 +222,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 				'termGroupId'    => null,
 				'termTaxonomyId' => $term_id,
+				'taxonomyName' => 'category',
 			],
 		];
 

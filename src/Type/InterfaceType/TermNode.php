@@ -97,6 +97,10 @@ class TermNode {
 						'type'        => 'Int',
 						'description' => __( 'The taxonomy ID that the object is associated with', 'wp-graphql' ),
 					],
+					'taxonomyName'   => [
+						'type'        => 'String',
+						'description' => __( 'The name of the taxonomy that the object is associated with', 'wp-graphql' ),
+					],
 					'isRestricted'   => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
