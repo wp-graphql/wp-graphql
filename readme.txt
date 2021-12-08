@@ -121,6 +121,10 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 1.6.9 =
+
+- No functional changes from v1.6.8. Fixing an issue with deploy to WordPress.org
+
 = 1.6.8 =
 
 **Chores / Bugfixes**
