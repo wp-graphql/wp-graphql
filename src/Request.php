@@ -37,7 +37,7 @@ class Request {
 	/**
 	 * Request data.
 	 *
-	 * @var array
+	 * @var mixed|array|OperationParams
 	 */
 	public $data;
 
@@ -59,7 +59,7 @@ class Request {
 	 * GraphQL operation parameters for this request. Can also be an array of
 	 * OperationParams.
 	 *
-	 * @var OperationParams|OperationParams[]
+	 * @var mixed|array|OperationParams|OperationParams[]
 	 */
 	public $params;
 
@@ -124,6 +124,11 @@ class Request {
 		if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 			define( 'GRAPHQL_REQUEST', true );
 		}
+
+		/**
+		 * Filter "is_graphql_request" to return true
+		 */
+		\WPGraphQL::set_is_graphql_request( true );
 
 		/**
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
@@ -222,11 +227,6 @@ class Request {
 	private function before_execute() {
 
 		/**
-		 * Filter "is_graphql_request" to return true
-		 */
-		\WPGraphQL::set_is_graphql_request( true );
-
-		/**
 		 * Store the global post so it can be reset after GraphQL execution
 		 *
 		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
@@ -275,6 +275,14 @@ class Request {
 		} else {
 			$this->do_action( $this->params );
 		}
+
+		/**
+		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
+		 *
+		 * @param Request $request The instance of the Request being executed
+		 */
+		do_action( 'graphql_before_execute', $this );
+
 	}
 
 	/**
@@ -404,7 +412,10 @@ class Request {
 		 * after_execute_actions, otherwise apply them to the current response
 		 */
 		if ( is_array( $this->params ) && is_array( $response ) ) {
-			$filtered_response = array_map( [ $this, 'after_execute_actions' ], $response );
+			$filtered_response = [];
+			foreach ( $response as $key => $resp ) {
+				$filtered_response[] = $this->after_execute_actions( $resp, (int) $key );
+			}
 		} else {
 			$filtered_response = $this->after_execute_actions( $response, null );
 		}
@@ -432,6 +443,14 @@ class Request {
 		}
 
 		/**
+		 * Run an action after GraphQL Execution
+		 *
+		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
+		 * @param Request $this              Instance of the Request being executed
+		 */
+		do_action( 'graphql_after_execute', $filtered_response, $this );
+
+		/**
 		 * Return the filtered response
 		 */
 		return $filtered_response;
@@ -451,17 +470,20 @@ class Request {
 		/**
 		 * Determine which params (batch or single request) to use when passing through to the actions
 		 */
-		$params = null;
+		$query     = null;
+		$operation = null;
+		$variables = null;
 
-		if ( ! $key && $this->params ) {
-			$params = $this->params;
-		} elseif ( is_array( $this->params ) && isset( $this->params[ $key ] ) ) {
-			$params = $this->params[ $key ];
+		if ( $this->params instanceof OperationParams ) {
+			$operation = $this->params->operation ?? '';
+			$query     = $this->params->query ?? '';
+			$variables = $this->params->variables ?? null;
+		} elseif ( is_array( $this->params ) ) {
+
+			$operation = $this->params[ $key ]->operation ?? '';
+			$query     = $this->params[ $key ]->query ?? '';
+			$variables = $this->params[ $key ]->variables ?? null;
 		}
-
-		$operation = isset( $params->operation ) ? $params->operation : '';
-		$query     = isset( $params->query ) ? $params->query : '';
-		$variables = isset( $params->variables ) ? $params->variables : null;
 
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
@@ -565,42 +587,61 @@ class Request {
 
 		$helper = new WPHelper();
 
-		$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
-
-		/**
-		 * Initialize the GraphQL Request
-		 */
-		$this->before_execute();
-
-		$result = \GraphQL\GraphQL::executeQuery(
-			$this->schema,
-			isset( $this->params->query ) ? $this->params->query : '',
-			$this->root_value,
-			$this->app_context,
-			isset( $this->params->variables ) ? $this->params->variables : null,
-			isset( $this->params->operation ) ? $this->params->operation : null,
-			$this->field_resolver,
-			$this->validation_rules
-		);
-
-		/**
-		 * Return the result of the request
-		 */
-		$response = $result->toArray( $this->get_debug_flag() );
-
-		/**
-		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
-		 */
-		if ( empty( $response ) || ! is_array( $response ) ) {
-			$response = [
-				'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
-			];
+		if ( ! $this->data instanceof OperationParams ) {
+			$this->params = $helper->parseRequestParams( 'POST', $this->data, [] );
+		} else {
+			$this->params = $this->data;
 		}
 
-		/**
-		 * If the request is a batch request it will come back as an array
-		 */
-		return $this->after_execute( $response );
+		if ( is_array( $this->params ) ) {
+			return array_map( function ( $data ) {
+				$this->data = $data;
+				return $this->execute();
+			}, $this->params );
+		} elseif ( $this->params instanceof OperationParams ) {
+
+			/**
+			 * Initialize the GraphQL Request
+			 */
+			$this->before_execute();
+
+			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+
+			if ( null === $response ) {
+				$result = \GraphQL\GraphQL::executeQuery(
+					$this->schema,
+					isset( $this->params->query ) ? $this->params->query : '',
+					$this->root_value,
+					$this->app_context,
+					isset( $this->params->variables ) ? $this->params->variables : null,
+					isset( $this->params->operation ) ? $this->params->operation : null,
+					$this->field_resolver,
+					$this->validation_rules
+				);
+
+				/**
+				 * Return the result of the request
+				 */
+				$response = $result->toArray( $this->get_debug_flag() );
+			}
+
+			/**
+			 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
+			 */
+			if ( empty( $response ) || ! is_array( $response ) ) {
+				$response = [
+					'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
+				];
+			}
+
+			/**
+			 * If the request is a batch request it will come back as an array
+			 */
+			return $this->after_execute( $response );
+
+		}
+
+		return [];
 	}
 
 	/**
@@ -625,8 +666,15 @@ class Request {
 		/**
 		 * Get the response.
 		 */
-		$server   = $this->get_server();
-		$response = $server->executeRequest( $this->params );
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+
+		/**
+		 * If no cached response, execute the query
+		 */
+		if ( null === $response ) {
+			$server   = $this->get_server();
+			$response = $server->executeRequest( $this->params );
+		}
 
 		return $this->after_execute( $response );
 	}
@@ -718,8 +766,7 @@ class Request {
 		 */
 		do_action( 'graphql_server_config', $config, $this->params );
 
-		$server = new StandardServer( $config );
+		return new StandardServer( $config );
 
-		return $server;
 	}
 }

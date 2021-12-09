@@ -6,11 +6,9 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 use WPGraphQL\AppContext;
-use WPGraphQL\WPSchema;
 
 /**
  * Class InstrumentSchema
@@ -20,31 +18,25 @@ use WPGraphQL\WPSchema;
 class InstrumentSchema {
 
 	/**
-	 * @param WPSchema $schema Instance of the Schema.
+	 * @param Type $type Instance of the Schema.
+	 * @param string $type_name Name of the Type
 	 *
-	 * @return WPSchema
+	 * @return Type
 	 */
-	public static function instrument_schema( WPSchema $schema ): WPSchema {
+	public static function instrument_resolvers( Type $type, string $type_name ): Type {
 
-		$types = $schema->getTypeMap();
+		if ( ! method_exists( $type, 'getFields' ) ) {
+			return $type;
+		}
 
-		$schema->config->types = array_map( function ( $type_object ) {
+		$fields = $type->getFields();
 
-			if ( ! method_exists( $type_object, 'getFields' ) ) {
-				return $type_object;
-			}
+		$fields                 = ! empty( $fields ) ? self::wrap_fields( $fields, $type->name ) : [];
+		$type->name             = ucfirst( esc_html( $type->name ) );
+		$type->description      = ! empty( $type->description ) ? esc_html( $type->description ) : '';
+		$type->config['fields'] = $fields;
 
-			$fields                        = $type_object->getFields();
-			$fields                        = ! empty( $fields ) ? self::wrap_fields( $fields, $type_object->name ) : [];
-			$type_object->name             = ucfirst( esc_html( $type_object->name ) );
-			$type_object->description      = ! empty( $type_object->description ) ? esc_html( $type_object->description ) : '';
-			$type_object->config['fields'] = $fields;
-
-			return $type_object;
-
-		}, $types );
-
-		return $schema;
+		return $type;
 
 	}
 
@@ -71,7 +63,7 @@ class InstrumentSchema {
 			 * Filter the field definition
 			 *
 			 * @param FieldDefinition $field     The field definition
-			 * @param string                                   $type_name The name of the Type the field belongs to
+			 * @param string          $type_name The name of the Type the field belongs to
 			 */
 			$field = apply_filters( 'graphql_field_definition', $field, $type_name );
 
@@ -105,7 +97,7 @@ class InstrumentSchema {
 			 * @throws Exception
 			 * @since 0.0.1
 			 */
-			$field->resolveFn = function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+			$field->resolveFn = static function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
 
 				/**
 				 * Fire an action BEFORE the field resolves

@@ -159,8 +159,17 @@ abstract class AbstractDataLoader {
 				' use `clear` if you want to clear the cache'
 			);
 		}
-		if ( ! isset( $this->cached[ $key ] ) ) {
-			$this->cached[ $key ] = $value;
+		if ( ! $this->get_cached( $key ) ) {
+			/**
+			 * For adding third-party caching support.
+			 * Use this filter to store the queried value in a cache.
+			 *
+			 * @param mixed  $value         Queried object.
+			 * @param mixed  $key           Object key.
+			 * @param string $loader_class  Loader classname. Use as a means of identified the loader.
+			 * @param mixed  $loader        Loader instance.
+			 */
+			$this->set_cached( $key, $value );
 		}
 
 		return $this;
@@ -274,8 +283,14 @@ abstract class AbstractDataLoader {
 	 */
 	private function load_buffered() {
 		// Do not load previously-cached entries:
-		$keysToLoad = array_keys( array_diff_key( $this->buffer, $this->cached ) );
-		$result     = [];
+		$keysToLoad = [];
+		foreach ( $this->buffer as $key => $unused ) {
+			if ( ! $this->get_cached( $key ) ) {
+				$keysToLoad[] = $key;
+			}
+		}
+
+		$result = [];
 		if ( ! empty( $keysToLoad ) ) {
 			try {
 				$loaded = $this->loadKeys( $keysToLoad );
@@ -295,7 +310,9 @@ abstract class AbstractDataLoader {
 				);
 			}
 			if ( $this->shouldCache ) {
-				$this->cached += $loaded;
+				foreach ( $loaded as $key => $value ) {
+					$this->set_cached( $key, $value );
+				}
 			}
 		}
 
@@ -392,6 +409,68 @@ abstract class AbstractDataLoader {
 		 * @param AbstractDataLoader $this  The AbstractDataLoader Instance
 		 */
 		return apply_filters( 'graphql_dataloader_get_model', $model, $entry, $key, $this );
+	}
+
+	/**
+	 * Returns a cached data object by key.
+	 *
+	 * @param mixed $key  Key.
+	 *
+	 * @return mixed
+	 */
+	protected function get_cached( $key ) {
+		$value = null;
+		if ( isset( $this->cached[ $key ] ) ) {
+			$value = $this->cached[ $key ];
+		}
+
+		/**
+		 * Use this filter to retrieving cached data objects from third-party caching system.
+		 *
+		 * @param mixed  $value         Value to be cached.
+		 * @param mixed  $key           Key identifying object.
+		 * @param string $loader_class  Loader class name.
+		 * @param mixed  $loader        Loader instance.
+		 */
+		$value = apply_filters(
+			'graphql_dataloader_get_cached',
+			$value,
+			$key,
+			get_class( $this ),
+			$this
+		);
+
+		if ( $value && ! isset( $this->cached[ $key ] ) ) {
+			$this->cached[ $key ] = $value;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Caches a data object by key.
+	 *
+	 * @param mixed $key    Key.
+	 * @param mixed $value  Data object.
+	 *
+	 * @return mixed
+	 */
+	protected function set_cached( $key, $value ) {
+		/**
+		 * Use this filter to store entry in a third-party caching system.
+		 *
+		 * @param mixed  $value         Value to be cached.
+		 * @param mixed  $key           Key identifying object.
+		 * @param string $loader_class  Loader class name.
+		 * @param mixed  $loader        Loader instance.
+		 */
+		$this->cached[ $key ] = apply_filters(
+			'graphql_dataloader_set_cached',
+			$value,
+			$key,
+			get_class( $this ),
+			$this
+		);
 	}
 
 	/**

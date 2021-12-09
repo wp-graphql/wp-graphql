@@ -103,7 +103,6 @@ use WPGraphQL\Type\Enum\UserRoleEnum;
 use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
 use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
-use WPGraphQL\Type\Input\MenuItemsConnectionWhereArgs;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
@@ -153,11 +152,31 @@ class TypeRegistry {
 	 */
 	protected $types;
 
+
+	/**
+	 * The loaders needed to register types
+	 *
+	 * @var array
+	 */
+	protected $type_loaders;
+
+	/**
+	 * Stores a list of Types that need to be eagerly loaded instead of lazy loaded.
+	 *
+	 * Types that exist in the Schema but are only part of a Union/Interface ResolveType but not
+	 * referenced directly need to be eagerly loaded.
+	 *
+	 * @var array
+	 */
+	protected $eager_type_map;
+
 	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
-		$this->types = [];
+		$this->types          = [];
+		$this->type_loaders   = [];
+		$this->eager_type_map = [];
 	}
 
 	/**
@@ -167,8 +186,29 @@ class TypeRegistry {
 	 *
 	 * @return string
 	 */
-	protected function format_key( $key ) {
+	protected function format_key( string $key ) {
 		return strtolower( $key );
+	}
+
+	/**
+	 * Returns the eager type map, an array of Type definitions for Types that
+	 * are not directly referenced in the schema.
+	 *
+	 * Types can add "eagerlyLoadType => true" when being registered to be included
+	 * in the eager_type_map.
+	 *
+	 * @return array
+	 */
+	protected function get_eager_type_map() {
+
+		if ( ! empty( $this->eager_type_map ) ) {
+			return array_map( function ( $type_name ) {
+				return $this->get_type( $type_name );
+			}, $this->eager_type_map );
+
+		}
+
+		return [];
 	}
 
 	/**
@@ -310,7 +350,6 @@ class TypeRegistry {
 
 		DateInput::register_type();
 		DateQueryInput::register_type();
-		MenuItemsConnectionWhereArgs::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
@@ -383,16 +422,17 @@ class TypeRegistry {
 				register_graphql_object_type(
 					$template_type_name,
 					[
-						'interfaces'  => [ 'ContentTemplate' ],
+						'interfaces'      => [ 'ContentTemplate' ],
 						// Translators: Placeholder is the name of the GraphQL Type in the Schema
-						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
-						'fields'      => [
+						'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
+						'fields'          => [
 							'templateName' => [
 								'resolve' => function ( $template ) {
 									return isset( $template['templateName'] ) ? $template['templateName'] : null;
 								},
 							],
 						],
+						'eagerlyLoadType' => true,
 					]
 				);
 
@@ -591,6 +631,37 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Registers connections that were passed through the Type registration config
+	 *
+	 * @param array $config Type config
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected function register_connections_from_config( array $config ) {
+
+		$connections = $config['connections'] ?? null;
+
+		if ( ! is_array( $connections ) ) {
+			return;
+		}
+
+		foreach ( $connections as $field_name => $connection_config ) {
+
+			if ( ! is_array( $connection_config ) ) {
+				continue;
+			}
+
+			$connection_config['fromType']      = $config['name'];
+			$connection_config['fromFieldName'] = $field_name;
+			register_graphql_connection( $connection_config );
+
+		}
+
+	}
+
+	/**
 	 * Add a Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
@@ -598,9 +669,14 @@ class TypeRegistry {
 	 *
 	 * @throws Exception
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
+
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
+		}
 
 		/**
 		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
@@ -613,8 +689,8 @@ class TypeRegistry {
 					'type_name' => $type_name,
 				]
 			);
-			return null;
-		};
+			return;
+		}
 
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
@@ -624,16 +700,16 @@ class TypeRegistry {
 					'type_name' => $type_name,
 				]
 			);
-			return $this->types[ $this->format_key( $type_name ) ];
+			return;
 		}
 
-		$prepared_type = $this->prepare_type( $type_name, $config );
+		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
+			return $this->prepare_type( $type_name, $config );
+		};
 
-		if ( ! empty( $prepared_type ) ) {
-			$this->types[ $this->format_key( $type_name ) ] = $prepared_type;
+		if ( is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
+			$this->eager_type_map[ $this->format_key( $type_name ) ] = $this->format_key( $type_name );
 		}
-
-		return $this->types[ $this->format_key( $type_name ) ];
 	}
 
 	/**
@@ -715,6 +791,10 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function prepare_type( string $type_name, $config ) {
+		/**
+		 * Uncomment to help trace eagerly (not lazy) loaded types.
+		 */
+		// graphql_debug( "prepare_type: {$type_name}", [ 'type' => $type_name ] );
 
 		if ( ! is_array( $config ) ) {
 			return $config;
@@ -732,16 +812,7 @@ class TypeRegistry {
 					$prepared_type = new WPEnumType( $config );
 					break;
 				case 'input':
-					if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
-						$config['fields'] = function () use ( $config ) {
-							$fields = WPInputObjectType::prepare_fields( $config['fields'], $config['name'], $config, $this );
-							$fields = $this->prepare_fields( $fields, $config['name'] );
-
-							return $fields;
-						};
-					}
-
-					$prepared_type = new WPInputObjectType( $config );
+					$prepared_type = new WPInputObjectType( $config, $this );
 					break;
 				case 'scalar':
 					$prepared_type = new WPScalar( $config, $this );
@@ -770,7 +841,27 @@ class TypeRegistry {
 	 * @return mixed|null
 	 */
 	public function get_type( string $type_name ) {
-		return isset( $this->types[ $this->format_key( $type_name ) ] ) ? ( $this->types[ $this->format_key( $type_name ) ] ) : null;
+
+		$key = $this->format_key( $type_name );
+
+		if ( isset( $this->type_loaders[ $key ] ) ) {
+			$type                = $this->type_loaders[ $key ]();
+			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
+			unset( $this->type_loaders[ $key ] );
+		}
+
+		return $this->types[ $key ] ?? null;
+	}
+
+	/**
+	 * Given a type name, determines if the type is already present in the Type Loader
+	 *
+	 * @param string $type_name The name of the type to check the registry for
+	 *
+	 * @return bool
+	 */
+	public function has_type( string $type_name ) {
+		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
 	}
 
 	/**
@@ -779,7 +870,13 @@ class TypeRegistry {
 	 * @return array
 	 */
 	public function get_types() {
-		return $this->types;
+
+		// The full map of types is merged with eager types to support the
+		// rename_graphql_type API.
+		//
+		// All of the types are closures, but eager Types are the full
+		// Type definitions up front
+		return array_merge( $this->types, $this->get_eager_type_map() );
 	}
 
 	/**
@@ -791,7 +888,7 @@ class TypeRegistry {
 	 * @return array
 	 * @throws Exception
 	 */
-	public function prepare_fields( $fields, $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ) {
 		$prepared_fields = [];
 		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
@@ -800,8 +897,6 @@ class TypeRegistry {
 					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
 					if ( ! empty( $prepared_field ) ) {
 						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
-					} else {
-						unset( $prepared_fields[ $this->format_key( $field_name ) ] );
 					}
 				}
 			}
@@ -822,13 +917,6 @@ class TypeRegistry {
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
-		/**
-		 * If the Field is a Type definition and not a config
-		 */
-		if ( ! is_array( $field_config ) ) {
-			return $field_config;
-		}
-
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
 		}
@@ -842,17 +930,27 @@ class TypeRegistry {
 			return null;
 		}
 
+		/**
+		 * If the type is a string, create a callable wrapper to get the type from
+		 * type registry. This preserves lazy-loading and prevents a bug where a type
+		 * has the same name as a function in the global scope (e.g., `header()`) and
+		 * is called since it passes `is_callable`.
+		 */
 		if ( is_string( $field_config['type'] ) ) {
-
-			$type = $this->get_type( $field_config['type'] );
-			if ( ! empty( $type ) ) {
-				$field_config['type'] = $type;
-			} else {
-				return null;
-			}
+			$field_config['type'] = function () use ( $field_config ) {
+				return $this->get_type( $field_config['type'] );
+			};
 		}
 
-		$field_config['type'] = $this->setup_type_modifiers( $field_config['type'] );
+		/**
+		 * If the type is an array, it contains type modifiers (e.g., "non_null").
+		 * Create a callable wrapper to preserve lazy-loading.
+		 */
+		if ( is_array( $field_config['type'] ) ) {
+			$field_config['type'] = function () use ( $field_config ) {
+				return $this->setup_type_modifiers( $field_config['type'] );
+			};
+		}
 
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
@@ -867,31 +965,27 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
+	 * not call before types are ready to be loaded.
+	 *
 	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
 	 * @throws Exception
 	 */
 	public function setup_type_modifiers( $type ) {
-
 		if ( ! is_array( $type ) ) {
 			return $type;
 		}
-		if ( isset( $type['non_null'] ) ) {
-			if ( is_array( $type['non_null'] ) ) {
-				$non_null_type = $this->setup_type_modifiers( $type['non_null'] );
-			} elseif ( is_string( $type['non_null'] ) ) {
-				$non_null_type = $this->get_type( $type['non_null'] );
-			}
-			$type = isset( $non_null_type ) ? Type::nonNull( $non_null_type ) : Type::nonNull( Type::string() );
-		} elseif ( isset( $type['list_of'] ) ) {
-			if ( is_array( $type['list_of'] ) ) {
-				$list_of_type = $this->setup_type_modifiers( $type['list_of'] );
-			} elseif ( is_string( $type['list_of'] ) ) {
-				$list_of_type = $this->get_type( $type['list_of'] );
-			}
 
-			$type = isset( $list_of_type ) ? Type::listOf( $list_of_type ) : Type::listOf( Type::string() );
+		if ( isset( $type['non_null'] ) ) {
+			return $this->non_null(
+				$this->setup_type_modifiers( $type['non_null'] )
+			);
+		} elseif ( isset( $type['list_of'] ) ) {
+			return $this->list_of(
+				$this->setup_type_modifiers( $type['list_of'] )
+			);
 		}
 
 		return $type;
@@ -963,7 +1057,7 @@ class TypeRegistry {
 				$field = $this->prepare_field( $field_name, $config, $type_name );
 
 				if ( ! empty( $field ) ) {
-					$fields[ $field_name ] = $this->prepare_field( $field_name, $config, $type_name );
+					$fields[ $field_name ] = $field;
 				}
 
 				return $fields;
@@ -1123,6 +1217,10 @@ class TypeRegistry {
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
+			if ( is_null( $type_def ) ) {
+				return Type::listOf( Type::string() );
+			}
 
 			return Type::listOf( $type_def );
 		}

@@ -43,14 +43,14 @@ When making an HTTP request to a WPGraphQL server, a few things need to be inclu
   - **variables (optional):** JSON object of variables for use in the query
   - **operationName (optional):** The name of the operation to use for the response if multiple operations were sent in the query string
 
-### Browser Console
+### Fetch
 
 One of the easiest ways to test a WPGraphQL server is to make a `fetch` request from the browser console.
 
 You can open up Chrome Dev Tools and paste the following into your console to fetch data from WPGraphQL. (**Of course, change the URL to the API you want to fetch from.**)
 
 ```js
-fetch('https://www.wpgraphql.com/graphql', {
+fetch('https://content.wpgraphql.com/graphql', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -70,6 +70,33 @@ fetch('https://www.wpgraphql.com/graphql', {
 ```
 
 ![Screenshot showing the request being made](./interacting-fetch-graphql-from-browser-console-1024x619.gif)
+
+#### Fetch with .htaccess Auth
+
+Many WordPress hosts allow users to password protect their WordPress install using a username and password that covers the entire site, and in order to access the site, including the GraphQL endpoint, the application needs to send the username and password. 
+
+We can use the same code as in the above `fetch` example, but add an `Authorization` header with a base64 encoded username/password. 
+
+```
+fetch('https://content.wpgraphql.com/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic ' + btoa('username:password') # Add this if you have .htaccess auth on your WordPress install
+  },
+  body: JSON.stringify({
+    query: `
+        {
+            generalSettings {
+                url
+            }
+        }
+    `,
+  }),
+})
+  .then(res => res.json())
+  .then(res => console.log(res.data))
+```
 
 ### Curl
 

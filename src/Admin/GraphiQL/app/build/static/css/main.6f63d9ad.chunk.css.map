@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/app.css"],"names":[],"mappings":"AAAA,aACI,YAAa,CACb,QACJ,CAEA,sBACI,kBAAmB,CACnB,eACJ","file":"main.6f63d9ad.chunk.css","sourcesContent":["#wp-graphiql {\n    display: flex;\n    flex: 1;\n}\n\n#wp-graphiql .spinner{\n    visibility: visible;\n    background: none;\n}\n"]}

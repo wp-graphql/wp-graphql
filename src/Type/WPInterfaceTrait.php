@@ -3,6 +3,7 @@ namespace WPGraphQL\Type;
 
 use Exception;
 use GraphQL\Type\Definition\InterfaceType;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Trait WPInterfaceTrait
@@ -66,36 +67,6 @@ trait WPInterfaceTrait {
 		}
 
 		return array_unique( $new_interfaces );
-
-	}
-
-	/**
-	 * Registers connections that were passed through the Type registration config
-	 *
-	 * @return void
-	 *
-	 * @throws Exception
-	 */
-	protected function register_connections_from_config() {
-
-		$connections = $this->config['connections'] ?? null;
-
-		if ( null === $connections || ! is_array( $connections ) ) {
-			return;
-		}
-
-		foreach ( $connections as $field_name => $connection_config ) {
-
-			if ( ! is_array( $connection_config ) ) {
-				continue;
-			}
-
-			$connection_config['fromType']      = $this->config['name'];
-			$connection_config['fromFieldName'] = $field_name;
-
-			register_graphql_connection( $connection_config );
-
-		}
 
 	}
 

@@ -129,8 +129,6 @@ class WPObjectType extends ObjectType {
 			return $fields;
 		};
 
-		$this->register_connections_from_config();
-
 		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *

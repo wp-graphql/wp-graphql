@@ -204,10 +204,134 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $titles, array_slice( $alphabet, 2, 1 ) );
 
-
-
-
 		$this->delete_posts( $post_ids );
+
+	}
+
+	public function testPaginationForPostsWithDuplicateTitlesAndDates() {
+
+		$alphabet = range( 'A', 'Z' );
+		$date                = date( 'Y-m-d H:i:s', strtotime("now") );
+		$created_posts = [];
+		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
+			// Set the date 1 minute apart for each post
+			$created_posts[ $i ] = $this->createPostObject(
+				[
+					'post_type'   => 'post',
+					'post_date'   => $date,
+					'post_status' => 'publish',
+					'post_title'  => 'a duplicate title',
+				]
+			);
+		}
+
+		$query = '
+		query TestPagination( $first: Int $after: String $last:Int $before: String ) {
+		  posts( first:$first last:$last after:$after before:$before) {
+		    pageInfo {
+		      hasNextPage
+		      hasPreviousPage
+		      startCursor
+		      endCursor
+		    }
+		    edges {
+		      cursor
+		    }
+		    nodes {
+		      databaseId
+		      title
+		      date
+		    }
+		  }
+		}
+		';
+
+		$newest = array_reverse( $created_posts );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 5
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$db_ids = [];
+		foreach( $actual['data']['posts']['nodes'] as $node ) {
+			$db_ids[] = $node['databaseId'];
+		}
+
+		$page_1 = array_slice( $newest, 0, 5 );
+		$this->assertSame( $page_1, $db_ids );
+
+		$after = $actual['data']['posts']['pageInfo']['endCursor'];
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 5,
+				'after' => $after
+			]
+		]);
+
+		$db_ids = [];
+		foreach( $actual['data']['posts']['nodes'] as $node ) {
+			$db_ids[] = $node['databaseId'];
+		}
+
+		$page_2 = array_slice( $newest, 5, 5 );
+		$this->assertSame( $page_2, $db_ids );
+
+		$after = $actual['data']['posts']['pageInfo']['endCursor'];
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 5,
+				'after' => $after
+			]
+		]);
+
+		$db_ids = [];
+		foreach( $actual['data']['posts']['nodes'] as $node ) {
+			$db_ids[] = $node['databaseId'];
+		}
+
+
+		$page_3 = array_slice( $newest, 10, 5 );
+		$this->assertSame( $page_3, $db_ids );
+
+		// ok, now let's paginate backward
+		$before = $actual['data']['posts']['pageInfo']['startCursor'];
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'last' => 5,
+				'before' => $before
+			]
+		]);
+
+		$db_ids = [];
+		foreach( $actual['data']['posts']['nodes'] as $node ) {
+			$db_ids[] = $node['databaseId'];
+		}
+
+		$this->assertSame( $page_2, $db_ids );
+
+		$before = $actual['data']['posts']['pageInfo']['startCursor'];
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'last' => 5,
+				'before' => $before
+			]
+		]);
+
+		$db_ids = [];
+		foreach( $actual['data']['posts']['nodes'] as $node ) {
+			$db_ids[] = $node['databaseId'];
+		}
+
+		$this->assertSame( $page_1, $db_ids );
 
 	}
 }

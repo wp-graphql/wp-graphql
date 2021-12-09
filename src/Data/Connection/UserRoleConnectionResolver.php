@@ -71,7 +71,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
-		return $this->query_args;
+		return is_array( $this->query_args ) && ! empty( $this->query_args ) ? $this->query_args : [];
 	}
 
 	/**

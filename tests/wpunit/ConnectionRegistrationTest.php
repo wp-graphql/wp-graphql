@@ -72,4 +72,60 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	}
 
+	/**
+	 * See: https://github.com/wp-graphql/wp-graphql/issues/2054
+	 */
+	public function testRegisteringConnectionWithArgsAllowsArgsToBeUsedInQuery() {
+
+		register_graphql_object_type( 'Test', [
+			'fields' => [
+				'test' => [
+					'type' => 'String'
+				]
+			],
+			'connections' => [
+				'testPostConnection' => [
+					'toType' => 'Post',
+					'connectionArgs' => [
+						'testInput' => [
+							'type' => 'String'
+						],
+					],
+				],
+			],
+		]);
+
+		register_graphql_field( 'RootQuery', 'test', [
+			'type' => 'Test',
+		]);
+
+		$query = '
+		query Test($where: TestToPostConnectionWhereArgs) {
+		  test {
+		    testPostConnection(where: $where) {
+		      nodes {
+		        id
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			'testInput' => 'test'
+		];
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => $variables
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'test', self::IS_NULL )
+		]);
+
+	}
+
 }

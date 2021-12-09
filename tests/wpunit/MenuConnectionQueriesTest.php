@@ -6,7 +6,7 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp():void {
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 		$this->admin = $this->factory()->user->create([
 			'role' => 'administrator'
 		]);
@@ -14,6 +14,11 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		add_theme_support( 'nav_menu_locations' );
 		register_nav_menu( 'my-menu-location', 'My Menu' );
 		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
+	}
+
+	public function tearDown(): void {
+		WPGraphQL::clear_schema();
+		parent::tearDown();
 	}
 
 	public function testMenusQueryById() {

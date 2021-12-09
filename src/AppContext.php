@@ -79,6 +79,14 @@ class AppContext {
 	 */
 	public $connectionArgs = [];
 
+
+	/**
+	 * The name of the Query Class used by the connection resolver
+	 *
+	 * @var mixed string|null
+	 */
+	public $connection_query_class;
+
 	/**
 	 * Stores the loaders for the class
 	 *
@@ -143,6 +151,7 @@ class AppContext {
 		 * @params array $config The config array of the AppContext object
 		 */
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
+
 	}
 
 	/**

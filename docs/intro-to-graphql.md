@@ -100,7 +100,7 @@ The following sections will introduce some concepts of GraphQL and provide resou
 
 GraphQL can be implemented in many programming languages as an API for *any* back-end. WPGraphQL is just one implementation of GraphQL using WordPress as the application and data layer.
 
-There are many things that the GraphQL specification doesn't prescribe, such as Schema design, fetching data behind the scenes, and more. These decisions are made by each individual implementation of a GraphQL server. To learn more about specific concepts of the WPGraphQL implementation, you can read about [](/docs/wpgraphql-concepts/">WPGraphQL Concepts page.
+There are many things that the GraphQL specification doesn't prescribe, such as Schema design, fetching data behind the scenes, and more. These decisions are made by each individual implementation of a GraphQL server. To learn more about specific concepts of the WPGraphQL implementation, you can read about [WPGraphQL Concepts page](/docs/wpgraphql-concepts/).
 
 Because GraphQL can be implemented in many ways, the following sections will attempt to speak to general GraphQL concepts that apply to *any* GraphQL implementation.
 
@@ -561,7 +561,7 @@ Above, we saw the `String` Scalar type, but GraphQL has a few built-in Scalar ty
 
 #### Custom Scalars
 
-Most GraphQL implementations ([including WPGraphQL](/functions/register_graphql_scalar/" data-type="functions" data-id="1730">) provide ways to register custom Scalar types.
+Most GraphQL implementations ([including WPGraphQL](/functions/register_graphql_scalar/)) provide ways to register custom Scalar types.
 
 For example, you may want to register a `Date` Scalar that behaves similar to a String, but enforces different validation rules.
 

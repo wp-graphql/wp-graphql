@@ -27,6 +27,9 @@ if [ ! -f "${WP_ROOT_FOLDER}/wp-config.php" ]; then
         --allow-root
 fi
 
+wp config set WP_AUTO_UPDATE_CORE false --allow-root
+wp config set AUTOMATIC_UPDATER_DISABLED true --allow-root
+
 # Install WP if not yet installed
 if ! $( wp core is-installed --allow-root ); then
 	wp core install \

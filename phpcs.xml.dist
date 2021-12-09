@@ -19,6 +19,8 @@
 	<file>./wp-graphql.php</file>
 	<file>./src</file>
 
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+
 	<!-- Rules -->
 	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 
