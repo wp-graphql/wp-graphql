@@ -1,0 +1,43 @@
+name: Schema Inspector
+
+on: [push]
+
+jobs:
+  test:
+    name: Inspect Schema
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        # Ensure docker waits for mariadb to start
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP w/ Composer & WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
+          coverage: none
+          tools: composer, wp-cli
+
+      - name: Setup WordPress
+        run: |
+          composer run install-test-env
+
+      - name: Generate the Static Schema
+        run: |
+          cd /tmp/wordpress/
+          # Output: /tmp/schema.graphql
+          wp graphql generate-static-schema
+
+      - uses: kamilkisiela/graphql-inspector@master
+        with:
+          schema: 'master:schema.graphql'
