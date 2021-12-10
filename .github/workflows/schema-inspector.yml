@@ -40,4 +40,4 @@ jobs:
 
       - uses: kamilkisiela/graphql-inspector@master
         with:
-          schema: 'master:schema.graphql'
+          schema: '/tmp/schema.graphql'
