@@ -43,7 +43,7 @@ class ConnectionInterface {
 			]
 		);
 
-		register_graphql_interface_type( 'SingleNodeConnectionEdge', [
+		register_graphql_interface_type( 'SingularConnection', [
 			'interfaces'  => [ 'Edge' ],
 			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
 			'fields'      => [
