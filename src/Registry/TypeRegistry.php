@@ -1157,8 +1157,11 @@ class TypeRegistry {
 						// Translators: The placeholder is the name of the mutation
 						throw new Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
 					}
-					$payload                     = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
-					$payload['clientMutationId'] = $args['input']['clientMutationId'];
+					$payload = call_user_func( $mutateAndGetPayload, $args['input'], $context, $info );
+
+					if ( ! empty( $args['input']['clientMutationId'] ) ) {
+						$payload['clientMutationId'] = $args['input']['clientMutationId'];
+					}
 
 					return $payload;
 				},
