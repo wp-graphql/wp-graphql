@@ -165,34 +165,19 @@ class Router {
 			$is_graphql_http_request = true;
 
 		} else {
-
+			
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 
-				$host = wp_unslash( $_SERVER['HTTP_HOST'] );
+				// $host = wp_unslash( $_SERVER['HTTP_HOST'] );
 				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
 
-				if ( ! is_string( $host ) ) {
-					return false;
-				} elseif ( ! is_string( $uri ) ) {
+				if ( ! is_string( $uri ) ) {
 					return false;
 				}
 
-				$full_path = $host . $uri;
-				$site_url  = site_url( self::$route );
-
-				// Strip protocol.
-				$replaced_path = preg_replace( '#^(http(s)?://)#', '', $full_path );
-				if ( ! empty( $replaced_path ) ) {
-					$full_path = $replaced_path;
-				}
-				$replaced_url = preg_replace( '#^(http(s)?://)#', '', $site_url );
-				if ( ! empty( $replaced_url ) ) {
-					$site_url = $replaced_url;
-				}
-
-				$len                     = strlen( $site_url );
-				$is_graphql_http_request = ( substr( $full_path, 0, $len ) === $site_url );
+				$len                     = strlen( self::$route );
+				$is_graphql_http_request = ( substr( $uri, 1, $len ) === self::$route );
 			}
 		}
 
