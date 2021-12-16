@@ -169,14 +169,18 @@ class Router {
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 
-				// $host = wp_unslash( $_SERVER['HTTP_HOST'] );
+				$host = wp_unslash( $_SERVER['HTTP_HOST'] );
 				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
 
-				if ( ! is_string( $uri ) ) {
+				if ( ! is_string( $host ) ) {
+					return false;
+				} elseif ( ! is_string( $uri ) ) {
 					return false;
 				}
 
 				$len                     = strlen( self::$route );
+
+				// the off by one offset validates it's at /graphql or /graphql/ and not /somepath/graphql
 				$is_graphql_http_request = ( substr( $uri, 1, $len ) === self::$route );
 			}
 		}
