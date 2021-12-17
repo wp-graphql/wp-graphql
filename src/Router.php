@@ -165,7 +165,7 @@ class Router {
 			$is_graphql_http_request = true;
 
 		} else {
-			
+
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 
@@ -178,7 +178,8 @@ class Router {
 					return false;
 				}
 
-				$is_graphql_http_request = boolval( preg_match('/^\/'. preg_quote(self::$route) .'\/?$/', $uri) );
+				$is_graphql_http_request = str_replace( '/', '', $uri ) === wp_unslash( self::$route );
+
 			}
 		}
 
