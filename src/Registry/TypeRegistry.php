@@ -669,7 +669,7 @@ class TypeRegistry {
 			return;
 		}
 
-		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) ) {
+		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) || isset( $this->type_loaders[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
 				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
 				[
