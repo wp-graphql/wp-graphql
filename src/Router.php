@@ -178,6 +178,12 @@ class Router {
 					return false;
 				}
 
+				// @todo: check how this behaves in multisite 
+				// Strip query params when evaluating the route
+				$queryParamPosition = strpos( $uri, '?' );
+				$uri                = substr( $uri, 0, $queryParamPosition );
+
+				// Determine if the route is indeed a graphql request
 				$is_graphql_http_request = str_replace( '/', '', $uri ) === wp_unslash( self::$route );
 
 			}
