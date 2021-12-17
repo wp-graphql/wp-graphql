@@ -178,10 +178,7 @@ class Router {
 					return false;
 				}
 
-				$len                     = strlen( self::$route );
-
-				// the off by one offset validates it's at /graphql or /graphql/ and not /somepath/graphql
-				$is_graphql_http_request = ( substr( $uri, 1, $len ) === self::$route );
+				$is_graphql_http_request = boolval( preg_match('/^\/'. preg_quote(self::$route) .'\/?$/', $uri) );
 			}
 		}
 
