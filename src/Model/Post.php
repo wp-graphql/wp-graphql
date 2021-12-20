@@ -751,7 +751,7 @@ class Post extends Model {
 								return $this->databaseId;
 							}
 
-							return null;
+							return $this->data->ID;
 						}
 
 						$revisions = wp_get_post_revisions(
