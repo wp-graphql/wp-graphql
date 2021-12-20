@@ -174,21 +174,15 @@ class Router {
 
 				if ( ! is_string( $host ) ) {
 					return false;
-				} elseif ( ! is_string( $uri ) ) {
+				} else if ( ! is_string( $uri ) ) {
 					return false;
 				}
-
-				// @todo: check how this behaves in multisite
-				// Strip query params when evaluating the route
-				$queryParamPosition = strpos( $uri, '?' );
-				if ( false !== $queryParamPosition ) {
-					$uri = substr( $uri, 0, $queryParamPosition );
-				} else {
-					$uri = substr( $uri, 0 );
-				}
+ 
+				$graphql_url = wp_unslash( parse_url( site_url( self::$route ), PHP_URL_PATH ) );
+				$request_url = wp_unslash( parse_url( $uri, PHP_URL_PATH ) );
 
 				// Determine if the route is indeed a graphql request
-				$is_graphql_http_request = str_replace( '/', '', $uri ) === wp_unslash( self::$route );
+				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
 
 			}
 		}
