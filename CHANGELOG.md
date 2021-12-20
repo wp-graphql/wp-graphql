@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.6.11
+
 ## 1.6.10
 
 - Updating stable tag for WordPress.org
