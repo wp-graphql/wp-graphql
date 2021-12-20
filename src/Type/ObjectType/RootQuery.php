@@ -189,15 +189,16 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
+
 								$revisions = wp_get_post_revisions(
 									$post_id,
 									[
 										'posts_per_page' => 1,
 										'fields'         => 'ids',
-										'check_enabled'  => false,
+										'check_enabled'  => true,
 									]
 								);
-								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
+								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
 							}
 
 							return ! empty( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id ) : null;
@@ -658,10 +659,10 @@ class RootQuery {
 									[
 										'posts_per_page' => 1,
 										'fields'         => 'ids',
-										'check_enabled'  => false,
+										'check_enabled'  => true,
 									]
 								);
-								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : null;
+								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
 							}
 
 							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(

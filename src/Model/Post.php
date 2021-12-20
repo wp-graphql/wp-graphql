@@ -745,6 +745,15 @@ class Post extends Model {
 				},
 				'previewRevisionDatabaseId' => [
 					'callback'   => function () {
+
+						if ( ! post_type_supports( $this->data->post_type, 'revisions' ) ) {
+							if ( 'draft' === $this->data->post_status ) {
+								return $this->databaseId;
+							}
+
+							return null;
+						}
+
 						$revisions = wp_get_post_revisions(
 							$this->data->ID,
 							[
@@ -775,6 +784,10 @@ class Post extends Model {
 						if ( in_array( $this->data->ID, array_values( $revisions ), true ) ) {
 							return true;
 						}
+					}
+
+					if ( ! post_type_supports( $this->data->post_type, 'revisions' ) && 'draft' === $this->data->post_status ) {
+						return true;
 					}
 
 					return false;
