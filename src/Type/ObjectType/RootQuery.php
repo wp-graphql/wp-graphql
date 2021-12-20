@@ -201,7 +201,18 @@ class RootQuery {
 								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
 							}
 
-							return ! empty( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id ) : null;
+							$allowed_post_types = get_post_types( [ 'show_in_graphql' => true ] );
+							$allowed_post_types[] = 'revision';
+
+							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
+								function ( $post ) use ( $allowed_post_types ) {
+									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, $allowed_post_types, true ) ) {
+										return null;
+									}
+
+									return $post;
+								}
+							) : null;
 
 						},
 					],
