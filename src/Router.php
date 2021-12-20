@@ -177,9 +177,12 @@ class Router {
 				} else if ( ! is_string( $uri ) ) {
 					return false;
 				}
- 
-				$graphql_url = wp_unslash( parse_url( site_url( self::$route ), PHP_URL_PATH ) );
-				$request_url = wp_unslash( parse_url( $uri, PHP_URL_PATH ) );
+
+				$parsed_site_url = parse_url( site_url( self::$route ), PHP_URL_PATH );
+				$graphql_url = ! empty( $parsed_site_url ) ? wp_unslash( $parsed_site_url ) : self::$route;
+
+				$parsed_request_url = parse_url( $uri, PHP_URL_PATH );
+				$request_url = ! empty( $parsed_request_url ) ? wp_unslash( $parsed_request_url ) : null;
 
 				// Determine if the route is indeed a graphql request
 				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
