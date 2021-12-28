@@ -63,13 +63,13 @@ class UserUpdate {
 	public static function mutate_and_get_payload() {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
 
-			$id_parts      = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$existing_user = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? get_user_by( 'ID', absint( $id_parts['id'] ) ) : null;
-
+			$user_id      = ! empty( $input['id'] ) ? $input['id'] : null;
+			$existing_user = isset( $user_id ) && absint( $user_id ) ? get_user_by( 'ID', absint( $user_id ) ) : null;
+			
 			/**
 			 * If there's no existing user, throw an exception
 			 */
-			if ( ! isset( $id_parts['id'] ) || empty( $existing_user ) ) {
+			if ( ! isset( $user_id ) || empty( $existing_user ) ) {
 				throw new UserError( __( 'A user could not be updated with the provided ID', 'wp-graphql' ) );
 			}
 
@@ -83,7 +83,7 @@ class UserUpdate {
 			}
 
 			$user_args       = UserMutation::prepare_user_object( $input, 'updateUser' );
-			$user_args['ID'] = absint( $id_parts['id'] );
+			$user_args['ID'] = absint( $user_id );
 
 			/**
 			 * Update the user
