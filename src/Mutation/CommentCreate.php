@@ -59,7 +59,7 @@ class CommentCreate {
 				'description' => __( 'Type of comment.', 'wp-graphql' ),
 			],
 			'parent'      => [
-				'type'        => 'ID',
+				'type'        => 'Int',
 				'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
 			],
 			'date'        => [
