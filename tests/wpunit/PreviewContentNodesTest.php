@@ -21,7 +21,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 				'show_in_graphql' => true,
 				'graphql_single_name' => 'WithRevisionSupport',
 				'graphql_plural_name' => 'allWithRevisionSupport',
-				'supports' => [ 'title', 'content', 'author' ],
+				'supports' => [ 'title', 'content', 'author', 'revisions' ],
 				'public' => true,
 			]
 		);
