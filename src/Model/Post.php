@@ -745,7 +745,6 @@ class Post extends Model {
 				},
 				'previewRevisionDatabaseId' => [
 					'callback'   => function () {
-
 						$revisions = wp_get_post_revisions(
 							$this->data->ID,
 							[

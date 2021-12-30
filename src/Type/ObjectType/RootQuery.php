@@ -189,7 +189,6 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-
 								$revisions = wp_get_post_revisions(
 									$post_id,
 									[
@@ -665,7 +664,6 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-
 								$revisions = wp_get_post_revisions(
 									$post_id,
 									[
@@ -674,7 +672,6 @@ class RootQuery {
 										'check_enabled'  => false,
 									]
 								);
-
 								$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
 							}
 
