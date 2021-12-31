@@ -98,7 +98,7 @@ abstract class Model {
 		}
 
 		$this->init();
-		self::prepare_fields();
+		$this->prepare_fields();
 
 	}
 
