@@ -174,24 +174,19 @@ class Router {
 
 				if ( ! is_string( $host ) ) {
 					return false;
-				} elseif ( ! is_string( $uri ) ) {
+				}
+
+				if ( ! is_string( $uri ) ) {
 					return false;
 				}
 
-				$full_path = $host . $uri;
-				$site_url  = site_url( self::$route );
+				$parsed_site_url    = parse_url( site_url( self::$route ), PHP_URL_PATH );
+				$graphql_url        = ! empty( $parsed_site_url ) ? wp_unslash( $parsed_site_url ) : self::$route;
+				$parsed_request_url = parse_url( $uri, PHP_URL_PATH );
+				$request_url        = ! empty( $parsed_request_url ) ? wp_unslash( $parsed_request_url ) : '';
 
-				// Strip protocol.
-				$replaced_path = preg_replace( '#^(http(s)?://)#', '', $full_path );
-				if ( ! empty( $replaced_path ) ) {
-					$full_path = $replaced_path;
-				}
-				$replaced_url = preg_replace( '#^(http(s)?://)#', '', $site_url );
-				if ( ! empty( $replaced_url ) ) {
-					$site_url = $replaced_url;
-				}
-
-				$is_graphql_http_request = ( strpos( $full_path, $site_url ) === 0 ) && strlen( $full_path ) === strlen( $site_url );
+				// Determine if the route is indeed a graphql request
+				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
 			}
 		}
 
