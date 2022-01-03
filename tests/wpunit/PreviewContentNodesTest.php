@@ -21,7 +21,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 				'show_in_graphql' => true,
 				'graphql_single_name' => 'WithRevisionSupport',
 				'graphql_plural_name' => 'allWithRevisionSupport',
-				'supports' => [ 'title', 'content', 'author' ],
+				'supports' => [ 'title', 'content', 'author', 'revisions' ],
 				'public' => true,
 			]
 		);
@@ -72,6 +72,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		    databaseId
 		    isPreview
 		    status
+			previewRevisionDatabaseId
 		    ...on NodeWithTitle {
 		      title
 		    }
@@ -203,9 +204,20 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * If a user were to click preview on a new post or a draft:
+	 * - WordPress would check if the post_type supports revisions
+	 * - If so: create a revision and create/update a draft, use the draft as the preview
+	 * - If not: create/update a draft, use the draft as the preview
+	 *
+	 * WPGraphQL uses the revision as the preview if it exists. If not, it
+	 * returns the draft itself as the preview.
+	 */
 	public function testPreviewDraftPostOfTypeWithRevisionSupport() {
 
-		// draft post exists
+		// user creates a new post or edits an existing draft
+		// user clicks "preview"
+		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
 		$draft_id = $this->factory()->post->create([
 			'post_type' => $this->with_post_type,
@@ -214,7 +226,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin,
 		]);
 
-		// user clicks preview
 		// since the post type supports revisions, a revision is created
 		$revision_id = $this->factory()->post->create([
 			'post_type' => 'revision',
@@ -235,9 +246,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $not_preview );
+
 		$this->assertSame( 'WithRevisionSupport', $not_preview['data']['node']['__typename'] );
 		$this->assertSame( $draft_id, $not_preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $not_preview['data']['node']['title'] );
+		$this->assertFalse( $not_preview['data']['node']['isPreview'] );
+		// the preview id should be the id of the revision since the post_type supports revisions
+		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
 			'query' => $this->getPreviewQuery(),
@@ -249,22 +264,37 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $preview );
 
-		$this->assertArrayNotHasKey( 'errors', $not_preview );
+		$this->assertArrayNotHasKey( 'errors', $preview );
 
 		// The post type supports revisions, so the preview node should be
 		// a different node than the draft itself
 		$this->assertNotSame( $not_preview, $preview );
 		$this->assertSame( 'WithRevisionSupport', $preview['data']['node']['__typename'] );
+		// the preview id should be the id of this node since the post_type supports revisions and we are previewing
 		$this->assertSame( $revision_id, $preview['data']['node']['databaseId'] );
+		$this->assertTrue( $preview['data']['node']['isPreview'] );
+		// but revisions don't have revisions
+		$this->assertNull( $preview['data']['node']['previewRevisionDatabaseId'] );
 
-		// But the titles (that we are previewing) should be the same
+		// and the titles (that we are previewing) should be the same
 		$this->assertSame( $preview['data']['node']['title'], $not_preview['data']['node']['title'] );
 
 	}
 
+	/**
+	 * If a user were to click preview on a new post or a draft:
+	 * - WordPress would check if the post_type supports revisions
+	 * - If so: create a revision and create/update a draft, use the draft as the preview
+	 * - If not: create/update a draft, use the draft as the preview
+	 *
+	 * WPGraphQL uses the revision as the preview if it exists. Otherwise, it
+	 * returns the draft itself as the preview.
+	 */
 	public function testPreviewDraftPostOfTypeWithoutRevisionSupport() {
 
-		// draft post exists
+		// user creates a new post or edits an existing draft
+		// user clicks "preview"
+		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
 		$draft_id = $this->factory()->post->create([
 			'post_type' => $this->without_post_type,
@@ -273,7 +303,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin,
 		]);
 
-		// user clicks preview
 		// since the post type does not support revisions, a revision is not created
 
 		$not_preview = graphql([
@@ -290,6 +319,10 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'WithoutRevisionSupport', $not_preview['data']['node']['__typename'] );
 		$this->assertSame( $draft_id, $not_preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $not_preview['data']['node']['title'] );
+		// Drafts are always treated as previews in WPGraphQL.
+		$this->assertTrue( $not_preview['data']['node']['isPreview'] );
+		// the post_type does not support revisions, so there shouldn't be a revision ID.
+		$this->assertNull( $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
 			'query' => $this->getPreviewQuery(),
@@ -301,19 +334,30 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $preview );
 
-		$this->assertArrayNotHasKey( 'errors', $not_preview );
+		$this->assertArrayNotHasKey( 'errors', $preview );
 
 		// The post type does not support revisions, so the preview node should be
 		// the same node as the draft itself
 		$this->assertSame( $not_preview, $preview );
 		$this->assertSame( 'WithoutRevisionSupport', $preview['data']['node']['__typename'] );
 		$this->assertSame( $draft_id, $preview['data']['node']['databaseId'] );
+		$this->assertTrue( $preview['data']['node']['isPreview'] );
+		// The post type does not support revisions, so there shouldn't be a revision ID.
+		$this->assertNull( $preview['data']['node']['previewRevisionDatabaseId'] );
 
 		// But the titles (that we are previewing) should be the same
 		$this->assertSame( $preview['data']['node']['title'], $not_preview['data']['node']['title'] );
 
 	}
 
+	/**
+	 * If a user were to click preview on a published post, WordPress would create
+	 * an autosave revision regardless of the post type's revision support. It will
+	 * use the autosave as the preview.
+	 *
+	 * WPGraphQL uses the latest revision as the preview for published posts. This
+	 * is usually the autosave created by clicking "Preview".
+	 */
 	public function testPreviewPublishedPostOfTypeWithRevisionSupport() {
 
 		// we're starting with a published post
@@ -329,7 +373,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$new_title = 'new title';
 
 		// User clicks preview
-		// since the post type supports revisions a revision is created
+		// an autosave revision is created
 		$revision_id = $this->factory()->post->create([
 			'post_type' => 'revision',
 			'post_status' => 'inherit',
@@ -352,6 +396,9 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'WithRevisionSupport', $not_preview['data']['node']['__typename'] );
 		$this->assertSame( $published_id, $not_preview['data']['node']['databaseId'] );
 		$this->assertSame( $title, $not_preview['data']['node']['title'] );
+		$this->assertFalse( $not_preview['data']['node']['isPreview'] );
+		// the preview id should be the id of the autosave revision
+		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
 			'query' => $this->getPreviewQuery(),
@@ -363,20 +410,33 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $preview );
 
-		$this->assertArrayNotHasKey( 'errors', $not_preview );
+		$this->assertArrayNotHasKey( 'errors', $preview );
 
 		// The published node and preview node should be different nodes
 		$this->assertNotSame( $preview, $not_preview );
 		$this->assertSame( 'WithRevisionSupport', $preview['data']['node']['__typename'] );
 
-		// The revision id should be returned
+		// The autosave revision id should be returned since we are previewing
 		$this->assertSame( $revision_id, $preview['data']['node']['databaseId'] );
+
+		$this->assertTrue( $preview['data']['node']['isPreview'] );
+
+		// revisions don't have revisions
+		$this->assertNull( $preview['data']['node']['previewRevisionDatabaseId'] );
 
 		// the changed title should be returned for the preview
 		$this->assertSame( $new_title, $preview['data']['node']['title'] );
 
 	}
 
+	/**
+	 * If a user were to click preview on a published post, WordPress would create
+	 * an autosave revision regardless of the post type's revision support. It will
+	 * use the autosave as the preview.
+	 *
+	 * WPGraphQL uses the latest revision as the preview for published posts. This
+	 * is usually the autosave created by clicking "Preview".
+	 */
 	public function testPreviewPublishedPostOfTypeWithoutRevisionSupport() {
 
 		// we're starting with a published post
@@ -392,7 +452,8 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$new_title = 'new title';
 
 		// User clicks preview
-		// since the post type supports revisions a revision is created
+		// autosave revisions are always created for published posts
+		// regardless of post type support
 		$revision_id = $this->factory()->post->create([
 			'post_type' => 'revision',
 			'post_status' => 'inherit',
@@ -415,6 +476,9 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'WithoutRevisionSupport', $not_preview['data']['node']['__typename'] );
 		$this->assertSame( $published_id, $not_preview['data']['node']['databaseId'] );
 		$this->assertSame( $title, $not_preview['data']['node']['title'] );
+		$this->assertFalse( $not_preview['data']['node']['isPreview'] );
+		// the preview id should be the id of the autosave revision
+		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
 			'query' => $this->getPreviewQuery(),
@@ -426,16 +490,21 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $preview );
 
-		$this->assertArrayNotHasKey( 'errors', $not_preview );
+		$this->assertArrayNotHasKey( 'errors', $preview );
 
 		// The published node and preview node should be different nodes
 		$this->assertNotSame( $preview, $not_preview );
 		$this->assertSame( 'WithoutRevisionSupport', $preview['data']['node']['__typename'] );
 
-		// The revision id should be returned
+		$this->assertTrue( $preview['data']['node']['isPreview'] );
+
+		// The autosave revision id should be returned since we are previewing
 		$this->assertSame( $revision_id, $preview['data']['node']['databaseId'] );
 
-		// the changed title should be returned for the preview
+		// but revisions don't have revisions
+		$this->assertNull( $preview['data']['node']['previewRevisionDatabaseId'] );
+
+		// and the changed title should be returned for the preview
 		$this->assertSame( $new_title, $preview['data']['node']['title'] );
 
 	}
