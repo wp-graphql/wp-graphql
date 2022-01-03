@@ -674,12 +674,9 @@ class RootQuery {
 										'check_enabled'  => false,
 									]
 								);
-<<<<<<< HEAD
 
 								$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
-=======
-								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
->>>>>>> 60c09d07b7f31d35cdf41a1d613d2188d980422f
+
 							}
 
 							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
