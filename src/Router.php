@@ -191,8 +191,7 @@ class Router {
 					$site_url = $replaced_url;
 				}
 
-				$len                     = strlen( $site_url );
-				$is_graphql_http_request = ( substr( $full_path, 0, $len ) === $site_url );
+				$is_graphql_http_request = ( strpos( $full_path, $site_url ) === 0 ) && strlen( $full_path ) === strlen( $site_url );
 			}
 		}
 
