@@ -187,6 +187,7 @@ class Router {
 
 				// Determine if the route is indeed a graphql request
 				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
+
 			}
 		}
 
