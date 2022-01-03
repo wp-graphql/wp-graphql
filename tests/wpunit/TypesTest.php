@@ -446,4 +446,78 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertQueryError( $response, $expected );
 	}
+
+	// A regular query shouldn't have a duplicate type debug message
+	public function testQueryDoesntHaveDuplicateTypesDebugMessage() {
+		$actual = graphql([
+			'query' => '{posts{nodes{id}}}'
+		]);
+
+		// There should be no debug messages by default
+		$this->assertTrue( isset( $actual['extensions']['debug'] ) );
+		$this->assertEmpty( $actual['extensions']['debug'] );
+	}
+
+	public function testRegisterDuplicateTypesOutputsDebugMessage() {
+
+		// register duplicate types
+		register_graphql_object_type( 'NewType', [
+			'fields' => [
+				'one' => [
+					'type' => 'String'
+				]
+			]
+		]);
+		register_graphql_object_type( 'NewType', [
+			'fields' => [
+				'two' => [
+					'type' => 'String'
+				]
+			]
+		]);
+
+		$actual = graphql([
+			'query' => '{posts{nodes{id}}}'
+		]);
+
+		codecept_debug( $actual );
+
+		// There should be no debug messages by default
+		$this->assertTrue( isset( $actual['extensions']['debug'] ), 'query has debug in the extensions payload' );
+		$this->assertNotEmpty( $actual['extensions']['debug'], 'query has a debug message' );
+		$this->assertNotFalse( strpos( $actual['extensions']['debug'][0]['message'], 'duplicate'), 'debug message contains the word duplicate' );
+
+//		// clear the schema
+//		$this->clearSchema();
+//
+//		// register duplicate types
+//		register_graphql_object_type( 'NewType', [
+//			'fields' => [
+//				'one' => [
+//					'type' => 'String'
+//				]
+//			]
+//		]);
+//		register_graphql_object_type( 'NewType', [
+//			'fields' => [
+//				'two' => [
+//					'type' => 'String'
+//				]
+//			]
+//		]);
+//
+//		// query again
+//		$actual = graphql([
+//			'query' => '{posts{nodes{id}}}'
+//		]);
+//
+//		codecept_debug( $actual );
+//
+//		// There should be a debug message now!
+//		$this->assertTrue( isset( $actual['extensions']['debug'] ) );
+//		$this->assertNotEmpty( $actual['extensions']['debug'] );
+
+
+
+	}
 }
