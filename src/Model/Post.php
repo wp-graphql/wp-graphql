@@ -745,15 +745,6 @@ class Post extends Model {
 				},
 				'previewRevisionDatabaseId' => [
 					'callback'   => function () {
-
-						if ( ! post_type_supports( $this->data->post_type, 'revisions' ) ) {
-							if ( 'draft' === $this->data->post_status ) {
-								return $this->databaseId;
-							}
-
-							return $this->data->ID;
-						}
-
 						$revisions = wp_get_post_revisions(
 							$this->data->ID,
 							[

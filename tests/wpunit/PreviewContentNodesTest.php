@@ -204,9 +204,20 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * If a user were to click preview on a new post or a draft:
+	 * - WordPress would check if the post_type supports revisions
+	 * - If so: create a revision and create/update a draft, use the draft as the preview
+	 * - If not: create/update a draft, use the draft as the preview
+	 *
+	 * WPGraphQL uses the revision as the preview if it exists. If not, it
+	 * returns the draft itself as the preview.
+	 */
 	public function testPreviewDraftPostOfTypeWithRevisionSupport() {
 
-		// draft post exists
+		// user creates a new post or edits an existing draft
+		// user clicks "preview"
+		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
 		$draft_id = $this->factory()->post->create([
 			'post_type' => $this->with_post_type,
@@ -215,7 +226,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin,
 		]);
 
-		// user clicks preview
 		// since the post type supports revisions, a revision is created
 		$revision_id = $this->factory()->post->create([
 			'post_type' => 'revision',
@@ -276,7 +286,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	 * - WordPress would check if the post_type supports revisions
 	 * - If so: create a revision and create/update a draft, use the draft as the preview
 	 * - If not: create/update a draft, use the draft as the preview
-	 * 
+	 *
 	 * WPGraphQL uses the revision as the preview if it exists. Otherwise, it
 	 * returns the draft itself as the preview.
 	 */
@@ -293,7 +303,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin,
 		]);
 
-		// user clicks preview
 		// since the post type does not support revisions, a revision is not created
 
 		$not_preview = graphql([
@@ -345,7 +354,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	 * If a user were to click preview on a published post, WordPress would create
 	 * an autosave revision regardless of the post type's revision support. It will
 	 * use the autosave as the preview.
-	 * 
+	 *
 	 * WPGraphQL uses the latest revision as the preview for published posts. This
 	 * is usually the autosave created by clicking "Preview".
 	 */
@@ -364,7 +373,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$new_title = 'new title';
 
 		// User clicks preview
-		// since the post type supports revisions a revision is created
 		// an autosave revision is created
 		$revision_id = $this->factory()->post->create([
 			'post_type' => 'revision',
@@ -425,7 +433,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	 * If a user were to click preview on a published post, WordPress would create
 	 * an autosave revision regardless of the post type's revision support. It will
 	 * use the autosave as the preview.
-	 * 
+	 *
 	 * WPGraphQL uses the latest revision as the preview for published posts. This
 	 * is usually the autosave created by clicking "Preview".
 	 */
