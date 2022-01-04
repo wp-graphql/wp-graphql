@@ -207,7 +207,10 @@ class Request {
 	 */
 	protected function get_root_value() {
 
-		$root_value = null;
+		/**
+		 * Set the root value based on what was passed to the request
+		 */
+		$root_value = isset( $this->data['root_value'] ) && ! empty( $this->data['root_value'] ) ? $this->data['root_value'] : null;
 
 		/**
 		 * Return the filtered root value
