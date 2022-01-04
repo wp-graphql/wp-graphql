@@ -73,6 +73,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		      __typename
 		      id
 		      databaseId
+		      contentTypeName
 		      ...on NodeWithTitle {
 		        title
 		      }
@@ -96,10 +97,12 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 'Post', $actual['data']['contentNodes']['nodes'][0]['__typename'] );
+		$this->assertEquals( 'post', $actual['data']['contentNodes']['nodes'][0]['contentTypeName'] );
 		$this->assertEquals( $post_id, $actual['data']['contentNodes']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $post_id, $actual['data']['contentNodes']['nodes'][0]['postId'] );
 
 		$this->assertEquals( 'Page', $actual['data']['contentNodes']['nodes'][1]['__typename'] );
+		$this->assertEquals( 'page', $actual['data']['contentNodes']['nodes'][1]['contentTypeName'] );
 		$this->assertEquals( $page_id, $actual['data']['contentNodes']['nodes'][1]['databaseId'] );
 		$this->assertEquals( $page_id, $actual['data']['contentNodes']['nodes'][1]['pageId'] );
 	}
