@@ -17,6 +17,7 @@
 - ([#2188](https://github.com/wp-graphql/wp-graphql/pull/2188)): Adds `contentTypeName` to the `ContentNode` type.
 - ([#2199](https://github.com/wp-graphql/wp-graphql/pull/2199)): Pass the TypeRegistry instance through to the `graphql_schema_config` filter.
 - ([#2204](https://github.com/wp-graphql/wp-graphql/pull/2204)): Allow a `root_value` to be set when calling the `graphql()` function.
+- ([#2203](https://github.com/wp-graphql/wp-graphql/pull/2203)): Adds new filter to mutations to filter the input args before execution, and a new action after execution, before returning the mutation, to allow additional data to be stored during mutations. Thanks @markkelnar!
 
 ## 1.6.10
 
