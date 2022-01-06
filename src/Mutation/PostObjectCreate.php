@@ -296,17 +296,6 @@ class PostObjectCreate {
 			}
 
 			/**
-			 * Fires after a single term is created or updated via a GraphQL mutation
-			 *
-			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
-			 *
-			 * @param int    $post_id       Inserted post ID
-			 * @param array  $args          The args used to insert the term
-			 * @param string $mutation_name The name of the mutation being performed
-			 */
-			do_action( "graphql_insert_{$post_type_object->name}", $post_id, $input, $mutation_name );
-
-			/**
 			 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)
 			 *
 			 * The input for the postObjectMutation will be passed, along with the $new_post_id for the
