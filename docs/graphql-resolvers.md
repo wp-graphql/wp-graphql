@@ -9,7 +9,7 @@ On this page you will find information about what GraphQL resolvers are and how 
 
 A GraphQL Schema consists of Types and Fields, which declares what is possible to be asked for. Resolvers are the functions that execute when a field is asked for.
 
-When registering a field to theWPGraphQL Schema defining a resolver is optional.
+When registering a field to the WPGraphQL Schema defining a resolver is optional.
 
 **Registering a field *without* a resolver:**
 
