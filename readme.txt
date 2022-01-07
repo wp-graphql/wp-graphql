@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.8
 Requires PHP: 7.1
-Stable tag: 1.6.10
+Stable tag: 1.6.11
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -120,6 +120,24 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.6.11 =
+
+**Chores / Bugfixes**
+
+- ([#2177](https://github.com/wp-graphql/wp-graphql/pull/2177)): Prevents PHP notice when clientMutationId is not set on mutations. Thanks @oskarmodig!
+- ([#2182](https://github.com/wp-graphql/wp-graphql/pull/2182)): Fixes bug where the graphql endpoint couldn't be accessed by a site domain other than the site_url(). Thanks @moommeister!
+- ([#2184](https://github.com/wp-graphql/wp-graphql/pull/2184)): Fixes regression where duplicate type warning was not being displayed after lazy type loading was added in v1.6.0.
+- ([#2189](https://github.com/wp-graphql/wp-graphql/pull/2189)): Fixes bug with content node previews
+- ([#2196](https://github.com/wp-graphql/wp-graphql/pull/2196)): Further bug fixes for content node previews. Thanks @apmattews!
+- ([#2197](https://github.com/wp-graphql/wp-graphql/pull/2197)): Fixes call to prepare_fields() to not be called statically. Thanks @justlevine!
+
+**New Features**
+
+- ([#2188](https://github.com/wp-graphql/wp-graphql/pull/2188)): Adds `contentTypeName` to the `ContentNode` type.
+- ([#2199](https://github.com/wp-graphql/wp-graphql/pull/2199)): Pass the TypeRegistry instance through to the `graphql_schema_config` filter.
+- ([#2204](https://github.com/wp-graphql/wp-graphql/pull/2204)): Allow a `root_value` to be set when calling the `graphql()` function.
+- ([#2203](https://github.com/wp-graphql/wp-graphql/pull/2203)): Adds new filter to mutations to filter the input args before execution, and a new action after execution, before returning the mutation, to allow additional data to be stored during mutations. Thanks @markkelnar!
 
 = 1.6.10 =
 

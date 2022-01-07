@@ -4,6 +4,7 @@ namespace WPGraphQL;
 
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class WPSchema
@@ -32,10 +33,11 @@ class WPSchema extends Schema {
 	 * WPSchema constructor.
 	 *
 	 * @param SchemaConfig $config The config for the Schema.
+	 * @param TypeRegistry $type_registry
 	 *
 	 * @since 0.0.9
 	 */
-	public function __construct( SchemaConfig $config ) {
+	public function __construct( SchemaConfig $config, TypeRegistry $type_registry ) {
 
 		$this->config = $config;
 
@@ -46,7 +48,7 @@ class WPSchema extends Schema {
 		 *
 		 * @since 0.0.9
 		 */
-		$this->filterable_config = apply_filters( 'graphql_schema_config', $config );
+		$this->filterable_config = apply_filters( 'graphql_schema_config', $config, $type_registry );
 		parent::__construct( $this->filterable_config );
 	}
 

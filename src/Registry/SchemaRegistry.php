@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Registry;
 
+use Exception;
 use GraphQL\Type\SchemaConfig;
 use WPGraphQL\WPSchema;
 
@@ -20,7 +21,7 @@ class SchemaRegistry {
 	/**
 	 * SchemaRegistry constructor.
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct() {
 		$this->type_registry = \WPGraphQL::get_type_registry();
@@ -30,7 +31,7 @@ class SchemaRegistry {
 	 * Returns the Schema to use for execution of the GraphQL Request
 	 *
 	 * @return WPSchema
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function get_schema() {
 
@@ -47,7 +48,7 @@ class SchemaRegistry {
 		/**
 		 * Create a new instance of the Schema
 		 */
-		$schema = new WPSchema( $schema_config );
+		$schema = new WPSchema( $schema_config, $this->type_registry );
 
 		/**
 		 * Filter the Schema

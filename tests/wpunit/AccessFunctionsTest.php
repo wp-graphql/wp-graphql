@@ -470,4 +470,27 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $actual );
 
 	}
+
+	public function testSettingRootValueWhenCallingGraphqlFunction() {
+
+		$value = uniqid( 'test-', true );
+
+		register_graphql_field( 'RootQuery', 'someRootField', [
+			'type' => 'String',
+			'resolve' => function( $root ) {
+				return isset ( $root['someRootField' ] ) ? $root['someRootField' ] : null;
+			}
+		] );
+
+		$actual = graphql([
+			'query' => '{someRootField}',
+			'root_value' => [
+				'someRootField' => $value
+			]
+		]);
+
+		$this->assertSame( $value, $actual['data']['someRootField'] );
+
+
+	}
 }

@@ -777,6 +777,10 @@ class Post extends Model {
 						}
 					}
 
+					if ( ! post_type_supports( $this->data->post_type, 'revisions' ) && 'draft' === $this->data->post_status ) {
+						return true;
+					}
+
 					return false;
 				},
 				'isSticky'                  => function () {
