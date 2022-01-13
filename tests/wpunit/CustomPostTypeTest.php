@@ -9,6 +9,28 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 		WPGraphQL::clear_schema();
 
+		register_post_type(
+			'bootstrap_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'bootstrapPost',
+				'graphql_plural_name' => 'bootstrapPosts',
+				'hierarchical'        => true,
+				'taxonomies' => [ 'bootstrap_tax' ]
+			]
+		);
+		register_taxonomy(
+			'bootstrap_tax',
+			[ 'bootstrap_cpt' ],
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'bootstrapTerm',
+				'graphql_plural_name' => 'bootstrapTerms',
+				'hierarchical'        => true,
+			]
+		);
+
+
 		$this->post_id = $this->factory()->post->create([
 			'post_type' => 'bootstrap_cpt',
 			'post_status' => 'publish',
