@@ -52,7 +52,14 @@ class TermObject {
 					],
 					'uri'               => [
 						'resolve' => function ( $term, $args, $context, $info ) {
-							return ! empty( $term->link ) ? str_ireplace( home_url(), '', $term->link ) : '';
+							$url = $term->link;
+							if ( ! empty( $url ) ) {
+								$parsed = wp_parse_url( $url );
+								if ( isset( $parsed ) ) {
+									return $parsed['path'];
+								}
+							}
+							return '';
 						},
 					],
 				],
