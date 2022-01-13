@@ -3,6 +3,28 @@
 class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
+
+		register_post_type(
+			'bootstrap_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'bootstrapPost',
+				'graphql_plural_name' => 'bootstrapPosts',
+				'hierarchical'        => true,
+				'taxonomies' => [ 'bootstrap_tax' ]
+			]
+		);
+		register_taxonomy(
+			'bootstrap_tax',
+			[ 'bootstrap_cpt' ],
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'bootstrapTerm',
+				'graphql_plural_name' => 'bootstrapTerms',
+				'hierarchical'        => true,
+			]
+		);
+
 		parent::setUp();
 		WPGraphQL::clear_schema();
 	}
