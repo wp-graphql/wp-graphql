@@ -683,6 +683,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws Exception
 	 */
 	public function testQueryTermLinkCustomHostPortReplacement() {
+		$cat = $this->factory()->term->create_and_get([
+			'taxonomy' => 'category',
+		]);
+
 		add_filter( 'term_link', function ( $term_link ) {
 			$frontend_uri = 'http://localhost:3000/';
 			$site_url     = trailingslashit( site_url() );
@@ -691,17 +695,15 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 			return str_replace( $site_url, $frontend_uri, $term_link );
 		});
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
 
 		$link     = get_term_link( $cat->term_id );
 		$parsed   = parse_url( $link );
-		$term_uri = $parsed['path'] . '?' . $parsed['query'];
+		$term_uri = $parsed['path'] ?? '';
+		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
 
 		$expected = [
 			'__typename' => 'Category',
-			'uri'        => $term_uri,
+			'uri'        => trim( $term_uri ),
 		];
 
 		$query = '
@@ -726,6 +728,5 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $expected, $actual['data']['termNode'] );
 
 	}
-
 
 }
