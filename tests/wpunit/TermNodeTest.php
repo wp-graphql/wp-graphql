@@ -687,7 +687,7 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 			$frontend_uri = 'http://localhost:3000/';
 			$site_url     = trailingslashit( site_url() );
 
-			$this->assertNotSame( site_url(), $frontend_uri );
+			$this->assertNotSame( $site_url, $frontend_uri );
 
 			return str_replace( $site_url, $frontend_uri, $term_link );
 		});
