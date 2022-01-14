@@ -638,8 +638,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 			'taxonomy' => 'category'
 		]);
 
-		$link = get_term_link( $cat->term_id );
-		$term_uri = str_ireplace( home_url(), '', $link );
+		$link     = get_term_link( $cat->term_id );
+		$parsed   = parse_url( $link );
+		$term_uri = $parsed['path'] . '?' . $parsed['query'];
 
 		$expected = [
 			'__typename' => 'Category',
