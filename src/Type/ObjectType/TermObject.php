@@ -56,8 +56,9 @@ class TermObject {
 							if ( ! empty( $url ) ) {
 								$parsed = wp_parse_url( $url );
 								if ( isset( $parsed ) ) {
+									$path = isset( $parsed['path'] ) ? $parsed['path']: '';
 									$query = isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
-									return trim( $parsed['path'] . $query );
+									return trim( $path . $query );
 								}
 							}
 							return '';
