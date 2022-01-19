@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.12
+
+### Chores / Bugfixes
+
+- ([#2209](https://github.com/wp-graphql/wp-graphql/pull/2209)): Adds WordPress 5.8 to the testing matrix. Thanks @markkelnar!
+- ([#2211](https://github.com/wp-graphql/wp-graphql/pull/2211)), ([#2216](https://github.com/wp-graphql/wp-graphql/pull/2216)), ([#2221](https://github.com/wp-graphql/wp-graphql/pull/2221)), ([#2223](https://github.com/wp-graphql/wp-graphql/pull/2223)): Bumps NPM dependencies for GraphiQL
+- ([#2212](https://github.com/wp-graphql/wp-graphql/pull/2212)): Fixes how the `TermObject.uri` strips the link down to the path. Thanks @theodesp!
+- ([#2215](https://github.com/wp-graphql/wp-graphql/pull/2215)): Fixes testing environment to play nice with a recent wp-browser update.
+- ([#2218](https://github.com/wp-graphql/wp-graphql/pull/2218)): Update note on settings page explaining that Public Introspection is enabled when GraphQL Debug mode is enabled.
+- ([#2220](https://github.com/wp-graphql/wp-graphql/pull/2220)): Adds CodeQL workflow to analyze JavaScript on PRs
+
+
 ## 1.6.11
 
 ### Chores / Bugfixes
@@ -10,7 +22,6 @@
 - ([#2189](https://github.com/wp-graphql/wp-graphql/pull/2189)): Fixes bug with content node previews
 - ([#2196](https://github.com/wp-graphql/wp-graphql/pull/2196)): Further bug fixes for content node previews. Thanks @apmattews!
 - ([#2197](https://github.com/wp-graphql/wp-graphql/pull/2197)): Fixes call to prepare_fields() to not be called statically. Thanks @justlevine!
-
 
 ### New Features
 
