@@ -10,7 +10,10 @@
   "private": true,
   "devDependencies": {
     "@babel/runtime": "7.15.4",
-    "typescript": "4.4.3"
+    "typescript": "4.4.3",
+    "node-forge": "^1.0.0",
+    "postcss": "^8.2.13",
+    "ansi-regex": "^6.0.1"
   },
   "dependencies": {
     "graphiql": "1.4.7",
@@ -20,7 +23,8 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-scripts": "4.0.3",
-    "whatwg-fetch": "3.6.2"
+    "whatwg-fetch": "3.6.2",
+    "nth-check": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
