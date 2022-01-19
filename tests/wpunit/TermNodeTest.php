@@ -679,5 +679,54 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testQueryTermLinkCustomHostPortReplacement() {
+		$cat = $this->factory()->term->create_and_get([
+			'taxonomy' => 'category',
+		]);
+
+		add_filter( 'term_link', function ( $term_link ) {
+			$frontend_uri = 'http://localhost:3000/';
+			$site_url     = trailingslashit( site_url() );
+
+			$this->assertNotSame( $site_url, $frontend_uri );
+
+			return str_replace( $site_url, $frontend_uri, $term_link );
+		});
+
+		$link     = get_term_link( $cat->term_id );
+		$parsed   = parse_url( $link );
+		$term_uri = $parsed['path'] ?? '';
+		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
+
+		$expected = [
+			'__typename' => 'Category',
+			'uri'        => trim( $term_uri ),
+		];
+
+		$query = '
+		query TermByGlobalId($id:ID!){
+		  termNode(id: $id idType:URI) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_term_link( $cat->term_id ),
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['termNode'] );
+
+	}
 
 }
