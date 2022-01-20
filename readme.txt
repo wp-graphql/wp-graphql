@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.8
 Requires PHP: 7.1
-Stable tag: 1.6.11
+Stable tag: 1.6.12
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -120,6 +120,18 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.6.12 =
+
+**Chores / Bugfixes**
+
+- ([#2209](https://github.com/wp-graphql/wp-graphql/pull/2209)): Adds WordPress 5.8 to the testing matrix. Thanks @markkelnar!
+- ([#2211](https://github.com/wp-graphql/wp-graphql/pull/2211)), ([#2216](https://github.com/wp-graphql/wp-graphql/pull/2216)), ([#2221](https://github.com/wp-graphql/wp-graphql/pull/2221)), ([#2223](https://github.com/wp-graphql/wp-graphql/pull/2223)): Bumps NPM dependencies for GraphiQL
+- ([#2212](https://github.com/wp-graphql/wp-graphql/pull/2212)): Fixes how the `TermObject.uri` strips the link down to the path. Thanks @theodesp!
+- ([#2215](https://github.com/wp-graphql/wp-graphql/pull/2215)): Fixes testing environment to play nice with a recent wp-browser update.
+- ([#2218](https://github.com/wp-graphql/wp-graphql/pull/2218)): Update note on settings page explaining that Public Introspection is enabled when GraphQL Debug mode is enabled.
+- ([#2220](https://github.com/wp-graphql/wp-graphql/pull/2220)): Adds CodeQL workflow to analyze JavaScript on PRs
+
 
 = 1.6.11 =
 
