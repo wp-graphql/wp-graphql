@@ -75,9 +75,7 @@ modules:
       adminEmail: '%ADMIN_EMAIL%'
       title: 'Test'
       plugins:
-        - wp-graphql/tests/_bootstrap/bootstrap.php
         - wp-graphql/wp-graphql.php
       activatePlugins:
-        - wp-graphql/tests/_bootstrap/bootstrap.php
         - wp-graphql/wp-graphql.php
       configFile: 'tests/_data/config.php'

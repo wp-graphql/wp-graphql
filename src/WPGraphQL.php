@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.6.11' );
+			define( 'WPGRAPHQL_VERSION', '1.6.12' );
 		}
 
 		// Plugin Folder Path.
