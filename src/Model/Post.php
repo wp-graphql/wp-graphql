@@ -163,6 +163,7 @@ class Post extends Model {
 		}
 
 		$restricted_cap = $this->get_restricted_cap();
+		$restricted_cap = apply_filters( 'graphql_post_restricted_cap', $restricted_cap, $post, $this );
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, (int) $post->post_author );
 
