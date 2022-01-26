@@ -3,6 +3,21 @@ uri: "/docs/build-your-first-wpgraphql-extension/"
 title: "Build your First WPGraphQL Extension"
 ---
 
+## Video Tutorial
+
+The following video walks through how to build a WPGraphQL Extension plugin. After watching the video, viewers should be able to create a WordPress plugin that extends the WPGraphQL Schema with new fields.
+
+If you prefer learning these concepts by reading, scroll down to the written tutorial below.
+
+https://youtu.be/0plIW5hf6lM
+
+
+## Written Tutorial
+
+The following written tutorial should be helpful for developers of any experience level, but it will be most useful for developers that have some previous experience building WordPress plugins.
+
+It's similar, but not identical, to the video tutorial above.
+
 This tutorial should be helpful for developers of any experience level, but it will be most useful for developers that have some previous experience building WordPress plugins.
 
 Before starting this tutorial, you should have a [local WordPress development environment](https://getflywheel.com/layout/local-wordpress-development-environment-how-to/) setup with [WPGraphQL installed and activated](/docs/quick-start/).
