@@ -40,3 +40,19 @@ phpstan.neon.dist
 phpunit.xml.dist
 README.md
 schema.graphql
+
+# Ignore GraphiQL App
+/src/Admin/Tools/app/.yarn
+/src/Admin/Tools/app/node_modules
+/src/Admin/Tools/app/src
+/src/Admin/Tools/app/.gitignore
+/src/Admin/Tools/app/.prettierignore
+/src/Admin/Tools/app/.prettierrc.json
+/src/Admin/Tools/app/.yarnrc.yml
+/src/Admin/Tools/app/babel.config.js
+/src/Admin/Tools/app/jest.config.js
+/src/Admin/Tools/app/jest.setup.js
+/src/Admin/Tools/app/package.json
+/src/Admin/Tools/app/test.setup.js
+/src/Admin/Tools/app/webpack.config.js
+/src/Admin/Tools/app/yarn.lock
