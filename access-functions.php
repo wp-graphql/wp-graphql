@@ -475,7 +475,7 @@ function is_graphql_http_request() {
 function register_graphql_settings_section( string $slug, array $config ) {
 	add_action(
 		'graphql_init_settings',
-		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $slug, $config ) {
+		function ( \WPGraphQL\Admin\Settings\Registry $registry ) use ( $slug, $config ) {
 			$registry->register_section( $slug, $config );
 		}
 	);
@@ -492,7 +492,7 @@ function register_graphql_settings_section( string $slug, array $config ) {
 function register_graphql_settings_field( string $group, array $config ) {
 	add_action(
 		'graphql_init_settings',
-		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ) {
+		function ( \WPGraphQL\Admin\Settings\Registry $registry ) use ( $group, $config ) {
 			$registry->register_field( $group, $config );
 		}
 	);
@@ -564,7 +564,7 @@ function is_valid_graphql_name( string $type_name ) {
 function register_graphql_settings_fields( string $group, array $fields ) {
 	add_action(
 		'graphql_init_settings',
-		function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $fields ) {
+		function ( \WPGraphQL\Admin\Settings\Registry $registry ) use ( $group, $fields ) {
 			$registry->register_fields( $group, $fields );
 		}
 	);

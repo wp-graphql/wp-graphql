@@ -1,0 +1,22 @@
+.graphiql-fullscreen #wp-graphiql-wrapper {
+  position: fixed;
+  z-index: 99999;
+  inset: 0;
+  padding: 0;
+}
+
+#graphiql-fullscreen-toggle {
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.graphiql-fullscreen #wp-graphiql-wrapper .expand-icon,
+#wp-graphiql-wrapper .contract-icon {
+  display: none;
+}
+.graphiql-fullscreen #wp-graphiql-wrapper .contract-icon {
+  display: block;
+}

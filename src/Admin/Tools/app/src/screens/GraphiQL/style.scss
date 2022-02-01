@@ -1,0 +1,27 @@
+#graphiql {
+  display: flex;
+  flex: 1;
+}
+
+#graphiql .spinner {
+  visibility: visible;
+  background: none;
+}
+
+#wp-graphiql-wrapper .doc-explorer-title,
+#wp-graphiql-wrapper .history-title {
+  overflow-x: visible;
+  padding-top: 7px;
+}
+
+#wp-graphiql-wrapper .docExplorerWrap,
+#wp-graphiql-wrapper .historyPaneWrap {
+  background: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 3;
+}
+
+#wp-graphiql-wrapper .graphiql-container .doc-explorer-back {
+  overflow: hidden;
+}

@@ -5,7 +5,7 @@
 use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\InstrumentSchema;
 use GraphQL\Error\UserError;
-use WPGraphQL\Admin\Admin;
+use WPGraphQL\Admin\Tools;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
@@ -289,8 +289,8 @@ final class WPGraphQL {
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 
-		// Initialize Admin functionality
-		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+		// Initialize Admin Tools functionality
+		add_action( 'after_setup_theme', [ $this, 'init_admin_tools' ] );
 
 		$tracing = new \WPGraphQL\Utils\Tracing();
 		$tracing->init();
@@ -408,9 +408,9 @@ final class WPGraphQL {
 	 *
 	 * @return void
 	 */
-	public function init_admin() {
-		$admin = new Admin();
-		$admin->init();
+	public function init_admin_tools() {
+		$admin_tools = new Tools();
+		$admin_tools->init();
 	}
 
 	/**
