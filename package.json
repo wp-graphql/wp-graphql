@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "devDependencies": {
-    "husky": "^3.0.9",
-    "lint-staged": "^9.4.2"
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.3"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"
