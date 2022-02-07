@@ -1,0 +1,5 @@
+{
+  "core": "WordPress/WordPress",
+  "plugins": [ "." ],
+  "themes": [ "./tests/empty-theme" ]
+}
