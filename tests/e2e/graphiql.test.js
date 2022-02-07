@@ -120,8 +120,20 @@ describe('Graphiql', function () {
 
         expect( newStyle?.display !== 'none' )
 
-    })
+        // click the button again to toggle the explorer closed
+        await button.click();
+        await wait( 1000 );
 
+
+        const closedStyle = await page.evaluate( async () => {
+            const docExplorerWrap = document.querySelector('.docExplorerWrap');
+            return window.getComputedStyle(docExplorerWrap);
+
+        });
+
+        expect( closedStyle?.display === 'none' )
+
+    })
     it ('loads with explorer open if queryParam says to', async() => {
         await loadGraphiQL({ explorerIsOpen: true } );
         await wait( 1000 );
@@ -132,6 +144,44 @@ describe('Graphiql', function () {
         });
 
         expect( style?.display !== 'none' )
+    })
+
+    it( 'loads with the documentation explorer closed', async () => {
+        await loadGraphiQL();
+        await wait( 1000 );
+        const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
+        expect( documentationExplorer.length === 0 );
+    })
+
+    it ('documentation explorer can be toggled open and closed', async () => {
+
+        await loadGraphiQL();
+        await wait( 1000 );
+        const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
+        expect( documentationExplorer.length === 0 );
+
+        const [button] = await page.$x("//button[contains(@class, 'docExplorerShow')]") ?? [];
+
+        if ( button.length ) {
+            await button.click();
+            await wait(1000);
+            const documentationExplorerShowing = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
+            expect(documentationExplorerShowing.length === 1);
+
+            await wait( 1000 );
+            const [closeButton] = await page.$x("//button[contains(@class, 'docExplorerHide')]") ?? [];
+
+            // make sure the doc explorer is gone after closing it
+            if ( closeButton.length ) {
+                await closeButton.click();
+                await wait(1000);
+                const documentationExplorerShowing = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
+                expect(documentationExplorerShowing.length === 0);
+            }
+
+        }
+
+
     })
 
 })
