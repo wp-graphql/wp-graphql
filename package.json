@@ -1,6 +1,6 @@
 {
-  "name": "wp-graphql",
-  "version": "0.3.6",
+  "name": "WPGraphQL",
+  "version": "1.6.12",
   "description": "GraphQL API for WordPress",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,10 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
+    "test-e2e:debug": "wp-scripts --inspect-brk test-e2e --config tests/e2e/jest.config.js --puppeteer-devtools",
+    "test-e2e:watch": "npm run test-e2e -- --watch"
   },
   "repository": {
     "type": "git",
@@ -25,10 +28,32 @@
   },
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "devDependencies": {
+    "@wordpress/e2e-test-utils": "^6.0.0",
+    "@wordpress/env": "^4.2.0",
+    "@wordpress/jest-console": "^5.0.0",
+    "@wordpress/jest-puppeteer-axe": "^4.0.0",
+    "expect-puppeteer": "^6.1.0",
     "husky": "^3.0.9",
-    "lint-staged": "^9.4.2"
+    "lint-staged": "^9.4.2",
+    "puppeteer-testing-library": "^0.6.0"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"
+  },
+  "wp-env": {
+    "plugin-dir": "wp-graphql",
+    "plugin-name": "WPGraphQL",
+    "docker-template": "./bin/docker-compose.override.yml.template",
+    "welcome-logo": [
+      "_ _ _ _____ _____             _   _____ __",
+      "| | | |  _  |   __|___ ___ ___| |_|     |  |",
+      "| | | |   __|  |  |  _| .'| . |   |  |  |  |__",
+      "|_____|__|  |_____|_| |__,|  _|_|_|__  _|_____|",
+      "                          |_|        |__|"
+    ],
+    "welcome-build-command": "npm run dev"
+  },
+  "dependencies": {
+    "@wordpress/scripts": "^20.0.2"
   }
 }
