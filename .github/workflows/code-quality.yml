@@ -14,8 +14,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     name: Check code
-    env:
-      PHP_VERSION: 7.4.5
+    strategy:
+      matrix:
+        php: [ 7.4.5 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -23,7 +24,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: $PHP_VERSION
+          php-version: ${{ matrix.php }}
           extensions: mbstring, intl
           tools: composer
 
@@ -35,8 +36,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: php-$PHP_VERSION-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: php-$PHP_VERSION-${{ runner.os }}-composer
+          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: php-${{ matrix.php }}N-${{ runner.os }}-composer
 
       - name: Install dependencies
         run: composer install --no-progress
