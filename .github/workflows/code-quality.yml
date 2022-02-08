@@ -23,7 +23,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: $PHP_VERSION
+          php-version: ${{ PHP_VERSION }}
           extensions: mbstring, intl
           tools: composer
 
