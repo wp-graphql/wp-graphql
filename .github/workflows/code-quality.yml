@@ -23,7 +23,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ PHP_VERSION }}
+          php-version: $PHP_VERSION
           extensions: mbstring, intl
           tools: composer
 
@@ -35,8 +35,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: php-${{ PHP_VERSION }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: php-${{ PHP_VERSION }}-${{ runner.os }}-composer
+          key: php-$PHP_VERSION-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: php-$PHP_VERSION-${{ runner.os }}-composer
 
       - name: Install dependencies
         run: composer install --no-progress
