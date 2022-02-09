@@ -31,11 +31,11 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
     _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false" }`
 
     await Promise.all([
-        await visitAdminPage('admin.php', `?page=graphiql-ide${_queryParams}` ),
-        await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 5000 }).catch( error => {
+        visitAdminPage('admin.php', `?page=graphiql-ide${_queryParams}` ),
+        page.waitForNavigation( { waitUntil: 'networkidle0' } ),
+        page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 5000 }).catch( error => {
             console.log( `failed to wait for graphiql...`)
         })
-
     ]);
 
 }
