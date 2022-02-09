@@ -8,7 +8,6 @@ describe('Graphiql', function () {
         // Clear all values stored to local storage
         clearLocalStorage();
         await loadGraphiQL();
-        await wait(1000);
     })
 
     // query should be able to be set by a user and executed
@@ -81,13 +80,13 @@ describe('Graphiql', function () {
     it ( 'loads with the explorer hidden by default', async() => {
 
         await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+
 
         // check to see if the docExplorer is hidden
         const style = await page.evaluate( async () => {
            const docExplorerWrap = document.querySelector('.docExplorerWrap');
 
-           return window.getComputedStyle(docExplorerWrap);
+           return window.getComputedStyle(docExplorerWrap) ?? {  display: 'none' };
 
         });
 
@@ -98,7 +97,7 @@ describe('Graphiql', function () {
     it ( 'opens explorer on click', async() => {
 
         await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+
 
         const style = page.evaluate( async () => {
             const docExplorerWrap = document.querySelector('.docExplorerWrap');
@@ -136,7 +135,7 @@ describe('Graphiql', function () {
     })
     it ('loads with explorer open if queryParam says to', async() => {
         await loadGraphiQL({ explorerIsOpen: true } );
-        await wait( 1000 );
+
         const style = await page.evaluate( async () => {
             const docExplorerWrap = document.querySelector('.docExplorerWrap');
             return window.getComputedStyle(docExplorerWrap);
@@ -148,7 +147,6 @@ describe('Graphiql', function () {
 
     it( 'loads with the documentation explorer closed', async () => {
         await loadGraphiQL();
-        await wait( 1000 );
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
         expect( documentationExplorer.length === 0 );
     })
@@ -156,7 +154,6 @@ describe('Graphiql', function () {
     it ('documentation explorer can be toggled open and closed', async () => {
 
         await loadGraphiQL();
-        await wait( 1000 );
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
         expect( documentationExplorer.length === 0 );
 
