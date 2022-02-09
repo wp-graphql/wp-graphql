@@ -7,7 +7,10 @@ describe('Graphiql', function () {
     beforeEach(async() => {
         // Clear all values stored to local storage
         clearLocalStorage();
-        await loadGraphiQL();
+        await Promise.all([
+            loadGraphiQL(),
+            page.waitForSelector('.graphiql-container', { visible: true, timeout: 10000 })
+        ])
     })
 
     // query should be able to be set by a user and executed
@@ -57,8 +60,10 @@ describe('Graphiql', function () {
     // Graphiql should load with custom query from queryParams loaded
     it ( 'loads with custom query from url query params', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+        await Promise.all([
+            loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            page.waitForSelector('.graphiql-container', { visible: true, timeout: 10000 })
+        ])
 
         // Ensure the operation name is in the code mirror query editor
         const operationNameInEditor = await page.$x("//span[contains(text(), 'TestFromUri')]");
@@ -79,8 +84,10 @@ describe('Graphiql', function () {
     // GraphiQL should load with the code explorer open
     it ( 'loads with the explorer hidden by default', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-
+        await Promise.all([
+            loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            page.waitForSelector('.graphiql-container', { visible: true, timeout: 10000 })
+        ])
 
         // check to see if the docExplorer is hidden
         const style = await page.evaluate( async () => {
@@ -96,8 +103,10 @@ describe('Graphiql', function () {
 
     it ( 'opens explorer on click', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-
+        await Promise.all([
+            loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            page.waitForSelector('.graphiql-container', { visible: true, timeout: 10000 })
+        ])
 
         const style = page.evaluate( async () => {
             const docExplorerWrap = document.querySelector('.docExplorerWrap');
@@ -134,6 +143,7 @@ describe('Graphiql', function () {
 
     })
     it ('loads with explorer open if queryParam says to', async() => {
+
         await loadGraphiQL({ explorerIsOpen: true } );
 
         const style = await page.evaluate( async () => {
