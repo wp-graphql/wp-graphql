@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "79876803161e0829b10cb67823d1a970",
+    "content-hash": "2b6af3b6f13a3e3e7905c8d5d9d6bab6",
     "packages": [
         {
             "name": "ivome/graphql-relay-php",
@@ -1596,16 +1596,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v9.0.0",
+            "version": "v9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "60607836f0ee05f2be1b401e8c24acb22ba6ca53"
+                "reference": "de10393013bdce6450749d746644a9c63dacba7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/60607836f0ee05f2be1b401e8c24acb22ba6ca53",
-                "reference": "60607836f0ee05f2be1b401e8c24acb22ba6ca53",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/de10393013bdce6450749d746644a9c63dacba7b",
+                "reference": "de10393013bdce6450749d746644a9c63dacba7b",
                 "shasum": ""
             },
             "require": {
@@ -1647,20 +1647,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-02-03T09:06:04+00:00"
+            "time": "2022-02-09T03:53:09+00:00"
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v9.0.0",
+            "version": "v9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
-                "reference": "3c11cfae62d21069180dca495f7a7aa452313188"
+                "reference": "4f7e3d67ceda9a6188757501748982ea9ed5f69a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/conditionable/zipball/3c11cfae62d21069180dca495f7a7aa452313188",
-                "reference": "3c11cfae62d21069180dca495f7a7aa452313188",
+                "url": "https://api.github.com/repos/illuminate/conditionable/zipball/4f7e3d67ceda9a6188757501748982ea9ed5f69a",
+                "reference": "4f7e3d67ceda9a6188757501748982ea9ed5f69a",
                 "shasum": ""
             },
             "require": {
@@ -1693,11 +1693,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-02-01T14:44:21+00:00"
+            "time": "2022-02-09T14:26:32+00:00"
         },
         {
             "name": "illuminate/contracts",
-            "version": "v9.0.0",
+            "version": "v9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -1745,7 +1745,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v9.0.0",
+            "version": "v9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -1791,7 +1791,7 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v9.0.0",
+            "version": "v9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
@@ -1930,16 +1930,16 @@
         },
         {
             "name": "lucatume/wp-browser",
-            "version": "3.0.21",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "5ab64406424d881bece302515fa00104ae224c45"
+                "reference": "415046123ce5373bf306ac0622f9523b720b9a3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/5ab64406424d881bece302515fa00104ae224c45",
-                "reference": "5ab64406424d881bece302515fa00104ae224c45",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/415046123ce5373bf306ac0622f9523b720b9a3b",
+                "reference": "415046123ce5373bf306ac0622f9523b720b9a3b",
                 "shasum": ""
             },
             "require": {
@@ -2020,7 +2020,7 @@
             ],
             "support": {
                 "issues": "https://github.com/lucatume/wp-browser/issues",
-                "source": "https://github.com/lucatume/wp-browser/tree/3.0.21"
+                "source": "https://github.com/lucatume/wp-browser/tree/3.1.0"
             },
             "funding": [
                 {
@@ -2028,7 +2028,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-11T10:33:03+00:00"
+            "time": "2022-01-28T16:09:41+00:00"
         },
         {
             "name": "mikehaertl/php-shellcommand",
