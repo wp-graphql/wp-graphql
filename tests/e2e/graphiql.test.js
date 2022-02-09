@@ -14,11 +14,14 @@ describe('Graphiql', function () {
     // query should be able to be set by a user and executed
     it('executes query', async() => {
 
-        await setQuery('{posts{nodes{id}}}');
-        await setVariables({ first: 10 });
-        await wait( 1000 );
-        await executeQuery();
-        await wait( 1000 );
+        await Promise.all([
+            await setQuery('{posts{nodes{id}}}'),
+            await setVariables({ first: 10 }),
+            await wait( 1000 ),
+            await executeQuery(),
+            await wait( 1000 )
+        ]);
+
 
         // Ensure there are nodes in the response. we don't care if it's empty or not
         // as we've not created any posts yet, but we do want to make sure we get a response
@@ -33,11 +36,14 @@ describe('Graphiql', function () {
 
     // Query should execute without errors
     it ( 'has no errors', async () => {
-        await setQuery('{posts{nodes{id}}}');
-        await setVariables({ first: 10 });
-        await wait( 1000 );
-        await executeQuery();
-        await wait( 1000 );
+        await Promise.all([
+            await setQuery('{posts{nodes{id}}}'),
+            await setVariables({ first: 10 }),
+            await wait( 1000 ),
+            await executeQuery(),
+            await wait( 1000 )
+        ])
+
         const nodesInResponse = await page.$x("//span[contains(text(), 'errors')]");
         expect( nodesInResponse.length === 0 );
 
@@ -45,11 +51,14 @@ describe('Graphiql', function () {
 
     // query should return errors when expected
     it ( 'renders errors when errors are expected', async () => {
-        await setQuery('{nonExistantFieldThatShouldError}');
-        await setVariables({ first: 10 });
-        await wait( 1000 );
-        await executeQuery();
-        await wait( 1000 );
+
+        await Promise.all([
+            await setQuery('{nonExistantFieldThatShouldError}'),
+            await setVariables({ first: 10 }),
+            await wait( 1000 ),
+            await executeQuery(),
+            await wait( 1000 )
+        ]);
         const nodesInResponse = await page.$x("//span[contains(text(), 'errors')]");
         expect( nodesInResponse.length === 1 );
 
@@ -58,8 +67,10 @@ describe('Graphiql', function () {
     // Graphiql should load with custom query from queryParams loaded
     it ( 'loads with custom query from url query params', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+        await Promise.all([
+            await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            await wait(3000 )
+        ]);
 
         // Ensure the operation name is in the code mirror query editor
         const operationNameInEditor = await page.$x("//span[contains(text(), 'TestFromUri')]");
@@ -80,8 +91,11 @@ describe('Graphiql', function () {
     // GraphiQL should load with the code explorer open
     it ( 'loads with the explorer hidden by default', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+        await Promise.all([
+            await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            await wait(3000 )
+        ])
+
 
         // check to see if the docExplorer is hidden
         const style = await page.evaluate( async () => {
@@ -97,8 +111,11 @@ describe('Graphiql', function () {
 
     it ( 'opens explorer on click', async() => {
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
-        await wait(3000 );
+        await Promise.all([
+            await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } ),
+            await wait(3000 )
+        ])
+
 
         const style = page.evaluate( async () => {
             const docExplorerWrap = document.querySelector('.docExplorerWrap');
@@ -135,8 +152,12 @@ describe('Graphiql', function () {
 
     })
     it ('loads with explorer open if queryParam says to', async() => {
-        await loadGraphiQL({ explorerIsOpen: true } );
-        await wait( 1000 );
+
+        await Promise.all([
+            await loadGraphiQL({ explorerIsOpen: true } ),
+            await wait( 1000 )
+        ]);
+
         const style = await page.evaluate( async () => {
             const docExplorerWrap = document.querySelector('.docExplorerWrap');
             return window.getComputedStyle(docExplorerWrap);
@@ -147,7 +168,11 @@ describe('Graphiql', function () {
     })
 
     it( 'loads with the documentation explorer closed', async () => {
-        await loadGraphiQL();
+
+        await Promise.all([
+            await loadGraphiQL()
+        ]);
+
         await wait( 1000 );
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
         expect( documentationExplorer.length === 0 );
@@ -155,7 +180,10 @@ describe('Graphiql', function () {
 
     it ('documentation explorer can be toggled open and closed', async () => {
 
-        await loadGraphiQL();
+
+        await Promise.all([
+            await loadGraphiQL()
+        ]);
         await wait( 1000 );
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
         expect( documentationExplorer.length === 0 );
