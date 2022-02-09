@@ -16,10 +16,5 @@ module.exports = {
     testPathIgnorePatterns: [
         '/node_modules/',
         'e2e-tests/specs/performance/',
-    ],
-    reporters: [
-        ...baseConfig.reporters,
-        // Report flaky tests results into artifacts for used in `report-flaky-tests` action.
-        process.env.CI && '<rootDir>/config/flaky-tests-reporter.js',
-    ].filter( Boolean ),
+    ]
 };
