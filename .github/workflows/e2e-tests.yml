@@ -30,7 +30,6 @@ jobs:
       - name: Npm install and build
         run: |
           npm ci
-          npm run build
       - name: Install WordPress
         run: |
           npm run wp-env start
