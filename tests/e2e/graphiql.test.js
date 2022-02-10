@@ -183,8 +183,6 @@ describe('Graphiql', function () {
     //             expect(documentationExplorerShowing.length === 0);
     //         }
     //     }
-
-
-    })
+    // })
 
 })
