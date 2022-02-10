@@ -36,7 +36,7 @@
     "expect-puppeteer": "^6.1.0",
     "husky": "^3.0.9",
     "lint-staged": "^9.4.2",
-    "puppeteer-testing-library": "^0.6.0"
+    "puppeteer-testing-library": "0.6.0"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"
