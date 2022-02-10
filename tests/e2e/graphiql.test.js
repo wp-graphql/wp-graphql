@@ -15,7 +15,7 @@ describe('Graphiql', function () {
         expect( true ).toBeTruthy();
     })
 
-    it ('can open test admin page', async () => {
+    it ('can open graphiql admin page', async () => {
         await visitAdminPage( 'admin.php', 'page=graphiql' );
         expect( true ).toBeTruthy();
     })
