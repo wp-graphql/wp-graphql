@@ -11,17 +11,17 @@ import { loginUser } from '@wordpress/e2e-test-utils/build/login-user'
 describe('Graphiql', function () {
 
     it ('can open test admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=tester' );
+        await visitAdminPage( 'admin.php', 'page=tester-page' );
         expect( true ).toBeTruthy();
     })
 
     it ('can open graphiql admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
+        await visitAdminPage( 'admin.php', 'page=graphiql_ide' );
         expect( true ).toBeTruthy();
     })
 
     it ('can open graphql settings page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphql-settings' );
+        await visitAdminPage( 'admin.php', 'page=graphql_settings' );
         expect( true ).toBeTruthy();
     })
 

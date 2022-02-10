@@ -58,7 +58,7 @@ class Settings {
 			__( 'WPGraphQL Settings', 'wp-graphql' ),
 			__( 'Settings', 'wp-graphql' ),
 			'manage_options',
-			'graphql-settings',
+			'graphql_settings',
 			[ $this, 'render_settings_page' ]
 		);
 

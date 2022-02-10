@@ -62,7 +62,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 add_action( 'admin_menu', function() {
 
-	add_menu_page( 'test', 'test', 'manage_options', 'tester', 'render_test_menu_page' );
+	add_menu_page( 'test', 'test', 'manage_options', 'tester-page', 'render_test_menu_page' );
 
 } );
 
