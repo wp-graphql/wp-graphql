@@ -1,4 +1,9 @@
-import { clearLocalStorage, visitAdminPage, createURL } from '@wordpress/e2e-test-utils'
+import {
+    clearLocalStorage,
+    visitAdminPage,
+    createURL,
+    switchUserToAdmin,
+} from '@wordpress/e2e-test-utils'
 import { addQueryArgs } from '@wordpress/url';
 import { wait, loadGraphiQL, executeQuery, setVariables, setQuery } from './helpers'
 import { join } from 'path'
@@ -156,7 +161,7 @@ describe('Graphiql', function () {
 
     it('loads with the documentation explorer closed', async () => {
         // await loadGraphiQL();
-
+        await switchUserToAdmin();
         const query = addQueryArgs('', {
             page: 'graphiql-ide'
         }).slice(1);

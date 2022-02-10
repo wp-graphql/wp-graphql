@@ -20,7 +20,6 @@ global.console = {
  * WordPress dependencies
  */
 import {
-    activatePlugin,
     activateTheme,
     clearLocalStorage,
     enablePageDialogAccept,
@@ -28,8 +27,7 @@ import {
     setBrowserViewport,
     trashAllPosts,
 } from '@wordpress/e2e-test-utils';
-import { switchUserToAdmin } from '@wordpress/e2e-test-utils/build/switch-user-to-admin'
-import { visitAdminPage } from '@wordpress/e2e-test-utils/build/visit-admin-page'
+
 
 /**
  * Timeout, in seconds, that the test should be allowed to run.
