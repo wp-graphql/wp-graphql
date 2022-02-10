@@ -4,22 +4,11 @@
 import { get } from 'lodash';
 import { toMatchInlineSnapshot, toMatchSnapshot } from 'jest-snapshot';
 
-global.console = {
-    // eslint-disable-next-line no-undef
-    log: jest.fn(), // console.log are ignored in tests
-    // log: console.log,
-
-    // Keep native behaviour for other methods, use those to print out things in your own tests, not `console.log`
-    error: console.error,
-    warn: console.warn,
-    info: console.info,
-    debug: console.debug,
-};
-
 /**
  * WordPress dependencies
  */
 import {
+    activatePlugin,
     activateTheme,
     clearLocalStorage,
     enablePageDialogAccept,
@@ -27,7 +16,6 @@ import {
     setBrowserViewport,
     trashAllPosts,
 } from '@wordpress/e2e-test-utils';
-
 
 /**
  * Timeout, in seconds, that the test should be allowed to run.
@@ -79,6 +67,13 @@ const pageEvents = [];
 
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 100000 );
+
+// Retry failed tests at most 2 times in CI.
+// This enables `flaky-tests-reporter` and `report-flaky-tests` GitHub action
+// to mark test as flaky and automatically create a tracking issue about it.
+if ( process.env.CI ) {
+    jest.retryTimes( 2 );
+}
 
 async function setupBrowser() {
     await clearLocalStorage();
