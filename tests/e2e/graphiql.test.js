@@ -157,7 +157,7 @@ describe('Graphiql', function () {
         // await loadGraphiQL();
 
 
-        await page.goto(createURL(join('wp-admin', 'admin.php'), '?page=graphiql-ide' ) );
+        await page.goto( 'http://localhost:8889/wp-admin/admin.php?page=graphiql-ide' );
         expect( true ).toBeTruthy();
         // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
 
