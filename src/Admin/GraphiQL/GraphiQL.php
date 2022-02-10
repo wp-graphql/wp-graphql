@@ -81,7 +81,7 @@ class GraphiQL {
 			__( 'GraphiQL IDE', 'wp-graphql' ),
 			__( 'GraphiQL IDE', 'wp-graphql' ),
 			'read',
-			'graphiql-ide',
+			'graphiql',
 			[ $this, 'render_graphiql_admin_page' ]
 		);
 	}
