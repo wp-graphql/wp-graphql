@@ -54,11 +54,11 @@ class Settings {
 	 */
 	public function add_options_page() {
 		add_submenu_page(
-			'graphiql-ide',
+			'graphiql',
 			__( 'WPGraphQL Settings', 'wp-graphql' ),
 			__( 'Settings', 'wp-graphql' ),
 			'manage_options',
-			'graphql-settings',
+			'graphql_settings',
 			[ $this, 'render_settings_page' ]
 		);
 

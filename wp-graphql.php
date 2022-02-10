@@ -63,8 +63,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 add_action( 'admin_menu', function() {
 
 	add_menu_page( 'test', 'test', 'manage_options', 'tester-page', 'render_test_menu_page' );
-	add_menu_page( 'test', 'test', 'manage_options', 'graphiql', 'render_test_menu_page' );
-	add_submenu_page( 'graphiql', 'Settings', 'Settings', 'manage_options', 'graphql_settings', 'render_test_menu_page' );
+//	add_menu_page( 'test', 'test', 'manage_options', 'graphiql', 'render_test_menu_page' );
+//	add_submenu_page( 'graphiql', 'Settings', 'Settings', 'manage_options', 'graphql_settings', 'render_test_menu_page' );
 } );
 
 function render_test_menu_page() {
