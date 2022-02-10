@@ -16,7 +16,12 @@ describe('Graphiql', function () {
     })
 
     it ('can open graphiql admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphiql' );
+        await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
+        expect( true ).toBeTruthy();
+    })
+
+    it ('can open graphql settings page', async () => {
+        await visitAdminPage( 'admin.php', 'page=graphql-settings' );
         expect( true ).toBeTruthy();
     })
 
