@@ -30,6 +30,7 @@
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "devDependencies": {
     "@wordpress/e2e-test-utils": "^6.0.0",
+    "@wordpress/e2e-tests": "^3.0.3",
     "@wordpress/env": "^4.2.0",
     "@wordpress/jest-console": "^5.0.0",
     "@wordpress/jest-puppeteer-axe": "^4.0.0",
