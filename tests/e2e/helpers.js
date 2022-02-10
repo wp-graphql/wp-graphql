@@ -37,6 +37,7 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
         })
     ]);
 
+
 }
 
 /**
