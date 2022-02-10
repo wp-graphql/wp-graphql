@@ -51,8 +51,8 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
 export const setQuery = async ( query ) => {
 
     return await page.evaluate( async (query) => {
-        const queryEditor = await document.querySelector('.query-editor .cm-s-graphiql').CodeMirror;
-        await queryEditor.setValue( query );
+        const _queryEditor = await document.querySelector('.query-editor .cm-s-graphiql').CodeMirror;
+        return await _queryEditor ? _queryEditor.setValue( query ) : null;
     }, query );
 }
 
@@ -67,8 +67,8 @@ export const setQuery = async ( query ) => {
 export const setVariables = async ( variables = {} ) => {
 
     return await page.evaluate( async (variables) => {
-        const variableEditor = await document.querySelector('.variable-editor .cm-s-graphiql').CodeMirror;
-        await variableEditor.setValue(JSON.stringify(variables, null, 2));
+        let _variableEditor = await document.querySelector('.variable-editor .cm-s-graphiql').CodeMirror;
+        return await _variableEditor ? _variableEditor.setValue(JSON.stringify(variables, null, 2)) : null;
     }, variables )
 
 }
