@@ -59,3 +59,13 @@ graphql_init();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once 'cli/wp-cli.php';
 }
+
+add_action( 'admin_menu', function() {
+
+	add_menu_page( 'test', 'test', 'manage_options', 'tester', 'render_test_menu_page' );
+
+} );
+
+function render_test_menu_page() {
+	echo '<h2>Tester...</h2>';
+}

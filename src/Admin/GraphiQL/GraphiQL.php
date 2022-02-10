@@ -35,7 +35,7 @@ class GraphiQL {
 		}
 
 		// Register the admin page
-		add_action( 'admin_menu', [ $this, 'register_admin_page' ], 11 );
+		add_action( 'admin_menu', [ $this, 'register_admin_page' ], 99 );
 		add_action( 'admin_bar_menu', [ $this, 'register_admin_bar_menu' ], 100 );
 		// Enqueue GraphiQL React App
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_graphiql' ] );
