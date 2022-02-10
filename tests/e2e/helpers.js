@@ -32,9 +32,8 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
 
     await Promise.all([
         visitAdminPage('admin.php', `?page=graphiql-ide${_queryParams}` ),
-        page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 5000 }).catch( error => {
-            console.log( `failed to wait for graphiql...`)
-        })
+        page.waitForNavigation({waitUntil: 'domcontentloaded'}),
+        page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 5000 })
     ]);
 
 
