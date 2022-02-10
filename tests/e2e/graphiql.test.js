@@ -166,16 +166,16 @@ describe('Graphiql', function () {
         // await page.goto( 'http://localhost:8889/wp-admin/admin.php?page=graphiql-ide' );
 
         const query = addQueryArgs('', {
-            page: 'graphiql-ide'
+            page: 'graphql'
         }).slice(1);
         await visitAdminPage('/admin.php', query);
-        // await wait( 5000 );
+        await wait( 5000 );
         expect( true ).toBeTruthy();
         // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
 
         // await wait(1000);
-        // const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
-        // expect(documentationExplorer.length === 0);
+        const documentationExplorer = await page.$x("//div[contains(@id, 'graphql_general_settings')]") ?? [];
+        expect(documentationExplorer.length === 0);
     })
 
     // it('documentation explorer can be toggled open and closed', async() => {
