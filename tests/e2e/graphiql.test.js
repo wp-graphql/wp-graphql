@@ -12,6 +12,12 @@ describe('Graphiql', function () {
 
     it ('can open test admin page', async () => {
         await visitAdminPage( 'admin.php', 'page=tester' );
+        expect( true ).toBeTruthy();
+    })
+
+    it ('can open test admin page', async () => {
+        await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
+        expect( true ).toBeTruthy();
     })
 
     // beforeAll( async() => {
