@@ -16,6 +16,7 @@ describe('Graphiql', function () {
     //     await loadGraphiQL();
     //     await setQuery('{posts{nodes{id}}}');
     //     await setVariables({ first: 10 });
+    //     await setVariables({ first: 10 });
     //     await wait(1000);
     //     await executeQuery();
     //     await wait(1000);
@@ -155,7 +156,7 @@ describe('Graphiql', function () {
         // await loadGraphiQL();
 
         await visitAdminPage('admin.php', `?page=graphiql-ide` ),
-        await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
+        // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
 
         await wait(1000);
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
