@@ -158,11 +158,10 @@ describe('Graphiql', function () {
         // await loadGraphiQL();
 
         const query = addQueryArgs('', {
-            post_type: 'post'
+            page: 'graphiql-ide'
         }).slice(1);
-        await visitAdminPage('post-new.php', query);
-        await page.waitForSelector('.edit-post-layout');
-        await wait( 5000 );
+        await visitAdminPage('admin.php', query);
+        // await wait( 5000 );
         expect( true ).toBeTruthy();
         // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
 
