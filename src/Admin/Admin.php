@@ -38,6 +38,8 @@ class Admin {
 	 */
 	public function init() {
 
+		return;
+
 		// Determine whether the admin pages should show or not.
 		// Default is enabled.
 		$this->admin_enabled    = apply_filters( 'graphql_show_admin', true );
