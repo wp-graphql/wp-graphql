@@ -1,10 +1,10 @@
-import { clearLocalStorage } from '@wordpress/e2e-test-utils'
+import { clearLocalStorage, visitAdminPage } from '@wordpress/e2e-test-utils'
 import { wait, loadGraphiQL, executeQuery, setVariables, setQuery } from './helpers'
 
 describe('Graphiql', function () {
 
     // load graphiql and set a basic query to execute
-    beforeEach(async() => {
+    beforeEach( async() => {
         // Clear all values stored to local storage
         clearLocalStorage();
     })
@@ -152,7 +152,11 @@ describe('Graphiql', function () {
     //
 
     it('loads with the documentation explorer closed', async() => {
-        await loadGraphiQL();
+        // await loadGraphiQL();
+
+        await visitAdminPage('admin.php', `?page=graphiql-ide` ),
+        await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
+
         await wait(1000);
         const documentationExplorer = await page.$x("//div[contains(@class, 'doc-explorer')]") ?? [];
         expect(documentationExplorer.length === 0);
