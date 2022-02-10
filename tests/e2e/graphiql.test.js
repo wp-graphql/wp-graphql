@@ -162,13 +162,13 @@ describe('Graphiql', function () {
 
     it('loads with the documentation explorer closed', async () => {
         // await loadGraphiQL();
-        await loginUser();
-        await page.goto( 'http://localhost:8889/wp-admin/admin.php?page=graphiql-ide' );
+        // await loginUser();
+        // await page.goto( 'http://localhost:8889/wp-admin/admin.php?page=graphiql-ide' );
 
         // const query = addQueryArgs('', {
         //     page: 'graphiql-ide'
         // }).slice(1);
-        // await visitAdminPage('admin.php', query);
+        await visitAdminPage('admin.php', 'page=graphiql-ide');
         // await wait( 5000 );
         expect( true ).toBeTruthy();
         // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
