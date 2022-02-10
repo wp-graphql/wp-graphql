@@ -165,10 +165,10 @@ describe('Graphiql', function () {
         // await loginUser();
         // await page.goto( 'http://localhost:8889/wp-admin/admin.php?page=graphiql-ide' );
 
-        // const query = addQueryArgs('', {
-        //     page: 'graphiql-ide'
-        // }).slice(1);
-        await visitAdminPage('admin.php', 'page=graphiql-ide');
+        const query = addQueryArgs('', {
+            page: 'graphiql-ide'
+        }).slice(1);
+        await visitAdminPage('/admin.php', query);
         // await wait( 5000 );
         expect( true ).toBeTruthy();
         // await page.waitForSelector('#graphiql .graphiql-container', { visible: true, timeout: 20000 })
