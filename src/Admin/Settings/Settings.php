@@ -29,7 +29,7 @@ class Settings {
 	public function init() {
 		$this->wp_environment = $this->get_wp_environment();
 		$this->settings_api   = new SettingsRegistry();
-		add_action( 'admin_menu', [ $this, 'add_options_page' ], 20 );
+//		add_action( 'admin_menu', [ $this, 'add_options_page' ], 20 );
 		add_action( 'init', [ $this, 'register_settings' ] );
 		add_action( 'admin_init', [ $this, 'initialize_settings_page' ] );
 	}
