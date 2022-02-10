@@ -7,6 +7,7 @@ import {
 import { addQueryArgs } from '@wordpress/url';
 import { wait, loadGraphiQL, executeQuery, setVariables, setQuery } from './helpers'
 import { join } from 'path'
+import { loginUser } from '@wordpress/e2e-test-utils/build/login-user'
 
 describe('Graphiql', function () {
 
@@ -161,7 +162,7 @@ describe('Graphiql', function () {
 
     it('loads with the documentation explorer closed', async () => {
         // await loadGraphiQL();
-        await switchUserToAdmin();
+        await loginUser();
         const query = addQueryArgs('', {
             page: 'graphiql-ide'
         }).slice(1);
