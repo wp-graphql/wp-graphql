@@ -29,9 +29,9 @@ class Settings {
 	public function init() {
 		$this->wp_environment = $this->get_wp_environment();
 		$this->settings_api   = new SettingsRegistry();
-		$this->register_settings();
-		$this->initialize_settings_page();
 		add_filter( 'graphql_render_settings_page', [ $this, 'render_settings_page' ] );
+		add_action( 'init', [ $this, 'register_settings' ] );
+		add_action( 'admin_init', [ $this, 'initialize_settings_page' ] );
 	}
 
 	/**
@@ -203,21 +203,8 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	/**
-	 * Render the settings page in the admin
-	 *
-	 * @return void
-	 */
 	public function render_settings_page() {
-		?>
-        <div class="wrap">
-			<?php
-			settings_errors();
-			$this->settings_api->show_navigation();
-			$this->settings_api->show_forms();
-			?>
-        </div>
-		<?php
+		return "<h3>Goo</h3>";
 	}
 
 }
