@@ -2,12 +2,17 @@
   "name": "WPGraphQL",
   "version": "1.6.12",
   "description": "GraphQL API for WordPress",
-  "main": "index.js",
+  "main": "build/index.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
   },
   "scripts": {
+    "build": "wp-scripts build",
+    "format:js": "wp-scripts format-js",
+    "lint:js": "wp-scripts lint-js",
+    "packages-update": "wp-scripts packages-update",
+    "start": "wp-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
     "test-e2e:debug": "wp-scripts --inspect-brk test-e2e --config tests/e2e/jest.config.js --puppeteer-devtools",
@@ -28,6 +33,9 @@
     "url": "https://github.com/wp-graphql/wp-graphql/issues"
   },
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
+  "dependencies": {
+    "@wordpress/element": "^4.1.1"
+  },
   "devDependencies": {
     "@wordpress/e2e-test-utils": "^6.0.0",
     "@wordpress/e2e-tests": "^3.0.3",

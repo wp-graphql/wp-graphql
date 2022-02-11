@@ -34,34 +34,44 @@ describe('Graphiql', function () {
         await clearLocalStorage();
     })
 
-    it ('can open graphiql admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
+    // it ('can open graphiql admin page', async () => {
+    //     await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
+    //     await wait( 1000 );
+    //     expect( true ).toBeTruthy();
+    // })
+
+    it ('can open "my-first-gutenberg-app" admin page', async () => {
+        await visitAdminPage( 'admin.php', 'page=my-first-gutenberg-app' );
+        await page.waitForSelector( '#hello' );
         await wait( 1000 );
+        const nodesInResponse = await page.$x("//span[contains(text(), 'Hello from JavaScript!')]");
+        expect(nodesInResponse.length === 1);
         expect( true ).toBeTruthy();
     })
 
-    // query should be able to be set by a user and executed
-    it('executes query', async() => {
+    // // query should be able to be set by a user and executed
+    // it('executes query', async() => {
+    //
+    //     await loadGraphiQL();
+    //     await setQuery('{posts{nodes{id}}}');
+    //     await setVariables({ first: 10 });
+    //     await setVariables({ first: 10 });
+    //     await wait(1000);
+    //     await executeQuery();
+    //     await wait(1000);
+    //
+    //
+    //     // Ensure there are nodes in the response. we don't care if it's empty or not
+    //     // as we've not created any posts yet, but we do want to make sure we get a response
+    //     // matching the shape of the request
+    //     const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
+    //     expect(postsInResponse.length === 1);
+    //
+    //     const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
+    //     expect(nodesInResponse.length === 1);
+    //
+    // })
 
-        await loadGraphiQL();
-        await setQuery('{posts{nodes{id}}}');
-        await setVariables({ first: 10 });
-        await setVariables({ first: 10 });
-        await wait(1000);
-        await executeQuery();
-        await wait(1000);
-
-
-        // Ensure there are nodes in the response. we don't care if it's empty or not
-        // as we've not created any posts yet, but we do want to make sure we get a response
-        // matching the shape of the request
-        const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
-        expect(postsInResponse.length === 1);
-
-        const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
-        expect(nodesInResponse.length === 1);
-
-    })
     //
     // // Query should execute without errors
     // it('has no errors', async() => {

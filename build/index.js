@@ -1,0 +1,1 @@
+!function(){"use strict";var e=window.wp.element;function n(){return(0,e.createElement)("span",{id:"hello"},"Hello from JavaScript!")}window.addEventListener("load",(function(){(0,e.render)((0,e.createElement)(n,null),document.querySelector("#my-first-gutenberg-app"))}),!1)}();

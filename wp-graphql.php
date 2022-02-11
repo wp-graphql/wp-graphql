@@ -70,7 +70,46 @@ add_action( 'admin_menu', function() {
 		echo $rendered;
 	} );
 	add_submenu_page( 'graphiql-ide', 'Settings', 'Settings', 'manage_options', 'graphql', 'graphql_render_settings_page' );
+
+	add_menu_page(
+		__( 'My first Gutenberg app', 'gutenberg' ),
+		__( 'My first Gutenberg app', 'gutenberg' ),
+		'manage_options',
+		'my-first-gutenberg-app',
+		function () {
+			echo '
+			<h2>Pages</h2>
+			<div id="my-first-gutenberg-app"></div>
+		';
+		},
+		'dashicons-schedule',
+		3
+	);
+
 } );
+
+function load_custom_wp_admin_scripts( $hook ) {
+	// Load only on ?page=my-first-gutenberg-app.
+	if ( 'toplevel_page_my-first-gutenberg-app' !== $hook ) {
+		return;
+	}
+
+	// Load the required WordPress packages.
+
+	// Automatically load imported dependencies and assets version.
+	$asset_file = include plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+
+	// Load our app.js.
+	wp_register_script(
+		'my-first-gutenberg-app',
+		plugins_url( 'build/index.js', __FILE__ ),
+		$asset_file['dependencies'],
+		$asset_file['version']
+	);
+	wp_enqueue_script( 'my-first-gutenberg-app' );
+}
+
+add_action( 'admin_enqueue_scripts', 'load_custom_wp_admin_scripts' );
 
 function graphql_render_settings_page() {
 	$settings_page = '<div class=\"wrap\">';
