@@ -30,8 +30,8 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
 
     _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false" }`
 
-    await visitAdminPage('admin.php', `?page=graphiql-ide${_queryParams}` );
-    await page.waitForSelector('.query-editor .cm-s-graphiql', { visible: true, timeout: 30000 });
+    await visitAdminPage('admin.php', `page=graphiql-ide${_queryParams}` );
+    await page.waitForSelector('.query-editor .cm-s-graphiql' );
 
 
 }

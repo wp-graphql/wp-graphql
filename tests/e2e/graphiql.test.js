@@ -62,7 +62,6 @@ describe('Graphiql', function () {
         expect(nodesInResponse.length === 1);
 
     })
-
     //
     // // Query should execute without errors
     // it('has no errors', async() => {
