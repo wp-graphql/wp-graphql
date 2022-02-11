@@ -63,10 +63,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 add_action( 'admin_menu', function() {
 
 	add_menu_page( 'test', 'test', 'manage_options', 'tester-page', 'render_test_menu_page' );
-	add_menu_page( 'GraphQL IDE', 'GraphQL', 'manage_options', 'graphiql', function() {
-		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
-		echo $rendered;
-	} );
+//	add_menu_page( 'GraphQL IDE', 'GraphQL', 'manage_options', 'graphiql', function() {
+//		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
+//		echo $rendered;
+//	} );
 	add_submenu_page( 'graphiql', 'Settings', 'Settings', 'manage_options', 'graphql_settings', 'graphql_render_settings_page' );
 } );
 

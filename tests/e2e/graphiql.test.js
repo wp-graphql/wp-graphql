@@ -11,7 +11,7 @@ import { loginUser } from '@wordpress/e2e-test-utils/build/login-user'
 describe('Graphiql', function () {
 
     it ('can open graphiql admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphiql' );
+        await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
         await wait( 1000 );
         expect( true ).toBeTruthy();
     })
