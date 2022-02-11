@@ -648,7 +648,7 @@ class SettingsRegistry {
 
 		$html .= '</h2>';
 
-		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
+		return wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
 	/**
@@ -680,7 +680,7 @@ class SettingsRegistry {
 			<?php } ?>
 		</div>
 		<?php
-		$this->script();
+
 	}
 
 	/**

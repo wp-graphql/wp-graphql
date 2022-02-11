@@ -290,7 +290,7 @@ final class WPGraphQL {
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 
 		// Initialize Admin functionality
-		add_action( 'plugins_loaded', [ $this, 'init_admin' ] );
+		add_action( 'admin_init', [ $this, 'init_admin' ] );
 
 		$tracing = new \WPGraphQL\Utils\Tracing();
 		$tracing->init();
@@ -703,6 +703,7 @@ final class WPGraphQL {
 
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
+		 *
 		 *
 		 * @since 0.0.4
 		 */
