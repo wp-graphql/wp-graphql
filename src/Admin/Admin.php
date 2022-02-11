@@ -51,23 +51,17 @@ class Admin {
 		}
 
 		// If the admin is disabled, prevent admin from being scaffolded.
-//		if ( true === $this->admin_enabled ) {
-//			$this->settings = new Settings();
-//			$this->settings->init();
-//		}
+		if ( true === $this->admin_enabled ) {
+			$this->settings = new Settings();
+			$this->settings->init();
+		}
 
-		global $graphiql;
-		$graphiql = new GraphiQL();
-		$graphiql->init();
 
-		$this->settings = new Settings();
-		$this->settings->init();
-
-//		if ( 'off' !== $this->graphiql_enabled ) {
-//			global $graphiql;
-//			$graphiql = new GraphiQL();
-//			$graphiql->init();
-//		}
+		if ( 'off' !== $this->graphiql_enabled ) {
+			global $graphiql;
+			$graphiql = new GraphiQL();
+			$graphiql->init();
+		}
 
 
 
