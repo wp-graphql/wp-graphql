@@ -10,57 +10,59 @@ import { loginUser } from '@wordpress/e2e-test-utils/build/login-user'
 
 describe('Graphiql', function () {
 
+    // it ('can open graphql settings page', async () => {
+    //     await visitAdminPage( 'admin.php', 'page=graphql' );
+    //     await wait( 1000 );
+    //     expect( true ).toBeTruthy();
+    // })
+
+    // it ('can open test admin page', async () => {
+    //     await visitAdminPage( 'admin.php', 'page=tester-page' );
+    //     await wait( 1000 );
+    //     expect( true ).toBeTruthy();
+    // })
+
+    // beforeAll( async() => {
+    //     await activatePlugin( 'wp-graphql' );
+    // })
+
+
+
+    // load graphiql and set a basic query to execute
+    beforeEach( async() => {
+        // Clear all values stored to local storage
+        await clearLocalStorage();
+    })
+
     it ('can open graphiql admin page', async () => {
         await visitAdminPage( 'admin.php', 'page=graphiql-ide' );
         await wait( 1000 );
         expect( true ).toBeTruthy();
     })
 
-    it ('can open graphql settings page', async () => {
-        await visitAdminPage( 'admin.php', 'page=graphql_settings' );
-        await wait( 1000 );
-        expect( true ).toBeTruthy();
+    // query should be able to be set by a user and executed
+    it('executes query', async() => {
+
+        await loadGraphiQL();
+        await setQuery('{posts{nodes{id}}}');
+        await setVariables({ first: 10 });
+        await setVariables({ first: 10 });
+        await wait(1000);
+        await executeQuery();
+        await wait(1000);
+
+
+        // Ensure there are nodes in the response. we don't care if it's empty or not
+        // as we've not created any posts yet, but we do want to make sure we get a response
+        // matching the shape of the request
+        const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
+        expect(postsInResponse.length === 1);
+
+        const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
+        expect(nodesInResponse.length === 1);
+
     })
 
-    it ('can open test admin page', async () => {
-        await visitAdminPage( 'admin.php', 'page=tester-page' );
-        await wait( 1000 );
-        expect( true ).toBeTruthy();
-    })
-
-    // beforeAll( async() => {
-    //     await activatePlugin( 'wp-graphql' );
-    // })
-    //
-    // // load graphiql and set a basic query to execute
-    // beforeEach( async() => {
-    //     // Clear all values stored to local storage
-    //     await clearLocalStorage();
-    // })
-
-    // // query should be able to be set by a user and executed
-    // it('executes query', async() => {
-    //
-    //
-    //     await loadGraphiQL();
-    //     await setQuery('{posts{nodes{id}}}');
-    //     await setVariables({ first: 10 });
-    //     await setVariables({ first: 10 });
-    //     await wait(1000);
-    //     await executeQuery();
-    //     await wait(1000);
-    //
-    //
-    //     // Ensure there are nodes in the response. we don't care if it's empty or not
-    //     // as we've not created any posts yet, but we do want to make sure we get a response
-    //     // matching the shape of the request
-    //     const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
-    //     expect(postsInResponse.length === 1);
-    //
-    //     const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
-    //     expect(nodesInResponse.length === 1);
-    //
-    // })
     //
     // // Query should execute without errors
     // it('has no errors', async() => {

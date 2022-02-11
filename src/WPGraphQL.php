@@ -290,13 +290,14 @@ final class WPGraphQL {
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 
 		// Initialize Admin functionality
-		add_action( 'admin_init', [ $this, 'init_admin' ] );
+		$this->init_admin();
 
 		$tracing = new \WPGraphQL\Utils\Tracing();
 		$tracing->init();
 
 		$query_log = new \WPGraphQL\Utils\QueryLog();
 		$query_log->init();
+
 
 	}
 
