@@ -61,21 +61,23 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 add_action( 'admin_menu', function() {
-
+	$settings = new WPGraphQL\Admin\Settings\Settings();
+	$settings->init();
 	add_menu_page( 'test', 'test', 'manage_options', 'tester-page', 'render_test_menu_page' );
 	add_menu_page( 'GraphQL IDE', 'GraphQL', 'manage_options', 'graphiql', function() {
 		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
 		echo $rendered;
 	} );
-	add_submenu_page( 'graphiql', 'Settings', 'Settings', 'manage_options', 'graphql_settings', 'graphql_render_settings_page' );
+	add_submenu_page( 'graphiql', 'Settings', 'Settings', 'manage_options', 'graphql_settings', function() use ( $settings ) {
+		$settings->render_settings_page();
+	} );
 } );
 
 function graphql_render_settings_page() {
-	$settings_page = '<div class=\"wrap\">';
-		$settings_page .= '<h2>Settings</h2>';
-		$settings_page .= apply_filters( 'graphql_render_settings_page', '' );
-	$settings_page .= '</div>';
-	echo $settings_page;
+
+	echo '<div class=\"wrap\">';
+		do_action( 'graphql_render_settings_page' );
+	echo '</div>';
 }
 
 function render_test_menu_page() {
