@@ -475,7 +475,7 @@ abstract class Model {
 		/**
 		 * @todo update plugin version for deprecation.
 		 */
-		$this->fields = apply_filters_deprecated( 'graphql_return_modeled_data', [ $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user ], '1.17.0', 'graphql_model_prepare_fields' );
+		$this->fields = apply_filters_deprecated( 'graphql_return_modeled_data', [ $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user ], '1.7.0', 'graphql_model_prepare_fields' );
 
 		/**
 		 * Filter the array of fields for the Model before the object is hydrated with it
