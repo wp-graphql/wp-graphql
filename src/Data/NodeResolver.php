@@ -470,6 +470,23 @@ class NodeResolver {
 				return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 			}
 
+			$archive_link = get_post_type_archive_link( $this->wp->query_vars['post_type'] );
+			// If the post type is an archive and has an associated page, resolve it.
+			if ( false !== $archive_link ) {
+				$relative_archive_link = untrailingslashit( str_replace( home_url(), '', $archive_link ) );
+
+				if ( $relative_archive_link === $this->wp->query_vars['uri'] ) {
+					$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', 'page' );
+
+					$post = isset( $post->ID ) ? $this->validate_post( $post ) : null;
+
+					// Only return if post resolves. otherwise we'll try below to resolve it as a WP_Post_type.
+					if ( isset( $post->ID ) ) {
+						$this->context->get_loader( 'post' )->load_deferred( $post->ID );
+					}
+				}
+			}
+
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
 
 			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
