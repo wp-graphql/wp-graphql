@@ -30,7 +30,7 @@ export const loadGraphiQL = async (
   _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false"}`;
 
   await visitAdminPage("admin.php", `page=graphiql-ide${_queryParams}`);
-  await page.waitForSelector('.CodeMirror');
+
 
 };
 
