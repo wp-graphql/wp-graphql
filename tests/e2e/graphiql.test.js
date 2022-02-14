@@ -56,28 +56,24 @@ describe("Graphiql", function () {
 
   // query should be able to be set by a user and executed
   it('executes query', async() => {
+
       await loadGraphiQL();
+      await setQuery('{posts{nodes{id}}}');
+      await setVariables({ first: 10 });
+      await setVariables({ first: 10 });
+      await wait(1000);
+      await executeQuery();
+      await wait(1000);
 
-      const nodesInEditor = await page.$x("//li[contains(@id, 'wp-admin-bar-graphiql-ide')]");
-      expect(nodesInEditor.length === 1);
 
-      // await setQuery('{posts{nodes{id}}}');
-      // await setVariables({ first: 10 });
-      expect( true ).toBeTruthy();
+      // Ensure there are nodes in the response. we don't care if it's empty or not
+      // as we've not created any posts yet, but we do want to make sure we get a response
+      // matching the shape of the request
+      const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
+      expect(postsInResponse.length === 1);
 
-      // await wait(1000);
-      // await executeQuery();
-      // await wait(1000);
-      //
-      //
-      // // Ensure there are nodes in the response. we don't care if it's empty or not
-      // // as we've not created any posts yet, but we do want to make sure we get a response
-      // // matching the shape of the request
-      // const postsInResponse = await page.$x("//div[contains(text(), 'posts')]");
-      // expect(postsInResponse.length === 1);
-      //
-      // const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
-      // expect(nodesInResponse.length === 1);
+      const nodesInResponse = await page.$x("//div[contains(text(), 'nodes')]");
+      expect(nodesInResponse.length === 1);
 
   })
 
