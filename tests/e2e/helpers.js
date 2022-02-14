@@ -30,7 +30,7 @@ export const loadGraphiQL = async (
   _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false"}`;
 
   await visitAdminPage("admin.php", `page=graphiql-ide${_queryParams}`);
-  await wait( 1000 );
+  await page.waitForSelector('.CodeMirror');
 
 };
 
@@ -43,9 +43,9 @@ export const loadGraphiQL = async (
  * @returns {Promise<void>}
  */
 export const setQuery = async (query) => {
-  await page.waitForSelector( '.query-editor .cm-s-graphiql' );
+  await page.waitForSelector( '.query-editor .CodeMirror' );
   await page.evaluate((query) => {
-    const editor = document.querySelector(".query-editor .cm-s-graphiql");
+    const editor = document.querySelector(".query-editor .CodeMirror");
     editor.CodeMirror.setValue(query);
   }, query);
 };
@@ -59,9 +59,10 @@ export const setQuery = async (query) => {
  * @returns {Promise<void>}
  */
 export const setVariables = async (variables = {}) => {
-  await page.waitForSelector( '.variable-editor .cm-s-graphiql' );
+  await page.waitForSelector( '.variable-editor .CodeMirror' );
+
   await page.evaluate(async (variables) => {
-    const variableEditor = document.querySelector(".variable-editor .cm-s-graphiql");
+    const variableEditor = document.querySelector(".variable-editor .CodeMirror");
     variableEditor.CodeMirror.setValue(JSON.stringify(variables, null, 2));
 
   }, variables);
