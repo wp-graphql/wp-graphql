@@ -1,19 +1,19 @@
 const getQuery = (arg, spaceCount) => {
-    const { operationDataList } = arg
-    const { query } = operationDataList[0]
-    const anonymousQuery = query.replace(/query\s.+{/gim, `{`)
-    return (
-        ` `.repeat(spaceCount) +
-        anonymousQuery.replace(/\n/g, `\n` + ` `.repeat(spaceCount))
-    )
-}
+  const { operationDataList } = arg;
+  const { query } = operationDataList[0];
+  const anonymousQuery = query.replace(/query\s.+{/gim, `{`);
+  return (
+    ` `.repeat(spaceCount) +
+    anonymousQuery.replace(/\n/g, `\n` + ` `.repeat(spaceCount))
+  );
+};
 
 const pageQuery = {
-    name: `Page query`,
-    language: `Gatsby`,
-    codeMirrorMode: `jsx`,
-    options: [],
-    generate: arg => `import React from "react"
+  name: `Page query`,
+  language: `Gatsby`,
+  codeMirrorMode: `jsx`,
+  options: [],
+  generate: (arg) => `import React from "react"
 import { graphql } from "gatsby"
 
 const ComponentName = ({ data }) => <pre>{JSON.stringify(data, null, 4)}</pre>
@@ -25,14 +25,14 @@ ${getQuery(arg, 2)}
 export default ComponentName
 
 `,
-}
+};
 
 const staticHook = {
-    name: `StaticQuery hook`,
-    language: `Gatsby`,
-    codeMirrorMode: `jsx`,
-    options: [],
-    generate: arg => `import React from "react"
+  name: `StaticQuery hook`,
+  language: `Gatsby`,
+  codeMirrorMode: `jsx`,
+  options: [],
+  generate: (arg) => `import React from "react"
 import { useStaticQuery, graphql } from "gatsby"
 
 const ComponentName = () => {
@@ -45,14 +45,14 @@ ${getQuery(arg, 4)}
 export default ComponentName
 
 `,
-}
+};
 
 const staticQuery = {
-    name: `StaticQuery`,
-    language: `Gatsby`,
-    codeMirrorMode: `jsx`,
-    options: [],
-    generate: arg => `import React from "react"
+  name: `StaticQuery`,
+  language: `Gatsby`,
+  codeMirrorMode: `jsx`,
+  options: [],
+  generate: (arg) => `import React from "react"
 import { StaticQuery, graphql } from "gatsby"
 
 const ComponentName = () => (
@@ -67,6 +67,6 @@ ${getQuery(arg, 6)}
 export default ComponentName
 
 `,
-}
+};
 
-export default [pageQuery, staticHook, staticQuery]
+export default [pageQuery, staticHook, staticQuery];

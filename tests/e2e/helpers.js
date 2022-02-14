@@ -1,40 +1,37 @@
-import { visitAdminPage } from '@wordpress/e2e-test-utils'
+import { visitAdminPage } from "@wordpress/e2e-test-utils";
 
-export const wait = async ( time = 5000 ) => {
-    await new Promise(resolve => setTimeout(resolve, time));
-}
+export const wait = async (time = 5000) => {
+  await new Promise((resolve) => setTimeout(resolve, time));
+};
 
 /**
  * Load the GraphiQL IDE. Optionally pass queryParams to load the page with
  * @param opts
  * @returns {Promise<void>}
  */
-export const loadGraphiQL = async ( queryParams = { query: null, variables: null, explorerIsOpen: null }) => {
+export const loadGraphiQL = async (
+  queryParams = { query: null, variables: null, explorerIsOpen: null }
+) => {
+  // get the variables and query out of the queryParams to load the page with
+  const { query = null, variables = null, explorerIsOpen } = queryParams;
 
-    // get the variables and query out of the queryParams to load the page with
-    const {
-        query = null,
-        variables = null,
-        explorerIsOpen
-    } = queryParams;
+  let _queryParams = "";
 
-    let _queryParams = '';
+  if (query) {
+    _queryParams += `&query=${encodeURIComponent(query)}`;
+  }
 
-    if ( query ) {
-        _queryParams += `&query=${encodeURIComponent(query)}`
-    }
+  if (variables) {
+    _queryParams += `&variables=${encodeURIComponent(
+      JSON.stringify(variables)
+    )}`;
+  }
 
-    if ( variables ) {
-        _queryParams += `&variables=${encodeURIComponent(JSON.stringify(variables))}`
-    }
+  _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false"}`;
 
-    _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false" }`
-
-    await visitAdminPage('admin.php', `page=graphiql-ide${_queryParams}` );
-    await page.waitForSelector('.query-editor .cm-s-graphiql' );
-
-
-}
+  await visitAdminPage("admin.php", `page=graphiql-ide${_queryParams}`);
+  await page.waitForSelector(".query-editor .cm-s-graphiql");
+};
 
 /**
  * Set the value of the GraphiQL Query Editor
@@ -44,12 +41,13 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
  * @param query
  * @returns {Promise<void>}
  */
-export const setQuery = async ( query ) => {
-
-    return await page.evaluate( async (query) => {
-        return await document.querySelector('.query-editor .cm-s-graphiql').CodeMirror.setValue( query );
-    }, query );
-}
+export const setQuery = async (query) => {
+  return await page.evaluate(async (query) => {
+    return await document
+      .querySelector(".query-editor .cm-s-graphiql")
+      .CodeMirror.setValue(query);
+  }, query);
+};
 
 /**
  * Set the value of the variable editor.
@@ -59,13 +57,13 @@ export const setQuery = async ( query ) => {
  * @param variables
  * @returns {Promise<void>}
  */
-export const setVariables = async ( variables = {} ) => {
-
-    return await page.evaluate( async (variables) => {
-        return await document.querySelector('.variable-editor .cm-s-graphiql').CodeMirror.setValue(JSON.stringify(variables, null, 2));
-    }, variables )
-
-}
+export const setVariables = async (variables = {}) => {
+  return await page.evaluate(async (variables) => {
+    return await document
+      .querySelector(".variable-editor .cm-s-graphiql")
+      .CodeMirror.setValue(JSON.stringify(variables, null, 2));
+  }, variables);
+};
 
 /**
  * Click the "execute" button
@@ -73,6 +71,5 @@ export const setVariables = async ( variables = {} ) => {
  * @returns {Promise<void>}
  */
 export const executeQuery = async () => {
-    await page.click( '.execute-button' );
-}
-
+  await page.click(".execute-button");
+};

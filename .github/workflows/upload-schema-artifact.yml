@@ -2,7 +2,7 @@ name: Schema Linter
 
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 jobs:
   run:

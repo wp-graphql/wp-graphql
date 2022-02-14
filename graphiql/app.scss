@@ -1,0 +1,18 @@
+@import "~graphiql/graphiql.css";
+@import "~antd/dist/antd.min";
+
+#wpcontent {
+	padding-left: 0;
+}
+
+#wpbody-content {
+	padding-bottom: 0;
+}
+
+#wpbody-content .wrap {
+	margin: 0;
+}
+
+#wpfooter {
+	display: none;
+}

@@ -7,12 +7,12 @@
 
 actor: AcceptanceTester
 modules:
-    enabled:
-        - Asserts
-        - REST
-        - WPBrowser
-        - WPDb
-        - WPLoader
-    config:
-        WPDb:
-            cleanup: false
+  enabled:
+    - Asserts
+    - REST
+    - WPBrowser
+    - WPDb
+    - WPLoader
+  config:
+    WPDb:
+      cleanup: false
