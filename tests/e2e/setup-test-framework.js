@@ -104,7 +104,14 @@ function removePageEvents() {
  * the observed console logging types is encountered.
  */
 function observeConsoleLogging() {
+
+
   page.on("console", (message) => {
+
+    if (message._type !== 'warning') {
+      console.debug(message.text())
+    }
+
     const type = message.type();
     if (!OBSERVED_CONSOLE_MESSAGE_TYPES.hasOwnProperty(type)) {
       return;

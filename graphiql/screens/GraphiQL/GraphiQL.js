@@ -144,15 +144,11 @@ const GraphiQLScreen = () => {
 };
 
 const GraphiQLScreenWithContext = () => {
-  const appContext = useAppContext();
-  const { schema } = appContext;
 
-  return schema ? (
-    <GraphiQLContextProvider appContext={appContext}>
+  return (
+    <GraphiQLContextProvider >
       <GraphiQLScreen />
     </GraphiQLContextProvider>
-  ) : (
-    <Spin style={{ margin: `50px` }} />
   );
 };
 

@@ -56,7 +56,6 @@ describe("Graphiql", function () {
 
   // query should be able to be set by a user and executed
   it('executes query', async() => {
-
       await loadGraphiQL();
 
       const nodesInEditor = await page.$x("//li[contains(@id, 'wp-admin-bar-graphiql-ide')]");
@@ -65,6 +64,7 @@ describe("Graphiql", function () {
       // await setQuery('{posts{nodes{id}}}');
       // await setVariables({ first: 10 });
       expect( true ).toBeTruthy();
+
       // await wait(1000);
       // await executeQuery();
       // await wait(1000);
