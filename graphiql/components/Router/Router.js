@@ -183,7 +183,7 @@ const Router = (props) => {
   };
 
   return currentScreen ? (
-    <StyledRouter data-testid="graphiql-router">
+    <StyledRouter id="graphiql-router" data-testid="graphiql-router">
       <Layout style={{ height: `calc(100vh - 32px)`, width: `100%` }}>
         <RouterSider
           setQueryParams={setQueryParams}
