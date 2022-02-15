@@ -7,13 +7,13 @@ describe('Graphiql', function () {
     beforeEach(async() => {
         // Clear all values stored to local storage
         clearLocalStorage();
-        await loadGraphiQL();
-        await wait(1000);
+
     })
 
     // query should be able to be set by a user and executed
     it('executes query', async() => {
 
+        await loadGraphiQL();
         await setQuery('{posts{nodes{id}}}');
         await setVariables({ first: 10 });
         await wait( 1000 );
@@ -33,6 +33,8 @@ describe('Graphiql', function () {
 
     // Query should execute without errors
     it ( 'has no errors', async () => {
+
+        await loadGraphiQL();
         await setQuery('{posts{nodes{id}}}');
         await setVariables({ first: 10 });
         await wait( 1000 );
@@ -45,6 +47,8 @@ describe('Graphiql', function () {
 
     // query should return errors when expected
     it ( 'renders errors when errors are expected', async () => {
+
+        await loadGraphiQL();
         await setQuery('{nonExistantFieldThatShouldError}');
         await setVariables({ first: 10 });
         await wait( 1000 );
