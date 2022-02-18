@@ -13,6 +13,10 @@ jobs:
   run:
     runs-on: ubuntu-latest
     name: Check code
+    strategy:
+      matrix:
+        php: [ 8.0.15 ]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -20,7 +24,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: ${{ matrix.php }}
           extensions: mbstring, intl
           tools: composer
 
@@ -32,15 +36,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer
+          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: php-${{ matrix.php }}-${{ runner.os }}-composer
 
       - name: Install dependencies
         run: |
-          composer require --dev \
-            phpcompatibility/phpcompatibility-wp \
-            wp-coding-standards/wpcs \
-            dealerdirect/phpcodesniffer-composer-installer
+          composer update
 
       - name: Run PHP_CodeSniffer
         run: composer run-script check-cs
