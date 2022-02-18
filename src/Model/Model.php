@@ -473,7 +473,18 @@ abstract class Model {
 		}
 
 		/**
-		 * @todo update plugin version for deprecation.
+		 * Add support for the deprecated "graphql_return_modeled_data" filter.
+		 *
+		 * @param array    $fields       The array of fields for the model
+		 * @param string   $model_name   Name of the model the filter is currently being executed in
+		 * @param string   $visibility   The visibility setting for this piece of data
+		 * @param null|int $owner        The user ID for the owner of this piece of data
+		 * @param WP_User  $current_user The current user for the session
+		 *
+		 * @return array
+		 *
+		 * @deprecated 1.7.0 use "graphql_model_prepare_fields" filter instead, which passes additional context to the filter
+		 *
 		 */
 		$this->fields = apply_filters_deprecated( 'graphql_return_modeled_data', [ $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user ], '1.7.0', 'graphql_model_prepare_fields' );
 
