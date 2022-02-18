@@ -8,7 +8,11 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
+    "test-e2e:debug": "wp-scripts --inspect-brk test-e2e --config tests/e2e/jest.config.js --puppeteer-devtools",
+    "test-e2e:watch": "npm run test-e2e -- --watch",
+    "wp-env": "wp-env"
   },
   "repository": {
     "type": "git",
@@ -25,10 +29,20 @@
   },
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "devDependencies": {
+    "@wordpress/e2e-test-utils": "^6.0.0",
+    "@wordpress/env": "^4.2.0",
+    "@wordpress/jest-console": "^5.0.0",
+    "@wordpress/jest-puppeteer-axe": "^4.0.0",
+    "@wordpress/scripts": "^20.0.2",
+    "expect-puppeteer": "^6.1.0",
     "husky": "^3.0.9",
-    "lint-staged": "^9.4.2"
+    "lint-staged": "^9.4.2",
+    "puppeteer-testing-library": "^0.6.0"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"
+  },
+  "wp-env": {
+    "plugins": [ "." ]
   }
 }
