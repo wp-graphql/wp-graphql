@@ -484,7 +484,6 @@ abstract class Model {
 		 * @return array
 		 *
 		 * @deprecated 1.7.0 use "graphql_model_prepare_fields" filter instead, which passes additional context to the filter
-		 *
 		 */
 		$this->fields = apply_filters_deprecated( 'graphql_return_modeled_data', [ $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user ], '1.7.0', 'graphql_model_prepare_fields' );
 
