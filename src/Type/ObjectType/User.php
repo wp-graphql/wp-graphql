@@ -143,7 +143,7 @@ class User {
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
 					'avatar'            => [
-						'args'        => [
+						'args'    => [
 							'size'         => [
 								'type'         => 'Int',
 								'description'  => __( 'The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels.', 'wp-graphql' ),
@@ -159,7 +159,7 @@ class User {
 							],
 
 						],
-						'resolve'     => function ( $user, $args, $context, $info ) {
+						'resolve' => function ( $user, $args, $context, $info ) {
 
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {
