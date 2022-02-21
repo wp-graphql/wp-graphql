@@ -71,6 +71,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+
 	/**
 	 * testCommentQuery
 	 *
@@ -657,6 +658,95 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'should_display' => false,
 			]
 		];
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testQueryingAvatarOnUserAuthorsIsValid() {
+
+		// create a comment with a guest author as the author
+		$comment_id = $this->createCommentObject();
+
+		$query = '
+		query GetCommentAuthorWithAvatar($id:ID!){
+		  comment( id: $id ) {
+		    author {
+              node {
+                __typename
+                url
+                name
+                avatar {
+                  url
+                }
+              }
+            }
+		  }
+		}
+		';
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $global_id
+			]
+		] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		codecept_debug( $actual );
+
+		$typename = $actual['data']['comment']['author']['node']['__typename'];
+
+		$this->assertSame( 'User', $typename );
+		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
+	}
+
+
+	/**
+	 * @throws Exception
+	 */
+	public function testQueryingAvatarOnCommentAuthorsIsValid() {
+
+		// create a comment with a guest author as the author
+		$comment_id = $this->createCommentObject([
+			'comment_author' => 0,
+			'comment_author_email' => 'test@gmail.com',
+			'user_id' => 0,
+		]);
+
+		$query = '
+		query GetCommentAuthorWithAvatar($id:ID!){
+		  comment( id: $id ) {
+		    author {
+              node {
+                __typename
+                url
+                name
+                avatar {
+                  url
+                }
+              }
+            }
+		  }
+		}
+		';
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $global_id
+			]
+		] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		codecept_debug( $actual );
+
+		$typename = $actual['data']['comment']['author']['node']['__typename'];
+
+		$this->assertSame( 'CommentAuthor', $typename );
+		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
 	}
 
 
