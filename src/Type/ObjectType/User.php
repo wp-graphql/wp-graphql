@@ -143,8 +143,6 @@ class User {
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
 					'avatar'            => [
-						'type'        => 'Avatar',
-						'description' => __( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
 						'args'        => [
 							'size'         => [
 								'type'         => 'Int',
