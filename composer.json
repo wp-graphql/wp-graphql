@@ -40,7 +40,7 @@
     "wp-coding-standards/wpcs": "^2.3",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
     "squizlabs/php_codesniffer": "^3.5.7",
-    "phpstan/phpstan": "^0.12.64",
+    "phpstan/phpstan": "0.12.82",
     "szepeviktor/phpstan-wordpress": "^0.7.1",
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "~2.1",
