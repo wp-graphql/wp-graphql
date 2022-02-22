@@ -82,72 +82,55 @@ describe('Graphiql', function () {
     })
 
     // GraphiQL should load with the code explorer open
-    it ( 'loads with the explorer hidden by default', async() => {
+    it ( 'loads with the query composer hidden by default', async() => {
 
         await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
         await wait(3000 );
 
-        // check to see if the docExplorer is hidden
-        const style = await page.evaluate( async () => {
-            const docExplorerWrap = document.querySelector('.docExplorerWrap');
+        // check to make sure the query composer isn't present
 
-            return window.getComputedStyle(docExplorerWrap);
-
-        });
-
-        expect( style.display === 'none' )
+        const queryComposerWrap = await page.$( '.query-composer-wrap' );
+        expect( queryComposerWrap ).toBeNull()
 
     })
 
-    it ( 'opens explorer on click', async() => {
+    it ('loads with explorer open if queryParam says to', async() => {
+        await loadGraphiQL({ explorerIsOpen: "true" } );
+        await wait( 1000 );
+        const queryComposerWrap = await page.$( '.query-composer-wrap' );
 
-        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }' } );
+        expect( queryComposerWrap ).toBeTruthy()
+    })
+
+    it ( 'opens query composer on click', async() => {
+
+        clearLocalStorage();
+
+        await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }', explorerIsOpen: false } );
         await wait(3000 );
 
-        const style = page.evaluate( async () => {
-            const docExplorerWrap = document.querySelector('.docExplorerWrap');
-            return window.getComputedStyle(docExplorerWrap);
-        });
+        let queryComposerWrap = await page.$( '.query-composer-wrap' );
 
-        expect( style?.display === 'none' )
+        expect( queryComposerWrap ).toBeNull()
 
-        const [button] = await page.$x("//button[contains(text(), 'Explorer')]");
+        const [button] = await page.$x("//button[contains(text(), 'Query Composer')]");
         await button.click();
         await wait( 1000 );
 
 
-        const newStyle = await page.evaluate( async () => {
-            const docExplorerWrap = document.querySelector('.docExplorerWrap');
-            return window.getComputedStyle(docExplorerWrap);
+        queryComposerWrap = await page.$( '.query-composer-wrap' );
 
-        });
-
-        expect( newStyle?.display !== 'none' )
+        expect( queryComposerWrap ).toBeTruthy()
 
         // click the button again to toggle the explorer closed
         await button.click();
         await wait( 1000 );
 
 
-        const closedStyle = await page.evaluate( async () => {
-            const docExplorerWrap = document.querySelector('.docExplorerWrap');
-            return window.getComputedStyle(docExplorerWrap);
+        queryComposerWrap = await page.$( '.query-composer-wrap' );
 
-        });
+        expect( queryComposerWrap ).toBeNull()
 
-        expect( closedStyle?.display === 'none' )
-
-    })
-    it ('loads with explorer open if queryParam says to', async() => {
-        await loadGraphiQL({ explorerIsOpen: true } );
-        await wait( 1000 );
-        const style = await page.evaluate( async () => {
-            const docExplorerWrap = document.querySelector('.docExplorerWrap');
-            return window.getComputedStyle(docExplorerWrap);
-
-        });
-
-        expect( style?.display !== 'none' )
     })
 
     it( 'loads with the documentation explorer closed', async () => {

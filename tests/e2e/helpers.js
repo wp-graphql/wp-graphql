@@ -28,7 +28,7 @@ export const loadGraphiQL = async ( queryParams = { query: null, variables: null
         _queryParams += `&variables=${encodeURIComponent(JSON.stringify(variables))}`
     }
 
-    _queryParams += `&explorerIsOpen=${explorerIsOpen ? "1" : "false" }`
+    _queryParams += `&explorerIsOpen=${explorerIsOpen ? "true" : "false" }`
 
     await visitAdminPage('admin.php', `?page=graphiql-ide${_queryParams}` )
 
