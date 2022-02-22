@@ -40,6 +40,16 @@ class GraphiQL {
 		// Enqueue GraphiQL React App
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_graphiql' ] );
 
+		/**
+		 * Enqueue extension styles and scripts
+		 *
+		 * These extensions are part of WPGraphiQL core, but were built in a way
+		 * to showcase how extension APIs can be used to extend WPGraphiQL
+		 */
+		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_query_composer' ] );
+		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_auth_switch' ] );
+		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_fullscreen_toggle' ] );
+
 	}
 
 	/**
@@ -112,27 +122,147 @@ class GraphiQL {
 	 */
 	public function enqueue_graphiql() {
 
-		/**
-		 * Only enqueue the assets on the proper admin page, and only if WPGraphQL is also active
-		 */
-		if ( ! empty( get_current_screen() ) && strpos( get_current_screen()->id, 'graphiql' ) ) {
+//		/**
+//		 * Only enqueue the assets on the proper admin page, and only if WPGraphQL is also active
+//		 */
+//		if ( ! empty( get_current_screen() ) && strpos( get_current_screen()->id, 'graphiql' ) ) {
+//
+//			$this->load_app();
+//			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
+//
+//			/**
+//			 * Create a nonce
+//			 */
+//			wp_localize_script(
+//				'graphiql',
+//				'wpGraphiQLSettings',
+//				[
+//					'nonce'           => wp_create_nonce( 'wp_rest' ),
+//					'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
+//				]
+//			);
+//
+//		}
 
-			$this->load_app();
-			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
 
-			/**
-			 * Create a nonce
-			 */
-			wp_localize_script(
-				'graphiql',
-				'wpGraphiQLSettings',
-				[
-					'nonce'           => wp_create_nonce( 'wp_rest' ),
-					'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
-				]
-			);
-
+		if ( null === get_current_screen() || ! strpos( get_current_screen()->id, 'graphiql' ) ) {
+			return;
 		}
+
+		$asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/index.asset.php');
+
+		// Setup some globals that can be used by GraphiQL
+		// and extending scripts
+		wp_enqueue_script(
+			'wp-graphiql', // Handle.
+			WPGRAPHQL_PLUGIN_URL . 'build/index.js',
+			$asset_file['dependencies'],
+			$asset_file['version'],
+			true
+		);
+
+		$app_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/app.asset.php');
+
+		wp_enqueue_script(
+			'wp-graphiql-app', // Handle.
+			WPGRAPHQL_PLUGIN_URL . 'build/app.js',
+			array_merge( ['wp-graphiql'], $app_asset_file['dependencies'] ),
+			$app_asset_file['version'],
+			true
+		);
+
+		wp_enqueue_style(
+			'wp-graphiql-app',
+			WPGRAPHQL_PLUGIN_URL . 'build/app.css',
+			[ 'wp-components' ],
+			$app_asset_file['version']
+		);
+
+		wp_localize_script(
+			'wp-graphiql',
+			'wpGraphiQLSettings',
+			[
+				'nonce'           => wp_create_nonce( 'wp_rest' ),
+				'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
+				'avatarUrl' => 0 !== get_current_user_id() ? get_avatar_url( get_current_user_id() ) : null,
+				'externalFragments' => apply_filters( 'graphiql_external_fragments', [] )
+			]
+		);
+
+		// Extensions looking to extend GraphiQL can hook in here,
+		// after the window object is established, but before the App renders
+		do_action( 'enqueue_graphiql_extension' );
+
+	}
+
+	/**
+	 * Enqueue the GraphiQL Auth Switch extension, which adds a button to the GraphiQL toolbar
+	 * that allows the user to switch between the logged in user and the current user
+	 */
+	public function graphiql_enqueue_auth_switch() {
+
+		$auth_switch_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php');
+
+		wp_enqueue_script(
+			'wp-graphiql-auth-switch', // Handle.
+			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlAuthSwitch.js',
+			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $auth_switch_asset_file['dependencies'] ),
+			$auth_switch_asset_file['version'],
+			true
+		);
+	}
+
+	/**
+	 * Enqueue the Query Composer extension, which adds a button to the GraphiQL toolbar
+	 * that allows the user to open the Query Composer and compose a query with a form-based UI
+	 */
+	public function graphiql_enqueue_query_composer() {
+
+		// Enqueue the assets for the Explorer before enqueueing the app,
+		// so that the JS in the exporter that hooks into the app will be available
+		// by time the app is enqueued
+		$composer_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlQueryComposer.asset.php');
+
+		wp_enqueue_script(
+			'wp-graphiql-query-composer', // Handle.
+			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlQueryComposer.js',
+			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $composer_asset_file['dependencies'] ),
+			$composer_asset_file['version'],
+			true
+		);
+
+		wp_enqueue_style(
+			'wp-graphiql-query-composer',
+			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlQueryComposer.css',
+			[ 'wp-components' ],
+			$composer_asset_file['version']
+		);
+
+	}
+
+	/**
+	 * Enqueue the GraphiQL Fullscreen Toggle extension, which adds a button to the GraphiQL toolbar
+	 * that allows the user to toggle the fullscreen mode
+	 */
+	public function graphiql_enqueue_fullscreen_toggle() {
+
+		$fullscreen_toggle_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php');
+
+		wp_enqueue_script(
+			'wp-graphiql-fullscreen-toggle', // Handle.
+			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlFullscreenToggle.js',
+			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $fullscreen_toggle_asset_file['dependencies'] ),
+			$fullscreen_toggle_asset_file['version'],
+			true
+		);
+
+		wp_enqueue_style(
+			'wp-graphiql-fullscreen-toggle',
+			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlFullscreenToggle.css',
+			[ 'wp-components' ],
+			$fullscreen_toggle_asset_file['version']
+		);
+
 	}
 
 	/**

@@ -5,8 +5,7 @@ module.exports = {
     ...defaults,
     entry: {
         index: path.resolve(process.cwd(), "packages/wpgraphiql", "index.js"),
-        app: path.resolve(process.cwd(), "packages/app", "index.js"),
-        // codeExporter: path.resolve(process.cwd(), "src/code-exporter", "index.js"),
+        app: path.resolve(process.cwd(), "packages/wpgraphiql", "app.js"),
         graphiqlQueryComposer: path.resolve(
             process.cwd(),
             "packages/graphiql-query-composer",
