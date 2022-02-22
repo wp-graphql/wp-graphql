@@ -6,7 +6,6 @@ import {
   screen,
   waitFor,
   act,
-  renderHook,
 } from "@testing-library/react";
 import Router from "./Router";
 
@@ -91,28 +90,6 @@ describe("Router", () => {
     });
   });
 
-  test("clicking expand menu button expands the menu", async () => {
-    await act(async () => {
-      render(<Router />);
-      let sider = screen.queryByTestId("graphiql-router-sider");
-      let siderClassList = sider.classList;
-      const trigger = screen.queryByTestId("router-menu-collapse-trigger");
-      expect(trigger).toBeInTheDocument();
-      expect(sider).toBeInTheDocument();
-
-      // The sider should be collapsed by default
-      expect(sider).toHaveClass("ant-layout-sider-collapsed");
-
-      // Clicking the trigger should expand the sider
-      fireEvent.click(trigger);
-
-      // Wait for the sider to expand
-      waitFor(() => {
-        // The sider should now be expanded
-        expect(sider).not.toHaveClass("ant-layout-sider-collapsed");
-      });
-    });
-  });
 });
 
 describe("router filters", () => {
