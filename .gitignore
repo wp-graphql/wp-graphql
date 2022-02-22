@@ -1,21 +1,59 @@
+# Hidden files on Windows machines
 .DS_Store
-.github_changelog_generator
+
+# Hidden files for users using JetBrains IDEs (PHPStorm, WebStorm, etc)
 .idea
+
+# Hidden files for users using VSCode as their IDE.
 .vscode
+
+# Composer dependencies. These should be installed on the users machine
 vendor
+
+# We _do_ want to version our tests!
 !/tests
+
+# Test suite config files. Used to overried the *.suite.dist.yml configs
 /tests/*.suite.yml
+
+# Directory used to generate the .zip for deploying to WordPress.org
 plugin-build
-!src/Admin/GraphiQL/app/build
+
+# Output of testing code coverage
 coverage/*
+
+# Generated Schema used in some tooling. Versioned Schema is uploaded as a Release artifact to Github.
 schema.graphql
+
+# Used to override phpcs.xml.dist
 phpcs.xml
+
+# Config for phpunit. Used to override phpunit.xml.dist
 phpunit.xml
+
+# Files output by Docker
 docker-output
+
+# JavaScript dependencies. Should be installed locally on the machine, not versioned
 node_modules
+
+# Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
+
+# Used to send code coverage to Coveralls
 php-coveralls.phar
+
+# Log files
 .log
+
+# File used for Codeception to track test coverage
 c3.php
+
+# Used for setting local environment variables when testing
 .env
+
+# the built files for the JavaScript portions of the plugin (GraphiQL, etc)
 build
+
+# output from e2e tests
+artifacts
