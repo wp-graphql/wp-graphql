@@ -369,10 +369,6 @@ class TypeRegistry {
 		if ( ! empty( $registered_page_templates ) && is_array( $registered_page_templates ) ) {
 
 			foreach ( $registered_page_templates as $post_type_templates ) {
-				// Post templates are returned as an array of arrays. PHPStan believes they're returned as
-				// an array of strings and believes this will always evaluate to false.
-				// We should ignore the phpstan check here.
-				// @phpstan-ignore-next-line
 				if ( ! empty( $post_type_templates ) && is_array( $post_type_templates ) ) {
 					foreach ( $post_type_templates as $file => $name ) {
 						$page_templates[ $file ] = $name;
