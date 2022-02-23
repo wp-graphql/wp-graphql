@@ -526,7 +526,7 @@ class SettingsRegistry {
 			$clean_args[ $key ] = wp_kses( $arg, Utils::get_allowed_wp_kses_html() );
 		}
 
-        // Ignore phpstan as this is providing an array as expected
+		// Ignore phpstan as this is providing an array as expected
 		// @phpstan-ignore-next-line
 		echo wp_dropdown_pages( $clean_args );
 	}
