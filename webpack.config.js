@@ -1,6 +1,7 @@
 const defaults = require("@wordpress/scripts/config/webpack.config");
 const path = require("path");
 
+
 module.exports = {
     ...defaults,
     entry: {
@@ -21,7 +22,6 @@ module.exports = {
             "packages/graphiql-fullscreen-toggle",
             "index.js"
         ),
-        // documentTabs: path.resolve(process.cwd(), "src/document-tabs", "index.js"),
     },
     externals: {
         react: "React",
