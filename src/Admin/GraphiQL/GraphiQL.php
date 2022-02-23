@@ -122,34 +122,11 @@ class GraphiQL {
 	 */
 	public function enqueue_graphiql() {
 
-//		/**
-//		 * Only enqueue the assets on the proper admin page, and only if WPGraphQL is also active
-//		 */
-//		if ( ! empty( get_current_screen() ) && strpos( get_current_screen()->id, 'graphiql' ) ) {
-//
-//			$this->load_app();
-//			wp_enqueue_script( 'graphiql-helpers', $this->get_app_script_helpers(), [ 'jquery' ], false, true );
-//
-//			/**
-//			 * Create a nonce
-//			 */
-//			wp_localize_script(
-//				'graphiql',
-//				'wpGraphiQLSettings',
-//				[
-//					'nonce'           => wp_create_nonce( 'wp_rest' ),
-//					'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
-//				]
-//			);
-//
-//		}
-
-
 		if ( null === get_current_screen() || ! strpos( get_current_screen()->id, 'graphiql' ) ) {
 			return;
 		}
 
-		$asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/index.asset.php');
+		$asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/index.asset.php' );
 
 		// Setup some globals that can be used by GraphiQL
 		// and extending scripts
@@ -161,12 +138,12 @@ class GraphiQL {
 			true
 		);
 
-		$app_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/app.asset.php');
+		$app_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/app.asset.php' );
 
 		wp_enqueue_script(
 			'wp-graphiql-app', // Handle.
 			WPGRAPHQL_PLUGIN_URL . 'build/app.js',
-			array_merge( ['wp-graphiql'], $app_asset_file['dependencies'] ),
+			array_merge( [ 'wp-graphiql' ], $app_asset_file['dependencies'] ),
 			$app_asset_file['version'],
 			true
 		);
@@ -182,10 +159,10 @@ class GraphiQL {
 			'wp-graphiql',
 			'wpGraphiQLSettings',
 			[
-				'nonce'           => wp_create_nonce( 'wp_rest' ),
-				'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
-				'avatarUrl' => 0 !== get_current_user_id() ? get_avatar_url( get_current_user_id() ) : null,
-				'externalFragments' => apply_filters( 'graphiql_external_fragments', [] )
+				'nonce'             => wp_create_nonce( 'wp_rest' ),
+				'graphqlEndpoint'   => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
+				'avatarUrl'         => 0 !== get_current_user_id() ? get_avatar_url( get_current_user_id() ) : null,
+				'externalFragments' => apply_filters( 'graphiql_external_fragments', [] ),
 			]
 		);
 
@@ -198,15 +175,17 @@ class GraphiQL {
 	/**
 	 * Enqueue the GraphiQL Auth Switch extension, which adds a button to the GraphiQL toolbar
 	 * that allows the user to switch between the logged in user and the current user
+	 *
+	 * @return void
 	 */
 	public function graphiql_enqueue_auth_switch() {
 
-		$auth_switch_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php');
+		$auth_switch_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php' );
 
 		wp_enqueue_script(
 			'wp-graphiql-auth-switch', // Handle.
 			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlAuthSwitch.js',
-			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $auth_switch_asset_file['dependencies'] ),
+			array_merge( [ 'wp-graphiql', 'wp-graphiql-app' ], $auth_switch_asset_file['dependencies'] ),
 			$auth_switch_asset_file['version'],
 			true
 		);
@@ -215,18 +194,20 @@ class GraphiQL {
 	/**
 	 * Enqueue the Query Composer extension, which adds a button to the GraphiQL toolbar
 	 * that allows the user to open the Query Composer and compose a query with a form-based UI
+	 *
+	 * @return void
 	 */
 	public function graphiql_enqueue_query_composer() {
 
 		// Enqueue the assets for the Explorer before enqueueing the app,
 		// so that the JS in the exporter that hooks into the app will be available
 		// by time the app is enqueued
-		$composer_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlQueryComposer.asset.php');
+		$composer_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlQueryComposer.asset.php' );
 
 		wp_enqueue_script(
 			'wp-graphiql-query-composer', // Handle.
 			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlQueryComposer.js',
-			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $composer_asset_file['dependencies'] ),
+			array_merge( [ 'wp-graphiql', 'wp-graphiql-app' ], $composer_asset_file['dependencies'] ),
 			$composer_asset_file['version'],
 			true
 		);
@@ -243,15 +224,17 @@ class GraphiQL {
 	/**
 	 * Enqueue the GraphiQL Fullscreen Toggle extension, which adds a button to the GraphiQL toolbar
 	 * that allows the user to toggle the fullscreen mode
+	 *
+	 * @return void
 	 */
 	public function graphiql_enqueue_fullscreen_toggle() {
 
-		$fullscreen_toggle_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php');
+		$fullscreen_toggle_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php' );
 
 		wp_enqueue_script(
 			'wp-graphiql-fullscreen-toggle', // Handle.
 			WPGRAPHQL_PLUGIN_URL . 'build/graphiqlFullscreenToggle.js',
-			array_merge( ['wp-graphiql', 'wp-graphiql-app'], $fullscreen_toggle_asset_file['dependencies'] ),
+			array_merge( [ 'wp-graphiql', 'wp-graphiql-app' ], $fullscreen_toggle_asset_file['dependencies'] ),
 			$fullscreen_toggle_asset_file['version'],
 			true
 		);
@@ -262,56 +245,6 @@ class GraphiQL {
 			[ 'wp-components' ],
 			$fullscreen_toggle_asset_file['version']
 		);
-
-	}
-
-	/**
-	 * Loads the React App from the manifest.json
-	 *
-	 * @return void
-	 */
-	public function load_app() {
-
-		$app_path     = WPGRAPHQL_PLUGIN_URL . 'src/Admin/GraphiQL/app/';
-		$build_path   = $app_path . 'build/';
-		$manifest_url = __DIR__ . '/app/build/asset-manifest.json';
-
-		$manifest = file_get_contents( $manifest_url );
-
-		if ( ! $manifest ) {
-			return;
-		}
-
-		$files = json_decode( $manifest );
-
-		if ( ! $files ) {
-			return;
-		}
-
-		if ( ! property_exists( $files, 'entrypoints' ) ) {
-			return;
-		}
-
-		$asset_files = $files->entrypoints;
-
-		$js_files = array_filter( $asset_files, static function ( $file ) {
-			return pathinfo( $file, PATHINFO_EXTENSION ) === 'js';
-		} );
-
-		$css_files = array_filter( $asset_files, static function ( $file ) {
-			return pathinfo( $file, PATHINFO_EXTENSION ) === 'css';
-		} );
-
-		foreach ( $css_files as $index => $css_file ) {
-			wp_enqueue_style( 'graphiql-' . $index, $build_path . $css_file, [], '1' );
-		}
-
-		// Load js files.
-		foreach ( $js_files as $index => $js_file ) {
-			$handle = $index > 0 ? 'graphiql-' . $index : 'graphiql';
-			$src    = $build_path . $js_file;
-			wp_enqueue_script( $handle, $src, [], '1', true );
-		}
 
 	}
 
