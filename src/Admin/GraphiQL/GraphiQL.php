@@ -25,17 +25,18 @@ class GraphiQL {
 	 */
 	public function init() {
 
-		$this->is_disabled = get_option( '_graphql_disable_graphiql', false );
+		$graphiql_enabled  = get_graphql_setting( 'graphiql_enabled' );
+		$this->is_disabled = $graphiql_enabled === 'on' ? false : true;
 
 		/**
 		 * If GraphiQL is disabled, don't set it up in the Admin
 		 */
-		if ( 'yes' === $this->is_disabled ) {
+		if ( $this->is_disabled ) {
 			return;
 		}
 
 		// Register the admin page
-		add_action( 'admin_menu', [ $this, 'register_admin_page' ], 11 );
+		add_action( 'admin_menu', [ $this, 'register_admin_page' ], 9 );
 		add_action( 'admin_bar_menu', [ $this, 'register_admin_bar_menu' ], 100 );
 		// Enqueue GraphiQL React App
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_graphiql' ] );
@@ -86,8 +87,7 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function register_admin_page() {
-		add_submenu_page(
-			'graphql',
+		add_menu_page(
 			__( 'GraphiQL IDE', 'wp-graphql' ),
 			__( 'GraphiQL IDE', 'wp-graphql' ),
 			'manage_options',
@@ -104,15 +104,6 @@ class GraphiQL {
 	public function render_graphiql_admin_page() {
 		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
 		echo $rendered;
-	}
-
-	/**
-	 * Get the helpers JS
-	 *
-	 * @return string
-	 */
-	public function get_app_script_helpers() {
-		return WPGRAPHQL_PLUGIN_URL . 'src/Admin/GraphiQL/js/graphiql-helpers.js';
 	}
 
 	/**
