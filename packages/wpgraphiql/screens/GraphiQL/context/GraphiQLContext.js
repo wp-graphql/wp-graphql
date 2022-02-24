@@ -50,7 +50,7 @@ export const GraphiQLContextProvider = ({ children }) => {
   const { queryParams, setQueryParams } = useAppContext();
 
   const getDefaultQuery = () => {
-    let defaultQuery = null;
+    let defaultQuery = '';
     let queryUrlParam = queryParams.query ?? null;
 
     if (queryUrlParam) {
@@ -66,7 +66,7 @@ export const GraphiQLContextProvider = ({ children }) => {
       defaultQuery = print(parse(defaultQuery));
     } catch (e) {
       defaultQuery =
-        window?.localStorage?.getItem("graphiql:query") ?? FALLBACK_QUERY;
+        window?.localStorage?.getItem("graphiql:query") ?? null
     }
 
     return defaultQuery;
@@ -87,8 +87,9 @@ export const GraphiQLContextProvider = ({ children }) => {
     setVariables(variables);
   };
 
-  const _updateQuery = (newQuery) => {
-    hooks.doAction("graphiql_update_query", { query, newQuery });
+  const _updateQuery = async (newQuery) => {
+      const currentQuery = query;
+    hooks.doAction("graphiql_update_query", { currentQuery, newQuery });
 
     let update = false;
     let encoded;
@@ -139,8 +140,8 @@ export const GraphiQLContextProvider = ({ children }) => {
       setQueryParams(newQueryParams);
     }
 
-    if (query !== newQuery) {
-      setQuery(newQuery);
+    if (currentQuery !== newQuery) {
+      await setQuery(newQuery);
     }
   };
 

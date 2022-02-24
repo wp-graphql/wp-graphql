@@ -224,6 +224,7 @@ export const DEFAULT_DOCUMENT = {
  * @returns {{kind: string, definitions: {selectionSet: {selections: *[], kind: string}, variableDefinitions: *[], directives: *[], kind: string, name: {kind: string, value: string}, operation: string}[]}|*}
  */
 export const memoizeParseQuery = (query) => {
+
   if (parseQueryMemoize && parseQueryMemoize[0] === query) {
     return parseQueryMemoize[1];
   } else {
@@ -233,7 +234,7 @@ export const memoizeParseQuery = (query) => {
       return DEFAULT_DOCUMENT;
     } else if (result instanceof Error) {
       if (parseQueryMemoize) {
-        return parseQueryMemoize[1];
+        return parseQueryMemoize[1] ?? '';
       } else {
         return DEFAULT_DOCUMENT;
       }

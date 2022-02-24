@@ -1,13 +1,14 @@
 import GraphiQL from "graphiql";
-import { useRef } from "@wordpress/element";
+import { useRef, useEffect, useState } from "@wordpress/element";
 import { getFetcher } from "../../utils/fetcher";
 import styled from "styled-components";
 import { Spin } from "antd";
 import GraphiQLToolbar from "./components/GraphiQLToolbar";
 import {
+  FALLBACK_QUERY,
   GraphiQLContextProvider,
   useGraphiQLContext,
-} from "./context/GraphiQLContext";
+} from './context/GraphiQLContext'
 import "./style.scss";
 
 const { hooks, useAppContext, GraphQL } = wpGraphiQL;
@@ -49,6 +50,7 @@ const StyledWrapper = styled.div`
 const GraphiQLScreen = () => {
   let graphiql = useRef(null);
 
+  const [ initialLoad, setInitialLoad ] = useState(true);
   const appContext = useAppContext();
   const graphiqlContext = useGraphiQLContext();
   const {
@@ -101,6 +103,13 @@ const GraphiQLScreen = () => {
       setQuery(editedQuery);
     }
   };
+
+  // useEffect(() => {
+  //   if ( true === initialLoad && ! query && FALLBACK_QUERY !== query ) {
+  //     handleEditQuery( FALLBACK_QUERY )
+  //   }
+  //   setInitialLoad(false)
+  // }, query )
 
   return (
     <StyledWrapper data-testid="wp-graphiql-wrapper" id="wp-graphiql-wrapper">

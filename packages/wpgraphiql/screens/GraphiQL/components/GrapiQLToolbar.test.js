@@ -108,7 +108,6 @@ describe("Filter all Toolbar Buttons", () => {
           {
             key: "test-button",
             label: "Test Button",
-            label: "Test Button",
             onClick: () => {
               clickButton();
             },
