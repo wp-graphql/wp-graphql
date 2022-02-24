@@ -14,9 +14,9 @@ use WP_Admin_Bar;
 class GraphiQL {
 
 	/**
-	 * @var bool Whether GraphiQL is enabled or disabled
+	 * @var bool Whether GraphiQL is enabled
 	 */
-	protected $is_disabled = false;
+	protected $is_enabled = false;
 
 	/**
 	 * Initialize Admin functionality for WPGraphQL
@@ -25,13 +25,12 @@ class GraphiQL {
 	 */
 	public function init() {
 
-		$graphiql_enabled  = get_graphql_setting( 'graphiql_enabled' );
-		$this->is_disabled = $graphiql_enabled === 'on' ? false : true;
+		$this->is_enabled = get_graphql_setting( 'graphiql_enabled' ) === 'off' ? false : true;
 
 		/**
 		 * If GraphiQL is disabled, don't set it up in the Admin
 		 */
-		if ( $this->is_disabled ) {
+		if ( ! $this->is_enabled ) {
 			return;
 		}
 
