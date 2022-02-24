@@ -104,10 +104,8 @@ describe('Graphiql', function () {
 
     it ( 'opens query composer on click', async() => {
 
-        clearLocalStorage();
-
         await loadGraphiQL({ query: 'query TestFromUri { posts { nodes { id } } }', explorerIsOpen: false } );
-        await wait(3000 );
+        await wait(1000 );
 
         let queryComposerWrap = await page.$( '.query-composer-wrap' );
 
