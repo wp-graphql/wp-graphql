@@ -1,4 +1,4 @@
-name: End-to-End Tests
+name: GraphiQL Unit Tests
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   admin:
-    name: E2E Tests
+    name: GraphiQL Unit Tests
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'wp-graphql/wp-graphql' || github.event_name == 'pull_request' }}
     strategy:
@@ -27,23 +27,12 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
 
-      - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 7.3
-          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
-          coverage: none
-          tools: composer, wp-cli
-
-      - name: Install Composer Dependencies
-        run: |
-          composer install --no-dev
       - name: Npm install and build
         run: |
-          npm ci
+          npm install && npm run build
       - name: Install WordPress
         run: |
           npm run wp-env start
       - name: Running the tests
         run: |
-          npm run test-e2e
+          npm run test:unit

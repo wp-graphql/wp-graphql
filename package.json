@@ -8,10 +8,14 @@
     "test": "tests"
   },
   "scripts": {
+    "build": "wp-scripts build",
+    "pretty": "prettier --write ./packages",
+    "start": "wp-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
     "test-e2e:debug": "wp-scripts --inspect-brk test-e2e --config tests/e2e/jest.config.js --puppeteer-devtools",
     "test-e2e:watch": "npm run test-e2e -- --watch",
+    "test:unit": "wp-scripts test-unit-js --config tests/js-unit/jest.config.js",
     "wp-env": "wp-env"
   },
   "repository": {
@@ -28,21 +32,54 @@
     "url": "https://github.com/wp-graphql/wp-graphql/issues"
   },
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
+  "dependencies": {
+    "@ant-design/icons": "4.7.0",
+    "@apollo/client": "3.5.5",
+    "@wordpress/compose": "5.0.6",
+    "@wordpress/hooks": "3.2.2",
+    "antd": "4.17.2",
+    "graphiql": "1.5.8",
+    "graphql": "16.0.1",
+    "lz-string": "1.4.4",
+    "query-string": "7.0.1",
+    "styled-components": "5.3.3",
+    "use-error-boundary": "2.0.6",
+    "use-query-params": "1.2.3"
+  },
   "devDependencies": {
+    "@testing-library/jest-dom": "5.11.9",
+    "@testing-library/react": "11.2.2",
+    "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/user-event": "^13.5.0",
     "@wordpress/e2e-test-utils": "^6.0.0",
     "@wordpress/env": "^4.2.0",
     "@wordpress/jest-console": "^5.0.0",
     "@wordpress/jest-puppeteer-axe": "^4.0.0",
     "@wordpress/scripts": "^20.0.2",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "8.2.3",
+    "babel-plugin-inline-json-import": "^0.3.2",
+    "babel-plugin-react-native-classname-to-style": "^1.2.2",
+    "babel-plugin-react-native-platform-specific-extensions": "^1.1.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "expect-puppeteer": "^6.1.0",
     "husky": "^3.0.9",
+    "jest-dom": "^4.0.0",
+    "jest-junit": "^11.0.0",
+    "jest-message-util": "^27.0.6",
+    "jest-serializer-enzyme": "^1.0.0",
+    "jest-watch-typeahead": "^0.6.1",
+    "jsdom": "^16.4.0",
     "lint-staged": "^9.4.2",
+    "postcss-loader": "^6.2.0",
     "puppeteer-testing-library": "^0.6.0"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"
   },
   "wp-env": {
-    "plugins": [ "." ]
+    "plugins": [
+      "."
+    ]
   }
 }

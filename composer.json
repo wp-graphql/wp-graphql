@@ -96,7 +96,8 @@
       "node_modules/",
       "!.wordpress-org/",
       "docs/",
-      "wp-graphql.zip"
+      "wp-graphql.zip",
+      "!build"
     ]
   }
 }

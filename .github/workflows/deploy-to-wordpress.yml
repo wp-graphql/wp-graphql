@@ -15,9 +15,15 @@ jobs:
           php-version: 7.4
           extensions: mbstring, intl
           tools: composer
-      - name: Install dependencies
+      - name: Install PHP dependencies
         run: |
           composer install --no-dev --optimize-autoloader
+      - name: Install NPM Dependencies
+        run: |
+          npm install
+      - name: Build JavaScript App (GraphiQL)
+        run: |
+          npm build
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
