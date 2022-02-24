@@ -146,7 +146,7 @@ export const GraphiQLContextProvider = ({ children }) => {
   };
 
   // Filter the context values
-  const context = hooks.applyFilters("graphiql_context_value", {
+  const context = hooks.applyFilters("graphiql_context_default_value", {
     query,
     setQuery: _updateQuery,
     variables,

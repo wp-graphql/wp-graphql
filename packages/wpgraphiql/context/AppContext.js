@@ -65,8 +65,6 @@ export const AppContextProvider = ({
     appContextValue
   );
 
-  // appContextValue = hooks.applyFilters( 'graphiql_app_context', appContextValue );
-
   return (
     <AppContext.Provider value={filteredAppContextValue}>
       {children}
