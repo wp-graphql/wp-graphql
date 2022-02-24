@@ -8,6 +8,7 @@
     name: Beginner Guides
     items:
       - uri: /docs/intro-to-graphql/
+      - uri: /docs/wp-graphiql/
       - uri: /docs/intro-to-wordpress/
       - uri: /docs/interacting-with-wpgraphql/
       - uri: /docs/build-your-first-wpgraphql-extension/
@@ -45,6 +46,7 @@
       - uri: /docs/debugging/
       - uri: /docs/using-data-from-custom-database-tables/
       - uri: /docs/use-with-php/
+      - uri: /docs/customizing-wp-graphiql/
 - section:
     name: Community
     items:
