@@ -39,6 +39,10 @@ class CommenterInterface {
 					],
 					'description' => __( 'The globally unique identifier for the comment author.', 'wp-graphql' ),
 				],
+				'avatar'       => [
+					'type'        => 'Avatar',
+					'description' => __( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
+				],
 				'databaseId'   => [
 					'type'        => [
 						'non_null' => 'Int',

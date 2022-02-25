@@ -261,7 +261,6 @@ final class WPGraphQL {
 		add_action( 'init', [ $this, 'setup_plugin_url' ] );
 
 		// Prevent WPGraphQL Insights from running
-		// @phpstan-ignore-next-line
 		remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
 
 		/**
@@ -691,7 +690,7 @@ final class WPGraphQL {
 			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ); // phpcs:ignore
 		}
 
-		return false !== $schema ? $schema : null;
+		return $schema;
 	}
 
 	/**

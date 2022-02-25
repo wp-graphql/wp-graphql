@@ -27,7 +27,7 @@
     "ivome/graphql-relay-php": "0.6.0"
   },
   "require-dev": {
-    "lucatume/wp-browser": "~3.0",
+    "lucatume/wp-browser": "3.1.0",
     "codeception/module-asserts": "^1.0",
     "codeception/module-phpbrowser": "^1.0",
     "codeception/module-webdriver": "^1.0",
@@ -36,11 +36,11 @@
     "codeception/module-cli": "^1.0",
     "codeception/util-universalframework": "^1.0",
     "automattic/vipwpcs": "^2.2",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
     "wp-coding-standards/wpcs": "^2.3",
-    "phpcompatibility/phpcompatibility-wp": "^2.1.0",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
     "squizlabs/php_codesniffer": "^3.5.7",
-    "phpstan/phpstan": "^0.12.64",
+    "phpstan/phpstan": "0.12.82",
     "szepeviktor/phpstan-wordpress": "^0.7.1",
     "codeception/module-rest": "^1.2",
     "wp-graphql/wp-graphql-testcase": "~2.1",
@@ -96,7 +96,8 @@
       "node_modules/",
       "!.wordpress-org/",
       "docs/",
-      "wp-graphql.zip"
+      "wp-graphql.zip",
+      "!build"
     ]
   }
 }

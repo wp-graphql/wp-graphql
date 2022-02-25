@@ -122,6 +122,59 @@ class UserMutation {
 
 		$insert_user_args = [];
 
+		/**
+		 * Optional fields
+		 */
+		if ( isset( $input['nicename'] ) ) {
+			$insert_user_args['user_nicename'] = $input['nicename'];
+		}
+
+		if ( isset( $input['websiteUrl'] ) ) {
+			$insert_user_args['user_url'] = esc_url( $input['websiteUrl'] );
+		}
+
+		if ( isset( $input['displayName'] ) ) {
+			$insert_user_args['display_name'] = $input['displayName'];
+		}
+
+		if ( isset( $input['nickname'] ) ) {
+			$insert_user_args['nickname'] = $input['nickname'];
+		}
+
+		if ( isset( $input['firstName'] ) ) {
+			$insert_user_args['first_name'] = $input['firstName'];
+		}
+
+		if ( isset( $input['lastName'] ) ) {
+			$insert_user_args['last_name'] = $input['lastName'];
+		}
+
+		if ( isset( $input['description'] ) ) {
+			$insert_user_args['description'] = $input['description'];
+		}
+
+		if ( isset( $input['richEditing'] ) ) {
+			$insert_user_args['rich_editing'] = $input['richEditing'];
+		}
+
+		if ( isset( $input['registered'] ) ) {
+			$insert_user_args['user_registered'] = $input['registered'];
+		}
+
+		if ( isset( $input['locale'] ) ) {
+			$insert_user_args['locale'] = $input['locale'];
+		}
+
+		/**
+		 * Required fields
+		 */
+		if ( ! empty( $input['email'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
+				throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
+			}
+			$insert_user_args['user_email'] = $input['email'];
+		}
+
 		if ( ! empty( $input['password'] ) ) {
 			$insert_user_args['user_pass'] = $input['password'];
 		} else {
@@ -132,49 +185,6 @@ class UserMutation {
 			$insert_user_args['user_login'] = $input['username'];
 		}
 
-		if ( ! empty( $input['nicename'] ) ) {
-			$insert_user_args['user_nicename'] = $input['nicename'];
-		}
-
-		if ( ! empty( $input['websiteUrl'] ) ) {
-			$insert_user_args['user_url'] = esc_url( $input['websiteUrl'] );
-		}
-
-		if ( ! empty( $input['email'] ) ) {
-			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
-				throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
-			}
-			$insert_user_args['user_email'] = $input['email'];
-		}
-
-		if ( ! empty( $input['displayName'] ) ) {
-			$insert_user_args['display_name'] = $input['displayName'];
-		}
-
-		if ( ! empty( $input['nickname'] ) ) {
-			$insert_user_args['nickname'] = $input['nickname'];
-		}
-
-		if ( ! empty( $input['firstName'] ) ) {
-			$insert_user_args['first_name'] = $input['firstName'];
-		}
-
-		if ( ! empty( $input['lastName'] ) ) {
-			$insert_user_args['last_name'] = $input['lastName'];
-		}
-
-		if ( ! empty( $input['description'] ) ) {
-			$insert_user_args['description'] = $input['description'];
-		}
-
-		if ( ! empty( $input['richEditing'] ) ) {
-			$insert_user_args['rich_editing'] = $input['richEditing'];
-		}
-
-		if ( ! empty( $input['registered'] ) ) {
-			$insert_user_args['user_registered'] = $input['registered'];
-		}
-
 		if ( ! empty( $input['roles'] ) ) {
 			/**
 			 * Pluck the first role out of the array since the insert and update functions only
@@ -182,10 +192,6 @@ class UserMutation {
 			 * mutation later on after the initial object has been created or updated.
 			 */
 			$insert_user_args['role'] = $input['roles'][0];
-		}
-
-		if ( ! empty( $input['locale'] ) ) {
-			$insert_user_args['locale'] = $input['locale'];
 		}
 
 		/**
