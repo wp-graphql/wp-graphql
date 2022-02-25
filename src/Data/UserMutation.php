@@ -121,7 +121,7 @@ class UserMutation {
 	public static function prepare_user_object( $input, $mutation_name ) {
 
 		$insert_user_args = [];
-		
+
 		/**
 		 * Optional fields
 		 */
