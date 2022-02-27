@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Taxonomy as TaxonomyModel;
 
 class Taxonomy {
@@ -35,6 +36,18 @@ class Taxonomy {
 							$resolver->set_query_arg( 'contentTypeNames', $connected_post_types );
 							return $resolver->get_connection();
 
+						},
+					],
+					'connectedTerms'        => [
+						'toType'               => 'TermNode',
+						'connectionInterfaces' => [ 'TermNodeConnection' ],
+						'description'          => __( 'List of Term Nodes associated with the Taxonomy', 'wp-graphql' ),
+						'resolve'              => function ( TaxonomyModel $source, $args, AppContext $context, ResolveInfo $info ) {
+							$taxonomies = [ $source->name ];
+
+							$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomies );
+
+							return $resolver->get_connection();
 						},
 					],
 				],
