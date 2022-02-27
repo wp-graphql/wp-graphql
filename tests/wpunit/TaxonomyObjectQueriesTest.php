@@ -53,7 +53,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									name
 								}
 							}
-							connectedTerms {
+							connectedTerms(first:1) {
 								nodes {
 									name
 								}
@@ -201,7 +201,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								name
 							}
 						}
-						connectedTerms {
+						connectedTerms(first:1) {
 							nodes {
 								name
 							}
