@@ -461,7 +461,8 @@ class NodeResolver {
 				return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
 			}
 
-			if ( isset( $this->wp->query_vars['page'], $this->wp->query_vars['uri'] ) ) {
+			// If the query is asking for a Page nodeType with the uri, try and resolve it.
+			if ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] && isset( $this->wp->query_vars['uri'] ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 
 				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type );
