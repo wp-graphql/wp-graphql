@@ -128,6 +128,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 - ([#2228](https://github.com/wp-graphql/wp-graphql/pull/2228)): Allows optional fields to be set to empty values in the `updateUser` mutation. Thanks @victormattosvm!
 - ([#2247](https://github.com/wp-graphql/wp-graphql/pull/2247)): Add WordPress 5.9 to the automated testing matrix. Thanks @markkelnar!
 - ([#2242](https://github.com/wp-graphql/wp-graphql/pull/2242)): Adds End 2 End tests to test GraphiQL functionality in the admin.
+- ([#2261](https://github.com/wp-graphql/wp-graphql/pull/2261)): Fixes a bug where querying a page by uri with custom permalinks was returning incorrect data. Thanks @blakewilson!
 
 **New Features**
 
