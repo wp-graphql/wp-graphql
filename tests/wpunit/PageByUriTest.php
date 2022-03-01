@@ -1,6 +1,6 @@
 <?php
 
-class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
+class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	public $page;
 	public $user;
