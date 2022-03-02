@@ -196,7 +196,7 @@ class UpdateSettings {
 			 * Dynamically build the individual setting,
 			 * then add it to $updatable_settings_options
 			 */
-			$updatable_settings_options[ $individual_setting_key ] = [
+			$updatable_settings_options[ Utils::format_field_name( $individual_setting_key ) ] = [
 				'option' => $key,
 				'group'  => $setting['group'],
 			];
