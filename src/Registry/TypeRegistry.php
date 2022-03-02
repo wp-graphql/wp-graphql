@@ -237,6 +237,7 @@ class TypeRegistry {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
@@ -290,7 +291,7 @@ class TypeRegistry {
 		Plugin::register_type();
 		ContentType::register_type();
 		PostTypeLabelDetails::register_type();
-		Settings::register_type();
+		Settings::register_type( $this );
 		Taxonomy::register_type();
 		Theme::register_type();
 		User::register_type();
@@ -360,7 +361,7 @@ class TypeRegistry {
 		UserDelete::register_mutation();
 		UserUpdate::register_mutation();
 		UserRegister::register_mutation();
-		UpdateSettings::register_mutation();
+		UpdateSettings::register_mutation( $this );
 
 		$registered_page_templates = wp_get_theme()->get_post_templates();
 
@@ -533,7 +534,7 @@ class TypeRegistry {
 		 * Create the root query fields for any setting type in
 		 * the $allowed_setting_types array.
 		 */
-		$allowed_setting_types = DataSource::get_allowed_settings_by_group();
+		$allowed_setting_types = DataSource::get_allowed_settings_by_group( $this );
 
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 
@@ -554,13 +555,17 @@ class TypeRegistry {
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
 				$group_name = DataSource::format_group_name( $group_name );
-				SettingGroup::register_settings_group( $group_name, $group_name );
+				$type_name  = SettingGroup::register_settings_group( $group_name, $group_name, $this );
+
+				if ( ! $type_name || ! $this->get_type( $type_name ) ) {
+					continue;
+				}
 
 				register_graphql_field(
 					'RootQuery',
-					$group_name . 'Settings',
+					Utils::format_field_name( $type_name ),
 					[
-						'type'        => ucfirst( $group_name ) . 'Settings',
+						'type'        => $type_name,
 						'description' => sprintf( __( "Fields of the '%s' settings group", 'wp-graphql' ), ucfirst( $group_name ) . 'Settings' ),
 						'resolve'     => function () use ( $setting_type ) {
 							return $setting_type;
@@ -864,7 +869,6 @@ class TypeRegistry {
 	 */
 	public function prepare_fields( array $fields, string $type_name ) {
 		$prepared_fields = [];
-		$prepared_field  = null;
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $field_config ) {
 				if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
@@ -1051,7 +1055,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function deregister_field( $type_name, $field_name ) {
+	public function deregister_field( string $type_name, string $field_name ) {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
@@ -1093,7 +1097,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws Exception
 	 */
-	public function register_mutation( $mutation_name, $config ) {
+	public function register_mutation( string $mutation_name, array $config ) {
 
 		$output_fields = [
 			'clientMutationId' => [
@@ -1157,11 +1161,11 @@ class TypeRegistry {
 
 					$filtered_input = apply_filters( 'graphql_mutation_input', $args['input'], $context, $info, $mutation_name );
 
-					$payload = call_user_func( $mutateAndGetPayload, $filtered_input, $context, $info );
+					$payload = $mutateAndGetPayload( $filtered_input, $context, $info );
 
 					do_action( 'graphql_mutation_response', $payload, $filtered_input, $args['input'], $context, $info, $mutation_name );
 
-					if ( ! empty( $args['input']['clientMutationId'] ) ) {
+					if ( isset( $args['input']['clientMutationId'] ) && ! empty( $args['input']['clientMutationId'] ) ) {
 						$payload['clientMutationId'] = $args['input']['clientMutationId'];
 					}
 

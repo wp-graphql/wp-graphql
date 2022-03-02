@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\ObjectType;
 
 use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class Settings
@@ -16,15 +17,23 @@ class Settings {
 	 * Registers a Settings Type with fields for all settings based on settings
 	 * registered using the core register_setting API
 	 *
+	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 *
 	 * @return void
 	 */
-	public static function register_type() {
+	public static function register_type( TypeRegistry $type_registry ) {
+
+		$fields = self::get_fields( $type_registry );
+
+		if ( empty( $fields ) ) {
+			return;
+		}
 
 		register_graphql_object_type(
 			'Settings',
 			[
 				'description' => __( 'All of the registered settings', 'wp-graphql' ),
-				'fields'      => self::get_fields(),
+				'fields'      => $fields,
 			]
 		);
 
@@ -33,10 +42,12 @@ class Settings {
 	/**
 	 * Returns an array of fields for all settings based on the `register_setting` WordPress API
 	 *
+	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 *
 	 * @return array
 	 */
-	public static function get_fields() {
-		$registered_settings = DataSource::get_allowed_settings();
+	public static function get_fields( TypeRegistry $type_registry ) {
+		$registered_settings = DataSource::get_allowed_settings( $type_registry );
 		$fields              = [];
 
 		if ( ! empty( $registered_settings ) && is_array( $registered_settings ) ) {
@@ -47,6 +58,10 @@ class Settings {
 			 * proper fields
 			 */
 			foreach ( $registered_settings as $key => $setting_field ) {
+
+				if ( ! isset( $setting_field['type'] ) || ! $type_registry->get_type( $setting_field['type'] ) ) {
+					continue;
+				}
 
 				/**
 				 * Determine if the individual setting already has a

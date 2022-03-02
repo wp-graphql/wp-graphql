@@ -430,6 +430,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 			];
 		}
 
+		codecept_debug( $actual );
+
 		/**
 		 * Compare the actual output vs the expected output
 		 */

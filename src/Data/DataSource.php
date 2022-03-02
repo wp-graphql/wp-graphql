@@ -28,6 +28,7 @@ use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
 use WPGraphQL\Model\UserRole;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class DataSource
@@ -404,12 +405,12 @@ class DataSource {
 	 *
 	 * @return array $settings_groups[ $group ]
 	 */
-	public static function get_setting_group_fields( string $group ) {
+	public static function get_setting_group_fields( string $group, TypeRegistry $type_registry ) {
 
 		/**
 		 * Get all of the settings, sorted by group
 		 */
-		$settings_groups = self::get_allowed_settings_by_group();
+		$settings_groups = self::get_allowed_settings_by_group( $type_registry );
 
 		return ! empty( $settings_groups[ $group ] ) ? $settings_groups[ $group ] : [];
 
@@ -418,9 +419,11 @@ class DataSource {
 	/**
 	 * Get all of the allowed settings by group
 	 *
+	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 *
 	 * @return array $allowed_settings_by_group
 	 */
-	public static function get_allowed_settings_by_group() {
+	public static function get_allowed_settings_by_group( TypeRegistry $type_registry ) {
 
 		/**
 		 * Get all registered settings
@@ -436,6 +439,10 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			$group = self::format_group_name( $setting['group'] );
 
+			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
+				continue;
+			}
+
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
 					$setting['key']                              = $key;
@@ -445,7 +452,7 @@ class DataSource {
 				$setting['key']                              = $key;
 				$allowed_settings_by_group[ $group ][ $key ] = $setting;
 			}
-		};
+		}
 
 		/**
 		 * Set the setting groups that are allowed
@@ -457,39 +464,47 @@ class DataSource {
 		 *
 		 * @param array $allowed_settings_by_group
 		 */
-		$allowed_settings_by_group = apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
-
-		return $allowed_settings_by_group;
+		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
 
 	}
 
 	/**
 	 * Get all of the $allowed_settings
 	 *
+	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 *
 	 * @return array $allowed_settings
 	 */
-	public static function get_allowed_settings() {
+	public static function get_allowed_settings( TypeRegistry $type_registry ) {
 
 		/**
 		 * Get all registered settings
 		 */
 		$registered_settings = get_registered_settings();
 
-		/**
-		 * Loop through the $registered_settings and if the setting is allowed in REST or GraphQL
-		 * add it to the $allowed_settings array
-		 */
-		foreach ( $registered_settings as $key => $setting ) {
-			if ( ! isset( $setting['show_in_graphql'] ) ) {
-				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
+		if ( ! empty( $registered_settings ) ) {
+
+			/**
+			 * Loop through the $registered_settings and if the setting is allowed in REST or GraphQL
+			 * add it to the $allowed_settings array
+			 */
+			foreach ( $registered_settings as $key => $setting ) {
+
+				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
+					continue;
+				}
+
+				if ( ! isset( $setting['show_in_graphql'] ) ) {
+					if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
+						$setting['key']           = $key;
+						$allowed_settings[ $key ] = $setting;
+					}
+				} elseif ( true === $setting['show_in_graphql'] ) {
 					$setting['key']           = $key;
 					$allowed_settings[ $key ] = $setting;
 				}
-			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']           = $key;
-				$allowed_settings[ $key ] = $setting;
 			}
-		};
+		}
 
 		/**
 		 * Verify that we have the allowed settings
@@ -504,9 +519,7 @@ class DataSource {
 		 *
 		 * @return array
 		 */
-		$allowed_settings = apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
-
-		return $allowed_settings;
+		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
 
 	}
 

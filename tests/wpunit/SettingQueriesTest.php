@@ -270,14 +270,29 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'default' => 4.5,
 		) );
 
+		$query = '
+		query GetType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
 
-		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
-		$this->assertArrayHasKey( 'zool', $actual );
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'typeName' => 'ZoolSettings'
+			]
+		]);
 
-		unregister_setting( 'zool', 'points' );
+		codecept_debug( $actual );
 
-		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
-		$this->assertArrayNotHasKey( 'zool', $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ZoolSettings', $actual['data']['__type']['name'] );
 
 	}
 
@@ -311,13 +326,73 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		) );
 
 
-		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings();
-		$this->assertArrayHasKey( 'points', $actual );
+		$query = '
+		query getType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'typeName' => 'ZoolSettings'
+			]
+		]);
+
+		codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ZoolSettings', $actual['data']['__type']['name'] );
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$names = [];
+		foreach ( $actual['data']['__type']['fields'] as $field ) {
+			$names[ $field['name'] ] = $field['name'];
+		}
+
+		codecept_debug( $names );
+
+		$this->assertArrayHasKey( 'points', $names );
 
 		unregister_setting( 'zool', 'points' );
 
-		$actual = \WPGraphQL\Data\DataSource::get_allowed_settings();
-		$this->assertArrayNotHasKey( 'points', $actual );
+	}
+
+	public function testUnregisteringSettingPreventsItFromBeingInTheSchema() {
+
+		register_setting( 'zool', 'test', [
+			'show_in_rest' => true,
+			'type' => 'string'
+		]);
+
+		unregister_setting( 'zool', 'test' );
+
+		$query = '
+		query getType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'typeName' => 'ZoolSettings'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		// There should be no type found
+		$this->assertNull( $actual['data']['__type'] );
 
 	}
 

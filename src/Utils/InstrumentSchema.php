@@ -149,6 +149,7 @@ class InstrumentSchema {
 						$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
 					} else {
 						$result = $field_resolver( $source, $args, $context, $info );
+
 					}
 				}
 
