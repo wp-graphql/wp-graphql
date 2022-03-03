@@ -67,7 +67,14 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  */
 function graphql_init_appsero_telemetry() {
 
+	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on
+	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
+		return;
+	}
+
 	$client = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WP GraphQL', __FILE__ );
+
+	// @phpstan-ignore-next-line
 	$client->insights()->init();
 
 }
