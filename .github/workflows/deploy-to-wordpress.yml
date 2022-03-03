@@ -23,7 +23,7 @@ jobs:
           npm install
       - name: Build JavaScript App (GraphiQL)
         run: |
-          npm build
+          npm run build
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
