@@ -10,7 +10,7 @@
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 5.0
- * Tested up to: 5.8
+ * Tested up to: 5.9.1
  * Requires PHP: 7.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -59,3 +59,24 @@ graphql_init();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once 'cli/wp-cli.php';
 }
+
+/**
+ * Initialize the plugin tracker
+ *
+ * @return void
+ */
+function graphql_init_appsero_telemetry() {
+
+	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on
+	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
+		return;
+	}
+
+	$client = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WP GraphQL', __FILE__ );
+
+	// @phpstan-ignore-next-line
+	$client->insights()->init();
+
+}
+
+graphql_init_appsero_telemetry();
