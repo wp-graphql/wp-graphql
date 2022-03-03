@@ -2,9 +2,9 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, REST, JSON,  HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 5.8
+Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.6.12
+Stable tag: 1.7.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -75,6 +75,16 @@ You can read more about this [here](https://www.wpgraphql.com/2021/02/07/whats-n
 
 Gatsby and WP Engine both believe that a strong GraphQL API for WordPress is a benefit for the web. Neither Gatsby or WP Engine are required to be used with WPGraphQL, however it's important to acknowledge and understand what's possible because of their investments into WPGraphQL and the future of headless WordPress!
 
+== Privacy Policy ==
+
+WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster & make product improvements.
+
+Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**. We collect the data to ensure a great user experience for all our users.
+
+Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without confirmation from users in any case.**
+
+Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
+
 == Upgrade Notice ==
 
 = 1.6.7 =
@@ -120,6 +130,24 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.7.0 =
+
+**Chores / Bugfixes**
+
+- ([#2228](https://github.com/wp-graphql/wp-graphql/pull/2228)): Allows optional fields to be set to empty values in the `updateUser` mutation. Thanks @victormattosvm!
+- ([#2247](https://github.com/wp-graphql/wp-graphql/pull/2247)): Add WordPress 5.9 to the automated testing matrix. Thanks @markkelnar!
+- ([#2242](https://github.com/wp-graphql/wp-graphql/pull/2242)): Adds End 2 End tests to test GraphiQL functionality in the admin.
+- ([#2261](https://github.com/wp-graphql/wp-graphql/pull/2261)): Fixes a bug where the `pageByUri` query might return incorrect data when custom permalinks are set. Thanks @blakewilson!
+- ([#2263](https://github.com/wp-graphql/wp-graphql/pull/2263)): Adds documentation entry for WordPress Application Passwords guide. Thanks @abhisekmazumdar!
+- ([#2262](https://github.com/wp-graphql/wp-graphql/pull/2262)): Fixes a bug where settings registered via the core `register_setting()` API would cause Schema Introspection failures, causing GraphiQL and other tools to not work properly.
+
+**New Features**
+
+- ([#2248](https://github.com/wp-graphql/wp-graphql/pull/2248)): WPGraphiQL (the GraphiQL IDE in the WordPress dashboard) has been re-built to have an extension architecture and some updated user interfaces. Thanks for contributing to this effort @scottyzen!
+- ([#2246](https://github.com/wp-graphql/wp-graphql/pull/2246)): Adds support for querying the `avatar` for the CommentAuthor Type and the Commenter Interface type.
+- ([#2236](https://github.com/wp-graphql/wp-graphql/pull/2236)): Introduces new `graphql_model_prepare_fields` filter and deprecates `graphql_return_modeled_data` filter. Thanks @justlevine!
+- ([#2265](https://github.com/wp-graphql/wp-graphql/pull/2265)): Adds opt-in telemetry tracking via Appsero, to allow us to collect helpful information for prioritizing future feature work, etc.
 
 = 1.6.12 =
 

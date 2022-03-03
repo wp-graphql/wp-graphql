@@ -30,6 +30,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 	public function setUp(): void {
 
+		WPGraphQL::clear_schema();
+
 		$this->subscriber = $this->factory->user->create( [
 			'role' => 'subscriber',
 		] );
@@ -430,6 +432,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 			];
 		}
 
+		codecept_debug( $actual );
+
 		/**
 		 * Compare the actual output vs the expected output
 		 */
@@ -465,6 +469,46 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 
 		$this->assertEquals( 0, $start_of_week);
+	}
+
+	public function testRegisteringSettingWithUnderscoresAllowsSettingToBeMutated() {
+
+		register_setting( 'my_setting_group', 'my_setting_field', [
+			'show_in_rest' => true,
+			'type'         => 'string',
+		] );
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		mutation updateSettings( $input: UpdateSettingsInput! ) {
+		  updateSettings( input: $input ) { 
+		    allSettings {
+		      mySettingGroupSettingsMySettingField
+		    }
+		    mySettingGroupSettings {
+		      mySettingField
+		    }
+		  }
+		}
+		';
+
+		$unique_value = uniqid( 'test', true );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'input' => [
+					'mySettingGroupSettingsMySettingField' => $unique_value
+				]
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $unique_value, $actual['data']['updateSettings']['allSettings']['mySettingGroupSettingsMySettingField'] );
+		$this->assertSame( $unique_value, $actual['data']['updateSettings']['mySettingGroupSettings']['mySettingField'] );
 	}
 
 }

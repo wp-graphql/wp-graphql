@@ -16,11 +16,11 @@ print_usage_instructions() {
     echo "  composer build-app";
     echo "  composer run-app";
     echo "";
-    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4 composer build-app";
-    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4 composer run-app";
+    echo "  WP_VERSION=5.9 PHP_VERSION=8.0 composer build-app";
+    echo "  WP_VERSION=5.9 PHP_VERSION=8.0 composer run-app";
     echo "";
-    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4  bin/run-docker.sh build -a";
-    echo "  WP_VERSION=5.5.3 PHP_VERSION=7.4  bin/run-docker.sh run -a";
+    echo "  WP_VERSION=5.9 PHP_VERSION=8.0  bin/run-docker.sh build -a";
+    echo "  WP_VERSION=5.9 PHP_VERSION=8.0  bin/run-docker.sh run -a";
     exit 1
 }
 
@@ -29,8 +29,8 @@ if [ $# -eq 0 ]; then
 fi
 
 TAG=${TAG-latest}
-WP_VERSION=${WP_VERSION-5.6}
-PHP_VERSION=${PHP_VERSION-7.4}
+WP_VERSION=${WP_VERSION-5.9}
+PHP_VERSION=${PHP_VERSION-8.0}
 
 BUILD_NO_CACHE=${BUILD_NO_CACHE-}
 
@@ -79,9 +79,7 @@ case "$subcommand" in
         while getopts "e:at" opt; do
             case ${opt} in
                 a )
-                docker compose up app \
-                    -e WP_VERSION=${WP_VERSION} \
-                    -e PHP_VERSION=${PHP_VERSION} \
+                WP_VERSION=${WP_VERSION} PHP_VERSION=${PHP_VERSION} docker compose up app
                     ;;
                 t )
                 docker-compose run --rm \

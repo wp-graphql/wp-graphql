@@ -29,3 +29,6 @@
 /phpstan export-ignore
 /phpstan.neon.dist export-ignore
 /schema.graphql export-ignore
+/node_modules export-ignore
+/packages export-ignore
+/artifacts export-ignore

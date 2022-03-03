@@ -25,6 +25,7 @@ For remote HTTP requests to the `/graphql` endpoint, existing authentication plu
 - https://github.com/wp-graphql/wp-graphql-jwt-authentication
 - https://github.com/WP-API/Basic-Auth (even though it’s labeled for the REST API, it works well with WPGraphQL – but not recommended for non-SSL connections)
 - https://github.com/WP-API/OAuth1 (labeled for use with the WP REST API, but works well with WPGraphQL)
+- https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/ (For WordPress 5.6 and above)
 
 If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/master/assets/app/src/App.js#L16-L29).
 

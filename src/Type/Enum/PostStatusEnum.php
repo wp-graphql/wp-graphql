@@ -28,6 +28,11 @@ class PostStatusEnum {
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {
+
+				if ( ! is_string( $status ) ) {
+					continue;
+				}
+
 				$post_status_enum_values[ WPEnumType::get_safe_name( $status ) ] = [
 					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
 					'value'       => $status,

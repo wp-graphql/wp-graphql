@@ -1,0 +1,50 @@
+name: GraphiQL Unit Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+      - 'release/**'
+
+jobs:
+  admin:
+    name: GraphiQL Unit Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'wp-graphql/wp-graphql' || github.event_name == 'pull_request' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['14']
+
+    steps:
+      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
+
+      - name: Use desired version of NodeJS
+        uses: actions/setup-node@38d90ce44d5275ad62cc48384b3d8a58c500bb5f # v2.2.2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Setup PHP w/ Composer & WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
+          coverage: none
+          tools: composer, wp-cli
+
+      - name: Install Composer Dependencies
+        run: |
+          composer install --no-dev
+
+      - name: Npm install and build
+        run: |
+          npm install && npm run build
+      - name: Install WordPress
+        run: |
+          npm run wp-env start
+      - name: Running the tests
+        run: |
+          npm run test:unit
