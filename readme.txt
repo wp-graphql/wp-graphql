@@ -138,14 +138,16 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 - ([#2228](https://github.com/wp-graphql/wp-graphql/pull/2228)): Allows optional fields to be set to empty values in the `updateUser` mutation. Thanks @victormattosvm!
 - ([#2247](https://github.com/wp-graphql/wp-graphql/pull/2247)): Add WordPress 5.9 to the automated testing matrix. Thanks @markkelnar!
 - ([#2242](https://github.com/wp-graphql/wp-graphql/pull/2242)): Adds End 2 End tests to test GraphiQL functionality in the admin.
-- ([#2261](https://github.com/wp-graphql/wp-graphql/pull/2261)): Fixes a bug where querying a page by uri with custom permalinks was returning incorrect data. Thanks @blakewilson!
+- ([#2261](https://github.com/wp-graphql/wp-graphql/pull/2261)): Fixes a bug where the `pageByUri` query might return incorrect data when custom permalinks are set. Thanks @blakewilson!
+- ([#2263](https://github.com/wp-graphql/wp-graphql/pull/2263)): Adds documentation entry for WordPress Application Passwords guide. Thanks @abhisekmazumdar!
+- ([#2262](https://github.com/wp-graphql/wp-graphql/pull/2262)): Fixes a bug where settings registered via the core `register_setting()` API would cause Schema Introspection failures, causing GraphiQL and other tools to not work properly.
 
 **New Features**
 
 - ([#2248](https://github.com/wp-graphql/wp-graphql/pull/2248)): WPGraphiQL (the GraphiQL IDE in the WordPress dashboard) has been re-built to have an extension architecture and some updated user interfaces. Thanks for contributing to this effort @scottyzen!
 - ([#2246](https://github.com/wp-graphql/wp-graphql/pull/2246)): Adds support for querying the `avatar` for the CommentAuthor Type and the Commenter Interface type.
 - ([#2236](https://github.com/wp-graphql/wp-graphql/pull/2236)): Introduces new `graphql_model_prepare_fields` filter and deprecates `graphql_return_modeled_data` filter. Thanks @justlevine!
-
+- ([#2265](https://github.com/wp-graphql/wp-graphql/pull/2265)): Adds opt-in telemetry tracking via Appsero, to allow us to collect helpful information for prioritizing future feature work, etc.
 
 = 1.6.12 =
 
