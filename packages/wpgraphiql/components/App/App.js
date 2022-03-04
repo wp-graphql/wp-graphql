@@ -72,17 +72,8 @@ export const AppWithContext = () => {
       <QueryParams config={filteredQueryParamsConfig}>
         {(renderProps) => {
           const { query, setQuery } = renderProps;
-
-          const updateQuery = (query) => {
-            console.log( {
-              current: history.state,
-              updateQuery: query
-            })
-            setQuery(query);
-          }
-
           return (
-            <AppContextProvider queryParams={query} setQueryParams={updateQuery}>
+            <AppContextProvider queryParams={query} setQueryParams={setQuery}>
               <ApolloProvider client={client(getEndpoint())}>
                 <FilteredApp />
               </ApolloProvider>
