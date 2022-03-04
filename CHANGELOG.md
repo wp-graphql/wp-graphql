@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.1
+
+## Chores / Bugfixes
+
+- ([#2268](https://github.com/wp-graphql/wp-graphql/pull/2268)): Fixes a bug in GraphiQL that would update browser history with every change to a query param. 
+
+
 ## 1.7.0
 
 ## Chores / Bugfixes
