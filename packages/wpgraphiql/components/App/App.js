@@ -21,6 +21,23 @@ const FilteredApp = () => {
   return hooks.applyFilters("graphiql_app", <Router />, { appContext });
 };
 
+
+/**
+ * QueryParamHistory object, used to define how
+ * the UseQueryParams hook should modify browser history
+ */
+const queryParamHistory = {
+  push: args => {
+    // we replace the state to not
+    // constantly add to the history for every
+    // character change
+    history.replaceState(null, null, args.href);
+  },
+  replace: args => {
+    history.replaceState(null, null, args.href);
+  }
+}
+
 /**
  * Return the app
  *
@@ -48,13 +65,24 @@ export const AppWithContext = () => {
     }
   }, []);
 
+
+
   return render ? (
-    <QueryParamProvider>
+    <QueryParamProvider history={queryParamHistory}>
       <QueryParams config={filteredQueryParamsConfig}>
         {(renderProps) => {
           const { query, setQuery } = renderProps;
+
+          const updateQuery = (query) => {
+            console.log( {
+              current: history.state,
+              updateQuery: query
+            })
+            setQuery(query);
+          }
+
           return (
-            <AppContextProvider queryParams={query} setQueryParams={setQuery}>
+            <AppContextProvider queryParams={query} setQueryParams={updateQuery}>
               <ApolloProvider client={client(getEndpoint())}>
                 <FilteredApp />
               </ApolloProvider>
