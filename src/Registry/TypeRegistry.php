@@ -536,21 +536,21 @@ class TypeRegistry {
 		 */
 		$allowed_setting_types = DataSource::get_allowed_settings_by_group( $this );
 
-		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
+		/**
+		 * The url is not a registered setting for multisite, so this is a polyfill
+		 * to expose the URL to the Schema for multisite sites
+		 */
+		if ( is_multisite() ) {
+			$this->register_field( 'GeneralSettings', 'url', [
+				'type'        => 'String',
+				'description' => __( 'Site URL.', 'wp-graphql' ),
+				'resolve'     => function () {
+					return get_site_url();
+				},
+			] );
+		}
 
-			/**
-			 * The url is not a registered setting for multisite, so this is a polyfill
-			 * to expose the URL to the Schema for multisite sites
-			 */
-			if ( is_multisite() ) {
-				register_graphql_field( 'GeneralSettings', 'url', [
-					'type'        => 'String',
-					'description' => __( 'Site URL.', 'wp-graphql' ),
-					'resolve'     => function () {
-						return get_site_url();
-					},
-				] );
-			}
+		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
 
