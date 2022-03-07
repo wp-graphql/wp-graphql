@@ -30,7 +30,7 @@ class SettingGroup {
 			return null;
 		}
 
-		register_graphql_object_type(
+		$type_registry->register_object_type(
 			ucfirst( $group_name ) . 'Settings',
 			[
 				'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
@@ -95,8 +95,10 @@ class SettingGroup {
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
-							if ( ( 'admin_email' === $setting_field['key'] ) && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+							if ( 'admin_email' === $setting_field['key'] ) {
+								if ( ! current_user_can( 'manage_options' ) ) {
+									throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								}
 							}
 
 							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
