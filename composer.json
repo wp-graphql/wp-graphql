@@ -86,7 +86,10 @@
     "fix-cs": [
       "php ./vendor/bin/phpcbf"
     ],
-    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"],
+    "post-install-cmd": [
+      "npm ci && npm run build"
+    ]
   },
   "archive": {
     "exclude": [
@@ -98,7 +101,8 @@
       "!.wordpress-org/",
       "docs/",
       "wp-graphql.zip",
-      "!build"
+      "!build",
+      "packages"
     ]
   }
 }

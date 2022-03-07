@@ -119,23 +119,6 @@ class UpdateSettings {
 		 */
 		$allowed_setting_groups = DataSource::get_allowed_settings_by_group( $type_registry );
 
-		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
-			foreach ( $allowed_setting_groups as $group => $setting_type ) {
-
-				$setting_type      = DataSource::format_group_name( $group );
-				$setting_type_name = Utils::format_type_name( $setting_type . 'Settings' );
-
-				$output_fields[ $setting_type_name ] = [
-					'type'        => $setting_type_name,
-					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name ),
-					'resolve'     => function () use ( $setting_type_name ) {
-						return $setting_type_name;
-					},
-				];
-
-			}
-		}
-
 		/**
 		 * Get all of the settings, regardless of group
 		 */
@@ -147,6 +130,22 @@ class UpdateSettings {
 			},
 		];
 
+		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
+			foreach ( $allowed_setting_groups as $group => $setting_type ) {
+
+				$setting_type      = DataSource::format_group_name( $group );
+				$setting_type_name = Utils::format_type_name( $setting_type . 'Settings' );
+
+				$output_fields[ Utils::format_field_name( $setting_type_name ) ] = [
+					'type'        => $setting_type_name,
+					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name ),
+					'resolve'     => function () use ( $setting_type_name ) {
+						return $setting_type_name;
+					},
+				];
+
+			}
+		}
 		return $output_fields;
 	}
 
