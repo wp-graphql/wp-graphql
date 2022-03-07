@@ -1,15 +1,23 @@
 # Changelog
 
+## 1.7.2
+
+### Chores / Bugfixes
+
+- ([#2276](https://github.com/wp-graphql/wp-graphql/pull/2276)): Fixes a bug where `generalSettings.url` field was not in the Schema for multisite installs. 
+- ([#2278](https://github.com/wp-graphql/wp-graphql/pull/2278)): Adds a composer post-install script that installs JS dependencies and builds the JS app when `composer install` is run
+- ([#2277](https://github.com/wp-graphql/wp-graphql/pull/2277)): Adds a condition to the docker image to only run `npm` scripts if the project has a package.json. Thanks @markkelnar!
+
 ## 1.7.1
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2268](https://github.com/wp-graphql/wp-graphql/pull/2268)): Fixes a bug in GraphiQL that would update browser history with every change to a query param. 
 
 
 ## 1.7.0
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2228](https://github.com/wp-graphql/wp-graphql/pull/2228)): Allows optional fields to be set to empty values in the `updateUser` mutation. Thanks @victormattosvm!
 - ([#2247](https://github.com/wp-graphql/wp-graphql/pull/2247)): Add WordPress 5.9 to the automated testing matrix. Thanks @markkelnar!
@@ -18,7 +26,7 @@
 - ([#2263](https://github.com/wp-graphql/wp-graphql/pull/2263)): Adds documentation entry for WordPress Application Passwords guide. Thanks @abhisekmazumdar!
 - ([#2262](https://github.com/wp-graphql/wp-graphql/pull/2262)): Fixes a bug where settings registered via the core `register_setting()` API would cause Schema Introspection failures, causing GraphiQL and other tools to not work properly.
 
-## New Features
+### New Features
 
 - ([#2248](https://github.com/wp-graphql/wp-graphql/pull/2248)): WPGraphiQL (the GraphiQL IDE in the WordPress dashboard) has been re-built to have an extension architecture and some updated user interfaces. Thanks for contributing to this effort @scottyzen!
 - ([#2246](https://github.com/wp-graphql/wp-graphql/pull/2246)): Adds support for querying the `avatar` for the CommentAuthor Type and the Commenter Interface type.
