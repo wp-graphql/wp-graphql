@@ -96,7 +96,6 @@
       "*.yml",
       "!vendor/",
       "plugin-build/",
-      "!src/Admin/GraphiQL/app/",
       "node_modules/",
       "!.wordpress-org/",
       "docs/",
