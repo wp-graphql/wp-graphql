@@ -1,9 +1,0 @@
-#wp-graphiql {
-    display: flex;
-    flex: 1;
-}
-
-#wp-graphiql .spinner{
-    visibility: visible;
-    background: none;
-}
