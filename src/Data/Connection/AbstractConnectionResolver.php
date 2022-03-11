@@ -592,27 +592,27 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get_nodes
+	 * Get_ids_for_nodes
 	 *
-	 * Get the nodes from the query.
+	 * Gets the IDs from the query.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched
 	 * by 1 item to calculate pageInfo.
 	 *
 	 * For backward pagination, we reverse the order of nodes.
 	 *
+	 * @used-by AbstractConnectionResolver::get_nodes()
+	 *
 	 * @return array
-	 * @throws Exception
 	 */
-	public function get_nodes() {
+	public function get_ids_for_nodes() {
 		if ( empty( $this->ids ) ) {
 			return [];
 		}
 
-		$nodes = [];
-
 		$ids = $this->ids;
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
+
+		$ids = array_slice( $this->ids, 0, $this->query_amount, true );
 
 		// If pagination is going backwards, revers the array of IDs
 		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
@@ -633,6 +633,24 @@ abstract class AbstractConnectionResolver {
 				}
 			}
 		}
+
+		return $ids;
+	}
+
+	/**
+	 * Get_nodes
+	 *
+	 * Get the nodes from the query.
+	 *
+	 * @uses AbstractConnectionResolver::get_ids_for_nodes()
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function get_nodes() {
+		$nodes = [];
+
+		$ids = $this->get_ids_for_nodes();
 
 		foreach ( $ids as $id ) {
 			$model = $this->get_node_by_id( $id );
