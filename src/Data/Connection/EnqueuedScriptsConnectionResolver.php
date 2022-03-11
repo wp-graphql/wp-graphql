@@ -101,11 +101,12 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 			// Determine if the offset is in the array
 			$key = array_search( $this->get_offset(), $ids, true );
 			if ( false !== $key ) {
+				$key = absint( $key );
 				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
+					// Slice the array from the back
 					$ids = array_slice( $ids, 0, $key, true );
 				} else {
-					// Slice the array from the front.
+					// Slice the array from the front
 					$key ++;
 					$ids = array_slice( $ids, $key, null, true );
 				}

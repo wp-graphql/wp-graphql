@@ -623,11 +623,11 @@ abstract class AbstractConnectionResolver {
 			// If the offset is in the array
 			if ( false !== $key ) {
 				$key = absint( $key );
-				// Slice the array from the back
 				if ( ! empty( $this->args['before'] ) ) {
+					// Slice the array from the back
 					$ids = array_slice( $ids, 0, $key, true );
-					// Slice the array from the front
 				} else {
+					// Slice the array from the front
 					$key ++;
 					$ids = array_slice( $ids, $key, null, true );
 				}
