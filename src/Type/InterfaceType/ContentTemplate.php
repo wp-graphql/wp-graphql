@@ -40,10 +40,6 @@ class ContentTemplate {
 		foreach ( $allowed_post_types as $post_type ) {
 			$post_type_templates = wp_get_theme()->get_page_templates( null, $post_type );
 
-			if ( empty( $post_type_templates ) ) {
-				continue;
-			}
-
 			foreach ( $post_type_templates as $file => $name ) {
 				$page_templates[ $file ] = $name;
 			}
