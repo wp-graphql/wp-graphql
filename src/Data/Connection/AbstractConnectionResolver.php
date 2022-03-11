@@ -470,7 +470,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|null
 	 */
 	public function get_after_offset(): ?int {
-		if ( isset( $this->args['after'] ) && ! empty( $this->args['after'] ) ) {
+		if ( ! empty( $this->args['after'] ) ) {
 			return ArrayConnection::cursorToOffset( $this->args['after'] );
 		}
 
@@ -481,7 +481,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|null
 	 */
 	public function get_before_offset(): ?int {
-		if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+		if ( ! empty( $this->args['before'] ) ) {
 			return ArrayConnection::cursorToOffset( $this->args['before'] );
 		}
 

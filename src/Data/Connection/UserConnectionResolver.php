@@ -133,7 +133,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
 
 					$order = $orderby_input['order'];
-					if ( isset( $this->args['last'] ) && ! empty( $this->args['last'] ) ) {
+					if ( ! empty( $this->args['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {
