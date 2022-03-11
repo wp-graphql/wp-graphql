@@ -91,12 +91,12 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	public function get_nodes() {
 		$nodes = parent::get_nodes();
 
-		if ( isset( $this->args['after'] ) ) {
+		if ( ! empty( $this->args['after'] ) ) {
 			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
 			$nodes = array_slice( $nodes, $key + 1, null, true );
 		}
 
-		if ( isset( $this->args['before'] ) ) {
+		if ( ! empty( $this->args['before'] ) ) {
 			$nodes = array_reverse( $nodes );
 			$key   = array_search( $this->get_offset(), array_keys( $nodes ), true );
 			$nodes = array_slice( $nodes, $key + 1, null, true );
