@@ -1,14 +1,19 @@
 <?php
 
-class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+use WPGraphQL\Type\WPEnumType;
+
+class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 
 	public function setUp():void {
+		// before
+
+		$this->clearSchema();
 		parent::setUp();
-		WPGraphQL::clear_schema();
+
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		add_theme_support( 'nav_menu_locations' );
@@ -17,13 +22,14 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		// your tear down methods here
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
 	public function testMenusQueryById() {
 		$menu_slug = 'my-test-menu-by-id';
-		$menu_id = wp_create_nav_menu( $menu_slug );
+		$menu_id   = wp_create_nav_menu( $menu_slug );
 
 		codecept_debug( $menu_id );
 
@@ -41,15 +47,13 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// a public request should get no menus if there are none associated with a location
 		$this->assertSame( [], $actual['data']['menus']['edges'] );
 
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][0]['node']['menuId'] );
@@ -66,27 +70,35 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_create_nav_menu( $menu_slug );
 		wp_create_nav_menu( $menu_slug . '-2' );
 		$id_3 = wp_create_nav_menu( $menu_slug . '-3' );
-		wp_create_nav_menu( $menu_slug . '-4'  );
+		wp_create_nav_menu( $menu_slug . '-4' );
 
-		// Assign menu to location.
-		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $id_3 ] );
+		$menu_location = 'my-menu-location';
 
 		$query = '
-		{
-			menus( where: { location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						menuId
-						name
+			query queryMenus( $location: MenuLocationEnum ) {
+				menus( where: { location: $location } ) {
+					edges {
+						node {
+							menuId
+							name
+						}
 					}
 				}
 			}
-		}
 		';
 
-		$actual = do_graphql_request( $query );
+		$variables = [
+			'location' => WPEnumType::get_safe_name( $menu_location ),
+		];
 
-		codecept_debug( $actual );
+		// Test when no menu is assigned to location.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertSame( [], $actual['data']['menus']['edges'] );
+
+		// Test with menu is assigned to location.
+		set_theme_mod( 'nav_menu_locations', [ $menu_location => $id_3 ] );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $id_3, $actual['data']['menus']['edges'][0]['node']['menuId'] );
@@ -95,7 +107,7 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testMenusQueryBySlug() {
 		$menu_slug = 'my-test-menu-by-slug';
-		$menu_id = wp_create_nav_menu( $menu_slug );
+		$menu_id   = wp_create_nav_menu( $menu_slug );
 
 		$query = '
 		{
@@ -110,13 +122,13 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// a public request should get no menus if there are none associated with a location
 		$this->assertSame( [], $actual['data']['menus']['edges'] );
 
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertEquals( 1, count( $actual['data']['menus']['edges'] ) );
 		$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][0]['node']['menuId'] );
@@ -143,16 +155,16 @@ class MenuConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// a public request should get no menus if there are none associated with a location
 		$this->assertSame( [], $actual['data']['menus']['edges'] );
 
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertEquals( count( $menu_ids ), count( $actual['data']['menus']['edges'] ) );
-		foreach( $menu_ids as $index => $menu_id ) {
+		foreach ( $menu_ids as $index => $menu_id ) {
 			$this->assertEquals( $menu_id, $actual['data']['menus']['edges'][ $index ]['node']['menuId'] );
 		}
 	}
