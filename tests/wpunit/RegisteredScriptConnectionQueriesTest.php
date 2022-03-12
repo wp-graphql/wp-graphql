@@ -1,6 +1,6 @@
 <?php
 
-class EnqueuedScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	private $admin;
 
@@ -16,11 +16,11 @@ class EnqueuedScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGr
 	/**
 	 * Tests querying for plugins with pagination args.
 	 */
-	public function testEnqueuedScriptsQueryPagination() {
+	public function testRegisteredScriptsQueryPagination() {
 		wp_set_current_user( $this->admin );
 
 		$query = '
-			query testEnqueuedScripts($first: Int, $after: String, $last: Int, $before: String ) {
+			query testRegisteredScripts($first: Int, $after: String, $last: Int, $before: String ) {
 				registeredScripts(first: $first, last: $last, before: $before, after: $after) {
 					pageInfo {
 						endCursor

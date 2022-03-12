@@ -1,6 +1,6 @@
 <?php
 
-class EnqueuedStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	private $admin;
 
@@ -16,11 +16,11 @@ class EnqueuedStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\
 	/**
 	 * Tests querying for plugins with pagination args.
 	 */
-	public function testEnqueuedStylesheetsQueryPagination() {
+	public function testRegisteredStylesheetsQueryPagination() {
 		wp_set_current_user( $this->admin );
 
 		$query = '
-			query testEnqueuedStylesheets($first: Int, $after: String, $last: Int, $before: String ) {
+			query testRegisteredStylesheets($first: Int, $after: String, $last: Int, $before: String ) {
 				registeredStylesheets(first: $first, last: $last, before: $before, after: $after) {
 					pageInfo {
 						endCursor
