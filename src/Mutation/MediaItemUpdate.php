@@ -82,7 +82,7 @@ class MediaItemUpdate {
 			if ( null === $existing_media_item ) {
 				throw new UserError( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
 			} else {
-				$author_id = $existing_media_item->post_author;
+				$author_id = absint( $existing_media_item->post_author );
 			}
 
 			/**
@@ -106,7 +106,7 @@ class MediaItemUpdate {
 			 */
 			if ( ! empty( $input['authorId'] ) ) {
 				$author_id_parts = Relay::fromGlobalId( $input['authorId'] );
-				$author_id       = $author_id_parts['id'];
+				$author_id       = absint( $author_id_parts['id'] );
 			}
 
 			/**
