@@ -38,7 +38,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		// Get all for comparison
 		$variables = [
-			'first'  => null,
+			'first'  => 500,
 			'after'  => null,
 			'last'   => null,
 			'before' => null,
@@ -63,8 +63,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$this->assertEqualSets( $expected, $actual['data']['registeredStylesheets']['nodes'] );
 
 		// Get last two registeredStylesheets
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,
@@ -72,7 +70,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['registeredStylesheets']['nodes'] );
 

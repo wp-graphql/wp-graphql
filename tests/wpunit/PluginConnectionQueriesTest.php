@@ -98,7 +98,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		// Get all for comparison
 		$variables = [
-			'first'  => null,
+			'first'  => 100,
 			'after'  => null,
 			'last'   => null,
 			'before' => null,
@@ -122,9 +122,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual             = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
 
-		// Get last two plugins
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,
@@ -132,7 +129,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
 

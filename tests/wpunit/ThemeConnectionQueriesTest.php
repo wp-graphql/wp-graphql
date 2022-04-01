@@ -145,7 +145,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
 		// Get last two themes
-		/*disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
 		$variables = [
 			'first'  => null,
 			'after'  => null,
@@ -153,15 +152,14 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
 		// Test with empty `before`.
 		$variables['before'] = '';
 		$actual              = $this->graphql( compact( 'query', 'variables' ) );
-		// $this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
-		*/
+		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 	}
 
 	public function dataProviderUser() {

@@ -57,9 +57,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$actual             = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['taxonomies']['nodes'] );
 
-		// Get last two taxonomies
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
+		// Get last two taxonomies.
 		$variables = [
 			'first'  => null,
 			'after'  => null,
@@ -67,7 +65,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['taxonomies']['nodes'] );
 

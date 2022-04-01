@@ -3,11 +3,16 @@
 class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
+		$this->admin = $this->factory()->user->create( [
+			'role' => 'administrator',
+		] );
+		wp_set_current_user( $this->admin );
 		parent::setUp();
 	}
 
 	public function tearDown(): void {
 		parent::tearDown();
+		wp_delete_user( $this->admin );
 	}
 
 	/**
@@ -58,8 +63,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertEqualSets( $expected, $actual['data']['contentTypes']['nodes'] );
 
 		// Get last two contentTypes
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,
@@ -67,7 +70,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['contentTypes']['nodes'] );
 
