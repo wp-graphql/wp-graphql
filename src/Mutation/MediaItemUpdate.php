@@ -81,8 +81,6 @@ class MediaItemUpdate {
 			 */
 			if ( null === $existing_media_item ) {
 				throw new UserError( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
-			} else {
-				$author_id = $existing_media_item->post_author;
 			}
 
 			/**
@@ -100,13 +98,15 @@ class MediaItemUpdate {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
+			$author_id = absint( $existing_media_item->post_author );
+
 			/**
 			 * If the mutation is setting the author to be someone other than the user making the request
 			 * make sure they have permission to edit others posts
 			 */
 			if ( ! empty( $input['authorId'] ) ) {
 				$author_id_parts = Relay::fromGlobalId( $input['authorId'] );
-				$author_id       = $author_id_parts['id'];
+				$author_id       = absint( $author_id_parts['id'] );
 			}
 
 			/**

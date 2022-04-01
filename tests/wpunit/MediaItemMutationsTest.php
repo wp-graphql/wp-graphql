@@ -1166,4 +1166,28 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
+
+	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
+
+		$media_item_1 = $this->factory()->attachment->create( [
+			'post_mime_type' => 'image/gif',
+			'post_author' => $this->author
+		] );
+
+		wp_set_current_user( $this->author );
+
+		$this->update_variables = [
+			'input' => [
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_1 ),
+				'title' => 'Test update title...'
+			]
+		];
+
+		$actual =  $this->updateMediaItemMutation();
+
+//		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
 }
