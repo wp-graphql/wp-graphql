@@ -45,12 +45,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		];
 		$actual    = $this->graphql( compact( 'query', 'variables' ) );
 
+
 		$this->assertIsValidQueryResponse( $actual );
 
 		$nodes = $actual['data']['registeredScripts']['nodes'];
 
 		// Get first two registeredScripts
 		$variables['first'] = 2;
+		$variables['after'] = null;
 
 		$expected = array_slice( $nodes, 0, $variables['first'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
@@ -61,7 +63,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$actual             = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
 
-		// Get last two registeredScripts.
+		// Get last two registeredScripts
 		$variables = [
 			'first'  => null,
 			'after'  => null,

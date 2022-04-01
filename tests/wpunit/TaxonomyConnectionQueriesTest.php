@@ -57,7 +57,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$actual             = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['taxonomies']['nodes'] );
 
-		// Get last two taxonomies.
+		// Get last two taxonomies
 		$variables = [
 			'first'  => null,
 			'after'  => null,

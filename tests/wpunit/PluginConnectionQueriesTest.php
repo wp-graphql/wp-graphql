@@ -133,6 +133,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
 
+
 		// Test with empty `before`.
 		$variables['before'] = '';
 		$actual              = $this->graphql( compact( 'query', 'variables' ) );

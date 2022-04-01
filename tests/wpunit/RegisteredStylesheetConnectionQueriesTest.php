@@ -19,6 +19,11 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 	public function testRegisteredStylesheetsQueryPagination() {
 		wp_set_current_user( $this->admin );
 
+		global $wp_styles;
+		do_action( 'wp_enqueue_scripts' );
+
+		$all_registered = array_keys( $wp_styles->registered );
+
 		$query = '
 			query testRegisteredStylesheets($first: Int, $after: String, $last: Int, $before: String ) {
 				registeredStylesheets(first: $first, last: $last, before: $before, after: $after) {
@@ -52,9 +57,17 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		// Get first two registeredStylesheets
 		$variables['first'] = 2;
+		$variables['after'] = null;
 
 		$expected = array_slice( $nodes, 0, $variables['first'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+
+		codecept_debug( [
+			'expected' => $expected,
+			'actual' => $actual['data']['registeredStylesheets']['nodes']
+		]);
+
 		$this->assertEqualSets( $expected, $actual['data']['registeredStylesheets']['nodes'] );
 
 		// Test with empty `after`.
