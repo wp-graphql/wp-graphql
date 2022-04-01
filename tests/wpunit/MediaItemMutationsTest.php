@@ -1167,11 +1167,14 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 	}
 
-	public function testUpdateMediaItemOwnedByAnotherUser() {
+	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
 
-		$media_item_1 = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif', 'post_author' => $this->subscriber ] );
+		$media_item_1 = $this->factory()->attachment->create( [
+			'post_mime_type' => 'image/gif',
+			'post_author' => $this->author
+		] );
 
-		wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->author );
 
 		$this->update_variables = [
 			'input' => [
@@ -1182,7 +1185,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$actual =  $this->updateMediaItemMutation();
 
-		codecept_debug( $actual );
+//		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
 	}
 }
