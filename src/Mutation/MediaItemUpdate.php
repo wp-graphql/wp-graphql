@@ -81,8 +81,6 @@ class MediaItemUpdate {
 			 */
 			if ( null === $existing_media_item ) {
 				throw new UserError( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
-			} else {
-				$author_id = absint( $existing_media_item->post_author );
 			}
 
 			/**
@@ -99,6 +97,8 @@ class MediaItemUpdate {
 			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
+
+			$author_id = absint( $existing_media_item->post_author );
 
 			/**
 			 * If the mutation is setting the author to be someone other than the user making the request

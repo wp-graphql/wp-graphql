@@ -1166,4 +1166,23 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
+
+	public function testUpdateMediaItemOwnedByAnotherUser() {
+
+		$media_item_1 = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif', 'post_author' => $this->subscriber ] );
+
+		wp_set_current_user( $this->admin );
+
+		$this->update_variables = [
+			'input' => [
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_1 ),
+				'title' => 'Test update title...'
+			]
+		];
+
+		$actual =  $this->updateMediaItemMutation();
+
+		codecept_debug( $actual );
+
+	}
 }
