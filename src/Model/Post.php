@@ -535,7 +535,7 @@ class Post extends Model {
 				},
 				'template'                  => function () {
 
-					$registered_templates = wp_get_theme()->get_post_templates();
+					$registered_templates = wp_get_theme()->get_page_templates( null, $this->data->post_type );
 
 					$template = [
 						'__typename'   => 'DefaultTemplate',
@@ -550,9 +550,9 @@ class Post extends Model {
 							return $template;
 						}
 
-						$post_type = $parent_post->post_type;
+						$registered_templates = wp_get_theme()->get_page_templates( $parent_post );
 
-						if ( ! isset( $registered_templates[ $post_type ] ) ) {
+						if ( empty( $registered_templates ) ) {
 							return $template;
 						}
 						$set_template  = get_post_meta( $this->parentDatabaseId, '_wp_page_template', true );
@@ -569,7 +569,7 @@ class Post extends Model {
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
 
 					} else {
-						if ( ! isset( $registered_templates[ $this->data->post_type ] ) ) {
+						if ( empty( $registered_templates ) ) {
 							return $template;
 						}
 						$post_type     = $this->data->post_type;
@@ -579,8 +579,8 @@ class Post extends Model {
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
 					}
 
-					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $post_type ][ $set_template ] ) ) {
-						$name          = ucwords( $registered_templates[ $post_type ][ $set_template ] );
+					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $set_template ] ) ) {
+						$name          = ucwords( $registered_templates[ $set_template ] );
 						$replaced_name = preg_replace( '/[^\w]/', '', $name );
 
 						if ( ! empty( $replaced_name ) ) {
@@ -592,7 +592,7 @@ class Post extends Model {
 
 						$template = [
 							'__typename'   => $name,
-							'templateName' => ucwords( $registered_templates[ $post_type ][ $set_template ] ),
+							'templateName' => ucwords( $registered_templates[ $set_template ] ),
 						];
 					}
 

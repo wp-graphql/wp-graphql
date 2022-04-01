@@ -1,3 +1,8 @@
+---
+uri: "/docs/customizing-wpgraphiql/"
+title: "Customizing the WPGraphiQL IDE"
+---
+
 # Customizing WPGraphiQL
 
 WPGraphiQL was built with extendability in mind. 
