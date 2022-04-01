@@ -7,10 +7,22 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 	public function setUp(): void {
 		parent::setUp();
-
+		$this->delete_users();
 		$this->admin    = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->user_ids = $this->create_users( 20 );
 		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * Deletes all users that were created using create_users()
+	 */
+	public function delete_users() {
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare(
+			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
+			array( 0 )
+		) );
+		$this->created_user_ids = [ 1 ];
 	}
 
 	public function tearDown(): void {
@@ -41,7 +53,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		wp_set_current_user( $this->admin );
 
 		$users    = new WP_User_Query([
-			'number' => 20,
+			'number' => 100,
 			'fields' => 'ids',
 		]);
 		$user_ids = $users->get_results();
@@ -155,6 +167,13 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// reverse ids since we're going backwards.
 		$user_ids = array_reverse( $user_ids );
+
+		codecept_debug( [
+			'userIds' => $user_ids,
+			'actual' => $actual,
+		]);
+
+
 		// Assert the first item is the 3rd most recent user
 		$this->assertEquals( $user_ids[0], $actual['data']['users']['nodes'][0]['databaseId'] );
 

@@ -610,8 +610,6 @@ abstract class AbstractConnectionResolver {
 			return [];
 		}
 
-		$ids = $this->ids;
-
 		$ids = array_slice( $this->ids, 0, $this->query_amount, true );
 
 		// If pagination is going backwards, revers the array of IDs

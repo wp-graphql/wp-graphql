@@ -38,7 +38,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		// Get all for comparison
 		$variables = [
-			'first'  => null,
+			'first'  => 100,
 			'after'  => null,
 			'last'   => null,
 			'before' => null,
@@ -46,12 +46,30 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
+		codecept_debug( $actual );
+
 		$this->assertIsValidQueryResponse( $actual );
 
 		$nodes = $actual['data']['registeredScripts']['nodes'];
 
+		// there's more than 200 stylesheets registered, so we query for ALL of them to make sure we have
+		// all the nodes when doing the tests
+		// this doesn't feel like it scales well, but can be refactored later
+		if ( $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] ) {
+			$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
+			$actual = $this->graphql( compact( 'query', 'variables' ) );
+			$nodes = array_merge( $nodes, $actual['data']['registeredScripts']['nodes'] );
+		}
+
+		if ( $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] ) {
+			$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
+			$actual = $this->graphql( compact( 'query', 'variables' ) );
+			$nodes = array_merge( $nodes, $actual['data']['registeredScripts']['nodes'] );
+		}
+
 		// Get first two registeredScripts
 		$variables['first'] = 2;
+		$variables['after'] = null;
 
 		$expected = array_slice( $nodes, 0, $variables['first'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
@@ -70,7 +88,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( array_reverse( $nodes ), null, $variables['last'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
 

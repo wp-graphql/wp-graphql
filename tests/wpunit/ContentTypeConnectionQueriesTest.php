@@ -65,8 +65,15 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+
+		$expected = array_slice( array_reverse( $nodes ), null, $variables['last'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( [
+			'expected' => $expected,
+			'nodes' => $nodes,
+			'actual' => $actual
+		]);
 		$this->assertEqualSets( $expected, $actual['data']['contentTypes']['nodes'] );
 
 		// Test with empty `before`.

@@ -152,15 +152,15 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( array_reverse( $nodes ), null, $variables['last'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
 		// Test with empty `before`.
 		$variables['before'] = '';
 		$actual              = $this->graphql( compact( 'query', 'variables' ) );
-		// $this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
-		*/
+		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
+
 	}
 
 	public function dataProviderUser() {

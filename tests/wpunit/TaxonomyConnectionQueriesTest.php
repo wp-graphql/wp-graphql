@@ -65,7 +65,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			'before' => null,
 		];
 
-		$expected = array_slice( $nodes, $variables['last'], null, true );
+		$expected = array_slice( array_reverse( $nodes ), null, $variables['last'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['taxonomies']['nodes'] );
 
