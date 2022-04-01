@@ -120,8 +120,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEqualSets( $expected, $actual['data']['userRoles']['nodes'] );
 
 		// Get last two userRoles
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,

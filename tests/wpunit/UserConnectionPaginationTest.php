@@ -148,7 +148,6 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertEquals( $user_ids[1], $actual['data']['users']['nodes'][1]['databaseId'] );
 
 		// Query last two users
-		/* disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
 		$variables['before'] = null;
 		$actual              = $this->graphql( compact( 'query', 'variables' ) );
 		// assert there are 2 items in the query
@@ -161,7 +160,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Assert the 2nd item is the 4th most recent user
 		$this->assertEquals( $user_ids[1], $actual['data']['users']['nodes'][1]['databaseId'] );
-		*/
+
 
 		// Query when before is empty
 		$variables['before'] = '';

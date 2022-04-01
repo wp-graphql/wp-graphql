@@ -58,8 +58,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertEqualSets( $expected, $actual['data']['contentTypes']['nodes'] );
 
 		// Get last two contentTypes
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,

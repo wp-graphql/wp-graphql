@@ -145,7 +145,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
 		// Get last two themes
-		/*disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
 		$variables = [
 			'first'  => null,
 			'after'  => null,

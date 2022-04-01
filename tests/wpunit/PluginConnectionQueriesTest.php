@@ -123,8 +123,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
 
 		// Get last two plugins
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,

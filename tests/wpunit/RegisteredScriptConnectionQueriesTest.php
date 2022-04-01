@@ -63,8 +63,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
 
 		// Get last two registeredScripts
-		//disabled until https://github.com/wp-graphql/wp-graphql/pull/2294
-		return;
 		$variables = [
 			'first'  => null,
 			'after'  => null,
