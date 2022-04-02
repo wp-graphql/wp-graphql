@@ -43,30 +43,35 @@ class CommentMutation {
 		 */
 
 		$user = wp_get_current_user();
-		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
-			$output_args['user_id']              = $user->ID;
-			$output_args['comment_author']       = $user->display_name;
-			$output_args['comment_author_email'] = $user->user_email;
-			if ( ! empty( $user->user_url ) ) {
-				$output_args['comment_author_url'] = $user->user_url;
+		if ( 0 !== $user->ID ) {
+			// This is only ever the ID of the current user.
+			$output_args['user_id'] = $user->ID;
+
+			// Only users with the right permissions should be able to set a different author than themselves.
+			$can_moderate_comments = current_user_can( 'moderate_comments' );
+
+			$input['author']      = $can_moderate_comments && ! empty( $input['author'] ) ? $input['author'] : $user->display_name;
+			$input['authorEmail'] = $can_moderate_comments && ! empty( $input['authorEmail'] ) ? $input['authorEmail'] : $user->user_email;
+			$input['authorUrl']   = $can_moderate_comments && ! empty( $input['authorUrl'] ) ? $input['authorUrl'] : $user->user_url;
+		}
+
+		if ( empty( $input['author'] ) ) {
+			if ( ! $update ) {
+				throw new UserError( __( 'Comment must include an authorName.', 'wp-graphql' ) );
 			}
 		} else {
-			if ( empty( $input['author'] ) ) {
-				if ( ! $update ) {
-					throw new UserError( __( 'Comment must include an authorName', 'wp-graphql' ) );
-				}
-			} else {
-				$output_args['comment_author'] = $input['author'];
+			$output_args['comment_author'] = $input['author'];
+		}
+
+		if ( ! empty( $input['authorEmail'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
+				throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
-			if ( ! empty( $input['authorEmail'] ) ) {
-				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
-				}
-				$output_args['comment_author_email'] = $input['authorEmail'];
-			}
-			if ( ! empty( $input['authorUrl'] ) ) {
-				$output_args['comment_author_url'] = $input['authorUrl'];
-			}
+			$output_args['comment_author_email'] = $input['authorEmail'];
+		}
+
+		if ( ! empty( $input['authorUrl'] ) ) {
+			$output_args['comment_author_url'] = $input['authorUrl'];
 		}
 
 		if ( ! empty( $input['commentOn'] ) ) {
