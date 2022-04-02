@@ -1,6 +1,6 @@
 <?php
 
-class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
 	public $current_time;
@@ -34,17 +34,17 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function createCommentObject( $args = [] ) {
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...',
-			'post_author' => $this->admin
+			'post_title'  => 'Post for commenting...',
+			'post_author' => $this->admin,
 		]);
 
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_ID' => $post_id,
+			'comment_post_ID'  => $post_id,
 			'comment_author'   => $this->admin,
 			'comment_content'  => 'Test comment content',
 			'comment_approved' => 1,
@@ -112,9 +112,9 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}';
 
-		return graphql([
-			'query' => $query,
-			'variables' => $variables
+		return $this->graphql([
+			'query'     => $query,
+			'variables' => $variables,
 		]);
 	}
 
@@ -125,8 +125,6 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results = $this->commentsQuery( $variables );
-
-		codecept_debug( $results );
 
 		$comments_query = new WP_Comment_Query();
 		$comments       = $comments_query->query(
@@ -267,4 +265,46 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testCommentConnectionWhereArgs() {
+		$comment_type_one = 'custom-type-one';
+		$comment_type_two = 'custom-type-two';
+		$comment_ids      = [
+			$this->createCommentObject( [ 'comment_type' => $comment_type_one ] ),
+			$this->createCommentObject( [ 'comment_type' => $comment_type_two ] ),
+		];
+
+		// test commentType
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentType' => $comment_type_one,
+			],
+		] );
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['commentId'] );
+
+		// test commentTypeIn
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentTypeIn' => [ $comment_type_one, $comment_type_two ],
+			],
+		] );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+
+		// test commentTypeNotIn
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentTypeNotIn' => [ 'comment' ],
+			],
+		] );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+	}
 }
