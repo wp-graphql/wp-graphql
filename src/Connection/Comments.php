@@ -281,13 +281,11 @@ class Comments {
 				'description' => __( 'Include comments from a given array of comment types.', 'wp-graphql' ),
 			],
 			'commentTypeNotIn'   => [
-				'type'        => [
-					'list_of' => 'String',
-				],
+				'type'        => 'String',
 				'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
 			],
 			'userId'             => [
-				'type'        => 'Id',
+				'type'        => 'ID',
 				'description' => __( 'Include comments for a specific user ID.', 'wp-graphql' ),
 			],
 		];
