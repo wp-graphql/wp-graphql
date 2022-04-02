@@ -192,7 +192,7 @@ class Utils {
 	 *
 	 * @param int|string $id The ID from the input args. Can be either the database ID (as either a string or int) or the global Relay ID.
 	 *
-	 * @return string|false
+	 * @return int|false
 	 */
 	public static function get_database_id_from_id( $id ) {
 		// If we already have the database ID, send it back as an integer.
