@@ -101,13 +101,13 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 					cursor
 					node {
 						id
-						commentId
+						databaseId
 						content
 						date
 					}
 				}
 				nodes {
-				  commentId
+				  databaseId
 				}
 			}
 		}';
@@ -141,11 +141,11 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
-		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['databaseId'] );
 		$this->assertEquals( false, $results['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasNextPage'] );
 
@@ -186,7 +186,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $second_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $second_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -217,7 +217,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -257,7 +257,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $second_to_last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $second_to_last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -281,7 +281,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		] );
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['databaseId'] );
 
 		// test commentTypeIn
 		$actual = $this->commentsQuery( [
@@ -292,8 +292,8 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['databaseId'] );
 
 		// test commentTypeNotIn
 		$actual = $this->commentsQuery( [
@@ -304,7 +304,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['databaseId'] );
 	}
 }
