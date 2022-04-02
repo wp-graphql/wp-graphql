@@ -165,7 +165,7 @@ class Comment extends Model {
 				'contentRendered'    => function () {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 
-					return $this->html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', false );
+					return $this->html_entity_decode( apply_filters( 'comment_text', $content, $this->data ), 'contentRendered', false );
 				},
 				'karma'              => function () {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
