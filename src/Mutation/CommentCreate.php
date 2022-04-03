@@ -129,7 +129,7 @@ class CommentCreate {
 			$commented_on = get_post( absint( $input['commentOn'] ) );
 
 			if ( empty( $commented_on ) ) {
-				return new UserError( __( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
+				throw new UserError( __( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
 			}
 
 			/**
