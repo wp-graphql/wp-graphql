@@ -39,68 +39,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
-	public function testCreateCommentByLoggedInUserShouldSetUserProperly() {
-
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for comments...',
-		]);
-
-		$query = '
-		mutation createComment($input: CreateCommentInput!) {
-			createComment(input: $input) {
-				success
-				comment {
-					id
-					content
-					author {
-						node {
-							name
-							... on User {
-								id
-								databaseId
-								username
-							}
-						}
-					}
-				}
-			}
-		}
-		';
-
-		// Test with logged in user
-		$variables = [
-			'input' => [
-				'content'   => 'Test comment ' . uniqid(),
-				'commentOn' => $post_id,
-			],
-		];
-
-		wp_set_current_user( $this->admin );
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
-
-		// Test with user and input args.
-		add_filter( 'comment_flood_filter', '__return_false' );
-
-		wp_set_current_user( 0 );
-
-		$variables['input']['author']      = 'joe';
-		$variables['input']['authorEmail'] = 'joe@example.com';
-
-		sleep( 1 );
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-
-	}
-
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
 		wp_set_current_user( $postCreator );
 		$post_args = [
@@ -137,6 +75,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	// tests
 	public function testCreateComment() {
+		add_filter( 'duplicate_comment_id', '__return_false' );
+		add_filter( 'comment_flood_filter', '__return_false' );
+
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
@@ -156,48 +97,87 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $new_post->post_title, 'Original Title' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
-		wp_set_current_user( $this->admin );
-
-		$query     = '
-		mutation createCommentTest( $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
+		$query = '
+		mutation createCommentTest( $commentOn:Int!, $author:String, $email: String, $content:String! ){
 			createComment( 
 				input: {
 					commentOn: $commentOn
-							content: $content
-							author: $author
-							authorEmail: $email
+					content: $content
+					author: $author
+					authorEmail: $email
 				}
 			)
 			{
+				success
 				comment {
 					content
+					author {
+						node {
+							name
+							... on User {
+								id
+								databaseId
+								username
+							}
+						}
+					}
 				}
 			}
 		}
 		';
+
+		$expected_content = apply_filters( 'comment_text', $this->content );
+
+		// test with logged in user
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => null,
+			'email'     => null,
+		];
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( $expected_content, $actual['data']['createComment']['comment']['content'] );
+
+		$count = wp_count_comments( $post_id );
+		$this->assertEquals( '1', $count->total_comments );
+
+		// Test logged in user without `moderate_comments`.
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		// $this->assertEquals( $this->subscriber->ID, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+
+		// Test logged in user different than author.
+		wp_set_current_user( $this->admin );
+
 		$variables = [
 			'commentOn' => $post_id,
 			'content'   => $this->content,
 			'author'    => 'Comment Author',
-			'email'     => 'subscriber@example.com',
+			'email'     => 'comment_author@example.com',
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$expected = [
-			'createComment' => [
-				'comment' => [
-					'content' => apply_filters( 'comment_text', $this->content ),
-				],
-			],
-		];
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $variables['author'], $actual['data']['createComment']['comment']['author']['node']['name'] );
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
-		$count = wp_count_comments( $post_id );
-		$this->assertEquals( '1', $count->total_comments );
+		// Test logged in user different than author without `moderate_comments`.
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		// $this->assertEquals( $this->subscriber->ID, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 	}
 
 	public function testUpdateCommentWithAuthorConnection() {
