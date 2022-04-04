@@ -1,6 +1,7 @@
 <?php
 
 class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+
 	public $title;
 	public $content;
 	public $client_mutation_id;
@@ -9,6 +10,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $author;
 
 	public function setUp(): void {
+
 		// before
 		parent::setUp();
 
@@ -37,80 +39,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
-	}
-
-	public function testCreateCommentByLoggedInUserShouldSetUserProperly() {
-
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Test for comments...'
-		]);
-
-		$query = '
-		mutation createComment($input: CreateCommentInput!) {
-		  createComment(input: $input) {
-		    clientMutationId
-		    success
-		    comment {
-		      id
-		      content
-		      author {
-		        node {
-		          name
-		          ... on User {
-		            id
-		            databaseId
-		            username
-		          }
-		        }
-		      }
-		    }
-		  }
-		}
-		';
-
-		$variables = [
-			'input' => [
-				'clientMutationId' => 'Create...',
-				'content' => 'Test comment ' . uniqid(),
-				'commentOn' => $post_id
-			]
-		];
-
-		wp_set_current_user( $this->admin );
-
-		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
-
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
-
-		add_filter( 'comment_flood_filter', '__return_false' );
-
-		wp_set_current_user( 0 );
-
-		$variables['input']['author'] = 'joe';
-		$variables['input']['authorEmail'] = 'joe@example.com';
-
-		sleep(1);
-		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
-
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-
 	}
 
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
