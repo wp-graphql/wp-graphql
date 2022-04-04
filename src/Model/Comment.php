@@ -81,9 +81,14 @@ class Comment extends Model {
 	 * @throws Exception
 	 */
 	protected function is_private() {
-
+		
 		if ( empty( $this->data->comment_post_ID ) ) {
 			return true;
+		}
+
+		// if the current user is the author of the comment, the comment should not be private
+		if ( 0 !== wp_get_current_user()->ID && absint( $this->data->user_id ) === absint( wp_get_current_user()->ID ) ) {
+			return false;
 		}
 
 		$commented_on = get_post( (int) $this->data->comment_post_ID );
