@@ -287,7 +287,7 @@ class Comments {
 				'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
 			],
 			'userId'             => [
-				'type'        => 'Id',
+				'type'        => 'ID',
 				'description' => __( 'Include comments for a specific user ID.', 'wp-graphql' ),
 			],
 		];

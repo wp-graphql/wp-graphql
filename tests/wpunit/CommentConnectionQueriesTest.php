@@ -1,6 +1,6 @@
 <?php
 
-class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
 	public $current_time;
@@ -34,17 +34,17 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function createCommentObject( $args = [] ) {
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...',
-			'post_author' => $this->admin
+			'post_title'  => 'Post for commenting...',
+			'post_author' => $this->admin,
 		]);
 
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_ID' => $post_id,
+			'comment_post_ID'  => $post_id,
 			'comment_author'   => $this->admin,
 			'comment_content'  => 'Test comment content',
 			'comment_approved' => 1,
@@ -101,20 +101,20 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					cursor
 					node {
 						id
-						commentId
+						databaseId
 						content
 						date
 					}
 				}
 				nodes {
-				  commentId
+				  databaseId
 				}
 			}
 		}';
 
-		return graphql([
-			'query' => $query,
-			'variables' => $variables
+		return $this->graphql([
+			'query'     => $query,
+			'variables' => $variables,
 		]);
 	}
 
@@ -125,8 +125,6 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$results = $this->commentsQuery( $variables );
-
-		codecept_debug( $results );
 
 		$comments_query = new WP_Comment_Query();
 		$comments       = $comments_query->query(
@@ -143,11 +141,11 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
-		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $first_comment->comment_ID, $results['data']['comments']['nodes'][0]['databaseId'] );
 		$this->assertEquals( false, $results['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $results['data']['comments']['pageInfo']['hasNextPage'] );
 
@@ -188,7 +186,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $second_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $second_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -219,7 +217,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_comment->comment_ID );
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -259,7 +257,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNotEmpty( $results );
 		$this->assertEquals( 1, count( $results['data']['comments']['edges'] ) );
-		$this->assertEquals( $second_to_last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['commentId'] );
+		$this->assertEquals( $second_to_last_comment->comment_ID, $results['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['edges'][0]['cursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $expected_cursor, $results['data']['comments']['pageInfo']['endCursor'] );
@@ -283,7 +281,7 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		] );
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['databaseId'] );
 
 		// test commentTypeIn
 		$actual = $this->commentsQuery( [
@@ -294,8 +292,8 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['databaseId'] );
 
 		// test commentTypeNotIn
 		$actual = $this->commentsQuery( [
@@ -306,14 +304,51 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
-		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
-		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['databaseId'] );
 	}
 
 	public function testFilterCommentTypeNotInCanBeFilteredBackToStringType() {
 
+		$query = '
+		query GetInputTypeAndFields( $name: String! ) {
+		  __type(name: $name ) {
+		    name
+		    inputFields {
+		      name
+		      type {
+		        kind
+		      }
+		    }
+		  }
+		}
+		';
+
+		$variables = [ 'name' => 'RootQueryToCommentConnectionWhereArgs' ];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+
+		$fields = $actual['data']['__type']['inputFields'] ?? null;
+
+		$this->assertNotEmpty( $fields );
+
+		$found_field = null;
+
+		foreach ( $fields as $field ) {
+			if ( $field['name'] === 'commentTypeNotIn' ) {
+				$found_field = $field;
+			}
+		}
+
+		$this->assertSame( 'LIST', $found_field['type']['kind'] );
+
 		WPGraphQL::clear_schema();
 
+
+		// test that filtering the field (as documented here: 
 		add_filter( 'graphql_input_fields', function( $fields, $type_name, $config, $type_registry ) {
 
 			if ( ! array_key_exists( 'commentTypeNotIn', $fields ) ) {
@@ -327,9 +362,24 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}, 10, 4 );
 
 
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+
+		$fields = $actual['data']['__type']['inputFields'] ?? null;
+
+		$this->assertNotEmpty( $fields );
+
+		$found_field = null;
+
+		foreach ( $fields as $field ) {
+			if ( $field['name'] === 'commentTypeNotIn' ) {
+				$found_field = $field;
+			}
+		}
+
+		$this->assertSame( 'SCALAR', $found_field['type']['kind'] );
 
 
 	}
-
-
 }
