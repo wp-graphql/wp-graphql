@@ -227,7 +227,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
-		// $this->assertEquals( $this->subscriber->ID, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 
 		// Test logged in user different than author.
 		wp_set_current_user( $this->admin );
@@ -251,7 +251,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
-		// $this->assertEquals( $this->subscriber->ID, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 	}
 
 	public function testUpdateCommentWithAuthorConnection() {
