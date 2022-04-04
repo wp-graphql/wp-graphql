@@ -282,7 +282,7 @@ class Comments {
 			],
 			'commentTypeNotIn'   => [
 				'type'        => [
-					'list_of' => 'String'
+					'list_of' => 'String',
 				],
 				'description' => __( 'Exclude comments from a given array of comment types.', 'wp-graphql' ),
 			],
