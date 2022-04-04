@@ -267,4 +267,48 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testCommentConnectionWhereArgs() {
+		$comment_type_one = 'custom-type-one';
+		$comment_type_two = 'custom-type-two';
+		$comment_ids      = [
+			$this->createCommentObject( [ 'comment_type' => $comment_type_one ] ),
+			$this->createCommentObject( [ 'comment_type' => $comment_type_two ] ),
+		];
+
+		// test commentType
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentType' => $comment_type_one,
+			],
+		] );
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['commentId'] );
+
+		// test commentTypeIn
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentTypeIn' => [ $comment_type_one, $comment_type_two ],
+			],
+		] );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+
+		// test commentTypeNotIn
+		$actual = $this->commentsQuery( [
+			'where' => [
+				'commentTypeNotIn' => [ 'comment' ],
+			],
+		] );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['commentId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
+	}
+
+
 }
