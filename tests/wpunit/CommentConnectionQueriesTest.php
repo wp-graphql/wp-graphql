@@ -348,7 +348,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		WPGraphQL::clear_schema();
 
 
-		// test that filtering the field (as documented here: 
+		// test that filtering the field (as documented here:
 		add_filter( 'graphql_input_fields', function( $fields, $type_name, $config, $type_registry ) {
 
 			if ( ! array_key_exists( 'commentTypeNotIn', $fields ) ) {
