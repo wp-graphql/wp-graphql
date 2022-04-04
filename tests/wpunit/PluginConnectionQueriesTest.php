@@ -133,11 +133,84 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
 
-
 		// Test with empty `before`.
 		$variables['before'] = '';
 		$actual              = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
+	}
+
+	/**
+	 * Tests querying for plugin with where args.
+	 */
+	public function testPluginsQueryWithWhereArgs() {
+		$active_plugin   = 'WP GraphQL';
+		$inactive_plugin = 'Akismet Anti-Spam';
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			query testPlugins($where: RootQueryToPluginConnectionWhereArgs ) {
+				plugins(where: $where) {
+					nodes {
+						id
+						name
+					}
+				}
+			}
+		';
+
+		// Filter by search term
+
+		$variables = [
+			'where' => [
+				'search' => $active_plugin,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $active_plugin, $actual_plugins );
+		$this->assertNotContains( $inactive_plugin, $actual_plugins );
+
+		// Filter by status
+		// Active status
+		$variables = [
+			'where' => [
+				'status' => 'ACTIVE',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $active_plugin, $actual_plugins );
+		$this->assertNotContains( $inactive_plugin, $actual_plugins );
+
+		// Inactive status
+		$variables['where']['status'] = 'INACTIVE';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $inactive_plugin, $actual_plugins );
+		$this->assertNotContains( $active_plugin, $actual_plugins );
+
+		// Filter by statii
+		$variables = [
+			'where' => [
+				'stati' => [ 'INACTIVE' ],
+			],
+		];
+		$actual    = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $inactive_plugin, $actual_plugins );
+		$this->assertNotContains( $active_plugin, $actual_plugins );
 	}
 
 	/**
