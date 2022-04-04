@@ -462,5 +462,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Test', $actual['data']['test']['__typename'] );
 		$this->assertEquals( $post_id_test, $actual['data']['test']['testId'] );
 
+		foreach ( $post_types as $post_type => $args ) {
+			unregister_post_type( $post_type, $args );
+		}
+
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -9,7 +9,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -21,7 +21,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		// your tear down methods here
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		// then
 		wp_logout();
 		parent::tearDown();
@@ -32,28 +32,29 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests querying for a list of plugins.
 	 * The test suite should have Hello Dolly and Akismet plugins, so this
 	 * should return those plugins.
+	 *
 	 * @since 0.0.5
 	 */
 	public function testPluginsQuery() {
 
 		$query = '
 		{
-		  plugins {
-		    edges {
-		      node {
-		        id
-		        name
-		      }
-		    }
-		    nodes {
-		      id
-		    }
-		  }
+			plugins {
+				edges {
+					node {
+						id
+						name
+					}
+				}
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * We don't really care what the specifics are because the default plugins could change at any time
@@ -73,6 +74,73 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Tests querying for plugins with pagination args.
+	 */
+	public function testPluginsQueryPagination() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			query testPlugins($first: Int, $after: String, $last: Int, $before: String ) {
+				plugins(first: $first, last: $last, before: $before, after: $after) {
+					pageInfo {
+						endCursor
+						hasNextPage
+						hasPreviousPage
+						startCursor
+					}
+					nodes {
+						id
+						name
+					}
+				}
+			}
+		';
+
+		// Get all for comparison
+		$variables = [
+			'first'  => 100,
+			'after'  => null,
+			'last'   => null,
+			'before' => null,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+
+		$nodes = $actual['data']['plugins']['nodes'];
+
+		// Get first two plugins
+		$variables['first'] = 2;
+
+		$expected = array_slice( $nodes, 0, $variables['first'], true );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
+
+		// Test with empty `after`.
+		$variables['after'] = '';
+		$actual             = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
+
+		$variables = [
+			'first'  => null,
+			'after'  => null,
+			'last'   => 2,
+			'before' => null,
+		];
+
+		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
+
+
+		// Test with empty `before`.
+		$variables['before'] = '';
+		$actual              = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins']['nodes'] );
+	}
+
+	/**
 	 * Assert that no plugins are returned when the user does not have the `update_plugins` cap
 	 */
 	public function testPluginsQueryWithoutAuth() {
@@ -81,23 +149,21 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  plugins {
-		    edges {
-		      node {
-		        id
-		        name
-		      }
-		    }
-		    nodes {
-		      id
-		    }
-		  }
+			plugins {
+				edges {
+					node {
+						id
+						name
+					}
+				}
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
-		$actual = graphql([ 'query' => $query ]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertEmpty( $actual['data']['plugins']['edges'] );
 		$this->assertEmpty( $actual['data']['plugins']['nodes'] );
@@ -106,35 +172,34 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * testPluginQuery
+	 *
 	 * @since 0.0.5
 	 */
 	public function testPluginQuery() {
 
-		$path = 'wp-graphql/wp-graphql.php';
+		$path      = 'wp-graphql/wp-graphql.php';
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', $path );
 
 		codecept_debug( $global_id );
 
 		$query = '
 		{
-		  plugin(id: "' . $global_id . '"){
-		    id
-		    name
-		    author
-		    authorUri
-		    description
-		    name
-		    pluginUri
-		    version
-		    path
-		  }
+			plugin(id: "' . $global_id . '"){
+				id
+				name
+				author
+				authorUri
+				description
+				name
+				pluginUri
+				version
+				path
+			}
 		}
 		';
 
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * We don't really care what the specifics are because the default plugins could change at any time
