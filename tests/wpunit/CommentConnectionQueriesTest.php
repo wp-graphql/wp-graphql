@@ -310,5 +310,26 @@ class CommentConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['commentId'] );
 	}
 
+	public function testFilterCommentTypeNotInCanBeFilteredBackToStringType() {
+
+		WPGraphQL::clear_schema();
+
+		add_filter( 'graphql_input_fields', function( $fields, $type_name, $config, $type_registry ) {
+
+			if ( ! array_key_exists( 'commentTypeNotIn', $fields ) ) {
+				return $fields;
+			}
+
+			$fields['commentTypeNotIn']['type'] = 'String';
+
+			return $fields;
+
+		}, 10, 4 );
+
+
+
+
+	}
+
 
 }
