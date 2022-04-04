@@ -42,7 +42,7 @@ class PluginStatusEnum {
 			],
 			'MUST_USE'        => [
 				'value'       => 'mustuse',
-				'description' => __( 'The plugin is a Must-use plugin.', 'wp-graphql' ),
+				'description' => __( 'The plugin is a must-use plugin.', 'wp-graphql' ),
 			],
 			'PAUSED'          => [
 				'value'       => 'paused',
