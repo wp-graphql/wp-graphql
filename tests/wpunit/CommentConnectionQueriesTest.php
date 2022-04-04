@@ -298,7 +298,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// test commentTypeNotIn
 		$actual = $this->commentsQuery( [
 			'where' => [
-				'commentTypeNotIn' => 'comment',
+				'commentTypeNotIn' => [ 'comment' ],
 			],
 		] );
 
