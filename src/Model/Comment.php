@@ -81,7 +81,7 @@ class Comment extends Model {
 	 * @throws Exception
 	 */
 	protected function is_private() {
-		
+
 		if ( empty( $this->data->comment_post_ID ) ) {
 			return true;
 		}
