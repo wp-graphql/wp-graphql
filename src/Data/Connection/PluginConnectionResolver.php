@@ -129,7 +129,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function should_execute() {
-		return current_user_can( 'update_plugins' );
+		return current_user_can( 'activate_plugins' );
 	}
 
 }
