@@ -83,6 +83,7 @@ use WPGraphQL\Type\Enum\PostObjectsConnectionDateColumnEnum;
 use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\PostStatusEnum;
 use WPGraphQL\Type\Enum\ContentTypeEnum;
+use WPGraphQL\Type\Enum\PluginStatusEnum;
 use WPGraphQL\Type\Enum\RelationEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TermObjectsConnectionOrderbyEnum;
@@ -310,6 +311,7 @@ class TypeRegistry {
 		MenuNodeIdTypeEnum::register_type();
 		MimeTypeEnum::register_type();
 		OrderEnum::register_type();
+		PluginStatusEnum::register_type();
 		PostObjectFieldFormatEnum::register_type();
 		PostObjectsConnectionDateColumnEnum::register_type();
 		PostObjectsConnectionOrderbyEnum::register_type();
