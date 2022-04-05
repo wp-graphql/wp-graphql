@@ -46,7 +46,7 @@ class Plugin extends Model {
 	 */
 	protected function is_private() {
 
-		if ( ! current_user_can( 'update_plugins' ) ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return true;
 		}
 
