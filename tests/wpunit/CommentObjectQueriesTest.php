@@ -749,5 +749,65 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
 	}
 
+	/**
+	 * Tests that the comment_text filter properly applies to the text contnet
+	 *
+	 * @see: https://github.com/wp-graphql/wp-graphql/pull/2319
+	 */
+	public function testFilteringCommentTextWorksProperly() {
+
+		$content = uniqid();
+
+		wp_set_current_user( $this->admin );
+		$comment_id = $this->createCommentObject([
+			'comment_content' => $content
+		]);
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$query = '
+		query GetComment($id:ID!){
+		  comment(id:$id) {
+	       id
+	       databaseId
+	       content
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $global_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( apply_filters( 'comment_text', $content, null ), $actual['data']['comment']['content'] );
+
+		$filtered = 'filtered...';
+
+		// test that filtering the comment text with 2 arguments works properly
+		add_filter( 'comment_text', function( $text, $comment ) use ( $filtered ) {
+			return $filtered;
+		}, 10, 2 );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $global_id
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( apply_filters( 'comment_text', $filtered, null ), $actual['data']['comment']['content'] );
+
+
+
+	}
+
 
 }
