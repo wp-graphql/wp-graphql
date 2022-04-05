@@ -182,6 +182,59 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 	}
 
+	public function testCreateChildComment() {
+		// Create parent comment.
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$query = '
+			mutation createChildCommentTest( $commentOn: Int!, $parent: ID, $content: String!){
+				createComment(
+					input: {
+						commentOn: $commentOn,
+						content: $content,
+						parent: $parent,
+					}
+				){
+					success
+					comment {
+						databaseId
+						parent {
+							node {
+								databaseId
+							}
+						}
+					}
+				}
+			}
+		';
+
+		wp_set_current_user( $this->admin );
+
+		// Test with database Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'parent'    => $comment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
+
+		// Test with global Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => 'Testing with global Id',
+			'parent'    => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
+	}
+
 	public function testUpdateCommentWithAuthorConnection() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 
@@ -200,7 +253,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$content = 'Updated Content';
 
-		$query     = '
+		$query = '
 		mutation updateCommentTest( $id: ID!, $content: String! ) {
 			updateComment( 
 				input: {
@@ -211,32 +264,43 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			{
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
-		$variables = [
-			'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-			'content' => $content,
-		];
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'updateComment' => [
 				'comment' => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		// Test with database ID.
+		$variables = [
+			'id'      => $comment_id,
+			'content' => $content,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test with global ID
+		$content   = 'Updated via Global ID';
+		$variables = [
+			'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'content' => $content,
+		];
+		$expected['updateComment']['comment']['content'] = apply_filters( 'comment_text', $content );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
@@ -266,15 +330,16 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				deletedId
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
 
+		// Test with database ID.
 		$variables = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'id' => $comment_id,
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -283,16 +348,31 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'deleteComment' => [
 				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 				'comment'   => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		$this->assertEquals( $expected, $actual['data'] );
+		// Test with global Id
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$expected = [
+			'deleteComment' => [
+				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'   => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		codecept_debug( $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
@@ -324,35 +404,42 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				restoredId
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
 
-		$variables = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-		];
-
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		// Test database ID
+		$variables = [
+			'id' => $comment_id,
+		];
 
 		$expected = [
 			'restoreComment' => [
 				'restoredId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 				'comment'    => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test global Id
+		$this->trashComment( $comment_id );
+
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
