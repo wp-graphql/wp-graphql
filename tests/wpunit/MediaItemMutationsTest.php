@@ -70,7 +70,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 * Populate the mediaItem input fields
 		 */
 		$this->altText       = 'A gif of Shia doing Magic.';
-		$this->authorId      = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		$this->authorId      = $this->admin;
 		$this->caption       = 'Shia shows off some magic in this caption.';
 		$this->commentStatus = 'closed';
 		$this->date          = '2017-08-01T15:00:00';
@@ -296,8 +296,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
-	 * Set the current user to subscriber (someone who can't create posts)
-	 * and test whether they can create posts with someone else's id
+	 * Test whether the current can create posts with someone else's id
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
 	 * @return void
@@ -312,6 +311,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			createMediaItem(input: $input){
 				mediaItem{
 					id
+					author {
+						node {
+							name
+							databaseId
+						}
+					}
 				}
 			}
 		}
@@ -339,8 +344,25 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		wp_set_current_user( $this->author );
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = graphql( compact( 'query', 'variables' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions
+		wp_set_current_user( $this->admin );
+
+		// test with database Id
+		$variables['input']['authorId'] = $this->author;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
+
+		// test with global Id
+		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
 	}
 
 	/**
@@ -408,6 +430,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->create_variables['input']['parentId'] = absint( $post );
 
 		wp_set_current_user( $this->admin );
+		// Test with databaseId
 		$actual = $this->createMediaItemMutation();
 
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
@@ -470,8 +493,14 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-		$this->create_variables['input']['parentId'] = $this->parentId;
 
+		// Test with globalId
+		$this->create_variables['input']['parentId'] = \GraphQLRelay\Relay::toGlobalId( 'post', $this->parentId );
+
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->create_variables['input']['parentId'] = $this->parentId;
 	}
 
 	/**
@@ -494,9 +523,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
-	 * Test the MediaItemMutation by setting the default values:
-	 *
-	 * post_status
+	 * Test the MediaItemMutation by setting the default values: post_status
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemMutation.php:136
 	 *
@@ -740,7 +767,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		/**
 		 * Prepare the updateMediaItem mutation
 		 */
-		$mutation = '
+		$query = '
 		mutation updateMediaItem( $input: UpdateMediaItemInput! ){
 			updateMediaItem (input: $input){
 				mediaItem {
@@ -758,7 +785,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					mimeType
 					author {
 						node {
-							id
+							databaseId
 						}
 					}
 				}
@@ -766,9 +793,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 		';
 
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $this->update_variables );
-
-		return $actual;
+		return $this->graphql([
+			'query'     => $query,
+			'variables' => $this->update_variables,
+		]);
 	}
 
 	/**
@@ -842,7 +870,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAuthor() {
 		wp_set_current_user( $this->author );
-		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+		$this->update_variables['input']['authorId'] = $this->admin;
 		$actual                                      = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['authorId'] = false;
@@ -857,12 +885,20 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
+
+		// Test as databaseId
+		$this->update_variables['input']['authorId'] = $this->author;
+		$actual                                      = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['updateMediaItem']['mediaItem']['author']['node']['databaseId'] );
+
+		// Test as global Id
 		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
 		$actual                                      = $this->updateMediaItemMutation();
 
-		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
-		$this->assertArrayHasKey( 'id', $actual_created );
-		$update_variables['input']['authorId'] = false;
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['updateMediaItem']['mediaItem']['author']['node']['databaseId'] );
 	}
 
 	/**
@@ -901,7 +937,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mimeType'      => 'image/gif',
 					'author'        => [
 						'node' => [
-							'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							'databaseId' => $this->admin,
 						],
 					],
 				],
@@ -940,9 +976,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 		';
 
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $this->delete_variables );
-
-		return $actual;
+		return $this->graphql( [
+			'query'     => $mutation,
+			'variables' => $this->delete_variables,
+		]);
 	}
 
 	/**
@@ -1022,7 +1059,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public function testForceDeleteMediaItemAlreadyInTrash() {
 
 		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
-		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1139,6 +1175,15 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 
+		// test global Id
+		$deleted_media_item                    = $this->factory()->attachment->create();
+		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item );
+
+		$actual = $this->deleteMediaItemMutation();
+		$this->assertArrayNotHasKey( 'error', $actual );
+		$this->assertEquals( $deleted_media_item, $actual['data']['deleteMediaItem']['mediaItem']['databaseId'] );
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
 	}
 
 	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
@@ -1158,8 +1203,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$actual = $this->updateMediaItemMutation();
-
-		//			codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
