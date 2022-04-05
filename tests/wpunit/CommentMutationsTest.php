@@ -411,8 +411,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		wp_set_current_user( $this->admin );
-
 		// Test database ID
 		$variables = [
 			'id' => $comment_id,
@@ -429,6 +427,14 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		];
 
+		// Test without permissions
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -441,6 +447,11 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test bad ID
+		$variables['id'] = '3ab21';
+		$actual          = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
