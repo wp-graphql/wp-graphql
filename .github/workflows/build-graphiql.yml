@@ -24,9 +24,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        id: checkout
-        with:
-          ref: ${{ github.head_ref }}
 
       # Install and build the GraphiQL App
       - name: Install NPM Dependencies and Build the GraphiQL App
