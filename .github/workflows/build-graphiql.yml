@@ -4,11 +4,6 @@
 name: build-graphiql
 
 on:
-  pull_request_target:
-    types: [opened, edited, synchronize, reopened]
-    # Build GraphiQL only if changes were made to packages directory
-    paths:
-      - "packages/**"
   push:
     # Build GraphiQL only if changes were made to packages directory
     paths:
