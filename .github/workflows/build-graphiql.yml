@@ -4,7 +4,6 @@
 name: build-graphiql
 
 on:
-
   push:
     # Build GraphiQL only if changes were made to "packages" or "build" directory
     paths:
@@ -34,7 +33,7 @@ jobs:
       # Commit the built assets for GraphiQL back to the repo
       - name: Commit built GraphiQL
         id: commit-changes
-        run:
+        run: |
           git add --force build
           git commit -m "Apply GraphiQL build changes"
           git push

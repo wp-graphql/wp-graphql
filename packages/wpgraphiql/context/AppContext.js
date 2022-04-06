@@ -2,7 +2,6 @@ import {
   useContext,
   createContext,
   useState,
-  useEffect,
 } from "@wordpress/element";
 import { hooks } from "../index";
 
