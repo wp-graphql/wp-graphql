@@ -5,12 +5,12 @@ name: build-graphiql
 
 on:
   pull_request:
+    # Build GraphiQL only if changes were made to packages directory
     paths:
-      - "build/**"
       - "packages/**"
   push:
+    # Build GraphiQL only if changes were made to packages directory
     paths:
-      - "build/**"
       - "packages/**"
     branches:
       - develop
@@ -18,39 +18,28 @@ on:
 
 jobs:
   # Check to see if changes were made to the packages directory or the build directory in the PR
-  check-for-changes:
+  build-graphiql:
+    name: Build GraphiQL
     runs-on: ubuntu-latest
-
     steps:
-      - uses: dorny/paths-filter@v2
-        id: filter
+      - name: Checkout
+        uses: actions/checkout@v2
+        id: checkout
         with:
-          filters: |
-            packages:
-              - 'packages/**'
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
 
-      - name: Install Deps
-        # Build GraphiQL only if changes were made to packages or build directory
-        if: steps.filter.output.packages == 'true'
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v2
-            id: checkout
-            with:
-              ref: ${{ github.head_ref }}
-              token: ${{ secrets.PAT }}
+      # Install and build the GraphiQL App
+      - name: Install NPM Dependencies and Build the GraphiQL App
+        id: install-and-build
+        run: |
+          npm ci && npm run build
 
-          # Install and build the GraphiQL App
-          - name: Install NPM Dependencies and Build the GraphiQL App
-            id: install-and-build
-            run: |
-              npm ci && npm run build
-
-          # Commit the built assets for GraphiQL back to the repo
-          - name: Commit built GraphiQL
-            id: commit-changes
-            uses: stefanzweifel/git-auto-commit-action@v4
-            with:
-              commit_message: Apply GraphiQL build changes
-              push_options: --force
+      # Commit the built assets for GraphiQL back to the repo
+      - name: Commit built GraphiQL
+        id: commit-changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply GraphiQL build changes
+          # Since the build directory is .gitignored, we force the changes
+          push_options: --force
