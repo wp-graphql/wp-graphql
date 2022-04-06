@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
 
       # Install and build the GraphiQL App
       - name: Install NPM Dependencies and Build the GraphiQL App
