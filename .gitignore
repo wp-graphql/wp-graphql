@@ -52,8 +52,5 @@ c3.php
 # Used for setting local environment variables when testing
 .env
 
-# the built files for the JavaScript portions of the plugin (GraphiQL, etc)
-build
-
 # output from e2e tests
 artifacts
