@@ -30,6 +30,12 @@ jobs:
         run: |
           npm ci && npm run build
 
+      # Setup Git Config
+      - name: setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
       # Commit the built assets for GraphiQL back to the repo
       - name: Commit built GraphiQL
         id: commit-changes
