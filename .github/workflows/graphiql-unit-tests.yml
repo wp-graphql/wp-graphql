@@ -39,6 +39,11 @@ jobs:
         run: |
           composer install --no-dev
 
+      - name: Install NPM Dependencies and Build the GraphiQL App
+        id: install-and-build
+        run: |
+          npm ci && npm run build
+
       - name: Install WordPress
         run: |
           npm run wp-env start

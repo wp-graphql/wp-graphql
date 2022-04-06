@@ -1,0 +1,40 @@
+# This workflow tracks changes to the "packages" and "build" directories
+# and if changes are detected, we run npm scripts to re-build the GraphiQL app
+# and commit the changes
+name: build-graphiql
+
+on:
+  push:
+    # Build GraphiQL only if changes were made to "packages" or "build" directory
+    paths:
+      - "packages/**"
+      - "build/**"
+    branches:
+      - develop
+      - master
+
+jobs:
+  # Check to see if changes were made to the packages directory or the build directory in the PR
+  build-graphiql:
+    name: Build GraphiQL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.token }}
+
+      # Install and build the GraphiQL App
+      - name: Install NPM Dependencies and Build the GraphiQL App
+        id: install-and-build
+        run: |
+          npm ci && npm run build
+
+      # Commit the built assets for GraphiQL back to the repo
+      - name: Commit built GraphiQL
+        id: commit-changes
+        run:
+          git add --force build
+          git commit -m "Apply GraphiQL build changes"
+          git push origin HEAD:${{ github.head_ref }}
